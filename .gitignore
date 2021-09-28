@@ -1,15 +1,73 @@
-# Binaries for programs and plugins
+# OS
+.DS_Store
+*.swp
+*.swo
+*.swl
+*.swm
+*.swn
+.vscode
+.idea
+*.pyc
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Test binary, built with `go test -c`
+# Build
 *.test
+.glide/
+vendor
+build
+bin
+tools/bin/*
+docs/_build
+docs/tutorial
+docs/node_modules
+docs/modules
+dist
+tools-stamp
+docs-tools-stamp
+proto-tools-stamp
+golangci-lint
+keyring_test_cosmos
+./**/node_modules
+./**/dist
+secret.yml
+# vue/
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Local docker volume mappings
+localnet-setup
+
+# Testing
+coverage.txt
 *.out
+sim_log_file
+tests/**/tmp/*
+yarn.lock
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# Vagrant
+.vagrant/
+*.box
+*.log
+vagrant
+
+# IDE
+.idea/
+*.iml
+
+# Graphviz
+dependency-graph.png
+
+# Latex
+*.aux
+*.out
+*.synctex.gz
+
+# Contracts
+*.bin
+*.abi
+
+# Node.js
+tests/**/node_modules/*
+tests-solidity/**/node_modules/*
