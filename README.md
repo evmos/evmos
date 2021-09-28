@@ -50,7 +50,7 @@ interoperable with Ethereum. It's build using the the [Cosmos SDK](https://githu
 
 To learn how the Evmos works from a high-level perspective, go to the [Introduction](./docs/intro/overview.md) section from the documentation.
 
-For more, please refer to the [Evmos Docs](./docs/), which are also hosted on [docs.evmos.com](https://docs.evmos.com/).
+For more, please refer to the [Evmos Docs](./docs/).
 
 ### Community
 
