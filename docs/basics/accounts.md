@@ -120,7 +120,7 @@ evmosd keys show mykey --bech val
 ethermintd keys show mykey --bech cons
 - name: mykey
   type: local
-  address: ethmvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n
+  address: evmosvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A/fVLgIqiLykFQxum96JkSOoTemrXD0tFaFQ1B0cpB2c"}'
   mnemonic: ""
 ```
