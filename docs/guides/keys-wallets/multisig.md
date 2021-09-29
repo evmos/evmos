@@ -47,7 +47,7 @@ First import the public keys of `test3` into your keyring.
 ```sh
 evmosd keys add \
     test3 \
-    --pubkey=ethmpub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2
+    --pubkey=evmospub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2
 ```
 
 Generate the multisig key with 2/3 threshold.
@@ -66,8 +66,8 @@ evmosd keys show multi
 
 - name: multi
   type: multi
-  address: ethm1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m
-  pubkey: ethmpub1ytql0csgqgfzd666axrjzq3mxw59ys6yqcd3ydjvhgs0uzs6kdk5fp4t73gmkl8t6y02yfq7tvfzd666axrjzq3sd69kp5usk492x6nehqjal67ynv0nfqapzrzy3gmdk27la0kjfqfzd666axrjzq6utqt639ka2j3xkncgk65dup06t297ccljmxhvhu3rmk92u3afjuyz9dg9
+  address: evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m
+  pubkey: evmospub1ytql0csgqgfzd666axrjzq3mxw59ys6yqcd3ydjvhgs0uzs6kdk5fp4t73gmkl8t6y02yfq7tvfzd666axrjzq3sd69kp5usk492x6nehqjal67ynv0nfqapzrzy3gmdk27la0kjfqfzd666axrjzq6utqt639ka2j3xkncgk65dup06t297ccljmxhvhu3rmk92u3afjuyz9dg9
   mnemonic: ""
   threshold: 0
   pubkeys: []
@@ -78,7 +78,7 @@ Let's add 10 PHOTON to the multisig wallet:
 ```bash
 evmosd tx send \
     test1 \
-    ethm1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
+    evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     10000000000000000000aphoton \
     --chain-id=ethermint_9000-1 \
     --gas=auto \
@@ -88,12 +88,12 @@ evmosd tx send \
 
 ### Step 2: Create the multisig transaction
 
-We want to send 5 PHOTON from our multisig account to `ethm1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
+We want to send 5 PHOTON from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
 
 ```bash
 evmosd tx send \
-    ethm1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
-    ethm157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
+    evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
+    evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
     5000000000000000000aphoton \
     --gas=200000 \
     --fees=1000000aphoton \
@@ -109,8 +109,8 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
         "messages": [
             {
                 "@type": "/cosmos.bank.v1beta1.MsgSend",
-                "from_address": "ethm1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
-                "to_address": "ethm157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
+                "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
+                "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
                 "amount": [
                     {
                         "denom": "aphoton",
@@ -149,7 +149,7 @@ Sign with `test1` and `test2` and create individual signatures.
 ```sh
 evmosd tx sign \
     unsignedTx.json \
-    --multisig=ethm1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
+    --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test1 \
     --output-document=test1sig.json \
     --chain-id=ethermint_9000-1
@@ -158,7 +158,7 @@ evmosd tx sign \
 ```sh
 evmosd tx sign \
     unsignedTx.json \
-    --multisig=ethm1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
+    --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test2 \
     --output-document=test2sig.json \
     --chain-id=ethermint_9000-1
@@ -185,8 +185,8 @@ The TX is now signed:
         "messages": [
             {
                 "@type": "/cosmos.bank.v1beta1.MsgSend",
-                "from_address": "ethm1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
-                "to_address": "ethm157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
+                "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
+                "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
                 "amount": [
                     {
                         "denom": "aphoton",

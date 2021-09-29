@@ -43,7 +43,7 @@ module.exports = {
     project: {
       name: 'Evmos',
       denom: 'PHOTON',
-      ticker: 'ETHM',
+      ticker: 'PHOTON',
       rpc_url: '',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9000',
@@ -203,8 +203,8 @@ module.exports = {
     footer: {
       logo: '/logo-bw.svg',
       textLink: {
-        text: 'evmos.dev',
-        url: 'https://evmos.dev'
+        text: 'evmos.org',
+        url: 'https://evmos.org'
       },
       services: [
         {
@@ -258,7 +258,7 @@ module.exports = {
         children: [
           {
             title: 'Jobs at Tharsis',
-            url: 'https://tharsis.notion.site/Jobs-at-Tharsis-5a1642eb89b34747ae6f2db2d356fc0d'
+            url: 'https://tharsis.notion.site/'
           }
         ]
       }

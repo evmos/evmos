@@ -11,7 +11,7 @@ If you want to open a PR on the Cosmos SDK to update the documentation, please f
 
 ## Docs Build Workflow
 
-The documentation for Evmos is hosted at https://evmos.dev/
+The documentation for Evmos is hosted at [evmos.dev](https://evmos.dev/)
 
 built from the files in this (`/docs`) directory for
 [master](https://github.com/tharsis/evmos/tree/main/docs).
