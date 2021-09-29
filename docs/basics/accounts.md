@@ -153,7 +153,7 @@ evmosd q auth account $(evmosd keys show mykey -a) -o text
 
 ``` bash
 # GET /cosmos/auth/v1beta1/accounts/{address}
-curl -X GET "http://localhost:10337/cosmos/auth/v1beta1/accounts/ethm14au322k9munkmx5wrchz9q30juf5wjgz2cfqku" -H "accept: application/json"
+curl -X GET "http://localhost:10337/cosmos/auth/v1beta1/accounts/evmos14au322k9munkmx5wrchz9q30juf5wjgz2cfqku" -H "accept: application/json"
 ```
 
 ### JSON-RPC
