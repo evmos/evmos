@@ -36,3 +36,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Unreleased
+
+## Improvements
+
+* (deps) [\#140](https://github.com/tharsis/evmos/pull/140) Bump Ethermint version to `v0.6.0`
