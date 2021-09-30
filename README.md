@@ -37,6 +37,9 @@ parent:
   <a href="https://codecov.io/gh/tharsis/evmos">
     <img alt="Code Coverage" src="https://codecov.io/gh/tharsis/evmos/branch/main/graph/badge.svg" />
   </a>
+  <a href="https://twitter.com/EvmosOrg">
+    <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
+  </a>
   <!-- TODO: add -->
   <!-- <a href="https://twitter.com/evmos">
     <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/evmos"/>
@@ -66,7 +69,7 @@ To learn how the Evmos works from a high-level perspective, go to the [Introduct
 
 The following chat channels and forums are a great spot to ask questions about Evmos:
 
-- [Evmos Twitter](https://twitter.com/evmos)
+- [Evmos Twitter](https://twitter.com/EvmosOrg)
 - [Evmos Discord](https://discord.gg/trje9XuAmy)
 - [Evmos Forum](https://forum.cosmos.network/c/ethermint)
 - [Tharsis Twitter](https://twitter.com/TharsisHQ)
