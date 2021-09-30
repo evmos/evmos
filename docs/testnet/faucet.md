@@ -8,14 +8,13 @@ Check how to obtain testnet tokens from the Evmos faucet website {synopsis}
 
 ## Requesting tokens
 
-You can request tokens for the testnet by using the Evmos [faucet](https://evmos.io/faucet).
+You can request tokens for the testnet by using the Evmos [faucet](https://faucet.evmos.org).
 Simply fill in your address on the input field in bech32 (`evmos1...`) or hex (`0x...`) format.
 
 ::: warning
-If you use your bech32 address, make sure you input the [account address](./../basics/accounts#addresses-and-public-keys) (`ethm1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
+If you use your bech32 address, make sure you input the [account address](./../basics/accounts#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
 :::
 
-<!-- TODO: update with final website design -->
 ![faucet site](./img/faucet_web_page.png)
 
 ## Rate limits
