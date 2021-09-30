@@ -269,10 +269,6 @@ module.exports = {
         "label": "main",
         "key": "main"
       },
-      {
-        "label": "v0.5",
-        "key": "v0.5"
-      }
     ],
   }
 };
