@@ -44,7 +44,7 @@ Here is the list of fields that you can use to paste on Metamask:
 
 ## Import Account to Metamask
 
-Then close the settings, and go to `My Accounts` (top right circle) and select `Import Account`. You should see and image like the following one:
+Then close the settings, and go to `My Accounts` (top right circle) and select `Import Account`. You should see an image like the following one:
 
 ![metamask import account page](./../img/metamask_import.png)
 
