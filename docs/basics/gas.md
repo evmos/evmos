@@ -14,8 +14,8 @@ Learn about the differences between `Gas` and `Fees` in Ethereum and Cosmos. {sy
 The concept of Gas represents the amount of computational effort required to execute specific operations on the state machine.
 
 Gas was created on Ethereum to disallow the EVM (Ethereum Virtual Machine) from running infinite
-loops by allocating a small amount of monetary value into the system. A unit of gas, usually in a
-form as a fraction of the native coin, is consumed for every operation on the EVM and requires a
+loops by allocating a small amount of monetary value into the system. A unit of gas, usually in the
+form of a fraction of the native coin, is consumed for every operation on the EVM and requires a
 user to pay for these operations. These operations consist in state transitions such as sending a
 transaction or calling a contract.
 
