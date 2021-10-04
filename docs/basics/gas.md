@@ -23,7 +23,7 @@ Exactly like Ethereum, Cosmos utilizes the concept of gas and this is how Cosmos
 usage of operations during execution. Operations on Cosmos are represented as read or writes done to the chain's store.
 
 In Cosmos, a fee is calculated and charged to the user during a message execution. This fee is
-calculated from the sum of all gas consumed in an message execution:
+calculated from the sum of all gas consumed in a message execution:
 
 $$fee = gas ~ * ~ gasPrice$$
 
@@ -48,7 +48,7 @@ The main difference between EVM and Cosmos state transitions, is that the EVM us
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/3fd376bd5659f076a4dc79b644573299fd1ec1bf/store/types/gas.go#L187-L196
 
-In order to match the the gas consumed by the EVM, the gas consumption logic from the SDK is ignored, and instead the gas consumed is calculated by subtracting the state transition leftover gas plus refund from the gas limit defined on the message.
+In order to match the gas consumed by the EVM, the gas consumption logic from the SDK is ignored, and instead the gas consumed is calculated by subtracting the state transition leftover gas plus refund from the gas limit defined on the message.
 
 To ignore the SDK gas consumption, we reset the transaction `GasMeter` count to 0 and manually set it to the `gasUsed` value computed by the EVM module at the end of the execution.
 
