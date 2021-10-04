@@ -40,10 +40,6 @@ parent:
   <a href="https://twitter.com/EvmosOrg">
     <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
   </a>
-  <!-- TODO: add -->
-  <!-- <a href="https://twitter.com/evmos">
-    <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/evmos"/>
-  </a> -->
 </div>
 
 Evmos is a scalable, high-throughput Proof-of-Stake blockchain that is fully compatible and
