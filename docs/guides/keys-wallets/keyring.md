@@ -10,7 +10,7 @@ The keyring holds the private/public keypairs used to interact with the node. Fo
 
 ## Add keys
 
-You can use `evmosd keys` for help about the keys command and `evmosd keys [command] --help` for more information about a particular subcommand.
+You can use `evmosd keys` for help with the keys command and `evmosd keys [command] --help` for more information about a particular subcommand.
 
 To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. For the purpose of this tutorial, we will solely use the `test` backend, and call our new key `mykey`. This key will be used in the next section.
 
