@@ -40,4 +40,4 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Improvements
 
 * (cmd) [\#26](https://github.com/tharsis/evmos/pull/26) Use config on genesis accounts.
-* (deps) [\#14](https://github.com/tharsis/evmos/pull/14) Bump Ethermint version to `v0.6.0`
+* (deps) [\#14](https://github.com/tharsis/evmos/pull/28) Bump Ethermint version to `v0.7.0`
