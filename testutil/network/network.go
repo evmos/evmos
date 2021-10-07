@@ -158,19 +158,20 @@ type (
 	// a client can make RPC and API calls and interact with any client command
 	// or handler.
 	Validator struct {
-		AppConfig  *config.Config
-		ClientCtx  client.Context
-		Ctx        *server.Context
-		Dir        string
-		NodeID     string
-		PubKey     cryptotypes.PubKey
-		Moniker    string
-		APIAddress string
-		RPCAddress string
-		P2PAddress string
-		Address    sdk.AccAddress
-		ValAddress sdk.ValAddress
-		RPCClient  tmclient.Client
+		AppConfig      *config.Config
+		ClientCtx      client.Context
+		Ctx            *server.Context
+		Dir            string
+		NodeID         string
+		PubKey         cryptotypes.PubKey
+		Moniker        string
+		APIAddress     string
+		RPCAddress     string
+		P2PAddress     string
+		JSONRPCAddress string
+		Address        sdk.AccAddress
+		ValAddress     sdk.ValAddress
+		RPCClient      tmclient.Client
 
 		tmNode      *node.Node
 		api         *api.Server

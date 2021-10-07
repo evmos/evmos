@@ -2,6 +2,7 @@ package network
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -121,8 +122,12 @@ func startInProcess(cfg Config, val *Validator) error {
 	}
 
 	if val.AppConfig.JSONRPC.Enable {
+		if val.Ctx == nil || val.Ctx.Viper == nil {
+			return fmt.Errorf("validator %s context is nil", val.Moniker)
+		}
+
 		tmEndpoint := "/websocket"
-		val.jsonrpc, val.jsonrpcDone, err = server.StartJSONRPC(val.Ctx, val.ClientCtx, val.RPCAddress, tmEndpoint, *val.AppConfig)
+		val.jsonrpc, val.jsonrpcDone, err = server.StartJSONRPC(val.Ctx, val.ClientCtx, val.JSONRPCAddress, tmEndpoint, *val.AppConfig)
 		if err != nil {
 			return err
 		}
