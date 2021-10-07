@@ -23,7 +23,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/server"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -74,21 +73,21 @@ type startArgs struct {
 	algo           string
 	apiAddress     string
 	chainID        string
-	enableLogging  bool
 	grpcAddress    string
 	minGasPrices   string
-	numValidators  int
 	outputDir      string
-	printMnemonic  bool
 	rpcAddress     string
 	jsonrpcAddress string
+	numValidators  int
+	enableLogging  bool
+	printMnemonic  bool
 }
 
 func addTestnetFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Int(flagNumValidators, 4, "Number of validators to initialize the testnet with")
 	cmd.Flags().StringP(flagOutputDir, "o", "./.testnets", "Directory to store initialization data for the testnet")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", ethermint.AttoPhoton), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
+	cmd.Flags().String(sdkserver.FlagMinGasPrices, fmt.Sprintf("0.000006%s", ethermint.AttoPhoton), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
 }
 
@@ -131,13 +130,13 @@ Example:
 				return err
 			}
 
-			serverCtx := server.GetServerContextFromCmd(cmd)
+			serverCtx := sdkserver.GetServerContextFromCmd(cmd)
 
 			args := initArgs{}
 			args.outputDir, _ = cmd.Flags().GetString(flagOutputDir)
 			args.keyringBackend, _ = cmd.Flags().GetString(flags.FlagKeyringBackend)
 			args.chainID, _ = cmd.Flags().GetString(flags.FlagChainID)
-			args.minGasPrices, _ = cmd.Flags().GetString(server.FlagMinGasPrices)
+			args.minGasPrices, _ = cmd.Flags().GetString(sdkserver.FlagMinGasPrices)
 			args.nodeDirPrefix, _ = cmd.Flags().GetString(flagNodeDirPrefix)
 			args.nodeDaemonHome, _ = cmd.Flags().GetString(flagNodeDaemonHome)
 			args.startingIPAddress, _ = cmd.Flags().GetString(flagStartingIPAddress)
@@ -173,7 +172,7 @@ Example:
 			args := startArgs{}
 			args.outputDir, _ = cmd.Flags().GetString(flagOutputDir)
 			args.chainID, _ = cmd.Flags().GetString(flags.FlagChainID)
-			args.minGasPrices, _ = cmd.Flags().GetString(server.FlagMinGasPrices)
+			args.minGasPrices, _ = cmd.Flags().GetString(sdkserver.FlagMinGasPrices)
 			args.numValidators, _ = cmd.Flags().GetInt(flagNumValidators)
 			args.algo, _ = cmd.Flags().GetString(flags.FlagKeyAlgorithm)
 			args.enableLogging, _ = cmd.Flags().GetBool(flagEnableLogging)
@@ -271,7 +270,7 @@ func initTestnetFiles(
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, algo)
+		addr, secret, err := sdkserver.GenerateSaveCoinKey(kb, nodeDirName, true, algo)
 		if err != nil {
 			_ = os.RemoveAll(args.outputDir)
 			return err
@@ -494,7 +493,7 @@ func collectGenFiles(
 
 func getIP(i int, startingIPAddr string) (ip string, err error) {
 	if len(startingIPAddr) == 0 {
-		ip, err = server.ExternalIP()
+		ip, err = sdkserver.ExternalIP()
 		if err != nil {
 			return "", err
 		}
@@ -548,7 +547,11 @@ func startTestnet(cmd *cobra.Command, args startArgs) error {
 		return err
 	}
 
-	testnet.WaitForHeight(1)
+	_, err = testnet.WaitForHeight(1)
+	if err != nil {
+		return err
+	}
+
 	cmd.Println("press the Enter Key to terminate")
 	fmt.Scanln() // wait for Enter Key
 	testnet.Cleanup()
