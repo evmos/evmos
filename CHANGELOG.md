@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v0.1.2] - 2021-10-08
+
+### Improvements
+
+* (deps) [\#34](https://github.com/tharsis/evmos/pull/34) Bump Ethermint version to `v0.7.1`
+
 ## [v0.1.1] - 2021-10-07
 
 ## Bug Fixes
@@ -46,4 +52,4 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Improvements
 
 * (cmd) [\#26](https://github.com/tharsis/evmos/pull/26) Use config on genesis accounts.
-* (deps) [\#14](https://github.com/tharsis/evmos/pull/28) Bump Ethermint version to `v0.7.0`
+* (deps) [\#28](https://github.com/tharsis/evmos/pull/28) Bump Ethermint version to `v0.7.0`

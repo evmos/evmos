@@ -38,6 +38,7 @@ secret.yml
 
 # Local docker volume mappings
 localnet-setup
+.testnets
 
 # Testing
 coverage.txt
