@@ -35,7 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v0.1.1] - 2021-10-07
+
+## Bug Fixes
+
+* (build) [\#30](https://github.com/tharsis/evmos/pull/30) Fix `version` command.
+
+## [v0.1.0] - 2021-10-07
 
 ## Bug Fixes
 
