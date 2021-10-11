@@ -6,7 +6,7 @@ order: 2
 
 Connect your MetaMask wallet with Evmos {synopsis}
 
-The MetaMask browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to Evmos through the official testnet or via a locally-running Evmos node.
+The MetaMask browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet or via a locally-running {{ $themeConfig.project.name }} node.
 
 ::: tip
 If you are planning on developing on Evmos locally and you haven’t already set up your own local node, refer to [the quickstart tutorial](../../quickstart/run_node/), or follow the instructions in the [GitHub repository](https://github.com/tharsis/evmos/).
@@ -29,15 +29,15 @@ Here is the list of fields that you can use to paste on Metamask:
 
 - **Network Name:** `{{ $themeConfig.project.name }} Local`
 - **New RPC URL:** `{{ $themeConfig.project.rpc_url_local }}`
-- **Chain ID:** `{{ $themeConfig.project.chain_id }}`
-- **Currency Symbol (optional):** `{{ $themeConfig.project.ticker }}-LOCAL`
+- **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
+- **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
 - **Block Explorer URL (optional):** `n/a`
 :::
 ::: tab Testnet
-- **Network Name:** `{{ $themeConfig.project.name }}`
+- **Network Name:** `{{ $themeConfig.project.name }} Testnet`
 - **New RPC URL:** `{{ $themeConfig.project.rpc_url }}`
-- **Chain ID:** `{{ $themeConfig.project.chain_id }}`
-- **Currency Symbol (optional):** `{{ $themeConfig.project.ticker }}`
+- **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
+- **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
 - **Block Explorer URL (optional):** `{{ $themeConfig.project.block_explorer_url }}`
 :::
 ::::
@@ -56,11 +56,11 @@ evmosd keys unsafe-export-eth-key mykey --keyring-backend test
 
 Go back to the browser and select the `Private Key` option. Then paste the private key exported from the `unsafe-export-eth-key` command.
 
-Your account balance should show up as `1 APHOTON` and do transfers as usual.
+Your account balance should show up as `1 {{ $themeConfig.project.testnet_ticker }}` and do transfers as usual.
 
 ::: tip
 If it takes some time to load the balance of the account, change the network to `Main Ethereum
-Network` (or any other than `Localhost 8545` or `Evmos`) and then switch back to `Evmos`.
+Network` (or any other than `Localhost 8545` or `{{ $themeConfig.project.name }}`) and then switch back to `{{ $themeConfig.project.name }}`.
 :::
 
 ## Downloading State
