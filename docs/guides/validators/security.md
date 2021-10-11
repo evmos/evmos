@@ -28,9 +28,13 @@ Validator nodes should only connect to full-nodes they trust because they operat
 
 Sentry nodes can be quickly spun up or change their IP addresses. Because the links to the sentry nodes are in private IP space, an internet based attacked cannot disturb them directly. This will ensure validator block proposals and votes always make it to the rest of the network.
 
+::: tip
+Read more about Sentry Nodes on the [forum](https://forum.cosmos.network/t/sentry-node-architecture-overview/454)
+:::
+
 To setup your sentry node architecture you can follow the instructions below:
 
-Validators nodes should edit their config.toml:
+Validators nodes should edit their `config.toml`:
 
 ```bash
 # Comma separated list of nodes to keep persistent connections to
@@ -54,8 +58,8 @@ private_peer_ids = "node_ids_of_private_peers"
 
 By default, uppercase environment variables with the following prefixes will replace lowercase command-line flags:
 
-- `EM` (for Evmos flags)
+- `EVMOS` (for Evmos flags)
 - `TM` (for Tendermint flags)
 - `BC` (for democli or basecli flags)
 
-For example, the environment variable `GA_CHAIN_ID` will map to the command line flag `--chain-id`. Note that while explicit command-line flags will take precedence over environment variables, environment variables will take precedence over any of your configuration files. For this reason, it's imperative that you lock down your environment such that any critical parameters are defined as flags on the CLI or prevent modification of any environment variables.
+For example, the environment variable `EVMOS_CHAIN_ID` will map to the command line flag `--chain-id`. Note that while explicit command-line flags will take precedence over environment variables, environment variables will take precedence over any of your configuration files. For this reason, it's imperative that you lock down your environment such that any critical parameters are defined as flags on the binary or prevent modification of any environment variables.

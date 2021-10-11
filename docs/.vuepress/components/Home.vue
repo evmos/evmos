@@ -24,7 +24,7 @@
         .features__item__text
           .features__item__text__h2 use
           .features__item__text__h1 Guides
-          .features__item__text__p Follow guides to using polular Ethereum tools with Evmos.
+          .features__item__text__p Follow guides to using popular Ethereum tools with Evmos.
     .sections__wrapper
       .h2 Explore Evmos
       .p__alt Get familiar with Evmos and explore its main concepts.

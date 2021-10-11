@@ -29,12 +29,14 @@ architecture.
 
 ## Minimum Requirements
 
-To run testnet nodes, you will need a machine with the following minimum requirements:
+To run testnet nodes, you will need a machine with the following minimum hardware requirements:
 
-<!-- TODO: verify -->
-- 4-core, x86_64 architecture processor;
-- 16 GB RAM;
-- 256 GB of storage space.
+- 4 or more physical CPU cores
+- At least 500GB of SSD disk storage
+- At least 16GB of memory (RAM)
+- At least 100mbps network bandwidth
+
+As the usage of the blockchain grows, the server requirements may increase as well, so you should have a plan for updating your server as well.
 
 ## Create Your Validator
 
@@ -45,10 +47,6 @@ evmosd tendermint show-validator
 ```
 
 To create your validator, just use the following command:
-
-::: warning
-Don't use more `aphoton` than you have!
-:::
 
 ```bash
 evmosd tx staking create-validator \
@@ -90,10 +88,6 @@ Next, craft your `evmosd gentx` command.
 
 ::: tip
 A `gentx` is a JSON file carrying a self-delegation. All genesis transactions are collected by a `genesis coordinator` and validated against an initial `genesis.json`.
-:::
-
-::: warning Note
-Don't use more `aphoton` than you have!
 :::
 
 ```bash
@@ -194,7 +188,7 @@ the block.
 
 ### Problem #1: My validator has `voting_power: 0`
 
-Your validator has become jailed. Validators get jailed, i.e. get removed from the active validator set, if they do not vote on `500` of the last `10000` blocks, or if they double sign. 
+Your validator has become jailed. Validators get jailed, i.e. get removed from the active validator set, if they do not vote on `500` of the last `10000` blocks, or if they double sign.
 
 If you got jailed for downtime, you can get your voting power back to your validator. First, if `evmosd` is not running, start it up again:
 

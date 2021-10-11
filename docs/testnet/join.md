@@ -6,34 +6,58 @@ order: 1
 
 This document outlines the steps to join an existing testnet {synopsis}
 
+## Pick a Testnet
+
+You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
+
+| Network Chain ID | Description        | Site                                                                   | Version                                                                                  |
+|------------------|--------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `evmos_9000-1`   | Arsia Mons Testnet | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/tharsis/evmos/releases) |
+
 ## Install `evmosd`
 
-Follow the [installation](./../quickstart/installation) document to install the Evmos binary `evmosd`.
+Follow the [installation](./../quickstart/installation) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
-Make sure you have the right version of `evmosd` installed
+Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
 :::
+
+### Save Chain ID
+
+We recommend saving the mainnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
+
+::: tip
+See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for reference.
+:::
+
+```bash
+evmosd config chain-id evmos_9000-1
+```
 
 ## Initialize Node
 
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-evmosd init <your_custom_moniker>
+evmosd init <your_custom_moniker> --chain-id evmos_9000-1
 ```
 
 ::: danger
 Monikers can contain only ASCII characters. Using Unicode characters will render your node unreachable.
 :::
 
-By default, the `init` command creates your `~/.evmosd` directory with subfolders `config/` and `data/`.
+By default, the `init` command creates your `~/.evmosd` (i.e `$HOME`) directory with subfolders `config/` and `data/`.
 In the `config` directory, the most important files for configuration are `app.toml` and `config.toml`.
 
 ## Genesis & Seeds
 
 ### Copy the Genesis File
 
-Check the genesis file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`.
+Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+
+```bash
+curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/genesis.json > ~/.evmosd/config/genesis.json
+```
 
 Then verify the correctness of the genesis configuration file:
 
@@ -56,14 +80,37 @@ Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the f
 # ...
 
 # Comma separated list of seed nodes to connect to
-seeds = ""
+seeds = "<node-id>@<ip>:<p2p port>"
 ```
 
 :::tip
 For more information on seeds and peers, you can the Tendermint [P2P documentation](https://docs.tendermint.com/master/spec/p2p/peer.html).
 :::
 
-### Start testnet
+## Run a Testnet Validator
+
+Claim your testnet {{ $themeConfig.project.testnet_denom }}s on the [faucet](./faucet.md) using your validator account address and submit your validator account address:
+
+::: tip
+For more details on how to configure your validator, follow the validator [setup](./../guides/validators/setup.md) instructions.
+:::
+
+```bash
+evmosd tx staking create-validator \
+  --amount=1000000000000aphoton \
+  --pubkey=$(evmosd tendermint show-validator) \
+  --moniker="EvmosWhale" \
+  --chain-id=<chain_id> \
+  --commission-rate="0.10" \
+  --commission-max-rate="0.20" \
+  --commission-max-change-rate="0.01" \
+  --min-self-delegation="1000000" \
+  --gas="auto" \
+  --gas-prices="0.025aphoton" \
+  --from=<key_name>
+```
+
+## Start testnet
 
 The final step is to [start the nodes](./../quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the testnet will start producing blocks.
 
@@ -103,3 +150,16 @@ To restart your node, just type:
 ```bash
 evmosd start
 ```
+
+## Share your Peer
+
+You can share your peer to by opening a Pull Request to the Evmos [`testnets`](https://github.com/tharsis/testnets) repo.
+
+::: tip
+To get your Node ID use
+
+```bash
+evmosd tendermint show-node-id
+```
+
+:::
