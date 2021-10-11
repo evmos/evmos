@@ -80,7 +80,7 @@ Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the f
 # ...
 
 # Comma separated list of seed nodes to connect to
-seeds = ""
+seeds = "<node-id>@<ip>:<p2p port>"
 ```
 
 :::tip
@@ -153,8 +153,13 @@ evmosd start
 
 ## Share your Peer
 
-Get your Evmos node ID and add it to the [`testnets`](https://github.com/tharsis/testnets) repo.
+You can share your peer to by opening a Pull Request to the Evmos [`testnets`](https://github.com/tharsis/testnets) repo.
+
+::: tip
+To get your Node ID use
 
 ```bash
 evmosd tendermint show-node-id
 ```
+
+:::
