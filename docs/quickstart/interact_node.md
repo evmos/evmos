@@ -217,7 +217,3 @@ Assuming the state at that block has not yet been pruned by the node, this query
 ### Cross-Origin Resource Sharing (CORS)
 
 [CORS policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) are not enabled by default to help with security. If you would like to use the rest-server in a public environment we recommend you provide a reverse proxy, this can be done with [nginx](https://www.nginx.com/). For testing and development purposes there is an `enabled-unsafe-cors` field inside [`app.toml`](/run-node.md#configuring-the-node-using-apptoml).
-
-## Next {hide}
-
-Sending transactions using gRPC and REST requires some additional steps: generating the transaction, signing it, and finally broadcasting it. Read about [generating and signing transactions](./txs.md). {hide}

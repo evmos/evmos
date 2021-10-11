@@ -109,7 +109,7 @@ Your node is now in a pristine state while keeping the original `priv_validator.
 
 ### Delete Data
 
-Data for the Daemon and CLI binaries should be stored at `~/.evmosd`, respectively by default. To **delete** the existing binaries and configuration, run:
+Data for the {{ $themeConfig.project.binary }} binary should be stored at `~/.{{ $themeConfig.project.binary }}`, respectively by default. To **delete** the existing binaries and configuration, run:
 
 ```bash
 rm -rf ~/.evmosd
