@@ -39,7 +39,7 @@ evmosd config chain-id evmos_9000-1
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-evmosd init <your_custom_moniker>
+evmosd init <your_custom_moniker> --chain-id evmos_9000-1
 ```
 
 ::: danger
