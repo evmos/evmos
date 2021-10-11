@@ -6,6 +6,24 @@ order: 1
 
 Learn about the Evmos chain-id format {synopsis}
 
+## Official Chain IDs
+
+:::: tabs
+::: tab Testnets
+
+| Name                       | Chain ID                                              | Identifier | EIP155 Number                                 | Version Number                                    |
+|----------------------------|-------------------------------------------------------|------------|-----------------------------------------------|---------------------------------------------------|
+| Evmos - Arsia Mons Testnet | `evmos_{{ $themeConfig.project.testnet_chain_id }}-1` | evmos      | `{{ $themeConfig.project.testnet_chain_id }}` | {{ $themeConfig.project.testnet_version_number }} |
+
+:::
+::: tab Mainnet
+
+| Name                                            | Chain ID                                      | Identifier | EIP155 Number                         | Version Number                            |
+|-------------------------------------------------|-----------------------------------------------|------------|---------------------------------------|-------------------------------------------|
+| Evmos {{ $themeConfig.project.version_number }} | `evmos_{{ $themeConfig.project.chain_id }}-1` | evmos      | `{{ $themeConfig.project.chain_id }}` | {{ $themeConfig.project.version_number }} |
+:::
+::::
+
 ## The Chain Identifier
 
 Every chain must have a unique identifier or `chain-id`. Tendermint requires each application to
@@ -30,9 +48,9 @@ The format for specifying and Evmos compatible chain-id in genesis is the follow
 
 The following table provides an example where the second row corresponds to an upgrade from the first one:
 
-| ChainID            | Identifier | EIP155 Number | Version Number |
-|--------------------|------------|---------------|----------------|
-| `evmos_9000-1`     | evmos      | 9000          | 1              |
-| `evmos_9000-2`     | evmos      | 9000          | 2              |
-| `...`              | ...        | ...           | ...            |
-| `evmos_9000-N`     | evmos      | 9000          | N              |
+| ChainID        | Identifier | EIP155 Number | Version Number |
+|----------------|------------|---------------|----------------|
+| `evmos_9000-1` | evmos      | 9000          | 1              |
+| `evmos_9000-2` | evmos      | 9000          | 2              |
+| `...`          | ...        | ...           | ...            |
+| `evmos_9000-N` | evmos      | 9000          | N              |

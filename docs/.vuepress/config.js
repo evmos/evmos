@@ -33,6 +33,16 @@ module.exports = {
   plugins: [
     'vuepress-plugin-element-tabs'
   ],
+  head: [
+    // ['link', { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }],
+    ['link', { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon32.png" }],
+    ['link', { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon16.png" }],
+    ['link', { rel: "manifest", href: "/site.webmanifest" }],
+    ['meta', { name: "msapplication-TileColor", content: "#2e3148" }],
+    ['meta', { name: "theme-color", content: "#ffffff" }],
+    ['link', { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+    // ['link', { rel: "apple-touch-icon-precomposed", href: "/apple-touch-icon-precomposed.png" }],
+  ],
   themeConfig: {
     repo: 'tharsis/evmos',
     docsRepo: 'tharsis/evmos',
@@ -42,20 +52,26 @@ module.exports = {
     custom: true,
     project: {
       name: 'Evmos',
-      denom: 'PHOTON',
-      ticker: 'PHOTON',
-      rpc_url: '',
+      denom: 'EVMOS',
+      ticker: 'EVMOS',
+      testnet_denom: 'Photon',
+      testnet_ticker: 'PHOTON',
+      rpc_url: 'http://localhost:8545/',
       rpc_url_local: 'http://localhost:8545/',
-      chain_id: '9000',
-      block_explorer_url: '',
+      chain_id: '9001',
+      testnet_chain_id: '9000',
+      version_number: '1',
+      testnet_version_number: '1',
+      block_explorer_url: 'https://evm.evmos.org',
+      cosmos_block_explorer_url: 'https://explorer.evmos.org',
     },
     logo: {
-      src: '/ethermint-logo-horizontal-alpha.svg',
+      src: '/evmos-black.svg',
     },
     algolia: {
       id: 'BH4D9OD16A',
       key: 'c5da4dd3636828292e3c908a0db39688',
-      index: 'evmos'
+      index: 'ethermint' // TODO: update to EVMOS
     },
     topbar: {
       banner: false
@@ -160,16 +176,30 @@ module.exports = {
             directory: true,
             path: '/modules'
           }]
-        }, {
+        },
+        {
+          title: 'Block Explorers',
+          children: [
+            {
+              title: 'Evmos (EVM)',
+              path: 'https://evm.evmos.org'
+            },
+            {
+              title: 'Evmos (Cosmos)',
+              path: 'https://explorer.evmos.org'
+            },
+          ]
+        },
+        {
           title: 'Resources',
           children: [
             {
-              title: 'Ethermint API Reference',
-              path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
+              title: 'Evmos API Reference',
+              path: 'https://pkg.go.dev/github.com/tharsis/evmos'
             },
             {
-              title: 'Cosmos REST API Spec',
-              path: 'https://cosmos.network/rpc/'
+              title: 'Ethermint Library API Reference',
+              path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
             },
             {
               title: 'JSON-RPC API Reference',
@@ -201,7 +231,7 @@ module.exports = {
       }
     },
     footer: {
-      logo: '/logo-bw.svg',
+      logo: '/evmos-black.svg',
       textLink: {
         text: 'evmos.org',
         url: 'https://evmos.org'
@@ -213,7 +243,11 @@ module.exports = {
         },
         {
           service: "twitter",
-          url: "https://twitter.com/ethermint",
+          url: "https://twitter.com/EvmosOrg",
+        },
+        {
+          service: "telegram",
+          url: "https://t.me/EvmosOrg",
         },
         {
           service: "linkedin",
@@ -221,7 +255,7 @@ module.exports = {
         },
         {
           service: "medium",
-          url: "https://medium.com/@tharsis_labs",
+          url: "https://evmos.blog/",
         },
       ],
       smallprint: 'This website is maintained by Tharsis Labs Ltd.',

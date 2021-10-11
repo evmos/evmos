@@ -6,7 +6,7 @@ EVM uses state-reverting exceptions to handle errors. Such an exception will und
 
 Evmos uses cosmos-sdk's storage api to manage states, fortunately the storage api supports creating cached overlays, it works like this:
 
-```golang
+```go
 // create a cached overlay storage on top of ctx storage.
 overlayCtx, commit := ctx.CacheContext()
 // Modify states using the overlayed storage
@@ -22,7 +22,7 @@ commit()
 
 And it can be used in a nested way, like this:
 
-```golang
+```go
 overlayCtx1, commit1 := ctx.CacheContext()
 doCall1(overlayCtx1)
 {
@@ -35,20 +35,23 @@ commit1()
 
 With this feature, we can use a stake of overlayed contexts to implement nested `Snapshot` and `RevertToSnapshot` calls.
 
-```golang
+```go
 type cachedContext struct {
-	ctx    sdk.Context
-	commit func()
+  ctx    sdk.Context
+  commit func()
 }
+
 var contextStack []cachedContext
 func Snapshot() int {
   ctx, commit := contextStack.Top().CacheContext()
   contextStack.Push(cachedContext{ctx, commit})
   return len(contextStack) - 1
 }
+
 func RevertToSnapshot(int snapshot) {
   contextStack = contextStack[:snapshot]
 }
+
 func Commit() {
   for i := len(contextStack) - 1; i >= 0; i-- {
     contextStack[i].commit()
@@ -56,4 +59,3 @@ func Commit() {
   contextStack = {}
 }
 ```
-
