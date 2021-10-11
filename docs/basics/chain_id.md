@@ -18,9 +18,9 @@ Learn about the Evmos chain-id format {synopsis}
 :::
 ::: tab Mainnet
 
-| Name                                            | Chain ID       | Identifier | EIP155 Number                         | Version Number                            |
-|-------------------------------------------------|----------------|------------|---------------------------------------|-------------------------------------------|
-| Evmos {{ $themeConfig.project.version_number }} | `evmos_9001-1` | evmos      | `{{ $themeConfig.project.chain_id }}` | {{ $themeConfig.project.version_number }} |
+| Name                                            | Chain ID                                      | Identifier | EIP155 Number                         | Version Number                            |
+|-------------------------------------------------|-----------------------------------------------|------------|---------------------------------------|-------------------------------------------|
+| Evmos {{ $themeConfig.project.version_number }} | `evmos_{{ $themeConfig.project.chain_id }}-1` | evmos      | `{{ $themeConfig.project.chain_id }}` | {{ $themeConfig.project.version_number }} |
 :::
 ::::
 
