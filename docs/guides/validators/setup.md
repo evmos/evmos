@@ -31,7 +31,6 @@ architecture.
 
 To run testnet nodes, you will need a machine with the following minimum hardware requirements:
 
-<!-- TODO: verify -->
 - 4 or more physical CPU cores
 - At least 500GB of SSD disk storage
 - At least 16GB of memory (RAM)

@@ -10,9 +10,9 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
 
-| Network Chain ID       | Description        | Site                                                                   | Version                                                                                  |
-|----------------|--------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| `evmos_9000-1` | Arsia Mons Testnet | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/tharsis/evmos/releases) |
+| Network Chain ID | Description        | Site                                                                   | Version                                                                                  |
+|------------------|--------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `evmos_9000-1`   | Arsia Mons Testnet | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/tharsis/evmos/releases) |
 
 ## Install `evmosd`
 
@@ -87,7 +87,30 @@ seeds = ""
 For more information on seeds and peers, you can the Tendermint [P2P documentation](https://docs.tendermint.com/master/spec/p2p/peer.html).
 :::
 
-### Start testnet
+## Run a Testnet Validator
+
+Claim your testnet {{ $themeConfig.project.testnet_denom }}s on the [faucet](./faucet.md) using your validator account address and submit your validator account address:
+
+::: tip
+For more details on how to configure your validator, follow the validator [setup](./../guides/validators/setup.md) instructions.
+:::
+
+```bash
+evmosd tx staking create-validator \
+  --amount=1000000000000aphoton \
+  --pubkey=$(evmosd tendermint show-validator) \
+  --moniker="EvmosWhale" \
+  --chain-id=<chain_id> \
+  --commission-rate="0.10" \
+  --commission-max-rate="0.20" \
+  --commission-max-change-rate="0.01" \
+  --min-self-delegation="1000000" \
+  --gas="auto" \
+  --gas-prices="0.025aphoton" \
+  --from=<key_name>
+```
+
+## Start testnet
 
 The final step is to [start the nodes](./../quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the testnet will start producing blocks.
 
@@ -126,4 +149,12 @@ To restart your node, just type:
 
 ```bash
 evmosd start
+```
+
+## Share your Peer
+
+Get your Evmos node ID and add it to the [`testnets`](https://github.com/tharsis/testnets) repo.
+
+```bash
+evmosd tendermint show-node-id
 ```
