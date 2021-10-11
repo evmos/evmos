@@ -6,13 +6,33 @@ order: 1
 
 This document outlines the steps to join an existing testnet {synopsis}
 
+## Pick a Testnet
+
+You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
+
+| Network Chain ID       | Description        | Site                                                                   | Version                                                                                  |
+|----------------|--------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `evmos_9000-1` | Arsia Mons Testnet | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/tharsis/evmos/releases) |
+
 ## Install `evmosd`
 
-Follow the [installation](./../quickstart/installation) document to install the Evmos binary `evmosd`.
+Follow the [installation](./../quickstart/installation) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
-Make sure you have the right version of `evmosd` installed
+Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
 :::
+
+### Save Chain ID
+
+We recommend saving the mainnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
+
+::: tip
+See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for reference.
+:::
+
+```bash
+evmosd config chain-id evmos_9000-1
+```
 
 ## Initialize Node
 
@@ -26,14 +46,18 @@ evmosd init <your_custom_moniker>
 Monikers can contain only ASCII characters. Using Unicode characters will render your node unreachable.
 :::
 
-By default, the `init` command creates your `~/.evmosd` directory with subfolders `config/` and `data/`.
+By default, the `init` command creates your `~/.evmosd` (i.e `$HOME`) directory with subfolders `config/` and `data/`.
 In the `config` directory, the most important files for configuration are `app.toml` and `config.toml`.
 
 ## Genesis & Seeds
 
 ### Copy the Genesis File
 
-Check the genesis file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`.
+Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+
+```bash
+curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/genesis.json > ~/.evmosd/config/genesis.json
+```
 
 Then verify the correctness of the genesis configuration file:
 
