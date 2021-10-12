@@ -24,6 +24,12 @@ Learn about the Evmos chain-id format {synopsis}
 :::
 ::::
 
+::: tip
+You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) `Chain ID` by referring to [chainlist.org](https://chainlist.org/).
+:::
+
+![chainlist.org website](./../guides/img/chainlist.png)
+
 ## The Chain Identifier
 
 Every chain must have a unique identifier or `chain-id`. Tendermint requires each application to

@@ -17,7 +17,7 @@ If you are planning on developing on Evmos locally and you haven’t already set
 Open the MetaMask extension on your browser, you may have to log in to your MetaMask account if you are not already. Then click the top right circle and go to `Settings` > `Networks` > `Add Network` and fill the form as shown below.
 
 ::: tip
-You can also find the full `ChainID` form the `genesis.json` file. To get the [EIP155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) chain ID from the Cosmos chain ID, check the [Chain ID](./../../basics/chain_id) documentation page.
+You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) `Chain ID` by referring to [chainlist.org](https://chainlist.org/). Alternatively, to get the full Chain ID from Genesis, check the [Chain ID](./../../basics/chain_id) documentation page.
 :::
 
 ![metamask networks settings](./../img/metamask_network_settings.png)
@@ -44,9 +44,21 @@ Here is the list of fields that you can use to paste on Metamask:
 
 ## Import Account to Metamask
 
-Then close the settings, and go to `My Accounts` (top right circle) and select `Import Account`. You should see an image like the following one:
+### Automatic Import
 
-![metamask import account page](./../img/metamask_import.png)
+Once you have added {{ $themeConfig.project.name }} to the Metamask `Networks`, you can automatically import your accounts by:
+
+1. Go to the official EVM Chain ID Registry website: [chainlist.org](https://chainlist.org/)
+2. Search for `"Evmos"`
+  ![chainlist.org website](./../img/chainlist.png)
+3. Click the `Connect Wallet` button under `Evmos Testnet`
+  ![add accounts via chainlist](./../img/chainlist_metamask.png)
+
+### Manual Import
+
+Close the `Settings`, go to `My Accounts` (top right circle) and select `Import Account`. You should see an image like the following one:
+
+![metamask manual import account page](./../img/metamask_import.png)
 
 Now you can export your private key from the terminal using the following command. Again, make sure to replace `mykey` with the name of the key that you want to export and use the correct `keyring-backend`:
 
