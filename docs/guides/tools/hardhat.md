@@ -176,7 +176,7 @@ npx hardhat run --network {{ $themeConfig.project.rpc_url_local }} scripts/sampl
 ::: tab Testnet
 
 ```bash
-npx hardhat run --network {{ $themeConfig.project.rpc_url }} scripts/sample-script.js
+npx hardhat run --network {{ $themeConfig.project.rpc_url_testnet }} scripts/sample-script.js
 ```
 
 :::
