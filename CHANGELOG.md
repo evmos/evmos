@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+## Bug Fixes
+
+* (cmd) [\#41](https://github.com/tharsis/evmos/pull/41) Fix `debug` command.
+
 ## [v0.1.2] - 2021-10-08
 
 ### Improvements
