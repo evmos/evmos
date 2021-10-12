@@ -67,7 +67,7 @@ evmosd validate-genesis
 
 ### Add Seed Nodes
 
-Your node needs to know how to find peers. You'll need to add healthy seed nodes to `$HOME/.evmosd/config/config.toml`. The [`testnets`](https://github.com/tharsis/testnets) repo contains links to some seed nodes.
+Your node needs to know how to find [peers](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#seed) to `$HOME/.evmosd/config/config.toml`. The [`testnets`](https://github.com/tharsis/testnets) repo contains links to some seed nodes.
 
 Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the following:
 
@@ -86,6 +86,22 @@ seeds = "<node-id>@<ip>:<p2p port>"
 :::tip
 For more information on seeds and peers, you can the Tendermint [P2P documentation](https://docs.tendermint.com/master/spec/p2p/peer.html).
 :::
+
+### Add Persistent Peers
+
+We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
+available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
+
+```bash
+TESTNET_REPO="https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons" && \
+export PEERS="$(curl -s "$TESTNET_REPO/peers.txt")"
+```
+
+Use `sed` to include them into the configuration. You can also add them manually:
+
+```bash
+sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmosd/config/config.toml
+```
 
 ## Run a Testnet Validator
 

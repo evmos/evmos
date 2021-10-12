@@ -59,3 +59,10 @@ request per day per address. All addresses **must** be authenticated using
 ## Amount
 
 For each request, the faucet transfers 1 {{ $themeConfig.project.testnet_denom }} to the given address.
+
+## Faucet Addresses
+
+The public faucet addresses for the testnet are:
+
+- **Hex**: [`0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151`](https://evm.evmos.org/address/0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151/transactions)
+- **Bech32**: [`evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze`](https://explorer.evmos.org/accounts/evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze)
