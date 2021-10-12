@@ -28,7 +28,7 @@ evmosd keys show testnet-key
 2. Copy your Hex address and use the [`debug`](./../basics/accounts.md#addresses-conversion) command to obtain the Bech32 address
 
   ```bash
-  evmosd debug 0x...
+  evmosd debug addr 0x...
   ```
 
 ::: tip
