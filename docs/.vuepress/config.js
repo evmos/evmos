@@ -5,6 +5,9 @@ module.exports = {
     '/': {
       lang: 'en-US'
     },
+    '/ru/': {
+      lang: 'ru-RU'
+    },
   },
   markdown: {
     extendMarkdown: (md) => {
