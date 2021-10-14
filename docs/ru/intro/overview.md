@@ -8,35 +8,30 @@ order: 1
 
 ## Что такое Evmos
 
-Evmos is a scalable, high-throughput Proof-of-Stake blockchain that is fully compatible and
-interoperable with Ethereum. It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) which runs on top of [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
+Evmos - это масштабируемый, высокопроизводительный блокчейн Proof-of-Stake, который полностью совместимс Ethereum. Он создан с использованием [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/), который работает на базе движка консенсуса [Tendermint Core](https://github.com/tendermint/tendermint).
 
-Evmos allows for running vanilla Ethereum as a [Cosmos](https://cosmos.network/)
-application-specific blockchain. This allows developers to have all the desired features of
-Ethereum, while at the same time, benefit from Tendermint’s PoS implementation. Also, because it is
-built on top of the Cosmos SDK, it will be able to exchange value with the rest of the Cosmos
-Ecosystem through the Inter Blockchain Communication Protocol (IBC).
+Evmos позволяет запускать классический Ethereum в качестве блокчейна для конкретного приложения [Cosmos](https://cosmos.network/). Это позволяет разработчикам иметь все желаемые функции Ethereum и в то же время пользоваться преимуществами реализации PoS в Tendermint. Кроме того, поскольку Evmos
+построен на базе Cosmos SDK, он сможет обмениваться данными с остальной Cosmos
+экосистемой через протокол межблокчейновой связи (IBC).
 
-### Features
+### Особенности
 
-Here’s a glance at some of the key features of Evmos:
+Вот некоторые ключевые особенности Evmos:
 
-* Web3 and EVM compatibility
-* High throughput via [Tendermint Core](https://github.com/tendermint/tendermint)
-* Horizontal scalability via [IBC](https://cosmos.network/ibc)
-* Fast transaction finality
+* Web3 и EVM совместимость
+* Высокая пропускная способность благодаря [Tendermint Core](https://github.com/tendermint/tendermint)
+* Горизонтальное масштабирование посредством [IBC](https://cosmos.network/ibc)
+* Быстрое завершение транзакций
 
-Evmos enables these key features by:
+Evmos обеспечивает эти ключевые возможности благодаря:
 
-* Implementing Tendermint Core's Application Blockchain Interface ([ABCI](https://docs.tendermint.com/master/spec/abci/)) to manage the blockchain
-* Leveraging [modules](https://docs.cosmos.network/master/building-modules/intro.html) and other mechanisms implemented by the [Cosmos SDK](https://docs.cosmos.network/).
-* Utilizing [`geth`](https://github.com/ethereum/go-ethereum) as a library to avoid code reuse and improve maintainability.
-* Exposing a fully compatible Web3 [JSON-RPC](./../basic/json_rpc.md) layer for interacting with existing Ethereum clients and tooling ([Metamask](./../guides/keys-wallets/metamask.md), [Remix](./../guides/tools/remix.md), [Truffle](./../guides/tools/truffle.md), etc).
+* Реализация прикладного блокчейн-интерфейса Tendermint Core ([ABCI](https://docs.tendermint.com/master/spec/abci/)) для управления блокчейном.
+* Использование [модулей](https://docs.cosmos.network/master/building-modules/intro.html) и других механизмов, реализованных в [Cosmos SDK](https://docs.cosmos.network/).
+* Использование [`geth`](https://github.com/ethereum/go-ethereum) в качестве библиотеки для избежания повторного использования кода и улучшения сопровождаемости.
+* Предоставление полностью совместимого с Web3 [JSON-RPC](./../basic/json_rpc.md) слоя для взаимодействия с существующими клиентами Ethereum и инструментарием ([Metamask](./../guides/keys-wallets/metamask.md), [Remix](./../guides/tools/remix.md), [Truffle](./../guides/tools/truffle.md) и т.п.).
 
-The sum of these features allows developers to leverage existing Ethereum ecosystem tooling and
-software to seamlessly deploy smart contracts which interact with the rest of the Cosmos
-[ecosystem](https://cosmos.network/ecosystem)!
+Совокупность этих возможностей позволяет разработчикам использовать существующие инструменты и программное обеспечение экосистемы Ethereum для беспрепятственного развертывания смарт-контрактов, которые взаимодействуют с остальной частью [экосистемы Cosmos](https://cosmos.network/ecosystem)!
 
-## Next {hide}
+## Дальше {hide}
 
-Learn about Evmos's [architecture](./architecture.md) {hide}
+Узнайте об [архитектуре](./architecture.md) Evmos {hide}
