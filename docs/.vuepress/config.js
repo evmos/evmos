@@ -74,7 +74,7 @@ module.exports = {
     algolia: {
       id: 'BH4D9OD16A',
       key: 'c5da4dd3636828292e3c908a0db39688',
-      index: 'ethermint' // TODO: update to EVMOS
+      index: 'evmos'
     },
     topbar: {
       banner: false

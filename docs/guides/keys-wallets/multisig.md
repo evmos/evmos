@@ -80,7 +80,7 @@ evmosd tx send \
     test1 \
     evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     10000000000000000000aphoton \
-    --chain-id=ethermint_9000-1 \
+    --chain-id=evmos_9000-1 \
     --gas=auto \
     --fees=1000000aphoton \
     --broadcast-mode=block
@@ -97,7 +97,7 @@ evmosd tx send \
     5000000000000000000aphoton \
     --gas=200000 \
     --fees=1000000aphoton \
-    --chain-id=ethermint_9000-1 \
+    --chain-id=evmos_9000-1 \
     --generate-only > unsignedTx.json
 ```
 
@@ -105,40 +105,40 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
 
 ```json
 {
-    "body": {
-        "messages": [
-            {
-                "@type": "/cosmos.bank.v1beta1.MsgSend",
-                "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
-                "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
-                "amount": [
-                    {
-                        "denom": "aphoton",
-                        "amount": "5000000000000000000"
-                    }
-                ]
-            }
-        ],
-        "memo": "",
-        "timeout_height": "0",
-        "extension_options": [],
-        "non_critical_extension_options": []
-    },
-    "auth_info": {
-        "signer_infos": [],
-        "fee": {
-            "amount": [
-              {
-                "denom": "aphoton",
-                "amount": "1000000"
-              }
-            ],
-            "gas_limit": "200000",
-            "payer": "",
-            "granter": ""
+  "body": {
+    "messages": [
+      {
+        "@type": "/cosmos.bank.v1beta1.MsgSend",
+        "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
+        "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
+        "amount": [
+          {
+            "denom": "aphoton",
+            "amount": "5000000000000000000"
+          }
+        ]
+      }
+    ],
+    "memo": "",
+    "timeout_height": "0",
+    "extension_options": [],
+    "non_critical_extension_options": []
+  },
+  "auth_info": {
+    "signer_infos": [],
+    "fee": {
+      "amount": [
+        {
+          "denom": "aphoton",
+          "amount": "1000000"
         }
-    },
-    "signatures": []
+      ],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
+  },
+  "signatures": []
 }
 ```
 
@@ -152,7 +152,7 @@ evmosd tx sign \
     --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test1 \
     --output-document=test1sig.json \
-    --chain-id=ethermint_9000-1
+    --chain-id=evmos_9000-1
 ```
 
 ```sh
@@ -161,7 +161,7 @@ evmosd tx sign \
     --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test2 \
     --output-document=test2sig.json \
-    --chain-id=ethermint_9000-1
+    --chain-id=evmos_9000-1
 ```
 
 ### Step 4: Create multisignature
@@ -174,91 +174,91 @@ evmosd tx multisign \
     multi \
     test1sig.json test2sig.json \
     --output-document=signedTx.json \
-    --chain-id=ethermint_9000-1
+    --chain-id=evmos_9000-1
 ```
 
 The TX is now signed:
 
 ```json
 {
-    "body": {
-        "messages": [
+  "body": {
+    "messages": [
+      {
+        "@type": "/cosmos.bank.v1beta1.MsgSend",
+        "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
+        "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
+        "amount": [
+          {
+            "denom": "aphoton",
+            "amount": "5000000000000000000"
+          }
+        ]
+      }
+    ],
+    "memo": "",
+    "timeout_height": "0",
+    "extension_options": [],
+    "non_critical_extension_options": []
+  },
+  "auth_info": {
+    "signer_infos": [
+      {
+        "public_key": {
+          "@type": "/cosmos.crypto.multisig.LegacyAminoPubKey",
+          "threshold": 2,
+          "public_keys": [
             {
-                "@type": "/cosmos.bank.v1beta1.MsgSend",
-                "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
-                "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
-                "amount": [
-                    {
-                        "denom": "aphoton",
-                        "amount": "5000000000000000000"
-                    }
-                ]
-            }
-        ],
-        "memo": "",
-        "timeout_height": "0",
-        "extension_options": [],
-        "non_critical_extension_options": []
-    },
-    "auth_info": {
-        "signer_infos": [
+              "@type": "/cosmos.crypto.secp256k1.PubKey",
+              "key": "ApCzSG8k7Tr4aM6e4OJRExN7cNtvH21L9azbh+uRrvt4"
+            },
             {
-                "public_key": {
-                    "@type": "/cosmos.crypto.multisig.LegacyAminoPubKey",
-                    "threshold": 2,
-                    "public_keys": [
-                        {
-                            "@type": "/cosmos.crypto.secp256k1.PubKey",
-                            "key": "ApCzSG8k7Tr4aM6e4OJRExN7cNtvH21L9azbh+uRrvt4"
-                        },
-                        {
-                            "@type": "/cosmos.crypto.secp256k1.PubKey",
-                            "key": "Ah91erz8ChNanqLe9ea948rvAiXMCRlR5Ka7EE/c0xUK"
-                        },
-                        {
-                            "@type": "/cosmos.crypto.secp256k1.PubKey",
-                            "key": "A0OjtIUCFJM3AobJ9HJTWKP9RZV2+WPcwVjLgsAidrZ/"
-                        }
-                    ]
-                },
-                "mode_info": {
-                    "multi": {
-                        "bitarray": {
-                            "extra_bits_stored": 3,
-                            "elems": "wA=="
-                        },
-                        "mode_infos": [
-                            {
-                                "single": {
-                                    "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
-                                }
-                            },
-                            {
-                                "single": {
-                                    "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
-                                }
-                            }
-                        ]
-                    }
-                },
-                "sequence": "1"
+              "@type": "/cosmos.crypto.secp256k1.PubKey",
+              "key": "Ah91erz8ChNanqLe9ea948rvAiXMCRlR5Ka7EE/c0xUK"
+            },
+            {
+              "@type": "/cosmos.crypto.secp256k1.PubKey",
+              "key": "A0OjtIUCFJM3AobJ9HJTWKP9RZV2+WPcwVjLgsAidrZ/"
             }
-        ],
-        "fee": {
-            "amount": [
+          ]
+        },
+        "mode_info": {
+          "multi": {
+            "bitarray": {
+              "extra_bits_stored": 3,
+              "elems": "wA=="
+            },
+            "mode_infos": [
               {
-                "denom": "aphoton",
-                "amount": "1000000"
+                "single": {
+                  "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+                }
+              },
+              {
+                "single": {
+                  "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+                }
               }
-            ],
-            "gas_limit": "200000",
-            "payer": "",
-            "granter": ""
+            ]
+          }
+        },
+        "sequence": "1"
+      }
+    ],
+    "fee": {
+      "amount": [
+        {
+          "denom": "aphoton",
+          "amount": "1000000"
         }
-    },
-    "signatures": [
-        "CkCEeIbeGc+I1ipZuhp/0KhVNnWAv2tTlvgo5x61lzk1KHmLPV38m/YFurrFt5cm5+fqIXrn+FlOjrJuzBhw8ogYCkCawm9mpXsBHk0CFsE5618fVnvScEkfrzW0c2jCcjqV8EPuj3ut74UWzZyQkwtJGxUWtro9EgnGsB7Di1Gzizst"
-    ]
+      ],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
+  },
+  "signatures": [
+    "CkCEeIbeGc+I1ipZuhp/0KhVNnWAv2tTlvgo5x61lzk1KHmLPV38m/YFurrFt5cm5+fqIXrn+FlOjrJuzBhw8ogYCkCawm9mpXsBHk0CFsE5618fVnvScEkfrzW0c2jCcjqV8EPuj3ut74UWzZyQkwtJGxUWtro9EgnGsB7Di1Gzizst"
+  ]
 }
 ```
 
