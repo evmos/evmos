@@ -36,6 +36,10 @@ func (k Keeper) GetTokenPairID(ctx sdk.Context, token string) []byte {
 
 // GetTokenPair - get registered token pair from the identifier
 func (k Keeper) GetTokenPair(ctx sdk.Context, id []byte) (types.TokenPair, bool) {
+	if id == nil {
+		return types.TokenPair{}, false
+	}
+
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPair)
 	var tokenPair types.TokenPair
 	bz := store.Get(id)

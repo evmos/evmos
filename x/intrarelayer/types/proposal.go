@@ -24,8 +24,8 @@ var (
 
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeRegisterTokenPair)
-	govtypes.RegisterProposalType(ProposalTypeRegisterTokenPair)
-	govtypes.RegisterProposalType(ProposalTypeRegisterTokenPair)
+	govtypes.RegisterProposalType(ProposalTypeEnableTokenRelay)
+	govtypes.RegisterProposalType(ProposalTypeUpdateTokenPairERC20)
 	govtypes.RegisterProposalTypeCodec(&RegisterTokenPairProposal{}, "intrarelayer/RegisterTokenPairProposal")
 	govtypes.RegisterProposalTypeCodec(&EnableTokenRelayProposal{}, "intrarelayer/EnableTokenRelayProposal")
 	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal")
