@@ -1,0 +1,41 @@
+package types
+
+import (
+	"time"
+
+	"github.com/tendermint/tendermint/libs/log"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+)
+
+// BankKeeper defines the expected interface needed to retrieve account balances.
+type BankKeeper interface {
+	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	IsSendEnabledCoin(ctx sdk.Context, coin sdk.Coin) bool
+	BlockedAddr(addr sdk.AccAddress) bool
+	GetDenomMetaData(ctx sdk.Context, denom string) (banktypes.Metadata, bool)
+	SetDenomMetaData(ctx sdk.Context, denomMetaData banktypes.Metadata)
+}
+
+// EVMKeeper defines the expected EVM keeper interface used on intrarelayer
+type EVMKeeper interface{}
+
+// VotingPeriodModifier defines a general interface that allow modules to modify voting period
+// per proposal type.
+type VotingPeriodModifier interface {
+	GetVotingPeriod(ctx sdk.Context, proposalType string) time.Duration
+}
+
+// GovKeeper defines the expected governance keeper interface used on intrarelayer
+type GovKeeper interface {
+	Logger(sdk.Context) log.Logger
+	GetVotingParams(ctx sdk.Context) govtypes.VotingParams
+	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
+	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
+	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
+}

@@ -1,0 +1,56 @@
+syntax = "proto3";
+package evmos.intrarelayer.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/intrarelayer/types";
+
+// TokenPair defines an instance that records pairing consisting of a Cosmos
+// native Coin and an ERC20 token address.
+message TokenPair {
+    option (gogoproto.equal) = true;
+    // address of ERC20 contract token
+    string erc20_address = 1;
+    // cosmos base denomination to be mapped to
+    string denom = 2;
+    // shows token mapping enable status
+    bool enabled = 3;
+}
+
+// RegisterTokenPairProposal is a gov Content type to register a token pair
+message RegisterTokenPairProposal {
+    option (gogoproto.equal) = true;
+    // title of the proposal
+    string title         = 1;
+    // proposal description
+    string description   = 2;
+    // token pair of Cosmos native denom and ERC20 token address
+    TokenPair token_pair = 3 [(gogoproto.nullable) = false];
+}
+
+// EnableTokenRelayProposal is a gov Content type to enable the internal
+// relaying of a token pair.
+message EnableTokenRelayProposal {
+    option (gogoproto.equal) = true;
+    // title of the proposal
+    string title         = 1;
+    // proposal description
+    string description   = 2;
+    // token identifier can be either the hex contract address of the ERC20 or the
+    // Cosmos base denomination
+    string token = 3;
+}
+
+// UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
+// ERC20 contract address.
+message UpdateTokenPairERC20Proposal {
+    option (gogoproto.equal) = true;
+    // title of the proposal
+    string title         = 1;
+    // proposal description
+    string description   = 2;
+    // address of ERC20 contract token
+    string erc20_address = 3;
+    // new address of ERC20 contract token
+    string new_erc20_address = 4;
+}
