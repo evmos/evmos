@@ -78,7 +78,7 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 		config.DefaultGasCap, // gasLimit
 		big.NewInt(0),        // gasPrice
 		payload,
-		ethtypes.AccessList{}, // TODO: add AccessList?
+		ethtypes.AccessList{}, // AccessList
 		false,                 // checkNonce
 	)
 
@@ -173,7 +173,7 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 		config.DefaultGasCap, // gasLimit
 		big.NewInt(0),        // gasPrice
 		payload,
-		ethtypes.AccessList{}, // TODO: add AccessList?
+		ethtypes.AccessList{}, // AccessList
 		true,                  // checkNonce
 	)
 
@@ -200,13 +200,32 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 		return nil, err
 	}
 
-	// TODO: emit events
-	// tx hash
-	// pair denom
-	// pair erc20
-	// conversion amount
-	// sender address
-	// receiver address
+	txLogAttrs := make([]sdk.Attribute, 0)
+	for _, log := range res.Logs {
+		value, err := json.Marshal(log)
+		if err != nil {
+			return nil, err
+		}
+		txLogAttrs = append(txLogAttrs, sdk.NewAttribute(evmtypes.AttributeKeyTxLog, string(value)))
+	}
+
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertCoin,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
+				sdk.NewAttribute(evmtypes.AttributeKeyTxHash, res.Hash),
+			),
+			sdk.NewEvent(
+				evmtypes.EventTypeTxLog,
+				txLogAttrs...,
+			),
+		},
+	)
 
 	return &types.MsgConvertERC20Response{}, nil
 }

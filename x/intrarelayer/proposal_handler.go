@@ -51,7 +51,7 @@ func handleEnableRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.Enable
 		sdk.NewEvent(
 			types.EventTypeEnableTokenRelay,
 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-			sdk.NewAttribute(types.AttributeKeyErc20Address, pair.Erc20Address),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
 	)
 
@@ -68,7 +68,7 @@ func handleUpdateTokenPairERC20Proposal(ctx sdk.Context, k keeper.Keeper, p *typ
 		sdk.NewEvent(
 			types.EventTypeUpdateTokenPairERC20,
 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-			sdk.NewAttribute(types.AttributeKeyErc20Address, pair.Erc20Address),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
 	)
 

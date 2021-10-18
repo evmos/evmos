@@ -7,6 +7,11 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
+// MintingEnabled checks that:
+//  - the global parameter for intrarelaying is enabled
+//  - minting is enabled for the given (erc20,coin) token pair
+//  - recipient address is not on the blocked list
+//  - bank module transfers are enabled for the Cosmos coin
 func (k Keeper) MintingEnabled(ctx sdk.Context, sender, receiver sdk.AccAddress, token string) (types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableIntrarelayer {

@@ -42,7 +42,14 @@ func GetTokenPairsCmd() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryTokenPairsRequest{}
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryTokenPairsRequest{
+				Pagination: pageReq,
+			}
 
 			res, err := queryClient.TokenPairs(context.Background(), req)
 			if err != nil {
