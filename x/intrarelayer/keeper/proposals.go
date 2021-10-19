@@ -41,8 +41,12 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
 	_, found := k.bankKeeper.GetDenomMetaData(ctx, bridge.Denom)
 	if found {
 		// metadata already exists; exit
+		// TODO: validate that the fields from the ERC20 match the denom metadata's
 		return nil
 	}
+
+	// if cosmos denom doesn't exist
+	// TODO: query the contract and supply
 
 	// TODO: retrieve from ERC20 contract ABI
 	symbol := ""

@@ -9,11 +9,16 @@ import (
 // InitGenesis import module genesis
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	k.SetParams(ctx, data.Params)
+
+	for _, pair := range data.TokenPairs {
+		k.SetTokenPair(ctx, pair)
+	}
 }
 
 // ExportGenesis export module status
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params: k.GetParams(ctx),
+		Params:     k.GetParams(ctx),
+		TokenPairs: k.GetAllTokenPairs(ctx),
 	}
 }

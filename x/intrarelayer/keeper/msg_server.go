@@ -44,6 +44,7 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	}
 
 	// TODO: use init to compile ABI
+	// ERC20Burnable interface
 	// erc20, err := abi.JSON(strings.NewReader(contracts.ContractsABI))
 	// if err != nil {
 	// 	return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to create ABI for erc20: %s", err.Error())

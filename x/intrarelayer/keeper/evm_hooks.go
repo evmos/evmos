@@ -24,6 +24,14 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 
 		_ = log.Topics[0] // event ID
 
+		// TODO: switch and handle events
+		// switch event {
+		// // case Burn
+		// // case Mint
+		// default:
+		// 	continue
+		// }
+
 		// check that the contract is a registered token pair
 		contractAddr := log.Address
 		id := k.GetERC20Map(ctx, contractAddr) // TODO: rename
@@ -53,7 +61,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		// contractABI.Events[event]
 
 		// check that the event is Burn from the ERC20Burnable interface
-		// NOTE: assume that if they are burning the token, they want to mint a Cosmos coin
+		// NOTE: assume that if they are burning the token that has been registered as a pair, they want to mint a Cosmos coin
 
 		// get the amount burned and the caller address
 		// compare the caller address with the owner address and only mint if the burner is different from owner
