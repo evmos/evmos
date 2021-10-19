@@ -11,7 +11,10 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	k.SetParams(ctx, data.Params)
 
 	for _, pair := range data.TokenPairs {
+		id := pair.GetID()
 		k.SetTokenPair(ctx, pair)
+		k.SetDenomMap(ctx, pair.Denom, id)
+		k.SetERC20Map(ctx, pair.GetERC20Contract(), id)
 	}
 }
 
