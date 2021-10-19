@@ -29,7 +29,7 @@ func NewParams(enableIntrarelayer bool, votingPeriod time.Duration) Params {
 
 func DefaultParams() Params {
 	return Params{
-		EnableIntrarelayer:    false,
+		EnableIntrarelayer:    true,
 		TokenPairVotingPeriod: govtypes.DefaultPeriod,
 	}
 }
