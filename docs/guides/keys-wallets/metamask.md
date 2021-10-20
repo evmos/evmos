@@ -25,22 +25,23 @@ You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EI
 Here is the list of fields that you can use to paste on Metamask:
 
 :::: tabs
-::: tab Local Node
+::: tab Testnet
+
+- **Network Name:** `{{ $themeConfig.project.name }} Testnet`
+- **New RPC URL:** `{{ $themeConfig.project.rpc_url_testnet }}`
+- **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
+- **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
+- **Block Explorer URL (optional):** `{{ $themeConfig.project.block_explorer_url }}`
+  :::
+  ::: tab Local Node
 
 - **Network Name:** `{{ $themeConfig.project.name }} Local`
 - **New RPC URL:** `{{ $themeConfig.project.rpc_url_local }}`
 - **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
 - **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
 - **Block Explorer URL (optional):** `n/a`
-:::
-::: tab Testnet
-- **Network Name:** `{{ $themeConfig.project.name }} Testnet`
-- **New RPC URL:** `{{ $themeConfig.project.rpc_url_testnet }}`
-- **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
-- **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
-- **Block Explorer URL (optional):** `{{ $themeConfig.project.block_explorer_url }}`
-:::
-::::
+  :::
+  ::::
 
 ## Import Account to Metamask
 
@@ -50,9 +51,9 @@ Once you have added {{ $themeConfig.project.name }} to the Metamask `Networks`, 
 
 1. Go to the official EVM Chain ID Registry website: [chainlist.org](https://chainlist.org/)
 2. Search for `"Evmos"`
-  ![chainlist.org website](./../img/chainlist.png)
+   ![chainlist.org website](./../img/chainlist.png)
 3. Click the `Connect Wallet` button under `Evmos Testnet`
-  ![add accounts via chainlist](./../img/chainlist_metamask.png)
+   ![add accounts via chainlist](./../img/chainlist_metamask.png)
 
 ### Manual Import
 
@@ -71,8 +72,7 @@ Go back to the browser and select the `Private Key` option. Then paste the priva
 Your account balance should show up as `1 {{ $themeConfig.project.testnet_ticker }}` and do transfers as usual.
 
 ::: tip
-If it takes some time to load the balance of the account, change the network to `Main Ethereum
-Network` (or any other than `Localhost 8545` or `{{ $themeConfig.project.name }}`) and then switch back to `{{ $themeConfig.project.name }}`.
+If it takes some time to load the balance of the account, change the network to `Main Ethereum Network` (or any other than `Localhost 8545` or `{{ $themeConfig.project.name }}`) and then switch back to `{{ $themeConfig.project.name }}`.
 :::
 
 ## Downloading State
