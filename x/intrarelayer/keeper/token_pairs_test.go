@@ -6,6 +6,30 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
+func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
+	testCases := []struct {
+		name     string
+		malleate func()
+	}{
+		{"no pairs found", nil},
+		{
+			"all pairs",
+			func() {
+				pair1 := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true)
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair1)
+				pair2 := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true)
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair2)
+			},
+		},
+	}
+	for _, tc := range testCases {
+		pairs := suite.app.IntrarelayerKeeper.GetAllTokenPairs(suite.ctx)
+		tc.malleate()
+
+		suite.Require().Equal([]types.TokenPair{}, pairs, tc.name)
+	}
+}
+
 func (suite *KeeperTestSuite) TestGetTokenPairID() {
 	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
