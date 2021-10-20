@@ -19,7 +19,7 @@ func TestMsgsTestSuite(t *testing.T) {
 	suite.Run(t, new(MsgsTestSuite))
 }
 
-func (suite *MsgsTestSuite) TestMsgConvertCoin() {
+func (suite *MsgsTestSuite) TestMsgConvertCoinNew() {
 	testCases := []struct {
 		msg        string
 		coin       sdk.Coin
@@ -32,6 +32,31 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 
 	for i, tc := range testCases {
 		tx := NewMsgConvertCoin(tc.coin, tc.receiver, tc.sender)
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+		}
+	}
+}
+
+func (suite *MsgsTestSuite) TestMsgConvertCoin() {
+	testCases := []struct {
+		msg        string
+		coin       sdk.Coin
+		receiver   string
+		sender     string
+		expectPass bool
+	}{
+		{msg: "msg convert coin - pass", coin: sdk.NewCoin("test", sdk.NewInt(100)), receiver: tests.GenerateAddress().String(), sender: sdk.AccAddress(tests.GenerateAddress().Bytes()).String(), expectPass: true},
+		{msg: "msg convert coin - invalid receiver", coin: sdk.NewCoin("test", sdk.NewInt(100)), receiver: "0x0000", sender: tests.GenerateAddress().String(), expectPass: false},
+		{msg: "msg convert coin - invalid sender", coin: sdk.NewCoin("test", sdk.NewInt(100)), receiver: tests.GenerateAddress().String(), sender: "evmosinvalid", expectPass: false},
+	}
+
+	for i, tc := range testCases {
+		tx := MsgConvertCoin{tc.coin, tc.receiver, tc.sender}
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {

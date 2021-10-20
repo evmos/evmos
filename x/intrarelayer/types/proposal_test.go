@@ -17,10 +17,10 @@ type ProposalTestSuite struct {
 }
 
 func TestProposalTestSuite(t *testing.T) {
-	suite.Run(t, new(MsgsTestSuite))
+	suite.Run(t, new(ProposalTestSuite))
 }
 
-func (suite *MsgsTestSuite) TestRegisterTokenPairProposal() {
+func (suite *ProposalTestSuite) TestRegisterTokenPairProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
@@ -63,7 +63,7 @@ func (suite *MsgsTestSuite) TestRegisterTokenPairProposal() {
 	}
 }
 
-func (suite *MsgsTestSuite) TestEnableTokenRelayProposal() {
+func (suite *ProposalTestSuite) TestEnableTokenRelayProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
@@ -102,7 +102,7 @@ func (suite *MsgsTestSuite) TestEnableTokenRelayProposal() {
 	}
 }
 
-func (suite *MsgsTestSuite) TestUpdateTokenPairERC20Proposal() {
+func (suite *ProposalTestSuite) TestUpdateTokenPairERC20Proposal() {
 	testCases := []struct {
 		msg          string
 		title        string
@@ -127,7 +127,7 @@ func (suite *MsgsTestSuite) TestUpdateTokenPairERC20Proposal() {
 		}
 	}
 }
-func (suite *MsgsTestSuite) TestUpdateTokenPairERC20ProposalWithoutConstructor() {
+func (suite *ProposalTestSuite) TestUpdateTokenPairERC20ProposalWithoutConstructor() {
 	testCases := []struct {
 		msg          string
 		title        string
