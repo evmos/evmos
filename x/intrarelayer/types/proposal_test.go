@@ -34,17 +34,19 @@ func (suite *MsgsTestSuite) TestRegisterTokenPairProposal() {
 		// Missing params valid
 		{msg: "Register token pair - invalid missing title ", title: "", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", false}, expectPass: false},
 		{msg: "Register token pair - invalid missing description ", title: "test", description: "", pair: TokenPair{tests.GenerateAddress().String(), "test", false}, expectPass: false},
-		// Invalid Regex
+		// Invalid address
+		{msg: "Register token pair - invalid address (no hex)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ", "test", true}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid length 1)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19", "test", true}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid length 2)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb194FFF", "test", true}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid prefix)", title: "test", description: "test desc", pair: TokenPair{"1x5dCA2483280D9727c80b5518faC4556617fb19F", "test", true}, expectPass: false},
+		// Invalid Regex (denom)
 		{msg: "Register token pair - invalid starts with number", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "1test", true}, expectPass: false},
 		{msg: "Register token pair - invalid char '('", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "(test", true}, expectPass: false},
 		{msg: "Register token pair - invalid char '^'", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "^test", true}, expectPass: false},
-		// TODO: (guille) should the "\" be allowed to support unicode names?
-		{msg: "Register token pair - invalid char '\\'", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "-test", true}, expectPass: false},
 		// Invalid length
 		{msg: "Register token pair - invalid length token (0)", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "", true}, expectPass: false},
 		{msg: "Register token pair - invalid length token (1)", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "a", true}, expectPass: false},
 		{msg: "Register token pair - invalid length token (128)", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), strings.Repeat("a", 129), true}, expectPass: false},
-
 		{msg: "Register token pair - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", true}, expectPass: false},
 		{msg: "Register token pair - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), pair: TokenPair{tests.GenerateAddress().String(), "test", true}, expectPass: false},
 	}
@@ -116,6 +118,36 @@ func (suite *MsgsTestSuite) TestUpdateTokenPairERC20Proposal() {
 
 	for i, tc := range testCases {
 		tx := NewUpdateTokenPairERC20Proposal(tc.title, tc.description, tc.erc20Addr, tc.newErc20Addr)
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+		}
+	}
+}
+func (suite *MsgsTestSuite) TestUpdateTokenPairERC20ProposalWithoutConstructor() {
+	testCases := []struct {
+		msg          string
+		title        string
+		description  string
+		erc20Addr    string
+		newErc20Addr string
+		expectPass   bool
+	}{
+		{msg: "update token pair erc20 without constructor - valid", title: "test", description: "desc", erc20Addr: tests.GenerateAddress().String(), newErc20Addr: tests.GenerateAddress().String(), expectPass: true},
+		{msg: "update token pair erc20 without constructor- invalid address 1", title: "test", description: "desc", erc20Addr: tests.GenerateAddress().String(), newErc20Addr: "1x5dCA2483280D9727c80b5518faC4556617fb19F", expectPass: false},
+		{msg: "update token pair erc20 without constructor- invalid address 2", title: "test", description: "desc", erc20Addr: "1x5dCA2483280D9727c80b5518faC4556617fb19F", newErc20Addr: tests.GenerateAddress().String(), expectPass: false},
+	}
+
+	for i, tc := range testCases {
+		tx := UpdateTokenPairERC20Proposal{
+			Title:           tc.title,
+			Description:     tc.description,
+			Erc20Address:    tc.erc20Addr,
+			NewErc20Address: tc.newErc20Addr,
+		}
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
