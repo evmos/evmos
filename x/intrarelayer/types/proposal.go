@@ -57,7 +57,7 @@ func (rtbp *RegisterTokenPairProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-// NewEnableTokenRelayProposal returns new instance of TokenPairProposal
+// NewEnableTokenRelayProposal returns new instance of EnableTokenRelayProposal
 func NewEnableTokenRelayProposal(title, description string, token string) govtypes.Content {
 	return &EnableTokenRelayProposal{
 		Title:       title,
@@ -79,13 +79,15 @@ func (etrp *EnableTokenRelayProposal) ValidateBasic() error {
 	// check if the token is a hex address, if not, check if it is a valid SDK
 	// denom
 	if err := ethermint.ValidateAddress(etrp.Token); err != nil {
-		return sdk.ValidateDenom(etrp.Token)
+		if err := sdk.ValidateDenom(etrp.Token); err != nil {
+			return err
+		}
 	}
 
 	return govtypes.ValidateAbstract(etrp)
 }
 
-// NewUpdateTokenPairERC20Proposal returns new instance of TokenPairProposal
+// NewUpdateTokenPairERC20Proposal returns new instance of UpdateTokenPairERC20Proposal
 func NewUpdateTokenPairERC20Proposal(title, description string, erc20Addr, newERC20Addr common.Address) govtypes.Content {
 	return &UpdateTokenPairERC20Proposal{
 		Title:           title,
