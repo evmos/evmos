@@ -71,7 +71,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 			res, err := suite.queryClient.TokenPairs(ctx, req)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+				suite.Require().Equal(expRes.Pagination, res.Pagination)
+				suite.Require().ElementsMatch(expRes.TokenPairs, res.TokenPairs)
 			} else {
 				suite.Require().Error(err)
 			}

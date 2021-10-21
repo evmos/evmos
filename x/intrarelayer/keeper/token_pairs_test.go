@@ -1,32 +1,53 @@
 package keeper_test
 
 import (
+	"fmt"
+
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
 func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
+	var expRes []types.TokenPair
+
 	testCases := []struct {
 		name     string
 		malleate func()
 	}{
-		{"no pairs found", nil},
 		{
-			"all pairs",
+			"no pair registered", func() { expRes = []types.TokenPair{} }},
+		{
+			"1 pair registered",
 			func() {
-				pair1 := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true)
-				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair1)
-				pair2 := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true)
+				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+
+				expRes = []types.TokenPair{pair}
+			},
+		},
+		{
+			"2 pairs registered",
+			func() {
+				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
+				pair2 := types.NewTokenPair(tests.GenerateAddress(), "coin2", true)
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair2)
+
+				expRes = []types.TokenPair{pair, pair2}
 			},
 		},
 	}
 	for _, tc := range testCases {
-		pairs := suite.app.IntrarelayerKeeper.GetAllTokenPairs(suite.ctx)
-		tc.malleate()
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-		suite.Require().Equal([]types.TokenPair{}, pairs, tc.name)
+			tc.malleate()
+			res := suite.app.IntrarelayerKeeper.GetAllTokenPairs(suite.ctx)
+
+			suite.Require().ElementsMatch(expRes, res, tc.name)
+		})
 	}
 }
 
@@ -71,6 +92,79 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 		if tc.ok {
 			suite.Require().True(found, tc.name)
 			suite.Require().Equal(pair, p, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
+	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true)
+	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+
+	testCases := []struct {
+		name string
+		id   []byte
+		ok   bool
+	}{
+		{"valid id", pair.GetID(), true},
+		{"pair not found", []byte{}, false},
+	}
+	for _, tc := range testCases {
+		found := suite.app.IntrarelayerKeeper.IsTokenPairRegistered(suite.ctx, tc.id)
+		if tc.ok {
+			suite.Require().True(found, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestIsERC20Registered() {
+	addr := tests.GenerateAddress()
+	pair := types.NewTokenPair(addr, "coin", true)
+	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+	suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, addr, pair.GetID())
+
+	testCases := []struct {
+		name  string
+		erc20 common.Address
+		ok    bool
+	}{
+		{"nil erc20 address", common.Address{}, false},
+		{"valid erc20 address", pair.GetERC20Contract(), true},
+	}
+	for _, tc := range testCases {
+		found := suite.app.IntrarelayerKeeper.IsERC20Registered(suite.ctx, tc.erc20)
+
+		if tc.ok {
+			suite.Require().True(found, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestIsDenomRegistered() {
+	addr := tests.GenerateAddress()
+	pair := types.NewTokenPair(addr, "coin", true)
+	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+	suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, addr, pair.GetID())
+	suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+
+	testCases := []struct {
+		name  string
+		denom string
+		ok    bool
+	}{
+		{"empty denom", "", false},
+		{"valid denom", pair.GetDenom(), true},
+	}
+	for _, tc := range testCases {
+		found := suite.app.IntrarelayerKeeper.IsDenomRegistered(suite.ctx, tc.denom)
+
+		if tc.ok {
+			suite.Require().True(found, tc.name)
 		} else {
 			suite.Require().False(found, tc.name)
 		}
