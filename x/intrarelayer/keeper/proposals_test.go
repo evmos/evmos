@@ -68,5 +68,4 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 			}
 		})
 	}
-
 }

@@ -48,10 +48,10 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
 	// if cosmos denom doesn't exist
 	// TODO: query the contract and supply
 
-	// TODO: retrieve from ERC20 contract ABI
-	symbol := ""
+	// TODO: retrieve the vars below from the ERC20 contract ABI
+	symbol := "ERC"
 	decimals := uint32(18)
-	token := ""
+	token := "erc20"
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
@@ -68,8 +68,9 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
 				Exponent: decimals,
 			},
 		},
-		Name:   token,
-		Symbol: symbol,
+		Name:    token,
+		Symbol:  symbol,
+		Display: token,
 	}
 
 	if err := metadata.Validate(); err != nil {
