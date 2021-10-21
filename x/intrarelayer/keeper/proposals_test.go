@@ -42,14 +42,13 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 		{
 			"meta data already stored",
 			func() {
-				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+				suite.app.IntrarelayerKeeper.CreateMetadata(suite.ctx, pair)
 			},
 			false,
 		},
 		{
 			"ok",
 			func() {
-				pair.Enabled = true
 			},
 			true,
 		},

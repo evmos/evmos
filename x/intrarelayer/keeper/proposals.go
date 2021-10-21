@@ -42,7 +42,8 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
 	if found {
 		// metadata already exists; exit
 		// TODO: validate that the fields from the ERC20 match the denom metadata's
-		return nil
+		return sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
+
 	}
 
 	// if cosmos denom doesn't exist
