@@ -27,8 +27,10 @@ evmosd keys show testnet-key
 1. Add the Testnet to the [Metamask](./../guides/keys-wallets/metamask.md) Networks settings.
 2. Copy your Hex address and use the [`debug`](./../basics/accounts.md#addresses-conversion) command to obtain the Bech32 address
 
+Eg: If your address is `0x7fa99D8360E550FD09.....`, enter `7fa99D8360E550FD09.....`
+
   ```bash
-  evmosd debug addr 0x...
+  evmosd debug addr 7fa99D8360E550FD09.....
   ```
 
 ::: tip
