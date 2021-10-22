@@ -13,8 +13,9 @@ var _ govtypes.GovHooks = &Keeper{}
 // AfterProposalVotingPeriodEnded performs a no-op
 func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {}
 
-// AfterProposalDeposit hook overrides the voting period for the RegisterTokenPairProposal to the
-// value defined on the intrarelayer module parameters.
+// AfterProposalDeposit hook overrides the voting period for the
+// RegisterTokenPairProposal to the value defined on the intrarelayer module
+// parameters.
 func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
 	// fetch the original voting period from gov params
 	votingPeriod := k.govKeeper.GetVotingParams(ctx).VotingPeriod
