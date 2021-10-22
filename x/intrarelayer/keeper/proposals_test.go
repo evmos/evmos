@@ -118,16 +118,59 @@ func (suite KeeperTestSuite) TestEnableRelay() {
 			tc.malleate()
 
 			pair, err = suite.app.IntrarelayerKeeper.EnableRelay(suite.ctx, "coin")
-			expPair := types.TokenPair{
-				Erc20Address: pair.Erc20Address,
-				Denom:        pair.Denom,
-				Enabled:      true,
-			}
-
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().True(pair.Enabled)
-				suite.Require().Equal(expPair, pair)
+			} else {
+				suite.Require().Error(err, tc.name)
+			}
+		})
+	}
+}
+
+func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
+	var (
+		pair types.TokenPair
+		id   []byte
+		err  error
+	)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"token not registered",
+			func() {},
+			false,
+		},
+		{
+			"registered pair",
+			func() {
+				pair = types.NewTokenPair(tests.GenerateAddress(), "coin", true)
+				id = pair.GetID()
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
+				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			erc20 := pair.GetERC20Contract()
+			newErc20 := tests.GenerateAddress()
+
+			pair, err = suite.app.IntrarelayerKeeper.UpdateTokenPairERC20(suite.ctx, erc20, newErc20)
+
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				suite.Require().Equal(newErc20.Hex(), pair.Erc20Address)
 			} else {
 				suite.Require().Error(err, tc.name)
 			}
