@@ -350,11 +350,6 @@ func NewEvmos(
 		tracer, bApp.Trace(), // debug EVM based on Baseapp options
 	)
 
-	// Evmos Keeper
-	app.IntrarelayerKeeper = irk.NewKeeper(
-		keys[irt.StoreKey], appCodec, app.GetSubspace(irt.ModuleName), app.BankKeeper, app.EvmKeeper,
-	)
-
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
@@ -374,10 +369,15 @@ func NewEvmos(
 		&stakingKeeper, govRouter,
 	)
 
+	// Evmos Keeper
+	app.IntrarelayerKeeper = irk.NewKeeper(
+		keys[irt.StoreKey], appCodec, app.GetSubspace(irt.ModuleName), app.BankKeeper, govKeeper, app.EvmKeeper,
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			govtypes.NewMultiGovHooks(
-				irk.NewGovHooks(app.IntrarelayerKeeper, govKeeper),
+				app.IntrarelayerKeeper,
 			),
 		),
 	)

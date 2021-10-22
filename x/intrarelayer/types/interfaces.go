@@ -25,12 +25,6 @@ type BankKeeper interface {
 // EVMKeeper defines the expected EVM keeper interface used on intrarelayer
 type EVMKeeper interface{}
 
-// VotingPeriodModifier defines a general interface that allow modules to modify voting period
-// per proposal type.
-type VotingPeriodModifier interface {
-	GetVotingPeriod(ctx sdk.Context, proposalType string) time.Duration
-}
-
 // GovKeeper defines the expected governance keeper interface used on intrarelayer
 type GovKeeper interface {
 	Logger(sdk.Context) log.Logger

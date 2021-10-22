@@ -19,6 +19,7 @@ type Keeper struct {
 	paramstore paramtypes.Subspace
 
 	bankKeeper types.BankKeeper
+	govKeeper  types.GovKeeper
 	evmKeeper  *evmkeeper.Keeper // TODO: use interface
 }
 
@@ -28,6 +29,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
 	bk types.BankKeeper,
+	govKeeper types.GovKeeper,
 	evmKeeper *evmkeeper.Keeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -40,6 +42,7 @@ func NewKeeper(
 		cdc:        cdc,
 		paramstore: ps,
 		bankKeeper: bk,
+		govKeeper:  govKeeper,
 		evmKeeper:  evmKeeper,
 	}
 }

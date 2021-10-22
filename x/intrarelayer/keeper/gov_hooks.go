@@ -8,39 +8,26 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
-var (
-	_ govtypes.GovHooks          = &GovHooks{}
-	_ types.VotingPeriodModifier = &Keeper{}
-)
-
-// GovHooks
-type GovHooks struct {
-	modifier  types.VotingPeriodModifier
-	govKeeper types.GovKeeper
-}
-
-func NewGovHooks(m types.VotingPeriodModifier, gk types.GovKeeper) GovHooks {
-	return GovHooks{
-		modifier:  m,
-		govKeeper: gk,
-	}
-}
+var _ govtypes.GovHooks = &Keeper{}
 
 // AfterProposalVotingPeriodEnded performs a no-op
-func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {}
+func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {}
 
 // AfterProposalDeposit hook overrides the voting period for the RegisterTokenPairProposal to the
 // value defined on the intrarelayer module parameters.
-func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
-	votingPeriod := h.govKeeper.GetVotingParams(ctx).VotingPeriod
-	newVotingPeriod := h.modifier.GetVotingPeriod(ctx, types.ProposalTypeRegisterTokenPair)
+func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
+	// fetch the original voting period from gov params
+	votingPeriod := k.govKeeper.GetVotingParams(ctx).VotingPeriod
+	// get the new voting period
+	newVotingPeriod := k.GetVotingPeriod(ctx, types.ProposalTypeRegisterTokenPair)
 
 	// perform a no-op if voting periods are equal
 	if newVotingPeriod == votingPeriod {
 		return
 	}
 
-	proposal, found := h.govKeeper.GetProposal(ctx, proposalID)
+	// get proposal
+	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
 	if !found {
 		return
 	}
@@ -64,21 +51,22 @@ func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk
 	originalEndTime := proposal.VotingEndTime
 	proposal.VotingEndTime = proposal.VotingStartTime.Add(newVotingPeriod)
 
-	// remove old proposal with old voting end time and reinsert it with the updated voting end time
-	h.govKeeper.RemoveFromActiveProposalQueue(ctx, proposalID, originalEndTime)
-	h.govKeeper.InsertActiveProposalQueue(ctx, proposalID, proposal.VotingEndTime)
+	// remove old proposal from the queue with old voting end time
+	k.govKeeper.RemoveFromActiveProposalQueue(ctx, proposalID, originalEndTime)
+	// reinsert the proposal to the queue with the updated voting end time
+	k.govKeeper.InsertActiveProposalQueue(ctx, proposalID, proposal.VotingEndTime)
 
-	h.govKeeper.Logger(ctx).Info("proposal voting end time updated", "id", proposalID, "endtime", proposal.VotingEndTime.String())
+	k.govKeeper.Logger(ctx).Info("proposal voting end time updated", "id", proposalID, "endtime", proposal.VotingEndTime.String())
 }
 
 // AfterProposalVotingPeriodEnded performs a no-op
-func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {}
+func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {}
 
 // AfterProposalFailedMinDeposit performs a no-op
-func (h GovHooks) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64) {}
+func (k Keeper) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64) {}
 
 // AfterProposalVotingPeriodEnded performs a no-op
-func (h GovHooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {}
+func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {}
 
 // GetVotingPeriod implements the ProposalHook interface
 func (k Keeper) GetVotingPeriod(ctx sdk.Context, proposalType string) time.Duration {
@@ -88,6 +76,7 @@ func (k Keeper) GetVotingPeriod(ctx sdk.Context, proposalType string) time.Durat
 	case types.ProposalTypeRegisterTokenPair:
 		return params.TokenPairVotingPeriod
 	default:
-		return 0
+		vp := k.govKeeper.GetVotingParams(ctx)
+		return vp.VotingPeriod
 	}
 }
