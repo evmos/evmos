@@ -62,7 +62,7 @@ module.exports = {
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v0.1.2',
+      latest_version: 'v0.1.3',
       version_number: '1',
       testnet_version_number: '1',
       block_explorer_url: 'https://evm.evmos.org',
@@ -129,6 +129,11 @@ module.exports = {
               title: 'Validators',
               directory: true,
               path: '/guides/validators'
+            },
+            {
+              title: 'Upgrades',
+              directory: true,
+              path: '/guides/upgrades'
             },
             {
               title: 'Key Management System',
