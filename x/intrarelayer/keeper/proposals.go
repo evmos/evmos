@@ -46,9 +46,14 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	}
 
 	// if cosmos denom doesn't exist
-	// TODO: query the contract and supply
+	contract := pair.GetERC20Contract()
 
-	// TODO: retrieve the vars below from the ERC20 contract ABI
+	// TODO: retrieve the vars from eth call responses
+	err := k.QueryERC20(ctx, contract)
+	if err != nil {
+		return err
+	}
+
 	symbol := "ERC"
 	decimals := uint32(18)
 	token := "erc20"
@@ -111,6 +116,8 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 	if !found {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
 	}
+
+	// TODO: validate ERC20 fields
 
 	pair.Erc20Address = newERC20Addr.Hex()
 	k.SetTokenPair(ctx, pair)

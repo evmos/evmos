@@ -13,6 +13,7 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/intrarelayer/types"
+	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
 func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
@@ -53,4 +54,26 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	}
 
 	return res, nil
+}
+
+func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) error {
+	erc20 := contracts.ERC20BurnableContract.ABI
+
+	_, err := k.CallEVM(ctx, erc20, contract, "name", contract)
+	if err != nil {
+		return err
+	}
+
+	_, err = k.CallEVM(ctx, erc20, contract, "symbol", contract)
+	if err != nil {
+		return err
+	}
+
+	_, err = k.CallEVM(ctx, erc20, contract, "decimals", contract)
+	if err != nil {
+		return err
+	}
+
+	// TODO: return name, symbol, decimals, supply
+	return nil
 }
