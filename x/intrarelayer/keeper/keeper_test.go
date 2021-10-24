@@ -27,7 +27,7 @@ type KeeperTestSuite struct {
 func (suite *KeeperTestSuite) SetupTest() {
 	checkTx := false
 
-	suite.app = app.Setup(false)
+	suite.app = app.Setup(false, nil)
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:  1,
 		ChainID: "evmos_9000-1",

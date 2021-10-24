@@ -36,14 +36,13 @@ func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
-func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
+func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	// TODO: replace for HasDenomMetaData once available
-	_, found := k.bankKeeper.GetDenomMetaData(ctx, bridge.Denom)
+	_, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
 	if found {
 		// metadata already exists; exit
 		// TODO: validate that the fields from the ERC20 match the denom metadata's
 		return sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
-
 	}
 
 	// if cosmos denom doesn't exist
@@ -56,12 +55,12 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
-		Description: fmt.Sprintf("Cosmos coin token wrapper of %s ", token),
-		Base:        bridge.Denom,
+		Description: fmt.Sprintf("Cosmos coin token representation of %s", pair.Erc20Address),
+		Base:        pair.Denom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    bridge.Denom,
+				Denom:    pair.Denom,
 				Exponent: 0,
 			},
 			{
@@ -69,13 +68,13 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, bridge types.TokenPair) error {
 				Exponent: decimals,
 			},
 		},
-		Name:    token,
+		Name:    pair.Erc20Address,
 		Symbol:  symbol,
 		Display: token,
 	}
 
 	if err := metadata.Validate(); err != nil {
-		return sdkerrors.Wrapf(err, "ERC20 token data is invalid for contract %s", bridge.Erc20Address)
+		return sdkerrors.Wrapf(err, "ERC20 token data is invalid for contract %s", pair.Erc20Address)
 	}
 
 	k.bankKeeper.SetDenomMetaData(ctx, metadata)
