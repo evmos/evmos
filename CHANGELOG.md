@@ -41,8 +41,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * (deps) [\#64](https://github.com/tharsis/evmos/pull/64) Bump Ethermint version to `v0.7.2`
 
-## [v0.1.2] - 2021-10-08
-
 ## Bug Fixes
 
 * (cmd) [\#41](https://github.com/tharsis/evmos/pull/41) Fix `debug` command.
