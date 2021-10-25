@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,33 +9,26 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	// "github.com/tharsis/evmos/solidity/contracts"
-
 	"github.com/tharsis/evmos/x/intrarelayer/types"
+	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
 var _ evmtypes.EvmHooks = (*Keeper)(nil)
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing
 func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*ethtypes.Log) error {
+	erc20 := contracts.ERC20BurnableContract.ABI
+
 	for _, log := range logs {
 		if len(log.Topics) == 0 {
 			continue
 		}
 
-		_ = log.Topics[0] // event ID
-
-		// TODO: switch and handle events
-		// switch event {
-		// // case Burn
-		// // case Mint
-		// default:
-		// 	continue
-		// }
+		eventID := log.Topics[0] // event ID
 
 		// check that the contract is a registered token pair
 		contractAddr := log.Address
-		id := k.GetERC20Map(ctx, contractAddr) // TODO: rename
+		id := k.GetERC20Map(ctx, contractAddr)
 
 		if len(id) == 0 {
 			// no token is registered for the caller contract
@@ -51,28 +45,40 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			return fmt.Errorf("internal relaying is disabled for pair %s, please create a governance proposal", contractAddr) // convert to SDK error
 		}
 
-		// get the contract ABI
-		// _, err := abi.JSON(strings.NewReader(contracts.ContractsABI))
-		// if err != nil {
-		// 	// the contract is not an ERC20Burnable
-		// 	continue
-		// }
+		// TODO: use erc20.GetEventById ?
+		event, ok := erc20.Events[eventID.String()]
+		if !ok {
+			// invalid event for ERC20
+			continue
+		}
 
-		// contractABI.Events[event]
+		if event.Name != types.ERC20EventTransfer {
+			k.Logger(ctx).Info("emitted event", "name", event.Name, "signature", event.Sig)
+			continue
+		}
+
+		var transferEvent types.LogTransfer
+		err := erc20.UnpackIntoInterface(&transferEvent, types.ERC20EventTransfer, log.Data)
+		if err != nil {
+			k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
+			continue
+		}
+
+		// safety check and ignore if amount not positive
+		if transferEvent.Tokens == nil || transferEvent.Tokens.Sign() != 1 {
+			continue
+		}
+
+		// ignore as the burning always transfers to the zero address
+		if !bytes.Equal(transferEvent.To.Bytes(), common.Address{}.Bytes()) {
+			continue
+		}
 
 		// check that the event is Burn from the ERC20Burnable interface
 		// NOTE: assume that if they are burning the token that has been registered as a pair, they want to mint a Cosmos coin
 
-		// get the amount burned and the caller address
-		// compare the caller address with the owner address and only mint if the burner is different from owner
-
 		// create the corresponding sdk.Coin that is paired with ERC20
-		coins := sdk.Coins{
-			{
-				Denom:  pair.Denom,
-				Amount: sdk.ZeroInt(), // FIXME: get amount from event
-			},
-		}
+		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(transferEvent.Tokens)}}
 
 		// Mint the coin
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
@@ -80,7 +86,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		}
 
 		// transfer to caller address
-		recipient := sdk.AccAddress{} // FIXME: get caller from event
+		recipient := sdk.AccAddress(transferEvent.From.Bytes())
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
 			return err
 		}
