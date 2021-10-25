@@ -1,5 +1,5 @@
 <!--
-order: 5
+order: 1
 -->
 
 # Upgrade Node
@@ -27,7 +27,9 @@ You will need to ensure that the version installed matches the one needed for th
 ## Upgrade Genesis File
 
 :::warning
-If the new version you are upgrading to has breaking changes, you will have to restart your chain. If it is **not** breaking, you can skip to [Restart](#restart-node).
+If the new version you are upgrading to has breaking changes, you will have to [export](#export-state) the state  and [restart](#restart-node) your node.
+
+If it is **not** breaking (eg. from `v0.1.x` to `v0.1.<x+1>`), you can skip to [Restart](#restart-node) after installing the new version.
 :::
 
 To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `evmosd export` command.
@@ -91,7 +93,3 @@ To restart your node once the new genesis has been updated, use the `start` comm
 ```bash
 evmosd start
 ```
-
-## Next {hide}
-
-Learn about how to setup a [validator](./validator-setup.md) node on Evmos {hide}

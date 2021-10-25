@@ -6,13 +6,43 @@ order: 2
 
 Check how to obtain testnet tokens from the Evmos faucet website {synopsis}
 
-## Requesting tokens
+## Obtain address
 
+### Keyring
+
+1. You can generate an Evmos key by using the [Keyring](./../guides/keys-wallets/keyring.md):
+
+```bash
+evmosd keys add testnet-key
+```
+
+You can obtain your key [Bech32](./../basics/accounts.md#addresses-and-public-keys) address by typing:
+
+```bash
+evmosd keys show testnet-key
+```
+
+### Metamask
+
+1. Add the Testnet to the [Metamask](./../guides/keys-wallets/metamask.md) Networks settings.
+2. Copy your Hex address and use the [`debug`](./../basics/accounts.md#addresses-conversion) command to obtain the Bech32 address
+
+  ```bash
+  evmosd debug addr 0x...
+  ```
+
+::: tip
+Follow the [Metamask guide](./../guides/keys-wallets/metamask.md) for more info on how to setup your wallet accounts.
+:::
+
+## Request tokens
+
+<!-- TODO: update to support Hex format -->
 You can request tokens for the testnet by using the Evmos [faucet](https://faucet.evmos.org).
-Simply fill in your address on the input field in bech32 (`evmos1...`) or hex (`0x...`) format.
+Simply fill in your address on the input field in Bech32 (`evmos1...`) format.
 
 ::: warning
-If you use your bech32 address, make sure you input the [account address](./../basics/accounts#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
+If you use your Bech32 address, make sure you input the [account address](./../basics/accounts.md#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
 :::
 
 ![faucet site](./img/faucet_web_page.png)
@@ -29,3 +59,10 @@ request per day per address. All addresses **must** be authenticated using
 ## Amount
 
 For each request, the faucet transfers 1 {{ $themeConfig.project.testnet_denom }} to the given address.
+
+## Faucet Addresses
+
+The public faucet addresses for the testnet are:
+
+- **Hex**: [`0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151`](https://evm.evmos.org/address/0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151/transactions)
+- **Bech32**: [`evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze`](https://explorer.evmos.org/accounts/evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze)
