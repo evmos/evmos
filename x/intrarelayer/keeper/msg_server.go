@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	_ "embed"
 	"encoding/json"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
