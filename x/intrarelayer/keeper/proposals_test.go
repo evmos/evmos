@@ -259,12 +259,6 @@ func (suite ProposalKeeperTestSuite) TestRegisterTokenPair() {
 			},
 			false,
 		},
-		{
-			"ok",
-			func() {
-			},
-			true,
-		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
