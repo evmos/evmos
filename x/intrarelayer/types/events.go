@@ -30,3 +30,8 @@ type LogTransfer struct {
 	To     common.Address
 	Tokens *big.Int
 }
+
+// Event type for LogBurn(address from, address to, uint256 value)
+type LogBurn struct {
+	Tokens *big.Int
+}

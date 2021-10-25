@@ -34,6 +34,7 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
@@ -383,6 +384,128 @@ func (suite ProposalKeeperTestSuite) TestUpdateTokenPairERC20() {
 			}
 		})
 	}
+}
+
+// Test
+func (suite *ProposalKeeperTestSuite) TestEvmHooks() {
+	suite.SetupTest()
+	fmt.Println(suite.address.String())
+	contractAddr := suite.DeployContract("coin", "token")
+	suite.Commit()
+	pair := types.NewTokenPair(contractAddr, "coinevm", true)
+	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
+	suite.Require().NoError(err)
+	_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+	suite.Commit()
+	msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+	logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
+	err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+}
+
+func (suite *ProposalKeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("mint", to, amount)
+	suite.Require().NoError(err)
+	args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	suite.Require().NoError(err)
+	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
+		Args:   args,
+		GasCap: 25_000_000,
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	var ercTransferTx *evmtypes.MsgEthereumTx
+	if suite.dynamicTxFee {
+		ercTransferTx = evmtypes.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			big.NewInt(1),
+			transferData,
+			&ethtypes.AccessList{}, // accesses
+		)
+	} else {
+		ercTransferTx = evmtypes.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			nil, nil,
+			transferData,
+			nil,
+		)
+	}
+
+	ercTransferTx.From = suite.address.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return ercTransferTx
+}
+
+func (suite *ProposalKeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("burn", amount)
+	suite.Require().NoError(err)
+	args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	suite.Require().NoError(err)
+	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
+		Args:   args,
+		GasCap: 25_000_000,
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	var ercTransferTx *evmtypes.MsgEthereumTx
+	if suite.dynamicTxFee {
+		ercTransferTx = evmtypes.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			big.NewInt(1),
+			transferData,
+			&ethtypes.AccessList{}, // accesses
+		)
+	} else {
+		ercTransferTx = evmtypes.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			nil, nil,
+			transferData,
+			nil,
+		)
+	}
+
+	ercTransferTx.From = suite.address.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return ercTransferTx
 }
 
 func TestProposalTestSuite(t *testing.T) {
