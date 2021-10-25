@@ -1,10 +1,11 @@
 package contracts
 
 import (
-	_ "embed"
+	_ "embed" // embed compiled smart contract
 	"encoding/json"
 
 	"github.com/ethereum/go-ethereum/common"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
@@ -13,7 +14,7 @@ var (
 	ERC20BurnableAndMintableJSON []byte
 
 	// ERC20BurnableAndMintableContract is the compiled erc20 contract
-	ERC20BurnableAndMintableContract CompiledContract
+	ERC20BurnableAndMintableContract evmtypes.CompiledContract
 
 	// ERC20BurnableAndMintableAddress is the irm module address
 	ERC20BurnableAndMintableAddress common.Address
