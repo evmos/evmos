@@ -16,6 +16,12 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
+type ERC20Data struct {
+	Name     string
+	Symbol   string
+	Decimals uint8
+}
+
 func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
 
@@ -57,55 +63,54 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	return res, nil
 }
 
-func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (string, string, uint32, error) {
+func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (ERC20Data, error) {
 	erc20 := contracts.ERC20BurnableContract.ABI
+	ret := ERC20Data{}
 
+	// Name
 	res, err := k.CallEVM(ctx, erc20, contract, "name")
 	if err != nil {
-		return "", "", 0, err
+		return ret, err
 	}
-	// Name
-	// TODO: use UnpackIntoInterface and pass the struct instead of
-	unpacked, err := erc20.Unpack("name", res.Ret)
-	if err != nil {
-		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
-	}
-	if len(unpacked) != 1 {
-		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to get property, response array must be 1 element")
-	}
-	name := unpacked[0].(string)
 
-	_, err = k.CallEVM(ctx, erc20, contract, "symbol")
+	nameResp := struct {
+		Name string
+	}{}
+	err = erc20.UnpackIntoInterface(&nameResp, "name", res.Ret)
 	if err != nil {
-		return "", "", 0, err
+		return ret, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
 	}
 
 	// Symbol
-	// TODO: use UnpackIntoInterface and pass the struct instead of
-	unpacked, err = erc20.Unpack("symbol", res.Ret)
+	res, err = k.CallEVM(ctx, erc20, contract, "symbol")
 	if err != nil {
-		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
+		return ret, err
 	}
-	if len(unpacked) != 1 {
-		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to get property, response array must be 1 element")
+
+	symbolResp := struct {
+		Name string
+	}{}
+	err = erc20.UnpackIntoInterface(&symbolResp, "symbol", res.Ret)
+	if err != nil {
+		return ret, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
 	}
-	symbol := unpacked[0].(string)
 
 	// Decimals
-	_, err = k.CallEVM(ctx, erc20, contract, "decimals")
+	res, err = k.CallEVM(ctx, erc20, contract, "decimals")
 	if err != nil {
-		return "", "", 0, err
+		return ret, err
 	}
 
-	unpacked, err = erc20.Unpack("decimals", res.Ret)
+	decimalResp := struct {
+		Value uint8
+	}{}
+	err = erc20.UnpackIntoInterface(&decimalResp, "decimals", res.Ret)
 	if err != nil {
-		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
+		return ret, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
 	}
-	if len(unpacked) != 1 {
-		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to get property, response array must be 1 element")
-	}
-	decimals := unpacked[0].(uint8)
 
-	// TODO: return name, symbol, decimals, supply
-	return name, symbol, uint32(decimals), nil
+	ret.Name = nameResp.Name
+	ret.Symbol = symbolResp.Name
+	ret.Decimals = decimalResp.Value
+	return ret, nil
 }

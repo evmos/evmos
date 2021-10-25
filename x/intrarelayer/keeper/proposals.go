@@ -48,8 +48,8 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	// if cosmos denom doesn't exist
 	contract := pair.GetERC20Contract()
 
-	// TODO: retrieve the vars from eth call responses
-	symbol, token, decimals, err := k.QueryERC20(ctx, contract)
+	erc20Data, err := k.QueryERC20(ctx, contract)
+
 	if err != nil {
 		return err
 	}
@@ -65,13 +65,13 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 				Exponent: 0,
 			},
 			{
-				Denom:    token,
-				Exponent: decimals,
+				Denom:    erc20Data.Name,
+				Exponent: uint32(erc20Data.Decimals),
 			},
 		},
 		Name:    pair.Erc20Address,
-		Symbol:  symbol,
-		Display: token,
+		Symbol:  erc20Data.Symbol,
+		Display: erc20Data.Name,
 	}
 
 	if err := metadata.Validate(); err != nil {
