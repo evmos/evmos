@@ -20,9 +20,7 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	k.evmKeeper.WithContext(ctx)
 
 	// pack and call method using the given args
-	var payload []byte
-	var err error
-	payload, err = abi.Pack(method, args)
+	payload, err := abi.Pack(method, args...)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(
@@ -62,7 +60,7 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (string, string, uint32, error) {
 	erc20 := contracts.ERC20BurnableContract.ABI
 
-	res, err := k.CallEVM(ctx, erc20, contract, "name", nil)
+	res, err := k.CallEVM(ctx, erc20, contract, "name")
 	if err != nil {
 		return "", "", 0, err
 	}
@@ -77,7 +75,7 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (string, st
 	}
 	name := unpacked[0].(string)
 
-	_, err = k.CallEVM(ctx, erc20, contract, "symbol", nil)
+	_, err = k.CallEVM(ctx, erc20, contract, "symbol")
 	if err != nil {
 		return "", "", 0, err
 	}
@@ -94,7 +92,7 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (string, st
 	symbol := unpacked[0].(string)
 
 	// Decimals
-	_, err = k.CallEVM(ctx, erc20, contract, "decimals", nil)
+	_, err = k.CallEVM(ctx, erc20, contract, "decimals")
 	if err != nil {
 		return "", "", 0, err
 	}
