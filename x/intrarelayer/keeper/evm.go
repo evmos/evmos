@@ -20,7 +20,10 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	k.evmKeeper.WithContext(ctx)
 
 	// pack and call method using the given args
-	payload, err := abi.Pack(method, args)
+	var payload []byte
+	var err error
+	payload, err = abi.Pack(method, args)
+
 	if err != nil {
 		return nil, sdkerrors.Wrap(
 			types.ErrWritingEthTxPayload,
@@ -56,24 +59,55 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	return res, nil
 }
 
-func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) error {
+func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (string, string, uint32, error) {
 	erc20 := contracts.ERC20BurnableContract.ABI
 
-	_, err := k.CallEVM(ctx, erc20, contract, "name", contract)
+	res, err := k.CallEVM(ctx, erc20, contract, "name", nil)
 	if err != nil {
-		return err
+		return "", "", 0, err
+	}
+	// Name
+	// TODO: use UnpackIntoInterface and pass the struct instead of
+	unpacked, err := erc20.Unpack("name", res.Ret)
+	if err != nil {
+		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
+	}
+	if len(unpacked) != 1 {
+		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to get property, response array must be 1 element")
+	}
+	name := unpacked[0].(string)
+
+	_, err = k.CallEVM(ctx, erc20, contract, "symbol", nil)
+	if err != nil {
+		return "", "", 0, err
 	}
 
-	_, err = k.CallEVM(ctx, erc20, contract, "symbol", contract)
+	// Symbol
+	// TODO: use UnpackIntoInterface and pass the struct instead of
+	unpacked, err = erc20.Unpack("symbol", res.Ret)
 	if err != nil {
-		return err
+		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
+	}
+	if len(unpacked) != 1 {
+		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to get property, response array must be 1 element")
+	}
+	symbol := unpacked[0].(string)
+
+	// Decimals
+	_, err = k.CallEVM(ctx, erc20, contract, "decimals", nil)
+	if err != nil {
+		return "", "", 0, err
 	}
 
-	_, err = k.CallEVM(ctx, erc20, contract, "decimals", contract)
+	unpacked, err = erc20.Unpack("decimals", res.Ret)
 	if err != nil {
-		return err
+		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
 	}
+	if len(unpacked) != 1 {
+		return "", "", 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to get property, response array must be 1 element")
+	}
+	decimals := unpacked[0].(uint8)
 
 	// TODO: return name, symbol, decimals, supply
-	return nil
+	return name, symbol, uint32(decimals), nil
 }

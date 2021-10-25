@@ -49,14 +49,10 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	contract := pair.GetERC20Contract()
 
 	// TODO: retrieve the vars from eth call responses
-	err := k.QueryERC20(ctx, contract)
+	symbol, token, decimals, err := k.QueryERC20(ctx, contract)
 	if err != nil {
 		return err
 	}
-
-	symbol := "ERC"
-	decimals := uint32(18)
-	token := "erc20"
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
