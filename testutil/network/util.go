@@ -84,7 +84,7 @@ func startInProcess(cfg Config, val *Validator) error {
 		app.RegisterTendermintService(val.ClientCtx)
 	}
 
-	if val.APIAddress != "" {
+	if val.AppConfig.API.Enable && val.APIAddress != "" {
 		apiSrv := api.New(val.ClientCtx, logger.With("module", "api-server"))
 		app.RegisterAPIRoutes(apiSrv, val.AppConfig.API)
 
@@ -121,10 +121,12 @@ func startInProcess(cfg Config, val *Validator) error {
 		}
 	}
 
-	if val.AppConfig.JSONRPC.Enable {
+	if val.AppConfig.JSONRPC.Enable && val.JSONRPCAddress != "" {
 		if val.Ctx == nil || val.Ctx.Viper == nil {
 			return fmt.Errorf("validator %s context is nil", val.Moniker)
 		}
+
+		fmt.Println(&val.Ctx, &val.Ctx.Viper)
 
 		tmEndpoint := "/websocket"
 		val.jsonrpc, val.jsonrpcDone, err = server.StartJSONRPC(val.Ctx, val.ClientCtx, val.JSONRPCAddress, tmEndpoint, *val.AppConfig)

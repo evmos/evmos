@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Features
+
+* (cmd) [\#32](https://github.com/tharsis/evmos/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
+
 ## [v0.1.3] - 2021-10-24
 
 ### Improvements
