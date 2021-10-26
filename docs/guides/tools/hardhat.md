@@ -107,7 +107,7 @@ module.exports = {
     hardhat: {
     },
     testnet: {
-      url: "",
+      url: "http://arsiamons.rpc.evmos.org:8545",
       accounts: [privateKey1, privateKey2, ...]
     }
   },
