@@ -15,9 +15,10 @@ func (suite *KeeperTestSuite) TestProposalNoOps() {
 }
 
 func (suite *KeeperTestSuite) TestAfterProposalDeposit() {
-	// proposal := suite.app.IntrarelayerKeeper.GetVotingPeriod(suite.ctx, types.ProposalTypeRegisterTokenPair)
 	votingPeriod := suite.app.IntrarelayerKeeper.GetVotingPeriod(suite.ctx, "")
 	expPeriod := votingPeriod + 1<<45
+
+	proposalID := uint64(1)
 
 	testCases := []struct {
 		name     string
@@ -40,10 +41,28 @@ func (suite *KeeperTestSuite) TestAfterProposalDeposit() {
 			},
 			true,
 		},
+		// TODO: Different Status test
 		// {
 		// 	"don't override voting period (different status)",
 		// 	func() {
+		// 		params := types.Params{TokenPairVotingPeriod: expPeriod}
+		// 		suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
 
+		// 		pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
+
+		// 		content := types.NewRegisterTokenPairProposal("title", "desc", pair)
+		// 		proposal, err := govtypes.NewProposal(content, proposalID, time.Now().UTC(), time.Now().UTC())
+		// 		suite.Require().NoError(err)
+
+		// 		proposal.Status = govtypes.ProposalStatus(0)
+		// 		suite.app.GovKeeper.SetProposal(suite.ctx, proposal)
+
+		// 		if proposal.Status != govtypes.StatusVotingPeriod {
+		// 			fmt.Println()
+		// 		}
+
+		// 		fmt.Printf("\npropsal.Status: %s\n", proposal.Status)
+		// 		fmt.Printf("govtypes.StatusVotingPeriod: %s\n", govtypes.StatusVotingPeriod)
 		// 	},
 		// 	true,
 		// },
@@ -53,9 +72,9 @@ func (suite *KeeperTestSuite) TestAfterProposalDeposit() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-			suite.app.GovKeeper.AfterProposalDeposit(suite.ctx, uint64(0), sdk.AccAddress{})
-
+			suite.app.GovKeeper.AfterProposalDeposit(suite.ctx, proposalID, sdk.AccAddress{})
 			newVotingPeriod := suite.app.IntrarelayerKeeper.GetVotingPeriod(suite.ctx, types.ProposalTypeRegisterTokenPair)
+
 			if tc.noOp {
 				suite.Require().Equal(votingPeriod, newVotingPeriod)
 			} else {

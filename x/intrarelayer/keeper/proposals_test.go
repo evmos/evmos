@@ -57,6 +57,13 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 			},
 			false,
 		},
+		// TODO: Uncomment after ABI is implemented
+		// {
+		// 	"ok",
+		// 	func() {
+		// 	},
+		// 	true,
+		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
