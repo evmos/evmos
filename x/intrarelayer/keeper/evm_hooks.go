@@ -70,7 +70,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		// // ignore as the burning always transfers to the zero address
+		// ignore as the burning always transfers to the zero address
 		To := common.HexToAddress(log.Topics[2].Hex())
 		if !bytes.Equal(To.Bytes(), common.Address{}.Bytes()) {
 			continue
@@ -82,7 +82,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		// create the corresponding sdk.Coin that is paired with ERC20
 		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(Tokens)}}
 
-		// // Mint the coin
+		// Mint the coin
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
 			return err
 		}
