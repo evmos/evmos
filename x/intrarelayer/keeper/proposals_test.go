@@ -67,16 +67,12 @@ func (suite *ProposalKeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	if suite.dynamicTxFee {
-		// setup feemarketGenesis params
-		feemarketGenesis := feemarkettypes.DefaultGenesisState()
-		feemarketGenesis.Params.EnableHeight = 1
-		feemarketGenesis.Params.NoBaseFee = false
-		feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
-		suite.app = app.Setup(checkTx, feemarketGenesis)
-	} else {
-		suite.app = app.Setup(checkTx, nil)
-	}
+	// setup feemarketGenesis params
+	feemarketGenesis := feemarkettypes.DefaultGenesisState()
+	feemarketGenesis.Params.EnableHeight = 1
+	feemarketGenesis.Params.NoBaseFee = false
+	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
+	suite.app = app.Setup(checkTx, feemarketGenesis)
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
