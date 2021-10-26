@@ -11,7 +11,7 @@ import (
 
 var (
 	//go:embed ERC20PresentMinterPauser.json
-	ERC20BurnableAndMintableJSON []byte
+	ERC20BurnableAndMintableJSON []byte // nolint: golint
 
 	// ERC20BurnableAndMintableContract is the compiled erc20 contract
 	ERC20BurnableAndMintableContract evmtypes.CompiledContract
