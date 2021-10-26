@@ -16,12 +16,6 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
-type ERC20Data struct {
-	Name     string
-	Symbol   string
-	Decimals uint8
-}
-
 func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
 
@@ -63,54 +57,44 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	return res, nil
 }
 
-func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (ERC20Data, error) {
+func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
 	erc20 := contracts.ERC20BurnableContract.ABI
-	ret := ERC20Data{}
 
 	// Name
 	res, err := k.CallEVM(ctx, erc20, contract, "name")
 	if err != nil {
-		return ret, err
+		return types.ERC20Data{}, err
 	}
 
-	nameResp := struct {
-		Name string
-	}{}
+	nameResp := types.NewERC20StringResponse()
 	err = erc20.UnpackIntoInterface(&nameResp, "name", res.Ret)
 	if err != nil {
-		return ret, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
 	}
 
 	// Symbol
 	res, err = k.CallEVM(ctx, erc20, contract, "symbol")
 	if err != nil {
-		return ret, err
+		return types.ERC20Data{}, err
 	}
 
-	symbolResp := struct {
-		Name string
-	}{}
+	symbolResp := types.NewERC20StringResponse()
 	err = erc20.UnpackIntoInterface(&symbolResp, "symbol", res.Ret)
 	if err != nil {
-		return ret, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
 	}
 
 	// Decimals
 	res, err = k.CallEVM(ctx, erc20, contract, "decimals")
 	if err != nil {
-		return ret, err
+		return types.ERC20Data{}, err
 	}
 
-	decimalResp := struct {
-		Value uint8
-	}{}
+	decimalResp := types.NewERC20Uint8Response()
 	err = erc20.UnpackIntoInterface(&decimalResp, "decimals", res.Ret)
 	if err != nil {
-		return ret, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
 	}
 
-	ret.Name = nameResp.Name
-	ret.Symbol = symbolResp.Name
-	ret.Decimals = decimalResp.Value
-	return ret, nil
+	return types.NewERC20Data(nameResp.Name, symbolResp.Name, decimalResp.Value), nil
 }
