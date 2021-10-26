@@ -7,6 +7,17 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
+// Test
+func (suite *KeeperTestSuite) TestRegisterTokenPairWithContract() {
+	suite.SetupTest()
+	contractAddr := suite.DeployContract("coin", "token")
+	suite.Commit()
+	pair := types.NewTokenPair(contractAddr, "coinevm", true)
+	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
+	suite.Require().NoError(err)
+	// TODO: check in the banking module if the Denom was created
+}
+
 func (suite KeeperTestSuite) TestRegisterTokenPair() {
 	pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
 	id := pair.GetID()
@@ -45,12 +56,6 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 				suite.app.IntrarelayerKeeper.CreateMetadata(suite.ctx, pair)
 			},
 			false,
-		},
-		{
-			"ok",
-			func() {
-			},
-			true,
 		},
 	}
 	for _, tc := range testCases {

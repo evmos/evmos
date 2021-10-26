@@ -102,10 +102,10 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-
 	"github.com/tharsis/evmos/x/intrarelayer"
 	irk "github.com/tharsis/evmos/x/intrarelayer/keeper"
 	irt "github.com/tharsis/evmos/x/intrarelayer/types"

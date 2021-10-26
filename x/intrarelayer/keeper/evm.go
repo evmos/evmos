@@ -20,7 +20,8 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	k.evmKeeper.WithContext(ctx)
 
 	// pack and call method using the given args
-	payload, err := abi.Pack(method, args)
+	payload, err := abi.Pack(method, args...)
+
 	if err != nil {
 		return nil, sdkerrors.Wrap(
 			types.ErrWritingEthTxPayload,
@@ -56,24 +57,44 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	return res, nil
 }
 
-func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) error {
+func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
 	erc20 := contracts.ERC20BurnableContract.ABI
 
-	_, err := k.CallEVM(ctx, erc20, contract, "name", contract)
+	// Name
+	res, err := k.CallEVM(ctx, erc20, contract, "name")
 	if err != nil {
-		return err
+		return types.ERC20Data{}, err
 	}
 
-	_, err = k.CallEVM(ctx, erc20, contract, "symbol", contract)
+	nameResp := types.NewERC20StringResponse()
+	err = erc20.UnpackIntoInterface(&nameResp, "name", res.Ret)
 	if err != nil {
-		return err
+		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
 	}
 
-	_, err = k.CallEVM(ctx, erc20, contract, "decimals", contract)
+	// Symbol
+	res, err = k.CallEVM(ctx, erc20, contract, "symbol")
 	if err != nil {
-		return err
+		return types.ERC20Data{}, err
 	}
 
-	// TODO: return name, symbol, decimals, supply
-	return nil
+	symbolResp := types.NewERC20StringResponse()
+	err = erc20.UnpackIntoInterface(&symbolResp, "symbol", res.Ret)
+	if err != nil {
+		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
+	}
+
+	// Decimals
+	res, err = k.CallEVM(ctx, erc20, contract, "decimals")
+	if err != nil {
+		return types.ERC20Data{}, err
+	}
+
+	decimalResp := types.NewERC20Uint8Response()
+	err = erc20.UnpackIntoInterface(&decimalResp, "decimals", res.Ret)
+	if err != nil {
+		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
+	}
+
+	return types.NewERC20Data(nameResp.Name, symbolResp.Name, decimalResp.Value), nil
 }

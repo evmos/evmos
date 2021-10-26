@@ -20,8 +20,4 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	if len(ERC20BurnableContract.Bin) == 0 {
-		panic("load contract failed")
-	}
 }
