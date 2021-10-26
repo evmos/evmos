@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
+	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -23,13 +25,11 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		fmt.Println(log.Address.String())
-
 		eventID := log.Topics[0] // event ID
 
 		// check that the contract is a registered token pair
 		contractAddr := log.Address
-		fmt.Println(contractAddr.String())
+
 		id := k.GetERC20Map(ctx, contractAddr)
 
 		if len(id) == 0 {
@@ -58,41 +58,41 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		//FIX types.LogBurn should be equal to the unpacking event
-		var transferEvent types.LogBurn
-		err = erc20.UnpackIntoInterface(&transferEvent, event.Name, log.Data)
+		burnEvent, err := erc20.Unpack(event.Name, log.Data)
 		if err != nil {
 			k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
 			continue
 		}
 
-		// safety check and ignore if amount not positive
-		if transferEvent.Tokens == nil || transferEvent.Tokens.Sign() != 1 {
+		Tokens := burnEvent[0].(*big.Int)
+		// // safety check and ignore if amount not positive
+		if Tokens == nil || Tokens.Sign() != 1 {
 			continue
 		}
 
 		// // ignore as the burning always transfers to the zero address
-		// if !bytes.Equal(transferEvent.To.Bytes(), common.Address{}.Bytes()) {
-		// 	continue
-		// }
+		To := common.HexToAddress(log.Topics[2].Hex())
+		if !bytes.Equal(To.Bytes(), common.Address{}.Bytes()) {
+			continue
+		}
 
 		// check that the event is Burn from the ERC20Burnable interface
 		// NOTE: assume that if they are burning the token that has been registered as a pair, they want to mint a Cosmos coin
 
 		// create the corresponding sdk.Coin that is paired with ERC20
-		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(transferEvent.Tokens)}}
+		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(Tokens)}}
 
-		// Mint the coin
+		// // Mint the coin
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
 			return err
 		}
 
-		//FIX if we use the burn method, we need to extract the sender from somewhere else
 		// transfer to caller address
-		// recipient := sdk.AccAddress(transferEvent.From.Bytes())
-		// if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
-		// 	return err
-		// }
+		From := common.HexToAddress(log.Topics[1].Hex())
+		recipient := sdk.AccAddress(From.Bytes())
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
+			return err
+		}
 	}
 
 	return nil

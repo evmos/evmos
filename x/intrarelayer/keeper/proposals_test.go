@@ -127,8 +127,8 @@ func (suite *ProposalKeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
-	suite.app.EvmKeeper.CreateAccount(types.ModuleAddress)
-	suite.app.EvmKeeper.AddAddressToAccessList(types.ModuleAddress)
+	// suite.app.EvmKeeper.CreateAccount(types.ModuleAddress)
+	// suite.app.EvmKeeper.AddAddressToAccessList(types.ModuleAddress)
 
 	suite.Require().NoError(err)
 }
@@ -389,7 +389,9 @@ func (suite ProposalKeeperTestSuite) TestUpdateTokenPairERC20() {
 // Test
 func (suite *ProposalKeeperTestSuite) TestEvmHooks() {
 	suite.SetupTest()
-	fmt.Println(suite.address.String())
+
+	// Module account is missing mint/burn permits
+
 	contractAddr := suite.DeployContract("coin", "token")
 	suite.Commit()
 	pair := types.NewTokenPair(contractAddr, "coinevm", true)
@@ -397,6 +399,8 @@ func (suite *ProposalKeeperTestSuite) TestEvmHooks() {
 	suite.Require().NoError(err)
 	_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
 	suite.Commit()
+
+	// should we burn coins or transfer them to a burn account
 	msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
 	logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
 	err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
