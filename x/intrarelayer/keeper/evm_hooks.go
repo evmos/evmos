@@ -68,15 +68,15 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		tokens := burnEvent[0].(*big.Int)
-		// // safety check and ignore if amount not positive
-		if tokens == nil || tokens.Sign() != 1 {
+		tokens, ok := burnEvent[0].(*big.Int)
+		// safety check and ignore if amount not positive
+		if !ok || tokens == nil || tokens.Sign() != 1 {
 			continue
 		}
 
 		// ignore as the burning always transfers to the zero address
-		To := common.HexToAddress(log.Topics[2].Hex())
-		if !bytes.Equal(To.Bytes(), common.Address{}.Bytes()) {
+		to := common.HexToAddress(log.Topics[2].Hex())
+		if !bytes.Equal(to.Bytes(), common.Address{}.Bytes()) {
 			continue
 		}
 
@@ -92,8 +92,8 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		}
 
 		// transfer to caller address
-		From := common.HexToAddress(log.Topics[1].Hex())
-		recipient := sdk.AccAddress(From.Bytes())
+		from := common.HexToAddress(log.Topics[1].Hex())
+		recipient := sdk.AccAddress(from.Bytes())
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
 			return err
 		}
