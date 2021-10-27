@@ -33,6 +33,8 @@ func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
 	}
 
 	k.SetTokenPair(ctx, pair)
+	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 	return nil
 }
 
