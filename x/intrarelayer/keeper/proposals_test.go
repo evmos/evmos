@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
@@ -84,7 +85,6 @@ func (suite *KeeperTestSuite) TestEnableRelayWithContext() {
 	// Try to toggle a not registered token
 	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, make([]byte, 0))
 	suite.Require().False(found)
-
 }
 
 func (suite *KeeperTestSuite) TestUpdateTokenPairERC20WithContext() {
@@ -118,6 +118,111 @@ func (suite *KeeperTestSuite) TestUpdateTokenPairERC20WithContext() {
 	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
 	suite.Require().True(found)
 	suite.Require().Equal(pair.Erc20Address, newContractAddr.String())
+}
+
+func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
+	var (
+		contractAddr    common.Address
+		pair            types.TokenPair
+		metadata        sdk.Metadata
+		newContractAddr common.Address
+	)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"token not registered",
+			func() {
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				suite.Commit()
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true)
+			},
+			false,
+		},
+		{
+			"token not registered - pair not found",
+			func() {
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				suite.Commit()
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true)
+
+				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+			},
+			false,
+		},
+		{
+			"token not registered - Metadata not found",
+			func() {
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				suite.Commit()
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true)
+
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+			},
+			false,
+		},
+		{
+			"newErc20 not found",
+			func() {
+				contractAddr = suite.setupNewTokenPair()
+				newContractAddr = common.Address{}
+			},
+			false,
+		},
+		// TODO invalid metadata
+		// {
+		// 	"invalid metadata",
+		// 	func() {
+		// 		contractAddr = suite.setupNewTokenPair()
+		// 		id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+		// 		pair, _ = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+		// 		metadata = sdk.Metadata{}
+		// 	},
+		// 	false,
+		// },
+		{
+			"ok",
+			func() {
+				contractAddr = suite.setupNewTokenPair()
+				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, _ = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				metadata, _ = suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
+				suite.Commit()
+
+				// Deploy a new contrat with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			var err error
+			pair, err = suite.app.IntrarelayerKeeper.UpdateTokenPairERC20(suite.ctx, contractAddr, newContractAddr)
+			metadata, _ = suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
+
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				suite.Require().Equal(newContractAddr.String(), pair.Erc20Address)
+				suite.Require().Equal(keeper.CreateDenomDescription(newContractAddr.String()), metadata.Description)
+			} else {
+				suite.Require().Error(err, tc.name)
+				if suite.app.IntrarelayerKeeper.IsTokenPairRegistered(suite.ctx, pair.GetID()) {
+					suite.Require().Equal(contractAddr.String(), pair.Erc20Address, "check pair")
+					suite.Require().Equal(keeper.CreateDenomDescription(contractAddr.String()), metadata.Description, "check metadata")
+				}
+			}
+		})
+	}
 }
 
 func (suite KeeperTestSuite) TestRegisterTokenPair() {
@@ -182,53 +287,3 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 		})
 	}
 }
-
-// func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
-// 	var (
-// 		pair types.TokenPair
-// 		id   []byte
-// 		err  error
-// 	)
-
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func()
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"token not registered",
-// 			func() {},
-// 			false,
-// 		},
-// 		{
-// 			"registered pair",
-// 			func() {
-// 				pair = types.NewTokenPair(tests.GenerateAddress(), "coin", true)
-// 				id = pair.GetID()
-// 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
-// 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
-// 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
-// 			},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			suite.SetupTest() // reset
-
-// 			tc.malleate()
-
-// 			erc20 := pair.GetERC20Contract()
-// 			newErc20 := tests.GenerateAddress()
-
-// 			pair, err = suite.app.IntrarelayerKeeper.UpdateTokenPairERC20(suite.ctx, erc20, newErc20)
-
-// 			if tc.expPass {
-// 				suite.Require().NoError(err, tc.name)
-// 				suite.Require().Equal(newErc20.Hex(), pair.Erc20Address)
-// 			} else {
-// 				suite.Require().Error(err, tc.name)
-// 			}
-// 		})
-// 	}
-// }
