@@ -3,21 +3,32 @@ package keeper_test
 import (
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
-// Test
-func (suite *KeeperTestSuite) TestRegisterTokenPairWithContract() {
+const (
+	erc20Name       = "coin"
+	erc20Symbol     = "token"
+	cosmosTokenName = "coinevm"
+	defaultExponent = uint32(18)
+	zeroExponent    = uint32(0)
+)
+
+func (suite *KeeperTestSuite) setupNewTokenPair() common.Address {
 	suite.SetupTest()
-	erc20Name := "coin"
-	erc20Symbol := "token"
-	cosmosTokenName := "coinevm"
 	contractAddr := suite.DeployContract(erc20Name, erc20Symbol)
 	suite.Commit()
 	pair := types.NewTokenPair(contractAddr, cosmosTokenName, true)
 	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 	suite.Require().NoError(err)
+	return contractAddr
+}
+
+// Test
+func (suite *KeeperTestSuite) TestRegisterTokenPairWithContract() {
+	contractAddr := suite.setupNewTokenPair()
 	// Validate the token pair
 	metadata, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
 	// Metadata variables
@@ -29,14 +40,35 @@ func (suite *KeeperTestSuite) TestRegisterTokenPairWithContract() {
 	// Denom units
 	suite.Require().Equal(len(metadata.DenomUnits), 2)
 	suite.Require().Equal(metadata.DenomUnits[0].Denom, cosmosTokenName)
-	suite.Require().Equal(metadata.DenomUnits[0].Exponent, uint32(0))
+	suite.Require().Equal(metadata.DenomUnits[0].Exponent, uint32(zeroExponent))
 	suite.Require().Equal(metadata.DenomUnits[1].Denom, erc20Name)
 	// Default exponent at contract creation is 18
-	suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(18))
+	suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
 
-	// Creating the same denom MUST fail because is already created
-	err = suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
+	// Creating the same denom MUST fail because it is already created
+	pair := types.NewTokenPair(contractAddr, cosmosTokenName, true)
+	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 	suite.Require().Error(err)
+}
+
+func (suite KeeperTestSuite) EnableRelayWithContext() {
+	// Default enabled value is False
+	contractAddr := suite.setupNewTokenPair()
+	id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+	suite.Require().True(len(id) > 0)
+	pair, found := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+	suite.Require().True(found)
+	suite.Require().False(pair.Enabled)
+
+	// Enable it
+	pair, err := suite.app.IntrarelayerKeeper.EnableRelay(suite.ctx, contractAddr.String())
+	suite.Require().NoError(err)
+	suite.Require().True(pair.Enabled)
+
+	// Request the pair using the GetPairToken func to make sure that is updated on the db
+	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+	suite.Require().True(found)
+	suite.Require().False(pair.Enabled)
 }
 
 func (suite KeeperTestSuite) TestRegisterTokenPair() {
