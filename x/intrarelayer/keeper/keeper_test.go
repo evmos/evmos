@@ -43,7 +43,6 @@ type KeeperTestSuite struct {
 	app            *app.Evmos
 	queryClientEvm evm.QueryClient
 	queryClient    types.QueryClient
-	dynamicTxFee   bool
 	address        common.Address
 	consAddress    sdk.ConsAddress
 	clientCtx      client.Context
@@ -52,7 +51,6 @@ type KeeperTestSuite struct {
 }
 
 // Test helpers
-
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	checkTx := false
 
@@ -154,31 +152,17 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string) common.
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
 
-	var erc20DeployTx *evm.MsgEthereumTx
-	if suite.dynamicTxFee {
-		erc20DeployTx = evm.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			data,                   // input
-			&ethtypes.AccessList{}, // accesses
-		)
-	} else {
-		erc20DeployTx = evm.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			nil, nil,
-			data, // input
-			nil,  // accesses
-		)
-	}
+	erc20DeployTx := evm.NewTxContract(
+		chainID,
+		nonce,
+		nil,     // amount
+		res.Gas, // gasLimit
+		nil,     // gasPrice
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		data,                   // input
+		&ethtypes.AccessList{}, // accesses
+	)
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
