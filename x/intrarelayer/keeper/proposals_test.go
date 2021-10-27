@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestRegisterTokenPairWithContract() {
 	suite.Require().Error(err)
 }
 
-func (suite *KeeperTestSuite) EnableRelayWithContext() {
+func (suite *KeeperTestSuite) TestEnableRelayWithContext() {
 	// Default enabled value is False
 	contractAddr := suite.setupNewTokenPair()
 	id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())

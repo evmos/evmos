@@ -205,33 +205,18 @@ func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Addre
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
 
-	var ercTransferTx *evm.MsgEthereumTx
-	if suite.dynamicTxFee {
-		ercTransferTx = evm.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			transferData,
-			&ethtypes.AccessList{}, // accesses
-		)
-	} else {
-		ercTransferTx = evm.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			nil, nil,
-			transferData,
-			nil,
-		)
-	}
+	ercTransferTx := evm.NewTx(
+		chainID,
+		nonce,
+		&contractAddr,
+		nil,
+		res.Gas,
+		nil,
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		transferData,
+		&ethtypes.AccessList{}, // accesses
+	)
 
 	ercTransferTx.From = suite.address.Hex()
 	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
@@ -258,33 +243,18 @@ func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, 
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
 
-	var ercTransferTx *evm.MsgEthereumTx
-	if suite.dynamicTxFee {
-		ercTransferTx = evm.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			transferData,
-			&ethtypes.AccessList{}, // accesses
-		)
-	} else {
-		ercTransferTx = evm.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			nil, nil,
-			transferData,
-			nil,
-		)
-	}
+	ercTransferTx := evm.NewTx(
+		chainID,
+		nonce,
+		&contractAddr,
+		nil,
+		res.Gas,
+		nil,
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		transferData,
+		&ethtypes.AccessList{}, // accesses
+	)
 
 	ercTransferTx.From = suite.address.Hex()
 	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
