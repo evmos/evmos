@@ -13,12 +13,12 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 
 	testCases := []struct {
 		name     string
-		malleate func(common.Address) error
+		malleate func(common.Address)
 		result   bool
 	}{
 		{
 			"correct execution",
-			func(contractAddr common.Address) error {
+			func(contractAddr common.Address) {
 				pair := types.NewTokenPair(contractAddr, "coinevm", true)
 				err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 				suite.Require().NoError(err)
@@ -32,14 +32,14 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 				logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
 
 				// After this execution, the burned tokens will be available on the cosmos chain
-				return suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
-
+				err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+				suite.Require().NoError(err)
 			},
 			true,
 		},
 		{
 			"Unregistered pair",
-			func(contractAddr common.Address) error {
+			func(contractAddr common.Address) {
 				// Mint 10 tokens to suite.address (owner)
 				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
 				suite.Commit()
@@ -49,13 +49,14 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 				logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
 
 				// Since theres no pair registered, no coins should be minted
-				return suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+				err := suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+				suite.Require().NoError(err)
 			},
 			false,
 		},
 		{
 			"Wrong event",
-			func(contractAddr common.Address) error {
+			func(contractAddr common.Address) {
 				pair := types.NewTokenPair(contractAddr, "coinevm", true)
 				err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 				suite.Require().NoError(err)
@@ -65,7 +66,8 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 				logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
 
 				// No coins should be minted on cosmos after a mint of the erc20 token
-				return suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+				err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+				suite.Require().NoError(err)
 			},
 			false,
 		},
@@ -77,16 +79,16 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 			contractAddr := suite.DeployContract("coin", "token")
 			suite.Commit()
 
-			err := tc.malleate(contractAddr)
-			//None of this test should error
-			suite.Require().NoError(err)
+			tc.malleate(contractAddr)
+
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(suite.address.Bytes()), "coinevm")
 
 			if tc.result {
 				// Check if the execution was successfull
-				suite.Require().Equal(suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(suite.address.Bytes()), "coinevm").Amount, sdk.NewIntFromBigInt(big.NewInt(10)))
+				suite.Require().Equal(balance.Amount, sdk.NewInt(10))
 			} else {
 				// Check that no changes were made to the account
-				suite.Require().Equal(suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(suite.address.Bytes()), "coinevm").Amount, sdk.NewIntFromBigInt(big.NewInt(0)))
+				suite.Require().Equal(balance.Amount, sdk.NewInt(0))
 			}
 		})
 	}

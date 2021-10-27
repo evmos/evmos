@@ -21,7 +21,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 	erc20 := contracts.ERC20BurnableContract.ABI
 
 	for _, log := range logs {
-		if len(log.Topics) == 0 {
+		if len(log.Topics) < 3 {
 			continue
 		}
 
@@ -64,9 +64,13 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		Tokens := burnEvent[0].(*big.Int)
+		if len(burnEvent) == 0 {
+			continue
+		}
+
+		tokens := burnEvent[0].(*big.Int)
 		// // safety check and ignore if amount not positive
-		if Tokens == nil || Tokens.Sign() != 1 {
+		if tokens == nil || tokens.Sign() != 1 {
 			continue
 		}
 
@@ -80,7 +84,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		// NOTE: assume that if they are burning the token that has been registered as a pair, they want to mint a Cosmos coin
 
 		// create the corresponding sdk.Coin that is paired with ERC20
-		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(Tokens)}}
+		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
 
 		// Mint the coin
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
