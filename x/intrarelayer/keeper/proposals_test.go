@@ -87,39 +87,6 @@ func (suite *KeeperTestSuite) TestEnableRelayWithContext() {
 	suite.Require().False(found)
 }
 
-func (suite *KeeperTestSuite) TestUpdateTokenPairERC20WithContext() {
-	contractAddr := suite.setupNewTokenPair()
-	// Check pair
-	id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
-	suite.Require().True(len(id) > 0)
-	pair, found := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
-	suite.Require().True(found)
-	suite.Require().Equal(pair.Erc20Address, contractAddr.String())
-	// Check metadata
-	metadata, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
-	suite.Require().True(found)
-	suite.Require().Equal(metadata.Description, keeper.CreateDenomDescription(contractAddr.String()))
-
-	// Deploy a new contrat with the same values
-	newContractAddr := suite.DeployContract(erc20Name, erc20Symbol)
-	suite.Commit()
-
-	// Update token pair
-	suite.app.IntrarelayerKeeper.UpdateTokenPairERC20(suite.ctx, contractAddr, newContractAddr)
-
-	// Check metadata
-	metadata, found = suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
-	suite.Require().True(found)
-	suite.Require().Equal(metadata.Description, keeper.CreateDenomDescription(newContractAddr.String()))
-
-	// Check pair
-	id = suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, newContractAddr.String())
-	suite.Require().True(len(id) > 0)
-	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
-	suite.Require().True(found)
-	suite.Require().Equal(pair.Erc20Address, newContractAddr.String())
-}
-
 func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 	var (
 		contractAddr    common.Address
