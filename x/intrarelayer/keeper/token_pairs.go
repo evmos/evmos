@@ -58,6 +58,12 @@ func (k Keeper) SetTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 	store.Set(key, bz)
 }
 
+func (k Keeper) RemoveTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPair)
+	key := tokenPair.GetID()
+	store.Delete(key)
+}
+
 func (k Keeper) GetERC20Map(ctx sdk.Context, erc20 common.Address) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	return store.Get(erc20.Bytes())

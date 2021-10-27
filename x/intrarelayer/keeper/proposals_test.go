@@ -98,6 +98,8 @@ func (suite *KeeperTestSuite) TestUpdateTokenPairERC20WithContext() {
 	suite.Require().Equal(metadata.Description, keeper.CreateDenomDescription(newContractAddr.String()))
 
 	// Check pair
+	id = suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, newContractAddr.String())
+	suite.Require().True(len(id) > 0)
 	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
 	suite.Require().True(found)
 	suite.Require().Equal(pair.Erc20Address, newContractAddr.String())
