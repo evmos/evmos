@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	cli "github.com/tharsis/evmos/x/intrarelayer/client"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
@@ -82,17 +83,19 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 type AppModule struct {
 	AppModuleBasic
-
 	keeper keeper.Keeper
+	ak     evmtypes.AccountKeeper
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
-	keeper keeper.Keeper,
+	k keeper.Keeper,
+	ak evmtypes.AccountKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
-		keeper:         keeper,
+		keeper:         k,
+		ak:             ak,
 	}
 }
 
@@ -134,12 +137,12 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, genesisState)
+	InitGenesis(ctx, am.keeper, am.ak, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	gs := ExportGenesis(ctx, am.keeper)
+	gs := ExportGenesis(ctx, am.keeper, am.ak)
 	return cdc.MustMarshalJSON(gs)
 }
 

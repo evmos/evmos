@@ -42,24 +42,21 @@ func (suite *KeeperTestSuite) TestConvertCoin() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-
 			tc.malleate()
 
+			ctx := sdk.WrapSDKContext(suite.ctx)
 			sender := sdk.AccAddress(tests.GenerateAddress().Bytes())
-
 			msg := types.NewMsgConvertCoin(
 				sdk.NewCoin(denom, sdk.NewInt(100)),
 				tests.GenerateAddress(),
 				sender,
 			)
-			ctx := sdk.WrapSDKContext(suite.ctx)
 
-			coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(100)))
-
-			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-			suite.Require().NoError(err)
-			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
-			suite.Require().NoError(err)
+			// coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(100)))
+			// err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			// suite.Require().NoError(err)
+			// err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+			// suite.Require().NoError(err)
 
 			res, err := suite.app.IntrarelayerKeeper.ConvertCoin(ctx, msg)
 			expRes := &types.MsgConvertCoinResponse{}
