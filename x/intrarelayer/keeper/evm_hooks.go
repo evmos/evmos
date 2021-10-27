@@ -75,7 +75,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		}
 
 		// ignore as the burning always transfers to the zero address
-		to := common.HexToAddress(log.Topics[2].Hex())
+		to := common.BytesToAddress(log.Topics[2].Bytes())
 		if !bytes.Equal(to.Bytes(), common.Address{}.Bytes()) {
 			continue
 		}
@@ -92,7 +92,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		}
 
 		// transfer to caller address
-		from := common.HexToAddress(log.Topics[1].Hex())
+		from := common.BytesToAddress(log.Topics[1].Bytes())
 		recipient := sdk.AccAddress(from.Bytes())
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
 			return err
