@@ -125,12 +125,12 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
-
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
 	suite.DoSetupTest(suite.T())
 }
+
 func (suite *KeeperTestSuite) DeployContract(name string, symbol string) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
