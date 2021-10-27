@@ -2,6 +2,7 @@ package intrarelayer
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
@@ -11,13 +12,13 @@ import (
 func InitGenesis(
 	ctx sdk.Context,
 	k keeper.Keeper,
-	accountKeeper evmtypes.AccountKeeper,
+	accountKeeper authkeeper.AccountKeeper,
 	data types.GenesisState,
 ) {
 	k.SetParams(ctx, data.Params)
 
-	// ensure intrarelayer module account is set
-	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
+	// ensure intrarelayer module account is set on genesis
+	if acc := accountKeeper.GetModuleAccount(ctx, types.ModuleName); acc == nil {
 		panic("the intrarelayer module account has not been set")
 	}
 
