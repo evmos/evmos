@@ -29,15 +29,15 @@ func (suite *KeeperTestSuite) TestConvertCoin() {
 			false,
 		},
 		// TODO use mint contract with ABI
-		// {
-		// 	"coin registered - sufficient funds - callEVM",
-		// 	func() {
-		// 		suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
-		// 		suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
-		// 		suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
-		// 	},
-		// 	true,
-		// },
+		{
+			"coin registered - sufficient funds - callEVM",
+			func() {
+				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
+				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
+			},
+			true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
