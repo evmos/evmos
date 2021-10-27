@@ -126,9 +126,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
-	suite.app.EvmKeeper.CreateAccount(types.ModuleAddress)
-	suite.app.EvmKeeper.AddAddressToAccessList(types.ModuleAddress)
-
 	suite.Require().NoError(err)
 }
 

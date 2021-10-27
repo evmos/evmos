@@ -10,12 +10,33 @@ import (
 // Test
 func (suite *KeeperTestSuite) TestRegisterTokenPairWithContract() {
 	suite.SetupTest()
-	contractAddr := suite.DeployContract("coin", "token")
+	erc20Name := "coin"
+	erc20Symbol := "token"
+	cosmosTokenName := "coinevm"
+	contractAddr := suite.DeployContract(erc20Name, erc20Symbol)
 	suite.Commit()
-	pair := types.NewTokenPair(contractAddr, "coinevm", true)
+	pair := types.NewTokenPair(contractAddr, cosmosTokenName, true)
 	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 	suite.Require().NoError(err)
-	// TODO: check in the banking module if the Denom was created
+	// Validate the token pair
+	metadata, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
+	// Metadata variables
+	suite.Require().True(found)
+	suite.Require().Equal(metadata.Base, cosmosTokenName)
+	suite.Require().Equal(metadata.Name, contractAddr.String())
+	suite.Require().Equal(metadata.Display, erc20Name)
+	suite.Require().Equal(metadata.Symbol, erc20Symbol)
+	// Denom units
+	suite.Require().Equal(len(metadata.DenomUnits), 2)
+	suite.Require().Equal(metadata.DenomUnits[0].Denom, cosmosTokenName)
+	suite.Require().Equal(metadata.DenomUnits[0].Exponent, uint32(0))
+	suite.Require().Equal(metadata.DenomUnits[1].Denom, erc20Name)
+	// Default exponent at contract creation is 18
+	suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(18))
+
+	// Creating the same denom MUST fail because is already created
+	err = suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
+	suite.Require().Error(err)
 }
 
 func (suite KeeperTestSuite) TestRegisterTokenPair() {
