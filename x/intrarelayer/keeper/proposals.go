@@ -147,8 +147,16 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 	metadata.Description = CreateDenomDescription(newERC20Addr.String())
 	k.bankKeeper.SetDenomMetaData(ctx, metadata)
 	// Delete old token pair (id is changed because the address was modifed)
-	k.RemoveTokenPair(ctx, pair)
+	k.DeleteTokenPair(ctx, pair)
+	// Update the address
 	pair.Erc20Address = newERC20Addr.Hex()
+	// Set the new pair
 	k.SetTokenPair(ctx, pair)
+	// Overwrite the value because id was changed
+	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	// Remove old address
+	k.DeleteERC20Map(ctx, erc20Addr)
+	// Add the new address
+	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 	return pair, nil
 }
