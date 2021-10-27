@@ -73,7 +73,7 @@ module.exports = {
     },
     algolia: {
       id: 'BH4D9OD16A',
-      key: 'c5da4dd3636828292e3c908a0db39688',
+      key: 'a5d55fe5f540cc3bd28fa2c72f2b5bd8',
       index: 'evmos'
     },
     topbar: {
