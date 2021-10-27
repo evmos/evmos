@@ -36,6 +36,10 @@ func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
+func createDenomDescription(address string) string {
+	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
 func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	// TODO: replace for HasDenomMetaData once available
 	_, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
@@ -56,7 +60,7 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
-		Description: fmt.Sprintf("Cosmos coin token representation of %s", pair.Erc20Address),
+		Description: createDenomDescription(pair.Erc20Address),
 		Base:        pair.Denom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
@@ -113,7 +117,29 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
 	}
 
-	// TODO: validate ERC20 fields
+	// Get current stored metadata
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
+	if !found {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get metadata for %s", pair.Denom)
+
+	}
+	// Get new erc20 values
+	erc20Data, err := k.QueryERC20(ctx, newERC20Addr)
+	if err != nil {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get token %s erc20Data", newERC20Addr.String())
+	}
+	// Compare
+	if len(metadata.DenomUnits) != 2 {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
+	}
+
+	if metadata.Display != erc20Data.Name ||
+		metadata.Symbol != erc20Data.Symbol ||
+		metadata.DenomUnits[1].Denom != erc20Data.Name ||
+		metadata.DenomUnits[1].Exponent != uint32(erc20Data.Decimals) ||
+		metadata.Description != createDenomDescription(erc20Addr.String()) {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
+	}
 
 	pair.Erc20Address = newERC20Addr.Hex()
 	k.SetTokenPair(ctx, pair)
