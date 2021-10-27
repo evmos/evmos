@@ -36,7 +36,7 @@ func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
-func createDenomDescription(address string) string {
+func CreateDenomDescription(address string) string {
 	return fmt.Sprintf("Cosmos coin token representation of %s", address)
 }
 
@@ -60,7 +60,7 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
-		Description: createDenomDescription(pair.Erc20Address),
+		Description: CreateDenomDescription(pair.Erc20Address),
 		Base:        pair.Denom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
@@ -137,10 +137,13 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 		metadata.Symbol != erc20Data.Symbol ||
 		metadata.DenomUnits[1].Denom != erc20Data.Name ||
 		metadata.DenomUnits[1].Exponent != uint32(erc20Data.Decimals) ||
-		metadata.Description != createDenomDescription(erc20Addr.String()) {
+		metadata.Description != CreateDenomDescription(erc20Addr.String()) {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
 	}
 
+	// Update the metadata description with the new address
+	metadata.Description = CreateDenomDescription(newERC20Addr.String())
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
 	pair.Erc20Address = newERC20Addr.Hex()
 	k.SetTokenPair(ctx, pair)
 	return pair, nil
