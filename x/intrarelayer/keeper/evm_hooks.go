@@ -3,6 +3,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -20,7 +21,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 	erc20 := contracts.ERC20BurnableContract.ABI
 
 	for _, log := range logs {
-		if len(log.Topics) == 0 {
+		if len(log.Topics) < 3 {
 			continue
 		}
 
@@ -28,6 +29,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 
 		// check that the contract is a registered token pair
 		contractAddr := log.Address
+
 		id := k.GetERC20Map(ctx, contractAddr)
 
 		if len(id) == 0 {
@@ -45,9 +47,8 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			return fmt.Errorf("internal relaying is disabled for pair %s, please create a governance proposal", contractAddr) // convert to SDK error
 		}
 
-		// TODO: use erc20.GetEventById ?
-		event, ok := erc20.Events[eventID.String()]
-		if !ok {
+		event, err := erc20.EventByID(eventID)
+		if err != nil {
 			// invalid event for ERC20
 			continue
 		}
@@ -57,20 +58,25 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		var transferEvent types.LogTransfer
-		err := erc20.UnpackIntoInterface(&transferEvent, types.ERC20EventTransfer, log.Data)
+		burnEvent, err := erc20.Unpack(event.Name, log.Data)
 		if err != nil {
 			k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
 			continue
 		}
 
+		if len(burnEvent) == 0 {
+			continue
+		}
+
+		tokens, ok := burnEvent[0].(*big.Int)
 		// safety check and ignore if amount not positive
-		if transferEvent.Tokens == nil || transferEvent.Tokens.Sign() != 1 {
+		if !ok || tokens == nil || tokens.Sign() != 1 {
 			continue
 		}
 
 		// ignore as the burning always transfers to the zero address
-		if !bytes.Equal(transferEvent.To.Bytes(), common.Address{}.Bytes()) {
+		to := common.BytesToAddress(log.Topics[2].Bytes())
+		if !bytes.Equal(to.Bytes(), common.Address{}.Bytes()) {
 			continue
 		}
 
@@ -78,7 +84,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		// NOTE: assume that if they are burning the token that has been registered as a pair, they want to mint a Cosmos coin
 
 		// create the corresponding sdk.Coin that is paired with ERC20
-		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(transferEvent.Tokens)}}
+		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
 
 		// Mint the coin
 		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
@@ -86,7 +92,8 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		}
 
 		// transfer to caller address
-		recipient := sdk.AccAddress(transferEvent.From.Bytes())
+		from := common.BytesToAddress(log.Topics[1].Bytes())
+		recipient := sdk.AccAddress(from.Bytes())
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
 			return err
 		}

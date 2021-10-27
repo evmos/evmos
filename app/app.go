@@ -449,7 +449,7 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
-		intrarelayer.NewAppModule(app.IntrarelayerKeeper),
+		intrarelayer.NewAppModule(app.IntrarelayerKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

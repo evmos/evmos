@@ -123,13 +123,12 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
-
-	suite.Require().NoError(err)
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
 	suite.DoSetupTest(suite.T())
 }
+
 func (suite *KeeperTestSuite) DeployContract(name string, symbol string) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
@@ -188,6 +187,112 @@ func (suite *KeeperTestSuite) Commit() {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+}
+
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("mint", to, amount)
+	suite.Require().NoError(err)
+	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	suite.Require().NoError(err)
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: 25_000_000,
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	var ercTransferTx *evm.MsgEthereumTx
+	if suite.dynamicTxFee {
+		ercTransferTx = evm.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			big.NewInt(1),
+			transferData,
+			&ethtypes.AccessList{}, // accesses
+		)
+	} else {
+		ercTransferTx = evm.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			nil, nil,
+			transferData,
+			nil,
+		)
+	}
+
+	ercTransferTx.From = suite.address.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return ercTransferTx
+}
+
+func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("burn", amount)
+	suite.Require().NoError(err)
+	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	suite.Require().NoError(err)
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: 25_000_000,
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	var ercTransferTx *evm.MsgEthereumTx
+	if suite.dynamicTxFee {
+		ercTransferTx = evm.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			big.NewInt(1),
+			transferData,
+			&ethtypes.AccessList{}, // accesses
+		)
+	} else {
+		ercTransferTx = evm.NewTx(
+			chainID,
+			nonce,
+			&contractAddr,
+			nil,
+			res.Gas,
+			nil,
+			nil, nil,
+			transferData,
+			nil,
+		)
+	}
+
+	ercTransferTx.From = suite.address.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return ercTransferTx
 }
 
 func TestKeeperTestSuite(t *testing.T) {
