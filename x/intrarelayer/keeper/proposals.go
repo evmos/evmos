@@ -89,7 +89,7 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 }
 
 // EnableRelay enables relaying for a given token pair
-func (k Keeper) EnableRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
+func (k Keeper) ToggleRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
 	id := k.GetTokenPairID(ctx, token)
 
 	if len(id) == 0 {
@@ -101,7 +101,7 @@ func (k Keeper) EnableRelay(ctx sdk.Context, token string) (types.TokenPair, err
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
 	}
 
-	pair.Enabled = true
+	pair.Enabled = !pair.Enabled
 
 	k.SetTokenPair(ctx, pair)
 	return pair, nil
