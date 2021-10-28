@@ -58,6 +58,12 @@ func (k Keeper) SetTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 	store.Set(key, bz)
 }
 
+func (k Keeper) DeleteTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPair)
+	key := tokenPair.GetID()
+	store.Delete(key)
+}
+
 func (k Keeper) GetERC20Map(ctx sdk.Context, erc20 common.Address) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	return store.Get(erc20.Bytes())
@@ -71,6 +77,11 @@ func (k Keeper) GetDenomMap(ctx sdk.Context, denom string) []byte {
 func (k Keeper) SetERC20Map(ctx sdk.Context, erc20 common.Address, id []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	store.Set(erc20.Bytes(), id)
+}
+
+func (k Keeper) DeleteERC20Map(ctx sdk.Context, erc20 common.Address) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
+	store.Delete(erc20.Bytes())
 }
 
 func (k Keeper) SetDenomMap(ctx sdk.Context, denom string, id []byte) {

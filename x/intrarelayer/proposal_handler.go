@@ -42,7 +42,7 @@ func handleRegisterTokenPairProposal(ctx sdk.Context, k keeper.Keeper, p *types.
 }
 
 func handleEnableRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.EnableTokenRelayProposal) error {
-	pair, err := k.EnableRelay(ctx, p.Token)
+	pair, err := k.ToggleRelay(ctx, p.Token)
 	if err != nil {
 		return err
 	}
