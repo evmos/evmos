@@ -116,7 +116,7 @@ func (suite *KeeperTestSuite) TestEnableRelayWithContext() {
 	suite.Require().True(found)
 	suite.Require().True(pair.Enabled)
 
-	// Dissable it
+	// Disable it
 	pair, err := suite.app.IntrarelayerKeeper.ToggleRelay(suite.ctx, contractAddr.String())
 	suite.Require().NoError(err)
 	suite.Require().False(pair.Enabled)

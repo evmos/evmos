@@ -100,7 +100,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		//Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "ethermint_9000-1",
+				ChainId:         "evmos_9000-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simapp.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
