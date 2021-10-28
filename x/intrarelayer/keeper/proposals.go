@@ -38,6 +38,10 @@ func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
+func CreateDenomDescription(address string) string {
+	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
 func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	// TODO: replace for HasDenomMetaData once available
 	_, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
@@ -51,14 +55,13 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	contract := pair.GetERC20Contract()
 
 	erc20Data, err := k.QueryERC20(ctx, contract)
-
 	if err != nil {
 		return err
 	}
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
-		Description: fmt.Sprintf("Cosmos coin token representation of %s", pair.Erc20Address),
+		Description: CreateDenomDescription(pair.Erc20Address),
 		Base:        pair.Denom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
@@ -84,8 +87,8 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
-// EnableRelay enables relaying for a given token pair
-func (k Keeper) EnableRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
+// ToggleRelay enables relaying for a given token pair
+func (k Keeper) ToggleRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
 	id := k.GetTokenPairID(ctx, token)
 
 	if len(id) == 0 {
@@ -97,7 +100,7 @@ func (k Keeper) EnableRelay(ctx sdk.Context, token string) (types.TokenPair, err
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
 	}
 
-	pair.Enabled = true
+	pair.Enabled = !pair.Enabled
 
 	k.SetTokenPair(ctx, pair)
 	return pair, nil
@@ -115,9 +118,43 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
 	}
 
-	// TODO: validate ERC20 fields
+	// Get current stored metadata
+	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
+	if !found {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get metadata for %s", pair.Denom)
+	}
+	// Get new erc20 values
+	erc20Data, err := k.QueryERC20(ctx, newERC20Addr)
+	if err != nil {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get token %s erc20Data", newERC20Addr.String())
+	}
+	// Compare
+	if len(metadata.DenomUnits) != 2 {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
+	}
 
+	if metadata.Display != erc20Data.Name ||
+		metadata.Symbol != erc20Data.Symbol ||
+		metadata.DenomUnits[1].Denom != erc20Data.Name ||
+		metadata.DenomUnits[1].Exponent != uint32(erc20Data.Decimals) ||
+		metadata.Description != CreateDenomDescription(erc20Addr.String()) {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
+	}
+
+	// Update the metadata description with the new address
+	metadata.Description = CreateDenomDescription(newERC20Addr.String())
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
+	// Delete old token pair (id is changed because the address was modifed)
+	k.DeleteTokenPair(ctx, pair)
+	// Update the address
 	pair.Erc20Address = newERC20Addr.Hex()
+	// Set the new pair
 	k.SetTokenPair(ctx, pair)
+	// Overwrite the value because id was changed
+	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	// Remove old address
+	k.DeleteERC20Map(ctx, erc20Addr)
+	// Add the new address
+	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 	return pair, nil
 }

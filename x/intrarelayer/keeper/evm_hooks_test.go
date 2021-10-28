@@ -74,6 +74,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.mintFeeCollector = true
 			suite.SetupTest()
 
 			contractAddr := suite.DeployContract("coin", "token")
@@ -92,4 +93,5 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 			}
 		})
 	}
+	suite.mintFeeCollector = false
 }

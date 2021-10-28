@@ -28,9 +28,9 @@ message RegisterTokenPairProposal {
     TokenPair token_pair = 3 [(gogoproto.nullable) = false];
 }
 
-// EnableTokenRelayProposal is a gov Content type to enable the internal
-// relaying of a token pair.
-message EnableTokenRelayProposal {
+// ToggleTokenRelayProposal is a gov Content type to toggle
+// the internal relaying of a token pair.
+message ToggleTokenRelayProposal {
     option (gogoproto.equal) = true;
     // title of the proposal
     string title         = 1;

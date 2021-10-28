@@ -11,23 +11,23 @@ import (
 // constants
 const (
 	ProposalTypeRegisterTokenPair    string = "RegisterTokenPair"
-	ProposalTypeEnableTokenRelay     string = "EnableTokenRelay"
+	ProposalTypeToggleTokenRelay     string = "ToggleTokenRelay"
 	ProposalTypeUpdateTokenPairERC20 string = "UpdateTokenPairERC20"
 )
 
 // Implements Proposal Interface
 var (
 	_ govtypes.Content = &RegisterTokenPairProposal{}
-	_ govtypes.Content = &EnableTokenRelayProposal{}
+	_ govtypes.Content = &ToggleTokenRelayProposal{}
 	_ govtypes.Content = &UpdateTokenPairERC20Proposal{}
 )
 
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeRegisterTokenPair)
-	govtypes.RegisterProposalType(ProposalTypeEnableTokenRelay)
+	govtypes.RegisterProposalType(ProposalTypeToggleTokenRelay)
 	govtypes.RegisterProposalType(ProposalTypeUpdateTokenPairERC20)
 	govtypes.RegisterProposalTypeCodec(&RegisterTokenPairProposal{}, "intrarelayer/RegisterTokenPairProposal")
-	govtypes.RegisterProposalTypeCodec(&EnableTokenRelayProposal{}, "intrarelayer/EnableTokenRelayProposal")
+	govtypes.RegisterProposalTypeCodec(&ToggleTokenRelayProposal{}, "intrarelayer/ToggleTokenRelayProposal")
 	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal")
 }
 
@@ -57,9 +57,9 @@ func (rtbp *RegisterTokenPairProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-// NewEnableTokenRelayProposal returns new instance of EnableTokenRelayProposal
-func NewEnableTokenRelayProposal(title, description string, token string) govtypes.Content {
-	return &EnableTokenRelayProposal{
+// NewToggleTokenRelayProposal returns new instance of ToggleTokenRelayProposal
+func NewToggleTokenRelayProposal(title, description string, token string) govtypes.Content {
+	return &ToggleTokenRelayProposal{
 		Title:       title,
 		Description: description,
 		Token:       token,
@@ -67,15 +67,15 @@ func NewEnableTokenRelayProposal(title, description string, token string) govtyp
 }
 
 // ProposalRoute returns router key for this proposal
-func (*EnableTokenRelayProposal) ProposalRoute() string { return RouterKey }
+func (*ToggleTokenRelayProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
-func (*EnableTokenRelayProposal) ProposalType() string {
-	return ProposalTypeEnableTokenRelay
+func (*ToggleTokenRelayProposal) ProposalType() string {
+	return ProposalTypeToggleTokenRelay
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
-func (etrp *EnableTokenRelayProposal) ValidateBasic() error {
+func (etrp *ToggleTokenRelayProposal) ValidateBasic() error {
 	// check if the token is a hex address, if not, check if it is a valid SDK
 	// denom
 	if err := ethermint.ValidateAddress(etrp.Token); err != nil {

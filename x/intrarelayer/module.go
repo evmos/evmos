@@ -147,7 +147,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 func (am AppModule) GenerateGenesisState(input *module.SimulationState) {
-	return
 }
 
 func (am AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
@@ -159,7 +158,6 @@ func (am AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 }
 
 func (am AppModule) RegisterStoreDecoder(decoderRegistry sdk.StoreDecoderRegistry) {
-	return
 }
 
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
