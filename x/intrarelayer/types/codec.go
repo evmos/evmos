@@ -19,7 +19,7 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(TokenPair{}, "intrarelayer/TokenPair", nil)
 	cdc.RegisterConcrete(&RegisterTokenPairProposal{}, "intrarelayer/RegisterTokenPairProposal", nil)
-	cdc.RegisterConcrete(&EnableTokenRelayProposal{}, "intrarelayer/EnableTokenRelayProposal", nil)
+	cdc.RegisterConcrete(&ToggleTokenRelayProposal{}, "intrarelayer/ToggleTokenRelayProposal", nil)
 	cdc.RegisterConcrete(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal", nil)
 }
 
@@ -33,7 +33,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
 		&RegisterTokenPairProposal{},
-		&EnableTokenRelayProposal{},
+		&ToggleTokenRelayProposal{},
 		&UpdateTokenPairERC20Proposal{},
 	)
 

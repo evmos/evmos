@@ -15,7 +15,7 @@ func NewIntrarelayerProposalHandler(k keeper.Keeper) govtypes.Handler {
 		switch c := content.(type) {
 		case *types.RegisterTokenPairProposal:
 			return handleRegisterTokenPairProposal(ctx, k, c)
-		case *types.EnableTokenRelayProposal:
+		case *types.ToggleTokenRelayProposal:
 			return handleToggleRelayProposal(ctx, k, c)
 		case *types.UpdateTokenPairERC20Proposal:
 			return handleUpdateTokenPairERC20Proposal(ctx, k, c)
@@ -41,7 +41,7 @@ func handleRegisterTokenPairProposal(ctx sdk.Context, k keeper.Keeper, p *types.
 	return nil
 }
 
-func handleToggleRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.EnableTokenRelayProposal) error {
+func handleToggleRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.ToggleTokenRelayProposal) error {
 	pair, err := k.ToggleRelay(ctx, p.Token)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func handleToggleRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.Enable
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeEnableTokenRelay,
+			types.EventTypeToggleTokenRelay,
 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
 			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
