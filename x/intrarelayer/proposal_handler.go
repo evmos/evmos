@@ -16,7 +16,7 @@ func NewIntrarelayerProposalHandler(k keeper.Keeper) govtypes.Handler {
 		case *types.RegisterTokenPairProposal:
 			return handleRegisterTokenPairProposal(ctx, k, c)
 		case *types.EnableTokenRelayProposal:
-			return handleEnableRelayProposal(ctx, k, c)
+			return handleToggleRelayProposal(ctx, k, c)
 		case *types.UpdateTokenPairERC20Proposal:
 			return handleUpdateTokenPairERC20Proposal(ctx, k, c)
 
@@ -41,7 +41,7 @@ func handleRegisterTokenPairProposal(ctx sdk.Context, k keeper.Keeper, p *types.
 	return nil
 }
 
-func handleEnableRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.EnableTokenRelayProposal) error {
+func handleToggleRelayProposal(ctx sdk.Context, k keeper.Keeper, p *types.EnableTokenRelayProposal) error {
 	pair, err := k.ToggleRelay(ctx, p.Token)
 	if err != nil {
 		return err

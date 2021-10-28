@@ -21,7 +21,6 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 
 	// pack and call method using the given args
 	payload, err := abi.Pack(method, args...)
-
 	if err != nil {
 		return nil, sdkerrors.Wrap(
 			types.ErrWritingEthTxPayload,

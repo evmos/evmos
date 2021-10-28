@@ -55,7 +55,6 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	contract := pair.GetERC20Contract()
 
 	erc20Data, err := k.QueryERC20(ctx, contract)
-
 	if err != nil {
 		return err
 	}
@@ -88,7 +87,7 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
-// EnableRelay enables relaying for a given token pair
+// ToggleRelay enables relaying for a given token pair
 func (k Keeper) ToggleRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
 	id := k.GetTokenPairID(ctx, token)
 
@@ -123,7 +122,6 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
 	if !found {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get metadata for %s", pair.Denom)
-
 	}
 	// Get new erc20 values
 	erc20Data, err := k.QueryERC20(ctx, newERC20Addr)
