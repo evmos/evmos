@@ -38,10 +38,6 @@ func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
-func CreateDenomDescription(address string) string {
-	return fmt.Sprintf("Cosmos coin token representation of %s", address)
-}
-
 func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	// TODO: replace for HasDenomMetaData once available
 	_, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
@@ -88,7 +84,11 @@ func (k Keeper) CreateMetadata(ctx sdk.Context, pair types.TokenPair) error {
 	return nil
 }
 
-// EnableRelay enables relaying for a given token pair
+func CreateDenomDescription(address string) string {
+	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
+// ToggleRelay toggles relaying for a given token pair
 func (k Keeper) ToggleRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
 	id := k.GetTokenPairID(ctx, token)
 

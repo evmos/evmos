@@ -107,38 +107,84 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestEnableRelayWithContext() {
-	// Default enabled value is True
-	contractAddr := suite.setupNewTokenPair()
-	id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
-	suite.Require().True(len(id) > 0)
-	pair, found := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
-	suite.Require().True(found)
-	suite.Require().True(pair.Enabled)
+func (suite KeeperTestSuite) TestToggleRelay() {
+	var (
+		contractAddr common.Address
+		id           []byte
+		pair         types.TokenPair
+	)
 
-	// Dissable it
-	pair, err := suite.app.IntrarelayerKeeper.ToggleRelay(suite.ctx, contractAddr.String())
-	suite.Require().NoError(err)
-	suite.Require().False(pair.Enabled)
+	testCases := []struct {
+		name         string
+		malleate     func()
+		expPass      bool
+		relayEnabled bool
+	}{
+		{
+			"token not registered",
+			func() {
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				suite.Commit()
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true)
+			},
+			false,
+			false,
+		},
+		{
+			"token not registered - pair not found",
+			func() {
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				suite.Commit()
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true)
+				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+			},
+			false,
+			false,
+		},
+		{
+			"disable relay",
+			func() {
+				contractAddr = suite.setupNewTokenPair()
+				id = suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, _ = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+			},
+			true,
+			false,
+		},
+		{
+			"disable and enable relay",
+			func() {
+				contractAddr = suite.setupNewTokenPair()
+				id = suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, _ = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				pair, _ = suite.app.IntrarelayerKeeper.ToggleRelay(suite.ctx, contractAddr.String())
+			},
+			true,
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-	// Request the pair using the GetPairToken func to make sure that is updated on the db
-	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
-	suite.Require().True(found)
-	suite.Require().False(pair.Enabled)
+			tc.malleate()
 
-	// Reenable it
-	pair, err = suite.app.IntrarelayerKeeper.ToggleRelay(suite.ctx, contractAddr.String())
-	suite.Require().NoError(err)
-	suite.Require().True(pair.Enabled)
-
-	// Request the pair using the GetPairToken func to make sure that is updated on the db
-	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
-	suite.Require().True(found)
-	suite.Require().True(pair.Enabled)
-
-	// Try to toggle a not registered token
-	pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, make([]byte, 0))
-	suite.Require().False(found)
+			var err error
+			pair, err = suite.app.IntrarelayerKeeper.ToggleRelay(suite.ctx, contractAddr.String())
+			// Request the pair using the GetPairToken func to make sure that is updated on the db
+			pair, _ = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				if tc.relayEnabled {
+					suite.Require().True(pair.Enabled)
+				} else {
+					suite.Require().False(pair.Enabled)
+				}
+			} else {
+				suite.Require().Error(err, tc.name)
+			}
+		})
+	}
 }
 
 func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
