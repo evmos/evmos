@@ -36,7 +36,7 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 		return nil, sdkerrors.Wrap(err, "failed to escrow coins")
 	}
 
-	erc20 := contracts.ERC20BurnableContract.ABI
+	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
 
 	res, err := k.CallEVM(ctx, erc20, contract, "mint", contract, common.BytesToAddress(sender), receiver, msg.Coin.Amount.BigInt())

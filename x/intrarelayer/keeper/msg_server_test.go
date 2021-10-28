@@ -4,28 +4,9 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
-
-const (
-	erc20Denom       = "coin"
-	erc20Symbol      = "token"
-	cosmosTokenDenom = "coinevm"
-	defaultExponent  = uint32(18)
-	zeroExponent     = uint32(0)
-)
-
-func (suite *KeeperTestSuite) setupNewTokenPair() common.Address {
-	suite.SetupTest()
-	contractAddr := suite.DeployContract(erc20Denom, erc20Symbol)
-	suite.Commit()
-	pair := types.NewTokenPair(contractAddr, cosmosTokenDenom, true)
-	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
-	suite.Require().NoError(err)
-	return contractAddr
-}
 
 func (suite *KeeperTestSuite) TestConvertCoin() {
 	testCases := []struct {
@@ -33,28 +14,22 @@ func (suite *KeeperTestSuite) TestConvertCoin() {
 		malleate func()
 		expPass  bool
 	}{
-		{"coin not registered", func() {}, false},
+		// {"coin not registered", func() {}, false},
+		// {
+		// 	"coin registered - insufficient funds",
+		// 	func() {
+		// 		pair := types.NewTokenPair(tests.GenerateAddress(), erc20Name, true)
+		// 		id := pair.GetID()
+		// 		suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+		// 		suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
+		// 		suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
+		// 	},
+		// 	false,
+		// },
 		{
-			"coin registered - insufficient funds",
-			func() {
-				pair := types.NewTokenPair(tests.GenerateAddress(), erc20Denom, true)
-				id := pair.GetID()
-				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
-				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
-				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
-			},
-			false,
-		},
-		// TODO use mint contract with ABI
-		{
-			"coin registered - sufficient funds - callEVM",
-			func() {
-				contractAddr := suite.setupNewTokenPair()
-				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
-				pair, found := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
 
-				suite.Require().NotNil(pair)
-				suite.Require().True(found)
+			"ok - coin registered - sufficient funds - callEVM",
+			func() {
 			},
 			true,
 		},
@@ -65,23 +40,25 @@ func (suite *KeeperTestSuite) TestConvertCoin() {
 
 			tc.malleate()
 
-			// coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(100)))
-			// err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-			// suite.Require().NoError(err)
-			// err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
-			// suite.Require().NoError(err)
+			contractAddr := suite.setupNewTokenPair()
+			suite.Require().NotNil(contractAddr)
+			// id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+			// pair, _ := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
 			sender := sdk.AccAddress(tests.GenerateAddress().Bytes())
 			receiver := tests.GenerateAddress()
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(100)))
+			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(erc20Denom, sdk.NewInt(100)),
+				sdk.NewCoin(cosmosTokenName, sdk.NewInt(100)),
 				receiver,
 				sender,
 			)
 			res, err := suite.app.IntrarelayerKeeper.ConvertCoin(ctx, msg)
 			expRes := &types.MsgConvertCoinResponse{}
-
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res)
