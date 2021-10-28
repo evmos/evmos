@@ -37,6 +37,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Features
+
+* (cmd) [\#32](https://github.com/tharsis/evmos/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
+
+## [v0.1.3] - 2021-10-24
+
+### Improvements
+
+* (deps) [\#64](https://github.com/tharsis/evmos/pull/64) Bump Ethermint version to `v0.7.2`
+
 ## Bug Fixes
 
 * (cmd) [\#41](https://github.com/tharsis/evmos/pull/41) Fix `debug` command.

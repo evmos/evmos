@@ -65,7 +65,7 @@ module.exports = {
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v0.1.2',
+      latest_version: 'v0.1.3',
       version_number: '1',
       testnet_version_number: '1',
       block_explorer_url: 'https://evm.evmos.org',
@@ -76,8 +76,8 @@ module.exports = {
     },
     algolia: {
       id: 'BH4D9OD16A',
-      key: 'c5da4dd3636828292e3c908a0db39688',
-      index: 'ethermint' // TODO: update to EVMOS
+      key: 'a5d55fe5f540cc3bd28fa2c72f2b5bd8',
+      index: 'evmos'
     },
     topbar: {
       banner: false
@@ -132,6 +132,11 @@ module.exports = {
               title: 'Validators',
               directory: true,
               path: '/guides/validators'
+            },
+            {
+              title: 'Upgrades',
+              directory: true,
+              path: '/guides/upgrades'
             },
             {
               title: 'Key Management System',
