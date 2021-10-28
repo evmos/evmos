@@ -39,7 +39,7 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
 
-	res, err := k.CallEVM(ctx, erc20, contract, "mint", contract, common.BytesToAddress(sender), receiver, msg.Coin.Amount.BigInt())
+	res, err := k.CallEVM(ctx, erc20, contract, "mint", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 	erc20 := contracts.ERC20BurnableContract.ABI
 	contract := pair.GetERC20Contract()
 
-	res, err := k.CallEVM(ctx, erc20, contract, "burn", contract, sender, common.BytesToAddress(receiver), msg.Amount.BigInt())
+	res, err := k.CallEVM(ctx, erc20, contract, "burn", msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}

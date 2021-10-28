@@ -302,6 +302,50 @@ func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, 
 	return ercTransferTx
 }
 
+func (suite *KeeperTestSuite) GrantMinterERC20Token(contractAddr, from, to common.Address) *evm.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
+	role := crypto.Keccak256([]byte("MINTER_ROLE"))
+	// needs to be an array not a slice
+	var v [32]byte
+	copy(v[:], role)
+
+	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("grantRole", v, to)
+	suite.Require().NoError(err)
+	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	suite.Require().NoError(err)
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: uint64(config.DefaultGasCap),
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	ercTransferTx := evm.NewTx(
+		chainID,
+		nonce,
+		&contractAddr,
+		nil,
+		res.Gas,
+		nil,
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		transferData,
+		&ethtypes.AccessList{}, // accesses
+	)
+
+	ercTransferTx.From = suite.address.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return ercTransferTx
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

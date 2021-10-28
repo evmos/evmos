@@ -57,6 +57,11 @@ func (suite *KeeperTestSuite) TestConvertCoin() {
 				receiver,
 				sender,
 			)
+
+			// Grant minter role to intrarelayer
+			suite.GrantMinterERC20Token(contractAddr, suite.address, types.ModuleAddress)
+			suite.Commit()
+
 			res, err := suite.app.IntrarelayerKeeper.ConvertCoin(ctx, msg)
 			expRes := &types.MsgConvertCoinResponse{}
 			if tc.expPass {
