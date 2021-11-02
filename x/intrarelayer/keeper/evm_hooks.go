@@ -27,26 +27,6 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 
 		eventID := log.Topics[0] // event ID
 
-		// check that the contract is a registered token pair
-		contractAddr := log.Address
-
-		id := k.GetERC20Map(ctx, contractAddr)
-
-		if len(id) == 0 {
-			// no token is registered for the caller contract
-			continue
-		}
-
-		pair, found := k.GetTokenPair(ctx, id)
-		if !found {
-			continue
-		}
-
-		// check that relaying for the pair is enabled
-		if !pair.Enabled {
-			return fmt.Errorf("internal relaying is disabled for pair %s, please create a governance proposal", contractAddr) // convert to SDK error
-		}
-
 		event, err := erc20.EventByID(eventID)
 		if err != nil {
 			// invalid event for ERC20
@@ -72,6 +52,26 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		// safety check and ignore if amount not positive
 		if !ok || tokens == nil || tokens.Sign() != 1 {
 			continue
+		}
+
+		// check that the contract is a registered token pair
+		contractAddr := log.Address
+
+		id := k.GetERC20Map(ctx, contractAddr)
+
+		if len(id) == 0 {
+			// no token is registered for the caller contract
+			continue
+		}
+
+		pair, found := k.GetTokenPair(ctx, id)
+		if !found {
+			continue
+		}
+
+		// check that relaying for the pair is enabled
+		if !pair.Enabled {
+			return fmt.Errorf("internal relaying is disabled for pair %s, please create a governance proposal", contractAddr) // convert to SDK error
 		}
 
 		// ignore as the burning always transfers to the zero address
