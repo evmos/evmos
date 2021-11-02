@@ -91,10 +91,10 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 		return nil, err
 	}
 
-	erc20 := contracts.ERC20BurnableContract.ABI
+	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
 
-	res, err := k.CallEVM(ctx, erc20, contract, "burn", msg.Amount.BigInt())
+	res, err := k.CallEVM(ctx, erc20, contract, "burnEvmos", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}

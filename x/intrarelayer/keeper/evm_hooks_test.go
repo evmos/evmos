@@ -95,3 +95,38 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 	}
 	suite.mintFeeCollector = false
 }
+
+func (suite *KeeperTestSuite) TestTransferBurn() {
+	suite.mintFeeCollector = true
+	contractAddr := suite.setupNewTokenPair()
+	suite.Require().NotNil(contractAddr)
+
+	// Mint 10 tokens to suite.address (owner)
+	_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+	suite.Commit()
+
+	_ = suite.TransferERC20Token(contractAddr, suite.address, types.ModuleAddress, big.NewInt(10))
+	suite.Commit()
+
+	balance := suite.BalanceOf(contractAddr, types.ModuleAddress)
+	suite.Require().Equal(balance, big.NewInt(10))
+
+	balance = suite.BalanceOf(contractAddr, suite.address)
+	// zero := big.NewInt(int64(0))
+	// suite.Require().Equal(balance.(*big.Int), zero)
+
+	_ = suite.TransferERC20Token(contractAddr, types.ModuleAddress, suite.address, big.NewInt(10))
+	suite.Commit()
+
+	balance = suite.BalanceOf(contractAddr, types.ModuleAddress)
+	// zero := big.NewInt(int64(0))
+	// suite.Require().Equal(balance.(*big.Int), zero)
+
+	balance = suite.BalanceOf(contractAddr, suite.address)
+	suite.Require().Equal(balance, big.NewInt(10))
+	// zero := big.NewInt(int64(0))
+	// suite.Require().Equal(balance.(*big.Int), zero)
+
+	suite.mintFeeCollector = false
+
+}
