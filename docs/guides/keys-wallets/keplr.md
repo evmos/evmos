@@ -4,13 +4,17 @@ order: 4
 
 # Keplr
 
-Connect your Keplr wallet with Evmos and request funds from the Faucet {synopsis}
+Connect your Keplr wallet with Evmos {synopsis}
+
+## Pre-requisite Readings
+
+- [Install Keplr](https://www.keplr.app/) {prereq}
 
 The Keplr browser extension is a wallet for accessing applications in the Cosmos ecosystem and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet and request Funds from the Faucet.
 
 ## Install Keplr
 
-Add the Keplr browser extension following the instructions on the [Keplr website](https://www.keplr.app/). The Keplr extension is officially supported only on Chrome.
+Add the Keplr browser extension following the instructions on the [Keplr website](https://www.keplr.app/). The Keplr extension is officially supported only on Chromium-based explorers.
 
 ## Create/Import Account
 
@@ -22,12 +26,13 @@ Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet
 
 ![chain add request](./../img/keplr_approve_chain.png)
 
-After approval you can see a tranaction confirmation informing you that Photons have been successfully transferred to your evmos address on the testnet.
+After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../basics/accounts.md#address-formats-for-clients) on the testnet.
+
 
 ![chain add request](./../img/keplr_transaction.png)
 
 ::: tip
-You can request Photons from the Faucet for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
+You can request {{ $themeConfig.project.testnet_denom }} from the [Faucet](../../testnet/faucet.md) for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
 :::
 
-View your account balance either by clicking on the Keplr extension or by [interacting with the node](../../quickstart/interact_node.md). Note that Faucet might not display the amount of Photons transferred by the Faucet, as it might be smaller than the amount of decimals displayed in the Keplr extension.
+View your account balance either by clicking on the Keplr extension or by [interacting with the node](../../quickstart/interact_node.md). Note that Faucet might not display the amount of {{ $themeConfig.project.testnet_denom }} transferred by the Faucet, as it might be smaller than the number of decimals displayed in the Keplr extension.
