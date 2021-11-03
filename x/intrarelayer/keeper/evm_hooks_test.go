@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
+	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
 func (suite *KeeperTestSuite) TestEvmHooks() {
@@ -115,7 +116,11 @@ func (suite *KeeperTestSuite) TestTransferBurn() {
 	// zero := big.NewInt(int64(0))
 	// suite.Require().Equal(balance.(*big.Int), zero)
 
-	_ = suite.TransferERC20Token(contractAddr, types.ModuleAddress, suite.address, big.NewInt(10))
+	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("transfer", suite.address, big.NewInt(10))
+	suite.Require().NoError(err)
+
+	suite.app.IntrarelayerKeeper.ExecuteEVMusingModuleAddress(suite.ctx, contractAddr, types.ModuleAddress, transferData)
+	// _ = suite.TransferERC20Token(contractAddr, types.ModuleAddress, suite.address, big.NewInt(10))
 	suite.Commit()
 
 	balance = suite.BalanceOf(contractAddr, types.ModuleAddress)
