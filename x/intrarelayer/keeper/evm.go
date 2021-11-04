@@ -16,19 +16,8 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
-func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
+func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
-
-	// pack and call method using the given args
-	payload, err := abi.Pack(method, args...)
-
-	if err != nil {
-		return nil, sdkerrors.Wrap(
-			types.ErrWritingEthTxPayload,
-			sdkerrors.Wrap(err, "failed to create transaction payload").Error(),
-		)
-	}
-
 	nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
 
 	msg := ethtypes.NewMessage(
@@ -40,7 +29,7 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 		big.NewInt(0),        // gasFeeCap
 		big.NewInt(0),        // gasTipCap
 		big.NewInt(0),        // gasPrice
-		payload,
+		transferData,
 		ethtypes.AccessList{}, // AccessList
 		true,                  // checkNonce
 	)
@@ -51,10 +40,28 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 	}
 
 	if res.Failed() {
-		return nil, fmt.Errorf("contract call failed: method '%s' %s, %s", method, contract, res.VmError)
+		return nil, fmt.Errorf("%s", res.VmError)
 	}
 
 	return res, nil
+}
+
+func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
+	// pack and call method using the given args
+	payload, err := abi.Pack(method, args...)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(
+			types.ErrWritingEthTxPayload,
+			sdkerrors.Wrap(err, "failed to create transaction payload").Error(),
+		)
+	}
+
+	resp, err := k.CallEVMWithPayload(ctx, contract, payload)
+	if err != nil {
+		return nil, fmt.Errorf("contract call failed: method '%s' %s, %s", method, contract, err)
+	}
+	return resp, nil
 }
 
 func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
