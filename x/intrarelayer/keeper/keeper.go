@@ -68,68 +68,46 @@ func (k Keeper) ExecuteEVMusingModuleAddress(ctx sdk.Context, contractAddr, from
 		CoinBase:    common.Address{},
 		BaseFee:     big.NewInt(0),
 	}
-	tx := k.createModuleTx(contractAddr, from, transferData)
-	msg, err := tx.AsMessage(ethtypes.MakeSigner(ethCfg, new(big.Int)), nil)
-	if err != nil {
-		return nil
-	}
+	msg := k.createModuleTx(&contractAddr, from, transferData)
 
 	vmConfig := k.evmKeeper.VMConfig(msg, cfg.Params, evmtypes.NewNoOpTracer())
 	evm := k.evmKeeper.NewEVM(msg, cfg, evmtypes.NewNoOpTracer())
 	interpreter := vm.NewEVMInterpreter(evm, vmConfig)
 
-	// this calls should be enough for getting values
-
-	addr := vm.AccountRef(contractAddr)
-
 	// Initialise a new contract and set the code that is to be used by the EVM.
 	// The contract is a scoped environment for this execution context only.
-	code := evm.StateDB.GetCode(from)
+	code := evm.StateDB.GetCode(contractAddr)
 	if len(code) == 0 {
-		// ret, err = nil, nil // gas is unchanged
+		// Invalid contract address
 		return nil
 	}
 
-	addrCopy := from
-	contract := vm.NewContract(addr, vm.AccountRef(from), new(big.Int), 0)
+	// TODO: define gas value
+	gas := uint64(2000000)
+	addrCopy := contractAddr
+	contract := vm.NewContract(vm.AccountRef(from), vm.AccountRef(contractAddr), new(big.Int), gas)
 	contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), code)
 	ret, err := interpreter.Run(contract, transferData, false)
 	if err != nil {
 		return nil
 	}
-	fmt.Println(ret)
+	_ = ret
+	// validate ret
 	return nil
 }
 
-func (k Keeper) createModuleTx(contractAddr, from common.Address, transferData []byte) *evmtypes.MsgEthereumTx {
-	chainID := k.evmKeeper.ChainID()
-	// args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
-	// if err != nil {
-	// 	return nil
-	// }
-	// res, err := suite.queryClientEvm.EstimateGas(k.ctx, &evm.EthCallRequest{
-	// 	Args:   args,
-	// 	GasCap: uint64(config.DefaultGasCap),
-	// })
-	// if err != nil {
-	// 	return nil
-	// }
-
-	nonce := k.evmKeeper.GetNonce(from)
-
-	ercTransferTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		&contractAddr,
-		nil,
-		uint64(0),
-		nil,
+func (k Keeper) createModuleTx(contractAddr *common.Address, from common.Address, transferData []byte) ethtypes.Message {
+	msg := ethtypes.NewMessage(
+		from, contractAddr,
+		k.evmKeeper.GetNonce(from),
 		big.NewInt(0),
-		big.NewInt(1),
+		uint64(2000000),
+		big.NewInt(0),
+		big.NewInt(20000000),
+		big.NewInt(20000000),
 		transferData,
-		&ethtypes.AccessList{}, // accesses
+		ethtypes.AccessList{},
+		false,
 	)
-
-	ercTransferTx.From = from.Hex()
-	return ercTransferTx
+	return msg
 }
