@@ -117,6 +117,38 @@ rm -rf ~/.evmosd
 
 To clear all data except key storage (if keyring backend chosen) and then you can rerun the full node installation commands from above to start the node again.
 
+## Recording Transactions Per Second (TPS)
+In order to get a progressive value of the transactions per second, we use Prometheus to return the values.
+The Prometheus exporter runs at address "http://localhost:8877" so please add this section to your [Prometheus installation](https://opencensus.io/codelabs/prometheus/#1) config.yaml file like this
+```yaml
+global:
+  scrape_interval: 10s
+
+  external_labels:
+    monitor: 'evmos'
+
+scrape_configs:
+  - job_name: 'evmos'
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ['localhost:8877']
+```
+
+and then run Prometheus like this
+```shell
+prometheus --config.file=prom_config.yaml
+```
+
+and then visit the Prometheus dashboard at http://localhost:9090/ then navigate to the expression area and enter the following expression
+
+```shell
+rate(evmosd_transactions_processed[1m])
+```
+
+which will show the rate of transactions processed.
+
 ## Next {hide}
 
 Learn about running a Evmos [testnet](./testnet.md) {hide}
