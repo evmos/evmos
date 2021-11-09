@@ -12,15 +12,17 @@ import (
 	"go.opencensus.io/tag"
 )
 
-var tagKeyStatus = tag.MustNewKey("status")
-var mTransactions = stats.Int64("transactions", "the number of transactions after .EndBlocker", "1")
-var viewTransactions = &view.View{
-	Name:        "transactions_processed",
-	Measure:     mTransactions,
-	Description: "The transactions processed",
-	TagKeys:     []tag.Key{tagKeyStatus},
-	Aggregation: view.Count(),
-}
+var (
+	tagKeyStatus     = tag.MustNewKey("status")
+	mTransactions    = stats.Int64("transactions", "the number of transactions after .EndBlocker", "1")
+	viewTransactions = &view.View{
+		Name:        "transactions_processed",
+		Measure:     mTransactions,
+		Description: "The transactions processed",
+		TagKeys:     []tag.Key{tagKeyStatus},
+		Aggregation: view.Count(),
+	}
+)
 
 func ObservabilityViews() (views []*view.View) {
 	views = append(views, viewTransactions)
