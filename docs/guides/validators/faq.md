@@ -61,7 +61,7 @@ evmosd tx staking create-validator
     --commission-max-change-rate="0.01"
     --min-self-delegation "1"
     --moniker "validator"
-    --chain-id "evmos_9000-1"
+    --chain-id "evmos_9000-2"
     --gas auto
     --node tcp://127.0.0.1:26647
 ```

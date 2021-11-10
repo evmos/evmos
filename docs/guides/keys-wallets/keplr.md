@@ -22,7 +22,7 @@ Open the Keplr extension on your browser. If you are setting up Keplr for the fi
 
 ## Connect to Evmos Testnet and Request Funds from the Faucet
 
-Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.org/) and click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (evmos_9000-1) to Keplr and approve the connection.
+Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.org/) and click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (evmos_9000-2) to Keplr and approve the connection.
 
 ![chain add request](./../img/keplr_approve_chain.png)
 
