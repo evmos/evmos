@@ -13,8 +13,10 @@ import (
 func NewIntrarelayerProposalHandler(k keeper.Keeper) govtypes.Handler {
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c := content.(type) {
-		case *types.RegisterTokenPairProposal:
-			return handleRegisterTokenPairProposal(ctx, k, c)
+		case *types.RegisterCoinProposal:
+			return handleRegisterCoinProposal(ctx, k, c)
+		case *types.RegisterERC20Proposal:
+			return handleRegisterERC20Proposal(ctx, k, c)
 		case *types.EnableTokenRelayProposal:
 			return handleEnableRelayProposal(ctx, k, c)
 		case *types.UpdateTokenPairERC20Proposal:
@@ -26,7 +28,24 @@ func NewIntrarelayerProposalHandler(k keeper.Keeper) govtypes.Handler {
 	}
 }
 
-func handleRegisterTokenPairProposal(ctx sdk.Context, k keeper.Keeper, p *types.RegisterTokenPairProposal) error {
+func handleRegisterCoinProposal(ctx sdk.Context, k keeper.Keeper, p *types.RegisterCoinProposal) error {
+	p.TokenPair.ContractOwner = types.MODULE_OWNER
+	if err := k.RegisterTokenPair(ctx, p.TokenPair); err != nil {
+		return err
+	}
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRegisterTokenPair,
+			sdk.NewAttribute(types.AttributeKeyCosmosCoin, p.TokenPair.Denom),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, p.TokenPair.Erc20Address),
+		),
+	)
+
+	return nil
+}
+
+func handleRegisterERC20Proposal(ctx sdk.Context, k keeper.Keeper, p *types.RegisterERC20Proposal) error {
+	p.TokenPair.ContractOwner = types.EXTERNAL_OWNER
 	if err := k.RegisterTokenPair(ctx, p.TokenPair); err != nil {
 		return err
 	}

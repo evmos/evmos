@@ -8,11 +8,12 @@ import (
 )
 
 // NewTokenPair returns an instance of TokenPair
-func NewTokenPair(erc20Address common.Address, denom string, enabled bool) TokenPair {
+func NewTokenPair(erc20Address common.Address, denom string, enabled bool, contractOwner Owner) TokenPair {
 	return TokenPair{
-		Erc20Address: erc20Address.String(),
-		Denom:        denom,
-		Enabled:      true,
+		Erc20Address:  erc20Address.String(),
+		Denom:         denom,
+		Enabled:       true,
+		ContractOwner: contractOwner,
 	}
 }
 
@@ -35,6 +36,10 @@ func (b TokenPair) Validate() error {
 
 	if err := ethermint.ValidateAddress(b.Erc20Address); err != nil {
 		return err
+	}
+
+	if b.ContractOwner == INVALID_OWNER {
+		return ErrUndefinedOwner
 	}
 
 	return nil

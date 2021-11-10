@@ -38,14 +38,29 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
+	var res *evmtypes.MsgEthereumTxResponse
 
-	res, err := k.CallEVM(ctx, erc20, contract, "mint", receiver, msg.Coin.Amount.BigInt())
-	if err != nil {
-		return nil, err
-	}
+	// Check ownership
+	if pair.ContractOwner == types.MODULE_OWNER {
+		// Only mint if the module is the owner of the deployed contract
+		res, err = k.CallEVM(ctx, erc20, contract, "mint", receiver, msg.Coin.Amount.BigInt())
+		if err != nil {
+			return nil, err
+		}
 
-	if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins); err != nil {
-		return nil, err
+	} else if pair.ContractOwner == types.EXTERNAL_OWNER {
+		// Unescrow tokens from module account if the user is the owner of the erc20 contract
+		res, err = k.CallEVM(ctx, erc20, contract, "transfer", receiver, msg.Coin.Amount.BigInt())
+		if err != nil {
+			return nil, err
+		}
+
+		//Only burn cosmos coins if the user is the owner of the erc20 contract
+		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, types.ErrUndefinedOwner
 	}
 
 	txLogAttrs := make([]sdk.Attribute, 0)
@@ -91,24 +106,34 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 		return nil, err
 	}
 
+	// NOTE: coin fields already validated
+
+	// check ownership
+	if pair.ContractOwner == types.MODULE_OWNER {
+		return k.ConvertERC20NativeCoin(ctx, pair, msg)
+	} else if pair.ContractOwner == types.EXTERNAL_OWNER {
+		return k.ConvertERC20NativeToken(ctx, pair, msg)
+	} else {
+		return nil, types.ErrUndefinedOwner
+	}
+}
+
+func (k Keeper) ConvertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, msg *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
+	// NOTE: error checked during msg validation
+	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
+	sender := common.HexToAddress(msg.Sender)
+
+	// NOTE: coin fields already validated
+	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
-
-	res, err := k.CallEVM(ctx, erc20, contract, "burnEvmos", sender, msg.Amount.BigInt())
+	// Only burn if the module is the owner of the contract
+	res, err := k.CallEVM(ctx, erc20, contract, "burnFrom", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: check mint event on res Logs
-
-	// NOTE: coin fields already validated
-	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
-
-	// mint and send tokens to recipient
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-		return nil, err
-	}
-
+	// We send previously escrowed coins to the receiver.
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins); err != nil {
 		return nil, err
 	}
@@ -139,6 +164,76 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 			),
 		},
 	)
+
+	return &types.MsgConvertERC20Response{}, nil
+}
+
+func (k Keeper) ConvertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, msg *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
+	// NOTE: error checked during msg validation
+	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
+	sender := common.HexToAddress(msg.Sender)
+
+	// NOTE: coin fields already validated
+	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
+	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+	contract := pair.GetERC20Contract()
+
+	transferData, err := erc20.Pack("transfer", sender, msg.Amount.BigInt())
+	if err != nil {
+		return nil, err
+	}
+	// TODO Escrow coins to module account
+	ret, err := k.ExecuteEVM(ctx, contract, sender, transferData)
+	if err != nil {
+		return nil, err
+	}
+
+	unpackedRet, err := erc20.Unpack("transfer", ret)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Check unpackedRet execution
+	_ = unpackedRet
+
+	// Only mint if the module generated the cosmos coins
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
+		return nil, err
+	}
+
+	// We send recently minted coins to the receiver.
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins); err != nil {
+		return nil, err
+	}
+
+	// TODO NEW EVENTS
+
+	// txLogAttrs := make([]sdk.Attribute, 0)
+	// for _, log := range res.Logs {
+	// 	value, err := json.Marshal(log)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	txLogAttrs = append(txLogAttrs, sdk.NewAttribute(evmtypes.AttributeKeyTxLog, string(value)))
+	// }
+
+	// ctx.EventManager().EmitEvents(
+	// 	sdk.Events{
+	// 		sdk.NewEvent(
+	// 			types.EventTypeConvertCoin,
+	// 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+	// 			sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+	// 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+	// 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+	// 			sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
+	// 			sdk.NewAttribute(evmtypes.AttributeKeyTxHash, res.Hash),
+	// 		),
+	// 		sdk.NewEvent(
+	// 			evmtypes.EventTypeTxLog,
+	// 			txLogAttrs...,
+	// 		),
+	// 	},
+	// )
 
 	return &types.MsgConvertERC20Response{}, nil
 }

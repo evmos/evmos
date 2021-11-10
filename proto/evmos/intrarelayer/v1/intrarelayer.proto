@@ -2,8 +2,20 @@ syntax = "proto3";
 package evmos.intrarelayer.v1;
 
 import "gogoproto/gogo.proto";
-
 option go_package = "github.com/tharsis/evmos/x/intrarelayer/types";
+
+
+// Owner enumerates the ownership of a ERC20 contract.
+enum Owner {
+    option (gogoproto.goproto_enum_prefix) = false;
+    // INVALID_OWNER defines an invalid/undefined owner.
+    INVALID_OWNER = 0;
+    // MODULE_OWNER erc20 is owned by the irm.
+    MODULE_OWNER = 1;
+    // EXTERNAL_OWNER erc20 is owned by an external account.
+    EXTERNAL_OWNER = 2;
+    
+}
 
 // TokenPair defines an instance that records pairing consisting of a Cosmos
 // native Coin and an ERC20 token address.
@@ -15,10 +27,12 @@ message TokenPair {
     string denom = 2;
     // shows token mapping enable status
     bool enabled = 3;
+    // ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address)
+    Owner contract_owner = 4;
 }
 
-// RegisterTokenPairProposal is a gov Content type to register a token pair
-message RegisterTokenPairProposal {
+// RegisterCoinProposal is a gov Content type to register a token pair
+message RegisterCoinProposal {
     option (gogoproto.equal) = true;
     // title of the proposal
     string title         = 1;
@@ -27,6 +41,18 @@ message RegisterTokenPairProposal {
     // token pair of Cosmos native denom and ERC20 token address
     TokenPair token_pair = 3 [(gogoproto.nullable) = false];
 }
+
+// RegisterCoinProposal is a gov Content type to register a token pair
+message RegisterERC20Proposal {
+    option (gogoproto.equal) = true;
+    // title of the proposal
+    string title         = 1;
+    // proposal description
+    string description   = 2;
+    // token pair of Cosmos native denom and ERC20 token address
+    TokenPair token_pair = 3 [(gogoproto.nullable) = false];
+}
+
 
 // EnableTokenRelayProposal is a gov Content type to enable the internal
 // relaying of a token pair.

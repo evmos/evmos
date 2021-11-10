@@ -6,9 +6,12 @@
 
 - [evmos/intrarelayer/v1/intrarelayer.proto](#evmos/intrarelayer/v1/intrarelayer.proto)
     - [EnableTokenRelayProposal](#evmos.intrarelayer.v1.EnableTokenRelayProposal)
-    - [RegisterTokenPairProposal](#evmos.intrarelayer.v1.RegisterTokenPairProposal)
+    - [RegisterCoinProposal](#evmos.intrarelayer.v1.RegisterCoinProposal)
+    - [RegisterERC20Proposal](#evmos.intrarelayer.v1.RegisterERC20Proposal)
     - [TokenPair](#evmos.intrarelayer.v1.TokenPair)
     - [UpdateTokenPairERC20Proposal](#evmos.intrarelayer.v1.UpdateTokenPairERC20Proposal)
+  
+    - [Owner](#evmos.intrarelayer.v1.Owner)
   
 - [evmos/intrarelayer/v1/genesis.proto](#evmos/intrarelayer/v1/genesis.proto)
     - [GenesisState](#evmos.intrarelayer.v1.GenesisState)
@@ -61,10 +64,27 @@ relaying of a token pair.
 
 
 
-<a name="evmos.intrarelayer.v1.RegisterTokenPairProposal"></a>
+<a name="evmos.intrarelayer.v1.RegisterCoinProposal"></a>
 
-### RegisterTokenPairProposal
-RegisterTokenPairProposal is a gov Content type to register a token pair
+### RegisterCoinProposal
+RegisterCoinProposal is a gov Content type to register a token pair
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `token_pair` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) |  | token pair of Cosmos native denom and ERC20 token address |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.RegisterERC20Proposal"></a>
+
+### RegisterERC20Proposal
+RegisterCoinProposal is a gov Content type to register a token pair
 
 
 | Field | Type | Label | Description |
@@ -90,6 +110,7 @@ native Coin and an ERC20 token address.
 | `erc20_address` | [string](#string) |  | address of ERC20 contract token |
 | `denom` | [string](#string) |  | cosmos base denomination to be mapped to |
 | `enabled` | [bool](#bool) |  | shows token mapping enable status |
+| `contract_owner` | [Owner](#evmos.intrarelayer.v1.Owner) |  | ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address) |
 
 
 
@@ -115,6 +136,19 @@ ERC20 contract address.
 
 
  <!-- end messages -->
+
+
+<a name="evmos.intrarelayer.v1.Owner"></a>
+
+### Owner
+Owner enumerates the ownership of a ERC20 contract.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| INVALID_OWNER | 0 | INVALID_OWNER defines an invalid/undefined owner. |
+| MODULE_OWNER | 1 | MODULE_OWNER erc20 is owned by the irm. |
+| EXTERNAL_OWNER | 2 | EXTERNAL_OWNER erc20 is owned by an external account. |
+
 
  <!-- end enums -->
 

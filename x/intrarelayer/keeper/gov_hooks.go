@@ -20,7 +20,7 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 	// fetch the original voting period from gov params
 	votingPeriod := k.govKeeper.GetVotingParams(ctx).VotingPeriod
 	// get the new voting period
-	newVotingPeriod := k.GetVotingPeriod(ctx, types.ProposalTypeRegisterTokenPair)
+	newVotingPeriod := k.GetVotingPeriod(ctx, types.ProposalTypeRegisterCoin)
 
 	// perform a no-op if voting periods are equal
 	if newVotingPeriod == votingPeriod {
@@ -41,12 +41,15 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 	content := proposal.GetContent()
 
 	// check if proposal content and type matches the given type
-	if content.ProposalType() != types.ProposalTypeRegisterTokenPair {
+	if content.ProposalType() != types.ProposalTypeRegisterCoin && content.ProposalType() != types.ProposalTypeRegisterERC20 {
 		return
 	}
 
-	if _, ok := content.(*types.RegisterTokenPairProposal); !ok {
-		return
+	if _, ok := content.(*types.RegisterCoinProposal); !ok {
+		if _, ok = content.(*types.RegisterERC20Proposal); !ok {
+
+			return
+		}
 	}
 
 	originalEndTime := proposal.VotingEndTime
@@ -74,7 +77,9 @@ func (k Keeper) GetVotingPeriod(ctx sdk.Context, proposalType string) time.Durat
 	params := k.GetParams(ctx)
 
 	switch proposalType {
-	case types.ProposalTypeRegisterTokenPair:
+	case types.ProposalTypeRegisterCoin:
+		return params.TokenPairVotingPeriod
+	case types.ProposalTypeRegisterERC20:
 		return params.TokenPairVotingPeriod
 	default:
 		vp := k.govKeeper.GetVotingParams(ctx)

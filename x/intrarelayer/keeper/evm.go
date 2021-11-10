@@ -9,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/tharsis/ethermint/server/config"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
@@ -104,4 +105,59 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	return types.NewERC20Data(nameResp.Name, symbolResp.Name, decimalResp.Value), nil
+}
+
+func (k Keeper) ExecuteEVM(ctx sdk.Context, contractAddr, from common.Address, transferData []byte) ([]byte, error) {
+	params := k.evmKeeper.GetParams(ctx)
+	ethCfg := params.ChainConfig.EthereumConfig(k.evmKeeper.ChainID())
+	// NOTE: pass in an empty coinbase address and nil tracer as we don't need them for the check below
+	cfg := &evmtypes.EVMConfig{
+		ChainConfig: ethCfg,
+		Params:      params,
+		CoinBase:    common.Address{},
+		BaseFee:     big.NewInt(0),
+	}
+	msg := k.createModuleTx(&contractAddr, from, transferData)
+
+	vmConfig := k.evmKeeper.VMConfig(msg, cfg.Params, evmtypes.NewNoOpTracer())
+	evm := k.evmKeeper.NewEVM(msg, cfg, evmtypes.NewNoOpTracer())
+	interpreter := vm.NewEVMInterpreter(evm, vmConfig)
+
+	// Initialise a new contract and set the code that is to be used by the EVM.
+	// The contract is a scoped environment for this execution context only.
+	code := evm.StateDB.GetCode(contractAddr)
+	if len(code) == 0 {
+		// Invalid contract address
+		return nil, fmt.Errorf("Invalid contract address")
+	}
+
+	// TODO: define gas value
+	gas := uint64(2000000)
+	addrCopy := contractAddr
+	contract := vm.NewContract(vm.AccountRef(from), vm.AccountRef(contractAddr), new(big.Int), gas)
+	contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), code)
+	ret, err := interpreter.Run(contract, transferData, false)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: validate ret?
+
+	return ret, err
+}
+
+func (k Keeper) createModuleTx(contractAddr *common.Address, from common.Address, transferData []byte) ethtypes.Message {
+	msg := ethtypes.NewMessage(
+		from, contractAddr,
+		k.evmKeeper.GetNonce(from),
+		big.NewInt(0),
+		uint64(2000000),
+		big.NewInt(0),
+		big.NewInt(20000000),
+		big.NewInt(20000000),
+		transferData,
+		ethtypes.AccessList{},
+		false,
+	)
+	return msg
 }

@@ -12,4 +12,5 @@ var (
 	ErrInternalEthMinting    = sdkerrors.Register(ModuleName, 5, "internal ethereum minting error")
 	ErrWritingEthTxPayload   = sdkerrors.Register(ModuleName, 6, "writing ethereum tx payload error")
 	ErrInternalTokenPair     = sdkerrors.Register(ModuleName, 7, "internal ethereum token mapping error")
+	ErrUndefinedOwner        = sdkerrors.Register(ModuleName, 8, "undefined owner of contract pair")
 )

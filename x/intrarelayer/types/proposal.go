@@ -10,30 +10,34 @@ import (
 
 // constants
 const (
-	ProposalTypeRegisterTokenPair    string = "RegisterTokenPair"
+	ProposalTypeRegisterCoin         string = "RegisterCoin"
+	ProposalTypeRegisterERC20        string = "RegisterERC20"
 	ProposalTypeEnableTokenRelay     string = "EnableTokenRelay"
 	ProposalTypeUpdateTokenPairERC20 string = "UpdateTokenPairERC20"
 )
 
 // Implements Proposal Interface
 var (
-	_ govtypes.Content = &RegisterTokenPairProposal{}
+	_ govtypes.Content = &RegisterCoinProposal{}
+	_ govtypes.Content = &RegisterERC20Proposal{}
 	_ govtypes.Content = &EnableTokenRelayProposal{}
 	_ govtypes.Content = &UpdateTokenPairERC20Proposal{}
 )
 
 func init() {
-	govtypes.RegisterProposalType(ProposalTypeRegisterTokenPair)
+	govtypes.RegisterProposalType(ProposalTypeRegisterCoin)
+	govtypes.RegisterProposalType(ProposalTypeRegisterERC20)
 	govtypes.RegisterProposalType(ProposalTypeEnableTokenRelay)
 	govtypes.RegisterProposalType(ProposalTypeUpdateTokenPairERC20)
-	govtypes.RegisterProposalTypeCodec(&RegisterTokenPairProposal{}, "intrarelayer/RegisterTokenPairProposal")
+	govtypes.RegisterProposalTypeCodec(&RegisterCoinProposal{}, "intrarelayer/RegisterCoinProposal")
+	govtypes.RegisterProposalTypeCodec(&RegisterERC20Proposal{}, "intrarelayer/RegisterERC20Proposal")
 	govtypes.RegisterProposalTypeCodec(&EnableTokenRelayProposal{}, "intrarelayer/EnableTokenRelayProposal")
 	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal")
 }
 
-// NewRegisterTokenPairProposal returns new instance of TokenPairProposal
-func NewRegisterTokenPairProposal(title, description string, pair TokenPair) govtypes.Content {
-	return &RegisterTokenPairProposal{
+// NewRegisterCoinProposal returns new instance of RegisterCoinProposal
+func NewRegisterCoinProposal(title, description string, pair TokenPair) govtypes.Content {
+	return &RegisterCoinProposal{
 		Title:       title,
 		Description: description,
 		TokenPair:   pair,
@@ -41,15 +45,41 @@ func NewRegisterTokenPairProposal(title, description string, pair TokenPair) gov
 }
 
 // ProposalRoute returns router key for this proposal
-func (*RegisterTokenPairProposal) ProposalRoute() string { return RouterKey }
+func (*RegisterCoinProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
-func (*RegisterTokenPairProposal) ProposalType() string {
-	return ProposalTypeRegisterTokenPair
+func (*RegisterCoinProposal) ProposalType() string {
+	return ProposalTypeRegisterCoin
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
-func (rtbp *RegisterTokenPairProposal) ValidateBasic() error {
+func (rtbp *RegisterCoinProposal) ValidateBasic() error {
+	if err := rtbp.TokenPair.Validate(); err != nil {
+		return err
+	}
+
+	return govtypes.ValidateAbstract(rtbp)
+}
+
+// NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
+func NewRegisterERC20Proposal(title, description string, pair TokenPair) govtypes.Content {
+	return &RegisterERC20Proposal{
+		Title:       title,
+		Description: description,
+		TokenPair:   pair,
+	}
+}
+
+// ProposalRoute returns router key for this proposal
+func (*RegisterERC20Proposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for this proposal
+func (*RegisterERC20Proposal) ProposalType() string {
+	return ProposalTypeRegisterERC20
+}
+
+// ValidateBasic performs a stateless check of the proposal fields
+func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
 	if err := rtbp.TokenPair.Validate(); err != nil {
 		return err
 	}
