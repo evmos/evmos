@@ -20,10 +20,10 @@ echo "prepare genesis: Collect genesis tx"
 echo "prepare genesis: Run validate-genesis to ensure everything worked and that the genesis file is setup correctly"
 ./hazlord validate-genesis --home $DATA_DIR
 
-echo "starting evmos node $i in background ..."
+echo "starting hazlor node $i in background ..."
 ./hazlord start --pruning=nothing --rpc.unsafe \
 --keyring-backend test --home $DATA_DIR \
 >$DATA_DIR/node.log 2>&1 & disown
 
-echo "started evmos node"
+echo "started hazlor node"
 tail -f /dev/null

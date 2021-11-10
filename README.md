@@ -12,10 +12,10 @@ parent:
 
 <div align="center">
   <a href="https://github.com/hazlorlabs/hsc/releases/latest">
-    <img alt="Version" src="https://img.shields.io/github/tag/tharsis/evmos.svg" />
+    <img alt="Version" src="https://img.shields.io/github/tag/hazlorlabs/hsc.svg" />
   </a>
   <a href="https://github.com/hazlorlabs/hsc/blob/main/LICENSE">
-    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/tharsis/evmos.svg" />
+    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/hazlorlabs/hsc.svg" />
   </a>
   <a href="https://pkg.go.dev/github.com/hazlorlabs/hsc">
     <img alt="GoDoc" src="https://godoc.org/github.com/hazlorlabs/hsc?status.svg" />
@@ -24,7 +24,7 @@ parent:
     <img alt="Go report card" src="https://goreportcard.com/badge/github.com/hazlorlabs/hsc"/>
   </a>
   <a href="https://bestpractices.coreinfrastructure.org/projects/5018">
-    <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/tharsis/evmos">
+    <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/hazlorlabs/hsc">
   </a>
 </div>
 <div align="center">
@@ -34,8 +34,8 @@ parent:
   <a href="https://github.com/hazlorlabs/hsc/actions?query=branch%3Amain+workflow%3ALint">
     <img alt="Lint Status" src="https://github.com/hazlorlabs/hsc/actions/workflows/lint.yml/badge.svg?branch=main" />
   </a>
-  <a href="https://codecov.io/gh/tharsis/evmos">
-    <img alt="Code Coverage" src="https://codecov.io/gh/tharsis/evmos/branch/main/graph/badge.svg" />
+  <a href="https://codecov.io/gh/hazlorlabs/hsc">
+    <img alt="Code Coverage" src="https://codecov.io/gh/hazlorlabs/hsc/branch/main/graph/badge.svg" />
   </a>
   <a href="https://twitter.com/HazlorLabs">
     <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>

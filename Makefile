@@ -61,7 +61,7 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=evmos \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=hazlor \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=$(HAZLOR_BINARY) \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
@@ -126,7 +126,7 @@ docker-build:
 	# update old container
 	docker rm evmos || true
 	# create a new container from the latest image
-	docker create --name evmos -t -i tharsis/evmos:latest evmos
+	docker create --name evmos -t -i hazlorlabs/hsc:latest evmos
 	# move the binaries to the ./build directory
 	mkdir -p ./build/
 	docker cp evmos:/usr/bin/hazlord ./build/

@@ -89,7 +89,7 @@ init_func() {
 }
 
 start_func() {
-    echo "starting evmos node $i in background ..."
+    echo "starting hazlor node $i in background ..."
     "$PWD"/build/hazlord start --pruning=nothing --rpc.unsafe \
     --p2p.laddr tcp://$IP_ADDR:$NODE_P2P_PORT"$i" --address tcp://$IP_ADDR:$NODE_PORT"$i" --rpc.laddr tcp://$IP_ADDR:$NODE_RPC_PORT"$i" \
     --json-rpc.address=$IP_ADDR:$RPC_PORT"$i" \
@@ -97,7 +97,7 @@ start_func() {
     >"$DATA_DIR"/node"$i".log 2>&1 & disown
     
     HAZLOR_PID=$!
-    echo "started evmos node, pid=$HAZLOR_PID"
+    echo "started hazlor node, pid=$HAZLOR_PID"
     # add PID to array
     arr+=("$HAZLOR_PID")
 }
@@ -123,7 +123,7 @@ if [[ -z $TEST || $TEST == "rpc" ]]; then
     
     for i in $(seq 1 "$TEST_QTD"); do
         HOST_RPC=http://$IP_ADDR:$RPC_PORT"$i"
-        echo "going to test evmos node $HOST_RPC ..."
+        echo "going to test hazlor node $HOST_RPC ..."
         MODE=$MODE HOST=$HOST_RPC go test ./tests/... -timeout=300s -v -short
         
         RPC_FAIL=$?
@@ -135,7 +135,7 @@ stop_func() {
     HAZLOR_PID=$i
     echo "shutting down node, pid=$HAZLOR_PID ..."
     
-    # Shutdown evmos node
+    # Shutdown hazlor node
     kill -9 "$HAZLOR_PID"
     wait "$HAZLOR_PID"
 }
