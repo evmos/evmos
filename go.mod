@@ -1,4 +1,4 @@
-module github.com/tharsis/evmos
+module github.com/hazlorlabs/hsc
 
 go 1.17
 

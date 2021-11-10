@@ -39,7 +39,7 @@ import (
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/app"
+	"github.com/hazlorlabs/hsc/app"
 )
 
 const (

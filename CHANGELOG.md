@@ -39,37 +39,37 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
-* (cmd) [\#32](https://github.com/tharsis/evmos/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
+* (cmd) [\#32](https://github.com/hazlorlabs/hsc/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
 
 ### Improvements
 
-* (deps) [\#80](https://github.com/tharsis/evmos/pull/80) Bump ibc-go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0)
+* (deps) [\#80](https://github.com/hazlorlabs/hsc/pull/80) Bump ibc-go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0)
 
 ## [v0.1.3] - 2021-10-24
 
 ### Improvements
 
-* (deps) [\#64](https://github.com/tharsis/evmos/pull/64) Bump Ethermint version to `v0.7.2`
+* (deps) [\#64](https://github.com/hazlorlabs/hsc/pull/64) Bump Ethermint version to `v0.7.2`
 
 ## Bug Fixes
 
-* (cmd) [\#41](https://github.com/tharsis/evmos/pull/41) Fix `debug` command.
+* (cmd) [\#41](https://github.com/hazlorlabs/hsc/pull/41) Fix `debug` command.
 
 ## [v0.1.2] - 2021-10-08
 
 ### Improvements
 
-* (deps) [\#34](https://github.com/tharsis/evmos/pull/34) Bump Ethermint version to `v0.7.1`
+* (deps) [\#34](https://github.com/hazlorlabs/hsc/pull/34) Bump Ethermint version to `v0.7.1`
 
 ## [v0.1.1] - 2021-10-07
 
 ## Bug Fixes
 
-* (build) [\#30](https://github.com/tharsis/evmos/pull/30) Fix `version` command.
+* (build) [\#30](https://github.com/hazlorlabs/hsc/pull/30) Fix `version` command.
 
 ## [v0.1.0] - 2021-10-07
 
 ## Improvements
 
-* (cmd) [\#26](https://github.com/tharsis/evmos/pull/26) Use config on genesis accounts.
-* (deps) [\#28](https://github.com/tharsis/evmos/pull/28) Bump Ethermint version to `v0.7.0`
+* (cmd) [\#26](https://github.com/hazlorlabs/hsc/pull/26) Use config on genesis accounts.
+* (deps) [\#28](https://github.com/hazlorlabs/hsc/pull/28) Bump Ethermint version to `v0.7.0`

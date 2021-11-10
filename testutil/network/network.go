@@ -52,7 +52,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/app"
+	"github.com/hazlorlabs/hsc/app"
 )
 
 // package-wide network lock to only allow one test network at a time

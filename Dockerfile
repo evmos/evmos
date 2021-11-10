@@ -4,7 +4,7 @@ FROM golang:alpine AS build-env
 ENV PACKAGES git build-base
 
 # Set working directory for the build
-WORKDIR /go/src/github.com/tharsis/evmos
+WORKDIR /go/src/github.com/hazlorlabs/hsc
 
 # Install dependencies
 RUN apk add --update $PACKAGES
@@ -24,7 +24,7 @@ RUN apk add --update ca-certificates jq
 WORKDIR /root
 
 # Copy over binaries from the build-env
-COPY --from=build-env /go/src/github.com/tharsis/evmos/build/hazlord /usr/bin/hazlord
+COPY --from=build-env /go/src/github.com/hazlorlabs/hsc/build/hazlord /usr/bin/hazlord
 
 # Run hazlord by default
 CMD ["hazlord"]

@@ -72,5 +72,5 @@ hazlord version
 You can also download a specific release available on the {{ $themeConfig.project.name }} [repository](https://github.com/hazlorlabs/hsc-chain/releases) or via command line:
 
 ```bash
-go install github.com/tharsis/evmos@latest
+go install github.com/hazlorlabs/hsc@latest
 ```

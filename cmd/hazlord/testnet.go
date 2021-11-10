@@ -42,7 +42,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/testutil/network"
+	"github.com/hazlorlabs/hsc/testutil/network"
 )
 
 var (

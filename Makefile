@@ -11,7 +11,7 @@ EVMOS_BINARY = hazlord
 EVMOS_DIR = evmos
 BUILDDIR ?= $(CURDIR)/build
 SIMAPP = ./app
-HTTPS_GIT := https://github.com/tharsis/evmos.git
+HTTPS_GIT := https://github.com/hazlorlabs/hsc.git
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
 
@@ -262,7 +262,7 @@ update-swagger-docs: statik
 .PHONY: update-swagger-docs
 
 godocs:
-	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/tharsis/evmos/types"
+	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/hazlorlabs/hsc/types"
 	godoc -http=:6060
 
 # Start docs site at localhost:8080
@@ -413,7 +413,7 @@ lint-fix-contracts:
 format:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs gofmt -w -s
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs goimports -w -local github.com/tharsis/evmos
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs goimports -w -local github.com/hazlorlabs/hsc
 .PHONY: format
 
 ###############################################################################
@@ -543,7 +543,7 @@ localnet-show-logstream:
 ###                                Releasing                                ###
 ###############################################################################
 
-PACKAGE_NAME:=github.com/tharsis/evmos
+PACKAGE_NAME:=github.com/hazlorlabs/hsc
 GOLANG_CROSS_VERSION  = v1.17.1
 GOPATH ?= '$(HOME)/go'
 release-dry-run:

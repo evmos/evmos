@@ -11,17 +11,17 @@ parent:
 <!-- ![banner](docs/ethermint.jpg) -->
 
 <div align="center">
-  <a href="https://github.com/tharsis/evmos/releases/latest">
+  <a href="https://github.com/hazlorlabs/hsc/releases/latest">
     <img alt="Version" src="https://img.shields.io/github/tag/tharsis/evmos.svg" />
   </a>
-  <a href="https://github.com/tharsis/evmos/blob/main/LICENSE">
+  <a href="https://github.com/hazlorlabs/hsc/blob/main/LICENSE">
     <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/tharsis/evmos.svg" />
   </a>
-  <a href="https://pkg.go.dev/github.com/tharsis/evmos">
-    <img alt="GoDoc" src="https://godoc.org/github.com/tharsis/evmos?status.svg" />
+  <a href="https://pkg.go.dev/github.com/hazlorlabs/hsc">
+    <img alt="GoDoc" src="https://godoc.org/github.com/hazlorlabs/hsc?status.svg" />
   </a>
-  <a href="https://goreportcard.com/report/github.com/tharsis/evmos">
-    <img alt="Go report card" src="https://goreportcard.com/badge/github.com/tharsis/evmos"/>
+  <a href="https://goreportcard.com/report/github.com/hazlorlabs/hsc">
+    <img alt="Go report card" src="https://goreportcard.com/badge/github.com/hazlorlabs/hsc"/>
   </a>
   <a href="https://bestpractices.coreinfrastructure.org/projects/5018">
     <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/tharsis/evmos">
@@ -31,8 +31,8 @@ parent:
   <a href="https://discord.gg/X6ZjdB4BEJ">
     <img alt="Discord" src="https://img.shields.io/discord/809048090249134080.svg" />
   </a>
-  <a href="https://github.com/tharsis/evmos/actions?query=branch%3Amain+workflow%3ALint">
-    <img alt="Lint Status" src="https://github.com/tharsis/evmos/actions/workflows/lint.yml/badge.svg?branch=main" />
+  <a href="https://github.com/hazlorlabs/hsc/actions?query=branch%3Amain+workflow%3ALint">
+    <img alt="Lint Status" src="https://github.com/hazlorlabs/hsc/actions/workflows/lint.yml/badge.svg?branch=main" />
   </a>
   <a href="https://codecov.io/gh/tharsis/evmos">
     <img alt="Code Coverage" src="https://codecov.io/gh/tharsis/evmos/branch/main/graph/badge.svg" />
@@ -55,7 +55,7 @@ For prerequisites and detailed build instructions please read the [Installation]
 make install
 ```
 
-Or check out the latest [release](https://github.com/tharsis/evmos/releases).
+Or check out the latest [release](https://github.com/hazlorlabs/hsc/releases).
 
 ## Quick Start
 
@@ -72,7 +72,7 @@ The following chat channels and forums are a great spot to ask questions about E
 
 ## Contributing
 
-Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/tharsis/evmos/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/hazlorlabs/hsc/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
 For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
 
