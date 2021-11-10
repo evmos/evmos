@@ -19,9 +19,9 @@ Learn about the JSON-RPC server to interact with the EVM. {synopsis}
 
 ## JSON-RPC Support
 
-Evmos supports all standard web3 JSON-RPC APIs. You can find documentation for these APIs on the [`JSON-RPC Methods`](./endpoints.md) page.
+Hazlor supports all standard web3 JSON-RPC APIs. You can find documentation for these APIs on the [`JSON-RPC Methods`](./endpoints.md) page.
 
-JSON-RPC is provided on multiple transports. Evmos supports JSON-RPC over HTTP and WebSocket. Transports must be enabled through command-line flags or through the `app.toml` configuration file. For more details see the []
+JSON-RPC is provided on multiple transports. Hazlor supports JSON-RPC over HTTP and WebSocket. Transports must be enabled through command-line flags or through the `app.toml` configuration file. For more details see the []
 
 Ethereum JSON-RPC APIs use a name-space system. RPC methods are grouped into several categories depending on their purpose. All method names are composed of the namespace, an underscore, and the actual method name within the namespace. For example, the eth_call method resides in the eth namespace.
 
@@ -57,7 +57,7 @@ The following methods have an extra default block parameter:
 - [`eth_getStorageAt`](./endpoints.md#eth-getstorageat)
 - [`eth_call`](./endpoints.md#eth-call)
 
-When requests are made that act on the state of Evmos, the last default block parameter determines the height of the block.
+When requests are made that act on the state of Hazlor, the last default block parameter determines the height of the block.
 
 The following options are possible for the `defaultBlock` parameter:
 

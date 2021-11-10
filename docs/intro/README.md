@@ -6,7 +6,7 @@ parent:
 
 # Introduction
 
-This folder contains introduction material for Evmos.
+This folder contains introduction material for Hazlor.
 
 1. [Overview](./overview)
 1. [Architecture](./architecture)
@@ -18,4 +18,4 @@ After reading the introduction material, head over to the [basics](../basics/REA
 
 ## Next {hide}
 
-Get an high-level [overview](./overview) of Evmos {hide}
+Get an high-level [overview](./overview) of Hazlor {hide}

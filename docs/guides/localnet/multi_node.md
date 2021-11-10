@@ -28,7 +28,7 @@ To build start a 4 node testnet run:
 make localnet-start
 ```
 
-This command creates a 4-node network using the `evmosdnode` Docker image.
+This command creates a 4-node network using the `hscdnode` Docker image.
 The ports for each node are found in this table:
 
 | Node ID          | P2P Port | Tendermint RPC Port | REST/ Ethereum JSON-RPC Port | WebSocket Port |
@@ -49,10 +49,10 @@ The command above  command will run containers in the background using Docker co
 ```bash
 ...
 Creating network "evmos_localnet" with driver "bridge"
-Creating evmosdnode0 ... done
-Creating evmosdnode2 ... done
-Creating evmosdnode1 ... done
-Creating evmosdnode3 ... done
+Creating hscdnode0 ... done
+Creating hscdnode2 ... done
+Creating hscdnode1 ... done
+Creating hscdnode3 ... done
 ```
 
 ### Stop Localnet
@@ -66,55 +66,55 @@ make localnet-stop
 ### Configuration
 
 The `make localnet-start` creates files for a 4-node testnet in `./build` by
-calling the `evmosd testnet` command. This outputs a handful of files in the
+calling the `hscd testnet` command. This outputs a handful of files in the
 `./build` directory:
 
 ```bash
 tree -L 3 build/
 
 build/
-├── evmosd
-├── evmosd
+├── hscd
+├── hscd
 ├── gentxs
 │   ├── node0.json
 │   ├── node1.json
 │   ├── node2.json
 │   └── node3.json
 ├── node0
-│   ├── evmosd
+│   ├── hscd
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── evmosd
+│   └── hscd
 │       ├── config
 │       ├── data
-│       └── evmosd.log
+│       └── hscd.log
 ├── node1
-│   ├── evmosd
+│   ├── hscd
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── evmosd
+│   └── hscd
 │       ├── config
 │       ├── data
-│       └── evmosd.log
+│       └── hscd.log
 ├── node2
-│   ├── evmosd
+│   ├── hscd
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── evmosd
+│   └── hscd
 │       ├── config
 │       ├── data
-│       └── evmosd.log
+│       └── hscd.log
 └── node3
-    ├── evmosd
+    ├── hscd
     │   ├── key_seed.json
     │   └── keyring-test-cosmos
-    └── evmosd
+    └── hscd
         ├── config
         ├── data
-        └── evmosd.log
+        └── hscd.log
 ```
 
-Each `./build/nodeN` directory is mounted to the `/evmosd` directory in each container.
+Each `./build/nodeN` directory is mounted to the `/hscd` directory in each container.
 
 ### Logging
 
@@ -122,10 +122,10 @@ In order to see the logs of a particular node you can use the following command:
 
 ```bash
 # node 0: daemon logs
-docker exec evmosdnode0 tail evmosd.log
+docker exec hscdnode0 tail hscd.log
 
 # node 0: REST & RPC logs
-docker exec evmosdnode0 tail evmosd.log
+docker exec hscdnode0 tail hscd.log
 ```
 
 The logs for the daemon will look like:
@@ -163,7 +163,7 @@ You can also watch logs as they are produced via Docker with the `--follow` (`-f
 example:
 
 ```bash
-docker logs -f evmosdnode0
+docker logs -f hscdnode0
 ```
 
 ### Interact with the Localnet
@@ -190,18 +190,18 @@ Additional instructions on how to interact with the WebSocket can be found on th
 
 ### Keys & Accounts
 
-To interact with `evmosd` and start querying state or creating txs, you use the
-`evmosd` directory of any given node as your `home`, for example:
+To interact with `hscd` and start querying state or creating txs, you use the
+`hscd` directory of any given node as your `home`, for example:
 
 ```bash
-evmosd keys list --home ./build/node0/evmosd
+hscd keys list --home ./build/node0/hscd
 ```
 
 Now that accounts exists, you may create new accounts and send those accounts
 funds!
 
 ::: tip
-**Note**: Each node's seed is located at `./build/nodeN/evmosd/key_seed.json` and can be restored to the CLI using the `evmosd keys add --restore` command
+**Note**: Each node's seed is located at `./build/nodeN/hscd/key_seed.json` and can be restored to the CLI using the `hscd keys add --restore` command
 :::
 
 ### Special Binaries

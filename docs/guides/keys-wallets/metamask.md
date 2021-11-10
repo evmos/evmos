@@ -4,12 +4,12 @@ order: 2
 
 # MetaMask
 
-Connect your MetaMask wallet with Evmos {synopsis}
+Connect your MetaMask wallet with Hazlor {synopsis}
 
 The MetaMask browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet or via a locally-running {{ $themeConfig.project.name }} node.
 
 ::: tip
-If you are planning on developing on Evmos locally and you haven’t already set up your own local node, refer to [the quickstart tutorial](../../quickstart/run_node/), or follow the instructions in the [GitHub repository](https://github.com/tharsis/evmos/).
+If you are planning on developing on Hazlor locally and you haven’t already set up your own local node, refer to [the quickstart tutorial](../../quickstart/run_node/), or follow the instructions in the [GitHub repository](https://github.com/hazlorlabs/hsc-chain/).
 :::
 
 ## Adding a New Network
@@ -50,9 +50,9 @@ Here is the list of fields that you can use to paste on Metamask:
 Once you have added {{ $themeConfig.project.name }} to the Metamask `Networks`, you can automatically import your accounts by:
 
 1. Go to the official EVM Chain ID Registry website: [chainlist.org](https://chainlist.org/)
-2. Search for `"Evmos"`
+2. Search for `"Hazlor"`
    ![chainlist.org website](./../img/chainlist.png)
-3. Click the `Connect Wallet` button under `Evmos Testnet`
+3. Click the `Connect Wallet` button under `Hazlor Testnet`
    ![add accounts via chainlist](./../img/chainlist_metamask.png)
 
 ### Manual Import
@@ -64,7 +64,7 @@ Close the `Settings`, go to `My Accounts` (top right circle) and select `Import 
 Now you can export your private key from the terminal using the following command. Again, make sure to replace `mykey` with the name of the key that you want to export and use the correct `keyring-backend`:
 
 ```bash
-evmosd keys unsafe-export-eth-key mykey --keyring-backend test
+hscd keys unsafe-export-eth-key mykey --keyring-backend test
 ```
 
 Go back to the browser and select the `Private Key` option. Then paste the private key exported from the `unsafe-export-eth-key` command.

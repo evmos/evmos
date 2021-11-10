@@ -4,7 +4,7 @@ order: 1
 
 # Encoding
 
-Learn about the encoding formats used on Evmos. {synopsis}
+Learn about the encoding formats used on Hazlor. {synopsis}
 
 ## Pre-requisite Readings
 
@@ -23,13 +23,13 @@ client and state serialization. All the EVM module types that are used for state
 ### Amino
 
 The Cosmos SDK also supports the legacy Amino encoding format for backwards compatibility with
-previous versions, specially for client encoding and signing with Ledger devices. Evmos does not
+previous versions, specially for client encoding and signing with Ledger devices. Hazlor does not
 support Amino in the EVM module, but it is supported for all other Cosmos SDK modules that enable it.
 
 ### RLP
 
 Recursive Length Prefix ([RLP](https://eth.wiki/en/fundamentals/rlp)), is an encoding/decoding algorithm that serializes a message and
-allows for quick reconstruction of encoded data. Evmos uses RLP to encode/decode Ethereum
+allows for quick reconstruction of encoded data. Hazlor uses RLP to encode/decode Ethereum
 messages for JSON-RPC handling to conform messages to the proper Ethereum format. This allows
 messages to be encoded and decoded in the exact format as Ethereum's.
 
@@ -66,4 +66,4 @@ func (g txConfig) TxDecoder() sdk.TxDecoder {
 
 ## Next {hide}
 
-Learn how [pending state](./pending_state.md) is handled on Evmos. {hide}
+Learn how [pending state](./pending_state.md) is handled on Hazlor. {hide}

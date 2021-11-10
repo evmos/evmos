@@ -4,7 +4,7 @@ order: 3
 
 # Truffle: Deploying a Smart Contract
 
-Learn how to deploy a simple Solidity-based smart contract to Evmos using the Truffle environment {synopsis}
+Learn how to deploy a simple Solidity-based smart contract to Hazlor using the Truffle environment {synopsis}
 
 ## Pre-requisite Readings
 
@@ -22,7 +22,7 @@ yarn install truffle -g
 ```
 
 ::: tip
-If you haven't already, you will also need to install Evmos if you plan on deploying your smart contracts locally. Check this [document](./../../quickstart/installation.md) for the full instructions.
+If you haven't already, you will also need to install Hazlor if you plan on deploying your smart contracts locally. Check this [document](./../../quickstart/installation.md) for the full instructions.
 :::
 
 ## Create Truffle Project
@@ -103,7 +103,7 @@ Open `truffle-config.js` and uncomment the `development` section in `networks`:
     },
 ```
 
-This will allow your contract to connect to your Evmos local node.
+This will allow your contract to connect to your Hazlor local node.
 
 ## Start Node
 
@@ -126,7 +126,7 @@ In the Truffle terminal, migrate the contract using:
 truffle migrate --network development
 ```
 
-You should see incoming deployment logs in the Evmos daemon Terminal tab for each transaction (one to deploy `Migrations.sol` and the other to deploy `Counter.sol`).
+You should see incoming deployment logs in the Hazlor daemon Terminal tab for each transaction (one to deploy `Migrations.sol` and the other to deploy `Counter.sol`).
 
 ```bash
 $ I[2020-07-15|17:35:59.934] Added good transaction                       module=mempool tx=22245B935689918D332F58E82690F02073F0453D54D5944B6D64AAF1F21974E2 res="&{CheckTx:log:\"[]\" gas_wanted:6721975 }" height=3 total=1
@@ -137,7 +137,7 @@ I[2020-07-15|17:36:02.981] Added good transaction                       module=m
 
 ## Run Truffle tests
 
-Now, you can run the Truffle tests using the Evmos node using the `test` command:
+Now, you can run the Truffle tests using the Hazlor node using the `test` command:
 
 ```bash
 $ truffle test --network development

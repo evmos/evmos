@@ -11,34 +11,34 @@ There are multiple ways to interact with a node: using the CLI, using gRPC or us
 Now that your very own node is running, it is time to try sending tokens from the first account you created to a second account. In a new terminal window, start by running the following query command:
 
 ```bash
-evmosd query bank balances $MY_VALIDATOR_ADDRESS --chain-id=evmos_9000-1
+hscd query bank balances $MY_VALIDATOR_ADDRESS --chain-id=hazlor_7878
 ```
 
 You should see the current balance of the account you created, equal to the original balance of tokens you granted it minus the amount you delegated via the `gentx`. Now, create a second account:
 
 ```bash
-evmosd keys add recipient --keyring-backend=file
+hscd keys add recipient --keyring-backend=file
 
 # Put the generated address in a variable for later use.
-RECIPIENT=$(evmosd keys show recipient -a --keyring-backend=file)
+RECIPIENT=$(hscd keys show recipient -a --keyring-backend=file)
 ```
 
 The command above creates a local key-pair that is not yet registered on the chain. An account is created the first time it receives tokens from another account. Now, run the following command to send tokens to the `recipient` account:
 
 ```bash
-evmosd tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000aphoton --chain-id=evmos_9000-1 --keyring-backend=file
+hscd tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000ascas --chain-id=hazlor_7878 --keyring-backend=file
 
 # Check that the recipient account did receive the tokens.
-evmosd query bank balances $RECIPIENT --chain-id=evmos_9000-1
+hscd query bank balances $RECIPIENT --chain-id=hazlor_7878
 ```
 
 Finally, delegate some of the stake tokens sent to the `recipient` account to the validator:
 
 ```bash
-evmosd tx staking delegate $(evmosd keys show my_validator --bech val -a --keyring-backend=file) 500aphoton --from=recipient --chain-id=evmos_9000-1 --keyring-backend=file
+hscd tx staking delegate $(hscd keys show my_validator --bech val -a --keyring-backend=file) 500ascas --from=recipient --chain-id=hazlor_7878 --keyring-backend=file
 
 # Query the total delegations to `validator`.
-evmosd query staking delegations-to $(evmosd keys show my_validator --bech val -a --keyring-backend=file) --chain-id=evmos_9000-1
+hscd query staking delegations-to $(hscd keys show my_validator --bech val -a --keyring-backend=file) --chain-id=hazlor_7878
 ```
 
 You should see two delegations, the first one made from the `gentx`, and the second one you just performed from the `recipient` account.

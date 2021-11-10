@@ -1,10 +1,10 @@
-# Snapshot and Revert in Evmos
+# Snapshot and Revert in Hazlor
 
 EVM uses state-reverting exceptions to handle errors. Such an exception will undo all changes made to the state in the current call (and all its sub-calls), and the caller could handle the error and don't propagate. We need to implement the `Snapshot` and `RevertToSnapshot` apis in `StateDB` interfaces to support this feature.
 
 [go-ethereum implementation](https://github.com/ethereum/go-ethereum/blob/master/core/state/journal.go#L39) manages transient states in memory, and uses a list of journal logs to record all the state modification operations done so far, snapshot is an index in the log list, and to revert to a snapshot it just undo the journal logs after the snapshot index in reversed order.
 
-Evmos uses cosmos-sdk's storage api to manage states, fortunately the storage api supports creating cached overlays, it works like this:
+Hazlor uses cosmos-sdk's storage api to manage states, fortunately the storage api supports creating cached overlays, it works like this:
 
 ```go
 // create a cached overlay storage on top of ctx storage.

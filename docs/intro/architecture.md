@@ -4,11 +4,11 @@ order: 2
 
 # Architecture
 
-Learn how Evmos's architecture leverages the Cosmos SDK Proof-of-Stake functionality, EVM compatibility and fast-finality from Tendermint Core's BFT consensus. {synopsis}
+Learn how Hazlor's architecture leverages the Cosmos SDK Proof-of-Stake functionality, EVM compatibility and fast-finality from Tendermint Core's BFT consensus. {synopsis}
 
 ## Cosmos SDK
 
-Evmos enables the full composability and modularity of the [Cosmos SDK](https://docs.cosmos.network/).
+Hazlor enables the full composability and modularity of the [Cosmos SDK](https://docs.cosmos.network/).
 
 ## Tendermint Core & the Application Blockchain Interface (ABCI)
 
@@ -21,7 +21,7 @@ language.
 Tendermint has evolved to be a general purpose blockchain consensus engine that
 can host arbitrary application states. Since Tendermint can replicate arbitrary
 applications, it can be used as a plug-and-play replacement for the consensus
-engines of other blockchains. Evmos is such an example of an ABCI application
+engines of other blockchains. Hazlor is such an example of an ABCI application
 replacing Ethereum's PoW via Tendermint's consensus engine.
 
 Another example of a cryptocurrency application built on Tendermint is the Cosmos
@@ -30,7 +30,7 @@ simple API (ie. the ABCI) between the application process and consensus process.
 
 ## EVM module
 
-Evmos enables EVM compatibility by implementing various components that together support all the EVM state transitions while ensuring the same developer experience as Ethereum:
+Hazlor enables EVM compatibility by implementing various components that together support all the EVM state transitions while ensuring the same developer experience as Ethereum:
 
 - Ethereum transaction format as a Cosmos SDK `Tx` and `Msg` interface
 - Ethereum's `secp256k1` curve for the Cosmos Keyring
@@ -39,4 +39,4 @@ Evmos enables EVM compatibility by implementing various components that together
 
 ## Next {hide}
 
-Check the available Evmos [resources](./resources.md) {hide}
+Check the available Hazlor [resources](./resources.md) {hide}

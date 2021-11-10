@@ -6,7 +6,7 @@ parent:
 
 # Quick Start
 
-This repository contains reference documentation on how to install and run an Evmos full node.
+This repository contains reference documentation on how to install and run an Hazlor full node.
 
 1. [Installation](./installation)
 1. [Build and Configuration](./binary)
@@ -17,4 +17,4 @@ After going through the Quick Start contents, head over to the [basics](./../bas
 
 ## Next {hide}
 
-Learn how to [install](./../quickstart/installation) Evmos {hide}
+Learn how to [install](./../quickstart/installation) Hazlor {hide}

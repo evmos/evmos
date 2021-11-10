@@ -1,7 +1,7 @@
 {
   "name": "docs",
   "version": "1.0.0",
-  "description": "Evmos Documentation",
+  "description": "Hazlor Documentation",
   "main": "index.js",
   "scripts": {
     "preserve": "./pre.sh",
@@ -13,7 +13,7 @@
     "postbuild": "./post.sh"
   },
   "keywords": [
-    "evmos",
+    "hazlor",
     "cosmos",
     "ethereum",
     "blockchain",

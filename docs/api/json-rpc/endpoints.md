@@ -4,7 +4,7 @@ order: 4
 
 # JSON-RPC Methods
 
-Check the JSON-RPC methods supported on Evmos. {synopsis}
+Check the JSON-RPC methods supported on Hazlor. {synopsis}
 
 ## Pre-requisite Readings
 
@@ -1080,7 +1080,7 @@ Sets the minimal gas price used to accept transactions. Any transaction below th
 
 This method requires a `node` restart after being called because it changes the configuration file.
 
-Make sure your `evmosd start` call is not using the flag `minimum-gas-prices` because this value will be used instead of the one set on the configuration file.
+Make sure your `hscd start` call is not using the flag `minimum-gas-prices` because this value will be used instead of the one set on the configuration file.
 
 #### Parameters
 

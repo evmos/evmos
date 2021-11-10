@@ -6,7 +6,7 @@ parent:
 
 # Basics
 
-This repository contains reference documentation on the basic concepts of Evmos.
+This repository contains reference documentation on the basic concepts of Hazlor.
 
 1. [Chain ID](./chain_id.md)
 1. [Accounts](./accounts.md)

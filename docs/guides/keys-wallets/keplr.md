@@ -4,7 +4,7 @@ order: 4
 
 # Keplr
 
-Connect your Keplr wallet with Evmos {synopsis}
+Connect your Keplr wallet with Hazlor {synopsis}
 
 ## Pre-requisite Readings
 
@@ -20,9 +20,9 @@ Add the Keplr browser extension following the instructions on the [Keplr website
 
 Open the Keplr extension on your browser. If you are setting up Keplr for the first time, you can either create a new account or import an existing account. Refer to the [Keplr documentation](https://keplr.crunch.help/getting-started) for further information.
 
-## Connect to Evmos Testnet and Request Funds from the Faucet
+## Connect to Hazlor Testnet and Request Funds from the Faucet
 
-Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.org/) and click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (evmos_9000-1) to Keplr and approve the connection.
+Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.hazlor.com/) and click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (hazlor_7878) to Keplr and approve the connection.
 
 ![chain add request](./../img/keplr_approve_chain.png)
 

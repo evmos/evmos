@@ -4,11 +4,11 @@ order: 4
 
 # Resources
 
-Learn about Evmos with the list of official resources. {synopsis}
+Learn about Hazlor with the list of official resources. {synopsis}
 
-- Official Documentation: [https://evmos.dev/](https://evmos.dev/)
-- Official Codebase: [https://github.com/tharsis/evmos](https://github.com/tharsis/evmos)
-- Official Website: [https://evmos.org/](https://evmos.org/)
+- Official Documentation: [https://hazlor.com/](https://hazlor.com/)
+- Official Codebase: [https://github.com/hazlorlabs/hsc-chain](https://github.com/hazlorlabs/hsc-chain)
+- Official Website: [https://hazlor.com/](https://hazlor.com/)
 
 ## Workshops and Videos
 
@@ -43,4 +43,4 @@ Note: most of these articles are outdated as they refer to the previous Ethermin
 
 ## Next {hide}
 
-Learn how to run an Evmos [node](./../quickstart/run_node.md) {hide}
+Learn how to run an Hazlor [node](./../quickstart/run_node.md) {hide}

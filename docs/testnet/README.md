@@ -6,7 +6,7 @@ parent:
 
 # Testnet
 
-This section contains different documents for how to access and join the Evmos testnets.
+This section contains different documents for how to access and join the Hazlor testnets.
 
 1. [Join Testnet](./join)
 1. [Faucet](./faucet)
