@@ -96,10 +96,10 @@ start_func() {
     --keyring-backend test --home "$DATA_DIR$i" \
     >"$DATA_DIR"/node"$i".log 2>&1 & disown
     
-    EVMOS_PID=$!
-    echo "started evmos node, pid=$EVMOS_PID"
+    HAZLOR_PID=$!
+    echo "started evmos node, pid=$HAZLOR_PID"
     # add PID to array
-    arr+=("$EVMOS_PID")
+    arr+=("$HAZLOR_PID")
 }
 
 # Run node with static blockchain database
@@ -132,12 +132,12 @@ if [[ -z $TEST || $TEST == "rpc" ]]; then
 fi
 
 stop_func() {
-    EVMOS_PID=$i
-    echo "shutting down node, pid=$EVMOS_PID ..."
+    HAZLOR_PID=$i
+    echo "shutting down node, pid=$HAZLOR_PID ..."
     
     # Shutdown evmos node
-    kill -9 "$EVMOS_PID"
-    wait "$EVMOS_PID"
+    kill -9 "$HAZLOR_PID"
+    wait "$HAZLOR_PID"
 }
 
 

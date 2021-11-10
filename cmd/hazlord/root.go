@@ -43,7 +43,7 @@ import (
 )
 
 const (
-	EnvPrefix = "EVMOS"
+	EnvPrefix = "HAZLOR"
 )
 
 // NewRootCmd creates a new root command for hazlord. It is called once in the

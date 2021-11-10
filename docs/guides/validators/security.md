@@ -58,8 +58,8 @@ private_peer_ids = "node_ids_of_private_peers"
 
 By default, uppercase environment variables with the following prefixes will replace lowercase command-line flags:
 
-- `EVMOS` (for Hazlor flags)
+- `HAZLOR` (for Hazlor flags)
 - `TM` (for Tendermint flags)
 - `BC` (for democli or basecli flags)
 
-For example, the environment variable `EVMOS_CHAIN_ID` will map to the command line flag `--chain-id`. Note that while explicit command-line flags will take precedence over environment variables, environment variables will take precedence over any of your configuration files. For this reason, it's imperative that you lock down your environment such that any critical parameters are defined as flags on the binary or prevent modification of any environment variables.
+For example, the environment variable `HAZLOR_CHAIN_ID` will map to the command line flag `--chain-id`. Note that while explicit command-line flags will take precedence over environment variables, environment variables will take precedence over any of your configuration files. For this reason, it's imperative that you lock down your environment such that any critical parameters are defined as flags on the binary or prevent modification of any environment variables.
