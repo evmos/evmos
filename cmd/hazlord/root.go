@@ -85,7 +85,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			// TODO: define our own token
-			customAppTemplate, customAppConfig := servercfg.AppConfig(ethermint.AttoPlanet)
+			customAppTemplate, customAppConfig := servercfg.AppConfig(ethermint.AttoPhoton)
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 		},
