@@ -1,6 +1,6 @@
 
 KEY="mykey"
-CHAINID="evmos_9000-1"
+CHAINID="hazlor_7878-1"
 MONIKER="localtestnet"
 KEYRING="test"
 KEYALGO="eth_secp256k1"

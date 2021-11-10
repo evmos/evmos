@@ -59,7 +59,7 @@ func Setup(isCheckTx bool, feemarketGenesis *feemarkettypes.GenesisState) *Evmos
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "evmos_9000-1",
+				ChainId:         "hazlor_7878-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,

@@ -17,9 +17,9 @@
 
 ## <span id="general_procedure">General Procedure</span>
 
-Thank you for considering making contributions to Evmos and related repositories!
+Thank you for considering making contributions to Hazlor and related repositories!
 
-Evmos uses [Tendermint’s coding repo](https://github.com/tendermint/coding) for overall information on repository
+Hazlor uses [Tendermint’s coding repo](https://github.com/tendermint/coding) for overall information on repository
 workflow and standards.
 
 Contributing to this repo can mean many things such as participating in discussion or proposing code changes. To ensure
@@ -30,7 +30,7 @@ a smooth workflow for all contributors, the following general procedure for cont
    resolving.
 2. Participate in thoughtful discussion on that issue.
 3. If you would like to contribute:
-    1. If the issue is a proposal, ensure that the proposal has been accepted by the Evmos team.
+    1. If the issue is a proposal, ensure that the proposal has been accepted by the Hazlor team.
     2. Ensure that nobody else has already begun working on the same issue. If someone already has, please make sure to
        contact the individual to collaborate.
     3. If nobody has been assigned the issue and you would like to work on it, make a comment on the issue to inform the
@@ -38,7 +38,7 @@ a smooth workflow for all contributors, the following general procedure for cont
        if you are eager and do not get a prompt response, feel free to dive on in!
     4. Follow standard Github best practices:
         1. Fork the repo
-        2. Branch from the HEAD of `development`(For core developers working within the evmos repo, to ensure a
+        2. Branch from the HEAD of `development`(For core developers working within the Hazlor repo, to ensure a
            clear ownership of branches, branches must be named with the convention `{moniker}/{issue#}-branch-name`).
         3. Make commits
         4. Submit a PR to `development`
