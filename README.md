@@ -4,7 +4,7 @@ parent:
 -->
 
 <div align="center">
-  <h1> Evmos </h1>
+  <h1> Hazlor </h1>
 </div>
 
 <!-- TODO: add banner -->
@@ -28,7 +28,7 @@ parent:
   </a>
 </div>
 <div align="center">
-  <a href="https://discord.gg/trje9XuAmy">
+  <a href="https://discord.gg/X6ZjdB4BEJ">
     <img alt="Discord" src="https://img.shields.io/discord/809048090249134080.svg" />
   </a>
   <a href="https://github.com/tharsis/evmos/actions?query=branch%3Amain+workflow%3ALint">
@@ -37,7 +37,7 @@ parent:
   <a href="https://codecov.io/gh/tharsis/evmos">
     <img alt="Code Coverage" src="https://codecov.io/gh/tharsis/evmos/branch/main/graph/badge.svg" />
   </a>
-  <a href="https://twitter.com/EvmosOrg">
+  <a href="https://twitter.com/HazlorLabs">
     <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
   </a>
 </div>
@@ -59,16 +59,16 @@ Or check out the latest [release](https://github.com/tharsis/evmos/releases).
 
 ## Quick Start
 
-To learn how the Evmos works from a high-level perspective, go to the [Introduction](https://evmos.dev/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://evmos.dev/quickstart/run_node.html).
+To learn how the Hazlor works from a high-level perspective, go to the [Introduction](https://evmos.dev/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://evmos.dev/quickstart/run_node.html).
 
 ## Community
 
 The following chat channels and forums are a great spot to ask questions about Evmos:
 
-- [Evmos Twitter](https://twitter.com/EvmosOrg)
-- [Evmos Discord](https://discord.gg/trje9XuAmy)
-- [Evmos Forum](https://forum.cosmos.network/c/ethermint)
-- [Tharsis Twitter](https://twitter.com/TharsisHQ)
+- [Hazlor Twitter](https://twitter.com/HazlorLabs)
+- [Hazlor Discord](https://discord.gg/X6ZjdB4BEJ)
+- [Hazlor Forum](https://forum.cosmos.network/c/ethermint)
+- [Hazlor Telegram](https://t.me/hazlorlabs)
 
 ## Contributing
 
