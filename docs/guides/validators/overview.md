@@ -12,7 +12,7 @@ Hazlor is based on [Tendermint](https://github.com/tendermint/tendermint/blob/ma
 
 Validator candidates can bond their own staking tokens and have the tokens "delegated", or staked, to them by token holders. The **{{ $themeConfig.project.testnet_denom }}** is Hazlor's native token. At its onset, Hazlor will launch with 300 validators. The validators are determined by who has the most stake delegated to them — the top 300 validator candidates with the most stake will become Hazlor validators.
 
-Validators and their delegators will earn {{ $themeConfig.project.testnet_denom }}s as block provisions and tokens as transaction fees through execution of the Tendermint consensus protocol. Initially, transaction fees will be paid in Photons but in the future, any token in the Cosmos ecosystem will be valid as fee tender if it is whitelisted by governance. Note that validators can set commission on the fees their delegators receive as additional incentive.
+Validators and their delegators will earn {{ $themeConfig.project.testnet_denom }}s as block provisions and tokens as transaction fees through execution of the Tendermint consensus protocol. Initially, transaction fees will be paid in Planets but in the future, any token in the Cosmos ecosystem will be valid as fee tender if it is whitelisted by governance. Note that validators can set commission on the fees their delegators receive as additional incentive.
 
 If validators double sign, are frequently offline or do not participate in governance, their staked {{ $themeConfig.project.testnet_denom }}s (including {{ $themeConfig.project.testnet_denom }}s of users that delegated to them) can be slashed. The penalty depends on the severity of the violation.
 
@@ -26,7 +26,7 @@ We anticipate that network requirements will be low initially. Bandwidth, CPU an
 
 ## Set Up a Website
 
-Set up a dedicated validator's website and signal your intention to become a validator on Discord. This is important since delegators will want to have information about the entity they are delegating their Photons to.
+Set up a dedicated validator's website and signal your intention to become a validator on Discord. This is important since delegators will want to have information about the entity they are delegating their Planets to.
 
 ## Seek Legal Advice
 

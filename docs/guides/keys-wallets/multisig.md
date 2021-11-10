@@ -73,7 +73,7 @@ hscd keys show multi
   pubkeys: []
 ```
 
-Let's add 10 PHOTON to the multisig wallet:
+Let's add 10 PLANET to the multisig wallet:
 
 ```bash
 hscd tx send \
@@ -88,7 +88,7 @@ hscd tx send \
 
 ### Step 2: Create the multisig transaction
 
-We want to send 5 PHOTON from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
+We want to send 5 PLANET from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
 
 ```bash
 hscd tx send \

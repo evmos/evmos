@@ -14,13 +14,13 @@ Hazlor is a Cosmos SDK-based chain with full EVM support. Because of this archit
 
 Accounts can own SDK coins in their balance, which are used for operations with other Cosmos modules and transactions. Examples of these are using the coins for staking, IBC transfers, governance deposits and EVM  
 
-### Photon
+### Planet
 
-The denomination used for staking, governance and gas consumption on the EVM is the Photon. The Photon provides the utility of: securing the Proof-of-Stake chain, token used for governance proposals, fee distribution and as a mean of gas for running smart contracts on the EVM.
+The denomination used for staking, governance and gas consumption on the EVM is the Planet. The Planet provides the utility of: securing the Proof-of-Stake chain, token used for governance proposals, fee distribution and as a mean of gas for running smart contracts on the EVM.
 
-Hazlor uses [Atto](https://en.wikipedia.org/wiki/Atto-) Photon as the base denomination to maintain parity with Ethereum.
+Hazlor uses [Atto](https://en.wikipedia.org/wiki/Atto-) Planet as the base denomination to maintain parity with Ethereum.
 
-$$1 photon = 1 ~ * ~ 10^{18} ascas$$
+$$1 planet = 1 ~ * ~ 10^{18} ascas$$
 
 This matches Ethereum denomination of:
 
