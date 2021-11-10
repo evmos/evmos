@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/tharsis/evmos/app"
-	evmosd "github.com/tharsis/evmos/cmd/evmosd"
+	hazlord "github.com/tharsis/evmos/cmd/hazlord"
 )
 
 func TestInitCmd(t *testing.T) {
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := hazlord.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"init",       // Test the init cmd
 		"evmos-test", // Moniker

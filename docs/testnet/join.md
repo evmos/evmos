@@ -14,7 +14,7 @@ You specify the network you want to join by setting the **genesis file** and **s
 |------------------|--------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | `hazlor_7878`   | Arsia Mons Testnet | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/hazlorlabs/hsc-chain/releases) |
 
-## Install `hscd`
+## Install `hazlord`
 
 Follow the [installation](./../quickstart/installation) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
@@ -31,7 +31,7 @@ See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for ref
 :::
 
 ```bash
-hscd config chain-id hazlor_7878
+hazlord config chain-id hazlor_7878
 ```
 
 ## Initialize Node
@@ -39,37 +39,37 @@ hscd config chain-id hazlor_7878
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-hscd init <your_custom_moniker> --chain-id hazlor_7878
+hazlord init <your_custom_moniker> --chain-id hazlor_7878
 ```
 
 ::: danger
 Monikers can contain only ASCII characters. Using Unicode characters will render your node unreachable.
 :::
 
-By default, the `init` command creates your `~/.hscd` (i.e `$HOME`) directory with subfolders `config/` and `data/`.
+By default, the `init` command creates your `~/.hazlord` (i.e `$HOME`) directory with subfolders `config/` and `data/`.
 In the `config` directory, the most important files for configuration are `app.toml` and `config.toml`.
 
 ## Genesis & Seeds
 
 ### Copy the Genesis File
 
-Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.hscd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.hazlord/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
-curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/genesis.json > ~/.hscd/config/genesis.json
+curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/genesis.json > ~/.hazlord/config/genesis.json
 ```
 
 Then verify the correctness of the genesis configuration file:
 
 ```bash
-hscd validate-genesis
+hazlord validate-genesis
 ```
 
 ### Add Seed Nodes
 
-Your node needs to know how to find [peers](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#seed) to `$HOME/.hscd/config/config.toml`. The [`testnets`](https://github.com/tharsis/testnets) repo contains links to some seed nodes.
+Your node needs to know how to find [peers](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#seed) to `$HOME/.hazlord/config/config.toml`. The [`testnets`](https://github.com/tharsis/testnets) repo contains links to some seed nodes.
 
-Edit the file located in `~/.hscd/config/config.toml` and the `seeds` to the following:
+Edit the file located in `~/.hazlord/config/config.toml` and the `seeds` to the following:
 
 ```toml
 #######################################################
@@ -89,7 +89,7 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 
 ### Add Persistent Peers
 
-We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.hscd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
+We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.hazlord/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
 ```bash
@@ -100,7 +100,7 @@ PEERS=`awk '{print $1}' peers.txt | paste -s -d, -`
 Use `sed` to include them into the configuration. You can also add them manually:
 
 ```bash
-sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.hscd/config/config.toml
+sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.hazlord/config/config.toml
 ```
 
 ## Run a Testnet Validator
@@ -112,9 +112,9 @@ For more details on how to configure your validator, follow the validator [setup
 :::
 
 ```bash
-hscd tx staking create-validator \
+hazlord tx staking create-validator \
   --amount=1000000000000ascas \
-  --pubkey=$(hscd tendermint show-validator) \
+  --pubkey=$(hazlord tendermint show-validator) \
   --moniker="HazlorWhale" \
   --chain-id=<chain_id> \
   --commission-rate="0.10" \
@@ -131,7 +131,7 @@ hscd tx staking create-validator \
 The final step is to [start the nodes](./../quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the testnet will start producing blocks.
 
 ```bash
-hscd start
+hazlord start
 ```
 
 ## Upgrading Your Node
@@ -147,8 +147,8 @@ If the version <new_version> you are upgrading to is not breaking from the previ
 First, remove the outdated files and reset the data.
 
 ```bash
-rm $HOME/.hscd/config/addrbook.json $HOME/.hscd/config/genesis.json
-hscd unsafe-reset-all
+rm $HOME/.hazlord/config/addrbook.json $HOME/.hazlord/config/genesis.json
+hazlord unsafe-reset-all
 ```
 
 Your node is now in a pristine state while keeping the original `priv_validator.json` and `config.toml`. If you had any sentry nodes or full nodes setup before,
@@ -164,7 +164,7 @@ Make sure that every node has a unique `priv_validator.json`. Do not copy the `p
 To restart your node, just type:
 
 ```bash
-hscd start
+hazlord start
 ```
 
 ## Share your Peer
@@ -175,7 +175,7 @@ You can share your peer to by opening a Pull Request to the Hazlor [`testnets`](
 To get your Node ID use
 
 ```bash
-hscd tendermint show-node-id
+hazlord tendermint show-node-id
 ```
 
 :::

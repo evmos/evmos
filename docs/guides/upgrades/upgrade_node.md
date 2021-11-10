@@ -10,7 +10,7 @@ Learn how to upgrade your full node to the latest software version {synopsis}
 
 These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet.
 
-First, stop your instance of `hscd`. Next, upgrade the software:
+First, stop your instance of `hazlord`. Next, upgrade the software:
 
 ```bash
 cd evmos
@@ -32,7 +32,7 @@ If the new version you are upgrading to has breaking changes, you will have to [
 If it is **not** breaking (eg. from `v0.1.x` to `v0.1.<x+1>`), you can skip to [Restart](#restart-node) after installing the new version.
 :::
 
-To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `hscd export` command.
+To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `hazlord export` command.
 
 ### Fetch from a Trusted Source
 
@@ -41,7 +41,7 @@ If you are joining an existing testnet, you can fetch the genesis from the appro
 Save the new genesis as `new_genesis.json`. Then, replace the old `genesis.json` with `new_genesis.json`.
 
 ```bash
-cd $HOME/.hscd/config
+cd $HOME/.hazlord/config
 cp -f genesis.json new_genesis.json
 mv new_genesis.json genesis.json
 ```
@@ -56,19 +56,19 @@ useful for manual analysis of the state at a given height.
 Export state with:
 
 ```bash
-hscd export > new_genesis.json
+hazlord export > new_genesis.json
 ```
 
 You can also export state from a particular height (at the end of processing the block of that height):
 
 ```bash
-hscd export --height [height] > new_genesis.json
+hazlord export --height [height] > new_genesis.json
 ```
 
 If you plan to start a new network for 0 height (i.e genesis) from the exported state, export with the `--for-zero-height` flag:
 
 ```bash
-hscd export --height [height] --for-zero-height > new_genesis.json
+hazlord export --height [height] --for-zero-height > new_genesis.json
 ```
 
 Then, replace the old `genesis.json` with `new_genesis.json`.
@@ -83,7 +83,7 @@ At this point, you might want to run a script to update the exported genesis int
 You can use the `migrate` command to migrate from a given version to the next one (eg: `v0.X.X` to `v1.X.X`):
 
 ```bash
-hscd migrate [target-version] [/path/to/genesis.json] --chain-id=<new_chain_id> --genesis-time=<yyyy-mm-ddThh:mm:ssZ>
+hazlord migrate [target-version] [/path/to/genesis.json] --chain-id=<new_chain_id> --genesis-time=<yyyy-mm-ddThh:mm:ssZ>
 ```
 
 ## Restart Node
@@ -91,5 +91,5 @@ hscd migrate [target-version] [/path/to/genesis.json] --chain-id=<new_chain_id> 
 To restart your node once the new genesis has been updated, use the `start` command:
 
 ```bash
-hscd start
+hazlord start
 ```

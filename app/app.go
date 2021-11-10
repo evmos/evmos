@@ -114,11 +114,11 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".evmosd")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".hazlord")
 }
 
 // Name defines the application binary name
-const Name = "evmosd"
+const Name = "hazlord"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon

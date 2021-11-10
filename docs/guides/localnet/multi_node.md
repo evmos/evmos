@@ -28,7 +28,7 @@ To build start a 4 node testnet run:
 make localnet-start
 ```
 
-This command creates a 4-node network using the `hscdnode` Docker image.
+This command creates a 4-node network using the `hazlordnode` Docker image.
 The ports for each node are found in this table:
 
 | Node ID          | P2P Port | Tendermint RPC Port | REST/ Ethereum JSON-RPC Port | WebSocket Port |
@@ -49,10 +49,10 @@ The command above  command will run containers in the background using Docker co
 ```bash
 ...
 Creating network "evmos_localnet" with driver "bridge"
-Creating hscdnode0 ... done
-Creating hscdnode2 ... done
-Creating hscdnode1 ... done
-Creating hscdnode3 ... done
+Creating hazlordnode0 ... done
+Creating hazlordnode2 ... done
+Creating hazlordnode1 ... done
+Creating hazlordnode3 ... done
 ```
 
 ### Stop Localnet
@@ -66,55 +66,55 @@ make localnet-stop
 ### Configuration
 
 The `make localnet-start` creates files for a 4-node testnet in `./build` by
-calling the `hscd testnet` command. This outputs a handful of files in the
+calling the `hazlord testnet` command. This outputs a handful of files in the
 `./build` directory:
 
 ```bash
 tree -L 3 build/
 
 build/
-├── hscd
-├── hscd
+├── hazlord
+├── hazlord
 ├── gentxs
 │   ├── node0.json
 │   ├── node1.json
 │   ├── node2.json
 │   └── node3.json
 ├── node0
-│   ├── hscd
+│   ├── hazlord
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── hscd
+│   └── hazlord
 │       ├── config
 │       ├── data
-│       └── hscd.log
+│       └── hazlord.log
 ├── node1
-│   ├── hscd
+│   ├── hazlord
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── hscd
+│   └── hazlord
 │       ├── config
 │       ├── data
-│       └── hscd.log
+│       └── hazlord.log
 ├── node2
-│   ├── hscd
+│   ├── hazlord
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── hscd
+│   └── hazlord
 │       ├── config
 │       ├── data
-│       └── hscd.log
+│       └── hazlord.log
 └── node3
-    ├── hscd
+    ├── hazlord
     │   ├── key_seed.json
     │   └── keyring-test-cosmos
-    └── hscd
+    └── hazlord
         ├── config
         ├── data
-        └── hscd.log
+        └── hazlord.log
 ```
 
-Each `./build/nodeN` directory is mounted to the `/hscd` directory in each container.
+Each `./build/nodeN` directory is mounted to the `/hazlord` directory in each container.
 
 ### Logging
 
@@ -122,10 +122,10 @@ In order to see the logs of a particular node you can use the following command:
 
 ```bash
 # node 0: daemon logs
-docker exec hscdnode0 tail hscd.log
+docker exec hazlordnode0 tail hazlord.log
 
 # node 0: REST & RPC logs
-docker exec hscdnode0 tail hscd.log
+docker exec hazlordnode0 tail hazlord.log
 ```
 
 The logs for the daemon will look like:
@@ -163,7 +163,7 @@ You can also watch logs as they are produced via Docker with the `--follow` (`-f
 example:
 
 ```bash
-docker logs -f hscdnode0
+docker logs -f hazlordnode0
 ```
 
 ### Interact with the Localnet
@@ -190,18 +190,18 @@ Additional instructions on how to interact with the WebSocket can be found on th
 
 ### Keys & Accounts
 
-To interact with `hscd` and start querying state or creating txs, you use the
-`hscd` directory of any given node as your `home`, for example:
+To interact with `hazlord` and start querying state or creating txs, you use the
+`hazlord` directory of any given node as your `home`, for example:
 
 ```bash
-hscd keys list --home ./build/node0/hscd
+hazlord keys list --home ./build/node0/hazlord
 ```
 
 Now that accounts exists, you may create new accounts and send those accounts
 funds!
 
 ::: tip
-**Note**: Each node's seed is located at `./build/nodeN/hscd/key_seed.json` and can be restored to the CLI using the `hscd keys add --restore` command
+**Note**: Each node's seed is located at `./build/nodeN/hazlord/key_seed.json` and can be restored to the CLI using the `hazlord keys add --restore` command
 :::
 
 ### Special Binaries

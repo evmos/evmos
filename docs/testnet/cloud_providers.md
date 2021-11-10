@@ -59,21 +59,21 @@ go install https://github.com/hazlorlabs/hsc-chain.git
 Check that the binaries have been successfully installed:
 
 ```bash
-hscd -h
+hazlord -h
 ```
 
 ### Copy the Genesis File
 
-To connect the node to the existing testnet, fetch the testnet's `genesis.json` file and copy it into the new droplets config directory (i.e `$HOME/.hscd/config/genesis.json`).
+To connect the node to the existing testnet, fetch the testnet's `genesis.json` file and copy it into the new droplets config directory (i.e `$HOME/.hazlord/config/genesis.json`).
 
 To do this ssh into both the testnet droplet and the new node droplet.
 
 On your local machine copy the genesis.json file from the testnet droplet to the new droplet using:
 
 ```bash
-scp -3 root@<TESTNET_IP_ADDRESS>:$HOME/.hscd/config/genesis.json root@<NODE_IP_ADDRESS>:$HOME/.hscd/config/genesis.json
+scp -3 root@<TESTNET_IP_ADDRESS>:$HOME/.hazlord/config/genesis.json root@<NODE_IP_ADDRESS>:$HOME/.hazlord/config/genesis.json
 ```
 
 ### Start the Node
 
-Once the genesis file is copied over run `hscd start` inside the node droplet.
+Once the genesis file is copied over run `hazlord start` inside the node droplet.

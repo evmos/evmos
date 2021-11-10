@@ -15,13 +15,13 @@ The Hazlor Testnet Faucet distributes small amounts of {{ $themeConfig.project.t
 1. You can generate an Hazlor key by using the [Keyring](./../guides/keys-wallets/keyring.md):
 
 ```bash
-hscd keys add testnet-key
+hazlord keys add testnet-key
 ```
 
 You can obtain your key [Bech32](./../basics/accounts.md#addresses-and-public-keys) address by typing:
 
 ```bash
-hscd keys show testnet-key
+hazlord keys show testnet-key
 ```
 
 ### Metamask
@@ -30,7 +30,7 @@ hscd keys show testnet-key
 2. Copy your Hex address and use the [`debug`](./../basics/accounts.md#addresses-conversion) command to obtain the Bech32 address
 
   ```bash
-  hscd debug addr 0x...
+  hazlord debug addr 0x...
   ```
 
 ::: tip

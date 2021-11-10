@@ -22,7 +22,7 @@ go version
 ```
 
 :::tip
-If the `hscd: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
+If the `hazlord: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
 
 ```bash
 export PATH=$PATH:$(go env GOPATH)/bin
@@ -49,7 +49,7 @@ make install
 Check that the `{{ $themeConfig.project.binary }}` binaries have been successfully installed:
 
 ```bash
-hscd version
+hazlord version
 ```
 
 ### Docker
@@ -64,7 +64,7 @@ This will install the binaries on the `./build` directory. Now, check that the b
 successfully installed:
 
 ```bash
-hscd version
+hazlord version
 ```
 
 ### Releases

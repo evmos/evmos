@@ -53,13 +53,13 @@ Cosmos `sdk.AccAddress`.
 
 ### Address conversion
 
-The `hscd debug addr <address>` can be used to convert an address between hex and bech32 formats. For example:
+The `hazlord debug addr <address>` can be used to convert an address between hex and bech32 formats. For example:
 
 :::: tabs
 ::: tab Bech32
 
 ```bash
-hscd debug addr scas1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+hazlord debug addr scas1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
   Address: [20 87 74 109 255 45 223 158 7 130 139 67 69 211 4 9 25 175 86 82]
   Address (hex): 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Bech32 Acc: scas1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -70,7 +70,7 @@ hscd debug addr scas1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
 ::: tab Hex
 
 ```bash
-hscd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
+hazlord debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Address: [20 87 74 109 255 45 223 158 7 130 139 67 69 211 4 9 25 175 86 82]
   Address (hex): 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Bech32 Acc: scas1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -83,17 +83,17 @@ hscd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
 ### Key output
 
 ::: tip
-The Cosmos SDK Keyring output (i.e `hscd keys`) only supports addresses and public keys in Bech32 format.
+The Cosmos SDK Keyring output (i.e `hazlord keys`) only supports addresses and public keys in Bech32 format.
 :::
 
-We can use the `keys show` command of `hscd` with the flag `--bech <type> (acc|val|cons)` to
+We can use the `keys show` command of `hazlord` with the flag `--bech <type> (acc|val|cons)` to
 obtain the addresses and keys as mentioned above,
 
 :::: tabs
 ::: tab Account
 
 ```bash
-hscd keys show mykey --bech acc
+hazlord keys show mykey --bech acc
 - name: mykey
   type: local
   address: scas1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -105,7 +105,7 @@ hscd keys show mykey --bech acc
 ::: tab Validator
 
 ```bash
-hscd keys show mykey --bech val
+hazlord keys show mykey --bech val
 - name: mykey
   type: local
   address: scasvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
@@ -136,7 +136,7 @@ You can query an account address using the CLI, gRPC or
 
 ```bash
 # NOTE: the --output (-o) flag will define the output format in JSON or YAML (text)
-hscd q auth account $(hscd keys show mykey -a) -o text
+hazlord q auth account $(hazlord keys show mykey -a) -o text
 |
   '@type': /ethermint.types.v1.EthAccount
   base_account:

@@ -10,15 +10,15 @@ The keyring holds the private/public keypairs used to interact with the node. Fo
 
 ## Add keys
 
-You can use `hscd keys` for help with the keys command and `hscd keys [command] --help` for more information about a particular subcommand.
+You can use `hazlord keys` for help with the keys command and `hazlord keys [command] --help` for more information about a particular subcommand.
 
 To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. For the purpose of this tutorial, we will solely use the `test` backend, and call our new key `mykey`. This key will be used in the next section.
 
 ```bash
-hscd keys add mykey --keyring-backend test
+hazlord keys add mykey --keyring-backend test
 
 # Put the generated address in a variable for later use.
-MY_VALIDATOR_ADDRESS=$(hscd keys show mykey -a --keyring-backend test)
+MY_VALIDATOR_ADDRESS=$(hazlord keys show mykey -a --keyring-backend test)
 ```
 
 This command generates a new 24-word mnemonic phrase, persists it to the relevant backend, and outputs information about the keypair. If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!
@@ -62,10 +62,10 @@ for multiple prompts:
 
 ```bash
 # assuming that KEYPASSWD is set in the environment
-yes $KEYPASSWD | hscd keys add me
-yes $KEYPASSWD | hscd keys show me
-# start hscd with keyring-backend flag
-hscd --keyring-backend=file start
+yes $KEYPASSWD | hazlord keys add me
+yes $KEYPASSWD | hazlord keys show me
+# start hazlord with keyring-backend flag
+hazlord --keyring-backend=file start
 ```
 
 ::: tip

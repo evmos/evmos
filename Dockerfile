@@ -24,7 +24,7 @@ RUN apk add --update ca-certificates jq
 WORKDIR /root
 
 # Copy over binaries from the build-env
-COPY --from=build-env /go/src/github.com/tharsis/evmos/build/evmosd /usr/bin/evmosd
+COPY --from=build-env /go/src/github.com/tharsis/evmos/build/hazlord /usr/bin/hazlord
 
-# Run evmosd by default
-CMD ["evmosd"]
+# Run hazlord by default
+CMD ["hazlord"]
