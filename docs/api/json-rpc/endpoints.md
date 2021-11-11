@@ -75,6 +75,8 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 | [`personal_sendTransaction`](#personal-sendtransaction)                           | Personal  | ✔           | ❌      |                    |
 | [`personal_sign`](#personal-sign)                                                 | Personal  | ✔           | ❌      |                    |
 | [`personal_ecRecover`](#personal-ecrecover)                                       | Personal  | ✔           | ❌      |                    |
+| [`personal_initializeWallet`](#personal_initializewallet)                                       | Personal  | ✔           | ❌      ||
+| [`personal_unpair`](#personal_unpair)                                       | Personal  | ✔           | ❌      |                    |
 | `db_putString`                                                                    | DB        |             |        |                    |
 | `db_getString`                                                                    | DB        |             |        |                    |
 | `db_putHex`                                                                       | DB        |             |        |                    |
@@ -124,9 +126,9 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 | `debug_startGoTrace`                                                              | Debug     | ✔           |        |                    |
 | `debug_stopCPUProfile`                                                            | Debug     | ✔           |        |                    |
 | `debug_stopGoTrace`                                                               | Debug     | ✔           |        |                    |
-| `debug_traceBlock`(#debug-traceblock)                                                                | Debug     | ✔           |        |                    |
-| `debug_traceBlockByNumber`                                                        | Debug     |             |        |                    |
-| `debug_traceBlockByHash`                                                          | Debug     |             |        |                    |
+| [`debug_traceBlock`](#debug-traceblock)                                                                | Debug     | ✔           |        |                    |
+| [`debug_traceBlockByNumber`](#debug-traceblockbynumber)                                                        | Debug     | ✔ |        |                    |
+| [`debug_traceBlockByHash`](#debug-traceblockbyhash)                                                          | Debug     | ✔ |        |                    |
 | `debug_traceBlockFromFile`                                                        | Debug     |             |        |                    |
 | `debug_standardTraceBlockToFile`                                                  | Debug     |             |        |                    |
 | `debug_standardTraceBadBlockToFile`                                               | Debug     |             |        |                    |
@@ -156,7 +158,6 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 | [`txpool_inspect`](#txpool-inspect)                                               | TxPool    | ✔           |        |                    |
 | [`txpool_status`](#txpool-status)                                                 | TxPool    | ✔           |        |                    |
 
-
 :::tip
 Block Number can be entered as a Hex string, `"earliest"`, ``"latest"`` or `"pending"`.
 :::
@@ -169,29 +170,81 @@ Below is a list of the RPC methods, the parameters and an example response from 
 
 Get the web3 client version.
 
-```json
-// Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":67}' -H "Content-Type: application/json" http://localhost:8545
+#### Parameters (0)
 
-// Result
- {"jsonrpc":"2.0","id":1,"result":"Ethermint/0.0.0+/linux/go1.14"}
+#### Result
+
+```json
+ {"jsonrpc":"2.0","id":1,"result":"Evmos/0.1.3+/linux/go1.17"}
 ```
+
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_clientVersion", "params": []}'
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "web3_clientVersion", "params": []}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+web3.clientVersion();
+```
+
+:::
+::::
 
 ### `web3_sha3`
 
 Returns Keccak-256 (not the standardized SHA3-256) of the given data.
 
-#### Parameters
+#### Parameters (1)
 
-- The data to convert into a SHA3 hash
+1: input `hexutil.Bytes`
+
+- Required: ✓ Yes
+
+#### Result 
 
 ```json
-// Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"web3_sha3","params":["0x67656c6c6f20776f726c64"],"id":1}' -H "Content-Type: application/json" http://localhost:8545
-
-// Result
 {"jsonrpc":"2.0","id":1,"result":"0x1b84adea42d5b7d192fd8a61a85b25abe0757e9a65cab1da470258914053823f"}
 ```
+
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_sha3", "params": [<input>]}'
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "web3_sha3", "params": [<input>]}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+web3.sha3(input);
+```
+
+:::
+::::
 
 ## Net Methods
 
@@ -809,15 +862,21 @@ Unsubscribe from an event using the subscription id
 **Private**: Requires authentication.
 :::
 
-Imports the given unencrypted private key (hex string) into the key store, encrypting it with the passphrase.
+Imports the given unencrypted private key (hex encoded string) into the key store, encrypting it with the passphrase.
 
 Returns the address of the new account.
 
-#### Parameters
+#### Parameters (2)
 
-- Hex encoded ECDSA key
+**1:** privkey `string`
 
-- Passphrase
+- Required: ✓ Yes
+
+**2:** password `string`
+
+- Required: ✓ Yes
+
+
 
 ```json
 // Request
@@ -988,6 +1047,91 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_ecRecover","params":["0
 // Result
 {"jsonrpc":"2.0","id":1,"result":"0x3b7252d007059ffc82d16d022da3cbf9992d2f70"}
 ```
+
+### `personal_initializeWallet`
+
+::: tip
+**Private**: Requires authentication.
+:::
+
+Initializes a new wallet at the provided URL, by generating and returning a new private key.
+
+#### Parameters (1)
+
+Parameters must be given by position.
+
+1: url `string`
+
+-  Required: ✓ Yes
+
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "personal_initializeWallet", "params": [<url>]}'
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "personal_initializeWallet", "params": [<url>]}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+personal.initializeWallet(url);
+```
+
+:::
+::::
+
+
+### `personal_unpair`
+
+::: tip
+**Private**: Requires authentication.
+:::
+
+Unpair deletes a pairing between wallet and the node.
+
+#### Parameters (2)
+
+- URL
+
+- Pairing password
+
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "personal_unpair", "params": [<url>, <pin>]}'
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "personal_unpair", "params": [<url>, <pin>]}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+personal.unpair(url,pin);
+```
+
+:::
+::::
+
+
 
 ## Debug Methods
 
@@ -1197,11 +1341,37 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"miner_setEtherbase","params":["0
 
 Returns a list of the exact details of all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
 
-```json
-// Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+#### Parame (0)
 
-// Result
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "txpool_content", "params": []}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+txpool.content();
+```
+
+:::
+::::
+
+#### Result
+
+```json
 {"jsonrpc":"2.0","id":1,"result":{"pending":{},"queued":{}}
 ```
 
@@ -1209,11 +1379,37 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id"
 
 Returns a list on text format to summarize all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only. This is a method specifically tailored to developers to quickly see the transactions in the pool and find any potential issues.
 
-```json
-// Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_inspect","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+#### Parameters (0)
 
-// Result
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_inspect","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "txpool_inspect", "params": []}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+txpool.inspect();
+```
+
+:::
+::::
+
+#### Result
+
+```json
 {"jsonrpc":"2.0","id":1,"result":{"pending":{},"queued":{}}
 ```
 
@@ -1221,10 +1417,36 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_inspect","params":[],"id"
 
 Returns the number of transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
 
-```json
-// Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_status","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+#### Parameters (0)
 
-// Result
+#### Client Examples
+
+:::: tabs
+::: tab Shell HTTP
+
+```shell
+curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_status","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+```
+
+:::
+::: tab Shell WebSocket
+
+```shell
+wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "txpool_status", "params": []}'
+```
+
+:::
+::: tab Javascript Console
+
+```javascript
+txpool.status();
+```
+
+:::
+::::
+
+#### Result
+
+```json
 {"jsonrpc":"2.0","id":1,"result":{"pending":"0x0","queued":"0x0"}}
 ```
