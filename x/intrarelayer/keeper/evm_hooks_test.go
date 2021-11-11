@@ -84,7 +84,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(suite.address.Bytes()), "coin")
 			suite.Commit()
-			fmt.Println(balance.Amount.Int64())
 			if tc.result {
 				// Check if the execution was successfull
 				suite.Require().Equal(balance.Amount, sdk.NewInt(10))
