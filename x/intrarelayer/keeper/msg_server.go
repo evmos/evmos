@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -194,7 +195,13 @@ func (k Keeper) convertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, m
 	}
 
 	// TODO: Check unpackedRet execution
-	_ = unpackedRet
+	if len(unpackedRet) == 0 {
+		return nil, fmt.Errorf("Failed to execute transfer")
+	}
+
+	if !unpackedRet[0].(bool) {
+		return nil, fmt.Errorf("Failed to execute transfer")
+	}
 
 	// Only mint if the module generated the cosmos coins
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {

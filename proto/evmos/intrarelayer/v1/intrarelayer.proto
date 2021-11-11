@@ -33,7 +33,7 @@ message TokenPair {
 
 // RegisterCoinProposal is a gov Content type to register a token pair
 message RegisterCoinProposal {
-    option (gogoproto.equal) = true;
+    option (gogoproto.equal) = false;
     // title of the proposal
     string title         = 1;
     // proposal description
@@ -45,7 +45,7 @@ message RegisterCoinProposal {
 
 // RegisterCoinProposal is a gov Content type to register a token pair
 message RegisterERC20Proposal {
-    option (gogoproto.equal) = true;
+    option (gogoproto.equal) = false;
     // title of the proposal
     string title         = 1;
     // proposal description

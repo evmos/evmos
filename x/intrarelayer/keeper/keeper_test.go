@@ -226,19 +226,19 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
 }
 
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTxResponse {
 	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("mint", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
-func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTxResponse {
 	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("burn", amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
-func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, role_string string) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, role_string string) *evm.MsgEthereumTxResponse {
 	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
 	role := crypto.Keccak256([]byte(role_string))
 	// needs to be an array not a slice
@@ -250,7 +250,7 @@ func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Addr
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
-func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTxResponse {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
@@ -283,7 +283,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
 	suite.Require().NoError(err)
 	suite.Require().Empty(rsp.VmError)
-	return ercTransferTx
+	return rsp
 }
 
 func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
@@ -299,7 +299,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 	return unpacked[0]
 }
 
-func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTxResponse {
 	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("transfer", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)

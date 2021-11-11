@@ -21,8 +21,8 @@ func (suite *KeeperTestSuite) setupNewTokenPair() common.Address {
 	suite.SetupTest()
 	contractAddr := suite.DeployContract(erc20Name, erc20Symbol)
 	suite.Commit()
-	pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
-	err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
+	//pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+	_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
 	suite.Require().NoError(err)
 	return contractAddr
 }
@@ -63,7 +63,7 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 		{
 			"meta data already stored",
 			func() {
-				suite.app.IntrarelayerKeeper.CreateCoinMetadata(suite.ctx, pair)
+				suite.app.IntrarelayerKeeper.CreateCoinMetadata(suite.ctx, contractAddr)
 			},
 			false,
 		},
@@ -83,7 +83,7 @@ func (suite KeeperTestSuite) TestRegisterTokenPair() {
 
 			tc.malleate()
 
-			err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
+			_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
 			metadata, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
