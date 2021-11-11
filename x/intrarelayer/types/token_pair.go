@@ -38,9 +38,9 @@ func (b TokenPair) Validate() error {
 		return err
 	}
 
-	if b.ContractOwner == INVALID_OWNER {
-		return ErrUndefinedOwner
-	}
+	// if b.ContractOwner == INVALID_OWNER {
+	// 	return ErrUndefinedOwner
+	// }
 
 	return nil
 }

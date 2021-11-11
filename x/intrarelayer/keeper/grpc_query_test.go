@@ -34,7 +34,7 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 				req = &types.QueryTokenPairsRequest{
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
 				}
-				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
+				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.MODULE_OWNER)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 
 				expRes = &types.QueryTokenPairsResponse{
@@ -48,8 +48,8 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 			"2 pairs registered wo/pagination",
 			func() {
 				req = &types.QueryTokenPairsRequest{}
-				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
-				pair2 := types.NewTokenPair(tests.GenerateAddress(), "coin2", true)
+				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.MODULE_OWNER)
+				pair2 := types.NewTokenPair(tests.GenerateAddress(), "coin2", true, types.MODULE_OWNER)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair2)
 
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			"token pair found",
 			func() {
 				addr := tests.GenerateAddress()
-				pair := types.NewTokenPair(addr, "coin", true)
+				pair := types.NewTokenPair(addr, "coin", true, types.MODULE_OWNER)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, addr, pair.GetID())
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())

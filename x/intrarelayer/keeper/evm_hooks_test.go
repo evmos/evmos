@@ -20,7 +20,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 		{
 			"correct execution",
 			func(contractAddr common.Address) {
-				pair := types.NewTokenPair(contractAddr, "coinevm", true)
+				pair := types.NewTokenPair(contractAddr, "coinevm", true, types.MODULE_OWNER)
 				err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 				suite.Require().NoError(err)
 
@@ -58,7 +58,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 		{
 			"Wrong event",
 			func(contractAddr common.Address) {
-				pair := types.NewTokenPair(contractAddr, "coinevm", true)
+				pair := types.NewTokenPair(contractAddr, "coinevm", true, types.MODULE_OWNER)
 				err := suite.app.IntrarelayerKeeper.RegisterTokenPair(suite.ctx, pair)
 				suite.Require().NoError(err)
 

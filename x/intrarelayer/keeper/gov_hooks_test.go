@@ -73,7 +73,7 @@ func (suite *KeeperTestSuite) TestAfterProposalDeposit() {
 
 			tc.malleate()
 			suite.app.GovKeeper.AfterProposalDeposit(suite.ctx, proposalID, sdk.AccAddress{})
-			newVotingPeriod := suite.app.IntrarelayerKeeper.GetVotingPeriod(suite.ctx, types.ProposalTypeRegisterTokenPair)
+			newVotingPeriod := suite.app.IntrarelayerKeeper.GetVotingPeriod(suite.ctx, types.ProposalTypeRegisterCoin)
 
 			if tc.noOp {
 				suite.Require().Equal(votingPeriod, newVotingPeriod)
