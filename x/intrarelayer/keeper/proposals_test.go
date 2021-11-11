@@ -10,7 +10,7 @@ import (
 const (
 	erc20Name       = "coin"
 	erc20Symbol     = "token"
-	cosmosTokenName = "coinevm"
+	cosmosTokenName = "coin"
 	defaultExponent = uint32(18)
 	zeroExponent    = uint32(0)
 )
@@ -25,85 +25,85 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
 	return contractAddr
 }
 
-// func (suite KeeperTestSuite) TestRegisterTokenPair() {
-// 	var (
-// 		contractAddr common.Address
-// 		pair         types.TokenPair
-// 	)
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func()
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"intrarelaying is disabled globally",
-// 			func() {
-// 				params := types.DefaultParams()
-// 				params.EnableIntrarelayer = false
-// 				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"token ERC20 already registered",
-// 			func() {
-// 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), pair.GetID())
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"denom already registered",
-// 			func() {
-// 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"meta data already stored",
-// 			func() {
-// 				suite.app.IntrarelayerKeeper.CreateCoinMetadata(suite.ctx, contractAddr)
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"ok",
-// 			func() {},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			suite.SetupTest() // reset
+func (suite KeeperTestSuite) TestRegisterTokenPair() {
+	var (
+		contractAddr common.Address
+		pair         types.TokenPair
+	)
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"intrarelaying is disabled globally",
+			func() {
+				params := types.DefaultParams()
+				params.EnableIntrarelayer = false
+				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
+			},
+			false,
+		},
+		{
+			"token ERC20 already registered",
+			func() {
+				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), pair.GetID())
+			},
+			false,
+		},
+		{
+			"denom already registered",
+			func() {
+				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+			},
+			false,
+		},
+		{
+			"meta data already stored",
+			func() {
+				suite.app.IntrarelayerKeeper.CreateCoinMetadata(suite.ctx, contractAddr)
+			},
+			false,
+		},
+		{
+			"ok",
+			func() {},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 			contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
-// 			suite.Commit()
-// 			pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+			contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			suite.Commit()
+			pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.EXTERNAL_OWNER)
 
-// 			tc.malleate()
+			tc.malleate()
 
-// 			_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
-// 			metadata, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
-// 			if tc.expPass {
-// 				suite.Require().NoError(err, tc.name)
-// 				// Metadata variables
-// 				suite.Require().True(found)
-// 				suite.Require().Equal(cosmosTokenName, metadata.Base)
-// 				suite.Require().Equal(contractAddr.String(), metadata.Name)
-// 				suite.Require().Equal(erc20Name, metadata.Display)
-// 				suite.Require().Equal(erc20Symbol, metadata.Symbol)
-// 				// Denom units
-// 				suite.Require().Equal(len(metadata.DenomUnits), 2)
-// 				suite.Require().Equal(cosmosTokenName, metadata.DenomUnits[0].Denom)
-// 				suite.Require().Equal(uint32(zeroExponent), metadata.DenomUnits[0].Exponent)
-// 				suite.Require().Equal(erc20Name, metadata.DenomUnits[1].Denom)
-// 				// Default exponent at contract creation is 18
-// 				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
-// 			} else {
-// 				suite.Require().Error(err, tc.name)
-// 			}
-// 		})
-// 	}
-// }
+			_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
+			metadata, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				// Metadata variables
+				suite.Require().True(found)
+				suite.Require().Equal(cosmosTokenName, metadata.Base)
+				suite.Require().Equal(cosmosTokenName, metadata.Name)
+				suite.Require().Equal(erc20Name, metadata.Display)
+				suite.Require().Equal(erc20Symbol, metadata.Symbol)
+				// Denom units
+				suite.Require().Equal(len(metadata.DenomUnits), 2)
+				suite.Require().Equal(cosmosTokenName, metadata.DenomUnits[0].Denom)
+				suite.Require().Equal(uint32(zeroExponent), metadata.DenomUnits[0].Exponent)
+				suite.Require().Equal(erc20Symbol, metadata.DenomUnits[1].Denom)
+				// Default exponent at contract creation is 18
+				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
+			} else {
+				suite.Require().Error(err, tc.name)
+			}
+		})
+	}
+}
 
 func (suite KeeperTestSuite) TestToggleRelay() {
 	var (
@@ -189,7 +189,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 // 	var (
 // 		contractAddr    common.Address
 // 		pair            types.TokenPair
-// 		metadata        sdk.Metadata
+// 		metadata        banktypes.Metadata
 // 		newContractAddr common.Address
 // 	)
 

@@ -83,17 +83,22 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 
 	strContract := contract.String()
 	// TODO: replace for HasDenomMetaData once available
-	_, found := k.bankKeeper.GetDenomMetaData(ctx, strContract)
+
+	erc20Data, err := k.QueryERC20(ctx, contract)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, found := k.bankKeeper.GetDenomMetaData(ctx, erc20Data.Name)
 	if found {
 		// metadata already exists; exit
 		// TODO: validate that the fields from the ERC20 match the denom metadata's
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
 	}
 
-	erc20Data, err := k.QueryERC20(ctx, contract)
-
-	if err != nil {
-		return nil, err
+	if k.IsDenomRegistered(ctx, erc20Data.Name) {
+		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", erc20Data.Name)
 	}
 
 	// create a bank denom metadata based on the ERC20 token ABI details

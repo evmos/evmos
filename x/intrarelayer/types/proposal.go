@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -82,7 +84,9 @@ func (*RegisterERC20Proposal) ProposalType() string {
 // ValidateBasic performs a stateless check of the proposal fields
 func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
 	// TODO: Validate erc20 address
-
+	if !common.IsHexAddress(rtbp.Erc20Address) {
+		return fmt.Errorf("Invalid hex address %s", rtbp.Erc20Address)
+	}
 	return govtypes.ValidateAbstract(rtbp)
 }
 
