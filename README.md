@@ -4,7 +4,7 @@ parent:
 -->
 
 <div align="center">
-  <h1> Hazlor </h1> 
+  <h1> Hazlor Smart Chain </h1> 
 </div>
 
 <!-- TODO: add banner -->
