@@ -4,7 +4,7 @@ parent:
 -->
 
 <div align="center">
-  <img src="https://hazlor.com/wp-content/uploads/2021/11/cover-Image.png" width="450" alt="accessibility text">
+  <img src="https://hazlor.com/wp-content/uploads/2021/11/Logo.png" width="450" alt="accessibility text">
 </div>
 
 <!-- TODO: add banner -->
