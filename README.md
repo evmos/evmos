@@ -5,6 +5,7 @@ parent:
 
 <div align="center">
   <h1> Hazlor Smart Chain </h1> 
+  ![alt text](http://url/to/img.png)
 </div>
 
 <!-- TODO: add banner -->
