@@ -38,7 +38,7 @@ parent:
     <img alt="Code Coverage" src="https://codecov.io/gh/hazlorlabs/hsc/branch/main/graph/badge.svg" />
   </a>
   <a href="https://twitter.com/HazlorLabs">
-    <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
+    <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/HazlorLabs"/>
   </a>
 </div>
 
