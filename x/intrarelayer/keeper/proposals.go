@@ -11,52 +11,81 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
-// RegisterTokenPair registers token pair by coin denom and ERC20 contract
-// address. This function fails if the mapping ERC20 <--> cosmos coin already exists.
-func (k Keeper) RegisterTokenPair(ctx sdk.Context, pair types.TokenPair) error {
+func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (*types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableIntrarelayer {
-		return sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
+		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
+	}
+	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
+		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", coinMetadata.Name)
 	}
 
-	erc20 := pair.GetERC20Contract()
-	if k.IsERC20Registered(ctx, erc20) {
-		return sdkerrors.Wrapf(types.ErrInternalTokenPair, "token ERC20 contract already registered: %s", pair.Erc20Address)
+	addr, err := k.DeployERC20Contract(ctx, coinMetadata)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
 	}
 
-	if k.IsDenomRegistered(ctx, pair.Denom) {
-		return sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", pair.Denom)
-	}
-
-	if pair.ContractOwner == types.MODULE_OWNER {
-		if err := k.DeployERC20Contract(ctx, pair); err != nil {
-			return sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
-		}
-	} else if pair.ContractOwner == types.EXTERNAL_OWNER {
-		if err := k.CreateCoinMetadata(ctx, pair); err != nil {
-			return sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
-		}
-	} else {
-		return types.ErrUndefinedOwner
-	}
-
+	pair := types.NewTokenPair(addr, addr.String(), true, types.EXTERNAL_OWNER)
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
-	return nil
+
+	return &pair, nil
 }
 
-func (k Keeper) CreateCoinMetadata(ctx sdk.Context, pair types.TokenPair) error {
+func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
+	// meta, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
+	// if !found {
+	// 	// metadata already exists; exit
+	// 	// TODO: validate that the fields from the ERC20 match the denom metadata's
+	// 	return common.Address{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination is not registered")
+	// }
+
+	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol)
+	if err != nil {
+		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
+	}
+
+	data := append(contracts.ERC20BurnableAndMintableContract.Bin, ctorArgs...)
+	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+
+	// TODO: Deploy Contract
+	_ = data
+	_ = erc20
+	var deployedContract common.Address
+
+	return deployedContract, nil
+}
+
+func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.TokenPair, error) {
+	params := k.GetParams(ctx)
+	if !params.EnableIntrarelayer {
+		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
+	}
+
+	if k.IsERC20Registered(ctx, contract) {
+		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "token ERC20 contract already registered: %s", contract.String())
+	}
+	if err := k.CreateCoinMetadata(ctx, contract); err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
+	}
+
+	// 	k.SetTokenPair(ctx, pair)
+	// 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	// 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+	return nil, nil
+}
+
+func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) error {
+
+	strContract := contract.String()
 	// TODO: replace for HasDenomMetaData once available
-	_, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
+	_, found := k.bankKeeper.GetDenomMetaData(ctx, strContract)
 	if found {
 		// metadata already exists; exit
 		// TODO: validate that the fields from the ERC20 match the denom metadata's
 		return sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
 	}
-
-	// if cosmos denom doesn't exist
-	contract := pair.GetERC20Contract()
 
 	erc20Data, err := k.QueryERC20(ctx, contract)
 
@@ -66,12 +95,12 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, pair types.TokenPair) error 
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
-		Description: CreateDenomDescription(pair.Erc20Address),
-		Base:        pair.Denom,
+		Description: CreateDenomDescription(strContract),
+		Base:        strContract,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    pair.Denom,
+				Denom:    strContract,
 				Exponent: 0,
 			},
 			{
@@ -79,39 +108,16 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, pair types.TokenPair) error 
 				Exponent: uint32(erc20Data.Decimals),
 			},
 		},
-		Name:    pair.Erc20Address,
+		Name:    strContract,
 		Symbol:  erc20Data.Symbol,
 		Display: erc20Data.Name,
 	}
 
 	if err := metadata.Validate(); err != nil {
-		return sdkerrors.Wrapf(err, "ERC20 token data is invalid for contract %s", pair.Erc20Address)
+		return sdkerrors.Wrapf(err, "ERC20 token data is invalid for contract %s", strContract)
 	}
 
 	k.bankKeeper.SetDenomMetaData(ctx, metadata)
-	return nil
-}
-
-func (k Keeper) DeployERC20Contract(ctx sdk.Context, pair types.TokenPair) error {
-	meta, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
-	if !found {
-		// metadata doesnt exists; exit
-		// TODO: validate that the fields from the ERC20 match the denom metadata's
-		return sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination is not registered")
-	}
-
-	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", meta.Name, meta.Symbol)
-	if err != nil {
-		return sdkerrors.Wrapf(err, "coin metadata is invalid  %s", pair.Denom)
-	}
-
-	data := append(contracts.ERC20BurnableAndMintableContract.Bin, ctorArgs...)
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
-
-	// TODO: Deploy Contract
-	_ = data
-	_ = erc20
-
 	return nil
 }
 

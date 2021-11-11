@@ -90,9 +90,16 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
 
 		// Mint the coin only if ERC20 is external
-		if pair.ContractOwner == types.EXTERNAL_OWNER {
+		switch pair.ContractOwner {
+		case types.MODULE_OWNER:
+			// BURN ERC20 FROM MODULE
+			_, err := k.CallEVM(ctx, erc20, contractAddr, "burn", tokens)
+			if err != nil {
+				continue
+			}
+		case types.EXTERNAL_OWNER:
 			if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-				return err
+				continue
 			}
 		}
 
@@ -100,7 +107,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		from := common.BytesToAddress(log.Topics[1].Bytes())
 		recipient := sdk.AccAddress(from.Bytes())
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
-			return err
+			continue
 		}
 	}
 

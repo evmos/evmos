@@ -74,7 +74,7 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `token_pair` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) |  | token pair of Cosmos native denom and ERC20 token address |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | token pair of Cosmos native denom and ERC20 token address |
 
 
 
@@ -91,7 +91,7 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `token_pair` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) |  | token pair of Cosmos native denom and ERC20 token address |
+| `erc20address` | [string](#string) |  | token pair of Cosmos native denom and ERC20 token address |
 
 
 

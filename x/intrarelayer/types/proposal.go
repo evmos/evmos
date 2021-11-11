@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
@@ -36,11 +37,11 @@ func init() {
 }
 
 // NewRegisterCoinProposal returns new instance of RegisterCoinProposal
-func NewRegisterCoinProposal(title, description string, pair TokenPair) govtypes.Content {
+func NewRegisterCoinProposal(title, description string, coinMetadata banktypes.Metadata) govtypes.Content {
 	return &RegisterCoinProposal{
 		Title:       title,
 		Description: description,
-		TokenPair:   pair,
+		Metadata:    coinMetadata,
 	}
 }
 
@@ -54,7 +55,7 @@ func (*RegisterCoinProposal) ProposalType() string {
 
 // ValidateBasic performs a stateless check of the proposal fields
 func (rtbp *RegisterCoinProposal) ValidateBasic() error {
-	if err := rtbp.TokenPair.Validate(); err != nil {
+	if err := rtbp.Metadata.Validate(); err != nil {
 		return err
 	}
 
@@ -62,11 +63,11 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 }
 
 // NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
-func NewRegisterERC20Proposal(title, description string, pair TokenPair) govtypes.Content {
+func NewRegisterERC20Proposal(title, description, erc20Addr string) govtypes.Content {
 	return &RegisterERC20Proposal{
-		Title:       title,
-		Description: description,
-		TokenPair:   pair,
+		Title:        title,
+		Description:  description,
+		Erc20Address: erc20Addr,
 	}
 }
 
@@ -80,9 +81,7 @@ func (*RegisterERC20Proposal) ProposalType() string {
 
 // ValidateBasic performs a stateless check of the proposal fields
 func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
-	if err := rtbp.TokenPair.Validate(); err != nil {
-		return err
-	}
+	// TODO: Validate erc20 address
 
 	return govtypes.ValidateAbstract(rtbp)
 }

@@ -2,6 +2,7 @@ syntax = "proto3";
 package evmos.intrarelayer.v1;
 
 import "gogoproto/gogo.proto";
+import "cosmos/bank/v1beta1/bank.proto";
 option go_package = "github.com/tharsis/evmos/x/intrarelayer/types";
 
 
@@ -14,7 +15,6 @@ enum Owner {
     MODULE_OWNER = 1;
     // EXTERNAL_OWNER erc20 is owned by an external account.
     EXTERNAL_OWNER = 2;
-    
 }
 
 // TokenPair defines an instance that records pairing consisting of a Cosmos
@@ -39,7 +39,8 @@ message RegisterCoinProposal {
     // proposal description
     string description   = 2;
     // token pair of Cosmos native denom and ERC20 token address
-    TokenPair token_pair = 3 [(gogoproto.nullable) = false];
+    cosmos.bank.v1beta1.Metadata metadata = 3 [(gogoproto.nullable) = false];
+    
 }
 
 // RegisterCoinProposal is a gov Content type to register a token pair
@@ -50,7 +51,8 @@ message RegisterERC20Proposal {
     // proposal description
     string description   = 2;
     // token pair of Cosmos native denom and ERC20 token address
-    TokenPair token_pair = 3 [(gogoproto.nullable) = false];
+    string erc20address = 3;
+
 }
 
 

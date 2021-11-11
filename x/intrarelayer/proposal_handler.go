@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -29,15 +30,15 @@ func NewIntrarelayerProposalHandler(k keeper.Keeper) govtypes.Handler {
 }
 
 func handleRegisterCoinProposal(ctx sdk.Context, k keeper.Keeper, p *types.RegisterCoinProposal) error {
-	p.TokenPair.ContractOwner = types.MODULE_OWNER
-	if err := k.RegisterTokenPair(ctx, p.TokenPair); err != nil {
+	pair, err := k.RegisterCoin(ctx, p.Metadata)
+	if err != nil {
 		return err
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRegisterTokenPair,
-			sdk.NewAttribute(types.AttributeKeyCosmosCoin, p.TokenPair.Denom),
-			sdk.NewAttribute(types.AttributeKeyERC20Token, p.TokenPair.Erc20Address),
+			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
 	)
 
@@ -45,15 +46,15 @@ func handleRegisterCoinProposal(ctx sdk.Context, k keeper.Keeper, p *types.Regis
 }
 
 func handleRegisterERC20Proposal(ctx sdk.Context, k keeper.Keeper, p *types.RegisterERC20Proposal) error {
-	p.TokenPair.ContractOwner = types.EXTERNAL_OWNER
-	if err := k.RegisterTokenPair(ctx, p.TokenPair); err != nil {
+	pair, err := k.RegisterERC20(ctx, common.HexToAddress(p.Erc20Address))
+	if err != nil {
 		return err
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRegisterTokenPair,
-			sdk.NewAttribute(types.AttributeKeyCosmosCoin, p.TokenPair.Denom),
-			sdk.NewAttribute(types.AttributeKeyERC20Token, p.TokenPair.Erc20Address),
+			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
 	)
 

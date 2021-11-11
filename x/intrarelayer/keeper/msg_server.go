@@ -110,15 +110,15 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 
 	// check ownership
 	if pair.ContractOwner == types.MODULE_OWNER {
-		return k.ConvertERC20NativeCoin(ctx, pair, msg)
+		return k.convertERC20NativeCoin(ctx, pair, msg)
 	} else if pair.ContractOwner == types.EXTERNAL_OWNER {
-		return k.ConvertERC20NativeToken(ctx, pair, msg)
+		return k.convertERC20NativeToken(ctx, pair, msg)
 	} else {
 		return nil, types.ErrUndefinedOwner
 	}
 }
 
-func (k Keeper) ConvertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, msg *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
+func (k Keeper) convertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, msg *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
 	// NOTE: error checked during msg validation
 	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
 	sender := common.HexToAddress(msg.Sender)
@@ -168,7 +168,7 @@ func (k Keeper) ConvertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, ms
 	return &types.MsgConvertERC20Response{}, nil
 }
 
-func (k Keeper) ConvertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, msg *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
+func (k Keeper) convertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, msg *types.MsgConvertERC20) (*types.MsgConvertERC20Response, error) {
 	// NOTE: error checked during msg validation
 	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
 	sender := common.HexToAddress(msg.Sender)
