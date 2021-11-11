@@ -179,11 +179,11 @@ func (k Keeper) convertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, m
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
 
-	transferData, err := erc20.Pack("transfer", sender, msg.Amount.BigInt())
+	transferData, err := erc20.Pack("transfer", types.ModuleAddress, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
-	// TODO Escrow coins to module account
+	// Escrow coins to module account
 	ret, err := k.ExecuteEVM(ctx, contract, sender, transferData)
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func (k Keeper) convertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, m
 		return nil, err
 	}
 
-	// TODO: Check unpackedRet execution
+	// Check unpackedRet execution
 	if len(unpackedRet) == 0 {
 		return nil, fmt.Errorf("Failed to execute transfer")
 	}
