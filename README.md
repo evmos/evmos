@@ -4,7 +4,7 @@ parent:
 -->
 
 <div align="center">
-  <h1> Hazlor </h1>
+  <h1> Hazlor </h1> <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/hazlorlabs/hsc.svg" />
 </div>
 
 <!-- TODO: add banner -->
