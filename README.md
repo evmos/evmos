@@ -8,6 +8,11 @@ parent:
   ![alt text](http://url/to/img.png)
 </div>
 
+<p align="center">
+  <img src="your_relative_path_here" width="350" title="hover text">
+  <img src="https://hazlor.com/wp-content/uploads/2021/11/Logo.png" width="350" alt="accessibility text">
+</p>
+
 <!-- TODO: add banner -->
 <!-- ![banner](docs/ethermint.jpg) -->
 
