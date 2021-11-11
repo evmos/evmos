@@ -4,7 +4,7 @@ parent:
 -->
 
 <div align="center">
-  <h1> Hazlor </h1> <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/hazlorlabs/hsc.svg" />
+  <h1> Hazlor </h1> 
 </div>
 
 <!-- TODO: add banner -->
@@ -78,4 +78,4 @@ For additional instructions, standards and style guides, please refer to the [Co
 
 ## Careers
 
-See our open positions on [Cosmos Jobs](https://jobs.cosmos.network/project/evmos-d0sk1uxuh-remote/), [Notion](https://tharsis.notion.site), or feel free to [reach out](mailto:careers@thars.is) via email.
+See our open positions on [Hazlor Jobs](https://hazlor.com/), or feel free to [reach out](mailto:developers@hazlorlabs.com) via email.
