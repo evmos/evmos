@@ -47,6 +47,44 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, tra
 	return res, nil
 }
 
+func (k Keeper) DeployToEVMWithPayload(ctx sdk.Context, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
+	k.evmKeeper.WithContext(ctx)
+	nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+
+	access := ethtypes.AccessList{}
+	k.evmKeeper.AddAddressToAccessList(types.ModuleAddress)
+	msg := ethtypes.NewMessage(
+		types.ModuleAddress,
+		nil,
+		nonce,
+		big.NewInt(0),        // amount
+		config.DefaultGasCap, // gasLimit
+		big.NewInt(0),        // gasFeeCap
+		big.NewInt(0),        // gasTipCap
+		big.NewInt(0),        // gasPrice
+		transferData,
+		access, // AccessList
+		true,   // checkNonce
+	)
+
+	params := k.evmKeeper.GetParams(ctx)
+	ethCfg := params.ChainConfig.EthereumConfig(k.evmKeeper.ChainID())
+	rules := ethCfg.Rules(big.NewInt(ctx.BlockHeight()))
+
+	k.evmKeeper.PrepareAccessList(msg.From(), msg.To(), vm.ActivePrecompiles(rules), msg.AccessList())
+
+	res, err := k.evmKeeper.ApplyMessage(msg, evmtypes.NewNoOpTracer(), true)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Failed() {
+		return nil, fmt.Errorf("%s", res.VmError)
+	}
+
+	return res, nil
+}
+
 func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
 	// pack and call method using the given args
 	payload, err := abi.Pack(method, args...)

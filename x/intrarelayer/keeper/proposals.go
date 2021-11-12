@@ -7,6 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
@@ -25,7 +26,7 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 		return nil, sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
 	}
 
-	pair := types.NewTokenPair(addr, addr.String(), true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(addr, coinMetadata.Base, true, types.MODULE_OWNER)
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
@@ -47,14 +48,18 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 	}
 
 	data := append(contracts.ERC20BurnableAndMintableContract.Bin, ctorArgs...)
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+
+	ret, err := k.DeployToEVMWithPayload(ctx, data)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("Failed to deploy conctract for %s", coinMetadata.Name)
+	}
+
+	contractAddr := crypto.CreateAddress(types.ModuleAddress, k.evmKeeper.GetNonce(types.ModuleAddress))
 
 	// TODO: Deploy Contract
-	_ = data
-	_ = erc20
-	var deployedContract common.Address
+	_ = ret
 
-	return deployedContract, nil
+	return contractAddr, nil
 }
 
 func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.TokenPair, error) {

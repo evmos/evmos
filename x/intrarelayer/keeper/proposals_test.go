@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/big"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -27,7 +28,56 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
 	return contractAddr
 }
 
-func (suite KeeperTestSuite) TestRegisterTokenPair() {
+func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
+	suite.SetupTest()
+	validMetadata := banktypes.Metadata{
+		Description: "desc",
+		Base:        cosmosTokenName,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    cosmosTokenName,
+				Exponent: 0,
+			},
+			{
+				Denom:    "coin2",
+				Exponent: uint32(18),
+			},
+		},
+		Name:    cosmosTokenName,
+		Symbol:  "token",
+		Display: cosmosTokenName,
+	}
+	//pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+	pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+	suite.Require().NoError(err)
+	return validMetadata, pair
+}
+
+func (suite KeeperTestSuite) TestRegisterCoin() {
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"ok",
+			func() {},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+			_, pair := suite.setupRegisterCoin()
+			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), types.ModuleAddress)
+			suite.Require().Equal(balance, big.NewInt(0))
+
+		})
+	}
+}
+
+func (suite KeeperTestSuite) TestRegisterERC20() {
 	var (
 		contractAddr common.Address
 		pair         types.TokenPair

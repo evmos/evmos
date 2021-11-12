@@ -170,3 +170,71 @@ func (suite *KeeperTestSuite) TestConvertECR20_RegisteredERC20() {
 		})
 	}
 }
+
+// func (suite *KeeperTestSuite) TestConvertCoin_RegisteredCoin() {
+// 	testCases := []struct {
+// 		name     string
+// 		malleate func()
+// 		expPass  bool
+// 	}{
+// 		// {"coin not registered", func() {}, false},
+// 		// {
+// 		// 	"coin registered - insufficient funds",
+// 		// 	func() {
+// 		// 		pair := types.NewTokenPair(tests.GenerateAddress(), erc20Name, true)
+// 		// 		id := pair.GetID()
+// 		// 		suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+// 		// 		suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, id)
+// 		// 		suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
+// 		// 	},
+// 		// 	false,
+// 		// },
+// 		{
+
+// 			"ok - coin registered - sufficient funds - callEVM",
+// 			func() {
+// 			},
+// 			true,
+// 		},
+// 	}
+// 	for _, tc := range testCases {
+// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+// 			metadata, pair := suite.setupRegisterCoin()
+// 			suite.Require().NotNil(metadata)
+// 			// id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+// 			// pair, _ := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+
+// 			sender := sdk.AccAddress(suite.address.Bytes())
+
+// 			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(100)))
+// 			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+// 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+
+// 			msg := types.NewMsgConvertCoin(
+// 				sdk.NewCoin(cosmosTokenName, sdk.NewInt(50)),
+// 				suite.address,
+// 				sender,
+// 			)
+
+// 			ctx := sdk.WrapSDKContext(suite.ctx)
+// 			res, err := suite.app.IntrarelayerKeeper.ConvertCoin(ctx, msg)
+// 			suite.Require().NoError(err, tc.name)
+// 			expRes := &types.MsgConvertCoinResponse{}
+// 			suite.Commit()
+
+// 			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
+// 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
+
+// 			if tc.expPass {
+// 				suite.Require().NoError(err, tc.name)
+// 				suite.Require().Equal(expRes, res)
+// 				suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(50).Int64())
+// 				suite.Require().Equal(balance, big.NewInt(950))
+
+// 			} else {
+// 				suite.Require().Error(err, tc.name)
+// 				suite.Require().Equal(balance, big.NewInt(0))
+// 			}
+// 		})
+// 	}
+// }
