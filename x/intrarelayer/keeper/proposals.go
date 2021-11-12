@@ -41,6 +41,7 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 	// 	// TODO: validate that the fields from the ERC20 match the denom metadata's
 	// 	return common.Address{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination is not registered")
 	// }
+	//k.evmKeeper.SetNonce(types.ModuleAddress, 1)
 
 	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol)
 	if err != nil {
@@ -49,12 +50,11 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 
 	data := append(contracts.ERC20BurnableAndMintableContract.Bin, ctorArgs...)
 
-	ret, err := k.DeployToEVMWithPayload(ctx, data)
+	contractAddr := crypto.CreateAddress(types.ModuleAddress, 1)
+	ret, err := k.DeployEVM(ctx, contractAddr, types.ModuleAddress, data)
 	if err != nil {
 		return common.Address{}, fmt.Errorf("Failed to deploy conctract for %s", coinMetadata.Name)
 	}
-
-	contractAddr := crypto.CreateAddress(types.ModuleAddress, k.evmKeeper.GetNonce(types.ModuleAddress))
 
 	// TODO: Deploy Contract
 	_ = ret

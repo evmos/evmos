@@ -51,6 +51,7 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 	//pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
 	pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 	suite.Require().NoError(err)
+	suite.Commit()
 	return validMetadata, pair
 }
 
@@ -70,9 +71,13 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 			_, pair := suite.setupRegisterCoin()
+			name := suite.NameOf(common.HexToAddress(pair.Erc20Address))
+			fmt.Println(name)
 			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), types.ModuleAddress)
-			suite.Require().Equal(balance, big.NewInt(0))
+			b := balance.(*big.Int)
 
+			// big.Int zero from balance is nil, so add 1 as a cheat
+			suite.Require().Equal(b.Add(b, big.NewInt(1)), big.NewInt(1))
 		})
 	}
 }

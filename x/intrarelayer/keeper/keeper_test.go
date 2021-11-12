@@ -303,6 +303,23 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 	return unpacked[0]
 }
 
+func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
+
+	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+
+	res, err := suite.app.IntrarelayerKeeper.CallEVM(suite.ctx, erc20, contract, "name")
+	if err != nil {
+		return nil
+	}
+
+	unpacked, err := erc20.Unpack("name", res.Ret)
+	if len(unpacked) == 0 {
+		return nil
+	}
+
+	return unpacked[0]
+}
+
 func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("transfer", to, amount)
 	suite.Require().NoError(err)

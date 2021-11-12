@@ -67,12 +67,6 @@ func (k Keeper) DeployToEVMWithPayload(ctx sdk.Context, transferData []byte) (*e
 		true,   // checkNonce
 	)
 
-	params := k.evmKeeper.GetParams(ctx)
-	ethCfg := params.ChainConfig.EthereumConfig(k.evmKeeper.ChainID())
-	rules := ethCfg.Rules(big.NewInt(ctx.BlockHeight()))
-
-	k.evmKeeper.PrepareAccessList(msg.From(), msg.To(), vm.ActivePrecompiles(rules), msg.AccessList())
-
 	res, err := k.evmKeeper.ApplyMessage(msg, evmtypes.NewNoOpTracer(), true)
 	if err != nil {
 		return nil, err
@@ -198,4 +192,67 @@ func (k Keeper) createModuleTx(contractAddr *common.Address, from common.Address
 		false,
 	)
 	return msg
+}
+
+func (k Keeper) DeployEVM(ctx sdk.Context, contractAddr, from common.Address, transferData []byte) ([]byte, error) {
+	params := k.evmKeeper.GetParams(ctx)
+	ethCfg := params.ChainConfig.EthereumConfig(k.evmKeeper.ChainID())
+	// NOTE: pass in an empty coinbase address and nil tracer as we don't need them for the check below
+	cfg := &evmtypes.EVMConfig{
+		ChainConfig: ethCfg,
+		Params:      params,
+		CoinBase:    common.Address{},
+		BaseFee:     big.NewInt(0),
+	}
+
+	msg := ethtypes.NewMessage(
+		from, nil,
+		1,
+		big.NewInt(0),
+		uint64(2000000),
+		big.NewInt(0),
+		big.NewInt(20000000),
+		big.NewInt(20000000),
+		transferData,
+		ethtypes.AccessList{},
+		false,
+	)
+
+	rules := ethCfg.Rules(big.NewInt(ctx.BlockHeight()))
+	k.evmKeeper.PrepareAccessList(msg.From(), msg.To(), vm.ActivePrecompiles(rules), msg.AccessList())
+
+	vmConfig := k.evmKeeper.VMConfig(msg, cfg.Params, evmtypes.NewNoOpTracer())
+	evm := k.evmKeeper.NewEVM(msg, cfg, evmtypes.NewNoOpTracer())
+	interpreter := vm.NewEVMInterpreter(evm, vmConfig)
+
+	evm.StateDB.CreateAccount(contractAddr)
+	evm.Context.Transfer(evm.StateDB, from, contractAddr, big.NewInt(0))
+
+	// TODO: define gas value
+	gas := uint64(3000000)
+	addrCopy := contractAddr
+	contract := vm.NewContract(vm.AccountRef(from), vm.AccountRef(contractAddr), new(big.Int), gas)
+	contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), transferData)
+
+	ret, err := interpreter.Run(contract, nil, false)
+	if err != nil {
+		return nil, err
+	}
+
+	// if the contract creation ran successfully and no errors were returned
+	// calculate the gas required to store the code. If the code could not
+	// be stored due to not enough gas set an error and let it be handled
+	// by the error checking condition below.
+	if err == nil {
+		createDataGas := uint64(len(ret)) * 200
+		if contract.UseGas(createDataGas) {
+			evm.StateDB.SetCode(contractAddr, ret)
+		} else {
+			err = fmt.Errorf("contract creation code storage out of gas")
+		}
+	}
+
+	// TODO: validate ret?
+
+	return ret, err
 }
