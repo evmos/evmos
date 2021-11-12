@@ -90,33 +90,33 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 		return nil, err
 	}
 
-	_, found := k.bankKeeper.GetDenomMetaData(ctx, erc20Data.Name)
+	_, found := k.bankKeeper.GetDenomMetaData(ctx, CreateDenom(strContract))
 	if found {
 		// metadata already exists; exit
 		// TODO: validate that the fields from the ERC20 match the denom metadata's
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
 	}
 
-	if k.IsDenomRegistered(ctx, erc20Data.Name) {
+	if k.IsDenomRegistered(ctx, CreateDenom(strContract)) {
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", erc20Data.Name)
 	}
 
 	// create a bank denom metadata based on the ERC20 token ABI details
 	metadata := banktypes.Metadata{
 		Description: CreateDenomDescription(strContract),
-		Base:        erc20Data.Name,
+		Base:        CreateDenom(strContract),
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    erc20Data.Name,
+				Denom:    CreateDenom(strContract),
 				Exponent: 0,
 			},
 			{
-				Denom:    erc20Data.Symbol,
+				Denom:    erc20Data.Name,
 				Exponent: uint32(erc20Data.Decimals),
 			},
 		},
-		Name:    erc20Data.Name,
+		Name:    CreateDenom(strContract),
 		Symbol:  erc20Data.Symbol,
 		Display: erc20Data.Name,
 	}
@@ -132,6 +132,10 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 
 func CreateDenomDescription(address string) string {
 	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
+func CreateDenom(address string) string {
+	return fmt.Sprintf("irm%s", address)
 }
 
 // ToggleRelay toggles relaying for a given token pair

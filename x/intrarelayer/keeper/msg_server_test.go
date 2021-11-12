@@ -46,6 +46,8 @@ func (suite *KeeperTestSuite) TestConvertCoin_RegisteredERC20() {
 			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
 			suite.Commit()
 
+			coinName := "irm" + contractAddr.String()
+
 			convertERC20 := types.NewMsgConvertERC20(
 				sdk.NewInt(100),
 				sender,
@@ -59,13 +61,13 @@ func (suite *KeeperTestSuite) TestConvertCoin_RegisteredERC20() {
 			suite.Commit()
 
 			balance := suite.BalanceOf(contractAddr, suite.address)
-			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, "coin")
+			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, coinName)
 			suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(100))
 			suite.Require().Equal(balance, big.NewInt(900))
 
 			ctx = sdk.WrapSDKContext(suite.ctx)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin("coin", sdk.NewInt(50)),
+				sdk.NewCoin(coinName, sdk.NewInt(50)),
 				suite.address,
 				sender,
 			)
@@ -76,7 +78,7 @@ func (suite *KeeperTestSuite) TestConvertCoin_RegisteredERC20() {
 			suite.Commit()
 
 			balance = suite.BalanceOf(contractAddr, suite.address)
-			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, "coin")
+			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, coinName)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
@@ -130,6 +132,8 @@ func (suite *KeeperTestSuite) TestConvertECR20_RegisteredERC20() {
 			// id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
 			// pair, _ := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
 
+			coinName := "irm" + contractAddr.String()
+
 			sender := sdk.AccAddress(suite.address.Bytes())
 			// coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(100)))
 			// suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
@@ -152,7 +156,7 @@ func (suite *KeeperTestSuite) TestConvertECR20_RegisteredERC20() {
 
 			balance := suite.BalanceOf(contractAddr, suite.address)
 
-			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, "coin")
+			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, coinName)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
