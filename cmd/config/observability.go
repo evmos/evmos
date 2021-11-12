@@ -27,7 +27,7 @@ func EnableObservability() error {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", pe)
 
-	// TODO: Derive the Prometheus observability exporter from the Evmos config.
+	// TODO: Derive the Prometheus observability exporter from the Hazlor config.
 	addr := ":8877"
 	go func() {
 		println("Serving the Prometheus observability exporter at", addr)
