@@ -44,3 +44,15 @@ func (b TokenPair) Validate() error {
 
 	return nil
 }
+
+// IsNativeCoin returns true if the owner of the ERC20 contract is the
+// intrarelayer module account
+func (tp TokenPair) IsNativeCoin() bool {
+	return tp.ContractOwner == MODULE_OWNER
+}
+
+// IsNativeERC20 returns true if the owner of the ERC20 contract not the
+// intrarelayer module account
+func (tp TokenPair) IsNativeERC20() bool {
+	return tp.ContractOwner == EXTERNAL_OWNER
+}
