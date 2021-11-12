@@ -40,7 +40,6 @@ message RegisterCoinProposal {
     string description   = 2;
     // token pair of Cosmos native denom and ERC20 token address
     cosmos.bank.v1beta1.Metadata metadata = 3 [(gogoproto.nullable) = false];
-    
 }
 
 // RegisterCoinProposal is a gov Content type to register a token pair
@@ -52,9 +51,7 @@ message RegisterERC20Proposal {
     string description   = 2;
     // token pair of Cosmos native denom and ERC20 token address
     string erc20address = 3;
-
 }
-
 
 // EnableTokenRelayProposal is a gov Content type to enable the internal
 // relaying of a token pair.

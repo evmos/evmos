@@ -13,7 +13,8 @@ const (
 	EventTypeMint                 = "mint"
 	EventTypeConvertCoin          = "convert_coin"
 	EventTypeBurn                 = "burn"
-	EventTypeRegisterTokenPair    = "register_token_pair"
+	EventTypeRegisterCoin         = "register_coin"
+	EventTypeRegisterERC20        = "register_erc20"
 	EventTypeEnableTokenRelay     = "enable_token_relay"
 	EventTypeUpdateTokenPairERC20 = "update_token_pair_erc20"
 

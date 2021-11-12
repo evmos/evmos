@@ -36,7 +36,7 @@ func handleRegisterCoinProposal(ctx sdk.Context, k keeper.Keeper, p *types.Regis
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeRegisterTokenPair,
+			types.EventTypeRegisterCoin,
 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
 			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
@@ -52,7 +52,7 @@ func handleRegisterERC20Proposal(ctx sdk.Context, k keeper.Keeper, p *types.Regi
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeRegisterTokenPair,
+			types.EventTypeRegisterERC20,
 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
 			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
 		),
