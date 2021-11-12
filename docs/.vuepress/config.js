@@ -58,7 +58,7 @@ module.exports = {
       testnet_denom: 'Photon',
       testnet_ticker: 'PHOTON',
       rpc_url: 'http://localhost:8545/',
-      rpc_url_testnet: 'http://arsiamons.rpc.evmos.org:8545',
+      rpc_url_testnet: 'https://ethereum.rpc.evmos.org',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
