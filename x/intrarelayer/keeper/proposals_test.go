@@ -2,10 +2,10 @@ package keeper_test
 
 import (
 	"fmt"
-	"math/big"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -62,6 +62,24 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		expPass  bool
 	}{
 		{
+			"intrarelaying is disabled globally",
+			func() {
+				params := types.DefaultParams()
+				params.EnableIntrarelayer = false
+				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
+			},
+			false,
+		},
+		{
+			"denom already registered",
+			func() {
+				regPair := types.NewTokenPair(tests.GenerateAddress(), cosmosTokenName, true, types.MODULE_OWNER)
+				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
+				suite.Commit()
+			},
+			false,
+		},
+		{
 			"ok",
 			func() {},
 			true,
@@ -70,14 +88,41 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-			_, pair := suite.setupRegisterCoin()
-			name := suite.NameOf(common.HexToAddress(pair.Erc20Address))
-			fmt.Println(name)
-			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), types.ModuleAddress)
-			b := balance.(*big.Int)
 
-			// big.Int zero from balance is nil, so add 1 as a cheat
-			suite.Require().Equal(b.Add(b, big.NewInt(1)), big.NewInt(1))
+			tc.malleate()
+			validMetadata := banktypes.Metadata{
+				Description: "desc",
+				Base:        cosmosTokenName,
+				// NOTE: Denom units MUST be increasing
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    cosmosTokenName,
+						Exponent: 0,
+					},
+					{
+						Denom:    "coin2",
+						Exponent: uint32(1),
+					},
+				},
+				Name:    cosmosTokenName,
+				Symbol:  "token",
+				Display: cosmosTokenName,
+			}
+
+			pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+			suite.Commit()
+			expPair := &types.TokenPair{
+				Erc20Address:  "0x921C0F285B0ED25757CDDC97b8227ae165c3fAE6",
+				Denom:         "coin",
+				Enabled:       true,
+				ContractOwner: 1,
+			}
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				suite.Require().Equal(pair, expPair)
+			} else {
+				suite.Require().Error(err, tc.name)
+			}
 		})
 	}
 }
