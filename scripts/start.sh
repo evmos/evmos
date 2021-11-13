@@ -47,23 +47,23 @@ done
 
 set -euxo pipefail
 
-DATA_DIR=$(mktemp -d -t evmos-datadir.XXXXX)
+DATA_DIR=$(mktemp -d -t hazlor-datadir.XXXXX)
 
 if [[ ! "$DATA_DIR" ]]; then
     echo "Could not create $DATA_DIR"
     exit 1
 fi
 
-DATA_CLI_DIR=$(mktemp -d -t evmos-cli-datadir.XXXXX)
+DATA_CLI_DIR=$(mktemp -d -t hazlor-cli-datadir.XXXXX)
 
 if [[ ! "$DATA_CLI_DIR" ]]; then
     echo "Could not create $DATA_CLI_DIR"
     exit 1
 fi
 
-# Compile evmos
-echo "compiling evmos"
-make build-evmos
+# Compile hazlor
+echo "compiling hazlor"
+make build-hazlor
 
 # PID array declaration
 arr=()
@@ -74,7 +74,7 @@ arrcli=()
 init_func() {
     echo "create and add new keys"
     "$PWD"/build/hazlord keys add $KEY"$i" --home "$DATA_DIR$i" --no-backup --chain-id $CHAINID --algo "eth_secp256k1" --keyring-backend test
-    echo "init Evmos with moniker=$MONIKER and chain-id=$CHAINID"
+    echo "init Hazlor with moniker=$MONIKER and chain-id=$CHAINID"
     "$PWD"/build/hazlord init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
     echo "prepare genesis: Allocate genesis accounts"
     "$PWD"/build/hazlord add-genesis-account \

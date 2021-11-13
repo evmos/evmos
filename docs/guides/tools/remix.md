@@ -46,7 +46,7 @@ Next, select the `Deploy and Run` option. Select `Injected Web3` as the `Environ
 
 You should see your account show up in the left-hand panel.
 
-![remix connected to evmos](./../img/remix_deploy.png)
+![remix connected to hazlor](./../img/remix_deploy.png)
 
 ## Deploy and Interact
 

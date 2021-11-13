@@ -52,15 +52,15 @@ done
 
 set -euxo pipefail
 
-DATA_DIR=$(mktemp -d -t evmos-datadir.XXXXX)
+DATA_DIR=$(mktemp -d -t hazlor-datadir.XXXXX)
 
 if [[ ! "$DATA_DIR" ]]; then
     echo "Could not create $DATA_DIR"
     exit 1
 fi
 
-# Compile evmos
-echo "compiling evmos"
+# Compile hazlor
+echo "compiling hazlor"
 make build
 
 # PID array declaration

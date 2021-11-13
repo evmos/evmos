@@ -38,7 +38,7 @@ parent:
     <img alt="Code Coverage" src="https://codecov.io/gh/hazlorlabs/hsc/branch/main/graph/badge.svg" />
   </a>
   <a href="https://twitter.com/HazlorLabs">
-    <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/HazlorLabs"/>
+    <img alt="Twitter Follow Hazlor" src="https://img.shields.io/twitter/follow/HazlorLabs"/>
   </a>
 </div>
 
@@ -49,7 +49,7 @@ interoperable with Ethereum. It's built using the [Cosmos SDK](https://github.co
 
 ## Installation
 
-For prerequisites and detailed build instructions please read the [Installation](https://evmos.dev/quickstart/installation.html) instructions. Once the dependencies are installed, run:
+For prerequisites and detailed build instructions please read the [Installation](https://hazlor.dev/quickstart/installation.html) instructions. Once the dependencies are installed, run:
 
 ```bash
 make install
@@ -59,11 +59,11 @@ Or check out the latest [release](https://github.com/hazlorlabs/hsc/releases).
 
 ## Quick Start
 
-To learn how the Hazlor works from a high-level perspective, go to the [Introduction](https://evmos.dev/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://evmos.dev/quickstart/run_node.html).
+To learn how the Hazlor works from a high-level perspective, go to the [Introduction](https://hazlor.dev/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://hazlor.dev/quickstart/run_node.html).
 
 ## Community
 
-The following chat channels and forums are a great spot to ask questions about Evmos:
+The following chat channels and forums are a great spot to ask questions about Hazlor:
 
 - [Hazlor Twitter](https://twitter.com/HazlorLabs)
 - [Hazlor Discord](https://discord.gg/X6ZjdB4BEJ)

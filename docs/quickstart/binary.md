@@ -85,7 +85,7 @@ The following pruning state settings are available:
 - `custom`: Specify pruning settings with the `pruning-keep-recent`, `pruning-keep-every`, and `pruning-interval` parameters.
 
 By default, every node is in `default` mode which is the recommended setting for most environments.
-If you would like to change your nodes pruning strategy then you must do so when the node is initialized. Passing a flag when starting `evmos` will always override settings in the `app.toml` file, if you would like to change your node to the `everything` mode then you can pass the `---pruning everything` flag when you call `hazlord start`.
+If you would like to change your nodes pruning strategy then you must do so when the node is initialized. Passing a flag when starting `hazlor` will always override settings in the `app.toml` file, if you would like to change your node to the `everything` mode then you can pass the `---pruning everything` flag when you call `hazlord start`.
 
 ::: warning
 **IMPORTANT**:
@@ -125,7 +125,7 @@ hazlord config
 
 Other values can be changed in the same way.
 
-Alternatively, we can directly make the changes to the config values in one place at client.toml. It is under the path of `.evmos/config/client.toml` in the folder where we installed evmos:
+Alternatively, we can directly make the changes to the config values in one place at client.toml. It is under the path of `.hazlor/config/client.toml` in the folder where we installed hazlor:
 
 ```toml
 ############################################################################

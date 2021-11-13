@@ -23,7 +23,7 @@ hazlord config chain-id $CHAINID
 # if $KEY exists it should be deleted
 hazlord keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
-# Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
+# Set moniker and chain-id for Hazlor (Moniker can be anything, chain-id must be an integer)
 hazlord init $MONIKER --chain-id $CHAINID 
 
 # Change parameter token denominations to aplanet

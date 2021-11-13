@@ -42,7 +42,7 @@ Clone and build {{ $themeConfig.project.name }} using `git`:
 
 ```bash
 git clone https://github.com/hazlorlabs/hsc-chain.git
-cd evmos
+cd hazlor
 make install
 ```
 

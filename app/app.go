@@ -171,14 +171,14 @@ var (
 	}
 )
 
-var _ simapp.App = (*Evmos)(nil)
+var _ simapp.App = (*Hazlor)(nil)
 
-// var _ server.Application (*Evmos)(nil)
+// var _ server.Application (*Hazlor)(nil)
 
-// Evmos implements an extended ABCI application. It is an application
+// Hazlor implements an extended ABCI application. It is an application
 // that may process transactions through Ethereum's EVM running atop of
 // Tendermint consensus.
-type Evmos struct {
+type Hazlor struct {
 	*baseapp.BaseApp
 
 	// encoding
@@ -231,8 +231,8 @@ type Evmos struct {
 	tpsCounter *tpsCounter
 }
 
-// NewEvmos returns a reference to a new initialized Ethermint application.
-func NewEvmos(
+// NewHazlor returns a reference to a new initialized Ethermint application.
+func NewHazlor(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -243,7 +243,7 @@ func NewEvmos(
 	encodingConfig simappparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *Evmos {
+) *Hazlor {
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -277,7 +277,7 @@ func NewEvmos(
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
-	app := &Evmos{
+	app := &Hazlor{
 		BaseApp:           bApp,
 		cdc:               cdc,
 		appCodec:          appCodec,
@@ -546,20 +546,20 @@ func NewEvmos(
 }
 
 // Name returns the name of the App
-func (app *Evmos) Name() string { return app.BaseApp.Name() }
+func (app *Hazlor) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker updates every begin block
-func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *Hazlor) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker updates every end block
-func (app *Evmos) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *Hazlor) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // We are intentionally decomposing the DeliverTx method so as to calculate the transactions per second.
-func (app *Evmos) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliverTx) {
+func (app *Hazlor) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliverTx) {
 	defer func() {
 		// TODO: Record the count along with the code and or reason so as to display
 		// in the transactions per second live dashboards.
@@ -574,7 +574,7 @@ func (app *Evmos) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliver
 }
 
 // InitChainer updates at chain initialization
-func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *Hazlor) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
@@ -584,12 +584,12 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 }
 
 // LoadHeight loads state at a particular height
-func (app *Evmos) LoadHeight(height int64) error {
+func (app *Hazlor) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *Evmos) ModuleAccountAddrs() map[string]bool {
+func (app *Hazlor) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
@@ -600,7 +600,7 @@ func (app *Evmos) ModuleAccountAddrs() map[string]bool {
 
 // BlockedAddrs returns all the app's module account addresses that are not
 // allowed to receive external tokens.
-func (app *Evmos) BlockedAddrs() map[string]bool {
+func (app *Hazlor) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
@@ -609,64 +609,64 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	return blockedAddrs
 }
 
-// LegacyAmino returns Evmos's amino codec.
+// LegacyAmino returns Hazlor's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *Evmos) LegacyAmino() *codec.LegacyAmino {
+func (app *Hazlor) LegacyAmino() *codec.LegacyAmino {
 	return app.cdc
 }
 
-// AppCodec returns Evmos's app codec.
+// AppCodec returns Hazlor's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *Evmos) AppCodec() codec.Codec {
+func (app *Hazlor) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns Evmos's InterfaceRegistry
-func (app *Evmos) InterfaceRegistry() types.InterfaceRegistry {
+// InterfaceRegistry returns Hazlor's InterfaceRegistry
+func (app *Hazlor) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *Evmos) GetKey(storeKey string) *sdk.KVStoreKey {
+func (app *Hazlor) GetKey(storeKey string) *sdk.KVStoreKey {
 	return app.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *Evmos) GetTKey(storeKey string) *sdk.TransientStoreKey {
+func (app *Hazlor) GetTKey(storeKey string) *sdk.TransientStoreKey {
 	return app.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *Evmos) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
+func (app *Hazlor) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *Evmos) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *Hazlor) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *Evmos) SimulationManager() *module.SimulationManager {
+func (app *Hazlor) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *Hazlor) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
 
@@ -687,11 +687,11 @@ func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConf
 	}
 }
 
-func (app *Evmos) RegisterTxService(clientCtx client.Context) {
+func (app *Hazlor) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
-func (app *Evmos) RegisterTendermintService(clientCtx client.Context) {
+func (app *Hazlor) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
 }
 

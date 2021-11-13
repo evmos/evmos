@@ -40,7 +40,7 @@ As the usage of the blockchain grows, the server requirements may increase as we
 
 ## Create Your Validator
 
-Your `evmosvalconspub` can be used to create a new validator by staking tokens. You can find your validator pubkey by running:
+Your `hazlorvalconspub` can be used to create a new validator by staking tokens. You can find your validator pubkey by running:
 
 ```bash
 hazlord tendermint show-validator
@@ -78,7 +78,7 @@ You can confirm that you are in the validator set by using a third party explore
 If you want to participate in genesis as a validator, you need to justify that
 you have some stake at genesis, create one (or multiple) transactions to bond this stake to your validator address, and include this transaction in the genesis file.
 
-Your `evmosvalconspub` can be used to create a new validator by staking tokens. You can find your validator pubkey by running:
+Your `hazlorvalconspub` can be used to create a new validator by staking tokens. You can find your validator pubkey by running:
 
 ```bash
 hazlord tendermint show-validator

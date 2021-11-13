@@ -33,10 +33,10 @@ The ports for each node are found in this table:
 
 | Node ID          | P2P Port | Tendermint RPC Port | REST/ Ethereum JSON-RPC Port | WebSocket Port |
 |------------------|----------|---------------------|------------------------------|----------------|
-| `evmosnode0` | `26656`  | `26657`             | `8545`                       | `8546`         |
-| `evmosnode1` | `26659`  | `26660`             | `8547`                       | `8548`         |
-| `evmosnode2` | `26661`  | `26662`             | `8549`                       | `8550`         |
-| `evmosnode3` | `26663`  | `26664`             | `8551`                       | `8552`         |
+| `hazlornode0` | `26656`  | `26657`             | `8545`                       | `8546`         |
+| `hazlornode1` | `26659`  | `26660`             | `8547`                       | `8548`         |
+| `hazlornode2` | `26661`  | `26662`             | `8549`                       | `8550`         |
+| `hazlornode3` | `26663`  | `26664`             | `8551`                       | `8552`         |
 
 To update the binary, just rebuild it and restart the nodes
 
@@ -48,7 +48,7 @@ The command above  command will run containers in the background using Docker co
 
 ```bash
 ...
-Creating network "evmos_localnet" with driver "bridge"
+Creating network "hazlor_localnet" with driver "bridge"
 Creating hazlordnode0 ... done
 Creating hazlordnode2 ... done
 Creating hazlordnode1 ... done
@@ -210,5 +210,5 @@ If you have multiple binaries with different names, you can specify which one to
 
 ```bash
 # Run with custom binary
-BINARY=evmos make localnet-start
+BINARY=hazlor make localnet-start
 ```

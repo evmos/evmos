@@ -55,7 +55,7 @@ You can generate a new key/mnemonic with:
 hazlord keys add $KEY
 ```
 
-To export your evmos key as an Ethereum private key (for use with [Metamask](./../guides/keys-wallets/metamask) for example):
+To export your hazlor key as an Ethereum private key (for use with [Metamask](./../guides/keys-wallets/metamask) for example):
 
 ```bash
 hazlord keys unsafe-export-eth-key $KEY
@@ -125,10 +125,10 @@ global:
   scrape_interval: 10s
 
   external_labels:
-    monitor: 'evmos'
+    monitor: 'hazlor'
 
 scrape_configs:
-  - job_name: 'evmos'
+  - job_name: 'hazlor'
 
     scrape_interval: 10s
 

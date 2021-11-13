@@ -13,7 +13,7 @@ These instructions are for full nodes that have ran on previous versions of and 
 First, stop your instance of `hazlord`. Next, upgrade the software:
 
 ```bash
-cd evmos
+cd hazlor
 git fetch --all && git checkout <new_version>
 make install
 ```

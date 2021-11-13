@@ -40,11 +40,11 @@ Follow the [Metamask guide](./../guides/keys-wallets/metamask.md) for more info 
 ## Request tokens
 
 <!-- TODO: update to support Hex format -->
-You can request tokens for the testnet by using the Hazlor [faucet](https://faucet.evmos.org).
-Simply fill in your address on the input field in Bech32 (`evmos1...`) format.
+You can request tokens for the testnet by using the Hazlor [faucet](https://faucet.hazlor.org).
+Simply fill in your address on the input field in Bech32 (`hazlor1...`) format.
 
 ::: warning
-If you use your Bech32 address, make sure you input the [account address](./../basics/accounts.md#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
+If you use your Bech32 address, make sure you input the [account address](./../basics/accounts.md#addresses-and-public-keys) (`hazlor1...`) and **NOT** the validator operator address (`hazlorvaloper1...`)
 :::
 
 ![faucet site](./img/faucet_web_page.png)
@@ -67,4 +67,4 @@ For each request, the faucet transfers 1 {{ $themeConfig.project.testnet_denom }
 The public faucet addresses for the testnet are:
 
 - **Hex**: [`0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151`](https://explorer.hazlor.com/address/0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151/transactions)
-- **Bech32**: [`evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze`](https://explorer.hazlor.com/accounts/evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze)
+- **Bech32**: [`hazlor1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze`](https://explorer.hazlor.com/accounts/hazlor1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze)

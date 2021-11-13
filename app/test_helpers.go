@@ -16,7 +16,7 @@ import (
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
-// Evmos testing.
+// Hazlor testing.
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
 		MaxBytes: 200000,
@@ -34,10 +34,10 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
-// Setup initializes a new Evmos. A Nop logger is set in Evmos.
-func Setup(isCheckTx bool, feemarketGenesis *feemarkettypes.GenesisState) *Evmos {
+// Setup initializes a new Hazlor. A Nop logger is set in Hazlor.
+func Setup(isCheckTx bool, feemarketGenesis *feemarkettypes.GenesisState) *Hazlor {
 	db := dbm.NewMemDB()
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
+	app := NewHazlor(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()

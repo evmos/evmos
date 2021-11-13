@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-      "title": "Evmos Chain - Legacy REST and gRPC Gateway docs",
+      "title": "Hazlor Chain - Legacy REST and gRPC Gateway docs",
       "description": "A REST interface for state queries, legacy transactions",
       "version": "1.0.0"
     },

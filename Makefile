@@ -124,12 +124,12 @@ docker-build:
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 	# docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${COMMIT_HASH}
 	# update old container
-	docker rm evmos || true
+	docker rm hazlor || true
 	# create a new container from the latest image
-	docker create --name evmos -t -i hazlorlabs/hsc:latest evmos
+	docker create --name hazlor -t -i hazlorlabs/hsc:latest hazlor
 	# move the binaries to the ./build directory
 	mkdir -p ./build/
-	docker cp evmos:/usr/bin/hazlord ./build/
+	docker cp hazlor:/usr/bin/hazlord ./build/
 
 $(MOCKS_DIR):
 	mkdir -p $(MOCKS_DIR)
@@ -499,13 +499,13 @@ ifeq ($(OS),Windows_NT)
 	mkdir localnet-setup &
 	@$(MAKE) localnet-build
 
-	IF not exist "build/node0/$(HAZLOR_BINARY)/config/genesis.json" docker run --rm -v $(CURDIR)/build\evmos\Z hazlord/node "./hazlord testnet --v 4 -o /evmos --keyring-backend=test --ip-addresses hazlordnode0,hazlordnode1,hazlordnode2,hazlordnode3"
+	IF not exist "build/node0/$(HAZLOR_BINARY)/config/genesis.json" docker run --rm -v $(CURDIR)/build\hazlor\Z hazlord/node "./hazlord testnet --v 4 -o /hazlor --keyring-backend=test --ip-addresses hazlordnode0,hazlordnode1,hazlordnode2,hazlordnode3"
 	docker-compose up -d
 else
 	mkdir -p localnet-setup
 	@$(MAKE) localnet-build
 
-	if ! [ -f localnet-setup/node0/$(HAZLOR_BINARY)/config/genesis.json ]; then docker run --rm -v $(CURDIR)/localnet-setup:/evmos:Z hazlord/node "./hazlord testnet --v 4 -o /evmos --keyring-backend=test --ip-addresses hazlordnode0,hazlordnode1,hazlordnode2,hazlordnode3"; fi
+	if ! [ -f localnet-setup/node0/$(HAZLOR_BINARY)/config/genesis.json ]; then docker run --rm -v $(CURDIR)/localnet-setup:/hazlor:Z hazlord/node "./hazlord testnet --v 4 -o /hazlor --keyring-backend=test --ip-addresses hazlordnode0,hazlordnode1,hazlordnode2,hazlordnode3"; fi
 	docker-compose up -d
 endif
 
@@ -522,22 +522,22 @@ localnet-clean:
 localnet-unsafe-reset:
 	docker-compose down
 ifeq ($(OS),Windows_NT)
-	@docker run --rm -v $(CURDIR)\localnet-setup\node0\hazlord:evmos\Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\localnet-setup\node1\hazlord:evmos\Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\localnet-setup\node2\hazlord:evmos\Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\localnet-setup\node3\hazlord:evmos\Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\localnet-setup\node0\hazlord:hazlor\Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
+	@docker run --rm -v $(CURDIR)\localnet-setup\node1\hazlord:hazlor\Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
+	@docker run --rm -v $(CURDIR)\localnet-setup\node2\hazlord:hazlor\Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
+	@docker run --rm -v $(CURDIR)\localnet-setup\node3\hazlord:hazlor\Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
 else
-	@docker run --rm -v $(CURDIR)/localnet-setup/node0/hazlord:/evmos:Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/localnet-setup/node1/hazlord:/evmos:Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/localnet-setup/node2/hazlord:/evmos:Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/localnet-setup/node3/hazlord:/evmos:Z hazlord/node "./hazlord unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/localnet-setup/node0/hazlord:/hazlor:Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
+	@docker run --rm -v $(CURDIR)/localnet-setup/node1/hazlord:/hazlor:Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
+	@docker run --rm -v $(CURDIR)/localnet-setup/node2/hazlord:/hazlor:Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
+	@docker run --rm -v $(CURDIR)/localnet-setup/node3/hazlord:/hazlor:Z hazlord/node "./hazlord unsafe-reset-all --home=/hazlor"
 endif
 
 # Clean testnet
 localnet-show-logstream:
 	docker-compose logs --tail=1000 -f
 
-.PHONY: build-docker-local-evmos localnet-start localnet-stop
+.PHONY: build-docker-local-hazlor localnet-start localnet-stop
 
 ###############################################################################
 ###                                Releasing                                ###

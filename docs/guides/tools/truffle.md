@@ -32,8 +32,8 @@ In this step we will create a simple counter contract. Feel free to skip this st
 Create a new directory to host the contracts and initialize it:
 
 ```console
-mkdir evmos-truffle
-cd evmos-truffle
+mkdir hazlor-truffle
+cd hazlor-truffle
 ```
 
 Initialize the Truffle suite with:
@@ -110,7 +110,7 @@ This will allow your contract to connect to your Hazlor local node.
 Start your local node using the following command on the Terminal
 
 ```bash
-# from the ~/evmos/ directory
+# from the ~/hazlor/ directory
 $ init.sh
 ```
 

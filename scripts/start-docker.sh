@@ -3,11 +3,11 @@
 KEY="mykey"
 CHAINID="hazlor_7878-1"
 MONIKER="mymoniker"
-DATA_DIR=$(mktemp -d -t evmos-datadir.XXXXX)
+DATA_DIR=$(mktemp -d -t hazlor-datadir.XXXXX)
 
 echo "create and add new keys"
 ./hazlord keys add $KEY --home $DATA_DIR --no-backup --chain-id $CHAINID --algo "eth_secp256k1" --keyring-backend test
-echo "init Evmos with moniker=$MONIKER and chain-id=$CHAINID"
+echo "init Hazlor with moniker=$MONIKER and chain-id=$CHAINID"
 ./hazlord init $MONIKER --chain-id $CHAINID --home $DATA_DIR
 echo "prepare genesis: Allocate genesis accounts"
 ./hazlord add-genesis-account \
