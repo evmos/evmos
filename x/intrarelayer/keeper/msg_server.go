@@ -128,8 +128,35 @@ func (k Keeper) convertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, ms
 	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
+
 	// Only burn if the module is the owner of the contract
-	res, err := k.CallEVM(ctx, erc20, contract, "burnFrom", sender, msg.Amount.BigInt())
+
+	transferData, err := erc20.Pack("transfer", types.ModuleAddress, msg.Amount.BigInt())
+	if err != nil {
+		return nil, err
+	}
+	// Escrow tokens to module account
+	ret, err := k.ExecuteEVM(ctx, contract, sender, transferData)
+	if err != nil {
+		return nil, err
+	}
+
+	unpackedRet, err := erc20.Unpack("transfer", ret)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check unpackedRet execution
+	if len(unpackedRet) == 0 {
+		return nil, fmt.Errorf("Failed to execute escrow tokens from user")
+	}
+
+	if !unpackedRet[0].(bool) {
+		return nil, fmt.Errorf("Failed to execute escrow tokens from user")
+	}
+
+	// Burn escrowed tokens
+	res, err := k.CallEVM(ctx, erc20, contract, "burn", msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}

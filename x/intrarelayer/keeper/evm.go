@@ -19,7 +19,8 @@ import (
 
 func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
-	nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+	//nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+	nonce := k.getModuleAccountNonce(ctx)
 
 	msg := ethtypes.NewMessage(
 		types.ModuleAddress,
@@ -40,6 +41,8 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, tra
 		return nil, err
 	}
 
+	k.increaseModuleAccountNonce(ctx, nonce)
+
 	if res.Failed() {
 		return nil, fmt.Errorf("%s", res.VmError)
 	}
@@ -49,7 +52,8 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, tra
 
 func (k Keeper) DeployToEVMWithPayload(ctx sdk.Context, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
-	nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+	//nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+	nonce := k.getModuleAccountNonce(ctx)
 
 	access := ethtypes.AccessList{}
 	k.evmKeeper.AddAddressToAccessList(types.ModuleAddress)
@@ -205,9 +209,10 @@ func (k Keeper) DeployEVM(ctx sdk.Context, contractAddr, from common.Address, tr
 		BaseFee:     big.NewInt(0),
 	}
 
+	nonce := k.getModuleAccountNonce(ctx)
 	msg := ethtypes.NewMessage(
 		from, nil,
-		1,
+		nonce,
 		big.NewInt(0),
 		uint64(2000000),
 		big.NewInt(0),
@@ -252,6 +257,7 @@ func (k Keeper) DeployEVM(ctx sdk.Context, contractAddr, from common.Address, tr
 		}
 	}
 
+	k.increaseModuleAccountNonce(ctx, nonce)
 	// TODO: validate ret?
 
 	return ret, err

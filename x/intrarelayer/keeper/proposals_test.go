@@ -112,7 +112,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 			suite.Commit()
 			expPair := &types.TokenPair{
-				Erc20Address:  "0x921C0F285B0ED25757CDDC97b8227ae165c3fAE6",
+				Erc20Address:  "0x00819E780C6e96c50Ed70eFFf5B73569c15d0bd7",
 				Denom:         "coin",
 				Enabled:       true,
 				ContractOwner: 1,
