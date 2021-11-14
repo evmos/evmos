@@ -257,16 +257,12 @@ func (k Keeper) DeployEVM(ctx sdk.Context, contractAddr, from common.Address, tr
 	// calculate the gas required to store the code. If the code could not
 	// be stored due to not enough gas set an error and let it be handled
 	// by the error checking condition below.
-	if err == nil {
-		createDataGas := uint64(len(ret)) * 200
-		if contract.UseGas(createDataGas) {
-			evm.StateDB.SetCode(contractAddr, ret)
-		} else {
-			err = fmt.Errorf("contract creation code storage out of gas")
-		}
+	createDataGas := uint64(len(ret)) * 200
+	if contract.UseGas(createDataGas) {
+		evm.StateDB.SetCode(contractAddr, ret)
 	}
 
-	k.increaseModuleAccountNonce(ctx, nonce)
+	k.evmKeeper.SetNonce(types.ModuleAddress, nonce+1)
 	// TODO: validate ret?
 
 	return ret, err
