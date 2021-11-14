@@ -131,7 +131,7 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 		return types.ERC20Data{}, err
 	}
 
-	if err = erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
+	if err := erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
 		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
 	}
 
