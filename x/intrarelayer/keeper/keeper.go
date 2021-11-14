@@ -54,21 +54,3 @@ func NewKeeper(
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
-
-// initHeightQueueCount counts the height transactions (if needed) and store the amount in a cache
-func (k *Keeper) getModuleAccountNonce(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.KeyPrefixModuleNonce)
-	if len(bz) == 0 {
-		store.Set(types.KeyPrefixModuleNonce, sdk.Uint64ToBigEndian(uint64(0)))
-		return uint64(0)
-
-	}
-	nonce := sdk.BigEndianToUint64(bz)
-	return nonce
-}
-
-func (k *Keeper) increaseModuleAccountNonce(ctx sdk.Context, nonce uint64) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.KeyPrefixModuleNonce, sdk.Uint64ToBigEndian(uint64(nonce+1)))
-}
