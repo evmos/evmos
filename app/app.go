@@ -381,7 +381,7 @@ func NewEvmos(
 
 	// Evmos Keeper
 	app.IntrarelayerKeeper = irk.NewKeeper(
-		keys[irt.StoreKey], appCodec, app.GetSubspace(irt.ModuleName), app.BankKeeper, govKeeper, app.EvmKeeper,
+		keys[irt.StoreKey], appCodec, app.GetSubspace(irt.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.EvmKeeper,
 	)
 
 	app.GovKeeper = *govKeeper.SetHooks(

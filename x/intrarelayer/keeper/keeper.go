@@ -18,9 +18,10 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	bankKeeper types.BankKeeper
-	govKeeper  types.GovKeeper
-	evmKeeper  *evmkeeper.Keeper // TODO: use interface
+	accountKeeper types.AccountKeeper
+	bankKeeper    types.BankKeeper
+	govKeeper     types.GovKeeper
+	evmKeeper     *evmkeeper.Keeper // TODO: use interface
 }
 
 // NewKeeper creates new instances of the intrarelayer Keeper
@@ -28,6 +29,7 @@ func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
+	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	govKeeper types.GovKeeper,
 	evmKeeper *evmkeeper.Keeper,
@@ -38,12 +40,13 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:   storeKey,
-		cdc:        cdc,
-		paramstore: ps,
-		bankKeeper: bk,
-		govKeeper:  govKeeper,
-		evmKeeper:  evmKeeper,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		paramstore:    ps,
+		accountKeeper: ak,
+		bankKeeper:    bk,
+		govKeeper:     govKeeper,
+		evmKeeper:     evmKeeper,
 	}
 }
 

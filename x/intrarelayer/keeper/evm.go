@@ -19,7 +19,7 @@ import (
 
 func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
-	//nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+	// nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
 	nonce := k.getModuleAccountNonce(ctx)
 
 	msg := ethtypes.NewMessage(
@@ -52,7 +52,7 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, contract common.Address, tra
 
 func (k Keeper) DeployToEVMWithPayload(ctx sdk.Context, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
-	//nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
+	// nonce := k.evmKeeper.GetNonce(types.ModuleAddress)
 	nonce := k.getModuleAccountNonce(ctx)
 
 	access := ethtypes.AccessList{}
@@ -86,7 +86,6 @@ func (k Keeper) DeployToEVMWithPayload(ctx sdk.Context, transferData []byte) (*e
 func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
 	// pack and call method using the given args
 	payload, err := abi.Pack(method, args...)
-
 	if err != nil {
 		return nil, sdkerrors.Wrap(
 			types.ErrWritingEthTxPayload,
@@ -102,6 +101,12 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, contract common.Address, m
 }
 
 func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
+	var (
+		nameRes    types.ERC20StringResponse
+		symbolRes  types.ERC20StringResponse
+		decimalRes types.ERC20Uint8Response
+	)
+
 	erc20 := contracts.ERC20BurnableContract.ABI
 
 	// Name
@@ -110,9 +115,7 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 		return types.ERC20Data{}, err
 	}
 
-	nameResp := types.NewERC20StringResponse()
-	err = erc20.UnpackIntoInterface(&nameResp, "name", res.Ret)
-	if err != nil {
+	if err := erc20.UnpackIntoInterface(&nameRes, "name", res.Ret); err != nil {
 		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack name: %s", err.Error())
 	}
 
@@ -122,9 +125,7 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 		return types.ERC20Data{}, err
 	}
 
-	symbolResp := types.NewERC20StringResponse()
-	err = erc20.UnpackIntoInterface(&symbolResp, "symbol", res.Ret)
-	if err != nil {
+	if err = erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
 		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack symbol: %s", err.Error())
 	}
 
@@ -134,13 +135,11 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 		return types.ERC20Data{}, err
 	}
 
-	decimalResp := types.NewERC20Uint8Response()
-	err = erc20.UnpackIntoInterface(&decimalResp, "decimals", res.Ret)
-	if err != nil {
+	if err := erc20.UnpackIntoInterface(&decimalRes, "decimals", res.Ret); err != nil {
 		return types.ERC20Data{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unpack decimals: %s", err.Error())
 	}
 
-	return types.NewERC20Data(nameResp.Name, symbolResp.Name, decimalResp.Value), nil
+	return types.NewERC20Data(nameRes.Value, symbolRes.Value, decimalRes.Value), nil
 }
 
 func (k Keeper) ExecuteEVM(ctx sdk.Context, contractAddr, from common.Address, transferData []byte) ([]byte, error) {
@@ -159,12 +158,12 @@ func (k Keeper) ExecuteEVM(ctx sdk.Context, contractAddr, from common.Address, t
 	evm := k.evmKeeper.NewEVM(msg, cfg, evmtypes.NewNoOpTracer())
 	interpreter := vm.NewEVMInterpreter(evm, vmConfig)
 
-	// Initialise a new contract and set the code that is to be used by the EVM.
+	// Initialize a new contract and set the code that is to be used by the EVM.
 	// The contract is a scoped environment for this execution context only.
 	code := evm.StateDB.GetCode(contractAddr)
 	if len(code) == 0 {
 		// Invalid contract address
-		return nil, fmt.Errorf("Invalid contract address")
+		return nil, fmt.Errorf("invalid contract address")
 	}
 
 	// TODO: define gas value

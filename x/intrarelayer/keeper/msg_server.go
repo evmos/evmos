@@ -39,29 +39,29 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
-	var res *evmtypes.MsgEthereumTxResponse
 
 	// Check ownership
-	if pair.IsNativeCoin() {
+
+	var res *evmtypes.MsgEthereumTxResponse
+	switch {
+	case pair.IsNativeCoin():
 		// Only mint if the module is the owner of the deployed contract
 		res, err = k.CallEVM(ctx, erc20, contract, "mint", receiver, msg.Coin.Amount.BigInt())
-		if err != nil {
-			return nil, err
-		}
-
-	} else if pair.IsNativeERC20() {
+	case pair.IsNativeERC20():
 		// Unescrow tokens from module account if the user is the owner of the erc20 contract
 		res, err = k.CallEVM(ctx, erc20, contract, "transfer", receiver, msg.Coin.Amount.BigInt())
 		if err != nil {
 			return nil, err
 		}
 
-		//Only burn cosmos coins if the user is the owner of the erc20 contract
-		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins); err != nil {
-			return nil, err
-		}
-	} else {
+		// Only burn cosmos coins if the user is the owner of the erc20 contract
+		err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins)
+	default:
 		return nil, types.ErrUndefinedOwner
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	txLogAttrs := make([]sdk.Attribute, 0)
@@ -110,11 +110,12 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 	// NOTE: coin fields already validated
 
 	// check ownership
-	if pair.IsNativeCoin() {
+	switch {
+	case pair.IsNativeCoin():
 		return k.convertERC20NativeCoin(ctx, pair, msg)
-	} else if pair.IsNativeERC20() {
+	case pair.IsNativeERC20():
 		return k.convertERC20NativeToken(ctx, pair, msg)
-	} else {
+	default:
 		return nil, types.ErrUndefinedOwner
 	}
 }

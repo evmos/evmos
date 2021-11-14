@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		stateBytes, err := tmjson.MarshalIndent(genesisState, "", " ")
 		require.NoError(t, err)
 
-		//Initialize the chain
+		// Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
 				ChainId:         "ethermint_9000-1",
@@ -159,7 +159,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
-
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
@@ -287,7 +286,6 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 }
 
 func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
-
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 
 	res, err := suite.app.IntrarelayerKeeper.CallEVM(suite.ctx, erc20, contract, "balanceOf", account)

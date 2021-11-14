@@ -23,7 +23,7 @@ var _ evmtypes.EvmHooks = (*Keeper)(nil)
 func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*ethtypes.Log) error {
 	erc20 := contracts.ERC20BurnableContract.ABI
 
-	for _, log := range logs {
+	for i, log := range logs {
 		if len(log.Topics) < 3 {
 			continue
 		}
@@ -61,23 +61,23 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		burnEvent, err := erc20.Unpack(event.Name, log.Data)
+		transferEvent, err := erc20.Unpack(event.Name, log.Data)
 		if err != nil {
 			k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
 			continue
 		}
 
-		if len(burnEvent) == 0 {
+		if len(transferEvent) == 0 {
 			continue
 		}
 
-		tokens, ok := burnEvent[0].(*big.Int)
+		tokens, ok := transferEvent[0].(*big.Int)
 		// safety check and ignore if amount not positive
 		if !ok || tokens == nil || tokens.Sign() != 1 {
 			continue
 		}
 
-		// ignore as the burning always transfers to the moduleAddress
+		// ignore as the burning always transfers to the module address
 		to := common.BytesToAddress(log.Topics[2].Bytes())
 		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
 			continue
@@ -92,21 +92,30 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 		// Mint the coin only if ERC20 is external
 		switch pair.ContractOwner {
 		case types.MODULE_OWNER:
-			// BURN ERC20 FROM MODULE
-			_, err := k.CallEVM(ctx, erc20, contractAddr, "burn", tokens)
-			if err != nil {
-				continue
-			}
+			_, err = k.CallEVM(ctx, erc20, contractAddr, "burn", tokens)
 		case types.EXTERNAL_OWNER:
-			if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, coins); err != nil {
-				continue
-			}
+			err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+		default:
+			err = types.ErrUndefinedOwner
 		}
 
-		// transfer to caller address
-		from := common.BytesToAddress(log.Topics[1].Bytes())
-		recipient := sdk.AccAddress(from.Bytes())
+		if err != nil {
+			k.Logger(ctx).Debug(
+				"failed to process EVM hook for ER20 -> coin conversion",
+				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
+			)
+			continue
+		}
+
+		// transfer the tokens from ModuleAccount to sender address
+		recipient := sdk.AccAddress(log.Topics[1].Bytes())
+
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
+			k.Logger(ctx).Debug(
+				"failed to process EVM hook for ER20 -> coin conversion",
+				"tx-hash", txHash.Hex(), "log-idx", i,
+				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
+			)
 			continue
 		}
 	}

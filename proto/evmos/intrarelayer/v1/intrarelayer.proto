@@ -11,7 +11,7 @@ enum Owner {
     option (gogoproto.goproto_enum_prefix) = false;
     // INVALID_OWNER defines an invalid/undefined owner.
     INVALID_OWNER = 0;
-    // MODULE_OWNER erc20 is owned by the irm.
+    // MODULE_OWNER erc20 is owned by the intrarelayer module account.
     MODULE_OWNER = 1;
     // EXTERNAL_OWNER erc20 is owned by an external account.
     EXTERNAL_OWNER = 2;
@@ -49,7 +49,7 @@ message RegisterERC20Proposal {
     string title         = 1;
     // proposal description
     string description   = 2;
-    // token pair of Cosmos native denom and ERC20 token address
+    // contract address of ERC20 token
     string erc20address = 3;
 }
 
@@ -74,8 +74,8 @@ message UpdateTokenPairERC20Proposal {
     string title         = 1;
     // proposal description
     string description   = 2;
-    // address of ERC20 contract token
+    // contract address of ERC20 token
     string erc20_address = 3;
-    // new address of ERC20 contract token
+    // new address of ERC20 token contract
     string new_erc20_address = 4;
 }

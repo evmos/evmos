@@ -91,7 +91,7 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `erc20address` | [string](#string) |  | token pair of Cosmos native denom and ERC20 token address |
+| `erc20address` | [string](#string) |  | contract address of ERC20 token |
 
 
 
@@ -128,8 +128,8 @@ ERC20 contract address.
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `erc20_address` | [string](#string) |  | address of ERC20 contract token |
-| `new_erc20_address` | [string](#string) |  | new address of ERC20 contract token |
+| `erc20_address` | [string](#string) |  | contract address of ERC20 token |
+| `new_erc20_address` | [string](#string) |  | new address of ERC20 token contract |
 
 
 
@@ -146,7 +146,7 @@ Owner enumerates the ownership of a ERC20 contract.
 | Name | Number | Description |
 | ---- | ------ | ----------- |
 | INVALID_OWNER | 0 | INVALID_OWNER defines an invalid/undefined owner. |
-| MODULE_OWNER | 1 | MODULE_OWNER erc20 is owned by the irm. |
+| MODULE_OWNER | 1 | MODULE_OWNER erc20 is owned by the intrarelayer module account. |
 | EXTERNAL_OWNER | 2 | EXTERNAL_OWNER erc20 is owned by an external account. |
 
 

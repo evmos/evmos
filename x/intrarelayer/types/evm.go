@@ -1,31 +1,28 @@
 package types
 
+// ERC20Data represents the ERC20 token details used to map
+// the token to a Cosmos Coin
 type ERC20Data struct {
 	Name     string
 	Symbol   string
 	Decimals uint8
 }
 
+// ERC20StringResponse defines the string value from the call response
 type ERC20StringResponse struct {
-	Name string
+	Value string
 }
 
+// ERC20StringResponse defines the string value from the call response
 type ERC20Uint8Response struct {
 	Value uint8
 }
 
-func NewERC20Data(name string, symbol string, decimals uint8) ERC20Data {
+// NewERC20Data creates a new ERC20Data instance
+func NewERC20Data(name, symbol string, decimals uint8) ERC20Data {
 	return ERC20Data{
 		Name:     name,
 		Symbol:   symbol,
 		Decimals: decimals,
 	}
-}
-
-func NewERC20StringResponse() ERC20StringResponse {
-	return ERC20StringResponse{}
-}
-
-func NewERC20Uint8Response() ERC20Uint8Response {
-	return ERC20Uint8Response{}
 }

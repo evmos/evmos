@@ -41,20 +41,26 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 	// 	// TODO: validate that the fields from the ERC20 match the denom metadata's
 	// 	return common.Address{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination is not registered")
 	// }
-	//k.evmKeeper.SetNonce(types.ModuleAddress, 1)
+	// k.evmKeeper.SetNonce(types.ModuleAddress, 1)
 
 	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
 	}
 
-	data := append(contracts.ERC20BurnableAndMintableContract.Bin, ctorArgs...)
+	data := make([]byte, len(contracts.ERC20BurnableAndMintableContract.Bin)+len(ctorArgs))
+	copy(data[:len(contracts.ERC20BurnableAndMintableContract.Bin)], contracts.ERC20BurnableAndMintableContract.Bin)
+	copy(data[len(contracts.ERC20BurnableAndMintableContract.Bin):], ctorArgs)
 
-	nonce := k.getModuleAccountNonce(ctx)
+	nonce, err := k.accountKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
 	ret, err := k.DeployEVM(ctx, contractAddr, types.ModuleAddress, data)
 	if err != nil {
-		return common.Address{}, fmt.Errorf("Failed to deploy conctract for %s", coinMetadata.Name)
+		return common.Address{}, fmt.Errorf("failed to deploy contract for %s", coinMetadata.Name)
 	}
 
 	// TODO: Deploy Contract
@@ -86,12 +92,10 @@ func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.
 }
 
 func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*banktypes.Metadata, error) {
-
 	strContract := contract.String()
 	// TODO: replace for HasDenomMetaData once available
 
 	erc20Data, err := k.QueryERC20(ctx, contract)
-
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +183,6 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 	metadata, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
 	if !found {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get metadata for %s", pair.Denom)
-
 	}
 	// Get new erc20 values
 	erc20Data, err := k.QueryERC20(ctx, newERC20Addr)

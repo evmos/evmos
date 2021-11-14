@@ -30,7 +30,7 @@ type Owner int32
 const (
 	// INVALID_OWNER defines an invalid/undefined owner.
 	INVALID_OWNER Owner = 0
-	// MODULE_OWNER erc20 is owned by the irm.
+	// MODULE_OWNER erc20 is owned by the intrarelayer module account.
 	MODULE_OWNER Owner = 1
 	// EXTERNAL_OWNER erc20 is owned by an external account.
 	EXTERNAL_OWNER Owner = 2
@@ -200,7 +200,7 @@ type RegisterERC20Proposal struct {
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// proposal description
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// token pair of Cosmos native denom and ERC20 token address
+	// contract address of ERC20 token
 	Erc20Address string `protobuf:"bytes,3,opt,name=erc20address,proto3" json:"erc20address,omitempty"`
 }
 
@@ -331,9 +331,9 @@ type UpdateTokenPairERC20Proposal struct {
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// proposal description
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// address of ERC20 contract token
+	// contract address of ERC20 token
 	Erc20Address string `protobuf:"bytes,3,opt,name=erc20_address,json=erc20Address,proto3" json:"erc20_address,omitempty"`
-	// new address of ERC20 contract token
+	// new address of ERC20 token contract
 	NewErc20Address string `protobuf:"bytes,4,opt,name=new_erc20_address,json=newErc20Address,proto3" json:"new_erc20_address,omitempty"`
 }
 

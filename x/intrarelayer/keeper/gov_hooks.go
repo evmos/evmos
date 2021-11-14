@@ -45,11 +45,11 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 		return
 	}
 
-	if _, ok := content.(*types.RegisterCoinProposal); !ok {
-		if _, ok = content.(*types.RegisterERC20Proposal); !ok {
-
-			return
-		}
+	switch content.(type) {
+	case *types.RegisterCoinProposal, *types.RegisterERC20Proposal:
+		// valid proposal types
+	default:
+		return
 	}
 
 	originalEndTime := proposal.VotingEndTime
