@@ -59,7 +59,7 @@ Or check out the latest [release](https://github.com/hazlorlabs/hsc/releases).
 
 ## Quick Start
 
-To learn how the Hazlor works from a high-level perspective, go to the [Introduction](https://hazlor.dev/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://hazlor.dev/quickstart/run_node.html).
+To learn how the Hazlor Smart Chain works from a high-level perspective, go to the [Introduction](https://hazlor.dev/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://hazlor.dev/quickstart/run_node.html).
 
 ## Community
 
