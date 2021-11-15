@@ -67,7 +67,7 @@ The following chat channels and forums are a great spot to ask questions about H
 
 - [Hazlor Twitter](https://twitter.com/HazlorLabs)
 - [Hazlor Discord](https://discord.gg/X6ZjdB4BEJ)
-- [Hazlor Forum](https://forum.cosmos.network/c/ethermint)
+- [Hazlor Forum](https://hazlor.com)
 - [Hazlor Telegram](https://t.me/hazlorlabs)
 
 ## Contributing
