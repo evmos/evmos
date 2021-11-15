@@ -98,6 +98,40 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestDeleteTokenPair() {
+	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.MODULE_OWNER)
+	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
+
+	testCases := []struct {
+		name     string
+		id       []byte
+		malleate func()
+		ok       bool
+	}{
+		{"nil id", nil, func() {}, false},
+		{"pair not found", []byte{}, func() {}, false},
+		{"valid id", pair.GetID(), func() {}, true},
+		{
+			"detete tokenpair",
+			pair.GetID(),
+			func() {
+				suite.app.IntrarelayerKeeper.DeleteTokenPair(suite.ctx, pair)
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		tc.malleate()
+		p, found := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, tc.id)
+		if tc.ok {
+			suite.Require().True(found, tc.name)
+			suite.Require().Equal(pair, p, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
 func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
 	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.MODULE_OWNER)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
@@ -127,14 +161,26 @@ func (suite *KeeperTestSuite) TestIsERC20Registered() {
 	suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, addr, pair.GetID())
 
 	testCases := []struct {
-		name  string
-		erc20 common.Address
-		ok    bool
+		name     string
+		erc20    common.Address
+		malleate func()
+		ok       bool
 	}{
-		{"nil erc20 address", common.Address{}, false},
-		{"valid erc20 address", pair.GetERC20Contract(), true},
+		{"nil erc20 address", common.Address{}, func() {}, false},
+		{"valid erc20 address", pair.GetERC20Contract(), func() {}, true},
+		{
+			"deleted erc20map",
+			pair.GetERC20Contract(),
+			func() {
+				addr := pair.GetERC20Contract()
+				suite.app.IntrarelayerKeeper.DeleteERC20Map(suite.ctx, addr)
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
+		tc.malleate()
+
 		found := suite.app.IntrarelayerKeeper.IsERC20Registered(suite.ctx, tc.erc20)
 
 		if tc.ok {
