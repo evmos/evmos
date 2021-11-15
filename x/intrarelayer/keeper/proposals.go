@@ -58,7 +58,7 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 	}
 
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
-	ret, err := k.DeployEVM(ctx, contractAddr, types.ModuleAddress, data)
+	ret, err := k.DeployToEVMWithPayload(ctx, data)
 	if err != nil {
 		return common.Address{}, fmt.Errorf("failed to deploy contract for %s", coinMetadata.Name)
 	}

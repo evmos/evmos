@@ -107,9 +107,11 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		// transfer the tokens from ModuleAccount to sender address
-		recipient := sdk.AccAddress(log.Topics[1].Bytes())
+		// Only need last 20 bytes from log.topics
+		from := common.BytesToAddress(log.Topics[1].Bytes())
+		recipient := sdk.AccAddress(from.Bytes())
 
+		// transfer the tokens from ModuleAccount to sender address
 		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
 			k.Logger(ctx).Debug(
 				"failed to process EVM hook for ER20 -> coin conversion",
