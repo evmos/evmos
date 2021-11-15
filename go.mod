@@ -18,7 +18,7 @@ require (
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tharsis/ethermint v0.7.2
 	google.golang.org/genproto v0.0.0-20211112145013-271947fe86fd
-	google.golang.org/grpc v1.41.0
+	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 )
 
@@ -41,7 +41,7 @@ require (
 	github.com/coinbase/rosetta-sdk-go v0.6.10 // indirect
 	github.com/confio/ics23/go v0.6.6 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
-	github.com/cosmos/iavl v0.17.1 // indirect
+	github.com/cosmos/iavl v0.17.2 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.2 // indirect
 	github.com/danieljoos/wincred v1.0.2 // indirect
@@ -153,3 +153,5 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 replace github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 
 replace github.com/tharsis/ethermint => github.com/tharsis/ethermint v0.6.1-0.20211024120659-1447bf66550f
+
+replace github.com/cosmos/cosmos-sdk => github.com/tharsis/cosmos-sdk v0.44.3-olympus
