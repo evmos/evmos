@@ -26,7 +26,7 @@ Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet
 
 ![chain add request](./../img/keplr_approve_chain.png)
 
-After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../basics/accounts.md#address-formats-for-clients) on the testnet.
+After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../basics/accounts.md#address-formats-for-clients) on the testnet (only `secp256k1` addresses are supported).
 
 
 ![chain add request](./../img/keplr_transaction.png)
