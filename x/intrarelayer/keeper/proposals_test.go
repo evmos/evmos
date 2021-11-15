@@ -22,7 +22,6 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
 	suite.SetupTest()
 	contractAddr := suite.DeployContract(erc20Name, erc20Symbol)
 	suite.Commit()
-	//pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
 	_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
 	suite.Require().NoError(err)
 	return contractAddr

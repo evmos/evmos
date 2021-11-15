@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestTransferBurn() {
 	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("transfer", suite.address, big.NewInt(10))
 	suite.Require().NoError(err)
 
-	suite.app.IntrarelayerKeeper.CallEVMWithPayload(suite.ctx, contractAddr, transferData)
+	suite.app.IntrarelayerKeeper.CallEVMWithPayload(suite.ctx, types.ModuleAddress, &contractAddr, transferData)
 	// _ = suite.TransferERC20Token(contractAddr, types.ModuleAddress, suite.address, big.NewInt(10))
 	suite.Commit()
 

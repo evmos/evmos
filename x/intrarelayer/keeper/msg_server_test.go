@@ -130,15 +130,10 @@ func (suite *KeeperTestSuite) TestConvertECR20_RegisteredERC20() {
 
 			contractAddr := suite.setupRegisterERC20Pair()
 			suite.Require().NotNil(contractAddr)
-			// id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
-			// pair, _ := suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
 
 			coinName := "irm" + contractAddr.String()
 
 			sender := sdk.AccAddress(suite.address.Bytes())
-			// coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(100)))
-			// suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-			// suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 
 			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
 			suite.Commit()

@@ -46,10 +46,10 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	switch {
 	case pair.IsNativeCoin():
 		// Only mint if the module is the owner of the deployed contract
-		res, err = k.CallEVM(ctx, erc20, contract, "mint", receiver, msg.Coin.Amount.BigInt())
+		res, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "mint", receiver, msg.Coin.Amount.BigInt())
 	case pair.IsNativeERC20():
 		// Unescrow tokens from module account if the user is the owner of the erc20 contract
-		res, err = k.CallEVM(ctx, erc20, contract, "transfer", receiver, msg.Coin.Amount.BigInt())
+		res, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "transfer", receiver, msg.Coin.Amount.BigInt())
 		if err != nil {
 			return nil, err
 		}
@@ -137,12 +137,12 @@ func (k Keeper) convertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, ms
 		return nil, err
 	}
 	// Escrow tokens to module account
-	ret, err := k.ExecuteEVM(ctx, contract, sender, transferData)
+	ret, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
 	}
 
-	unpackedRet, err := erc20.Unpack("transfer", ret)
+	unpackedRet, err := erc20.Unpack("transfer", ret.Ret)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (k Keeper) convertERC20NativeCoin(ctx sdk.Context, pair types.TokenPair, ms
 	}
 
 	// Burn escrowed tokens
-	res, err := k.CallEVM(ctx, erc20, contract, "burn", msg.Amount.BigInt())
+	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burn", msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -212,12 +212,12 @@ func (k Keeper) convertERC20NativeToken(ctx sdk.Context, pair types.TokenPair, m
 		return nil, err
 	}
 	// Escrow coins to module account
-	ret, err := k.ExecuteEVM(ctx, contract, sender, transferData)
+	ret, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
 	}
 
-	unpackedRet, err := erc20.Unpack("transfer", ret)
+	unpackedRet, err := erc20.Unpack("transfer", ret.Ret)
 	if err != nil {
 		return nil, err
 	}

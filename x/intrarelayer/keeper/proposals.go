@@ -58,13 +58,10 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 	}
 
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
-	ret, err := k.DeployToEVMWithPayload(ctx, data)
+	_, err = k.CallEVMWithPayload(ctx, types.ModuleAddress, nil, data)
 	if err != nil {
 		return common.Address{}, fmt.Errorf("failed to deploy contract for %s", coinMetadata.Name)
 	}
-
-	// TODO: Deploy Contract
-	_ = ret
 
 	return contractAddr, nil
 }
@@ -93,7 +90,6 @@ func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.
 
 func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*banktypes.Metadata, error) {
 	strContract := contract.String()
-	// TODO: replace for HasDenomMetaData once available
 
 	erc20Data, err := k.QueryERC20(ctx, contract)
 	if err != nil {
