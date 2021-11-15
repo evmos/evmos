@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
-	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
 func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
@@ -96,41 +95,70 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 	suite.mintFeeCollector = false
 }
 
-func (suite *KeeperTestSuite) TestTransferBurn() {
-	suite.mintFeeCollector = true
-	contractAddr := suite.setupRegisterERC20Pair()
-	suite.Require().NotNil(contractAddr)
+func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 
-	// Mint 10 tokens to suite.address (owner)
-	_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
-	suite.Commit()
+	testCases := []struct {
+		name      string
+		mint      int64
+		burn      int64
+		reconvert int64
 
-	_ = suite.TransferERC20Token(contractAddr, suite.address, types.ModuleAddress, big.NewInt(10))
-	suite.Commit()
+		result bool
+	}{
+		{"correct execution", 100, 10, 5, true},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 
-	balance := suite.BalanceOf(contractAddr, types.ModuleAddress)
-	suite.Require().Equal(balance, big.NewInt(10))
+			suite.mintFeeCollector = true
+			suite.SetupTest()
+			metadata, pair := suite.setupRegisterCoin()
+			suite.Require().NotNil(metadata)
+			suite.Require().NotNil(pair)
 
-	balance = suite.BalanceOf(contractAddr, suite.address)
-	// zero := big.NewInt(int64(0))
-	// suite.Require().Equal(balance.(*big.Int), zero)
+			sender := sdk.AccAddress(suite.address.Bytes())
+			contractAddr := common.HexToAddress(pair.Erc20Address)
 
-	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("transfer", suite.address, big.NewInt(10))
-	suite.Require().NoError(err)
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.mint)))
+			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 
-	suite.app.IntrarelayerKeeper.CallEVMWithPayload(suite.ctx, types.ModuleAddress, &contractAddr, transferData)
-	// _ = suite.TransferERC20Token(contractAddr, types.ModuleAddress, suite.address, big.NewInt(10))
-	suite.Commit()
+			convertCoin := types.NewMsgConvertCoin(
+				sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.burn)),
+				suite.address,
+				sender,
+			)
 
-	balance = suite.BalanceOf(contractAddr, types.ModuleAddress)
-	// zero := big.NewInt(int64(0))
-	// suite.Require().Equal(balance.(*big.Int), zero)
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			_, err := suite.app.IntrarelayerKeeper.ConvertCoin(ctx, convertCoin)
+			suite.Require().NoError(err, tc.name)
+			suite.Commit()
 
-	balance = suite.BalanceOf(contractAddr, suite.address)
-	suite.Require().Equal(balance, big.NewInt(10))
-	// zero := big.NewInt(int64(0))
-	// suite.Require().Equal(balance.(*big.Int), zero)
+			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
+			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
+			suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
+			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
+			// Burn the 10 tokens of suite.address (owner)
+			msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(tc.reconvert))
+			logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
+
+			// After this execution, the burned tokens will be available on the cosmos chain
+			err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+
+			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
+			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
+
+			if tc.result {
+				// Check if the execution was successfull
+				suite.Require().NoError(err)
+				suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.mint-tc.burn+tc.reconvert))
+			} else {
+				// Check that no changes were made to the account
+				suite.Require().Error(err)
+				suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.mint-tc.burn))
+			}
+		})
+	}
 	suite.mintFeeCollector = false
-
 }
