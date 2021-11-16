@@ -33,8 +33,10 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	// Check ownership
 	switch {
 	case pair.IsNativeCoin():
+		// case 1.1
 		return k.convertCoinNativeCoin(ctx, pair, msg, receiver, sender)
 	case pair.IsNativeERC20():
+		// case 2.2
 		return k.convertCoinNativeERC20(ctx, pair, msg, receiver, sender)
 	default:
 		return nil, types.ErrUndefinedOwner
@@ -59,8 +61,10 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 	// Check ownership
 	switch {
 	case pair.IsNativeCoin():
+		// case 1.2
 		return k.convertERC20NativeCoin(ctx, pair, msg, receiver, sender)
 	case pair.IsNativeERC20():
+		// case 2.1
 		return k.convertERC20NativeToken(ctx, pair, msg, receiver, sender)
 	default:
 		return nil, types.ErrUndefinedOwner
@@ -207,6 +211,7 @@ func (k Keeper) convertERC20NativeCoin(
 	if err != nil {
 		return nil, err
 	}
+
 	ret, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
@@ -217,10 +222,8 @@ func (k Keeper) convertERC20NativeCoin(
 	if err != nil {
 		return nil, err
 	}
-	if len(unpackedRet) == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute escrow tokens from user")
-	}
-	if !unpackedRet[0].(bool) {
+
+	if len(unpackedRet) == 0 || !unpackedRet[0].(bool) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute escrow tokens from user")
 	}
 
@@ -248,7 +251,7 @@ func (k Keeper) convertERC20NativeCoin(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeConvertCoin,
+				types.EventTypeConvertERC20,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
 				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
@@ -297,10 +300,8 @@ func (k Keeper) convertERC20NativeToken(
 	if err != nil {
 		return nil, err
 	}
-	if len(unpackedRet) == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
-	}
-	if !unpackedRet[0].(bool) {
+
+	if len(unpackedRet) == 0 || !unpackedRet[0].(bool) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
 	}
 
@@ -314,34 +315,18 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
-	// TODO NEW EVENTS
-
-	// txLogAttrs := make([]sdk.Attribute, 0)
-	// for _, log := range res.Logs {
-	// 	value, err := json.Marshal(log)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	txLogAttrs = append(txLogAttrs, sdk.NewAttribute(evmtypes.AttributeKeyTxLog, string(value)))
-	// }
-
-	// ctx.EventManager().EmitEvents(
-	// 	sdk.Events{
-	// 		sdk.NewEvent(
-	// 			types.EventTypeConvertCoin,
-	// 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
-	// 			sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
-	// 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
-	// 			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-	// 			sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
-	// 			sdk.NewAttribute(evmtypes.AttributeKeyTxHash, res.Hash),
-	// 		),
-	// 		sdk.NewEvent(
-	// 			evmtypes.EventTypeTxLog,
-	// 			txLogAttrs...,
-	// 		),
-	// 	},
-	// )
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertERC20,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
+			),
+		},
+	)
 
 	return &types.MsgConvertERC20Response{}, nil
 }
