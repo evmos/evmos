@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 		Symbol:  "token",
 		Display: cosmosTokenName,
 	}
-	// pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+	// pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 	pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 	suite.Require().NoError(err)
 	suite.Commit()
@@ -71,7 +71,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		{
 			"denom already registered",
 			func() {
-				regPair := types.NewTokenPair(tests.GenerateAddress(), cosmosTokenName, true, types.MODULE_OWNER)
+				regPair := types.NewTokenPair(tests.GenerateAddress(), cosmosTokenName, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
 				suite.Commit()
 			},
@@ -178,7 +178,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 			contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 			suite.Commit()
 			coinName := "irm" + contractAddr.String()
-			pair = types.NewTokenPair(contractAddr, coinName, true, types.EXTERNAL_OWNER)
+			pair = types.NewTokenPair(contractAddr, coinName, true, types.OWNER_EXTERNAL)
 
 			tc.malleate()
 
@@ -224,7 +224,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 			},
 			false,
 			false,
@@ -234,7 +234,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
 			false,
@@ -304,7 +304,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 			},
 			false,
 		},
@@ -313,7 +313,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
@@ -324,7 +324,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())

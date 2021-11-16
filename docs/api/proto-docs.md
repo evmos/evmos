@@ -145,9 +145,9 @@ Owner enumerates the ownership of a ERC20 contract.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| INVALID_OWNER | 0 | INVALID_OWNER defines an invalid/undefined owner. |
-| MODULE_OWNER | 1 | MODULE_OWNER erc20 is owned by the intrarelayer module account. |
-| EXTERNAL_OWNER | 2 | EXTERNAL_OWNER erc20 is owned by an external account. |
+| OWNER_UNSPECIFIED | 0 | OWNER_UNSPECIFIED defines an invalid/undefined owner. |
+| OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the intrarelayer module account. |
+| OWNER_EXTERNAL | 2 | EXTERNAL erc20 is owned by an external account. |
 
 
  <!-- end enums -->

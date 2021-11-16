@@ -97,9 +97,9 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 
 		// Mint the coin only if ERC20 is external
 		switch pair.ContractOwner {
-		case types.MODULE_OWNER:
+		case types.OWNER_MODULE:
 			_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, "burn", tokens)
-		case types.EXTERNAL_OWNER:
+		case types.OWNER_EXTERNAL:
 			err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 		default:
 			err = types.ErrUndefinedOwner

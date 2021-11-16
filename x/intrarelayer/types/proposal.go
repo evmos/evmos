@@ -15,7 +15,7 @@ import (
 const (
 	ProposalTypeRegisterCoin         string = "RegisterCoin"
 	ProposalTypeRegisterERC20        string = "RegisterERC20"
-	ProposalTypeToggleTokenRelay     string = "ToggleTokenRelay"
+	ProposalTypeToggleTokenRelay     string = "ToggleTokenRelay" //nolint:gosec
 	ProposalTypeUpdateTokenPairERC20 string = "UpdateTokenPairERC20"
 )
 

@@ -15,7 +15,7 @@ const (
 	EventTypeBurn                 = "burn"
 	EventTypeRegisterCoin         = "register_coin"
 	EventTypeRegisterERC20        = "register_erc20"
-	EventTypeToggleTokenRelay     = "toggle_token_relay"
+	EventTypeToggleTokenRelay     = "toggle_token_relay" //nolint:gosec
 	EventTypeUpdateTokenPairERC20 = "update_token_pair_erc20"
 
 	AttributeKeyCosmosCoin = "cosmos_coin"
