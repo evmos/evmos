@@ -28,8 +28,8 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 	suite.Require().Equal("RegisterERC20", (&RegisterERC20Proposal{}).ProposalType())
 	suite.Require().Equal("intrarelayer", (&UpdateTokenPairERC20Proposal{}).ProposalRoute())
 	suite.Require().Equal("UpdateTokenPairERC20", (&UpdateTokenPairERC20Proposal{}).ProposalType())
-	suite.Require().Equal("intrarelayer", (&EnableTokenRelayProposal{}).ProposalRoute())
-	suite.Require().Equal("EnableTokenRelay", (&EnableTokenRelayProposal{}).ProposalType())
+	suite.Require().Equal("intrarelayer", (&ToggleTokenRelayProposal{}).ProposalRoute())
+	suite.Require().Equal("ToggleTokenRelay", (&ToggleTokenRelayProposal{}).ProposalType())
 }
 func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	testCases := []struct {
@@ -141,7 +141,7 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestEnableTokenRelayProposal() {
+func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
@@ -169,7 +169,7 @@ func (suite *ProposalTestSuite) TestEnableTokenRelayProposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := NewEnableTokenRelayProposal(tc.title, tc.description, tc.token)
+		tx := NewToggleTokenRelayProposal(tc.title, tc.description, tc.token)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {

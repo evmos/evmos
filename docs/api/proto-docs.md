@@ -5,9 +5,9 @@
 ## Table of Contents
 
 - [evmos/intrarelayer/v1/intrarelayer.proto](#evmos/intrarelayer/v1/intrarelayer.proto)
-    - [EnableTokenRelayProposal](#evmos.intrarelayer.v1.EnableTokenRelayProposal)
     - [RegisterCoinProposal](#evmos.intrarelayer.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.intrarelayer.v1.RegisterERC20Proposal)
+    - [ToggleTokenRelayProposal](#evmos.intrarelayer.v1.ToggleTokenRelayProposal)
     - [TokenPair](#evmos.intrarelayer.v1.TokenPair)
     - [UpdateTokenPairERC20Proposal](#evmos.intrarelayer.v1.UpdateTokenPairERC20Proposal)
   
@@ -46,24 +46,6 @@
 
 
 
-<a name="evmos.intrarelayer.v1.EnableTokenRelayProposal"></a>
-
-### EnableTokenRelayProposal
-EnableTokenRelayProposal is a gov Content type to enable the internal
-relaying of a token pair.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `title` | [string](#string) |  | title of the proposal |
-| `description` | [string](#string) |  | proposal description |
-| `token` | [string](#string) |  | token identifier can be either the hex contract address of the ERC20 or the Cosmos base denomination |
-
-
-
-
-
-
 <a name="evmos.intrarelayer.v1.RegisterCoinProposal"></a>
 
 ### RegisterCoinProposal
@@ -92,6 +74,24 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
 | `erc20address` | [string](#string) |  | contract address of ERC20 token |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.ToggleTokenRelayProposal"></a>
+
+### ToggleTokenRelayProposal
+ToggleTokenRelayProposal is a gov Content type to toggle
+the internal relaying of a token pair.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `token` | [string](#string) |  | token identifier can be either the hex contract address of the ERC20 or the Cosmos base denomination |
 
 
 
@@ -399,8 +399,8 @@ Msg defines the intrarelayer Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `ConvertCoin` | [MsgConvertCoin](#evmos.intrarelayer.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.intrarelayer.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | |
-| `ConvertERC20` | [MsgConvertERC20](#evmos.intrarelayer.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.intrarelayer.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | |
+| `ConvertCoin` | [MsgConvertCoin](#evmos.intrarelayer.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.intrarelayer.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/intrarelayer/v1/tx/convert_coin|
+| `ConvertERC20` | [MsgConvertERC20](#evmos.intrarelayer.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.intrarelayer.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/intrarelayer/v1/tx/convert_erc20|
 
  <!-- end services -->
 

@@ -150,7 +150,8 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
-func (am AppModule) GenerateGenesisState(input *module.SimulationState) {}
+func (am AppModule) GenerateGenesisState(input *module.SimulationState) {
+}
 
 func (am AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}

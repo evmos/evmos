@@ -15,6 +15,15 @@ import (
 // defined at the application level.
 var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 
+// RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(TokenPair{}, "intrarelayer/TokenPair", nil)
+	cdc.RegisterConcrete(&RegisterERC20Proposal{}, "intrarelayer/RegisterERC20Proposal", nil)
+	cdc.RegisterConcrete(&RegisterCoinProposal{}, "intrarelayer/RegisterCoinProposal", nil)
+	cdc.RegisterConcrete(&ToggleTokenRelayProposal{}, "intrarelayer/ToggleTokenRelayProposal", nil)
+	cdc.RegisterConcrete(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal", nil)
+}
+
 // RegisterInterfaces register implementations
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
@@ -26,7 +35,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*govtypes.Content)(nil),
 		&RegisterCoinProposal{},
 		&RegisterERC20Proposal{},
-		&EnableTokenRelayProposal{},
+		&ToggleTokenRelayProposal{},
 		&UpdateTokenPairERC20Proposal{},
 	)
 
