@@ -86,9 +86,6 @@ func (msg MsgConvertERC20) ValidateBasic() error {
 	if !common.IsHexAddress(msg.ContractAddress) {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract hex address '%s'", msg.ContractAddress)
 	}
-	if err := sdk.ValidateDenom(msg.ContractAddress); err != nil {
-		return err
-	}
 	if !msg.Amount.IsPositive() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "cannot mint a non-positive amount")
 	}

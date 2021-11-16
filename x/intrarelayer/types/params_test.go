@@ -29,7 +29,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{"default", DefaultParams(), false},
 		{
 			"valid",
-			NewParams(true, 100),
+			NewParams(true, 100, true),
 			false,
 		},
 		{
