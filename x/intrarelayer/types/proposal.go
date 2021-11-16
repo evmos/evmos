@@ -38,6 +38,14 @@ func init() {
 	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal")
 }
 
+func CreateDenomDescription(address string) string {
+	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
+func CreateDenom(address string) string {
+	return fmt.Sprintf("irm%s", address)
+}
+
 // NewRegisterCoinProposal returns new instance of RegisterCoinProposal
 func NewRegisterCoinProposal(title, description string, coinMetadata banktypes.Metadata) govtypes.Content {
 	return &RegisterCoinProposal{
@@ -83,8 +91,8 @@ func (*RegisterERC20Proposal) ProposalType() string {
 
 // ValidateBasic performs a stateless check of the proposal fields
 func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
-	if !common.IsHexAddress(rtbp.Erc20Address) {
-		return fmt.Errorf("Invalid hex address %s", rtbp.Erc20Address)
+	if err := ethermint.ValidateAddress(rtbp.Erc20Address); err != nil {
+		return sdkerrors.Wrap(err, "ERC20 address")
 	}
 	return govtypes.ValidateAbstract(rtbp)
 }

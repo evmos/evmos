@@ -29,6 +29,7 @@ type BankKeeper interface {
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on intrarelayer
+// TODO: define
 type EVMKeeper interface{}
 
 // GovKeeper defines the expected governance keeper interface used on intrarelayer

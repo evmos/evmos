@@ -6,7 +6,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
@@ -47,7 +46,7 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 		Symbol:  "token",
 		Display: cosmosTokenName,
 	}
-	//pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+	// pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
 	pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 	suite.Require().NoError(err)
 	suite.Commit()
@@ -369,12 +368,12 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(newContractAddr.String(), pair.Erc20Address)
-				suite.Require().Equal(keeper.CreateDenomDescription(newContractAddr.String()), metadata.Description)
+				suite.Require().Equal(types.CreateDenomDescription(newContractAddr.String()), metadata.Description)
 			} else {
 				suite.Require().Error(err, tc.name)
 				if suite.app.IntrarelayerKeeper.IsTokenPairRegistered(suite.ctx, pair.GetID()) {
 					suite.Require().Equal(contractAddr.String(), pair.Erc20Address, "check pair")
-					suite.Require().Equal(keeper.CreateDenomDescription(contractAddr.String()), metadata.Description, "check metadata")
+					suite.Require().Equal(types.CreateDenomDescription(contractAddr.String()), metadata.Description, "check metadata")
 				}
 			}
 		})
