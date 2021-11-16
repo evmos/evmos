@@ -288,7 +288,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 
-	res, err := suite.app.IntrarelayerKeeper.CallEVM(suite.ctx, erc20, contract, "balanceOf", account)
+	res, err := suite.app.IntrarelayerKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
 	if err != nil {
 		return nil
 	}
@@ -305,7 +305,7 @@ func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
 
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 
-	res, err := suite.app.IntrarelayerKeeper.CallEVM(suite.ctx, erc20, contract, "name")
+	res, err := suite.app.IntrarelayerKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "name")
 	if err != nil {
 		return nil
 	}
