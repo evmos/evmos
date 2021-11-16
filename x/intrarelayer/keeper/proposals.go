@@ -12,6 +12,7 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
+// RegisterCoin deploys an erc20 contract and creates the token pair for the cosmos coin
 func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (*types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableIntrarelayer {
@@ -34,6 +35,7 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	return &pair, nil
 }
 
+// DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the intrarelayer module account as owner
 func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
 	// meta, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
 	// if !found {
@@ -66,6 +68,7 @@ func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Meta
 	return contractAddr, nil
 }
 
+// RegisterERC20 creates a cosmos coin and registers the token pair between the coin and the ERC20
 func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableIntrarelayer {
@@ -88,6 +91,7 @@ func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.
 	return nil, nil
 }
 
+// CreateCoinMetadata generates the metadata to represent the ERC20 token on evmos.
 func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*banktypes.Metadata, error) {
 	strContract := contract.String()
 

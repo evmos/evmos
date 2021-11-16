@@ -10,7 +10,7 @@ import (
 
 var _ govtypes.GovHooks = &Keeper{}
 
-// AfterProposalVotingPeriodEnded performs a no-op
+// AfterProposalSubmission performs a no-op
 func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {}
 
 // AfterProposalDeposit hook overrides the voting period for the
@@ -65,7 +65,7 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 	k.govKeeper.Logger(ctx).Info("proposal voting end time updated", "id", proposalID, "endtime", proposal.VotingEndTime.String())
 }
 
-// AfterProposalVotingPeriodEnded performs a no-op
+// AfterProposalVote performs a no-op
 func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {}
 
 // AfterProposalFailedMinDeposit performs a no-op

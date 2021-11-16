@@ -51,6 +51,7 @@ func (k Keeper) GetTokenPair(ctx sdk.Context, id []byte) (types.TokenPair, bool)
 	return tokenPair, true
 }
 
+// SetTokenPair stores a token pair
 func (k Keeper) SetTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPair)
 	key := tokenPair.GetID()
@@ -58,32 +59,38 @@ func (k Keeper) SetTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 	store.Set(key, bz)
 }
 
+// DeleteTokenPair removes a token pair.
 func (k Keeper) DeleteTokenPair(ctx sdk.Context, tokenPair types.TokenPair) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPair)
 	key := tokenPair.GetID()
 	store.Delete(key)
 }
 
+// GetERC20Map returns the token pair id for the given address
 func (k Keeper) GetERC20Map(ctx sdk.Context, erc20 common.Address) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	return store.Get(erc20.Bytes())
 }
 
+// GetDenomMap returns the token pair id for the given denomination
 func (k Keeper) GetDenomMap(ctx sdk.Context, denom string) []byte {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
 	return store.Get([]byte(denom))
 }
 
+// SetERC20Map sets the token pair id for the given address
 func (k Keeper) SetERC20Map(ctx sdk.Context, erc20 common.Address, id []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	store.Set(erc20.Bytes(), id)
 }
 
+// DeleteERC20Map deletes the token pair id for the given address
 func (k Keeper) DeleteERC20Map(ctx sdk.Context, erc20 common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByERC20)
 	store.Delete(erc20.Bytes())
 }
 
+// SetDenomMap sets the token pair id for the denomination
 func (k Keeper) SetDenomMap(ctx sdk.Context, denom string, id []byte) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
 	store.Set([]byte(denom), id)

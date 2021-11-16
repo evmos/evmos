@@ -16,6 +16,7 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
+// CallEVMWithPayload executes the payload on the ethermint's EVM
 func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contract *common.Address, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
 	k.evmKeeper.WithContext(ctx)
 
@@ -52,6 +53,7 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contrac
 	return res, nil
 }
 
+// CallEVM executes a method with the arguments on the ethermint's EVM
 func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
 	// pack and call method using the given args
 	payload, err := abi.Pack(method, args...)
@@ -69,6 +71,7 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Addr
 	return resp, nil
 }
 
+// QueryERC20 requests the erc20 data to the blockchain
 func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
 	var (
 		nameRes    types.ERC20StringResponse
