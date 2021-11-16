@@ -315,7 +315,6 @@ func (k Keeper) convertERC20NativeToken(
 	}
 
 	// TODO NEW EVENTS
-
 	// txLogAttrs := make([]sdk.Attribute, 0)
 	// for _, log := range res.Logs {
 	// 	value, err := json.Marshal(log)
