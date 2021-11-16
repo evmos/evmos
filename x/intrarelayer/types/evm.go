@@ -13,9 +13,14 @@ type ERC20StringResponse struct {
 	Value string
 }
 
-// ERC20StringResponse defines the string value from the call response
+// ERC20Uint8Response defines the uint8 value from the call response
 type ERC20Uint8Response struct {
 	Value uint8
+}
+
+// ERC20BoolResponse defines the bool value from the call response
+type ERC20BoolResponse struct {
+	Value bool
 }
 
 // NewERC20Data creates a new ERC20Data instance
