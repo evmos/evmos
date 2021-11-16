@@ -15,17 +15,17 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - golint
+    - revive
     - gosec
     - gosimple
     - govet
     - ineffassign
     # - lll TODO: enable
     - misspell
-    - maligned
+    # - maligned
     - nakedret
     - prealloc
-    - scopelint
+    - exportloopref
     - staticcheck
     - structcheck
     - stylecheck

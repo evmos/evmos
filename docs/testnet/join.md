@@ -93,8 +93,8 @@ We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermin
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
 ```bash
-TESTNET_REPO="https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons" && \
-export PEERS="$(curl -s "$TESTNET_REPO/peers.txt")"
+curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/peers.txt > peers.txt
+PEERS=`awk '{print $1}' peers.txt | paste -s -d, -`
 ```
 
 Use `sed` to include them into the configuration. You can also add them manually:
