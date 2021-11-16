@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -21,6 +22,11 @@ var _ evmtypes.EvmHooks = (*Keeper)(nil)
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing
 func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*ethtypes.Log) error {
+	params := k.GetParams(ctx)
+	if !params.EnableEVMHook {
+		return sdkerrors.Wrap(types.ErrInternalTokenPair, "EVM Hook is currently disabled")
+	}
+
 	erc20 := contracts.ERC20BurnableContract.ABI
 
 	for i, log := range logs {

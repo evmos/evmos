@@ -12,6 +12,7 @@ import (
 var (
 	ParamStoreKeyEnableIntrarelayer    = []byte("EnableIntrarelayer")
 	ParamStoreKeyTokenPairVotingPeriod = []byte("TokenPairVotingPeriod")
+	ParamStoreKeyEnableEVMHook         = []byte("EnableEVMHook")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -20,10 +21,15 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params object
-func NewParams(enableIntrarelayer bool, votingPeriod time.Duration) Params {
+func NewParams(
+	enableIntrarelayer bool,
+	votingPeriod time.Duration,
+	enableEVMHook bool,
+) Params {
 	return Params{
 		EnableIntrarelayer:    enableIntrarelayer,
 		TokenPairVotingPeriod: votingPeriod,
+		EnableEVMHook:         enableEVMHook,
 	}
 }
 
@@ -31,6 +37,7 @@ func DefaultParams() Params {
 	return Params{
 		EnableIntrarelayer:    true,
 		TokenPairVotingPeriod: govtypes.DefaultPeriod,
+		EnableEVMHook:         true,
 	}
 }
 
@@ -61,6 +68,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIntrarelayer, &p.EnableIntrarelayer, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyTokenPairVotingPeriod, &p.TokenPairVotingPeriod, validatePeriod),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableEVMHook, &p.EnableEVMHook, validateBool),
 	}
 }
 
