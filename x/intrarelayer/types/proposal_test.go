@@ -21,6 +21,16 @@ func TestProposalTestSuite(t *testing.T) {
 	suite.Run(t, new(ProposalTestSuite))
 }
 
+func (suite *ProposalTestSuite) TestKeysTypes() {
+	suite.Require().Equal("intrarelayer", (&RegisterCoinProposal{}).ProposalRoute())
+	suite.Require().Equal("RegisterCoin", (&RegisterCoinProposal{}).ProposalType())
+	suite.Require().Equal("intrarelayer", (&RegisterERC20Proposal{}).ProposalRoute())
+	suite.Require().Equal("RegisterERC20", (&RegisterERC20Proposal{}).ProposalType())
+	suite.Require().Equal("intrarelayer", (&UpdateTokenPairERC20Proposal{}).ProposalRoute())
+	suite.Require().Equal("UpdateTokenPairERC20", (&UpdateTokenPairERC20Proposal{}).ProposalType())
+	suite.Require().Equal("intrarelayer", (&EnableTokenRelayProposal{}).ProposalRoute())
+	suite.Require().Equal("EnableTokenRelay", (&EnableTokenRelayProposal{}).ProposalType())
+}
 func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	testCases := []struct {
 		msg         string

@@ -2,11 +2,25 @@ package types
 
 import (
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/require"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestParamsValidate(t *testing.T) {
+type ParamsTestSuite struct {
+	suite.Suite
+}
+
+func TestParamsTestSuite(t *testing.T) {
+	suite.Run(t, new(ParamsTestSuite))
+}
+
+func (suite *ParamsTestSuite) TestParamKeyTable() {
+	suite.Require().IsType(paramtypes.KeyTable{}, ParamKeyTable())
+}
+
+func (suite *ParamsTestSuite) TestParamsValidate() {
 	testCases := []struct {
 		name     string
 		params   Params
@@ -36,9 +50,17 @@ func TestParamsValidate(t *testing.T) {
 		err := tc.params.Validate()
 
 		if tc.expError {
-			require.Error(t, err, tc.name)
+			suite.Require().Error(err, tc.name)
 		} else {
-			require.NoError(t, err, tc.name)
+			suite.Require().NoError(err, tc.name)
 		}
 	}
+}
+
+func (suite *ParamsTestSuite) TestParamsValidatePriv() {
+	suite.Require().Error(validateBool(1))
+	suite.Require().NoError(validateBool(true))
+	suite.Require().Error(validatePeriod(1))
+	suite.Require().Error(validatePeriod(time.Duration(-1)))
+	suite.Require().NoError(validatePeriod(time.Duration(1)))
 }

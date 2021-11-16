@@ -7,6 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/tharsis/ethermint/tests"
 )
@@ -73,6 +74,22 @@ func (suite *TokenPairTestSuite) TestTokenPair() {
 			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
 		}
 	}
+}
+func (suite *TokenPairTestSuite) TestGetID() {
+	addr := tests.GenerateAddress()
+	denom := "test"
+	pair := NewTokenPair(addr, denom, true, MODULE_OWNER)
+	id := pair.GetID()
+	expID := tmhash.Sum([]byte(addr.String() + "|" + denom))
+	suite.Require().Equal(expID, id)
+}
+
+func (suite *TokenPairTestSuite) TestGetERC20Contract() {
+	expAddr := tests.GenerateAddress()
+	denom := "test"
+	pair := NewTokenPair(expAddr, denom, true, MODULE_OWNER)
+	addr := pair.GetERC20Contract()
+	suite.Require().Equal(expAddr, addr)
 }
 
 func (suite *TokenPairTestSuite) TestIsNativeCoin() {
