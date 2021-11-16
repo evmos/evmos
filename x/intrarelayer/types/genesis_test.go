@@ -18,11 +18,18 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
+	newGen := NewGenesisState(DefaultParams(), []TokenPair{})
+
 	testCases := []struct {
 		name     string
 		genState *GenesisState
 		expPass  bool
 	}{
+		{
+			name:     "valid genesis constructor",
+			genState: &newGen,
+			expPass:  true,
+		},
 		{
 			name:     "default",
 			genState: DefaultGenesisState(),
