@@ -6,7 +6,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
@@ -47,7 +46,7 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 		Symbol:  "token",
 		Display: cosmosTokenName,
 	}
-	//pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+	// pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 	pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 	suite.Require().NoError(err)
 	suite.Commit()
@@ -72,7 +71,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		{
 			"denom already registered",
 			func() {
-				regPair := types.NewTokenPair(tests.GenerateAddress(), cosmosTokenName, true, types.MODULE_OWNER)
+				regPair := types.NewTokenPair(tests.GenerateAddress(), cosmosTokenName, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
 				suite.Commit()
 			},
@@ -179,7 +178,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 			contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 			suite.Commit()
 			coinName := "irm" + contractAddr.String()
-			pair = types.NewTokenPair(contractAddr, coinName, true, types.EXTERNAL_OWNER)
+			pair = types.NewTokenPair(contractAddr, coinName, true, types.OWNER_EXTERNAL)
 
 			tc.malleate()
 
@@ -225,7 +224,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 			},
 			false,
 			false,
@@ -235,7 +234,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
 			false,
@@ -305,7 +304,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 			},
 			false,
 		},
@@ -314,7 +313,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
@@ -325,7 +324,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.MODULE_OWNER)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
 
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
@@ -369,12 +368,12 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(newContractAddr.String(), pair.Erc20Address)
-				suite.Require().Equal(keeper.CreateDenomDescription(newContractAddr.String()), metadata.Description)
+				suite.Require().Equal(types.CreateDenomDescription(newContractAddr.String()), metadata.Description)
 			} else {
 				suite.Require().Error(err, tc.name)
 				if suite.app.IntrarelayerKeeper.IsTokenPairRegistered(suite.ctx, pair.GetID()) {
 					suite.Require().Equal(contractAddr.String(), pair.Erc20Address, "check pair")
-					suite.Require().Equal(keeper.CreateDenomDescription(contractAddr.String()), metadata.Description, "check metadata")
+					suite.Require().Equal(types.CreateDenomDescription(contractAddr.String()), metadata.Description, "check metadata")
 				}
 			}
 		})

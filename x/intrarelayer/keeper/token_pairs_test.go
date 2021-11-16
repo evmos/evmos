@@ -17,11 +17,12 @@ func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
 		malleate func()
 	}{
 		{
-			"no pair registered", func() { expRes = []types.TokenPair{} }},
+			"no pair registered", func() { expRes = []types.TokenPair{} },
+		},
 		{
 			"1 pair registered",
 			func() {
-				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.MODULE_OWNER)
+				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 
 				expRes = []types.TokenPair{pair}
@@ -30,8 +31,8 @@ func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
 		{
 			"2 pairs registered",
 			func() {
-				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.MODULE_OWNER)
-				pair2 := types.NewTokenPair(tests.GenerateAddress(), "coin2", true, types.MODULE_OWNER)
+				pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.OWNER_MODULE)
+				pair2 := types.NewTokenPair(tests.GenerateAddress(), "coin2", true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair2)
 
@@ -52,7 +53,7 @@ func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPairID() {
-	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.OWNER_MODULE)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {
@@ -75,7 +76,7 @@ func (suite *KeeperTestSuite) TestGetTokenPairID() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPair() {
-	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.OWNER_MODULE)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {
@@ -99,7 +100,7 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteTokenPair() {
-	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.OWNER_MODULE)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {
@@ -133,7 +134,7 @@ func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
-	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.OWNER_MODULE)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {
@@ -156,7 +157,7 @@ func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
 
 func (suite *KeeperTestSuite) TestIsERC20Registered() {
 	addr := tests.GenerateAddress()
-	pair := types.NewTokenPair(addr, "coin", true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 	suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, addr, pair.GetID())
 
@@ -193,7 +194,7 @@ func (suite *KeeperTestSuite) TestIsERC20Registered() {
 
 func (suite *KeeperTestSuite) TestIsDenomRegistered() {
 	addr := tests.GenerateAddress()
-	pair := types.NewTokenPair(addr, "coin", true, types.MODULE_OWNER)
+	pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)
 	suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 	suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, addr, pair.GetID())
 	suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())

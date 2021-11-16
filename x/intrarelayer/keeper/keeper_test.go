@@ -97,10 +97,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		stateBytes, err := tmjson.MarshalIndent(genesisState, "", " ")
 		require.NoError(t, err)
 
-		// Initialize the chain
+		//Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "ethermint_9000-1",
+				ChainId:         "evmos_9000-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simapp.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -159,6 +159,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+
 }
 
 func (suite *KeeperTestSuite) SetupTest() {

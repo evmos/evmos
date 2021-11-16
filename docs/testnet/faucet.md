@@ -6,6 +6,8 @@ order: 2
 
 Check how to obtain testnet tokens from the Evmos faucet website {synopsis}
 
+The Evmos Testnet Faucet distributes small amounts of {{ $themeConfig.project.testnet_denom }} to anyone who can provide a valid testnet address for free. Request funds from the Faucet either by using the [Keplr Wallet](../guides/keys-wallets/keplr.md) or follow the instructions on this page.
+
 ## Obtain address
 
 ### Keyring

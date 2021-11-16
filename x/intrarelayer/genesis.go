@@ -3,7 +3,6 @@ package intrarelayer
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -31,7 +30,7 @@ func InitGenesis(
 }
 
 // ExportGenesis export module status
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper, ak evmtypes.AccountKeeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:     k.GetParams(ctx),
 		TokenPairs: k.GetAllTokenPairs(ctx),

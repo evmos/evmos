@@ -29,6 +29,7 @@ type BankKeeper interface {
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on intrarelayer
+// TODO: define
 type EVMKeeper interface{}
 
 // GovKeeper defines the expected governance keeper interface used on intrarelayer
@@ -38,4 +39,5 @@ type GovKeeper interface {
 	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
 	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
 	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
+	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
 }

@@ -10,7 +10,6 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
-
 	testCases := []struct {
 		name     string
 		malleate func(common.Address)
@@ -19,7 +18,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 		{
 			"correct execution",
 			func(contractAddr common.Address) {
-				//pair := types.NewTokenPair(contractAddr, "coinevm", true, types.MODULE_OWNER)
+				// pair := types.NewTokenPair(contractAddr, "coinevm", true, types.OWNER_MODULE)
 				_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 
@@ -96,7 +95,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 }
 
 func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
-
 	testCases := []struct {
 		name      string
 		mint      int64
@@ -109,7 +107,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-
 			suite.mintFeeCollector = true
 			suite.SetupTest()
 			metadata, pair := suite.setupRegisterCoin()

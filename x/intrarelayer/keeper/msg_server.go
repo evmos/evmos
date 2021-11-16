@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -219,10 +218,10 @@ func (k Keeper) convertERC20NativeCoin(
 		return nil, err
 	}
 	if len(unpackedRet) == 0 {
-		return nil, fmt.Errorf("Failed to execute escrow tokens from user")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute escrow tokens from user")
 	}
 	if !unpackedRet[0].(bool) {
-		return nil, fmt.Errorf("Failed to execute escrow tokens from user")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute escrow tokens from user")
 	}
 
 	// Burn escrowed Tokens
@@ -299,10 +298,10 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 	if len(unpackedRet) == 0 {
-		return nil, fmt.Errorf("Failed to execute transfer")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
 	}
 	if !unpackedRet[0].(bool) {
-		return nil, fmt.Errorf("Failed to execute transfer")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
 	}
 
 	// Mint coins

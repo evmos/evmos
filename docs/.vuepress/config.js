@@ -58,7 +58,7 @@ module.exports = {
       testnet_denom: 'Photon',
       testnet_ticker: 'PHOTON',
       rpc_url: 'http://localhost:8545/',
-      rpc_url_testnet: 'http://arsiamons.rpc.evmos.org:8545',
+      rpc_url_testnet: 'https://ethereum.rpc.evmos.dev',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
@@ -73,7 +73,7 @@ module.exports = {
     },
     algolia: {
       id: 'BH4D9OD16A',
-      key: 'c5da4dd3636828292e3c908a0db39688',
+      key: 'a5d55fe5f540cc3bd28fa2c72f2b5bd8',
       index: 'evmos'
     },
     topbar: {

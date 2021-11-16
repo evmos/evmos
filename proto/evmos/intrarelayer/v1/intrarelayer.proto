@@ -9,12 +9,12 @@ option go_package = "github.com/tharsis/evmos/x/intrarelayer/types";
 // Owner enumerates the ownership of a ERC20 contract.
 enum Owner {
     option (gogoproto.goproto_enum_prefix) = false;
-    // INVALID_OWNER defines an invalid/undefined owner.
-    INVALID_OWNER = 0;
-    // MODULE_OWNER erc20 is owned by the intrarelayer module account.
-    MODULE_OWNER = 1;
-    // EXTERNAL_OWNER erc20 is owned by an external account.
-    EXTERNAL_OWNER = 2;
+    // OWNER_UNSPECIFIED defines an invalid/undefined owner.
+    OWNER_UNSPECIFIED = 0;
+    // OWNER_MODULE erc20 is owned by the intrarelayer module account.
+    OWNER_MODULE = 1;
+    // EXTERNAL erc20 is owned by an external account.
+    OWNER_EXTERNAL = 2;
 }
 
 // TokenPair defines an instance that records pairing consisting of a Cosmos
@@ -53,9 +53,9 @@ message RegisterERC20Proposal {
     string erc20address = 3;
 }
 
-// EnableTokenRelayProposal is a gov Content type to enable the internal
-// relaying of a token pair.
-message EnableTokenRelayProposal {
+// ToggleTokenRelayProposal is a gov Content type to toggle
+// the internal relaying of a token pair.
+message ToggleTokenRelayProposal {
     option (gogoproto.equal) = true;
     // title of the proposal
     string title         = 1;

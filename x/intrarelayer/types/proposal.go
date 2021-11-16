@@ -15,7 +15,7 @@ import (
 const (
 	ProposalTypeRegisterCoin         string = "RegisterCoin"
 	ProposalTypeRegisterERC20        string = "RegisterERC20"
-	ProposalTypeEnableTokenRelay     string = "EnableTokenRelay"
+	ProposalTypeToggleTokenRelay     string = "ToggleTokenRelay" //nolint:gosec
 	ProposalTypeUpdateTokenPairERC20 string = "UpdateTokenPairERC20"
 )
 
@@ -23,19 +23,27 @@ const (
 var (
 	_ govtypes.Content = &RegisterCoinProposal{}
 	_ govtypes.Content = &RegisterERC20Proposal{}
-	_ govtypes.Content = &EnableTokenRelayProposal{}
+	_ govtypes.Content = &ToggleTokenRelayProposal{}
 	_ govtypes.Content = &UpdateTokenPairERC20Proposal{}
 )
 
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeRegisterCoin)
 	govtypes.RegisterProposalType(ProposalTypeRegisterERC20)
-	govtypes.RegisterProposalType(ProposalTypeEnableTokenRelay)
+	govtypes.RegisterProposalType(ProposalTypeToggleTokenRelay)
 	govtypes.RegisterProposalType(ProposalTypeUpdateTokenPairERC20)
 	govtypes.RegisterProposalTypeCodec(&RegisterCoinProposal{}, "intrarelayer/RegisterCoinProposal")
 	govtypes.RegisterProposalTypeCodec(&RegisterERC20Proposal{}, "intrarelayer/RegisterERC20Proposal")
-	govtypes.RegisterProposalTypeCodec(&EnableTokenRelayProposal{}, "intrarelayer/EnableTokenRelayProposal")
+	govtypes.RegisterProposalTypeCodec(&ToggleTokenRelayProposal{}, "intrarelayer/ToggleTokenRelayProposal")
 	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal")
+}
+
+func CreateDenomDescription(address string) string {
+	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+}
+
+func CreateDenom(address string) string {
+	return fmt.Sprintf("irm%s", address)
 }
 
 // NewRegisterCoinProposal returns new instance of RegisterCoinProposal
@@ -83,15 +91,15 @@ func (*RegisterERC20Proposal) ProposalType() string {
 
 // ValidateBasic performs a stateless check of the proposal fields
 func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
-	if !common.IsHexAddress(rtbp.Erc20Address) {
-		return fmt.Errorf("Invalid hex address %s", rtbp.Erc20Address)
+	if err := ethermint.ValidateAddress(rtbp.Erc20Address); err != nil {
+		return sdkerrors.Wrap(err, "ERC20 address")
 	}
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-// NewEnableTokenRelayProposal returns new instance of EnableTokenRelayProposal
-func NewEnableTokenRelayProposal(title, description string, token string) govtypes.Content {
-	return &EnableTokenRelayProposal{
+// NewToggleTokenRelayProposal returns new instance of ToggleTokenRelayProposal
+func NewToggleTokenRelayProposal(title, description string, token string) govtypes.Content {
+	return &ToggleTokenRelayProposal{
 		Title:       title,
 		Description: description,
 		Token:       token,
@@ -99,15 +107,15 @@ func NewEnableTokenRelayProposal(title, description string, token string) govtyp
 }
 
 // ProposalRoute returns router key for this proposal
-func (*EnableTokenRelayProposal) ProposalRoute() string { return RouterKey }
+func (*ToggleTokenRelayProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
-func (*EnableTokenRelayProposal) ProposalType() string {
-	return ProposalTypeEnableTokenRelay
+func (*ToggleTokenRelayProposal) ProposalType() string {
+	return ProposalTypeToggleTokenRelay
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
-func (etrp *EnableTokenRelayProposal) ValidateBasic() error {
+func (etrp *ToggleTokenRelayProposal) ValidateBasic() error {
 	// check if the token is a hex address, if not, check if it is a valid SDK
 	// denom
 	if err := ethermint.ValidateAddress(etrp.Token); err != nil {

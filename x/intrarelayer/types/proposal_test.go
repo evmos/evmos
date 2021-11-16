@@ -28,9 +28,10 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 	suite.Require().Equal("RegisterERC20", (&RegisterERC20Proposal{}).ProposalType())
 	suite.Require().Equal("intrarelayer", (&UpdateTokenPairERC20Proposal{}).ProposalRoute())
 	suite.Require().Equal("UpdateTokenPairERC20", (&UpdateTokenPairERC20Proposal{}).ProposalType())
-	suite.Require().Equal("intrarelayer", (&EnableTokenRelayProposal{}).ProposalRoute())
-	suite.Require().Equal("EnableTokenRelay", (&EnableTokenRelayProposal{}).ProposalType())
+	suite.Require().Equal("intrarelayer", (&ToggleTokenRelayProposal{}).ProposalRoute())
+	suite.Require().Equal("ToggleTokenRelay", (&ToggleTokenRelayProposal{}).ProposalType())
 }
+
 func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	testCases := []struct {
 		msg         string
@@ -40,16 +41,16 @@ func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 		expectPass  bool
 	}{
 		// Valid tests
-		{msg: "Register token pair - valid pair enabled", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", true, MODULE_OWNER}, expectPass: true},
-		{msg: "Register token pair - valid pair dissabled", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", false, MODULE_OWNER}, expectPass: true},
+		{msg: "Register token pair - valid pair enabled", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", true, OWNER_MODULE}, expectPass: true},
+		{msg: "Register token pair - valid pair dissabled", title: "test", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", false, OWNER_MODULE}, expectPass: true},
 		// Missing params valid
-		{msg: "Register token pair - invalid missing title ", title: "", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", false, MODULE_OWNER}, expectPass: false},
-		{msg: "Register token pair - invalid missing description ", title: "test", description: "", pair: TokenPair{tests.GenerateAddress().String(), "test", false, MODULE_OWNER}, expectPass: false},
+		{msg: "Register token pair - invalid missing title ", title: "", description: "test desc", pair: TokenPair{tests.GenerateAddress().String(), "test", false, OWNER_MODULE}, expectPass: false},
+		{msg: "Register token pair - invalid missing description ", title: "test", description: "", pair: TokenPair{tests.GenerateAddress().String(), "test", false, OWNER_MODULE}, expectPass: false},
 		// Invalid address
-		{msg: "Register token pair - invalid address (no hex)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ", "test", true, MODULE_OWNER}, expectPass: false},
-		{msg: "Register token pair - invalid address (invalid length 1)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19", "test", true, MODULE_OWNER}, expectPass: false},
-		{msg: "Register token pair - invalid address (invalid length 2)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb194FFF", "test", true, MODULE_OWNER}, expectPass: false},
-		{msg: "Register token pair - invalid address (invalid prefix)", title: "test", description: "test desc", pair: TokenPair{"1x5dCA2483280D9727c80b5518faC4556617fb19F", "test", true, MODULE_OWNER}, expectPass: false},
+		{msg: "Register token pair - invalid address (no hex)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ", "test", true, OWNER_MODULE}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid length 1)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19", "test", true, OWNER_MODULE}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid length 2)", title: "test", description: "test desc", pair: TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb194FFF", "test", true, OWNER_MODULE}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid prefix)", title: "test", description: "test desc", pair: TokenPair{"1x5dCA2483280D9727c80b5518faC4556617fb19F", "test", true, OWNER_MODULE}, expectPass: false},
 	}
 
 	for i, tc := range testCases {
@@ -86,7 +87,6 @@ func createMetadata(denom, symbol string) banktypes.Metadata {
 }
 
 func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
-
 	validMetadata := banktypes.Metadata{
 		Description: "desc",
 		Base:        "coin",
@@ -141,7 +141,7 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestEnableTokenRelayProposal() {
+func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
@@ -169,7 +169,7 @@ func (suite *ProposalTestSuite) TestEnableTokenRelayProposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := NewEnableTokenRelayProposal(tc.title, tc.description, tc.token)
+		tx := NewToggleTokenRelayProposal(tc.title, tc.description, tc.token)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
@@ -205,6 +205,7 @@ func (suite *ProposalTestSuite) TestUpdateTokenPairERC20Proposal() {
 		}
 	}
 }
+
 func (suite *ProposalTestSuite) TestUpdateTokenPairERC20ProposalWithoutConstructor() {
 	testCases := []struct {
 		msg          string

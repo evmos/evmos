@@ -36,26 +36,6 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 
 		eventID := log.Topics[0] // event ID
 
-		// check that the contract is a registered token pair
-		contractAddr := log.Address
-
-		id := k.GetERC20Map(ctx, contractAddr)
-
-		if len(id) == 0 {
-			// no token is registered for the caller contract
-			continue
-		}
-
-		pair, found := k.GetTokenPair(ctx, id)
-		if !found {
-			continue
-		}
-
-		// check that relaying for the pair is enabled
-		if !pair.Enabled {
-			return fmt.Errorf("internal relaying is disabled for pair %s, please create a governance proposal", contractAddr) // convert to SDK error
-		}
-
 		event, err := erc20.EventByID(eventID)
 		if err != nil {
 			// invalid event for ERC20
@@ -83,7 +63,27 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 			continue
 		}
 
-		// ignore as the burning always transfers to the module address
+		// check that the contract is a registered token pair
+		contractAddr := log.Address
+
+		id := k.GetERC20Map(ctx, contractAddr)
+
+		if len(id) == 0 {
+			// no token is registered for the caller contract
+			continue
+		}
+
+		pair, found := k.GetTokenPair(ctx, id)
+		if !found {
+			continue
+		}
+
+		// check that relaying for the pair is enabled
+		if !pair.Enabled {
+			return fmt.Errorf("internal relaying is disabled for pair %s, please create a governance proposal", contractAddr) // convert to SDK error
+		}
+
+		// ignore as the burning always transfers to the zero address
 		to := common.BytesToAddress(log.Topics[2].Bytes())
 		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
 			continue
@@ -97,9 +97,9 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*et
 
 		// Mint the coin only if ERC20 is external
 		switch pair.ContractOwner {
-		case types.MODULE_OWNER:
+		case types.OWNER_MODULE:
 			_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, "burn", tokens)
-		case types.EXTERNAL_OWNER:
+		case types.OWNER_EXTERNAL:
 			err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 		default:
 			err = types.ErrUndefinedOwner

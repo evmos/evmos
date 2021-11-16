@@ -59,6 +59,8 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 	k.govKeeper.RemoveFromActiveProposalQueue(ctx, proposalID, originalEndTime)
 	// reinsert the proposal to the queue with the updated voting end time
 	k.govKeeper.InsertActiveProposalQueue(ctx, proposalID, proposal.VotingEndTime)
+	// update the proposal
+	k.govKeeper.SetProposal(ctx, proposal)
 
 	k.govKeeper.Logger(ctx).Info("proposal voting end time updated", "id", proposalID, "endtime", proposal.VotingEndTime.String())
 }
