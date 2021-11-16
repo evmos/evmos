@@ -38,4 +38,5 @@ type GovKeeper interface {
 	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
 	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
 	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
+	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
 }

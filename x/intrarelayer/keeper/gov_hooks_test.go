@@ -2,8 +2,11 @@ package keeper_test
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
@@ -26,46 +29,61 @@ func (suite *KeeperTestSuite) TestAfterProposalDeposit() {
 		noOp     bool
 	}{
 		{
-			"override voting period",
+			"don't override voting period (same duration)",
 			func() {
-				params := types.Params{TokenPairVotingPeriod: expPeriod}
+				params := types.Params{TokenPairVotingPeriod: votingPeriod}
+				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
+
+				content := types.NewRegisterERC20Proposal("title", "desc", common.Address{}.String())
+				proposal, err := govtypes.NewProposal(content, proposalID, time.Now().UTC(), time.Now().UTC())
+				suite.Require().NoError(err)
+
+				suite.app.GovKeeper.ActivateVotingPeriod(suite.ctx, proposal)
+			},
+			false,
+		},
+		{
+			"don't override voting period (different status)",
+			func() {
+				params := types.Params{TokenPairVotingPeriod: votingPeriod}
+				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
+
+				content := types.NewRegisterERC20Proposal("title", "desc", common.Address{}.String())
+				proposal, err := govtypes.NewProposal(content, proposalID, time.Now().UTC(), time.Now().UTC())
+				suite.Require().NoError(err)
+
+				//activate proposal
+				suite.app.GovKeeper.ActivateVotingPeriod(suite.ctx, proposal)
+
+				// override proposal status
+				proposal, _ = suite.app.GovKeeper.GetProposal(suite.ctx, proposalID)
+				proposal.Status = govtypes.ProposalStatus(0)
+				suite.app.GovKeeper.SetProposal(suite.ctx, proposal)
+
+				// update params after proposal creation
+				params = types.Params{TokenPairVotingPeriod: expPeriod}
 				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
 			},
 			false,
 		},
 		{
-			"don't override voting period (same duration)",
+			"override voting period",
 			func() {
 				params := types.Params{TokenPairVotingPeriod: votingPeriod}
+				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
+
+				content := types.NewRegisterERC20Proposal("title", "desc", common.Address{}.String())
+				proposal, err := govtypes.NewProposal(content, proposalID, time.Now().UTC(), time.Now().UTC())
+				suite.Require().NoError(err)
+
+				suite.app.GovKeeper.ActivateVotingPeriod(suite.ctx, proposal)
+
+				// update params after proposal creation
+				params = types.Params{TokenPairVotingPeriod: expPeriod}
 				suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
 			},
 			true,
 		},
-		// TODO: Different Status test
-		// {
-		// 	"don't override voting period (different status)",
-		// 	func() {
-		// 		params := types.Params{TokenPairVotingPeriod: expPeriod}
-		// 		suite.app.IntrarelayerKeeper.SetParams(suite.ctx, params)
-
-		// 		pair := types.NewTokenPair(tests.GenerateAddress(), "coin", true)
-
-		// 		content := types.NewRegisterTokenPairProposal("title", "desc", pair)
-		// 		proposal, err := govtypes.NewProposal(content, proposalID, time.Now().UTC(), time.Now().UTC())
-		// 		suite.Require().NoError(err)
-
-		// 		proposal.Status = govtypes.ProposalStatus(0)
-		// 		suite.app.GovKeeper.SetProposal(suite.ctx, proposal)
-
-		// 		if proposal.Status != govtypes.StatusVotingPeriod {
-		// 			fmt.Println()
-		// 		}
-
-		// 		fmt.Printf("\npropsal.Status: %s\n", proposal.Status)
-		// 		fmt.Printf("govtypes.StatusVotingPeriod: %s\n", govtypes.StatusVotingPeriod)
-		// 	},
-		// 	true,
-		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -75,10 +93,16 @@ func (suite *KeeperTestSuite) TestAfterProposalDeposit() {
 			suite.app.GovKeeper.AfterProposalDeposit(suite.ctx, proposalID, sdk.AccAddress{})
 			newVotingPeriod := suite.app.IntrarelayerKeeper.GetVotingPeriod(suite.ctx, types.ProposalTypeRegisterCoin)
 
+			proposal, ok := suite.app.GovKeeper.GetProposal(suite.ctx, proposalID)
+
 			if tc.noOp {
-				suite.Require().Equal(votingPeriod, newVotingPeriod)
+				suite.Require().True(ok)
+				// Proposal time was updated
+				suite.Require().Equal(proposal.VotingEndTime, proposal.VotingStartTime.Add(newVotingPeriod))
 			} else {
-				suite.Require().Equal(expPeriod, newVotingPeriod)
+				suite.Require().True(ok)
+				// Proposal time was not updated
+				suite.Require().Equal(proposal.VotingEndTime, proposal.VotingStartTime.Add(votingPeriod))
 			}
 		})
 	}
