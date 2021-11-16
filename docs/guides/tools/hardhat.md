@@ -107,7 +107,7 @@ module.exports = {
     hardhat: {
     },
     testnet: {
-      url: "https://ethereum.rpc.evmos.org",
+      url: "https://ethereum.rpc.evmos.dev",
       accounts: [privateKey1, privateKey2, ...]
     }
   },

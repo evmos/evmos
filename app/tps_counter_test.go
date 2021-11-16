@@ -46,8 +46,8 @@ func TestTPSCounter(t *testing.T) {
 	// We expect that the TPS reported will be:
 	// 100 / 5ms => 100 / 0.005s = 20,000 TPS
 	lines := strings.Split(buf.String(), "\n")
-	require.Equal(t, repeat+1, len(lines), "Expected exactly n repeats")
-	wantReg := regexp.MustCompile("Transactions per second tps \\d+\\.\\d+")
+	require.True(t, len(lines) > 1, "Expected at least 1 line")
+	wantReg := regexp.MustCompile(`Transactions per second tps \d+\.\d+`)
 	matches := wantReg.FindAllString(buf.String(), -1)
 	require.Equal(t, 5, len(matches))
 	wantTotalTPS := float64(len(matches)) * float64(n) / (float64(tpc.reportPeriod) / float64(time.Second))
