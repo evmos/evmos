@@ -235,3 +235,11 @@ func (suite *ProposalTestSuite) TestUpdateTokenPairERC20ProposalWithoutConstruct
 		}
 	}
 }
+
+func (suite *ProposalTestSuite) TestUpdateTokenPairERC20ProposalGetERC20Addresses() {
+	addr := tests.GenerateAddress()
+	addrNew := tests.GenerateAddress()
+	proposal := UpdateTokenPairERC20Proposal{"test", "desc", addr.String(), addrNew.String()}
+	suite.Require().Equal(addr, proposal.GetERC20Address())
+	suite.Require().Equal(addrNew, proposal.GetNewERC20Address())
+}
