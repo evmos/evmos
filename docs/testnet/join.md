@@ -10,9 +10,10 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
 
-| Network Chain ID | Description        | Site                                                                   | Version                                                                                  |
-|------------------|--------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| `evmos_9000-1`   | Arsia Mons Testnet | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/tharsis/evmos/releases) |
+| Network Chain ID                                       | Description                       | Site                                                                     | Version                                               |
+|--------------------------------------------------------|-----------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------|
+| `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`v0.2.x`](https://github.com/tharsis/evmos/releases) |
+| `evmos_9000-1`                                         | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)   | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
 
 ## Install `evmosd`
 
@@ -31,7 +32,7 @@ See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for ref
 :::
 
 ```bash
-evmosd config chain-id evmos_9000-1
+evmosd config chain-id evmos_9000-2
 ```
 
 ## Initialize Node
@@ -39,7 +40,7 @@ evmosd config chain-id evmos_9000-1
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-evmosd init <your_custom_moniker> --chain-id evmos_9000-1
+evmosd init <your_custom_moniker> --chain-id evmos_9000-2
 ```
 
 ::: danger
@@ -56,7 +57,7 @@ In the `config` directory, the most important files for configuration are `app.t
 Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
-curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/genesis.json > ~/.evmosd/config/genesis.json
+curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/genesis.json > ~/.evmosd/config/genesis.json
 ```
 
 Then verify the correctness of the genesis configuration file:
@@ -92,8 +93,10 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
+A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy). 
+
 ```bash
-curl https://raw.githubusercontent.com/tharsis/testnets/main/arsia_mons/peers.txt > peers.txt
+curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/peers.txt > peers.txt
 PEERS=`awk '{print $1}' peers.txt | paste -s -d, -`
 ```
 
@@ -169,7 +172,7 @@ evmosd start
 
 ## Share your Peer
 
-You can share your peer to by opening a Pull Request to the Evmos [`testnets`](https://github.com/tharsis/testnets) repo.
+You can share your peer to posting it in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy).
 
 ::: tip
 To get your Node ID use
