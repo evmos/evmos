@@ -39,10 +39,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
+* (intrarelayer) [\#82](https://github.com/tharsis/evmos/pull/82) Intrarelayer module
 * (cmd) [\#32](https://github.com/tharsis/evmos/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
 
 ### Improvements
 
+* (deps) [\#94](https://github.com/tharsis/evmos/pull/94) Bump Ethermint version to [`v0.8.0`](https://github.com/tharsis/ethermint/releases/tag/v0.8.0)
 * (deps) [\#80](https://github.com/tharsis/evmos/pull/80) Bump ibc-go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0)
 
 ## [v0.1.3] - 2021-10-24
