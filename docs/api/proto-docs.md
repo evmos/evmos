@@ -4,125 +4,151 @@
 
 ## Table of Contents
 
-- [ethermint/crypto/v1/ethsecp256k1/keys.proto](#ethermint/crypto/v1/ethsecp256k1/keys.proto)
-    - [PrivKey](#ethermint.crypto.v1.ethsecp256k1.PrivKey)
-    - [PubKey](#ethermint.crypto.v1.ethsecp256k1.PubKey)
+- [evmos/intrarelayer/v1/intrarelayer.proto](#evmos/intrarelayer/v1/intrarelayer.proto)
+    - [RegisterCoinProposal](#evmos.intrarelayer.v1.RegisterCoinProposal)
+    - [RegisterERC20Proposal](#evmos.intrarelayer.v1.RegisterERC20Proposal)
+    - [ToggleTokenRelayProposal](#evmos.intrarelayer.v1.ToggleTokenRelayProposal)
+    - [TokenPair](#evmos.intrarelayer.v1.TokenPair)
+    - [UpdateTokenPairERC20Proposal](#evmos.intrarelayer.v1.UpdateTokenPairERC20Proposal)
   
-- [ethermint/evm/v1/evm.proto](#ethermint/evm/v1/evm.proto)
-    - [AccessTuple](#ethermint.evm.v1.AccessTuple)
-    - [ChainConfig](#ethermint.evm.v1.ChainConfig)
-    - [Log](#ethermint.evm.v1.Log)
-    - [Params](#ethermint.evm.v1.Params)
-    - [State](#ethermint.evm.v1.State)
-    - [TraceConfig](#ethermint.evm.v1.TraceConfig)
-    - [TransactionLogs](#ethermint.evm.v1.TransactionLogs)
-    - [TxResult](#ethermint.evm.v1.TxResult)
+    - [Owner](#evmos.intrarelayer.v1.Owner)
   
-- [ethermint/evm/v1/genesis.proto](#ethermint/evm/v1/genesis.proto)
-    - [GenesisAccount](#ethermint.evm.v1.GenesisAccount)
-    - [GenesisState](#ethermint.evm.v1.GenesisState)
+- [evmos/intrarelayer/v1/genesis.proto](#evmos/intrarelayer/v1/genesis.proto)
+    - [GenesisState](#evmos.intrarelayer.v1.GenesisState)
+    - [Params](#evmos.intrarelayer.v1.Params)
   
-- [ethermint/evm/v1/tx.proto](#ethermint/evm/v1/tx.proto)
-    - [AccessListTx](#ethermint.evm.v1.AccessListTx)
-    - [DynamicFeeTx](#ethermint.evm.v1.DynamicFeeTx)
-    - [ExtensionOptionsEthereumTx](#ethermint.evm.v1.ExtensionOptionsEthereumTx)
-    - [LegacyTx](#ethermint.evm.v1.LegacyTx)
-    - [MsgEthereumTx](#ethermint.evm.v1.MsgEthereumTx)
-    - [MsgEthereumTxResponse](#ethermint.evm.v1.MsgEthereumTxResponse)
+- [evmos/intrarelayer/v1/query.proto](#evmos/intrarelayer/v1/query.proto)
+    - [QueryParamsRequest](#evmos.intrarelayer.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.intrarelayer.v1.QueryParamsResponse)
+    - [QueryTokenPairRequest](#evmos.intrarelayer.v1.QueryTokenPairRequest)
+    - [QueryTokenPairResponse](#evmos.intrarelayer.v1.QueryTokenPairResponse)
+    - [QueryTokenPairsRequest](#evmos.intrarelayer.v1.QueryTokenPairsRequest)
+    - [QueryTokenPairsResponse](#evmos.intrarelayer.v1.QueryTokenPairsResponse)
   
-    - [Msg](#ethermint.evm.v1.Msg)
+    - [Query](#evmos.intrarelayer.v1.Query)
   
-- [ethermint/evm/v1/query.proto](#ethermint/evm/v1/query.proto)
-    - [EstimateGasResponse](#ethermint.evm.v1.EstimateGasResponse)
-    - [EthCallRequest](#ethermint.evm.v1.EthCallRequest)
-    - [QueryAccountRequest](#ethermint.evm.v1.QueryAccountRequest)
-    - [QueryAccountResponse](#ethermint.evm.v1.QueryAccountResponse)
-    - [QueryBalanceRequest](#ethermint.evm.v1.QueryBalanceRequest)
-    - [QueryBalanceResponse](#ethermint.evm.v1.QueryBalanceResponse)
-    - [QueryCodeRequest](#ethermint.evm.v1.QueryCodeRequest)
-    - [QueryCodeResponse](#ethermint.evm.v1.QueryCodeResponse)
-    - [QueryCosmosAccountRequest](#ethermint.evm.v1.QueryCosmosAccountRequest)
-    - [QueryCosmosAccountResponse](#ethermint.evm.v1.QueryCosmosAccountResponse)
-    - [QueryParamsRequest](#ethermint.evm.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#ethermint.evm.v1.QueryParamsResponse)
-    - [QueryStaticCallResponse](#ethermint.evm.v1.QueryStaticCallResponse)
-    - [QueryStorageRequest](#ethermint.evm.v1.QueryStorageRequest)
-    - [QueryStorageResponse](#ethermint.evm.v1.QueryStorageResponse)
-    - [QueryTraceTxRequest](#ethermint.evm.v1.QueryTraceTxRequest)
-    - [QueryTraceTxResponse](#ethermint.evm.v1.QueryTraceTxResponse)
-    - [QueryTxLogsRequest](#ethermint.evm.v1.QueryTxLogsRequest)
-    - [QueryTxLogsResponse](#ethermint.evm.v1.QueryTxLogsResponse)
-    - [QueryValidatorAccountRequest](#ethermint.evm.v1.QueryValidatorAccountRequest)
-    - [QueryValidatorAccountResponse](#ethermint.evm.v1.QueryValidatorAccountResponse)
+- [evmos/intrarelayer/v1/tx.proto](#evmos/intrarelayer/v1/tx.proto)
+    - [MsgConvertCoin](#evmos.intrarelayer.v1.MsgConvertCoin)
+    - [MsgConvertCoinResponse](#evmos.intrarelayer.v1.MsgConvertCoinResponse)
+    - [MsgConvertERC20](#evmos.intrarelayer.v1.MsgConvertERC20)
+    - [MsgConvertERC20Response](#evmos.intrarelayer.v1.MsgConvertERC20Response)
   
-    - [Query](#ethermint.evm.v1.Query)
-  
-- [ethermint/feemarket/v1/feemarket.proto](#ethermint/feemarket/v1/feemarket.proto)
-    - [Params](#ethermint.feemarket.v1.Params)
-  
-- [ethermint/feemarket/v1/genesis.proto](#ethermint/feemarket/v1/genesis.proto)
-    - [GenesisState](#ethermint.feemarket.v1.GenesisState)
-  
-- [ethermint/feemarket/v1/query.proto](#ethermint/feemarket/v1/query.proto)
-    - [QueryBaseFeeRequest](#ethermint.feemarket.v1.QueryBaseFeeRequest)
-    - [QueryBaseFeeResponse](#ethermint.feemarket.v1.QueryBaseFeeResponse)
-    - [QueryBlockGasRequest](#ethermint.feemarket.v1.QueryBlockGasRequest)
-    - [QueryBlockGasResponse](#ethermint.feemarket.v1.QueryBlockGasResponse)
-    - [QueryParamsRequest](#ethermint.feemarket.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#ethermint.feemarket.v1.QueryParamsResponse)
-  
-    - [Query](#ethermint.feemarket.v1.Query)
-  
-- [ethermint/types/v1/account.proto](#ethermint/types/v1/account.proto)
-    - [EthAccount](#ethermint.types.v1.EthAccount)
-  
-- [ethermint/types/v1/web3.proto](#ethermint/types/v1/web3.proto)
-    - [ExtensionOptionsWeb3Tx](#ethermint.types.v1.ExtensionOptionsWeb3Tx)
+    - [Msg](#evmos.intrarelayer.v1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="ethermint/crypto/v1/ethsecp256k1/keys.proto"></a>
+<a name="evmos/intrarelayer/v1/intrarelayer.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## ethermint/crypto/v1/ethsecp256k1/keys.proto
+## evmos/intrarelayer/v1/intrarelayer.proto
 
 
 
-<a name="ethermint.crypto.v1.ethsecp256k1.PrivKey"></a>
+<a name="evmos.intrarelayer.v1.RegisterCoinProposal"></a>
 
-### PrivKey
-PrivKey defines a type alias for an ecdsa.PrivateKey that implements
-Tendermint's PrivateKey interface.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `key` | [bytes](#bytes) |  |  |
-
-
-
-
-
-
-<a name="ethermint.crypto.v1.ethsecp256k1.PubKey"></a>
-
-### PubKey
-PubKey defines a type alias for an ecdsa.PublicKey that implements
-Tendermint's PubKey interface. It represents the 33-byte compressed public
-key format.
+### RegisterCoinProposal
+RegisterCoinProposal is a gov Content type to register a token pair
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `key` | [bytes](#bytes) |  |  |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | token pair of Cosmos native denom and ERC20 token address |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.RegisterERC20Proposal"></a>
+
+### RegisterERC20Proposal
+RegisterCoinProposal is a gov Content type to register a token pair
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `erc20address` | [string](#string) |  | contract address of ERC20 token |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.ToggleTokenRelayProposal"></a>
+
+### ToggleTokenRelayProposal
+ToggleTokenRelayProposal is a gov Content type to toggle
+the internal relaying of a token pair.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `token` | [string](#string) |  | token identifier can be either the hex contract address of the ERC20 or the Cosmos base denomination |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.TokenPair"></a>
+
+### TokenPair
+TokenPair defines an instance that records pairing consisting of a Cosmos
+native Coin and an ERC20 token address.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `erc20_address` | [string](#string) |  | address of ERC20 contract token |
+| `denom` | [string](#string) |  | cosmos base denomination to be mapped to |
+| `enabled` | [bool](#bool) |  | shows token mapping enable status |
+| `contract_owner` | [Owner](#evmos.intrarelayer.v1.Owner) |  | ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address) |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.UpdateTokenPairERC20Proposal"></a>
+
+### UpdateTokenPairERC20Proposal
+UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
+ERC20 contract address.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `erc20_address` | [string](#string) |  | contract address of ERC20 token |
+| `new_erc20_address` | [string](#string) |  | new address of ERC20 token contract |
 
 
 
 
 
  <!-- end messages -->
+
+
+<a name="evmos.intrarelayer.v1.Owner"></a>
+
+### Owner
+Owner enumerates the ownership of a ERC20 contract.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| OWNER_UNSPECIFIED | 0 | OWNER_UNSPECIFIED defines an invalid/undefined owner. |
+| OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the intrarelayer module account. |
+| OWNER_EXTERNAL | 2 | EXTERNAL erc20 is owned by an external account. |
+
 
  <!-- end enums -->
 
@@ -132,226 +158,40 @@ key format.
 
 
 
-<a name="ethermint/evm/v1/evm.proto"></a>
+<a name="evmos/intrarelayer/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## ethermint/evm/v1/evm.proto
+## evmos/intrarelayer/v1/genesis.proto
 
 
 
-<a name="ethermint.evm.v1.AccessTuple"></a>
-
-### AccessTuple
-AccessTuple is the element type of an access list.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | hex formatted ethereum address |
-| `storage_keys` | [string](#string) | repeated | hex formatted hashes of the storage keys |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.ChainConfig"></a>
-
-### ChainConfig
-ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
-instead of *big.Int.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `homestead_block` | [string](#string) |  | Homestead switch block (nil no fork, 0 = already homestead) |
-| `dao_fork_block` | [string](#string) |  | TheDAO hard-fork switch block (nil no fork) |
-| `dao_fork_support` | [bool](#bool) |  | Whether the nodes supports or opposes the DAO hard-fork |
-| `eip150_block` | [string](#string) |  | EIP150 implements the Gas price changes (https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil no fork) |
-| `eip150_hash` | [string](#string) |  | EIP150 HF hash (needed for header only clients as only gas pricing changed) |
-| `eip155_block` | [string](#string) |  | EIP155Block HF block |
-| `eip158_block` | [string](#string) |  | EIP158 HF block |
-| `byzantium_block` | [string](#string) |  | Byzantium switch block (nil no fork, 0 = already on byzantium) |
-| `constantinople_block` | [string](#string) |  | Constantinople switch block (nil no fork, 0 = already activated) |
-| `petersburg_block` | [string](#string) |  | Petersburg switch block (nil same as Constantinople) |
-| `istanbul_block` | [string](#string) |  | Istanbul switch block (nil no fork, 0 = already on istanbul) |
-| `muir_glacier_block` | [string](#string) |  | Eip-2384 (bomb delay) switch block (nil no fork, 0 = already activated) |
-| `berlin_block` | [string](#string) |  | Berlin switch block (nil = no fork, 0 = already on berlin) |
-| `catalyst_block` | [string](#string) |  | Catalyst switch block (nil = no fork, 0 = already on catalyst) |
-| `london_block` | [string](#string) |  | London switch block (nil = no fork, 0 = already on london) |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.Log"></a>
-
-### Log
-Log represents an protobuf compatible Ethereum Log that defines a contract
-log event. These events are generated by the LOG opcode and stored/indexed by
-the node.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address of the contract that generated the event |
-| `topics` | [string](#string) | repeated | list of topics provided by the contract. |
-| `data` | [bytes](#bytes) |  | supplied by the contract, usually ABI-encoded |
-| `block_number` | [uint64](#uint64) |  | block in which the transaction was included |
-| `tx_hash` | [string](#string) |  | hash of the transaction |
-| `tx_index` | [uint64](#uint64) |  | index of the transaction in the block |
-| `block_hash` | [string](#string) |  | hash of the block in which the transaction was included |
-| `index` | [uint64](#uint64) |  | index of the log in the block |
-| `removed` | [bool](#bool) |  | The Removed field is true if this log was reverted due to a chain reorganisation. You must pay attention to this field if you receive logs through a filter query. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.Params"></a>
-
-### Params
-Params defines the EVM module parameters
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `evm_denom` | [string](#string) |  | evm denom represents the token denomination used to run the EVM state transitions. |
-| `enable_create` | [bool](#bool) |  | enable create toggles state transitions that use the vm.Create function |
-| `enable_call` | [bool](#bool) |  | enable call toggles state transitions that use the vm.Call function |
-| `extra_eips` | [int64](#int64) | repeated | extra eips defines the additional EIPs for the vm.Config |
-| `chain_config` | [ChainConfig](#ethermint.evm.v1.ChainConfig) |  | chain config defines the EVM chain configuration parameters |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.State"></a>
-
-### State
-State represents a single Storage key value pair item.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `key` | [string](#string) |  |  |
-| `value` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.TraceConfig"></a>
-
-### TraceConfig
-TraceConfig holds extra parameters to trace functions.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `tracer` | [string](#string) |  | custom javascript tracer |
-| `timeout` | [string](#string) |  | overrides the default timeout of 5 seconds for JavaScript-based tracing calls |
-| `reexec` | [uint64](#uint64) |  | number of blocks the tracer is willing to go back |
-| `disable_memory` | [bool](#bool) |  | disable memory capture |
-| `disable_stack` | [bool](#bool) |  | disable stack capture |
-| `disable_storage` | [bool](#bool) |  | disable storage capture |
-| `disable_return_data` | [bool](#bool) |  | disable return data capture |
-| `debug` | [bool](#bool) |  | print output during capture end |
-| `limit` | [int32](#int32) |  | maximum length of output, but zero means unlimited |
-| `overrides` | [ChainConfig](#ethermint.evm.v1.ChainConfig) |  | Chain overrides, can be used to execute a trace using future fork rules |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.TransactionLogs"></a>
-
-### TransactionLogs
-TransactionLogs define the logs generated from a transaction execution
-with a given hash. It it used for import/export data as transactions are not
-persisted on blockchain state after an upgrade.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `hash` | [string](#string) |  |  |
-| `logs` | [Log](#ethermint.evm.v1.Log) | repeated |  |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.TxResult"></a>
-
-### TxResult
-TxResult stores results of Tx execution.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `contract_address` | [string](#string) |  | contract_address contains the ethereum address of the created contract (if any). If the state transition is an evm.Call, the contract address will be empty. |
-| `bloom` | [bytes](#bytes) |  | bloom represents the bloom filter bytes |
-| `tx_logs` | [TransactionLogs](#ethermint.evm.v1.TransactionLogs) |  | tx_logs contains the transaction hash and the proto-compatible ethereum logs. |
-| `ret` | [bytes](#bytes) |  | ret defines the bytes from the execution. |
-| `reverted` | [bool](#bool) |  | reverted flag is set to true when the call has been reverted |
-| `gas_used` | [uint64](#uint64) |  | gas_used notes the amount of gas consumed while execution |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="ethermint/evm/v1/genesis.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## ethermint/evm/v1/genesis.proto
-
-
-
-<a name="ethermint.evm.v1.GenesisAccount"></a>
-
-### GenesisAccount
-GenesisAccount defines an account to be initialized in the genesis state.
-Its main difference between with Geth's GenesisAccount is that it uses a
-custom storage type and that it doesn't contain the private key field.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address defines an ethereum hex formated address of an account |
-| `code` | [string](#string) |  | code defines the hex bytes of the account code. |
-| `storage` | [State](#ethermint.evm.v1.State) | repeated | storage defines the set of state key values for the account. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.GenesisState"></a>
+<a name="evmos.intrarelayer.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the evm module's genesis state.
+GenesisState defines the module's genesis state.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `accounts` | [GenesisAccount](#ethermint.evm.v1.GenesisAccount) | repeated | accounts is an array containing the ethereum genesis accounts. |
-| `params` | [Params](#ethermint.evm.v1.Params) |  | params defines all the paramaters of the module. |
+| `params` | [Params](#evmos.intrarelayer.v1.Params) |  | module parameters |
+| `token_pairs` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) | repeated | registered token pairs |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.Params"></a>
+
+### Params
+Params defines the intrarelayer module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_intrarelayer` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
+| `token_pair_voting_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | overrides the governance voting period for token pairs proposals |
+| `enable_e_v_m_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
 
 
 
@@ -367,433 +207,78 @@ GenesisState defines the evm module's genesis state.
 
 
 
-<a name="ethermint/evm/v1/tx.proto"></a>
+<a name="evmos/intrarelayer/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## ethermint/evm/v1/tx.proto
+## evmos/intrarelayer/v1/query.proto
 
 
 
-<a name="ethermint.evm.v1.AccessListTx"></a>
-
-### AccessListTx
-AccessListTx is the data of EIP-2930 access list transactions.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `chain_id` | [string](#string) |  | destination EVM chain ID |
-| `nonce` | [uint64](#uint64) |  | nonce corresponds to the account nonce (transaction sequence). |
-| `gas_price` | [string](#string) |  | gas price defines the value for each gas unit |
-| `gas` | [uint64](#uint64) |  | gas defines the gas limit defined for the transaction. |
-| `to` | [string](#string) |  | hex formatted address of the recipient |
-| `value` | [string](#string) |  | value defines the unsigned integer value of the transaction amount. |
-| `data` | [bytes](#bytes) |  | input defines the data payload bytes of the transaction. |
-| `accesses` | [AccessTuple](#ethermint.evm.v1.AccessTuple) | repeated |  |
-| `v` | [bytes](#bytes) |  | v defines the signature value |
-| `r` | [bytes](#bytes) |  | r defines the signature value |
-| `s` | [bytes](#bytes) |  | s define the signature value |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.DynamicFeeTx"></a>
-
-### DynamicFeeTx
-DynamicFeeTx is the data of EIP-1559 dinamic fee transactions.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `chain_id` | [string](#string) |  | destination EVM chain ID |
-| `nonce` | [uint64](#uint64) |  | nonce corresponds to the account nonce (transaction sequence). |
-| `gas_tip_cap` | [string](#string) |  | gas tip cap defines the max value for the gas tip |
-| `gas_fee_cap` | [string](#string) |  | gas fee cap defines the max value for the gas fee |
-| `gas` | [uint64](#uint64) |  | gas defines the gas limit defined for the transaction. |
-| `to` | [string](#string) |  | hex formatted address of the recipient |
-| `value` | [string](#string) |  | value defines the the transaction amount. |
-| `data` | [bytes](#bytes) |  | input defines the data payload bytes of the transaction. |
-| `accesses` | [AccessTuple](#ethermint.evm.v1.AccessTuple) | repeated |  |
-| `v` | [bytes](#bytes) |  | v defines the signature value |
-| `r` | [bytes](#bytes) |  | r defines the signature value |
-| `s` | [bytes](#bytes) |  | s define the signature value |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.ExtensionOptionsEthereumTx"></a>
-
-### ExtensionOptionsEthereumTx
-
-
-
-
-
-
-
-<a name="ethermint.evm.v1.LegacyTx"></a>
-
-### LegacyTx
-LegacyTx is the transaction data of regular Ethereum transactions.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `nonce` | [uint64](#uint64) |  | nonce corresponds to the account nonce (transaction sequence). |
-| `gas_price` | [string](#string) |  | gas price defines the value for each gas unit |
-| `gas` | [uint64](#uint64) |  | gas defines the gas limit defined for the transaction. |
-| `to` | [string](#string) |  | hex formatted address of the recipient |
-| `value` | [string](#string) |  | value defines the unsigned integer value of the transaction amount. |
-| `data` | [bytes](#bytes) |  | input defines the data payload bytes of the transaction. |
-| `v` | [bytes](#bytes) |  | v defines the signature value |
-| `r` | [bytes](#bytes) |  | r defines the signature value |
-| `s` | [bytes](#bytes) |  | s define the signature value |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.MsgEthereumTx"></a>
-
-### MsgEthereumTx
-MsgEthereumTx encapsulates an Ethereum transaction as an SDK message.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | inner transaction data
-
-caches |
-| `size` | [double](#double) |  | encoded storage size of the transaction |
-| `hash` | [string](#string) |  | transaction hash in hex format |
-| `from` | [string](#string) |  | ethereum signer address in hex format. This address value is checked against the address derived from the signature (V, R, S) using the secp256k1 elliptic curve |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.MsgEthereumTxResponse"></a>
-
-### MsgEthereumTxResponse
-MsgEthereumTxResponse defines the Msg/EthereumTx response type.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `hash` | [string](#string) |  | ethereum transaction hash in hex format. This hash differs from the Tendermint sha256 hash of the transaction bytes. See https://github.com/tendermint/tendermint/issues/6539 for reference |
-| `logs` | [Log](#ethermint.evm.v1.Log) | repeated | logs contains the transaction hash and the proto-compatible ethereum logs. |
-| `ret` | [bytes](#bytes) |  | returned data from evm function (result or data supplied with revert opcode) |
-| `vm_error` | [string](#string) |  | vm error is the error returned by vm execution |
-| `gas_used` | [uint64](#uint64) |  | gas consumed by the transaction |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
-
-<a name="ethermint.evm.v1.Msg"></a>
-
-### Msg
-Msg defines the evm Msg service.
-
-| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
-| ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `EthereumTx` | [MsgEthereumTx](#ethermint.evm.v1.MsgEthereumTx) | [MsgEthereumTxResponse](#ethermint.evm.v1.MsgEthereumTxResponse) | EthereumTx defines a method submitting Ethereum transactions. | |
-
- <!-- end services -->
-
-
-
-<a name="ethermint/evm/v1/query.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## ethermint/evm/v1/query.proto
-
-
-
-<a name="ethermint.evm.v1.EstimateGasResponse"></a>
-
-### EstimateGasResponse
-EstimateGasResponse defines EstimateGas response
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `gas` | [uint64](#uint64) |  | the estimated gas |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.EthCallRequest"></a>
-
-### EthCallRequest
-EthCallRequest defines EthCall request
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `args` | [bytes](#bytes) |  | same json format as the json rpc api. |
-| `gas_cap` | [uint64](#uint64) |  | the default gas cap to be used |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryAccountRequest"></a>
-
-### QueryAccountRequest
-QueryAccountRequest is the request type for the Query/Account RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address is the ethereum hex address to query the account for. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryAccountResponse"></a>
-
-### QueryAccountResponse
-QueryAccountResponse is the response type for the Query/Account RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `balance` | [string](#string) |  | balance is the balance of the EVM denomination. |
-| `code_hash` | [string](#string) |  | code hash is the hex-formatted code bytes from the EOA. |
-| `nonce` | [uint64](#uint64) |  | nonce is the account's sequence number. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryBalanceRequest"></a>
-
-### QueryBalanceRequest
-QueryBalanceRequest is the request type for the Query/Balance RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address is the ethereum hex address to query the balance for. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryBalanceResponse"></a>
-
-### QueryBalanceResponse
-QueryBalanceResponse is the response type for the Query/Balance RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `balance` | [string](#string) |  | balance is the balance of the EVM denomination. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryCodeRequest"></a>
-
-### QueryCodeRequest
-QueryCodeRequest is the request type for the Query/Code RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address is the ethereum hex address to query the code for. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryCodeResponse"></a>
-
-### QueryCodeResponse
-QueryCodeResponse is the response type for the Query/Code RPC
-method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `code` | [bytes](#bytes) |  | code represents the code bytes from an ethereum address. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryCosmosAccountRequest"></a>
-
-### QueryCosmosAccountRequest
-QueryCosmosAccountRequest is the request type for the Query/CosmosAccount RPC
-method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address is the ethereum hex address to query the account for. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryCosmosAccountResponse"></a>
-
-### QueryCosmosAccountResponse
-QueryCosmosAccountResponse is the response type for the Query/CosmosAccount
-RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `cosmos_address` | [string](#string) |  | cosmos_address is the cosmos address of the account. |
-| `sequence` | [uint64](#uint64) |  | sequence is the account's sequence number. |
-| `account_number` | [uint64](#uint64) |  | account_number is the account numbert |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryParamsRequest"></a>
+<a name="evmos.intrarelayer.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
-QueryParamsRequest defines the request type for querying x/evm parameters.
+QueryParamsRequest is the request type for the Query/Params RPC method.
 
 
 
 
 
 
-<a name="ethermint.evm.v1.QueryParamsResponse"></a>
+<a name="evmos.intrarelayer.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
-QueryParamsResponse defines the response type for querying x/evm parameters.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `params` | [Params](#ethermint.evm.v1.Params) |  | params define the evm module parameters. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryStaticCallResponse"></a>
-
-### QueryStaticCallResponse
-QueryStaticCallRequest defines static call response
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `data` | [bytes](#bytes) |  |  |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryStorageRequest"></a>
-
-### QueryStorageRequest
-QueryStorageRequest is the request type for the Query/Storage RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address is the ethereum hex address to query the storage state for. |
-| `key` | [string](#string) |  | key defines the key of the storage state |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryStorageResponse"></a>
-
-### QueryStorageResponse
-QueryStorageResponse is the response type for the Query/Storage RPC
+QueryParamsResponse is the response type for the Query/Params RPC
 method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `value` | [string](#string) |  | key defines the storage state value hash associated with the given key. |
+| `params` | [Params](#evmos.intrarelayer.v1.Params) |  |  |
 
 
 
 
 
 
-<a name="ethermint.evm.v1.QueryTraceTxRequest"></a>
+<a name="evmos.intrarelayer.v1.QueryTokenPairRequest"></a>
 
-### QueryTraceTxRequest
-QueryTraceTxRequest defines TraceTx request
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `msg` | [MsgEthereumTx](#ethermint.evm.v1.MsgEthereumTx) |  | msgEthereumTx for the requested transaction |
-| `tx_index` | [uint64](#uint64) |  | transaction index |
-| `trace_config` | [TraceConfig](#ethermint.evm.v1.TraceConfig) |  | TraceConfig holds extra parameters to trace functions. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryTraceTxResponse"></a>
-
-### QueryTraceTxResponse
-QueryTraceTxResponse defines TraceTx response
+### QueryTokenPairRequest
+QueryTokenPairRequest is the request type for the Query/TokenPair RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `data` | [bytes](#bytes) |  | response serialized in bytes |
+| `token` | [string](#string) |  | token identifier can be either the hex contract address of the ERC20 or the Cosmos base denomination |
 
 
 
 
 
 
-<a name="ethermint.evm.v1.QueryTxLogsRequest"></a>
+<a name="evmos.intrarelayer.v1.QueryTokenPairResponse"></a>
 
-### QueryTxLogsRequest
-QueryTxLogsRequest is the request type for the Query/TxLogs RPC method.
+### QueryTokenPairResponse
+QueryTokenPairResponse is the response type for the Query/TokenPair RPC
+method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `hash` | [string](#string) |  | hash is the ethereum transaction hex hash to query the logs for. |
+| `token_pair` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) |  |  |
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.QueryTokenPairsRequest"></a>
+
+### QueryTokenPairsRequest
+QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
 
@@ -801,55 +286,22 @@ QueryTxLogsRequest is the request type for the Query/TxLogs RPC method.
 
 
 
-<a name="ethermint.evm.v1.QueryTxLogsResponse"></a>
+<a name="evmos.intrarelayer.v1.QueryTokenPairsResponse"></a>
 
-### QueryTxLogsResponse
-QueryTxLogs is the response type for the Query/TxLogs RPC method.
+### QueryTokenPairsResponse
+QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
+method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `logs` | [Log](#ethermint.evm.v1.Log) | repeated | logs represents the ethereum logs generated from the given transaction. |
+| `token_pairs` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
 
 
-
-<a name="ethermint.evm.v1.QueryValidatorAccountRequest"></a>
-
-### QueryValidatorAccountRequest
-QueryValidatorAccountRequest is the request type for the
-Query/ValidatorAccount RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `cons_address` | [string](#string) |  | cons_address is the validator cons address to query the account for. |
-
-
-
-
-
-
-<a name="ethermint.evm.v1.QueryValidatorAccountResponse"></a>
-
-### QueryValidatorAccountResponse
-QueryValidatorAccountResponse is the response type for the
-Query/ValidatorAccount RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `account_address` | [string](#string) |  | account_address is the cosmos address of the account in bech32 format. |
-| `sequence` | [uint64](#uint64) |  | sequence is the account's sequence number. |
-| `account_number` | [uint64](#uint64) |  | account_number is the account number |
-
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -857,174 +309,77 @@ Query/ValidatorAccount RPC method.
  <!-- end HasExtensions -->
 
 
-<a name="ethermint.evm.v1.Query"></a>
+<a name="evmos.intrarelayer.v1.Query"></a>
 
 ### Query
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Account` | [QueryAccountRequest](#ethermint.evm.v1.QueryAccountRequest) | [QueryAccountResponse](#ethermint.evm.v1.QueryAccountResponse) | Account queries an Ethereum account. | GET|/ethermint/evm/v1/account/{address}|
-| `CosmosAccount` | [QueryCosmosAccountRequest](#ethermint.evm.v1.QueryCosmosAccountRequest) | [QueryCosmosAccountResponse](#ethermint.evm.v1.QueryCosmosAccountResponse) | CosmosAccount queries an Ethereum account's Cosmos Address. | GET|/ethermint/evm/v1/cosmos_account/{address}|
-| `ValidatorAccount` | [QueryValidatorAccountRequest](#ethermint.evm.v1.QueryValidatorAccountRequest) | [QueryValidatorAccountResponse](#ethermint.evm.v1.QueryValidatorAccountResponse) | ValidatorAccount queries an Ethereum account's from a validator consensus Address. | GET|/ethermint/evm/v1/validator_account/{cons_address}|
-| `Balance` | [QueryBalanceRequest](#ethermint.evm.v1.QueryBalanceRequest) | [QueryBalanceResponse](#ethermint.evm.v1.QueryBalanceResponse) | Balance queries the balance of a the EVM denomination for a single EthAccount. | GET|/ethermint/evm/v1/balances/{address}|
-| `Storage` | [QueryStorageRequest](#ethermint.evm.v1.QueryStorageRequest) | [QueryStorageResponse](#ethermint.evm.v1.QueryStorageResponse) | Storage queries the balance of all coins for a single account. | GET|/ethermint/evm/v1/storage/{address}/{key}|
-| `Code` | [QueryCodeRequest](#ethermint.evm.v1.QueryCodeRequest) | [QueryCodeResponse](#ethermint.evm.v1.QueryCodeResponse) | Code queries the balance of all coins for a single account. | GET|/ethermint/evm/v1/codes/{address}|
-| `Params` | [QueryParamsRequest](#ethermint.evm.v1.QueryParamsRequest) | [QueryParamsResponse](#ethermint.evm.v1.QueryParamsResponse) | Params queries the parameters of x/evm module. | GET|/ethermint/evm/v1/params|
-| `EthCall` | [EthCallRequest](#ethermint.evm.v1.EthCallRequest) | [MsgEthereumTxResponse](#ethermint.evm.v1.MsgEthereumTxResponse) | EthCall implements the `eth_call` rpc api | GET|/ethermint/evm/v1/eth_call|
-| `EstimateGas` | [EthCallRequest](#ethermint.evm.v1.EthCallRequest) | [EstimateGasResponse](#ethermint.evm.v1.EstimateGasResponse) | EstimateGas implements the `eth_estimateGas` rpc api | GET|/ethermint/evm/v1/estimate_gas|
-| `TraceTx` | [QueryTraceTxRequest](#ethermint.evm.v1.QueryTraceTxRequest) | [QueryTraceTxResponse](#ethermint.evm.v1.QueryTraceTxResponse) | TraceTx implements the `debug_traceTransaction` rpc api | GET|/ethermint/evm/v1/trace_tx|
+| `TokenPairs` | [QueryTokenPairsRequest](#evmos.intrarelayer.v1.QueryTokenPairsRequest) | [QueryTokenPairsResponse](#evmos.intrarelayer.v1.QueryTokenPairsResponse) | Retrieves registered token pairs | GET|/evmos/intrarelayer/v1/token_pairs|
+| `TokenPair` | [QueryTokenPairRequest](#evmos.intrarelayer.v1.QueryTokenPairRequest) | [QueryTokenPairResponse](#evmos.intrarelayer.v1.QueryTokenPairResponse) | Retrieves a registered token pair | GET|/evmos/intrarelayer/v1/token_pairs/{token}|
+| `Params` | [QueryParamsRequest](#evmos.intrarelayer.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.intrarelayer.v1.QueryParamsResponse) | Params retrieves the intrarelayer module params | GET|/evmos/intrarelayer/v1/params|
 
  <!-- end services -->
 
 
 
-<a name="ethermint/feemarket/v1/feemarket.proto"></a>
+<a name="evmos/intrarelayer/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## ethermint/feemarket/v1/feemarket.proto
+## evmos/intrarelayer/v1/tx.proto
 
 
 
-<a name="ethermint.feemarket.v1.Params"></a>
+<a name="evmos.intrarelayer.v1.MsgConvertCoin"></a>
 
-### Params
-Params defines the EVM module parameters
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `no_base_fee` | [bool](#bool) |  | no base fee forces the EIP-1559 base fee to 0 (needed for 0 price calls) |
-| `base_fee_change_denominator` | [uint32](#uint32) |  | base fee change denominator bounds the amount the base fee can change between blocks. |
-| `elasticity_multiplier` | [uint32](#uint32) |  | elasticity multiplier bounds the maximum gas limit an EIP-1559 block may have. |
-| `initial_base_fee` | [int64](#int64) |  | initial base fee for EIP-1559 blocks. |
-| `enable_height` | [int64](#int64) |  | height at which the base fee calculation is enabled. |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="ethermint/feemarket/v1/genesis.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## ethermint/feemarket/v1/genesis.proto
-
-
-
-<a name="ethermint.feemarket.v1.GenesisState"></a>
-
-### GenesisState
-GenesisState defines the feemarket module's genesis state.
+### MsgConvertCoin
+MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#ethermint.feemarket.v1.Params) |  | params defines all the paramaters of the module. |
-| `base_fee` | [string](#string) |  | base fee is the exported value from previous software version. Zero by default. |
-| `block_gas` | [uint64](#uint64) |  | block gas is the amount of gas used on the last block before the upgrade. Zero by default. |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="ethermint/feemarket/v1/query.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## ethermint/feemarket/v1/query.proto
-
-
-
-<a name="ethermint.feemarket.v1.QueryBaseFeeRequest"></a>
-
-### QueryBaseFeeRequest
-QueryBaseFeeRequest defines the request type for querying the EIP1559 base
-fee.
+| `coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Cosmos coin which denomination is registered on intrarelayer bridge. The coin amount defines the total ERC20 tokens to convert. |
+| `receiver` | [string](#string) |  | recipient hex address to receive ERC20 token |
+| `sender` | [string](#string) |  | cosmos bech32 address from the owner of the given ERC20 tokens |
 
 
 
 
 
 
-<a name="ethermint.feemarket.v1.QueryBaseFeeResponse"></a>
+<a name="evmos.intrarelayer.v1.MsgConvertCoinResponse"></a>
 
-### QueryBaseFeeResponse
-BaseFeeResponse returns the EIP1559 base fee.
+### MsgConvertCoinResponse
+MsgConvertCoinResponse returns no fields
+
+
+
+
+
+
+<a name="evmos.intrarelayer.v1.MsgConvertERC20"></a>
+
+### MsgConvertERC20
+MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `base_fee` | [string](#string) |  |  |
+| `contract_address` | [string](#string) |  | ERC20 token contract address registered on intrarelayer bridge |
+| `amount` | [string](#string) |  | amount of ERC20 tokens to mint |
+| `receiver` | [string](#string) |  | bech32 address to receive SDK coins. |
+| `sender` | [string](#string) |  | sender hex address from the owner of the given ERC20 tokens |
 
 
 
 
 
 
-<a name="ethermint.feemarket.v1.QueryBlockGasRequest"></a>
+<a name="evmos.intrarelayer.v1.MsgConvertERC20Response"></a>
 
-### QueryBlockGasRequest
-QueryBlockGasRequest defines the request type for querying the EIP1559 base
-fee.
-
-
-
-
-
-
-<a name="ethermint.feemarket.v1.QueryBlockGasResponse"></a>
-
-### QueryBlockGasResponse
-QueryBlockGasResponse returns block gas used for a given height.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `gas` | [int64](#int64) |  |  |
-
-
-
-
-
-
-<a name="ethermint.feemarket.v1.QueryParamsRequest"></a>
-
-### QueryParamsRequest
-QueryParamsRequest defines the request type for querying x/evm parameters.
-
-
-
-
-
-
-<a name="ethermint.feemarket.v1.QueryParamsResponse"></a>
-
-### QueryParamsResponse
-QueryParamsResponse defines the response type for querying x/evm parameters.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `params` | [Params](#ethermint.feemarket.v1.Params) |  | params define the evm module parameters. |
+### MsgConvertERC20Response
+MsgConvertERC20Response returns no fields
 
 
 
@@ -1037,82 +392,15 @@ QueryParamsResponse defines the response type for querying x/evm parameters.
  <!-- end HasExtensions -->
 
 
-<a name="ethermint.feemarket.v1.Query"></a>
+<a name="evmos.intrarelayer.v1.Msg"></a>
 
-### Query
-Query defines the gRPC querier service.
+### Msg
+Msg defines the intrarelayer Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#ethermint.feemarket.v1.QueryParamsRequest) | [QueryParamsResponse](#ethermint.feemarket.v1.QueryParamsResponse) | Params queries the parameters of x/feemarket module. | GET|/feemarket/evm/v1/params|
-| `BaseFee` | [QueryBaseFeeRequest](#ethermint.feemarket.v1.QueryBaseFeeRequest) | [QueryBaseFeeResponse](#ethermint.feemarket.v1.QueryBaseFeeResponse) | BaseFee queries the base fee of the parent block of the current block. | GET|/feemarket/evm/v1/base_fee|
-| `BlockGas` | [QueryBlockGasRequest](#ethermint.feemarket.v1.QueryBlockGasRequest) | [QueryBlockGasResponse](#ethermint.feemarket.v1.QueryBlockGasResponse) | BlockGas queries the gas used at a given block height | GET|/feemarket/evm/v1/block_gas|
-
- <!-- end services -->
-
-
-
-<a name="ethermint/types/v1/account.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## ethermint/types/v1/account.proto
-
-
-
-<a name="ethermint.types.v1.EthAccount"></a>
-
-### EthAccount
-EthAccount implements the authtypes.AccountI interface and embeds an
-authtypes.BaseAccount type. It is compatible with the auth AccountKeeper.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `base_account` | [cosmos.auth.v1beta1.BaseAccount](#cosmos.auth.v1beta1.BaseAccount) |  |  |
-| `code_hash` | [string](#string) |  |  |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="ethermint/types/v1/web3.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## ethermint/types/v1/web3.proto
-
-
-
-<a name="ethermint.types.v1.ExtensionOptionsWeb3Tx"></a>
-
-### ExtensionOptionsWeb3Tx
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `typed_data_chain_id` | [uint64](#uint64) |  | typed data chain id used only in EIP712 Domain and should match Ethereum network ID in a Web3 provider (e.g. Metamask). |
-| `fee_payer` | [string](#string) |  | fee payer is an account address for the fee payer. It will be validated during EIP712 signature checking. |
-| `fee_payer_sig` | [bytes](#bytes) |  | fee payer sig is a signature data from the fee paying account, allows to perform fee delegation when using EIP712 Domain. |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
+| `ConvertCoin` | [MsgConvertCoin](#evmos.intrarelayer.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.intrarelayer.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/intrarelayer/v1/tx/convert_coin|
+| `ConvertERC20` | [MsgConvertERC20](#evmos.intrarelayer.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.intrarelayer.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/intrarelayer/v1/tx/convert_erc20|
 
  <!-- end services -->
 
