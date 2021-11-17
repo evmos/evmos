@@ -6,42 +6,16 @@ order: 2
 
 Check how to obtain testnet tokens from the Evmos faucet website {synopsis}
 
-The Evmos Testnet Faucet distributes small amounts of {{ $themeConfig.project.testnet_denom }} to anyone who can provide a valid testnet address for free. Request funds from the Faucet either by using the [Keplr Wallet](../guides/keys-wallets/keplr.md) or follow the instructions on this page.
-
-## Obtain address
-
-### Keyring
-
-1. You can generate an Evmos key by using the [Keyring](./../guides/keys-wallets/keyring.md):
-
-```bash
-evmosd keys add testnet-key
-```
-
-You can obtain your key [Bech32](./../basics/accounts.md#addresses-and-public-keys) address by typing:
-
-```bash
-evmosd keys show testnet-key
-```
-
-### Metamask
-
-1. Add the Testnet to the [Metamask](./../guides/keys-wallets/metamask.md) Networks settings.
-2. Copy your Hex address and use the [`debug`](./../basics/accounts.md#addresses-conversion) command to obtain the Bech32 address
-
-  ```bash
-  evmosd debug addr 0x...
-  ```
+The Evmos Testnet Faucet distributes small amounts of {{ $themeConfig.project.testnet_denom }} to anyone who can provide a valid testnet address for free. Request funds from the faucet either by using the [Keplr Wallet](../guides/keys-wallets/keplr.md) or follow the instructions on this page.
 
 ::: tip
-Follow the [Metamask guide](./../guides/keys-wallets/metamask.md) for more info on how to setup your wallet accounts.
+Follow the [Metamask](./../guides/keys-wallets/metamask.md), [Keplr](../guides/keys-wallets/keplr.md) or [Keyring](./../guides/keys-wallets/keyring.md) guides for more info on how to setup your wallet account.
 :::
 
 ## Request tokens
 
-<!-- TODO: update to support Hex format -->
 You can request tokens for the testnet by using the Evmos [faucet](https://faucet.evmos.org).
-Simply fill in your address on the input field in Bech32 (`evmos1...`) format.
+Simply fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
 
 ::: warning
 If you use your Bech32 address, make sure you input the [account address](./../basics/accounts.md#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
@@ -54,9 +28,7 @@ If you use your Bech32 address, make sure you input the [account address](./../b
 To prevent the faucet account from draining the available funds, the Evmos testnet faucet
 imposes a maximum number of request for a period of time. By default the faucet service accepts 1
 request per day per address. All addresses **must** be authenticated using
-[Auth0](https://auth0.com/) before requesting tokens.
-
-<!-- TODO: add screenshots of authentication window -->
+ReCAPTCHA before requesting tokens.
 
 ## Amount
 

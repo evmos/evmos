@@ -154,7 +154,7 @@ node = "tcp://localhost:26657"
 broadcast-mode = "sync"
 ```
 
-After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `evmos_9000-2` to `evmostest_9000-1`, and output to number, it would change instantly as shown below.
+After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` to `evmostest_9000-1`, and output to number, it would change instantly as shown below.
 
 ```bash
 evmosd config
