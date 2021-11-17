@@ -103,9 +103,13 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	"github.com/tharsis/evmos/x/intrarelayer"
+	irk "github.com/tharsis/evmos/x/intrarelayer/keeper"
+	irt "github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
 func init() {
@@ -151,6 +155,7 @@ var (
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
+		intrarelayer.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -163,6 +168,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		irt.ModuleName:                 {authtypes.Minter, authtypes.Burner},
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -219,6 +225,9 @@ type Evmos struct {
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
 
+	// Evmos keepers
+	IntrarelayerKeeper irk.Keeper
+
 	// the module manager
 	mm *module.Manager
 
@@ -271,6 +280,8 @@ func NewEvmos(
 		ibchost.StoreKey, ibctransfertypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		// evmos keys
+		irt.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -363,16 +374,24 @@ func NewEvmos(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(irt.RouterKey, intrarelayer.NewIntrarelayerProposalHandler(app.IntrarelayerKeeper))
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
 
+	// Evmos Keeper
+	app.IntrarelayerKeeper = irk.NewKeeper(
+		keys[irt.StoreKey], appCodec, app.GetSubspace(irt.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.EvmKeeper,
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			govtypes.NewMultiGovHooks(
+				app.IntrarelayerKeeper,
+			),
 		),
 	)
 
@@ -432,6 +451,8 @@ func NewEvmos(
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
+		// Evmos app modules
+		intrarelayer.NewAppModule(app.IntrarelayerKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -467,7 +488,8 @@ func NewEvmos(
 		authz.ModuleName, feegrant.ModuleName,
 		// Ethermint modules
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
-
+		// Evmos modules
+		irt.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -735,5 +757,7 @@ func initParamsKeeper(
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
+	// evmos subspaces
+	paramsKeeper.Subspace(irt.ModuleName)
 	return paramsKeeper
 }

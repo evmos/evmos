@@ -1,0 +1,53 @@
+syntax = "proto3";
+package evmos.intrarelayer.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/tharsis/evmos/x/intrarelayer/types";
+
+// Msg defines the intrarelayer Msg service.
+service Msg {
+  // ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping.
+  rpc ConvertCoin(MsgConvertCoin) returns (MsgConvertCoinResponse){
+    option (google.api.http).get = "/evmos/intrarelayer/v1/tx/convert_coin";
+  };
+  // ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping.
+  rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response){
+    option (google.api.http).get = "/evmos/intrarelayer/v1/tx/convert_erc20";
+  };
+}
+
+// MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
+message MsgConvertCoin {
+  // Cosmos coin which denomination is registered on intrarelayer bridge.
+  // The coin amount defines the total ERC20 tokens to convert.
+  cosmos.base.v1beta1.Coin coin = 1 [(gogoproto.nullable) = false];
+  // recipient hex address to receive ERC20 token
+  string receiver = 2;
+  // cosmos bech32 address from the owner of the given ERC20 tokens
+  string sender = 3;
+}
+
+// MsgConvertCoinResponse returns no fields
+message MsgConvertCoinResponse{}
+
+
+// MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
+message MsgConvertERC20 {
+  // ERC20 token contract address registered on intrarelayer bridge
+  string contract_address = 1;
+  // amount of ERC20 tokens to mint
+  string amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // bech32 address to receive SDK coins.
+  string receiver = 3;
+  // sender hex address from the owner of the given ERC20 tokens
+  string sender = 4;
+}
+
+// MsgConvertERC20Response returns no fields
+message MsgConvertERC20Response{}
