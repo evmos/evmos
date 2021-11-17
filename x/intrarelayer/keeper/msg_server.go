@@ -186,7 +186,7 @@ func (k Keeper) convertERC20NativeCoin(
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
 
-	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnEvmos", sender, msg.Amount.BigInt())
+	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnCoins", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
