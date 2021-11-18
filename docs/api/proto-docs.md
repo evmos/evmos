@@ -191,7 +191,7 @@ Params defines the intrarelayer module params
 | ----- | ---- | ----- | ----------- |
 | `enable_intrarelayer` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
 | `token_pair_voting_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | overrides the governance voting period for token pairs proposals |
-| `enable_e_v_m_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
+| `enable_evm_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
 
 
 

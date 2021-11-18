@@ -37,6 +37,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## API Breaking
+
+* (intrarelayer) [\#99](https://github.com/tharsis/evmos/pull/99) Rename `enable_e_v_m_hook` json parameter to `enable_evm_hook`.
+
+## [v0.2.0] - 2021-11-17
+
 ### Features
 
 * (intrarelayer) [\#82](https://github.com/tharsis/evmos/pull/82) Intrarelayer module
