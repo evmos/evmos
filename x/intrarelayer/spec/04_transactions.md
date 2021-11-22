@@ -21,7 +21,7 @@ type RegisterCoinProposal struct {
 }
 ```
 
-The proposal content stateless validation fails if**:**
+The proposal content stateless validation fails if:
 
 - Title is invalid (length or char)
 - Description is invalid (length or char)
@@ -48,7 +48,7 @@ type RegisterERC20Proposal struct {
 }
 ```
 
-The proposal Content stateless validation fails if**:**
+The proposal Content stateless validation fails if:
 
 - Title is invalid (length or char)
 - Description is invalid (length or char)
@@ -70,7 +70,7 @@ type MsgConvertCoin struct {
 }
 ```
 
-Message stateless validation fails if**:**
+Message stateless validation fails if:
 
 - Coin is invalid (invalid denom or non-positive amount)
 - Receiver hex address is invalid
@@ -93,7 +93,7 @@ type MsgConvertERC20 struct {
 }
 ```
 
-Message stateless validation fails if**:**
+Message stateless validation fails if:
 
 - Contract address is invalid
 - Amount is not positive

@@ -8,10 +8,7 @@ The intrarelayer module implements two transaction hooks from the EVM and Govern
 
 ## EVM Hooks
 
-<aside>
 👉 **Purpose**: Allow for users to convert ERC20s to Cosmos Coins by sending an Ethereum tx transfer to the module account address. This enables native conversion of tokens via Metamask and EVM-enabled wallets.
-
-</aside>
 
 ### Registered Coin: ERC20 to Coin
 
@@ -33,14 +30,11 @@ The intrarelayer module implements two transaction hooks from the EVM and Govern
 
 ## Governance Hooks
 
-<aside>
 👉 **Purpose:** speed up the approval process of a token pair registration by defining a custom `VotingPeriod` duration for the `RegisterCoinProposal` and `RegisterERC20Proposal`.
-
-</aside>
 
 ### Overwriting the Voting Period
 
-By Implementing the `[GovHooks](https://github.com/cosmos/cosmos-sdk/blob/86474748888204515f59aaeab9be295066563f46/x/gov/types/expected_keepers.go#L57)` Interface from the Cosmos-SDK, the voting period for all proposals of the Intrarelayer module can be customized using the `AfterProposalDeposit` hook.
+By Implementing the [GovHooks](https://github.com/cosmos/cosmos-sdk/blob/86474748888204515f59aaeab9be295066563f46/x/gov/types/expected_keepers.go#L57) Interface from the Cosmos-SDK, the voting period for all proposals of the Intrarelayer module can be customized using the `AfterProposalDeposit` hook.
 
 1. Set the voting period  on the intrarelayer module parameters at genesis or through governance
 2. Submit a new governance proposal, e.g. `RegisterERC20Proposal`

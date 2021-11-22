@@ -10,9 +10,9 @@ The `x/intrarelayer` module maintains a canonical one-to-one mapping of native C
 
 ## Token Pair Registration
 
-Users can register a new token pair proposal ****through the governance module and initiate a vote to include the token pair in the module.
+Users can register a new token pair proposal through the governance module and initiate a vote to include the token pair in the module.
 
-When the proposal passes, the intrarelayer module registers the Cosmos Coin and ERC20 Token mapping on the app store.
+When the proposal passes, the intrarelayer module registers the Cosmos Coin and ERC20 Token mapping on the application's store.
 
 ### Registration of a Cosmos Coin
 
@@ -28,7 +28,7 @@ A proposal for an existing (i.e already deployed) ERC20 contract can be initiate
 
 Coin metadata is derived from the ERC20 token details (name, symbol, decimals) and vice versa. A special case is also described below that for the ERC20 representation of IBC fungible token (ICS20) vouchers.
 
-**Coin Metadata to ERC20 details**
+#### Coin Metadata to ERC20 details
 
 During the registration of a Cosmos Coin the following bank `Metadata` is used to deploy a ERC20 contract:
 
@@ -38,23 +38,23 @@ During the registration of a Cosmos Coin the following bank `Metadata` is used t
 
 The native Cosmos Coin contains a more extensive metadata than the ERC20 and includes all necessary details for the conversion into a ERC20 Token, which requires no additional population of data.
 
-**IBC voucher Metadata to ERC20 details**
+#### IBC voucher Metadata to ERC20 details
 
-IBC vouchers should comply to the following standard.
+IBC vouchers should comply to the following standard:
 
-- N**ame**: `{NAME} channel-{channel}`
-- S**ymbol**:  `ibc{NAME}-{channel}`
+- **Name**: `{NAME} channel-{channel}`
+- **Symbol**:  `ibc{NAME}-{channel}`
 - **Decimals**:  derived from bank `Metadata`
 
-**ERC20 details to Coin Metadata**
+#### ERC20 details to Coin Metadata
 
-During the Registration of an ERC20 Token the Coin metadata is derived from the ERC20 metadata and the bank Metadata:
+During the Registration of an ERC20 Token the Coin metadata is derived from the ERC20 metadata and the bank metadata:
 
 - **Description**: `Cosmos coin token representation of {contractAddress}`
 - **DenomUnits**:
     - Coin: `0`
     - ERC20: `{uint32(erc20Data.Decimals)}`
-- **Base: `{**"irm%s", address}`
+- **Base**: `{"irm%s", address}`
 - **Display**: `{erc20Data.Name}`
 - **Name**: `{types.CreateDenom(strContract)}`
 - **Symbol:** `{erc20Data.Symbol}`

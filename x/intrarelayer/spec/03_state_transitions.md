@@ -35,12 +35,9 @@ Conversion of a registered `TokenPair` can be done via:
 
 ### 1. Registered Coin
 
-<aside>
 👉 **Context:** A `TokenPair` has been created through a `RegisterCoinProposal` governance proposal. The proposal created an `ERC20` contract ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) of the ERC20 token representation of the Coin from the `ModuleAccount`, assigning it as the `owner` of the contract and thus granting it the permission to call the `mint()` and `burnFrom()` methods of the ERC20.
 
-</aside>
-
-### Invariants
+#### Invariants
 
 - Only the ModuleAccount should have the Minter Role on the ERC20. Otherwise, the user could unilaterally mint an infinite supply of the ERC20 token and then convert them to the native Coin
 - The user and the ModuleAccount (owner) should be the only ones that have the Burn Role for a Cosmos Coin
@@ -49,7 +46,7 @@ Conversion of a registered `TokenPair` can be done via:
     - Total Coin supply = Coins + Escrowed Coins
     - Total Token supply = Escrowed Coins = Minted Tokens
 
-### 1.1 Coin to ERC20
+#### 1.1 Coin to ERC20
 
 1. User submits `ConvertCoin` Tx
 2. Check if intrarelaying is allowed for the pair, sender and recipient
@@ -62,7 +59,7 @@ Conversion of a registered `TokenPair` can be done via:
     2. Call `mint()` ERC20 tokens from the `ModuleAccount` address
     3. Send minted Tokens to recipient address
 
-### 1.2 ERC20 to Coin
+#### 1.2 ERC20 to Coin
 
 1. User submits a `ConvertERC20` Tx
 2. Check if intrarelaying is allowed for the pair, sender and recipient (See 1.1 Coin to ERC20)
@@ -72,12 +69,9 @@ Conversion of a registered `TokenPair` can be done via:
 
 ### 2. Registered ERC20
 
-<aside>
 👉 **Context:** A `TokenPair` has been created through a `RegisterERC20Proposal` governance proposal. The `ModuleAccount` is not the owner of the contract, so it can't mint new tokens or burn on behalf of the user. The mechanism described below follows the same model as the ICS20 standard, by using escrow & mint / burn & unescrow logic.
 
-</aside>
-
-### Invariants
+#### Invariants
 
 - ERC20 Token supply on the EVM runtime is maintained at all times:
     - Escrowed ERC20 + Minted Cosmos Coin representation of ERC20 =  Burned Cosmos Coin representation of ERC20 + Unescrowed ERC20
@@ -86,7 +80,7 @@ Conversion of a registered `TokenPair` can be done via:
     - Total ERC20 token supply = Non Escrowed Tokens + Escrowed Tokens (on Module account address)
     - Total Coin supply for the native ERC20 = Escrowed ERC20 Tokens on module account  (i.e balance) = Minted Coins
 
-### 2.1 ERC20 to Coin
+#### 2.1 ERC20 to Coin
 
 1. User submits a `ConvertERC20` Tx
 2. Check if intrarelaying is allowed for the pair, sender and recipient (See 1.1 Coin to ERC20)
@@ -95,7 +89,7 @@ Conversion of a registered `TokenPair` can be done via:
     2. Mint Cosmos coins of the corresponding token pair denomination
     3. Send coins to the recipient address
 
-### 2.2 Coin to ERC20
+#### 2.2 Coin to ERC20
 
 1. User submits `ConvertCoin` Tx
 2. Check if intrarelaying is allowed for the pair, sender and recipient

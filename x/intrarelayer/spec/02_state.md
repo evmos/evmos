@@ -8,7 +8,11 @@ order: 2
 
 The `x/intrarelayer` module keeps the following objects in state:
 
-[Key and Values](https://www.notion.so/4b383d6e9b1b46af8dc60426e2cca739)
+| State Object        | Description                                    | Key                         | Value               |
+| ------------------- | ---------------------------------------------- | --------------------------- | ------------------- |
+| Token Pair          | Token Pair bytecode                            | `[]byte{1} + []byte(id)`    | `[]byte{tokenPair}` |
+| Token Pair by ERC20 | Token Pair id bytecode by erc20 contract bytes | `[]byte{2} + []byte(erc20)` | `[]byte(id)`        |
+| Token Pair by Denom | Token Pair id bytecode by denom string         | `[]byte{3} + []byte(denom)` | `[]byte(id)`        |
 
 ### Token Pair
 
@@ -22,8 +26,8 @@ type TokenPair struct {
 	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 	// shows token mapping enable status
 	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
-  // ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address)
-	ContractOwner Owner;
+	// ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address
+	ContractOwner Owner `protobuf:"varint,4,opt,name=contract_owner,json=contractOwner,proto3,enum=evmos.intrarelayer.v1.Owner" json:"contract_owner,omitempty"`
 }
 ```
 
@@ -38,6 +42,23 @@ tokenPairId = sha256(erc20 + "|" + denom)
 ### Token Origin
 
 The `ConvertCoin` and `ConvertERC20` functionality need to check if the token being used is a native Coin or a native ERC20. The owner field is based on the token registration proposal type (`RegisterCoinProposal` = 1, `RegisterERC20Proposal` = 2).
+
+The `Owner` enumerates the ownership of a ERC20 contract.
+
+```go
+type Owner int32
+
+const (
+	// OWNER_UNSPECIFIED defines an invalid/undefined owner.
+	OWNER_UNSPECIFIED Owner = 0
+	// OWNER_MODULE erc20 is owned by the intrarelayer module account.
+	OWNER_MODULE Owner = 1
+	// EXTERNAL erc20 is owned by an external account.
+	OWNER_EXTERNAL Owner = 2
+)
+```
+
+The `Owner` can be checked with the following helper functions:
 
 ```go
 // IsNativeCoin returns true if the owner of the ERC20 contract is the

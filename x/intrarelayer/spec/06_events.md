@@ -4,16 +4,54 @@ order: 6
 
 # Events
 
-The intrarelayer module emits the following events:
+The `x/intrarelayer` module emits the following events:
 
-[Register Coin Proposal](https://www.notion.so/87a56c6af07a4fdc81bca5e9f2bce648)
+## Register Coin Proposal
 
-[Register ERC20 Proposal](https://www.notion.so/3e994f352cff4d8d828bbb4c8a77a6cc)
+| Type            | Attibute Key    | Attibute Value    |
+| --------------- | --------------- | ----------------- |
+| `register_coin` | `"cosmos_coin"` | `{denom}`         |
+| `register_coin` | `"erc20_token"` | `{erc20_address}` |
 
-[Toggle Token Relay ](https://www.notion.so/d0fd04a6c7764765a7ec53551cc6b525)
+## Register ERC20 Proposal
 
-[Update Token Pair ERC20 ](https://www.notion.so/cfb1ebfa0d8b456fa15d14a2600d6257)
+| Type             | Attibute Key    | Attibute Value    |
+| ---------------- | --------------- | ----------------- |
+| `register_eec20` | `"cosmos_coin"` | `{denom}`         |
+| `register_eec20` | `"erc20_token"` | `{erc20_address}` |
 
-[Convert Coin ](https://www.notion.so/4a6d4b3839f44e61bc4f591baeed342d)
+## Toggle Token Relay
 
-[Convert ERC20 ](https://www.notion.so/98c8b956e9974b8a8131b55cff29524d)
+| Type                 | Attibute Key    | Attibute Value    |
+| -------------------- | --------------- | ----------------- |
+| `toggle_token_relay` | `"erc20_token"` | `{erc20_address}` |
+| `toggle_token_relay` | `"cosmos_coin"` | `{denom}`         |
+
+## Update Token Pair ERC20
+
+| Type                      | Attibute Key    | Attibute Value    |
+| ------------------------- | --------------- | ----------------- |
+| `update_token_pair_erc20` | `"erc20_token"` | `{erc20_address}` |
+| `update_token_pair_erc20` | `"cosmos_coin"` | `{denom}`         |
+
+## Convert Coin
+
+| Type           | Attibute Key    | Attibute Value              |
+| -------------- | --------------- | --------------------------- |
+| `convert_coin` | `"sender"`      | `{msg.Sender}`              |
+| `convert_coin` | `"receiver"`    | `{msg.Receiver}`            |
+| `convert_coin` | `"amount"`      | `{msg.Coin.Amount.String()}` |
+| `convert_coin` | `"cosmos_coin"` | `{denom}`                   |
+| `convert_coin` | `"erc20_token"` | `{erc20_address}`           |
+
+## Convert ERC20
+
+| Type            | Attibute Key    | Attibute Value              |
+| --------------- | --------------- | --------------------------- |
+| `convert_erc20` | `"sender"`      | `{msg.Sender}`              |
+| `convert_erc20` | `"receiver"`    | `{msg.Receiver}`            |
+| `convert_erc20` | `"amount"`      | `{msg.Amount.String()}`     |
+| `convert_erc20` | `"cosmos_coin"` | `{denom}`                   |
+| `convert_erc20` | `"erc20_token"` | `{msg.ContractAddress}`     |
+
+

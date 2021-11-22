@@ -6,7 +6,12 @@ order: 7
 
 The intrarelayer module contains the following parameters:
 
-[Untitled](https://www.notion.so/09ff02e6cf524480a497a48fedf174ff)
+| Key                     | Type          | Default Value                 |
+| ----------------------- | ------------- | ----------------------------- |
+| `EnableIntrarelayer`    | bool          | `true`                        |
+| `TokenPairVotingPeriod` | time.Duration | `172800000000000`  (=48h0m0s) |
+| `EnableEVMHook`         | bool          | `true`                        |
+
 
 ## Enable Intrarelayer
 
