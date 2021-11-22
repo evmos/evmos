@@ -1,6 +1,3 @@
-//go:build norace
-// +build norace
-
 package network_test
 
 import (
@@ -9,7 +6,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/cosmos-sdk/testutil/network"
+	"github.com/tharsis/ethermint/testutil/network"
+	evmosnetwork "github.com/tharsis/evmos/testutil/network"
 )
 
 type IntegrationTestSuite struct {
@@ -22,7 +20,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	var err error
-	s.network, err = network.New(s.T(), s.T().TempDir(), network.DefaultConfig())
+	s.network, err = network.New(s.T(), s.T().TempDir(), evmosnetwork.DefaultConfig())
 	s.Require().NoError(err)
 
 	_, err = s.network.WaitForHeight(1)
@@ -37,6 +35,10 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 func (s *IntegrationTestSuite) TestNetwork_Liveness() {
 	h, err := s.network.WaitForHeightWithTimeout(10, time.Minute)
 	s.Require().NoError(err, "expected to reach 10 blocks; got %d", h)
+
+	latestHeight, err := s.network.LatestHeight()
+	s.Require().NoError(err, "latest height failed")
+	s.Require().GreaterOrEqual(latestHeight, h)
 }
 
 func TestIntegrationTestSuite(t *testing.T) {
