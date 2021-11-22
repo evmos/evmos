@@ -8,7 +8,9 @@ The intrarelayer module implements two transaction hooks from the EVM and Govern
 
 ## EVM Hooks
 
+::: tip
 👉 **Purpose**: Allow for users to convert ERC20s to Cosmos Coins by sending an Ethereum tx transfer to the module account address. This enables native conversion of tokens via Metamask and EVM-enabled wallets.
+:::
 
 ### Registered Coin: ERC20 to Coin
 
@@ -30,7 +32,9 @@ The intrarelayer module implements two transaction hooks from the EVM and Govern
 
 ## Governance Hooks
 
+::: tip
 👉 **Purpose:** speed up the approval process of a token pair registration by defining a custom `VotingPeriod` duration for the `RegisterCoinProposal` and `RegisterERC20Proposal`.
+:::
 
 ### Overwriting the Voting Period
 

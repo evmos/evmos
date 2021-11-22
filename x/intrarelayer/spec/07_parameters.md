@@ -12,10 +12,9 @@ The intrarelayer module contains the following parameters:
 | `TokenPairVotingPeriod` | time.Duration | `172800000000000`  (=48h0m0s) |
 | `EnableEVMHook`         | bool          | `true`                        |
 
-
 ## Enable Intrarelayer
 
-The `EnableIntrarelayer` parameter toggles all state transitions in the module. When the parameter is disabled, it will prevent all Tokenpair registration and conversion functionality.
+The `EnableIntrarelayer` parameter toggles all state transitions in the module. When the parameter is disabled, it will prevent all token pair registration and conversion functionality.
 
 ## Token Pair Voting Period
 
