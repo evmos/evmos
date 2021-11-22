@@ -28,6 +28,7 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewConvertCoinCmd(),
+		NewConvertERC20Cmd(),
 	)
 	return txCmd
 }

@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * (intrarelayer) [\#99](https://github.com/tharsis/evmos/pull/99) Rename `enable_e_v_m_hook` json parameter to `enable_evm_hook`.
 
+## Bug Fixes
+
+* (intrarelayer) [\#102](https://github.com/tharsis/evmos/pull/102) Add `convert-erc20` cmd
+
 ## [v0.2.0] - 2021-11-17
 
 ### Features
