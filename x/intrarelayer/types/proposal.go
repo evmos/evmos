@@ -7,6 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 )
@@ -66,6 +67,10 @@ func (*RegisterCoinProposal) ProposalType() string {
 // ValidateBasic performs a stateless check of the proposal fields
 func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 	if err := rtbp.Metadata.Validate(); err != nil {
+		return err
+	}
+
+	if err := ibctransfertypes.ValidateIBCDenom(rtbp.Metadata.Base); err != nil {
 		return err
 	}
 
