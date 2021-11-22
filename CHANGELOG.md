@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * (intrarelayer) [\#99](https://github.com/tharsis/evmos/pull/99) Rename `enable_e_v_m_hook` json parameter to `enable_evm_hook`.
 
+## Improvements
+
+* (cmd) [\#105](https://github.com/tharsis/evmos/pull/105) Improve testnet command to include JSON-RPC client.
+
 ## Bug Fixes
 
 * (intrarelayer) [\#102](https://github.com/tharsis/evmos/pull/102) Add `convert-erc20` cmd
