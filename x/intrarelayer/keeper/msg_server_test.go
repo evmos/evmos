@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -270,4 +271,29 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		})
 	}
 	suite.mintFeeCollector = false
+}
+
+func (suite *KeeperTestSuite) TestConvertNativeIBC() {
+	suite.SetupTest()
+	validMetadata := banktypes.Metadata{
+		Description: "desc",
+		Base:        "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2 channel-14",
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2 channel-14",
+				Exponent: 0,
+			},
+			{
+				Denom:    "coin2",
+				Exponent: uint32(18),
+			},
+		},
+		Name:    "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2 channel-14",
+		Symbol:  "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2 channel-14",
+		Display: "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2 channel-14",
+	}
+	_, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+	suite.Require().NoError(err)
+	suite.Commit()
 }
