@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -174,7 +175,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			tc.malleate()
 			suite.Commit()
 
-			coinName := "irm" + contractAddr.String()
+			coinName := types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertERC20(
 				sdk.NewInt(tc.burn),
@@ -225,7 +226,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			suite.Require().NotNil(contractAddr)
 
 			// Precondition: Convert ERC20 to Coins
-			coinName := "irm" + contractAddr.String()
+			coinName := types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
 			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint))
 			suite.Commit()
@@ -270,4 +271,29 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		})
 	}
 	suite.mintFeeCollector = false
+}
+
+func (suite *KeeperTestSuite) TestConvertNativeIBC() {
+	suite.SetupTest()
+	validMetadata := banktypes.Metadata{
+		Description: "ATOM IBC voucher (channel 14)",
+		Base:        "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2",
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2",
+				Exponent: 0,
+			},
+			{
+				Denom:    "coin2",
+				Exponent: uint32(18),
+			},
+		},
+		Name:    "ATOM channel-14",
+		Symbol:  "ibcATOM-14",
+		Display: "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2",
+	}
+	_, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+	suite.Require().NoError(err)
+	suite.Commit()
 }

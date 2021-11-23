@@ -22,6 +22,10 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", coinMetadata.Name)
 	}
 
+	if err := k.verifyMetadata(ctx, coinMetadata); err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin metadata is invalid %s", coinMetadata.Name)
+	}
+
 	addr, err := k.DeployERC20Contract(ctx, coinMetadata)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
@@ -35,16 +39,18 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	return &pair, nil
 }
 
+func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata) error {
+	meta, found := k.bankKeeper.GetDenomMetaData(ctx, coinMetadata.Base)
+	if !found {
+		k.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
+		return nil
+	}
+	// If it already existed, Check that is equal to what is stored
+	return equalMetadata(meta, coinMetadata)
+}
+
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the intrarelayer module account as owner
 func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
-	// meta, found := k.bankKeeper.GetDenomMetaData(ctx, pair.Denom)
-	// if !found {
-	// 	// metadata already exists; exit
-	// 	// TODO: validate that the fields from the ERC20 match the denom metadata's
-	// 	return common.Address{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination is not registered")
-	// }
-	// k.evmKeeper.SetNonce(types.ModuleAddress, 1)
-
 	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
