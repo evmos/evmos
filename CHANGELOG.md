@@ -43,6 +43,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Improvements
 
+* (intrarelayer) [\#107](https://github.com/tharsis/evmos/pull/107) Add IBC validation
 * (cmd) [\#105](https://github.com/tharsis/evmos/pull/105) Improve testnet command to include JSON-RPC client.
 
 ## Bug Fixes

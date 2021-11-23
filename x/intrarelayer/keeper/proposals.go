@@ -51,7 +51,6 @@ func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata)
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the intrarelayer module account as owner
 func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
-
 	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)

@@ -92,7 +92,7 @@ func validateIBC(metadata banktypes.Metadata) error {
 	}
 
 	if len(denomSplit) != 2 || denomSplit[0] != ibctransfertypes.DenomPrefix {
-		//NOTE: should be unaccessible (covered on ValidateIBCDenom)
+		// NOTE: should be unaccessible (covered on ValidateIBCDenom)
 		return fmt.Errorf("invalid metadata. %s denomination should be prefixed with the format 'ibc/", metadata.Base)
 	}
 
