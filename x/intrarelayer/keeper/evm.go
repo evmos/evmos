@@ -104,7 +104,7 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contrac
 		return nil, err
 	}
 
-	k.evmKeeper.SetNonce(types.ModuleAddress, nonce+1)
+	k.evmKeeper.SetNonce(from, nonce+1)
 
 	if res.Failed() {
 		return nil, sdkerrors.Wrap(evmtypes.ErrVMExecution, res.VmError)

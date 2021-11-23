@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			true,
 		},
 		{
-			"Unregistered pair",
+			"unregistered pair",
 			func(contractAddr common.Address) {
 				// Mint 10 tokens to suite.address (owner)
 				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			false,
 		},
 		{
-			"Wrong event",
+			"wrong event",
 			func(contractAddr common.Address) {
 				_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
