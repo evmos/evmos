@@ -7,7 +7,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
@@ -45,7 +44,7 @@ func CreateDenomDescription(address string) string {
 }
 
 func CreateDenom(address string) string {
-	return fmt.Sprintf("%s/%s", types.ModuleName, address)
+	return fmt.Sprintf("%s/%s", ModuleName, address)
 }
 
 // NewRegisterCoinProposal returns new instance of RegisterCoinProposal
