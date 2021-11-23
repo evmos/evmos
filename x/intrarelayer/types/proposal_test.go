@@ -65,7 +65,7 @@ func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	}
 }
 
-func createMetadata(denom, symbol string) banktypes.Metadata {
+func createFullMetadata(denom, symbol, name string) banktypes.Metadata {
 	return banktypes.Metadata{
 		Description: "desc",
 		Base:        denom,
@@ -80,10 +80,14 @@ func createMetadata(denom, symbol string) banktypes.Metadata {
 				Exponent: uint32(18),
 			},
 		},
-		Name:    denom,
+		Name:    name,
 		Symbol:  symbol,
 		Display: denom,
 	}
+}
+
+func createMetadata(denom, symbol string) banktypes.Metadata {
+	return createFullMetadata(denom, symbol, denom)
 }
 
 func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
@@ -106,6 +110,10 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 		Display: "coin",
 	}
 
+	validIBCDenom := "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2"
+	validIBCSymbol := "ibcATOM-14"
+	validIBCName := "ATOM channel-14"
+
 	testCases := []struct {
 		msg         string
 		title       string
@@ -127,6 +135,12 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 		{msg: "Register token pair - invalid length token (128)", title: "test", description: "test desc", metadata: createMetadata(strings.Repeat("a", 129), "test"), expectPass: false},
 		{msg: "Register token pair - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", metadata: validMetadata, expectPass: false},
 		{msg: "Register token pair - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), metadata: validMetadata, expectPass: false},
+
+		// Ibc
+		{msg: "Register token pair - ibc", title: "test", description: "test desc", metadata: createFullMetadata(validIBCDenom, validIBCSymbol, validIBCName), expectPass: true},
+		{msg: "Register token pair - ibc invalid denom", title: "test", description: "test desc", metadata: createFullMetadata("ibc/", validIBCSymbol, validIBCName), expectPass: false},
+		{msg: "Register token pair - ibc invalid symbol", title: "test", description: "test desc", metadata: createFullMetadata(validIBCDenom, "badSymbol", validIBCName), expectPass: false},
+		{msg: "Register token pair - ibc invalid name", title: "test", description: "test desc", metadata: createFullMetadata(validIBCDenom, validIBCSymbol, validIBCDenom), expectPass: false},
 	}
 
 	for i, tc := range testCases {
