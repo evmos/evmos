@@ -74,10 +74,6 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 		return err
 	}
 
-	if err := rtbp.Metadata.Validate(); err != nil {
-		return err
-	}
-
 	return govtypes.ValidateAbstract(rtbp)
 }
 

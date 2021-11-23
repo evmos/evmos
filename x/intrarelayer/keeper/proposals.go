@@ -42,19 +42,11 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata) error {
 	meta, found := k.bankKeeper.GetDenomMetaData(ctx, coinMetadata.Base)
 	if !found {
-		// Store IBC-voucher metadata
-		if err := coinMetadata.Validate(); err != nil {
-			return sdkerrors.Wrap(err, "metadata provided is invalid")
-		}
 		k.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
 		return nil
 	}
-
 	// If it already existed, Check that is equal to what is stored
-	if equalMetadata(meta, coinMetadata) {
-		return nil
-	}
-	return fmt.Errorf("metadata is different from stored")
+	return equalMetadata(meta, coinMetadata)
 }
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the intrarelayer module account as owner
