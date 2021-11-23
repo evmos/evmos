@@ -109,7 +109,6 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 	_, found := k.bankKeeper.GetDenomMetaData(ctx, types.CreateDenom(strContract))
 	if found {
 		// metadata already exists; exit
-		// TODO: validate that the fields from the ERC20 match the denom metadata's
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
 	}
 
@@ -182,22 +181,53 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 	if !found {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get metadata for %s", pair.Denom)
 	}
+
+	// safety check
+	if len(metadata.DenomUnits) == 0 {
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "metadata denom units for %s cannot be empty", pair.Erc20Address)
+	}
+
 	// Get new erc20 values
 	erc20Data, err := k.QueryERC20(ctx, newERC20Addr)
 	if err != nil {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "could not get token %s erc20Data", newERC20Addr.String())
 	}
-	// Compare
-	if len(metadata.DenomUnits) != 2 {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
-	}
 
+	// compare metadata and ERC20 details
 	if metadata.Display != erc20Data.Name ||
 		metadata.Symbol != erc20Data.Symbol ||
-		metadata.DenomUnits[1].Denom != erc20Data.Name ||
-		metadata.DenomUnits[1].Exponent != uint32(erc20Data.Decimals) ||
 		metadata.Description != types.CreateDenomDescription(erc20Addr.String()) {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "invalid metadata for %s ", pair.Erc20Address)
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "metadata details (display, symbol, description) don't match the ERC20 details from %s ", pair.Erc20Address)
+	}
+
+	// check that the denom units contain one item with the same
+	// name and decimal values as the ERC20
+	found = false
+	for _, denomUnit := range metadata.DenomUnits {
+		// iterate denom units until we found the one with the ERC20 Name
+		if denomUnit.Denom != erc20Data.Name {
+			continue
+		}
+
+		// once found, check it has the same exponent
+		if denomUnit.Exponent != uint32(erc20Data.Decimals) {
+			return types.TokenPair{}, sdkerrors.Wrapf(
+				types.ErrInternalTokenPair, "metadata denom unit exponent doesn't match the ERC20 details from %s, expected %d, got %d",
+				pair.Erc20Address, erc20Data.Decimals, denomUnit.Exponent,
+			)
+		}
+
+		// break as metadata might contain denom units for higher exponents
+		found = true
+		break
+	}
+
+	if !found {
+		return types.TokenPair{}, sdkerrors.Wrapf(
+			types.ErrInternalTokenPair,
+			"metadata doesn't contain denom unit found for ERC20 %s (%s)",
+			erc20Data.Name, pair.Erc20Address,
+		)
 	}
 
 	// Update the metadata description with the new address

@@ -370,12 +370,82 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			false,
 		},
 		{
-			"ok",
+			"empty denom units",
 			func() {
+				var found bool
 				contractAddr = suite.setupRegisterERC20Pair()
 				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
-				pair, _ = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
-				metadata, _ = suite.app.BankKeeper.GetDenomMetaData(suite.ctx, cosmosTokenName)
+				pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				suite.Require().True(found)
+				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, banktypes.Metadata{Base: pair.Denom})
+				suite.Commit()
+
+				// Deploy a new contrat with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			},
+			false,
+		},
+		{
+			"metadata ERC20 details mismatch",
+			func() {
+				var found bool
+				contractAddr = suite.setupRegisterERC20Pair()
+				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				suite.Require().True(found)
+				metadata := banktypes.Metadata{Base: pair.Denom, DenomUnits: []*banktypes.DenomUnit{{}}}
+				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
+				suite.Commit()
+
+				// Deploy a new contrat with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			},
+			false,
+		},
+		{
+			"no denom unit with ERC20 name",
+			func() {
+				var found bool
+				contractAddr = suite.setupRegisterERC20Pair()
+				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				suite.Require().True(found)
+				metadata := banktypes.Metadata{Base: pair.Denom, Display: erc20Name, Description: types.CreateDenomDescription(contractAddr.String()), Symbol: erc20Symbol, DenomUnits: []*banktypes.DenomUnit{{}}}
+				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
+				suite.Commit()
+
+				// Deploy a new contrat with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			},
+			false,
+		},
+		{
+			"denom unit and ERC20 decimals mismatch",
+			func() {
+				var found bool
+				contractAddr = suite.setupRegisterERC20Pair()
+				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				suite.Require().True(found)
+				metadata := banktypes.Metadata{Base: pair.Denom, Display: erc20Name, Description: types.CreateDenomDescription(contractAddr.String()), Symbol: erc20Symbol, DenomUnits: []*banktypes.DenomUnit{{Denom: erc20Name}}}
+				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
+				suite.Commit()
+
+				// Deploy a new contrat with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			},
+			false,
+		},
+		{
+			"ok",
+			func() {
+				var found bool
+				contractAddr = suite.setupRegisterERC20Pair()
+				id := suite.app.IntrarelayerKeeper.GetTokenPairID(suite.ctx, contractAddr.String())
+				pair, found = suite.app.IntrarelayerKeeper.GetTokenPair(suite.ctx, id)
+				suite.Require().True(found)
+				metadata := banktypes.Metadata{Base: pair.Denom, Display: erc20Name, Description: types.CreateDenomDescription(contractAddr.String()), Symbol: erc20Symbol, DenomUnits: []*banktypes.DenomUnit{{Denom: erc20Name, Exponent: 18}}}
+				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
 				suite.Commit()
 
 				// Deploy a new contrat with the same values

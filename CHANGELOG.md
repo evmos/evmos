@@ -48,6 +48,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Bug Fixes
 
+* (intrarelayer) #109 Fix hardcoded intrarelayer nonce and `UpdateTokenPairERC20` proposal to support ERC20s with 0 decimals.
 * (intrarelayer) [\#102](https://github.com/tharsis/evmos/pull/102) Add `convert-erc20` cmd
 
 ## [v0.2.0] - 2021-11-17
