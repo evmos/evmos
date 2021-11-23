@@ -78,6 +78,35 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			false,
 		},
 		{
+			"metadata different that stored",
+			func() {
+				validMetadata := banktypes.Metadata{
+					Description: "desc",
+					Base:        cosmosTokenName,
+					// NOTE: Denom units MUST be increasing
+					DenomUnits: []*banktypes.DenomUnit{
+						{
+							Denom:    cosmosTokenName,
+							Exponent: 0,
+						},
+						{
+							Denom:    "coin2",
+							Exponent: uint32(1),
+						},
+						{
+							Denom:    "extraDenom",
+							Exponent: uint32(2),
+						},
+					},
+					Name:    "otherName",
+					Symbol:  "token",
+					Display: cosmosTokenName,
+				}
+				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, validMetadata)
+			},
+			false,
+		},
+		{
 			"ok",
 			func() {},
 			true,
