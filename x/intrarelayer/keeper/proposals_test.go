@@ -177,7 +177,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 
 			contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 			suite.Commit()
-			coinName := "irm" + contractAddr.String()
+			coinName := types.CreateDenom(contractAddr.String())
 			pair = types.NewTokenPair(contractAddr, coinName, true, types.OWNER_EXTERNAL)
 
 			tc.malleate()
@@ -363,7 +363,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 
 			var err error
 			pair, err = suite.app.IntrarelayerKeeper.UpdateTokenPairERC20(suite.ctx, contractAddr, newContractAddr)
-			metadata, _ = suite.app.BankKeeper.GetDenomMetaData(suite.ctx, "irm"+contractAddr.String())
+			metadata, _ = suite.app.BankKeeper.GetDenomMetaData(suite.ctx, types.CreateDenom(contractAddr.String()))
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
