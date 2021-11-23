@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -74,7 +75,36 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 		return err
 	}
 
+	if err := validateIBC(rtbp.Metadata); err != nil {
+		return err
+	}
+
 	return govtypes.ValidateAbstract(rtbp)
+}
+
+func validateIBC(metadata banktypes.Metadata) error {
+	// Check ibc/ denom
+	denomSplit := strings.SplitN(metadata.Base, "/", 2)
+
+	if denomSplit[0] == metadata.Base && strings.TrimSpace(metadata.Base) != "" {
+		// Not IBC
+		return nil
+	}
+
+	if len(denomSplit) != 2 || denomSplit[0] != ibctransfertypes.DenomPrefix {
+		//NOTE: should be unaccessible (covered on ValidateIBCDenom)
+		return fmt.Errorf("invalid metadata. %s denomination should be prefixed with the format 'ibc/", metadata.Base)
+	}
+
+	if !strings.Contains(metadata.Name, "channel-") {
+		return fmt.Errorf("invalid metadata (Name) for ibc. %s should include channel", metadata.Name)
+	}
+
+	if !strings.HasPrefix(metadata.Symbol, "ibc") {
+		return fmt.Errorf("invalid metadata (Symbol) for ibc. %s should include \"ibc\" prefix", metadata.Symbol)
+	}
+
+	return nil
 }
 
 // NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
