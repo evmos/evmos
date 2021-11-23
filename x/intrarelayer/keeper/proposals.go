@@ -57,21 +57,6 @@ func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata)
 	return fmt.Errorf("metadata is different from stored")
 }
 
-func equalMetadata(a, b banktypes.Metadata) bool {
-	if a.Base == b.Base && a.Description == b.Description && a.Display == b.Display && a.Name == b.Name && a.Symbol == b.Symbol {
-		if len(a.DenomUnits) != len(b.DenomUnits) {
-			return false
-		}
-		for i, v := range a.DenomUnits {
-			if v != b.DenomUnits[i] {
-				return false
-			}
-		}
-		return true
-	}
-	return false
-}
-
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the intrarelayer module account as owner
 func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
 
