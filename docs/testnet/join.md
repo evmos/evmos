@@ -10,10 +10,10 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
 
-| Network Chain ID                                       | Description                       | Site                                                                     | Version                                               |
-|--------------------------------------------------------|-----------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------|
-| `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`v0.2.x`](https://github.com/tharsis/evmos/releases) |
-| `evmos_9000-1`                                         | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)   | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
+| Network Chain ID | Description                       | Site                                                                     | Version                                               |
+|------------------|-----------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------|
+| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases) |
+| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)   | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
 
 ## Install `evmosd`
 
