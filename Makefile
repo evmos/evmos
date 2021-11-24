@@ -14,6 +14,11 @@ SIMAPP = ./app
 HTTPS_GIT := https://github.com/tharsis/evmos.git
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
+NAMESPACE := tharsis
+PROJECT := evmos
+DOCKER_IMAGE := $(NAMESPACE)/$(PROJECT)
+COMMIT_HASH := $(shell git rev-parse --short=10 HEAD)
+DOCKER_TAG := $(COMMIT_HASH)
 
 export GO111MODULE = on
 
@@ -118,7 +123,7 @@ $(BUILD_TARGETS): go.sum $(BUILDDIR)/
 $(BUILDDIR)/:
 	mkdir -p $(BUILDDIR)/
 
-docker-build:
+build-docker:
 	# TODO replace with kaniko
 	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 	docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
@@ -126,7 +131,7 @@ docker-build:
 	# update old container
 	docker rm evmos || true
 	# create a new container from the latest image
-	docker create --name evmos -t -i tharsis/evmos:latest evmos
+	docker create --name evmos -t -i ${DOCKER_IMAGE}:latest evmos
 	# move the binaries to the ./build directory
 	mkdir -p ./build/
 	docker cp evmos:/usr/bin/evmosd ./build/
