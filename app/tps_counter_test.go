@@ -16,6 +16,8 @@ import (
 )
 
 func TestTPSCounter(t *testing.T) {
+	t.Skip("FIXME: non deterministic")
+
 	buf := new(bytes.Buffer)
 	wlog := &writerLogger{w: buf}
 	tpc := newTPSCounter(wlog)
