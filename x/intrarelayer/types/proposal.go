@@ -41,7 +41,7 @@ func init() {
 }
 
 func CreateDenomDescription(address string) string {
-	return fmt.Sprintf("Cosmos coin token representation of %s", address)
+	return fmt.Sprintf("Cosmos coin token representation of %s ", address)
 }
 
 func CreateDenom(address string) string {
