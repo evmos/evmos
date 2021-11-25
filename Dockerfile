@@ -1,30 +1,23 @@
-FROM golang:alpine AS build-env
+FROM golang:stretch AS build-env
 
-# Set up dependencies
-ENV PACKAGES git build-base
-
-# Set working directory for the build
 WORKDIR /go/src/github.com/tharsis/evmos
 
-# Install dependencies
-RUN apk add --update $PACKAGES
-RUN apk add linux-headers
+RUN apt update
+RUN apt install git -y
 
-# Add source files
 COPY . .
 
-# Make the binary
 RUN make build
 
-# Final image
-FROM alpine
+FROM golang:stretch
 
-# Install ca-certificates
-RUN apk add --update ca-certificates jq
+RUN apt update
+RUN apt install ca-certificates jq -y
+
 WORKDIR /root
 
-# Copy over binaries from the build-env
 COPY --from=build-env /go/src/github.com/tharsis/evmos/build/evmosd /usr/bin/evmosd
 
-# Run evmosd by default
+EXPOSE 26656 26657 1317 9090
+
 CMD ["evmosd"]
