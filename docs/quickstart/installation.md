@@ -57,7 +57,7 @@ evmosd version
 You can build {{ $themeConfig.project.name }} using Docker by running:
 
 ```bash
-make docker-build
+make build-docker
 ```
 
 The command above will create a docker container: `tharsis/evmos:latest`. Now you can run `evmosd` in the container.
