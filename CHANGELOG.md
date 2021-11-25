@@ -41,6 +41,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
 
+## Bug Fixes
+
+* (build) [\#116](https://github.com/tharsis/evmos/pull/116) Fix `build-docker` command
 
 ## [v0.3.0] - 2021-11-24
 
