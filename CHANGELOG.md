@@ -37,6 +37,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## Improvements
+
+* (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
+
+
 ## [v0.3.0] - 2021-11-24
 
 ## API Breaking
