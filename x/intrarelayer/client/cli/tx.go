@@ -145,13 +145,26 @@ Upon passing, the
 The proposal details must be supplied via a JSON file.`,
 		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin <path/to/metadata.json> --from=<key_or_address>
 
-	Where metadata.json contains:
+Where metadata.json contains (example):
 	
-	{
-		"name": "Photon"
-		"base": "aphoton",
-		"description": "staking, gas and governance token of the Evmos testnets"
-	}`, version.AppName,
+{
+  "description": "staking, gas and governance token of the Evmos testnets"
+  "denom_units": [
+		{
+			"denom": "aphoton",
+			"exponent": 0,
+			"aliases": ["atto photon"]
+		},
+		{
+			"denom": "photon",
+			"exponent": 18
+		}
+	],
+	"base": "aphoton",
+	"display: "photon",
+	"name": "Photon",
+	"symbol": "PHOTON"
+}`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
