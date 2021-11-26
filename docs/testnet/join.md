@@ -89,6 +89,8 @@ You can use the following code to get seeds from the repo and add it to your con
 ```bash
 SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/seeds.txt | awk '{print $1}' | paste -s -d, -`
 sed -i.bak -e "s/^seeds =.*/seeds = \"$SEEDS\"/" ~/.evmosd/config/config.toml
+```
+
 :::tip
 For more information on seeds and peers, you can the Tendermint [P2P documentation](https://docs.tendermint.com/master/spec/p2p/peer.html).
 :::
