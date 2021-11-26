@@ -163,12 +163,12 @@ func (etrp *ToggleTokenRelayProposal) ValidateBasic() error {
 }
 
 // NewUpdateTokenPairERC20Proposal returns new instance of UpdateTokenPairERC20Proposal
-func NewUpdateTokenPairERC20Proposal(title, description string, erc20Addr, newERC20Addr common.Address) govtypes.Content {
+func NewUpdateTokenPairERC20Proposal(title, description, erc20Addr, newERC20Addr string) govtypes.Content {
 	return &UpdateTokenPairERC20Proposal{
 		Title:           title,
 		Description:     description,
-		Erc20Address:    erc20Addr.String(),
-		NewErc20Address: newERC20Addr.String(),
+		Erc20Address:    erc20Addr,
+		NewErc20Address: newERC20Addr,
 	}
 }
 
