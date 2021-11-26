@@ -84,6 +84,13 @@ Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the f
 seeds = "<node-id>@<ip>:<p2p port>"
 ```
 
+You can use the following code to get seeds from the repo and add it to your config:
+
+```bash
+SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/seeds.txt | awk '{print $1}' | paste -s -d, -`
+sed -i.bak -e "s/^seeds =.*/seeds = \"$SEEDS\"/" ~/.evmosd/config/config.toml
+```
+
 :::tip
 For more information on seeds and peers, you can the Tendermint [P2P documentation](https://docs.tendermint.com/master/spec/p2p/peer.html).
 :::
@@ -93,11 +100,10 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
-A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy). 
+A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
-curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/peers.txt > peers.txt
-PEERS=`awk '{print $1}' peers.txt | paste -s -d, -`
+PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
 ```
 
 Use `sed` to include them into the configuration. You can also add them manually:
