@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	cli "github.com/tharsis/evmos/x/intrarelayer/client"
+	"github.com/tharsis/evmos/x/intrarelayer/client/cli"
 	"github.com/tharsis/evmos/x/intrarelayer/keeper"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
