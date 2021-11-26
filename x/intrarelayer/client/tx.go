@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -128,5 +131,123 @@ func NewConvertERC20Cmd() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
+func NewRegisterCoinProposalCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "register-coin [proposal-file]",
+		Args:  cobra.ExactArgs(1),
+		Short: "",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Submit a community pool spend proposal along with an initial deposit.
+The proposal details must be supplied via a JSON file.
+
+Example:
+$ %s tx gov submit-proposal register-coin <path/to/proposal.json> --from=<key_or_address>
+
+Where proposal.json contains:
+
+{
+  "title": "Register Coin",
+  "description": "Pay me some Atoms!",
+  "deposit": "1000aphoton"
+}
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := ParseRegisterCoinProposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+
+			// FIXME: add deposit to proposal
+			dep := ""
+
+			deposit, err := sdk.ParseCoinsNormalized(dep)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			content := types.NewRegisterCoinProposal(proposal.Title, proposal.Description, proposal.Metadata)
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	return cmd
+}
+
+// NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
+func NewRegisterERC20ProposalCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "register-erc20 [proposal-file]",
+		Args:  cobra.ExactArgs(1),
+		Short: "",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Submit a community pool spend proposal along with an initial deposit.
+The proposal details must be supplied via a JSON file.
+
+Example:
+$ %s tx gov submit-proposal register-coin <path/to/proposal.json> --from=<key_or_address>
+
+Where proposal.json contains:
+
+{
+  "title": "Register ERC20 token",
+  "description": "ERC20",
+  "deposit": "1000aphoton"
+}
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := ParseRegisterERC20Proposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+
+			// FIXME: add deposit to proposal
+			dep := ""
+
+			deposit, err := sdk.ParseCoinsNormalized(dep)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			content := types.NewRegisterERC20Proposal(proposal.Title, proposal.Description, proposal.Erc20Address)
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
 	return cmd
 }
