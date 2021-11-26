@@ -6,7 +6,8 @@ import (
 
 // TODO: add REST
 var (
-	RegisterCoinProposalHandler  = govclient.NewProposalHandler(NewRegisterCoinProposalCmd, nil)
-	RegisterERC20ProposalHandler = govclient.NewProposalHandler(NewRegisterERC20ProposalCmd, nil)
-	// TODO: add other proposal types
+	RegisterCoinProposalHandler         = govclient.NewProposalHandler(NewRegisterCoinProposalCmd, nil)
+	RegisterERC20ProposalHandler        = govclient.NewProposalHandler(NewRegisterERC20ProposalCmd, nil)
+	ToggleTokenRelayProposalHandler     = govclient.NewProposalHandler(NewToggleTokenRelayProposalCmd, nil)
+	UpdateTokenPairERC20ProposalHandler = govclient.NewProposalHandler(NewUpdateTokenPairERC20ProposalCmd, nil)
 )

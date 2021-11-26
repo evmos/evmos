@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -139,25 +138,25 @@ func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-coin [proposal-file]",
 		Args:  cobra.ExactArgs(1),
-		Short: "",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Submit a community pool spend proposal along with an initial deposit.
-The proposal details must be supplied via a JSON file.
+		Short: "Submit a register coin proposal",
+		Long: `Submit a proposal to register a Cosmos coin to the intrarelayer along with an initial deposit.
+Upon passing, the 
+The proposal details must be supplied via a JSON file.`,
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin <path/to/proposal.json> --from=<key_or_address>
 
-Example:
-$ %s tx gov submit-proposal register-coin <path/to/proposal.json> --from=<key_or_address>
-
-Where proposal.json contains:
-
-{
-  "title": "Register Coin",
-  "description": "Pay me some Atoms!",
-  "deposit": "1000aphoton"
-}
-`,
-				version.AppName,
-			),
-		),
+		Where proposal.json contains:
+		
+		{
+			"title": "Register PHOTON Coin",
+			"description": "Register aphoton denom to the intrarelayer module",
+			"metadata": {
+				"name": "Photon"
+				"base": "aphoton",
+				"description": "staking, gas and governance token of the Evmos testnets"
+			},
+			"deposit": "1000aphoton"
+		}
+		`, version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -198,25 +197,21 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-erc20 [proposal-file]",
 		Args:  cobra.ExactArgs(1),
-		Short: "",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Submit a community pool spend proposal along with an initial deposit.
-The proposal details must be supplied via a JSON file.
+		Short: "Submit a proposal to register an ERC20 token",
+		Long: `Submit a proposal to register an ERC20 token to the intrarelayer along with an initial deposit.
+Upon passing, the 
+The proposal details must be supplied via a JSON file.`,
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-erc20 <path/to/proposal.json> --from=<key_or_address>
 
-Example:
-$ %s tx gov submit-proposal register-coin <path/to/proposal.json> --from=<key_or_address>
-
-Where proposal.json contains:
-
-{
-  "title": "Register ERC20 token",
-  "description": "ERC20",
-  "deposit": "1000aphoton"
-}
-`,
-				version.AppName,
-			),
-		),
+		Where proposal.json contains:
+		
+		{
+			"title": "Register USDC ERC20 token",
+			"description": "Register 0x0... (USDC) to the intrarelayer module",
+			"erc20_address": "0x0...",
+			"deposit": "1000aphoton"
+		}
+		`, version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -239,6 +234,117 @@ Where proposal.json contains:
 			from := clientCtx.GetFromAddress()
 
 			content := types.NewRegisterERC20Proposal(proposal.Title, proposal.Description, proposal.Erc20Address)
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	return cmd
+}
+
+// NewToggleTokenRelayProposalCmd implements the command to submit a community-pool-spend proposal
+func NewToggleTokenRelayProposalCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "toggle-token-relay [proposal-file]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Submit a toggle token relay proposal",
+		Long: `Submit a proposal to toggle the relaying of a token pair along with an initial deposit.
+Upon passing, the 
+The proposal details must be supplied via a JSON file.`,
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal toggle-token-relay <path/to/proposal.json> --from=<key_or_address>
+
+		Where proposal.json contains:
+		
+		{
+			"title": "Register USDC ERC20 token",
+			"description": "Register 0x0... (USDC) to the intrarelayer module",
+			"erc20_address": "0x0...",
+			"deposit": "1000aphoton"
+		}
+		`, version.AppName),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := ParseToggleTokenRelayProposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+
+			// FIXME: add deposit to proposal
+			dep := ""
+
+			deposit, err := sdk.ParseCoinsNormalized(dep)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			content := types.NewToggleTokenRelayProposal(proposal.Title, proposal.Description, proposal.Token)
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	return cmd
+}
+
+// NewUpdateTokenPairERC20ProposalCmd implements the command to submit a community-pool-spend proposal
+func NewUpdateTokenPairERC20ProposalCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-token-pair-erc20 [proposal-file]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Submit a update token pair ERC20 proposal",
+		Long: `Submit a proposal to update the ERC20 address of a token pair along with an initial deposit.
+Upon passing, the 
+The proposal details must be supplied via a JSON file.`,
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal update-token-pair-erc20 <path/to/proposal.json> --from=<key_or_address>
+
+		Where proposal.json contains:
+		
+		{
+			"title": "Register USDC ERC20 token",
+			"description": "Register 0x0... (USDC) to the intrarelayer module",
+			"erc20_address": "0x0...",
+			"new_erc20_address": "0x0...",
+			"deposit": "1000aphoton"
+		}
+		`, version.AppName),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := ParseUpdateTokenPairERC20Proposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+
+			// FIXME: add deposit to proposal
+			dep := ""
+
+			deposit, err := sdk.ParseCoinsNormalized(dep)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			content := types.NewUpdateTokenPairERC20Proposal(proposal.Title, proposal.Description, proposal.GetERC20Address(), proposal.GetNewERC20Address())
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {

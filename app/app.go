@@ -108,6 +108,7 @@ import (
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"github.com/tharsis/evmos/x/intrarelayer"
+	irclient "github.com/tharsis/evmos/x/intrarelayer/client"
 	irk "github.com/tharsis/evmos/x/intrarelayer/keeper"
 	irt "github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -142,6 +143,9 @@ var (
 		gov.NewAppModuleBasic(
 			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
 			ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
+			// Evmos proposal types
+			irclient.RegisterCoinProposalHandler, irclient.RegisterERC20ProposalHandler,
+			irclient.ToggleTokenRelayProposalHandler, irclient.UpdateTokenPairERC20ProposalHandler,
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
