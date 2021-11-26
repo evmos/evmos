@@ -60,16 +60,16 @@ You can build {{ $themeConfig.project.name }} using Docker by running:
 make build-docker
 ```
 
-The command above will create a docker container: `tharsis/evmos:latest`. Now you can run `evmosd` in the container.
+The command above will create a docker container: `tharsislabs/evmos:latest`. Now you can run `evmosd` in the container.
 
 ```bash
-docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsis/evmos:latest evmosd version
+docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsislabs/evmos:latest evmosd version
 
 # To initialize
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsis/evmos:latest evmosd init test-chain --chain-id test_9000-2
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsislabs/evmos:latest evmosd init test-chain --chain-id test_9000-2
 
 # To run
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsis/evmos:latest evmosd start
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsislabs/evmos:latest evmosd start
 ```
 
 ### Releases
