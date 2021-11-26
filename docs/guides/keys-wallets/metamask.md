@@ -75,6 +75,18 @@ Your account balance should show up as `1 {{ $themeConfig.project.testnet_ticker
 If it takes some time to load the balance of the account, change the network to `Main Ethereum Network` (or any other than `Localhost 8545` or `{{ $themeConfig.project.name }}`) and then switch back to `{{ $themeConfig.project.name }}`.
 :::
 
-## Downloading State
+## Reset Account
 
-To see your Metamask logs, click the top right circle and go to `Settings` > `Advanced` > `Download State Logs`. If you search through the JSON file for the account address you'll find the transaction history.
+If you used your Metamask account for a legacy testnet/mainnet upgrade, you will need to reset your account in order to use it with the new network. This will clear your account's transaction history, but it won't change the balances in your accounts or require you to re-enter your `Secret Recovery Phrase`.
+
+::: warning
+Make sure you download your [account state](#download-account-state) to persist public account addresses and transactions before clearing your wallet accounts.
+:::
+
+Go to `Settings` > `Advanced`  and click the `Reset Account` button as shown below:
+
+![Metamask Account Reset](./../img/reset_account.png)
+
+## Download Account State
+
+To see your Metamask logs, click the top right circle and go to `Settings` > `Advanced` > `State Logs`. If you search through the JSON file for the account address you'll find the transaction history.
