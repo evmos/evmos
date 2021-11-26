@@ -145,14 +145,14 @@ Upon passing, the
 The proposal details must be supplied via a JSON file.`,
 		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin <path/to/metadata.json> --from=<key_or_address>
 
-		Where metadata.json contains:
-		
-		{
-			"name": "Photon"
-			"base": "aphoton",
-			"description": "staking, gas and governance token of the Evmos testnets"
-		}
-		`, version.AppName),
+	Where metadata.json contains:
+	
+	{
+		"name": "Photon"
+		"base": "aphoton",
+		"description": "staking, gas and governance token of the Evmos testnets"
+	}`, version.AppName,
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -204,9 +204,15 @@ The proposal details must be supplied via a JSON file.`,
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
 	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
-	cmd.MarkFlagRequired(cli.FlagTitle)
-	cmd.MarkFlagRequired(cli.FlagDescription)
-	cmd.MarkFlagRequired(cli.FlagDeposit)
+	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+		panic(err)
+	}
 	return cmd
 }
 
@@ -264,9 +270,15 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
 	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
-	cmd.MarkFlagRequired(cli.FlagTitle)
-	cmd.MarkFlagRequired(cli.FlagDescription)
-	cmd.MarkFlagRequired(cli.FlagDeposit)
+	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+		panic(err)
+	}
 	return cmd
 }
 
@@ -324,9 +336,15 @@ func NewToggleTokenRelayProposalCmd() *cobra.Command {
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
 	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
-	cmd.MarkFlagRequired(cli.FlagTitle)
-	cmd.MarkFlagRequired(cli.FlagDescription)
-	cmd.MarkFlagRequired(cli.FlagDeposit)
+	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+		panic(err)
+	}
 	return cmd
 }
 
@@ -385,8 +403,14 @@ func NewUpdateTokenPairERC20ProposalCmd() *cobra.Command {
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
 	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
-	cmd.MarkFlagRequired(cli.FlagTitle)
-	cmd.MarkFlagRequired(cli.FlagDescription)
-	cmd.MarkFlagRequired(cli.FlagDeposit)
+	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+		panic(err)
+	}
 	return cmd
 }
