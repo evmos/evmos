@@ -94,7 +94,7 @@ func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
-	return nil, nil
+	return &pair, nil
 }
 
 // CreateCoinMetadata generates the metadata to represent the ERC20 token on evmos.
