@@ -178,7 +178,6 @@ func newToggleTokenRelayHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
-// nolint: dupl
 func newUpdateTokenPairERC20ProposalHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req UpdateTokenPairERC20ProposalRequest
