@@ -92,9 +92,11 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v2/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
+	ibctesting "github.com/cosmos/ibc-go/v2/testing"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/tharsis/ethermint/client/docs/statik"
+	"github.com/tharsis/ethermint/encoding"
 
 	"github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
@@ -177,9 +179,11 @@ var (
 	}
 )
 
-var _ simapp.App = (*Evmos)(nil)
-
-// var _ server.Application (*Evmos)(nil)
+var (
+	_ servertypes.Application = (*Evmos)(nil)
+	_ simapp.App              = (*Evmos)(nil)
+	_ ibctesting.TestingApp   = (*Evmos)(nil)
+)
 
 // Evmos implements an extended ABCI application. It is an application
 // that may process transactions through Ethereum's EVM running atop of
@@ -715,6 +719,34 @@ func (app *Evmos) RegisterTxService(clientCtx client.Context) {
 
 func (app *Evmos) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
+}
+
+// IBC Go TestingApp functions
+
+// GetBaseApp implements the TestingApp interface.
+func (app *Evmos) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *Evmos) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.StakingKeeper
+}
+
+// GetIBCKeeper implements the TestingApp interface.
+func (app *Evmos) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+// GetScopedIBCKeeper implements the TestingApp interface.
+func (app *Evmos) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+// GetTxConfig implements the TestingApp interface.
+func (app *Evmos) GetTxConfig() client.TxConfig {
+	cfg := encoding.MakeConfig(ModuleBasics)
+	return cfg.TxConfig
 }
 
 // RegisterSwaggerAPI registers swagger route with API Server
