@@ -40,12 +40,14 @@ func init() {
 	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "intrarelayer/UpdateTokenPairERC20Proposal")
 }
 
+// CreateDenomDescription generates a string with the coin description
 func CreateDenomDescription(address string) string {
 	return fmt.Sprintf("Cosmos coin token representation of %s", address)
 }
 
+// CreateDenom generates a string the module name plus the address to avoid conflicts with names staring with a number
 func CreateDenom(address string) string {
-	return fmt.Sprintf("%s/%s", ModuleName, address)
+	return fmt.Sprintf("%s-%s", ModuleName, address)
 }
 
 // NewRegisterCoinProposal returns new instance of RegisterCoinProposal
