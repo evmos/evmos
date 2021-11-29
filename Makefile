@@ -14,10 +14,10 @@ SIMAPP = ./app
 HTTPS_GIT := https://github.com/tharsis/evmos.git
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
-NAMESPACE := tharsis
+NAMESPACE := tharsislabs
 PROJECT := evmos
 DOCKER_IMAGE := $(NAMESPACE)/$(PROJECT)
-COMMIT_HASH := $(shell git rev-parse --short=10 HEAD)
+COMMIT_HASH := $(shell git rev-parse --short=7 HEAD)
 DOCKER_TAG := $(COMMIT_HASH)
 
 export GO111MODULE = on
@@ -135,6 +135,10 @@ build-docker:
 	# move the binaries to the ./build directory
 	mkdir -p ./build/
 	docker cp evmos:/usr/bin/evmosd ./build/
+
+push-docker: build-docker
+	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	docker push ${DOCKER_IMAGE}:latest
 
 $(MOCKS_DIR):
 	mkdir -p $(MOCKS_DIR)

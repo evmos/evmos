@@ -83,9 +83,11 @@ func (tpc *tpsCounter) start(ctx context.Context) error {
 				panic(err)
 			}
 
-			// Record to our logger for easy examination in the logs.
-			secs := float64(tpsReportPeriod) / float64(time.Second)
-			tpc.logger.Info("Transactions per second", "tps", float64(nTxn)/secs)
+			if nTxn != 0 {
+				// Record to our logger for easy examination in the logs.
+				secs := float64(tpsReportPeriod) / float64(time.Second)
+				tpc.logger.Info("Transactions per second", "tps", float64(nTxn)/secs)
+			}
 
 			lastNFailed = latestNFailed
 			lastNSuccessful = latestNSuccessful
