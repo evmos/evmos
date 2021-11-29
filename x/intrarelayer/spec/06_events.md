@@ -17,8 +17,8 @@ The `x/intrarelayer` module emits the following events:
 
 | Type             | Attibute Key    | Attibute Value    |
 | ---------------- | --------------- | ----------------- |
-| `register_eec20` | `"cosmos_coin"` | `{denom}`         |
-| `register_eec20` | `"erc20_token"` | `{erc20_address}` |
+| `register_erc20` | `"cosmos_coin"` | `{denom}`         |
+| `register_erc20` | `"erc20_token"` | `{erc20_address}` |
 
 ## Toggle Token Relay
 
