@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Improvements
 
+* (app) [\#128](https://github.com/tharsis/evmos/pull/128) Add ibc-go `TestingApp` interface.
 * (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
 
 ## Bug Fixes
