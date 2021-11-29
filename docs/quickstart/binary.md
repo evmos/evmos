@@ -62,7 +62,7 @@ The Cosmos SDK automatically generates two configuration files inside `~/.evmosd
 
 Both files are heavily commented, please refer to them directly to tweak your node.
 
-One example config to tweak is the `minimum-gas-prices` field inside `app.toml`, which defines the minimum amount the validator node is willing to accept for processing a transaction. It is am anti spam mechanism and it will reject incoming transactions with less than the minimum gas prices.
+One example config to tweak is the `minimum-gas-prices` field inside `app.toml`, which defines the minimum amount the validator node is willing to accept for processing a transaction. It is an anti spam mechanism and it will reject incoming transactions with less than the minimum gas prices.
 
 If it's empty, make sure to edit the field with some value, for example `10token`, or else the node will halt on startup.
 
