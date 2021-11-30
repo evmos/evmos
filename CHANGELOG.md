@@ -37,12 +37,30 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## Improvements
+
+* (app) [\#128](https://github.com/tharsis/evmos/pull/128) Add ibc-go `TestingApp` interface.
+* (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
+
+## Bug Fixes
+
+* (build) [\#116](https://github.com/tharsis/evmos/pull/116) Fix `build-docker` command
+
+## [v0.3.0] - 2021-11-24
+
 ## API Breaking
 
 * (intrarelayer) [\#99](https://github.com/tharsis/evmos/pull/99) Rename `enable_e_v_m_hook` json parameter to `enable_evm_hook`.
 
+## Improvements
+
+* (deps) [\#110](https://github.com/tharsis/evmos/pull/110) Bump Ethermint version to [`v0.8.1`](https://github.com/tharsis/ethermint/releases/tag/v0.8.1)
+* (intrarelayer) [\#107](https://github.com/tharsis/evmos/pull/107) Add IBC validation
+* (cmd) [\#105](https://github.com/tharsis/evmos/pull/105) Improve testnet command to include JSON-RPC client.
+
 ## Bug Fixes
 
+* (intrarelayer) [\#109](https://github.com/tharsis/evmos/pull/109) Fix hardcoded intrarelayer nonce and `UpdateTokenPairERC20` proposal to support ERC20s with 0 decimals.
 * (intrarelayer) [\#102](https://github.com/tharsis/evmos/pull/102) Add `convert-erc20` cmd
 
 ## [v0.2.0] - 2021-11-17

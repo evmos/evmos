@@ -1,70 +1,43 @@
 package network
 
 import (
-	"bufio"
-	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
-	"testing"
-	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/spf13/cobra"
-	tmcfg "github.com/tendermint/tendermint/config"
-	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
-	"github.com/tendermint/tendermint/libs/log"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/node"
-	tmclient "github.com/tendermint/tendermint/rpc/client"
 	dbm "github.com/tendermint/tm-db"
-	"google.golang.org/grpc"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/server/api"
-	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
-	"github.com/tharsis/ethermint/server/config"
-	ethermint "github.com/tharsis/ethermint/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/ethermint/testutil/network"
 
 	"github.com/tharsis/evmos/app"
 )
 
-// package-wide network lock to only allow one test network at a time
-var lock = new(sync.Mutex)
+// DefaultConfig returns a sane default configuration suitable for nearly all
+// testing requirements.
+func DefaultConfig() network.Config {
+	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	cfg := network.DefaultConfig()
 
-// AppConstructor defines a function which accepts a network configuration and
-// creates an ABCI Application to provide to Tendermint.
-type AppConstructor = func(val Validator) servertypes.Application
+	cfg.Codec = encCfg.Marshaler
+	cfg.TxConfig = encCfg.TxConfig
+	cfg.LegacyAmino = encCfg.Amino
+	cfg.InterfaceRegistry = encCfg.InterfaceRegistry
+	cfg.AppConstructor = NewAppConstructor(encCfg)
+	cfg.GenesisState = app.ModuleBasics.DefaultGenesis(encCfg.Marshaler)
 
-// NewAppConstructor returns a new simapp AppConstructor
-func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
-	return func(val Validator) servertypes.Application {
+	cfg.ChainID = fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1)
+	return cfg
+}
+
+// NewAppConstructor returns a new Evmos AppConstructor
+func NewAppConstructor(encodingCfg params.EncodingConfig) network.AppConstructor {
+	return func(val network.Validator) servertypes.Application {
 		return app.NewEvmos(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			encodingCfg,
@@ -74,6 +47,7 @@ func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
 		)
 	}
 }
+<<<<<<< HEAD
 
 // Config defines the necessary configuration used to bootstrap and start an
 // in-process local testing network.
@@ -684,3 +658,5 @@ func centerText(text string, width int) string {
 
 	return fmt.Sprintf("%s%s%s", leftBuffer, text, rightBuffer)
 }
+=======
+>>>>>>> 034514e4a636740fba78c222d38aa1326aa2c159
