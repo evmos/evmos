@@ -11,11 +11,17 @@ parent:
 
 This document specifies the internal `x/intrarelayer` module of the Evmos Hub.
 
-The Intrarelayer module enables the Evmos Hub to support a trustless, on-chain bidirectional internal relaying (*aka* intrarelaying) of tokens between Evmos' EVM and Cosmos runtimes, specifically the  `x/evm` and `x/bank` modules. This functionality allows token holders on Evmos to instantaneously convert their native Cosmos `sdk.Coins` (referred also in this document as "Coin(s)") to ERC20 (aka "Token(s)") and vice versa.
+The `x/intrarelayer` module enables the Evmos Hub to support a trustless, on-chain bidirectional internal relaying (aka intrarelaying) of tokens between Evmos' EVM and Cosmos runtimes, specifically the `x/evm` and `x/bank` modules. This allows token holders on Evmos to instantaneously convert their native Cosmos `sdk.Coins` (in this document referred to as "Coin(s)") to ERC-20 (aka "Token(s)") and vice versa, while retaining fungibility with the original asset on the issuing environment/runtime (EVM or Cosmos) and preserving ownership of the ERC-20 contract.
 
-This intrarelaying functionality is fully governed by native $EVMOS token holders who manage canonical `TokenPair` registrations (ie, ERC20 ←→ Coin mappings). This governance functionality is implemented using the Cosmos-SDK `gov` module with custom proposal types for registering and updating the canonical mappings respectively.
+This intrarelaying functionality is fully governed by native $EVMOS token holders who manage the canonical `TokenPair` registrations (ie, ERC20 ←→ Coin mappings). This governance functionality is implemented using the Cosmos-SDK `gov` module with custom proposal types for registering and updating the canonical mappings respectively.
 
-Developers on Evmos may wish to deploy smart-contracts using the ERC20 token representation, so that they can transfer existing tokens on Ethereum and other EVM-based chains to Evmos and the rest of the Cosmos ecosystem. The `x/intrarelayer` module allows for an implementation of ERC20 ←→ Coin conversion by leveraging the governance and EVM functionalities of the Evmos Hub, while retaining fungibility with the original asset on the issuing environment/runtime (EVM or Cosmos) and preserving ownership of the contract.
+Why is this important? Cosmos and the EVM are two runtimes that are not compatible by default. The native Cosmos Coins cannot be used in applications that require the ERC-20 standard. Cosmos coins are held on the `x/bank` module (with access to module methods like querying the supply or balances) and ERC-20 Tokens live on smart contracts. This problem is similar to [wETH](https://weth.io/), with the difference,  that it not only applies to gas tokens (like $EVMOS), but to all Cosmos Coins (IBC vouchers, staking and gov coins, etc.) as well.
+
+With the `x/intrarelayer` users on Evmos can
+
+- use existing native cosmos assets (like $OSMO or $ATOM) on EVM-based chains, e.g. for Trading IBC tokens on DeFi protocols, buying NFT, etc.
+- transfer existing tokens on Ethereum and other EVM-based chains to Evmos to take advantage of application-specific chains in the Cosmos ecosystem
+- build new applications that are based on ERC-20 smart contracts and have access to the Cosmos ecosystem.
 
 ## Contents
 
