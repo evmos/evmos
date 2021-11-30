@@ -113,7 +113,7 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 		},
 		{
 			"msg convert coin - pass with `intrarelayer/` denom",
-			sdk.NewCoin("intrarelayer/coin", sdk.NewInt(100)),
+			sdk.NewCoin("intrarelayer/0xdac17f958d2ee523a2206206994597c13d831ec7", sdk.NewInt(100)),
 			tests.GenerateAddress().String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			true,

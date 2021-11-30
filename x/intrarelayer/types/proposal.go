@@ -116,7 +116,7 @@ func ValidateIntrarelayerDenom(denom string) error {
 		return fmt.Errorf("invalid denom. %s denomination should be prefixed with the format 'intrarelayer/", denom)
 	}
 
-	return nil
+	return ethermint.ValidateAddress(denomSplit[1])
 }
 
 // NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal

@@ -40,7 +40,7 @@ func (suite *ProposalTestSuite) TestValidateIntrarelayerDenom() {
 	}{
 		{
 			"- instead of /",
-			"intrarelayer-coin",
+			"intrarelayer-0xdac17f958d2ee523a2206206994597c13d831ec7",
 			false,
 		},
 		{
@@ -50,12 +50,17 @@ func (suite *ProposalTestSuite) TestValidateIntrarelayerDenom() {
 		},
 		{
 			"// instead of /",
-			"intrarelayer//coin",
-			true,
+			"intrarelayer//0xdac17f958d2ee523a2206206994597c13d831ec7",
+			false,
 		},
 		{
 			"multiple /",
-			"intrarelayer/coin/test",
+			"intrarelayer/0xdac17f958d2ee523a2206206994597c13d831ec7/test",
+			false,
+		},
+		{
+			"pass",
+			"intrarelayer/0xdac17f958d2ee523a2206206994597c13d831ec7",
 			true,
 		},
 	}
