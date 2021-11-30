@@ -35,9 +35,12 @@ func (msg MsgConvertCoin) Type() string { return TypeMsgConvertCoin }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgConvertCoin) ValidateBasic() error {
-	if err := ibctransfertypes.ValidateIBCDenom(msg.Coin.Denom); err != nil {
-		return err
+	if err := ValidateIntrarelayerDenom(msg.Coin.Denom); err != nil {
+		if err := ibctransfertypes.ValidateIBCDenom(msg.Coin.Denom); err != nil {
+			return err
+		}
 	}
+
 	if !msg.Coin.Amount.IsPositive() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "cannot mint a non-positive amount")
 	}
