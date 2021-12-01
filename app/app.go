@@ -403,6 +403,8 @@ func NewEvmos(
 		),
 	)
 
+	app.EvmKeeper = app.EvmKeeper.SetHooks(app.IntrarelayerKeeper)
+
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
