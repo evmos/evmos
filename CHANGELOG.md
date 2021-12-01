@@ -37,12 +37,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## State Machine Breaking
+
+* (intrarelayer) [\#119](https://github.com/tharsis/evmos/issues/119) Register `x/intrarelayer` proposal types on governance module.
+
 ### Improvements
 
 * (app) [\#128](https://github.com/tharsis/evmos/pull/128) Add ibc-go `TestingApp` interface.
 * (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
 * (deps) [\#135](https://github.com/tharsis/evmos/pull/135) Bump Ethermint version to [`v0.9.0`](https://github.com/tharsis/ethermint/releases/tag/v0.9.0)
-
 
 ### Bug Fixes
 
