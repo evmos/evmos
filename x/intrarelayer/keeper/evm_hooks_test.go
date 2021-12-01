@@ -145,12 +145,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
 			// Burn the 10 tokens of suite.address (owner)
-			msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(tc.reconvert))
-			hash := msg.AsTransaction().Hash()
-			logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
-			// After this execution, the burned tokens will be available on the cosmos chain
-			// NOTE: This execution fails when executed a second time, the first time is after the burnERC20Token call
-			err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, hash, logs)
+			_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(tc.reconvert))
 
 			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
