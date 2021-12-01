@@ -107,6 +107,18 @@ func validateIBC(metadata banktypes.Metadata) error {
 	return nil
 }
 
+// ValidateIntrarelayerDenom checks if a denom is a valid intrarelayer/
+// denomination
+func ValidateIntrarelayerDenom(denom string) error {
+	denomSplit := strings.SplitN(denom, "/", 2)
+
+	if len(denomSplit) != 2 || denomSplit[0] != ModuleName {
+		return fmt.Errorf("invalid denom. %s denomination should be prefixed with the format 'intrarelayer/", denom)
+	}
+
+	return ethermint.ValidateAddress(denomSplit[1])
+}
+
 // NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
 func NewRegisterERC20Proposal(title, description, erc20Addr string) govtypes.Content {
 	return &RegisterERC20Proposal{
