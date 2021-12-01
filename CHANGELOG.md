@@ -42,7 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (app) [\#128](https://github.com/tharsis/evmos/pull/128) Add ibc-go `TestingApp` interface.
 * (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
 * (deps) [\#135](https://github.com/tharsis/evmos/pull/135) Bump Ethermint version to [`v0.9.0`](https://github.com/tharsis/ethermint/releases/tag/v0.9.0)
-
+* (ci) [\#136](https://github.com/tharsis/evmos/pull/136) Deploy `evmos` docker container to [docker hub](https://hub.docker.com/u/tharsishq) for every versioned releases
 
 ### Bug Fixes
 
