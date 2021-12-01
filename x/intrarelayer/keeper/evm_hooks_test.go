@@ -9,6 +9,16 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
+// ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the intrarelayer hook is already set
+func (suite *KeeperTestSuite) ensureHooksSet() {
+	// TODO: PR to Ethermint to add the functionality `GetHooks` or `areHooksSet` to avoid catching a panic
+	defer func() {
+		err := recover()
+		suite.Require().NotNil(err)
+	}()
+	suite.app.EvmKeeper.SetHooks(suite.app.IntrarelayerKeeper)
+}
+
 func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 	testCases := []struct {
 		name     string
@@ -18,7 +28,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 		{
 			"correct execution",
 			func(contractAddr common.Address) {
-				// pair := types.NewTokenPair(contractAddr, "coinevm", true, types.OWNER_MODULE)
 				_, err := suite.app.IntrarelayerKeeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 
@@ -28,11 +37,9 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Burn the 10 tokens of suite.address (owner)
 				msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
-
-				// After this execution, the burned tokens will be available on the cosmos chain
-				err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
-				suite.Require().NoError(err)
+				hash := msg.AsTransaction().Hash()
+				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
+				suite.Require().NotEmpty(logs)
 			},
 			true,
 		},
@@ -45,11 +52,9 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Burn the 10 tokens of suite.address (owner)
 				msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
-
-				// Since theres no pair registered, no coins should be minted
-				err := suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
-				suite.Require().NoError(err)
+				hash := msg.AsTransaction().Hash()
+				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
+				suite.Require().NotEmpty(logs)
 			},
 			false,
 		},
@@ -61,11 +66,9 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Mint 10 tokens to suite.address (owner)
 				msg := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
-
-				// No coins should be minted on cosmos after a mint of the erc20 token
-				err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
-				suite.Require().NoError(err)
+				hash := msg.AsTransaction().Hash()
+				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
+				suite.Require().NotEmpty(logs)
 			},
 			false,
 		},
@@ -74,6 +77,8 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
+
+			suite.ensureHooksSet()
 
 			contractAddr := suite.DeployContract("coin", "token")
 			suite.Commit()
@@ -84,10 +89,10 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			suite.Commit()
 			if tc.result {
 				// Check if the execution was successfull
-				suite.Require().Equal(balance.Amount, sdk.NewInt(10))
+				suite.Require().Equal(int64(10), balance.Amount.Int64())
 			} else {
 				// Check that no changes were made to the account
-				suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+				suite.Require().Equal(int64(0), balance.Amount.Int64())
 			}
 		})
 	}
@@ -109,6 +114,9 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
+
+			suite.ensureHooksSet()
+
 			metadata, pair := suite.setupRegisterCoin()
 			suite.Require().NotNil(metadata)
 			suite.Require().NotNil(pair)
@@ -137,11 +145,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
 			// Burn the 10 tokens of suite.address (owner)
-			msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(tc.reconvert))
-			logs := suite.app.EvmKeeper.GetTxLogsTransient(msg.AsTransaction().Hash())
-
-			// After this execution, the burned tokens will be available on the cosmos chain
-			err = suite.app.IntrarelayerKeeper.PostTxProcessing(suite.ctx, msg.AsTransaction().Hash(), logs)
+			_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(tc.reconvert))
 
 			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)

@@ -252,7 +252,7 @@ func (suite *ProposalTestSuite) TestUpdateTokenPairERC20Proposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := NewUpdateTokenPairERC20Proposal(tc.title, tc.description, tc.erc20Addr, tc.newErc20Addr)
+		tx := NewUpdateTokenPairERC20Proposal(tc.title, tc.description, tc.erc20Addr.Hex(), tc.newErc20Addr.Hex())
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
