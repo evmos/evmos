@@ -83,7 +83,7 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 		{
 			"negative coin amount",
 			sdk.Coin{
-				Denom:  "test",
+				Denom:  "coin",
 				Amount: sdk.NewInt(-100),
 			},
 			"0x0000",
@@ -92,21 +92,35 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 		},
 		{
 			"msg convert coin - invalid sender",
-			sdk.NewCoin("test", sdk.NewInt(100)),
+			sdk.NewCoin("coin", sdk.NewInt(100)),
 			tests.GenerateAddress().String(),
 			"evmosinvalid",
 			false,
 		},
 		{
 			"msg convert coin - invalid receiver",
-			sdk.NewCoin("test", sdk.NewInt(100)),
+			sdk.NewCoin("coin", sdk.NewInt(100)),
 			"0x0000",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			false,
 		},
 		{
 			"msg convert coin - pass",
-			sdk.NewCoin("test", sdk.NewInt(100)),
+			sdk.NewCoin("coin", sdk.NewInt(100)),
+			tests.GenerateAddress().String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			true,
+		},
+		{
+			"msg convert coin - pass with `intrarelayer/` denom",
+			sdk.NewCoin("intrarelayer/0xdac17f958d2ee523a2206206994597c13d831ec7", sdk.NewInt(100)),
+			tests.GenerateAddress().String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			true,
+		},
+		{
+			"msg convert coin - pass with `ibc/{hash}` denom",
+			sdk.NewCoin("ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2", sdk.NewInt(100)),
 			tests.GenerateAddress().String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			true,

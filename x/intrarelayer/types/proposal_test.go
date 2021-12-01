@@ -32,6 +32,49 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 	suite.Require().Equal("ToggleTokenRelay", (&ToggleTokenRelayProposal{}).ProposalType())
 }
 
+func (suite *ProposalTestSuite) TestValidateIntrarelayerDenom() {
+	testCases := []struct {
+		name    string
+		denom   string
+		expPass bool
+	}{
+		{
+			"- instead of /",
+			"intrarelayer-0xdac17f958d2ee523a2206206994597c13d831ec7",
+			false,
+		},
+		{
+			"without /",
+			"intrarelayerCoin",
+			false,
+		},
+		{
+			"// instead of /",
+			"intrarelayer//0xdac17f958d2ee523a2206206994597c13d831ec7",
+			false,
+		},
+		{
+			"multiple /",
+			"intrarelayer/0xdac17f958d2ee523a2206206994597c13d831ec7/test",
+			false,
+		},
+		{
+			"pass",
+			"intrarelayer/0xdac17f958d2ee523a2206206994597c13d831ec7",
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		err := ValidateIntrarelayerDenom(tc.denom)
+
+		if tc.expPass {
+			suite.Require().Nil(err, tc.name)
+		} else {
+			suite.Require().Error(err, tc.name)
+		}
+	}
+}
+
 func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 	testCases := []struct {
 		msg         string

@@ -17,7 +17,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	github.com/tharsis/ethermint v0.8.1
+	github.com/tharsis/ethermint v0.9.0
 	go.opencensus.io v0.23.0
 	google.golang.org/genproto v0.0.0-20211117155847-120650a500bb
 	google.golang.org/grpc v1.42.0
@@ -106,7 +106,6 @@ require (
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/palantir/stacktrace v0.0.0-20161112013806-78658fd2d177 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
