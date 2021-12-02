@@ -56,9 +56,11 @@ If you choose to use Cosmovisor, please continue with these instructions. If you
 
 ### Upgrade with Cosmovisor
 
+> `cosmovisor` is a small process manager for Cosmos SDK application binaries that monitors the governance module for incoming chain upgrade proposals. If it sees a proposal that gets approved, cosmovisor can automatically download the new binary, stop the current binary, switch from the old binary to the new one, and finally restart the node with the new binary.
+
 #### Install and Setup
 
-To get started with Cosmovisor first download it
+To get started with [Cosmovisor](https://github.com/cosmos/cosmos-sdk/tree/master/cosmovisor) first download it
 
 ```bash
 go get github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor
@@ -221,13 +223,7 @@ cp -f genesis.json new_genesis.json
 mv new_genesis.json genesis.json
 ```
 
-#### Reset Chain Database
 
-There shouldn't be any chain database yet, but in case there is for some reason, you should reset it. This is a good idea especially if you ran `evmosd start` on an old, broken genesis file.
-
-```bash
-evmosd unsafe-reset-all
-```
 #### Export State
 
 Evmos can dump the entire application state to a JSON file. This, besides upgrades, can be
