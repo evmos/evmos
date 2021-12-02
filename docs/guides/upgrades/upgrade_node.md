@@ -6,6 +6,12 @@ order: 1
 
 Learn how to upgrade your full node to the latest software version {synopsis}
 
+With every new software release, we strongly recommend validators to perform a software upgrade.
+
+<!-- `TODO: WHY? Can you get slashed otherwise?` -->
+
+You can upgrade your node by 1) upgrading your software version and 2) upgrading your node to that version. In this guide, you can find out how to automatically upgrade your node with Cosmovisor or perform the update manually.
+
 ## Software Upgrade
 
 These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet.
@@ -42,7 +48,7 @@ If the software version does not match, then please check your $PATH to ensure t
 
 ## Upgrade Node
 
-We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades more smoother, as validators don't have to manually upgrade binaries during the upgrade, and instead can preinstall new binaries, and cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
+We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to manually upgrade binaries during the upgrade. Instead users can preinstall new binaries, and cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
 You should review the docs for Cosmovisor located [here](https://docs.cosmos.network/master/run-node/cosmovisor.html)
 
@@ -50,30 +56,15 @@ If you choose to use Cosmovisor, please continue with these instructions. If you
 
 ### Upgrade with Cosmovisor
 
-#### Install and Setup Cosmovisor
+#### Install and Setup
 
-Cosmovisor is currently located in the Cosmos SDK repo, so you will need to download that, build cosmovisor, and add it to you PATH.
-
-```bash
-git clone https://github.com/cosmos/cosmos-sdk
-cd cosmos-sdk
-git checkout v0.44.3
-make cosmovisor
-cp cosmovisor/cosmovisor $GOPATH/bin/cosmovisor
-cd $HOME
-```
-
-After this, you must make the necessary folders for cosmosvisor in your daemon home directory (~/.evmosd).
+To get started with Cosmovisor first download it
 
 ```bash
-mkdir -p ~/.evmosd
-mkdir -p ~/.evmosd/cosmovisor
-mkdir -p ~/.evmosd/cosmovisor/genesis
-mkdir -p ~/.evmosd/cosmovisor/genesis/bin
-mkdir -p ~/.evmosd/cosmovisor/upgrades
+go get github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor
 ```
 
-Cosmovisor requires some ENVIRONMENT VARIABLES be set in order to function properly. We recommend setting these in your `.profile` so it is automatically set in every session.
+Set up the Cosmovisor environment variables. We recommend setting these in your `.profile` so it is automatically set in every session.
 
 ```bash
 echo "# Setup Cosmovisor" >> ~/.profile
@@ -83,10 +74,27 @@ echo 'export PATH="$DAEMON_HOME/cosmovisor/current/bin:$PATH"' >> ~/.profile
 source ~/.profile
 ```
 
-Finally, you should move the evmosd binary into the cosmovisor/genesis folder.
+
+After this, you must make the necessary folders for cosmosvisor in your daemon home directory (~/.evmosd).
 
 ```bash
-cp $GOPATH/bin/evmosd ~/.evmosd/cosmovisor/genesis/bin
+mkdir -p ~/.evmosd/cosmovisor/upgrades
+mkdir -p ~/.evmosd/cosmovisor/genesis/bin
+cp $(which evmosd) ~/.evmosd/cosmovisor/genesis/bin/
+
+# Verify the setup
+# It should return the same version as evmosd
+cosmovisor version
+```
+
+#### Preparing an Upgrade
+
+Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is ready, node operators can download the new binary and place it under `$DAEMON_HOME/cosmovisor/upgrades/<name>/bin` where `<name>` is the URI-encoded name of the upgrade as specified in the upgrade module plan.
+
+It is possible to have Cosmovisor automatically download the new binary. To do this set the following environment variable.
+
+```bash
+export DAEMON_ALLOW_DOWNLOAD_BINARIES=true
 ```
 
 #### Download Genesis File
