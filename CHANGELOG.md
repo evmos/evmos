@@ -35,9 +35,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v0.4.0] - 2021-12-02
 
-## State Machine Breaking
+### State Machine Breaking
 
 * (intrarelayer) [\#119](https://github.com/tharsis/evmos/issues/119) Register `x/intrarelayer` proposal types on governance module.
 
