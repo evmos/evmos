@@ -37,7 +37,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-## State Machine Breaking
+### Improvements
+
+* (build) [\#143](https://github.com/tharsis/evmos/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
+
+## [v0.4.0] - 2021-12-02
+
+### State Machine Breaking
 
 * (intrarelayer) [\#119](https://github.com/tharsis/evmos/issues/119) Register `x/intrarelayer` proposal types on governance module.
 
