@@ -1,38 +1,45 @@
 <!--
-order: 6
+order: 3
 -->
 
-# Build Evmos Deterministically
+# Deterministic Builds
+
+Build the `evmosd` binary deterministically using Docker. {synopsis}
+
+## Pre-requisites
+
+- [Install Docker](https://docs.docker.com/get-docker/) {prereq}
+
+## Introduction
 
 The [Tendermint rbuilder Docker image](https://github.com/tendermint/images/tree/master/rbuilder) provides a deterministic build environment that is used to build Cosmos SDK applications. It provides a way to be reasonably sure that the executables are really built from the git source. It also makes sure that the same, tested dependencies are used and statically built into the executable.
 
-## Prerequisites
+::: tip
+All the following instructions have been tested on *Ubuntu 18.04.2 LTS* with *Docker 20.10.2*.
+:::
 
-Make sure you have [Docker installed on your system](https://docs.docker.com/get-docker/).
-
-All the following instructions have been tested on *Ubuntu 18.04.2 LTS* with *docker 20.10.2*.
-
-## Build
+## Build with Docker
 
 Clone `evmos`:
 
-```
+``` bash
 git clone git@github.com:tharsis/evmos.git
 ```
 
-Checkout the commit, branch, or release tag you want to build:
+Checkout the commit, branch, or release tag you want to build (eg `v0.4.0`):
 
-```
+```bash
 cd evmos/
 git checkout v0.4.0
 ```
 
 The buildsystem supports and produces binaries for the following architectures:
+
 * **linux/amd64**
 
 Run the following command to launch a build for all supported architectures:
 
-```
+```bash
 make distclean build-reproducible
 ```
 
