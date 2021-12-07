@@ -35,6 +35,19 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+<<<<<<< HEAD
+=======
+## Unreleased
+
+### Improvements
+
+* (build) [\#143](https://github.com/tharsis/evmos/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
+
+### Bug Fixes
+
+* (build) [\#151](https://github.com/tharsis/evmos/pull/151) Fixes `version` command by picking the latest tag in the current branch instead of across all branches as the current version
+
+>>>>>>> 5061449 (Fix `evmosd version`  (#151))
 ## [v0.4.0] - 2021-12-02
 
 ### State Machine Breaking
