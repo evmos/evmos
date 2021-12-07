@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* (build) [\#151](https://github.com/tharsis/evmos/pull/151) Fixes `version` command by picking the latest tag in the current branch instead of across all branches as the current version
+
 ## [v0.4.0] - 2021-12-02
 
 ### State Machine Breaking
