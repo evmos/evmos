@@ -76,7 +76,7 @@ func (tpc *tpsCounter) start(ctx context.Context) error {
 			} else {
 				panic(err)
 			}
-			nFailed, err := tpc.recordValue(ctx, latestNSuccessful, lastNFailed, statusFailure)
+			nFailed, err := tpc.recordValue(ctx, latestNFailed, lastNFailed, statusFailure)
 			if err == nil {
 				nTxn += nFailed
 			} else {
