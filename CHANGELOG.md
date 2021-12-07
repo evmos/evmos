@@ -35,6 +35,36 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+<<<<<<< HEAD
+=======
+## Unreleased
+
+### Improvements
+
+* (build) [\#143](https://github.com/tharsis/evmos/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
+
+### Bug Fixes
+
+* (build) [\#151](https://github.com/tharsis/evmos/pull/151) Fixes `version` command by picking the latest tag in the current branch instead of across all branches as the current version
+
+## [v0.4.0] - 2021-12-02
+
+### State Machine Breaking
+
+* (intrarelayer) [\#119](https://github.com/tharsis/evmos/issues/119) Register `x/intrarelayer` proposal types on governance module.
+
+### Improvements
+
+* (app) [\#128](https://github.com/tharsis/evmos/pull/128) Add ibc-go `TestingApp` interface.
+* (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
+* (deps) [\#135](https://github.com/tharsis/evmos/pull/135) Bump Ethermint version to [`v0.9.0`](https://github.com/tharsis/ethermint/releases/tag/v0.9.0)
+* (ci) [\#136](https://github.com/tharsis/evmos/pull/136) Deploy `evmos` docker container to [docker hub](https://hub.docker.com/u/tharsishq) for every versioned releases
+
+### Bug Fixes
+
+* (build) [\#116](https://github.com/tharsis/evmos/pull/116) Fix `build-docker` command
+
+>>>>>>> 5061449 (Fix `evmosd version`  (#151))
 ## [v0.3.0] - 2021-11-24
 
 ## API Breaking
