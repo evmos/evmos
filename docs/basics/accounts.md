@@ -117,7 +117,7 @@ evmosd keys show mykey --bech val
 ::: tab Consensus
 
 ```bash
-ethermintd keys show mykey --bech cons
+evmosd keys show mykey --bech cons
 - name: mykey
   type: local
   address: evmosvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n

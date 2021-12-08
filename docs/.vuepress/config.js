@@ -62,7 +62,7 @@ module.exports = {
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v0.3.0',
+      latest_version: 'v0.4.0',
       version_number: '1',
       testnet_version_number: '2',
       block_explorer_url: 'https://evm.evmos.org',
