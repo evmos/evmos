@@ -36,6 +36,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Unreleased
+* (security & performance) Added the cosmic condom, which is a block of replace statements that will keep Cosmos blockchains from importing ancient software.
 
 ### Improvements
 
