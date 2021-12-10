@@ -1,0 +1,16 @@
+syntax = "proto3";
+package evmos.distribution.v1;
+
+import "evmos/distribution/v1/distribution.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/tharsis/evmos/x/distribution/types";
+
+// Params defines the fee distribution module params
+message Params {
+  // fee distribution for block proposer and registered contracts
+  Distribution fee_distribution = 1 [(gogoproto.nullable) = false];
+  // enable withawal address 
+  bool withdraw_addr_enabled = 2;
+}

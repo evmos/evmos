@@ -4,6 +4,20 @@
 
 ## Table of Contents
 
+- [evmos/distribution/v1/distribution.proto](#evmos/distribution/v1/distribution.proto)
+    - [Distribution](#evmos.distribution.v1.Distribution)
+  
+- [evmos/distribution/v1/genesis.proto](#evmos/distribution/v1/genesis.proto)
+    - [Params](#evmos.distribution.v1.Params)
+  
+- [evmos/distribution/v1/tx.proto](#evmos/distribution/v1/tx.proto)
+    - [MsgRegisterContract](#evmos.distribution.v1.MsgRegisterContract)
+    - [MsgRegisterContractResponse](#evmos.distribution.v1.MsgRegisterContractResponse)
+    - [MsgUpdateWithdawAddress](#evmos.distribution.v1.MsgUpdateWithdawAddress)
+    - [MsgUpdateWithdawAddressResponse](#evmos.distribution.v1.MsgUpdateWithdawAddressResponse)
+  
+    - [Msg](#evmos.distribution.v1.Msg)
+  
 - [evmos/intrarelayer/v1/intrarelayer.proto](#evmos/intrarelayer/v1/intrarelayer.proto)
     - [RegisterCoinProposal](#evmos.intrarelayer.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.intrarelayer.v1.RegisterERC20Proposal)
@@ -36,6 +50,151 @@
     - [Msg](#evmos.intrarelayer.v1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="evmos/distribution/v1/distribution.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/distribution/v1/distribution.proto
+
+
+
+<a name="evmos.distribution.v1.Distribution"></a>
+
+### Distribution
+Distribution defines the fee distribution percentages for block proposer and contract rewards
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `proposer_reward` | [string](#string) |  | block proposer reward percentage |
+| `contract_rewards` | [string](#string) |  | contract reward percentage |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/distribution/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/distribution/v1/genesis.proto
+
+
+
+<a name="evmos.distribution.v1.Params"></a>
+
+### Params
+Params defines the fee distribution module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fee_distribution` | [Distribution](#evmos.distribution.v1.Distribution) |  | fee distribution for block proposer and registered contracts |
+| `withdraw_addr_enabled` | [bool](#bool) |  | enable withawal address |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/distribution/v1/tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/distribution/v1/tx.proto
+
+
+
+<a name="evmos.distribution.v1.MsgRegisterContract"></a>
+
+### MsgRegisterContract
+MsgRegisterContract defines a Msg to convert a Cosmos Coin to a ERC20 token
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `nonce` | [uint64](#uint64) |  | nonce (sequence) number that generates the contract address |
+| `deployer_address` | [string](#string) |  | contract deployer hex address |
+
+
+
+
+
+
+<a name="evmos.distribution.v1.MsgRegisterContractResponse"></a>
+
+### MsgRegisterContractResponse
+MsgRegisterContractResponse returns no fields
+
+
+
+
+
+
+<a name="evmos.distribution.v1.MsgUpdateWithdawAddress"></a>
+
+### MsgUpdateWithdawAddress
+MsgUpdateWithdawAddress defines a Msg to .
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address registered on the fee distribution module |
+| `new_withdrawal_address` | [string](#string) |  | new new_owner_addressaddress to receive SDK coins. |
+| `owner` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+
+
+
+
+
+
+<a name="evmos.distribution.v1.MsgUpdateWithdawAddressResponse"></a>
+
+### MsgUpdateWithdawAddressResponse
+MsgUpdateWithdawAddressResponse returns no fields
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.distribution.v1.Msg"></a>
+
+### Msg
+Msg defines the intrarelayer Msg service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `RegisterContract` | [MsgRegisterContract](#evmos.distribution.v1.MsgRegisterContract) | [MsgRegisterContractResponse](#evmos.distribution.v1.MsgRegisterContractResponse) | RegisterContract registers the contract on the fee distribution module in order for the owner to recieve txs fees. | GET|/evmos/distribution/v1/tx/register_contract|
+| `UpdateWithdawAddress` | [MsgUpdateWithdawAddress](#evmos.distribution.v1.MsgUpdateWithdawAddress) | [MsgUpdateWithdawAddressResponse](#evmos.distribution.v1.MsgUpdateWithdawAddressResponse) | UpdateWithdawAddress updates the withdrawal address for the contract that has been | GET|/evmos/distribution/v1/tx/update_withdrawal_address|
+
+ <!-- end services -->
 
 
 

@@ -1,0 +1,47 @@
+syntax = "proto3";
+package evmos.distribution.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/tharsis/evmos/x/distribution/types";
+
+// Msg defines the intrarelayer Msg service.
+service Msg {
+  // RegisterContract registers the contract on the fee distribution module in order for the owner
+  // to recieve txs fees.
+  rpc RegisterContract(MsgRegisterContract) returns (MsgRegisterContractResponse){
+    option (google.api.http).get = "/evmos/distribution/v1/tx/register_contract";
+  };
+  // UpdateWithdawAddress updates the withdrawal address for the contract that has been 
+  rpc UpdateWithdawAddress(MsgUpdateWithdawAddress) returns (MsgUpdateWithdawAddressResponse){
+    option (google.api.http).get = "/evmos/distribution/v1/tx/update_withdrawal_address";
+  };
+}
+
+// MsgRegisterContract defines a Msg to convert a Cosmos Coin to a ERC20 token
+message MsgRegisterContract {
+  // contract hex address
+  string contract_address = 1;
+  // nonce (sequence) number that generates the contract address
+  uint64 nonce = 2;
+  // contract deployer hex address
+  string deployer_address = 3;
+}
+
+// MsgRegisterContractResponse returns no fields
+message MsgRegisterContractResponse{}
+
+
+// MsgUpdateWithdawAddress defines a Msg to .
+message MsgUpdateWithdawAddress {
+  // contract hex address registered on the fee distribution module
+  string contract_address = 1;
+  // new new_owner_addressaddress to receive SDK coins.
+  string new_withdrawal_address = 2;
+  // hex address from the registered owner/withdrawal address
+  string owner = 3;
+}
+
+// MsgUpdateWithdawAddressResponse returns no fields
+message MsgUpdateWithdawAddressResponse{}
