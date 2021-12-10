@@ -4,8 +4,8 @@ package evmos.intrarelayer.v1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/intrarelayer/v1/genesis.proto";
 import "evmos/intrarelayer/v1/intrarelayer.proto";
-import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/tharsis/evmos/x/intrarelayer/types";
 
