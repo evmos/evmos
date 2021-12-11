@@ -1,0 +1,66 @@
+syntax = "proto3";
+package evmos.distribution.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/distribution/v1/distribution.proto";
+import "evmos/distribution/v1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/tharsis/evmos/x/distribution/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // WithdrawAddresses retrieves all withdrawal addresses of contracts for fee distribution
+  rpc WithdrawAddresses(QueryWithdrawAddressesRequest) returns (QueryWithdrawAddressesResponse) {
+    option (google.api.http).get = "/evmos/distribution/v1/withdraw_addresses";
+  }
+
+  // WithdrawAddress retrieves a registered withdrawal address of contract for fee distribution
+  rpc WithdrawAddress(QueryWithdrawAddressRequest) returns (QueryWithdrawAddressResponse) {
+    option (google.api.http).get = "/evmos/distribution/v1/withdraw_addresses/{contract_address}";
+  }
+
+  // Params retrieves the distribution module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/distribution/v1/params";
+  }
+}
+
+// QueryWithdrawAddressesRequest is the request type for the Query/WithdrawAddresses RPC method.
+message QueryWithdrawAddressesRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+  
+// QueryWithdrawAddressesResponse is the response type for the Query/WithdrawAddresses RPC
+// method.
+message QueryWithdrawAddressesResponse {
+  // hex addresses of contract used for withdrawing tx fees
+  repeated ContractWithdrawAddress withdraw_addresses = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryWithdrawAddressRequest is the request type for the Query/WithdrawAddress RPC method.
+message QueryWithdrawAddressRequest {
+  // contract hex address registered on the fee distribution module
+  string contract_address = 1;
+}
+  
+// QueryWithdrawAddressResponse is the response type for the Query/WithdrawAddress RPC
+// method.
+message QueryWithdrawAddressResponse {
+  // hex address from the registered owner/withdrawal address
+  string withdrawal_address = 1;
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+  
+// QueryParamsResponse is the response type for the Query/Params RPC
+// method.
+message QueryParamsResponse {
+  // distribution module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+}

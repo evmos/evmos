@@ -5,10 +5,22 @@
 ## Table of Contents
 
 - [evmos/distribution/v1/distribution.proto](#evmos/distribution/v1/distribution.proto)
+    - [ContractWithdrawAddress](#evmos.distribution.v1.ContractWithdrawAddress)
     - [Distribution](#evmos.distribution.v1.Distribution)
   
 - [evmos/distribution/v1/genesis.proto](#evmos/distribution/v1/genesis.proto)
+    - [GenesisState](#evmos.distribution.v1.GenesisState)
     - [Params](#evmos.distribution.v1.Params)
+  
+- [evmos/distribution/v1/query.proto](#evmos/distribution/v1/query.proto)
+    - [QueryParamsRequest](#evmos.distribution.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.distribution.v1.QueryParamsResponse)
+    - [QueryWithdrawAddressRequest](#evmos.distribution.v1.QueryWithdrawAddressRequest)
+    - [QueryWithdrawAddressResponse](#evmos.distribution.v1.QueryWithdrawAddressResponse)
+    - [QueryWithdrawAddressesRequest](#evmos.distribution.v1.QueryWithdrawAddressesRequest)
+    - [QueryWithdrawAddressesResponse](#evmos.distribution.v1.QueryWithdrawAddressesResponse)
+  
+    - [Query](#evmos.distribution.v1.Query)
   
 - [evmos/distribution/v1/tx.proto](#evmos/distribution/v1/tx.proto)
     - [MsgRegisterContract](#evmos.distribution.v1.MsgRegisterContract)
@@ -60,6 +72,22 @@
 
 
 
+<a name="evmos.distribution.v1.ContractWithdrawAddress"></a>
+
+### ContractWithdrawAddress
+ContractWithdrawAddress
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address registered on the fee distribution module |
+| `withdrawal_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+
+
+
+
+
+
 <a name="evmos.distribution.v1.Distribution"></a>
 
 ### Distribution
@@ -92,6 +120,22 @@ Distribution defines the fee distribution percentages for block proposer and con
 
 
 
+<a name="evmos.distribution.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.distribution.v1.Params) |  | fee distribution module parameters |
+| `withdraw_addresses` | [ContractWithdrawAddress](#evmos.distribution.v1.ContractWithdrawAddress) | repeated | hex addresses of contract used for withdrawing tx fees |
+
+
+
+
+
+
 <a name="evmos.distribution.v1.Params"></a>
 
 ### Params
@@ -112,6 +156,123 @@ Params defines the fee distribution module params
  <!-- end enums -->
 
  <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/distribution/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/distribution/v1/query.proto
+
+
+
+<a name="evmos.distribution.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.distribution.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.distribution.v1.Params) |  | distribution module parameters |
+
+
+
+
+
+
+<a name="evmos.distribution.v1.QueryWithdrawAddressRequest"></a>
+
+### QueryWithdrawAddressRequest
+QueryWithdrawAddressRequest is the request type for the Query/WithdrawAddress RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address registered on the fee distribution module |
+
+
+
+
+
+
+<a name="evmos.distribution.v1.QueryWithdrawAddressResponse"></a>
+
+### QueryWithdrawAddressResponse
+QueryWithdrawAddressResponse is the response type for the Query/WithdrawAddress RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `withdrawal_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+
+
+
+
+
+
+<a name="evmos.distribution.v1.QueryWithdrawAddressesRequest"></a>
+
+### QueryWithdrawAddressesRequest
+QueryWithdrawAddressesRequest is the request type for the Query/WithdrawAddresses RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.distribution.v1.QueryWithdrawAddressesResponse"></a>
+
+### QueryWithdrawAddressesResponse
+QueryWithdrawAddressesResponse is the response type for the Query/WithdrawAddresses RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `withdraw_addresses` | [ContractWithdrawAddress](#evmos.distribution.v1.ContractWithdrawAddress) | repeated | hex addresses of contract used for withdrawing tx fees |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.distribution.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `WithdrawAddresses` | [QueryWithdrawAddressesRequest](#evmos.distribution.v1.QueryWithdrawAddressesRequest) | [QueryWithdrawAddressesResponse](#evmos.distribution.v1.QueryWithdrawAddressesResponse) | WithdrawAddresses retrieves all withdrawal addresses of contracts for fee distribution | GET|/evmos/distribution/v1/withdraw_addresses|
+| `WithdrawAddress` | [QueryWithdrawAddressRequest](#evmos.distribution.v1.QueryWithdrawAddressRequest) | [QueryWithdrawAddressResponse](#evmos.distribution.v1.QueryWithdrawAddressResponse) | WithdrawAddress retrieves a registered withdrawal address of contract for fee distribution | GET|/evmos/distribution/v1/withdraw_addresses/{contract_address}|
+| `Params` | [QueryParamsRequest](#evmos.distribution.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.distribution.v1.QueryParamsResponse) | Params retrieves the distribution module params | GET|/evmos/distribution/v1/params|
 
  <!-- end services -->
 
@@ -161,7 +322,7 @@ MsgUpdateWithdawAddress defines a Msg to .
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address registered on the fee distribution module |
 | `new_withdrawal_address` | [string](#string) |  | new new_owner_addressaddress to receive SDK coins. |
-| `owner` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+| `withdrawal_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
 
 
 

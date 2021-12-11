@@ -40,7 +40,7 @@ message MsgUpdateWithdawAddress {
   // new new_owner_addressaddress to receive SDK coins.
   string new_withdrawal_address = 2;
   // hex address from the registered owner/withdrawal address
-  string owner = 3;
+  string withdrawal_address = 3;
 }
 
 // MsgUpdateWithdawAddressResponse returns no fields

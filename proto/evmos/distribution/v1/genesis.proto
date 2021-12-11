@@ -14,3 +14,11 @@ message Params {
   // enable withawal address 
   bool withdraw_addr_enabled = 2;
 }
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+  // fee distribution module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+  // hex addresses of contract used for withdrawing tx fees
+  repeated ContractWithdrawAddress withdraw_addresses = 2 [(gogoproto.nullable) = false];
+}

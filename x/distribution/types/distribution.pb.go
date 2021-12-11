@@ -65,8 +65,64 @@ func (m *Distribution) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Distribution proto.InternalMessageInfo
 
+// ContractWithdrawAddress
+type ContractWithdrawAddress struct {
+	// contract hex address registered on the fee distribution module
+	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	// hex address from the registered owner/withdrawal address
+	WithdrawalAddress string `protobuf:"bytes,2,opt,name=withdrawal_address,json=withdrawalAddress,proto3" json:"withdrawal_address,omitempty"`
+}
+
+func (m *ContractWithdrawAddress) Reset()         { *m = ContractWithdrawAddress{} }
+func (m *ContractWithdrawAddress) String() string { return proto.CompactTextString(m) }
+func (*ContractWithdrawAddress) ProtoMessage()    {}
+func (*ContractWithdrawAddress) Descriptor() ([]byte, []int) {
+	return fileDescriptor_351cceabf66f50a7, []int{1}
+}
+func (m *ContractWithdrawAddress) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ContractWithdrawAddress) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ContractWithdrawAddress.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ContractWithdrawAddress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ContractWithdrawAddress.Merge(m, src)
+}
+func (m *ContractWithdrawAddress) XXX_Size() int {
+	return m.Size()
+}
+func (m *ContractWithdrawAddress) XXX_DiscardUnknown() {
+	xxx_messageInfo_ContractWithdrawAddress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ContractWithdrawAddress proto.InternalMessageInfo
+
+func (m *ContractWithdrawAddress) GetContractAddress() string {
+	if m != nil {
+		return m.ContractAddress
+	}
+	return ""
+}
+
+func (m *ContractWithdrawAddress) GetWithdrawalAddress() string {
+	if m != nil {
+		return m.WithdrawalAddress
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Distribution)(nil), "evmos.distribution.v1.Distribution")
+	proto.RegisterType((*ContractWithdrawAddress)(nil), "evmos.distribution.v1.ContractWithdrawAddress")
 }
 
 func init() {
@@ -74,7 +130,7 @@ func init() {
 }
 
 var fileDescriptor_351cceabf66f50a7 = []byte{
-	// 239 bytes of a gzipped FileDescriptorProto
+	// 292 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0x48, 0x2d, 0xcb, 0xcd,
 	0x2f, 0xd6, 0x4f, 0xc9, 0x2c, 0x2e, 0x29, 0xca, 0x4c, 0x2a, 0x2d, 0xc9, 0xcc, 0xcf, 0xd3, 0x2f,
 	0x33, 0x44, 0xe1, 0xeb, 0x15, 0x14, 0xe5, 0x97, 0xe4, 0x0b, 0x89, 0x82, 0x55, 0xea, 0xa1, 0xc8,
@@ -85,11 +141,15 @@ var fileDescriptor_351cceabf66f50a7 = []byte{
 	0x92, 0x5e, 0x72, 0x7e, 0xae, 0x7e, 0x72, 0x7e, 0x31, 0xc8, 0x51, 0x10, 0x4a, 0xb7, 0x38, 0x25,
 	0x5b, 0xbf, 0xa4, 0xb2, 0x20, 0xb5, 0x58, 0xcf, 0x25, 0x35, 0x39, 0x88, 0x0f, 0x66, 0x4c, 0x10,
 	0xd8, 0x14, 0xa1, 0x48, 0x2e, 0x81, 0xe4, 0xfc, 0xbc, 0x92, 0xa2, 0xc4, 0xe4, 0x12, 0xa8, 0xc1,
-	0xc5, 0x12, 0x4c, 0x64, 0x99, 0xcc, 0x0f, 0x33, 0x07, 0x62, 0x72, 0xb1, 0x93, 0xfb, 0x89, 0x47,
-	0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3, 0x85,
-	0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44, 0xe9, 0x22, 0x19, 0x59, 0x92, 0x91, 0x58, 0x54,
-	0x9c, 0x59, 0xac, 0x0f, 0x09, 0xc8, 0x0a, 0xd4, 0xa0, 0x04, 0x9b, 0x9e, 0xc4, 0x06, 0x0e, 0x14,
-	0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x6a, 0xc8, 0xb2, 0x6e, 0x6d, 0x01, 0x00, 0x00,
+	0xc5, 0x12, 0x4c, 0x64, 0x99, 0xcc, 0x0f, 0x33, 0x07, 0x62, 0x72, 0xb1, 0x52, 0x31, 0x97, 0xb8,
+	0x33, 0x54, 0x28, 0x3c, 0xb3, 0x24, 0x23, 0xa5, 0x28, 0xb1, 0xdc, 0x31, 0x25, 0xa5, 0x28, 0xb5,
+	0xb8, 0x58, 0x48, 0x13, 0xc9, 0xd6, 0x44, 0x88, 0x18, 0xc4, 0x3f, 0x08, 0x53, 0x60, 0x4a, 0x75,
+	0xb9, 0x84, 0xca, 0xa1, 0xba, 0x13, 0x73, 0xe0, 0x8a, 0xc1, 0x4e, 0x0c, 0x12, 0x44, 0xc8, 0x40,
+	0x95, 0x3b, 0xb9, 0x9f, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c,
+	0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c, 0x43, 0x94, 0x2e, 0x92,
+	0x3f, 0x4a, 0x32, 0x12, 0x8b, 0x8a, 0x33, 0x8b, 0xf5, 0x21, 0xb1, 0x57, 0x81, 0x1a, 0x7f, 0x60,
+	0x2f, 0x25, 0xb1, 0x81, 0x63, 0xc2, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0xf6, 0xfd, 0xad, 0x56,
+	0xe2, 0x01, 0x00, 0x00,
 }
 
 func (m *Distribution) Marshal() (dAtA []byte, err error) {
@@ -135,6 +195,43 @@ func (m *Distribution) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *ContractWithdrawAddress) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ContractWithdrawAddress) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ContractWithdrawAddress) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.WithdrawalAddress) > 0 {
+		i -= len(m.WithdrawalAddress)
+		copy(dAtA[i:], m.WithdrawalAddress)
+		i = encodeVarintDistribution(dAtA, i, uint64(len(m.WithdrawalAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintDistribution(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintDistribution(dAtA []byte, offset int, v uint64) int {
 	offset -= sovDistribution(v)
 	base := offset
@@ -156,6 +253,23 @@ func (m *Distribution) Size() (n int) {
 	n += 1 + l + sovDistribution(uint64(l))
 	l = m.ContractRewards.Size()
 	n += 1 + l + sovDistribution(uint64(l))
+	return n
+}
+
+func (m *ContractWithdrawAddress) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovDistribution(uint64(l))
+	}
+	l = len(m.WithdrawalAddress)
+	if l > 0 {
+		n += 1 + l + sovDistribution(uint64(l))
+	}
 	return n
 }
 
@@ -261,6 +375,120 @@ func (m *Distribution) Unmarshal(dAtA []byte) error {
 			if err := m.ContractRewards.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipDistribution(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthDistribution
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ContractWithdrawAddress) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowDistribution
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ContractWithdrawAddress: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ContractWithdrawAddress: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDistribution
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDistribution
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDistribution
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field WithdrawalAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDistribution
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDistribution
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDistribution
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.WithdrawalAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
