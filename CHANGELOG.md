@@ -36,9 +36,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Unreleased
-* (security & performance) Added the cosmic condom, which is a block of replace statements that will keep Cosmos blockchains from importing ancient software.
 
 ### Improvements
+
+* (security & performance) [\#165](https://github.com/tharsis/evmos/pull/165) Add replace statements to avoid importing legacy software versions.
 
 * (build) [\#143](https://github.com/tharsis/evmos/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
 
