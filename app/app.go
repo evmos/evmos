@@ -124,9 +124,11 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, ".evmosd")
 }
 
-// Name defines the application binary name
-const Name = "evmosd"
-const upgradeName = "Olympus-Mons-v0.4.1"
+const (
+	// Name defines the application binary name
+	Name = "evmosd"
+	upgradeName = "Olympus-Mons-v0.4.1"
+)
 
 var (
 	// DefaultNodeHome default home directories for the application daemon

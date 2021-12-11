@@ -189,6 +189,10 @@ module.exports = {
           title: 'Block Explorers',
           children: [
             {
+              title: 'Block Explorers',
+              path: '/tools/explorers'
+            },
+            {
               title: 'Evmos (EVM)',
               path: 'https://evm.evmos.org'
             },
