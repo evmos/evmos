@@ -127,6 +127,7 @@ func init() {
 const (
 	// Name defines the application binary name
 	Name = "evmosd"
+	// latest software upgrade name
 	upgradeName = "Olympus-Mons-v0.4.1"
 )
 
