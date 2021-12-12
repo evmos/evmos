@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+* (security, performance) [\#165](https://github.com/tharsis/evmos/pull/165) Add replace statements to avoid importing legacy software versions.
+
 ### Bug Fixes 
 
 - (intrarelayer) [\#169](https://github.com/tharsis/evmos/pull/169) Fixes several testnet bugs:
