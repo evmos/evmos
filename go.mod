@@ -153,11 +153,14 @@ require (
 	nhooyr.io/websocket v1.8.7 // indirect
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
-
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-
-replace github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-
-// TODO: remove once v0.45 has been released
-replace github.com/cosmos/cosmos-sdk => github.com/tharsis/cosmos-sdk v0.44.3-olympus
+replace (
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
+	github.com/confio/ics23/go => github.com/confio/ics23/go v0.6.6
+	github.com/cosmos/cosmos-sdk => github.com/tharsis/cosmos-sdk v0.44.3-olympus
+	github.com/cosmos/iavl => github.com/cosmos/iavl v0.17.3
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/tecbot/gorocksdb => github.com/cosmos/gorocksdb v0.0.0-20211202124722-2c356d6d98e4
+	github.com/tendermint/tendermint => github.com/tendermint/tendermint v0.34.14
+	go.etcd.io/bbolt => go.etcd.io/bbolt v1.3.5
+	google.golang.org/grpc => google.golang.org/grpc v1.33.2
+)

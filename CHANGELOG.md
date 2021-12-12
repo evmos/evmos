@@ -39,6 +39,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+* (security & performance) [\#165](https://github.com/tharsis/evmos/pull/165) Add replace statements to avoid importing legacy software versions.
+
 * (build) [\#143](https://github.com/tharsis/evmos/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
 
 ### Bug Fixes
