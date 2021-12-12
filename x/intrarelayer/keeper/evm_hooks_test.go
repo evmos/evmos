@@ -124,12 +124,12 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 			sender := sdk.AccAddress(suite.address.Bytes())
 			contractAddr := common.HexToAddress(pair.Erc20Address)
 
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
 			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 
 			convertCoin := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
