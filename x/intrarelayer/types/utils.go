@@ -18,6 +18,7 @@ func SanitizeERC20Name(name string) string {
 	return name
 }
 
+// EqualMetadata checks if all the fields of the provided coin metadata are equal.
 func EqualMetadata(a, b banktypes.Metadata) error {
 	if a.Base == b.Base && a.Description == b.Description && a.Display == b.Display && a.Name == b.Name && a.Symbol == b.Symbol {
 		if len(a.DenomUnits) != len(b.DenomUnits) {

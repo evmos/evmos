@@ -9,7 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/ethermint/tests"
-	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
@@ -63,6 +62,25 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 }
 
 func (suite KeeperTestSuite) TestRegisterCoin() {
+	metadata := banktypes.Metadata{
+		Description: "description",
+		Base:        cosmosTokenBase,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    cosmosTokenBase,
+				Exponent: 0,
+			},
+			{
+				Denom:    cosmosTokenDisplay,
+				Exponent: defaultExponent,
+			},
+		},
+		Name:    cosmosTokenBase,
+		Symbol:  erc20Symbol,
+		Display: cosmosTokenDisplay,
+	}
+
 	testCases := []struct {
 		name     string
 		malleate func()
@@ -80,24 +98,22 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		{
 			"denom already registered",
 			func() {
-				regPair := types.NewTokenPair(tests.GenerateAddress(), ethermint.AttoPhoton, true, types.OWNER_MODULE)
+				regPair := types.NewTokenPair(tests.GenerateAddress(), metadata.Base, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
 				suite.Commit()
 			},
 			false,
 		},
 		{
-			"denom already registered",
+			"token doesn't have supply",
 			func() {
-				regPair := types.NewTokenPair(tests.GenerateAddress(), ethermint.AttoPhoton, true, types.OWNER_MODULE)
-				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
-				suite.Commit()
 			},
 			false,
 		},
 		{
 			"metadata different that stored",
 			func() {
+				metadata.Base = cosmosTokenBase
 				validMetadata := banktypes.Metadata{
 					Description: "description",
 					Base:        cosmosTokenBase,
@@ -125,7 +141,10 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		},
 		{
 			"ok",
-			func() {},
+			func() {
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				suite.Require().NoError(err)
+			},
 			true,
 		},
 	}
@@ -135,36 +154,16 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 
 			tc.malleate()
 
-			validMetadata := banktypes.Metadata{
-				Description: "description",
-				Base:        cosmosTokenBase,
-				// NOTE: Denom units MUST be increasing
-				DenomUnits: []*banktypes.DenomUnit{
-					{
-						Denom:    cosmosTokenBase,
-						Exponent: 0,
-					},
-					{
-						Denom:    cosmosTokenDisplay,
-						Exponent: defaultExponent,
-					},
-				},
-				Name:    cosmosTokenBase,
-				Symbol:  erc20Symbol,
-				Display: cosmosTokenDisplay,
-			}
-
-			err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
-			suite.Require().NoError(err)
-
-			pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+			pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, metadata)
 			suite.Commit()
+
 			expPair := &types.TokenPair{
 				Erc20Address:  "0x00819E780C6e96c50Ed70eFFf5B73569c15d0bd7",
-				Denom:         "coin",
+				Denom:         "acoin",
 				Enabled:       true,
 				ContractOwner: 1,
 			}
+
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(pair, expPair)
@@ -240,13 +239,13 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 				suite.Require().True(found)
 				suite.Require().Equal(coinName, metadata.Base)
 				suite.Require().Equal(coinName, metadata.Name)
-				suite.Require().Equal(erc20Name, metadata.Display)
+				suite.Require().Equal(types.SanitizeERC20Name(erc20Name), metadata.Display)
 				suite.Require().Equal(erc20Symbol, metadata.Symbol)
 				// Denom units
 				suite.Require().Equal(len(metadata.DenomUnits), 2)
 				suite.Require().Equal(coinName, metadata.DenomUnits[0].Denom)
 				suite.Require().Equal(uint32(zeroExponent), metadata.DenomUnits[0].Exponent)
-				suite.Require().Equal(erc20Name, metadata.DenomUnits[1].Denom)
+				suite.Require().Equal(types.SanitizeERC20Name(erc20Name), metadata.DenomUnits[1].Denom)
 				// Default exponent at contract creation is 18
 				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
 			} else {
