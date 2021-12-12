@@ -26,6 +26,7 @@ type BankKeeper interface {
 	BlockedAddr(addr sdk.AccAddress) bool
 	GetDenomMetaData(ctx sdk.Context, denom string) (banktypes.Metadata, bool)
 	SetDenomMetaData(ctx sdk.Context, denomMetaData banktypes.Metadata)
+	HasSupply(ctx sdk.Context, denom string) bool
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on intrarelayer

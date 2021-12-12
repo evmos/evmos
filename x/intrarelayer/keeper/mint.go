@@ -19,9 +19,8 @@ func (k Keeper) MintingEnabled(ctx sdk.Context, sender, receiver sdk.AccAddress,
 	}
 
 	id := k.GetTokenPairID(ctx, token)
-
 	if len(id) == 0 {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "token %s not registered", token)
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "token '%s' not registered", token)
 	}
 
 	pair, found := k.GetTokenPair(ctx, id)
@@ -30,7 +29,7 @@ func (k Keeper) MintingEnabled(ctx sdk.Context, sender, receiver sdk.AccAddress,
 	}
 
 	if !pair.Enabled {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrNotAllowedBridge, "minting token %s is not enabled by governance", token)
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrNotAllowedBridge, "minting token '%s' is not enabled by governance", token)
 	}
 
 	if k.bankKeeper.BlockedAddr(receiver.Bytes()) {
@@ -42,7 +41,7 @@ func (k Keeper) MintingEnabled(ctx sdk.Context, sender, receiver sdk.AccAddress,
 
 	// check if minting to a recipient address other than the sender is enabled for for the given coin denom
 	if !sender.Equals(receiver) && !k.bankKeeper.IsSendEnabledCoin(ctx, coin) {
-		return types.TokenPair{}, sdkerrors.Wrapf(banktypes.ErrSendDisabled, "minting %s coins to an external address is currently disabled", token)
+		return types.TokenPair{}, sdkerrors.Wrapf(banktypes.ErrSendDisabled, "minting '%s' coins to an external address is currently disabled", token)
 	}
 
 	return pair, nil

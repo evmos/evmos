@@ -3,18 +3,22 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
 
 const (
-	erc20Name       = "coin"
-	erc20Symbol     = "token"
-	cosmosTokenName = "coin"
-	defaultExponent = uint32(18)
-	zeroExponent    = uint32(0)
+	erc20Name          = "Coin Token"
+	erc20Symbol        = "CTKN"
+	cosmosTokenBase    = "acoin"
+	cosmosTokenDisplay = "coin"
+	defaultExponent    = uint32(18)
+	zeroExponent       = uint32(0)
 )
 
 func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
@@ -29,24 +33,28 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
 func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
 	suite.SetupTest()
 	validMetadata := banktypes.Metadata{
-		Description: "desc",
-		Base:        cosmosTokenName,
+		Description: "description of the token",
+		Base:        cosmosTokenBase,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    cosmosTokenName,
+				Denom:    cosmosTokenBase,
 				Exponent: 0,
 			},
 			{
-				Denom:    "coin2",
+				Denom:    cosmosTokenBase[1:],
 				Exponent: uint32(18),
 			},
 		},
-		Name:    cosmosTokenName,
-		Symbol:  "token",
-		Display: cosmosTokenName,
+		Name:    cosmosTokenBase,
+		Symbol:  erc20Symbol,
+		Display: cosmosTokenBase,
 	}
-	// pair := types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
+
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+	suite.Require().NoError(err)
+
+	// pair := types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 	pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 	suite.Require().NoError(err)
 	suite.Commit()
@@ -54,6 +62,25 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 }
 
 func (suite KeeperTestSuite) TestRegisterCoin() {
+	metadata := banktypes.Metadata{
+		Description: "description",
+		Base:        cosmosTokenBase,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    cosmosTokenBase,
+				Exponent: 0,
+			},
+			{
+				Denom:    cosmosTokenDisplay,
+				Exponent: defaultExponent,
+			},
+		},
+		Name:    cosmosTokenBase,
+		Symbol:  erc20Symbol,
+		Display: cosmosTokenDisplay,
+	}
+
 	testCases := []struct {
 		name     string
 		malleate func()
@@ -71,44 +98,53 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		{
 			"denom already registered",
 			func() {
-				regPair := types.NewTokenPair(tests.GenerateAddress(), cosmosTokenName, true, types.OWNER_MODULE)
+				regPair := types.NewTokenPair(tests.GenerateAddress(), metadata.Base, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
 				suite.Commit()
 			},
 			false,
 		},
 		{
+			"token doesn't have supply",
+			func() {
+			},
+			false,
+		},
+		{
 			"metadata different that stored",
 			func() {
+				metadata.Base = cosmosTokenBase
 				validMetadata := banktypes.Metadata{
-					Description: "desc",
-					Base:        cosmosTokenName,
+					Description: "description",
+					Base:        cosmosTokenBase,
 					// NOTE: Denom units MUST be increasing
 					DenomUnits: []*banktypes.DenomUnit{
 						{
-							Denom:    cosmosTokenName,
+							Denom:    cosmosTokenBase,
 							Exponent: 0,
 						},
 						{
-							Denom:    "coin2",
-							Exponent: uint32(1),
-						},
-						{
-							Denom:    "extraDenom",
-							Exponent: uint32(2),
+							Denom:    cosmosTokenDisplay,
+							Exponent: uint32(18),
 						},
 					},
-					Name:    "otherName",
-					Symbol:  "token",
-					Display: cosmosTokenName,
+					Name:    erc20Name,
+					Symbol:  erc20Symbol,
+					Display: cosmosTokenDisplay,
 				}
+
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+				suite.Require().NoError(err)
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, validMetadata)
 			},
 			false,
 		},
 		{
 			"ok",
-			func() {},
+			func() {
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				suite.Require().NoError(err)
+			},
 			true,
 		},
 	}
@@ -117,33 +153,17 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-			validMetadata := banktypes.Metadata{
-				Description: "desc",
-				Base:        cosmosTokenName,
-				// NOTE: Denom units MUST be increasing
-				DenomUnits: []*banktypes.DenomUnit{
-					{
-						Denom:    cosmosTokenName,
-						Exponent: 0,
-					},
-					{
-						Denom:    "coin2",
-						Exponent: uint32(1),
-					},
-				},
-				Name:    cosmosTokenName,
-				Symbol:  "token",
-				Display: cosmosTokenName,
-			}
 
-			pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+			pair, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, metadata)
 			suite.Commit()
+
 			expPair := &types.TokenPair{
 				Erc20Address:  "0x00819E780C6e96c50Ed70eFFf5B73569c15d0bd7",
-				Denom:         "coin",
+				Denom:         "acoin",
 				Enabled:       true,
 				ContractOwner: 1,
 			}
+
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(pair, expPair)
@@ -219,13 +239,13 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 				suite.Require().True(found)
 				suite.Require().Equal(coinName, metadata.Base)
 				suite.Require().Equal(coinName, metadata.Name)
-				suite.Require().Equal(erc20Name, metadata.Display)
+				suite.Require().Equal(types.SanitizeERC20Name(erc20Name), metadata.Display)
 				suite.Require().Equal(erc20Symbol, metadata.Symbol)
 				// Denom units
 				suite.Require().Equal(len(metadata.DenomUnits), 2)
 				suite.Require().Equal(coinName, metadata.DenomUnits[0].Denom)
 				suite.Require().Equal(uint32(zeroExponent), metadata.DenomUnits[0].Exponent)
-				suite.Require().Equal(erc20Name, metadata.DenomUnits[1].Denom)
+				suite.Require().Equal(types.SanitizeERC20Name(erc20Name), metadata.DenomUnits[1].Denom)
 				// Default exponent at contract creation is 18
 				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
 			} else {
@@ -253,7 +273,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 			},
 			false,
 			false,
@@ -263,7 +283,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
 			false,
@@ -333,7 +353,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 			},
 			false,
 		},
@@ -342,7 +362,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 
 				suite.app.IntrarelayerKeeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 			},
@@ -353,7 +373,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			func() {
 				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
 				suite.Commit()
-				pair = types.NewTokenPair(contractAddr, cosmosTokenName, true, types.OWNER_MODULE)
+				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 
 				suite.app.IntrarelayerKeeper.SetTokenPair(suite.ctx, pair)
 				suite.app.IntrarelayerKeeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())

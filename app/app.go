@@ -124,8 +124,12 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, ".evmosd")
 }
 
-// Name defines the application binary name
-const Name = "evmosd"
+const (
+	// Name defines the application binary name
+	Name = "evmosd"
+	// latest software upgrade name
+	upgradeName = "Olympus-Mons-v0.4.1"
+)
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -507,6 +511,9 @@ func NewEvmos(
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	app.UpgradeKeeper.SetUpgradeHandler(upgradeName, func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return app.mm.RunMigrations(ctx, app.configurator, vm)
+	})
 	app.mm.RegisterServices(app.configurator)
 
 	// add test gRPC service for testing gRPC queries in isolation

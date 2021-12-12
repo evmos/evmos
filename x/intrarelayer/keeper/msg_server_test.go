@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/intrarelayer/types"
 )
@@ -44,10 +45,10 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			suite.Commit()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -95,12 +96,12 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeCoin() {
 			suite.Require().NotNil(pair)
 
 			// Precondition: Convert Coin to ERC20
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenName, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -275,25 +276,27 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 
 func (suite *KeeperTestSuite) TestConvertNativeIBC() {
 	suite.SetupTest()
+	base := "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2"
+
 	validMetadata := banktypes.Metadata{
 		Description: "ATOM IBC voucher (channel 14)",
-		Base:        "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2",
+		Base:        base,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2",
+				Denom:    base,
 				Exponent: 0,
-			},
-			{
-				Denom:    "coin2",
-				Exponent: uint32(18),
 			},
 		},
 		Name:    "ATOM channel-14",
 		Symbol:  "ibcATOM-14",
-		Display: "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2",
+		Display: base,
 	}
-	_, err := suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
+
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(base, 1)})
+	suite.Require().NoError(err)
+
+	_, err = suite.app.IntrarelayerKeeper.RegisterCoin(suite.ctx, validMetadata)
 	suite.Require().NoError(err)
 	suite.Commit()
 }

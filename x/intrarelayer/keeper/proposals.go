@@ -12,14 +12,25 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
-// RegisterCoin deploys an erc20 contract and creates the token pair for the cosmos coin
+// RegisterCoin deploys an erc20 contract and creates the token pair for the existing cosmos coin
 func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (*types.TokenPair, error) {
+	// check if the conversion is globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIntrarelayer {
 		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
 	}
+
+	// check if the denomination already registered
 	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", coinMetadata.Name)
+	}
+
+	// check if the coin exists by ensuring the supply is set
+	if !k.bankKeeper.HasSupply(ctx, coinMetadata.Base) {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidCoins,
+			"base denomination '%s' cannot have a supply of 0", coinMetadata.Base,
+		)
 	}
 
 	if err := k.verifyMetadata(ctx, coinMetadata); err != nil {
@@ -39,6 +50,7 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	return &pair, nil
 }
 
+// verify if the metadata matches the existing one, if not it sets it to the store
 func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata) error {
 	meta, found := k.bankKeeper.GetDenomMetaData(ctx, coinMetadata.Base)
 	if !found {
@@ -46,7 +58,7 @@ func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata)
 		return nil
 	}
 	// If it already existed, Check that is equal to what is stored
-	return equalMetadata(meta, coinMetadata)
+	return types.EqualMetadata(meta, coinMetadata)
 }
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the intrarelayer module account as owner
@@ -116,24 +128,38 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", erc20Data.Name)
 	}
 
+	// base denomination
+	base := types.CreateDenom(strContract)
+
 	// create a bank denom metadata based on the ERC20 token ABI details
+	// metadata name is should always be the contract since it's the key
+	// to the bank store
 	metadata := banktypes.Metadata{
 		Description: types.CreateDenomDescription(strContract),
-		Base:        types.CreateDenom(strContract),
+		Base:        base,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    types.CreateDenom(strContract),
+				Denom:    base,
 				Exponent: 0,
-			},
-			{
-				Denom:    erc20Data.Name,
-				Exponent: uint32(erc20Data.Decimals),
 			},
 		},
 		Name:    types.CreateDenom(strContract),
 		Symbol:  erc20Data.Symbol,
-		Display: erc20Data.Name,
+		Display: base,
+	}
+
+	// only append metadata if decimals > 0, otherwise validation fails
+	if erc20Data.Decimals > 0 {
+		nameSanitized := types.SanitizeERC20Name(erc20Data.Name)
+		metadata.DenomUnits = append(
+			metadata.DenomUnits,
+			&banktypes.DenomUnit{
+				Denom:    nameSanitized,
+				Exponent: uint32(erc20Data.Decimals),
+			},
+		)
+		metadata.Display = nameSanitized
 	}
 
 	if err := metadata.Validate(); err != nil {
