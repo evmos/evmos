@@ -12,17 +12,20 @@ import (
 	"github.com/tharsis/evmos/x/intrarelayer/types/contracts"
 )
 
-// RegisterCoin deploys an erc20 contract and creates the token pair for the cosmos coin
+// RegisterCoin deploys an erc20 contract and creates the token pair for the existing cosmos coin
 func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (*types.TokenPair, error) {
+	// check if the conversion is globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIntrarelayer {
 		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
 	}
 
+	// check if the denomination already registered
 	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
 		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", coinMetadata.Name)
 	}
 
+	// check if the coin exists by ensuring the supply is set
 	if !k.bankKeeper.HasSupply(ctx, coinMetadata.Base) {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInvalidCoins,
@@ -47,6 +50,7 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	return &pair, nil
 }
 
+// verify if the metadata matches the existing one, if not it sets it to the store
 func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata) error {
 	meta, found := k.bankKeeper.GetDenomMetaData(ctx, coinMetadata.Base)
 	if !found {
@@ -128,6 +132,8 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 	base := types.CreateDenom(strContract)
 
 	// create a bank denom metadata based on the ERC20 token ABI details
+	// metadata name is should always be the contract since it's the key
+	// to the bank store
 	metadata := banktypes.Metadata{
 		Description: types.CreateDenomDescription(strContract),
 		Base:        base,
