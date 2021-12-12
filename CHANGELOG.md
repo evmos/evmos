@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-* (bumps) bumped tendemint to v0.34.15 and tm-db to v0.6.6.
+* (bumps) bumped Tendermint to v0.34.15 and tm-db to v0.6.6.
 
 ### Bug Fixes 
 
