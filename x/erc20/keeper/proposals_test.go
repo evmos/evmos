@@ -158,7 +158,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			suite.Commit()
 
 			expPair := &types.TokenPair{
-				Erc20Address:  "0x00819E780C6e96c50Ed70eFFf5B73569c15d0bd7",
+				Erc20Address:  "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
 				Denom:         "acoin",
 				Enabled:       true,
 				ContractOwner: 1,
