@@ -112,6 +112,7 @@ import (
 	"github.com/tharsis/evmos/x/erc20"
 	erc20client "github.com/tharsis/evmos/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/x/erc20/types"
 )
 
 func init() {
