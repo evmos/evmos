@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-* (security, performance) [\#165](https://github.com/tharsis/evmos/pull/165) Add replace statements to avoid importing legacy software versions.
+* (bumps) bumped Tendermint to v0.34.15 and tm-db to v0.6.6.
 
 ### Bug Fixes 
 
