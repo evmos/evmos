@@ -4,49 +4,49 @@
 
 ## Table of Contents
 
-- [evmos/intrarelayer/v1/intrarelayer.proto](#evmos/intrarelayer/v1/intrarelayer.proto)
-    - [RegisterCoinProposal](#evmos.intrarelayer.v1.RegisterCoinProposal)
-    - [RegisterERC20Proposal](#evmos.intrarelayer.v1.RegisterERC20Proposal)
-    - [ToggleTokenRelayProposal](#evmos.intrarelayer.v1.ToggleTokenRelayProposal)
-    - [TokenPair](#evmos.intrarelayer.v1.TokenPair)
-    - [UpdateTokenPairERC20Proposal](#evmos.intrarelayer.v1.UpdateTokenPairERC20Proposal)
+- [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
+    - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
+    - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
+    - [ToggleTokenRelayProposal](#evmos.erc20.v1.ToggleTokenRelayProposal)
+    - [TokenPair](#evmos.erc20.v1.TokenPair)
+    - [UpdateTokenPairERC20Proposal](#evmos.erc20.v1.UpdateTokenPairERC20Proposal)
   
-    - [Owner](#evmos.intrarelayer.v1.Owner)
+    - [Owner](#evmos.erc20.v1.Owner)
   
-- [evmos/intrarelayer/v1/genesis.proto](#evmos/intrarelayer/v1/genesis.proto)
-    - [GenesisState](#evmos.intrarelayer.v1.GenesisState)
-    - [Params](#evmos.intrarelayer.v1.Params)
+- [evmos/erc20/v1/genesis.proto](#evmos/erc20/v1/genesis.proto)
+    - [GenesisState](#evmos.erc20.v1.GenesisState)
+    - [Params](#evmos.erc20.v1.Params)
   
-- [evmos/intrarelayer/v1/query.proto](#evmos/intrarelayer/v1/query.proto)
-    - [QueryParamsRequest](#evmos.intrarelayer.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#evmos.intrarelayer.v1.QueryParamsResponse)
-    - [QueryTokenPairRequest](#evmos.intrarelayer.v1.QueryTokenPairRequest)
-    - [QueryTokenPairResponse](#evmos.intrarelayer.v1.QueryTokenPairResponse)
-    - [QueryTokenPairsRequest](#evmos.intrarelayer.v1.QueryTokenPairsRequest)
-    - [QueryTokenPairsResponse](#evmos.intrarelayer.v1.QueryTokenPairsResponse)
+- [evmos/erc20/v1/query.proto](#evmos/erc20/v1/query.proto)
+    - [QueryParamsRequest](#evmos.erc20.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.erc20.v1.QueryParamsResponse)
+    - [QueryTokenPairRequest](#evmos.erc20.v1.QueryTokenPairRequest)
+    - [QueryTokenPairResponse](#evmos.erc20.v1.QueryTokenPairResponse)
+    - [QueryTokenPairsRequest](#evmos.erc20.v1.QueryTokenPairsRequest)
+    - [QueryTokenPairsResponse](#evmos.erc20.v1.QueryTokenPairsResponse)
   
-    - [Query](#evmos.intrarelayer.v1.Query)
+    - [Query](#evmos.erc20.v1.Query)
   
-- [evmos/intrarelayer/v1/tx.proto](#evmos/intrarelayer/v1/tx.proto)
-    - [MsgConvertCoin](#evmos.intrarelayer.v1.MsgConvertCoin)
-    - [MsgConvertCoinResponse](#evmos.intrarelayer.v1.MsgConvertCoinResponse)
-    - [MsgConvertERC20](#evmos.intrarelayer.v1.MsgConvertERC20)
-    - [MsgConvertERC20Response](#evmos.intrarelayer.v1.MsgConvertERC20Response)
+- [evmos/erc20/v1/tx.proto](#evmos/erc20/v1/tx.proto)
+    - [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin)
+    - [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse)
+    - [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20)
+    - [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response)
   
-    - [Msg](#evmos.intrarelayer.v1.Msg)
+    - [Msg](#evmos.erc20.v1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="evmos/intrarelayer/v1/intrarelayer.proto"></a>
+<a name="evmos/erc20/v1/erc20.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/intrarelayer/v1/intrarelayer.proto
+## evmos/erc20/v1/erc20.proto
 
 
 
-<a name="evmos.intrarelayer.v1.RegisterCoinProposal"></a>
+<a name="evmos.erc20.v1.RegisterCoinProposal"></a>
 
 ### RegisterCoinProposal
 RegisterCoinProposal is a gov Content type to register a token pair
@@ -63,7 +63,7 @@ RegisterCoinProposal is a gov Content type to register a token pair
 
 
 
-<a name="evmos.intrarelayer.v1.RegisterERC20Proposal"></a>
+<a name="evmos.erc20.v1.RegisterERC20Proposal"></a>
 
 ### RegisterERC20Proposal
 RegisterCoinProposal is a gov Content type to register a token pair
@@ -80,7 +80,7 @@ RegisterCoinProposal is a gov Content type to register a token pair
 
 
 
-<a name="evmos.intrarelayer.v1.ToggleTokenRelayProposal"></a>
+<a name="evmos.erc20.v1.ToggleTokenRelayProposal"></a>
 
 ### ToggleTokenRelayProposal
 ToggleTokenRelayProposal is a gov Content type to toggle
@@ -98,7 +98,7 @@ the internal relaying of a token pair.
 
 
 
-<a name="evmos.intrarelayer.v1.TokenPair"></a>
+<a name="evmos.erc20.v1.TokenPair"></a>
 
 ### TokenPair
 TokenPair defines an instance that records pairing consisting of a Cosmos
@@ -110,14 +110,14 @@ native Coin and an ERC20 token address.
 | `erc20_address` | [string](#string) |  | address of ERC20 contract token |
 | `denom` | [string](#string) |  | cosmos base denomination to be mapped to |
 | `enabled` | [bool](#bool) |  | shows token mapping enable status |
-| `contract_owner` | [Owner](#evmos.intrarelayer.v1.Owner) |  | ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address) |
+| `contract_owner` | [Owner](#evmos.erc20.v1.Owner) |  | ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address) |
 
 
 
 
 
 
-<a name="evmos.intrarelayer.v1.UpdateTokenPairERC20Proposal"></a>
+<a name="evmos.erc20.v1.UpdateTokenPairERC20Proposal"></a>
 
 ### UpdateTokenPairERC20Proposal
 UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
@@ -138,7 +138,7 @@ ERC20 contract address.
  <!-- end messages -->
 
 
-<a name="evmos.intrarelayer.v1.Owner"></a>
+<a name="evmos.erc20.v1.Owner"></a>
 
 ### Owner
 Owner enumerates the ownership of a ERC20 contract.
@@ -146,7 +146,7 @@ Owner enumerates the ownership of a ERC20 contract.
 | Name | Number | Description |
 | ---- | ------ | ----------- |
 | OWNER_UNSPECIFIED | 0 | OWNER_UNSPECIFIED defines an invalid/undefined owner. |
-| OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the intrarelayer module account. |
+| OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the erc20 module account. |
 | OWNER_EXTERNAL | 2 | EXTERNAL erc20 is owned by an external account. |
 
 
@@ -158,14 +158,14 @@ Owner enumerates the ownership of a ERC20 contract.
 
 
 
-<a name="evmos/intrarelayer/v1/genesis.proto"></a>
+<a name="evmos/erc20/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/intrarelayer/v1/genesis.proto
+## evmos/erc20/v1/genesis.proto
 
 
 
-<a name="evmos.intrarelayer.v1.GenesisState"></a>
+<a name="evmos.erc20.v1.GenesisState"></a>
 
 ### GenesisState
 GenesisState defines the module's genesis state.
@@ -173,23 +173,23 @@ GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.intrarelayer.v1.Params) |  | module parameters |
-| `token_pairs` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) | repeated | registered token pairs |
+| `params` | [Params](#evmos.erc20.v1.Params) |  | module parameters |
+| `token_pairs` | [TokenPair](#evmos.erc20.v1.TokenPair) | repeated | registered token pairs |
 
 
 
 
 
 
-<a name="evmos.intrarelayer.v1.Params"></a>
+<a name="evmos.erc20.v1.Params"></a>
 
 ### Params
-Params defines the intrarelayer module params
+Params defines the erc20 module params
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `enable_intrarelayer` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
+| `enable_erc20` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
 | `token_pair_voting_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | overrides the governance voting period for token pairs proposals |
 | `enable_evm_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
 
@@ -207,14 +207,14 @@ Params defines the intrarelayer module params
 
 
 
-<a name="evmos/intrarelayer/v1/query.proto"></a>
+<a name="evmos/erc20/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/intrarelayer/v1/query.proto
+## evmos/erc20/v1/query.proto
 
 
 
-<a name="evmos.intrarelayer.v1.QueryParamsRequest"></a>
+<a name="evmos.erc20.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
 QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -224,7 +224,7 @@ QueryParamsRequest is the request type for the Query/Params RPC method.
 
 
 
-<a name="evmos.intrarelayer.v1.QueryParamsResponse"></a>
+<a name="evmos.erc20.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
 QueryParamsResponse is the response type for the Query/Params RPC
@@ -233,14 +233,14 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.intrarelayer.v1.Params) |  |  |
+| `params` | [Params](#evmos.erc20.v1.Params) |  |  |
 
 
 
 
 
 
-<a name="evmos.intrarelayer.v1.QueryTokenPairRequest"></a>
+<a name="evmos.erc20.v1.QueryTokenPairRequest"></a>
 
 ### QueryTokenPairRequest
 QueryTokenPairRequest is the request type for the Query/TokenPair RPC method.
@@ -255,7 +255,7 @@ QueryTokenPairRequest is the request type for the Query/TokenPair RPC method.
 
 
 
-<a name="evmos.intrarelayer.v1.QueryTokenPairResponse"></a>
+<a name="evmos.erc20.v1.QueryTokenPairResponse"></a>
 
 ### QueryTokenPairResponse
 QueryTokenPairResponse is the response type for the Query/TokenPair RPC
@@ -264,14 +264,14 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `token_pair` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) |  |  |
+| `token_pair` | [TokenPair](#evmos.erc20.v1.TokenPair) |  |  |
 
 
 
 
 
 
-<a name="evmos.intrarelayer.v1.QueryTokenPairsRequest"></a>
+<a name="evmos.erc20.v1.QueryTokenPairsRequest"></a>
 
 ### QueryTokenPairsRequest
 QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC method.
@@ -286,7 +286,7 @@ QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC method.
 
 
 
-<a name="evmos.intrarelayer.v1.QueryTokenPairsResponse"></a>
+<a name="evmos.erc20.v1.QueryTokenPairsResponse"></a>
 
 ### QueryTokenPairsResponse
 QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
@@ -295,7 +295,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `token_pairs` | [TokenPair](#evmos.intrarelayer.v1.TokenPair) | repeated |  |
+| `token_pairs` | [TokenPair](#evmos.erc20.v1.TokenPair) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -309,29 +309,29 @@ method.
  <!-- end HasExtensions -->
 
 
-<a name="evmos.intrarelayer.v1.Query"></a>
+<a name="evmos.erc20.v1.Query"></a>
 
 ### Query
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `TokenPairs` | [QueryTokenPairsRequest](#evmos.intrarelayer.v1.QueryTokenPairsRequest) | [QueryTokenPairsResponse](#evmos.intrarelayer.v1.QueryTokenPairsResponse) | Retrieves registered token pairs | GET|/evmos/intrarelayer/v1/token_pairs|
-| `TokenPair` | [QueryTokenPairRequest](#evmos.intrarelayer.v1.QueryTokenPairRequest) | [QueryTokenPairResponse](#evmos.intrarelayer.v1.QueryTokenPairResponse) | Retrieves a registered token pair | GET|/evmos/intrarelayer/v1/token_pairs/{token}|
-| `Params` | [QueryParamsRequest](#evmos.intrarelayer.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.intrarelayer.v1.QueryParamsResponse) | Params retrieves the intrarelayer module params | GET|/evmos/intrarelayer/v1/params|
+| `TokenPairs` | [QueryTokenPairsRequest](#evmos.erc20.v1.QueryTokenPairsRequest) | [QueryTokenPairsResponse](#evmos.erc20.v1.QueryTokenPairsResponse) | Retrieves registered token pairs | GET|/evmos/erc20/v1/token_pairs|
+| `TokenPair` | [QueryTokenPairRequest](#evmos.erc20.v1.QueryTokenPairRequest) | [QueryTokenPairResponse](#evmos.erc20.v1.QueryTokenPairResponse) | Retrieves a registered token pair | GET|/evmos/erc20/v1/token_pairs/{token}|
+| `Params` | [QueryParamsRequest](#evmos.erc20.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.erc20.v1.QueryParamsResponse) | Params retrieves the erc20 module params | GET|/evmos/erc20/v1/params|
 
  <!-- end services -->
 
 
 
-<a name="evmos/intrarelayer/v1/tx.proto"></a>
+<a name="evmos/erc20/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/intrarelayer/v1/tx.proto
+## evmos/erc20/v1/tx.proto
 
 
 
-<a name="evmos.intrarelayer.v1.MsgConvertCoin"></a>
+<a name="evmos.erc20.v1.MsgConvertCoin"></a>
 
 ### MsgConvertCoin
 MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
@@ -339,7 +339,7 @@ MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Cosmos coin which denomination is registered on intrarelayer bridge. The coin amount defines the total ERC20 tokens to convert. |
+| `coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Cosmos coin which denomination is registered on erc20 bridge. The coin amount defines the total ERC20 tokens to convert. |
 | `receiver` | [string](#string) |  | recipient hex address to receive ERC20 token |
 | `sender` | [string](#string) |  | cosmos bech32 address from the owner of the given ERC20 tokens |
 
@@ -348,7 +348,7 @@ MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
 
 
 
-<a name="evmos.intrarelayer.v1.MsgConvertCoinResponse"></a>
+<a name="evmos.erc20.v1.MsgConvertCoinResponse"></a>
 
 ### MsgConvertCoinResponse
 MsgConvertCoinResponse returns no fields
@@ -358,7 +358,7 @@ MsgConvertCoinResponse returns no fields
 
 
 
-<a name="evmos.intrarelayer.v1.MsgConvertERC20"></a>
+<a name="evmos.erc20.v1.MsgConvertERC20"></a>
 
 ### MsgConvertERC20
 MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
@@ -366,7 +366,7 @@ MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract_address` | [string](#string) |  | ERC20 token contract address registered on intrarelayer bridge |
+| `contract_address` | [string](#string) |  | ERC20 token contract address registered on erc20 bridge |
 | `amount` | [string](#string) |  | amount of ERC20 tokens to mint |
 | `receiver` | [string](#string) |  | bech32 address to receive SDK coins. |
 | `sender` | [string](#string) |  | sender hex address from the owner of the given ERC20 tokens |
@@ -376,7 +376,7 @@ MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
 
 
 
-<a name="evmos.intrarelayer.v1.MsgConvertERC20Response"></a>
+<a name="evmos.erc20.v1.MsgConvertERC20Response"></a>
 
 ### MsgConvertERC20Response
 MsgConvertERC20Response returns no fields
@@ -392,15 +392,15 @@ MsgConvertERC20Response returns no fields
  <!-- end HasExtensions -->
 
 
-<a name="evmos.intrarelayer.v1.Msg"></a>
+<a name="evmos.erc20.v1.Msg"></a>
 
 ### Msg
-Msg defines the intrarelayer Msg service.
+Msg defines the erc20 Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `ConvertCoin` | [MsgConvertCoin](#evmos.intrarelayer.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.intrarelayer.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/intrarelayer/v1/tx/convert_coin|
-| `ConvertERC20` | [MsgConvertERC20](#evmos.intrarelayer.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.intrarelayer.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/intrarelayer/v1/tx/convert_erc20|
+| `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
+| `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
 
  <!-- end services -->
 
