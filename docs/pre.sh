@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-mkdir -p modules
+rm -rf modules && mkdir -p modules
 
 for D in ../x/*; do
   if [ -d "${D}" ]; then
