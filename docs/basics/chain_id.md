@@ -19,7 +19,8 @@ Learn about the Evmos chain-id format {synopsis}
 :::
 ::: tab Mainnet
 
-| Name                                            | Chain ID                                      | Identifier | EIP155 Number                         | Version Number                            |
+| Name      Luis Angel Quezada Garcia                                     | Chain ID           evmosd config chain-id evmos_9000-2
+                           | Identifier | EIP155 Number                         | Version Number                            |
 |-------------------------------------------------|-----------------------------------------------|------------|---------------------------------------|-------------------------------------------|
 | Evmos {{ $themeConfig.project.version_number }} | `evmos_{{ $themeConfig.project.chain_id }}-1` | `evmos`    | `{{ $themeConfig.project.chain_id }}` | {{ $themeConfig.project.version_number }} |
 :::
@@ -60,4 +61,4 @@ The following table provides an example where the second row corresponds to an u
 | `evmos_9000-1` | evmos      | 9000          | 1              |
 | `evmos_9000-2` | evmos      | 9000          | 2              |
 | `...`          | ...        | ...           | ...            |
-| `evmos_9000-N` | evmos      | 9000          | N              |
+| `evmos_9000-N` | evmos      | 9000          | N            |
