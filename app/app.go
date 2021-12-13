@@ -109,10 +109,10 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	"github.com/tharsis/evmos/x/intrarelayer"
-	irclient "github.com/tharsis/evmos/x/intrarelayer/client"
-	irk "github.com/tharsis/evmos/x/intrarelayer/keeper"
-	irt "github.com/tharsis/evmos/x/intrarelayer/types"
+	"github.com/tharsis/evmos/x/erc20"
+	irclient "github.com/tharsis/evmos/x/erc20/client"
+	irk "github.com/tharsis/evmos/x/erc20/keeper"
+	irt "github.com/tharsis/evmos/x/erc20/types"
 )
 
 func init() {
@@ -165,7 +165,7 @@ var (
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
-		intrarelayer.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -238,7 +238,7 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	IntrarelayerKeeper irk.Keeper
+	Erc20Keeper irk.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -387,7 +387,7 @@ func NewEvmos(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
-		AddRoute(irt.RouterKey, intrarelayer.NewIntrarelayerProposalHandler(&app.IntrarelayerKeeper))
+		AddRoute(irt.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -395,19 +395,19 @@ func NewEvmos(
 	)
 
 	// Evmos Keeper
-	app.IntrarelayerKeeper = irk.NewKeeper(
+	app.Erc20Keeper = irk.NewKeeper(
 		keys[irt.StoreKey], appCodec, app.GetSubspace(irt.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.EvmKeeper,
 	)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			govtypes.NewMultiGovHooks(
-				app.IntrarelayerKeeper,
+				app.Erc20Keeper,
 			),
 		),
 	)
 
-	app.EvmKeeper = app.EvmKeeper.SetHooks(app.IntrarelayerKeeper)
+	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper)
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
@@ -466,7 +466,7 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
-		intrarelayer.NewAppModule(app.IntrarelayerKeeper, app.AccountKeeper),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

@@ -1,0 +1,31 @@
+syntax = "proto3";
+package evmos.erc20.v1;
+import "evmos/erc20/v1/erc20.proto";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/tharsis/evmos/x/erc20/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+    // module parameters
+    Params params = 1 [(gogoproto.nullable) = false];
+    // registered token pairs
+    repeated TokenPair token_pairs = 2 [(gogoproto.nullable) = false];
+}
+
+// Params defines the erc20 module params
+message Params {
+    // parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens.
+    bool enable_erc20 = 1;
+    // overrides the governance voting period for token pairs proposals
+    google.protobuf.Duration  token_pair_voting_period = 2 [
+        (gogoproto.stdduration) = true,
+        (gogoproto.nullable) = false
+    ];
+    // parameter to enable the EVM hook to convert an ERC20 token to a Cosmos
+    // Coin by transferring the Tokens through a MsgEthereumTx to the
+    // ModuleAddress Ethereum address.
+    bool enable_evm_hook = 3 [(gogoproto.customname) = "EnableEVMHook"];
+}
