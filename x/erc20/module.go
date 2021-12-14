@@ -129,7 +129,9 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	_ = keeper.NewMigrator(am.keeper)
+	m := keeper.NewMigrator(am.keeper)
+	// Perform in-place store migrations from ConsensusVersion 1 to 2.
+	cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2)
 }
 
 func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
