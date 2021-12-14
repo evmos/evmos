@@ -12,16 +12,18 @@ import (
 // MigrateStore performs in-place store migrations from v0.42 to v0.43. The
 // migration includes:
 //
-// - Change StoreKey from `intrarelayer/` to `erc20/` for:
-// 		- TokenPair
-// 		- TokenPairByERC20
-// 		- TokenPairByDenom
-// - Change TokenPairByERC20 Value
-// - Change TokenPairByDenom Prefix + Value
+// Change StoreKey from `intrarelayer/` to `erc20/` for:
+// - TokenPair
+// - TokenPairByERC20 (Change TokenPairByERC20 Value)
+// - TokenPairByDenom (Change TokenPairByDenom Prefix + Value)
+// - Params
+// - Bank balances
 func MigrateStore(ctx sdk.Context, storeKey sdk.StoreKey, cdc codec.BinaryCodec) {
 	store := ctx.KVStore(storeKey)
 
 	migrateTokenPairKeys(store, store, cdc)
+	migrateParameterKeys(store, store, cdc)
+	// migrateBalanceKeys()
 }
 
 // migrateTokenPairKeys migrates TokenPair keys to use new Storekey
@@ -32,9 +34,12 @@ func migrateTokenPairKeys(irmStore, erc20Store sdk.KVStore, cdc codec.BinaryCode
 	oldStore := prefix.NewStore(irmStore, keyPrefixTokenPair)
 	newStore := prefix.NewStore(erc20Store, keyPrefixTokenPair)
 
+	// Old and new TokenPairByERC20 store
 	keyPrefixTokenPairByERC20 := types.KeyPrefixTokenPairByERC20
-	storeTokenPairByERC20 := prefix.NewStore(irmStore, keyPrefixTokenPairByERC20)
+	oldStoreTokenPairByERC20 := prefix.NewStore(irmStore, keyPrefixTokenPairByERC20)
+	newStoreTokenPairByERC20 := prefix.NewStore(erc20Store, keyPrefixTokenPairByERC20)
 
+	// Old and new TokenPairByDenom store
 	keyPrefixTokenPairByDenom := types.KeyPrefixTokenPairByDenom
 	oldStoreTokenPairByDenom := prefix.NewStore(irmStore, keyPrefixTokenPairByDenom)
 	newStoreTokenPairByDenom := prefix.NewStore(erc20Store, keyPrefixTokenPairByDenom)
@@ -51,30 +56,44 @@ func migrateTokenPairKeys(irmStore, erc20Store sdk.KVStore, cdc codec.BinaryCode
 		cdc.MustUnmarshal(bz, &tokenPair)
 		id := tokenPair.GetID()
 
-		// Update TokenPair denom and write new id to newStore
 		if strings.HasPrefix(tokenPair.Denom, "intrarelayer") {
+			// Migrate TokenPair key and value with updated TokenPair denom
+			oldErc20 := tokenPair.GetERC20Contract()
 			oldDenomKey := tokenPair.Denom
 			tokenPair.Denom = strings.ReplaceAll(tokenPair.Denom, "intrarelayer", "erc20")
 			bz = cdc.MustMarshal(&tokenPair)
-			// Set new key on store
 			newStore.Set([]byte(id), bz)
 			oldStore.Delete(key)
 
-			// TODO: migrate TokenPairByErc20 value (id)
-			// get Tokenpair erc20 key
+			// Migrate TokenPairByErc20 value (erc20 Prefix => newID)
 			erc20 := tokenPair.GetERC20Contract()
-			erc20Key := types.KeyPrefixTokenPairByERC20 + []byte(erc20)
-			// set erc20 Prefix => newID to new store
-			storeTokenPairByERC20.Set(erc20Key, []byte(id))
+			erc20Key := append(types.KeyPrefixTokenPairByERC20, erc20.Bytes()...)
+			irmKey := append(types.KeyPrefixTokenPairByERC20, oldErc20.Bytes()...)
+			newStoreTokenPairByERC20.Set(erc20Key, []byte(id))
+			oldStoreTokenPairByERC20.Delete(irmKey)
 
-			// TODO: migrate TokenPairByDenom key and value (newID => newTokenPair)
-			// get newDenom Prefix
+			// Migrate TokenPairByDenom key and value (newID => newTokenPair)
 			denom := tokenPair.Denom
-			denomKey := types.KeyPrefixTokenPairByDenom + []byte(denom)
-			// set newDenom => newID to new store
+			denomKey := append(types.KeyPrefixTokenPairByDenom, []byte(denom)...)
 			newStoreTokenPairByDenom.Set(denomKey, []byte(id))
 			oldStoreTokenPairByDenom.Delete([]byte(oldDenomKey))
 		}
 	}
+	return nil
+}
+
+// migrateTokenPairKeys migrates Parameter keys to use new Storekey
+func migrateParameterKeys(irmStore, erc20Store sdk.KVStore, cdc codec.BinaryCodec) error {
+	// old key is of format: `intrarelayer` || paramStoreKey
+	// new key is of format: `erc20` || paramStoreKey
+	paramEnableErc20 := types.ParamStoreKeyEnableErc20
+	oldStore := prefix.NewStore(irmStore, paramEnableErc20)
+	newStore := prefix.NewStore(erc20Store, paramEnableErc20)
+
+	var enableErc20 bool
+	bz := oldStore.Get(paramEnableErc20)
+	cdc.MustUnmarshal(bz, &enableErc20)
+	// store param in new store
+
 	return nil
 }
