@@ -73,9 +73,9 @@ func (msg MsgRegisterContract) GetSigners() []sdk.AccAddress {
 // NewMsgRegisterContract creates a new instance of MsgRegisterContract
 func NewMsgUpdateWithdawAddress(contractAddr, withdrawAddress, newWithdrawAddress common.Address) *MsgUpdateWithdawAddress { // nolint: interfacer
 	return &MsgUpdateWithdawAddress{
-		ContractAddress:      contractAddr.Hex(),
-		NewWithdrawalAddress: newWithdrawAddress.Hex(),
-		WithdrawalAddress:    withdrawAddress.Hex(),
+		ContractAddress:    contractAddr.Hex(),
+		NewWithdrawAddress: newWithdrawAddress.Hex(),
+		WithdrawAddress:    withdrawAddress.Hex(),
 	}
 }
 
@@ -90,10 +90,10 @@ func (msg MsgUpdateWithdawAddress) ValidateBasic() error {
 	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
 		return sdkerrors.Wrap(err, "smart contract address")
 	}
-	if err := ethermint.ValidateAddress(msg.NewWithdrawalAddress); err != nil {
+	if err := ethermint.ValidateAddress(msg.NewWithdrawAddress); err != nil {
 		return sdkerrors.Wrap(err, "new withdrawal address")
 	}
-	if err := ethermint.ValidateAddress(msg.WithdrawalAddress); err != nil {
+	if err := ethermint.ValidateAddress(msg.WithdrawAddress); err != nil {
 		return sdkerrors.Wrap(err, "withdrawal address")
 	}
 
@@ -107,6 +107,6 @@ func (msg *MsgUpdateWithdawAddress) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgUpdateWithdawAddress) GetSigners() []sdk.AccAddress {
-	addr := sdk.AccAddress(common.HexToAddress(msg.WithdrawalAddress).Bytes())
+	addr := sdk.AccAddress(common.HexToAddress(msg.WithdrawAddress).Bytes())
 	return []sdk.AccAddress{addr}
 }

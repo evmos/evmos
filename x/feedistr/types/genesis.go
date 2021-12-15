@@ -43,7 +43,7 @@ func (cwa ContractWithdrawAddress) Validate() error {
 	if err := ethermint.ValidateAddress(cwa.ContractAddress); err != nil {
 		return sdkerrors.Wrap(err, "smart contract address")
 	}
-	if err := ethermint.ValidateAddress(cwa.WithdrawalAddress); err != nil {
+	if err := ethermint.ValidateAddress(cwa.WithdrawAddress); err != nil {
 		return sdkerrors.Wrap(err, "withdrawal address")
 	}
 	return nil

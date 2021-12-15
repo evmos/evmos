@@ -15,11 +15,12 @@ service Msg {
   };
   // UpdateWithdawAddress updates the withdrawal address for the contract that has been 
   rpc UpdateWithdawAddress(MsgUpdateWithdawAddress) returns (MsgUpdateWithdawAddressResponse){
-    option (google.api.http).get = "/evmos/distribution/v1/tx/update_withdrawal_address";
+    option (google.api.http).get = "/evmos/distribution/v1/tx/update_withdraw_address";
   };
 }
 
-// MsgRegisterContract defines a Msg to convert a Cosmos Coin to a ERC20 token
+// MsgRegisterContract defines a Msg to register a contract deployer to receive
+// tx fees.
 message MsgRegisterContract {
   // contract hex address
   string contract_address = 1;
@@ -37,10 +38,10 @@ message MsgRegisterContractResponse{}
 message MsgUpdateWithdawAddress {
   // contract hex address registered on the fee distribution module
   string contract_address = 1;
-  // new new_owner_addressaddress to receive SDK coins.
-  string new_withdrawal_address = 2;
+  // new hex address to receive tx fees.
+  string new_withdraw_address = 2;
   // hex address from the registered owner/withdrawal address
-  string withdrawal_address = 3;
+  string withdraw_address = 3;
 }
 
 // MsgUpdateWithdawAddressResponse returns no fields

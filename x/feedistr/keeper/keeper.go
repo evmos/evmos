@@ -56,8 +56,8 @@ func (k Keeper) GetContractWithdrawAddresses(ctx sdk.Context) []types.ContractWi
 
 	for ; iterator.Valid(); iterator.Next() {
 		contractWithdrawAddress := types.ContractWithdrawAddress{
-			ContractAddress:   common.BytesToAddress(iterator.Key()).Hex(),
-			WithdrawalAddress: common.BytesToAddress(iterator.Value()).Hex(),
+			ContractAddress: common.BytesToAddress(iterator.Key()).Hex(),
+			WithdrawAddress: common.BytesToAddress(iterator.Value()).Hex(),
 		}
 		withdrawalAddresses = append(withdrawalAddresses, contractWithdrawAddress)
 	}
@@ -80,7 +80,7 @@ func (k Keeper) HasContractWithdrawAddress(ctx sdk.Context, contract common.Addr
 	return store.Has(contract.Bytes())
 }
 
-// SetContractWithdrawalAddress
+// SetContractWithdrawAddress
 func (k Keeper) SetContractWithdrawAddress(ctx sdk.Context, contractAddr, withdrawAddr common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixContractOwner)
 	store.Set(contractAddr.Bytes(), withdrawAddr.Bytes())
@@ -97,7 +97,7 @@ func (k Keeper) HasContractWithdrawAddressInverse(ctx sdk.Context, withdrawAddr,
 	return store.Has(contractAddr.Bytes())
 }
 
-// SetContractWithdrawalAddress
+// SetContractWithdrawAddress
 func (k Keeper) SetContractWithdrawAddressInverse(ctx sdk.Context, contractAddr, withdrawAddr common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.KeyPrefixContractOwnerInverse, withdrawAddr.Bytes()...))
 	store.Set(contractAddr.Bytes(), []byte{0x1})

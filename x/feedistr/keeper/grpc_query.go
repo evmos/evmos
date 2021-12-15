@@ -30,8 +30,8 @@ func (k Keeper) WithdrawAddresses(c context.Context, req *types.QueryWithdrawAdd
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(key, value []byte) error {
 		contractWithdrawAddress := types.ContractWithdrawAddress{
-			ContractAddress:   common.BytesToAddress(key).Hex(),
-			WithdrawalAddress: common.BytesToAddress(value).Hex(),
+			ContractAddress: common.BytesToAddress(key).Hex(),
+			WithdrawAddress: common.BytesToAddress(value).Hex(),
 		}
 		withdrawAddresses = append(withdrawAddresses, contractWithdrawAddress)
 		return nil
@@ -69,7 +69,7 @@ func (k Keeper) WithdrawAddress(c context.Context, req *types.QueryWithdrawAddre
 	}
 
 	return &types.QueryWithdrawAddressResponse{
-		WithdrawalAddress: withdrawAddr.Hex(),
+		WithdrawAddress: withdrawAddr.Hex(),
 	}, nil
 }
 

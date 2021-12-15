@@ -20,7 +20,7 @@ func InitGenesis(
 
 	for _, cwa := range data.WithdrawAddresses {
 		contractAddr := common.HexToAddress(cwa.ContractAddress)
-		withdrawAddr := common.HexToAddress(cwa.WithdrawalAddress)
+		withdrawAddr := common.HexToAddress(cwa.WithdrawAddress)
 		k.SetContractWithdrawAddress(ctx, contractAddr, withdrawAddr)
 		k.SetContractWithdrawAddressInverse(ctx, contractAddr, withdrawAddr)
 	}

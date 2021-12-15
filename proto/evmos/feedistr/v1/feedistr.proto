@@ -23,6 +23,6 @@ message Distribution {
 message ContractWithdrawAddress {
   // contract hex address registered on the fee distribution module
   string contract_address = 1;
-  // hex address from the registered owner/withdrawal address
-  string withdrawal_address = 2;
+  // hex address from the registered owner/withdraw address
+  string withdraw_address = 2;
 }

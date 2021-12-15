@@ -51,8 +51,8 @@ message QueryWithdrawAddressRequest {
 // QueryWithdrawAddressResponse is the response type for the Query/WithdrawAddress RPC
 // method.
 message QueryWithdrawAddressResponse {
-  // hex address from the registered owner/withdrawal address
-  string withdrawal_address = 1;
+  // hex address from the registered owner/withdraw address
+  string withdraw_address = 1;
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

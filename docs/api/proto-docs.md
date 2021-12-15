@@ -448,7 +448,7 @@ ContractWithdrawAddress
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address registered on the fee distribution module |
-| `withdrawal_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+| `withdraw_address` | [string](#string) |  | hex address from the registered owner/withdraw address |
 
 
 
@@ -585,7 +585,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `withdrawal_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+| `withdraw_address` | [string](#string) |  | hex address from the registered owner/withdraw address |
 
 
 
@@ -655,7 +655,8 @@ Query defines the gRPC querier service.
 <a name="evmos.feedistr.v1.MsgRegisterContract"></a>
 
 ### MsgRegisterContract
-MsgRegisterContract defines a Msg to convert a Cosmos Coin to a ERC20 token
+MsgRegisterContract defines a Msg to register a contract deployer to receive
+tx fees.
 
 
 | Field | Type | Label | Description |
@@ -688,8 +689,8 @@ MsgUpdateWithdawAddress defines a Msg to .
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address registered on the fee distribution module |
-| `new_withdrawal_address` | [string](#string) |  | new new_owner_addressaddress to receive SDK coins. |
-| `withdrawal_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
+| `new_withdraw_address` | [string](#string) |  | new hex address to receive tx fees. |
+| `withdraw_address` | [string](#string) |  | hex address from the registered owner/withdrawal address |
 
 
 
@@ -720,7 +721,7 @@ Msg defines the intrarelayer Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterContract` | [MsgRegisterContract](#evmos.feedistr.v1.MsgRegisterContract) | [MsgRegisterContractResponse](#evmos.feedistr.v1.MsgRegisterContractResponse) | RegisterContract registers the contract on the fee distribution module in order for the owner to recieve txs fees. | GET|/evmos/distribution/v1/tx/register_contract|
-| `UpdateWithdawAddress` | [MsgUpdateWithdawAddress](#evmos.feedistr.v1.MsgUpdateWithdawAddress) | [MsgUpdateWithdawAddressResponse](#evmos.feedistr.v1.MsgUpdateWithdawAddressResponse) | UpdateWithdawAddress updates the withdrawal address for the contract that has been | GET|/evmos/distribution/v1/tx/update_withdrawal_address|
+| `UpdateWithdawAddress` | [MsgUpdateWithdawAddress](#evmos.feedistr.v1.MsgUpdateWithdawAddress) | [MsgUpdateWithdawAddressResponse](#evmos.feedistr.v1.MsgUpdateWithdawAddressResponse) | UpdateWithdawAddress updates the withdrawal address for the contract that has been | GET|/evmos/distribution/v1/tx/update_withdraw_address|
 
  <!-- end services -->
 
