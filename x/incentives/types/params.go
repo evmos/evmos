@@ -67,3 +67,15 @@ func validatePeriod(i interface{}) error {
 
 	return nil
 }
+
+func (p Params) Validate() error {
+	if err := validateBool(p.EnableIncentives); err != nil {
+		return err
+	}
+
+	if err := validatePeriod(p.EpochDuration); err != nil {
+		return err
+	}
+
+	return nil
+}

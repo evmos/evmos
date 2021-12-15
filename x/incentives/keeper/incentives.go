@@ -54,7 +54,7 @@ func (k Keeper) DeleteIncentive(ctx sdk.Context, incentive types.Incentive) {
 }
 
 // IsIncentiveRegistered - check if registered Incentive is registered
-func (k Keeper) IsIncentiveRegistered(ctx sdk.Context, id []byte) bool {
+func (k Keeper) IsIncentiveRegistered(ctx sdk.Context, contract common.Address) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
-	return store.Has(id)
+	return store.Has(contract.Bytes())
 }

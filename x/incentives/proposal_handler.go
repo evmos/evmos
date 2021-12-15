@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/incentives/keeper"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -24,7 +25,7 @@ func NewIncentivesProposalHandler(k *keeper.Keeper) govtypes.Handler {
 }
 
 func handleRegisterIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterIncentiveProposal) error {
-	_, err := k.RegisterIncentive(ctx, p.Allocations, p.Contract, p.Epochs)
+	_, err := k.RegisterIncentive(ctx, p.Allocations, common.HexToAddress(p.Contract), p.Epochs)
 	if err != nil {
 		return err
 	}
@@ -33,7 +34,7 @@ func handleRegisterIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types
 }
 
 func handleCancelIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types.CancelIncentiveProposal) error {
-	err := k.CancelIncentive(ctx, p.Contract)
+	err := k.CancelIncentive(ctx, common.HexToAddress(p.Contract))
 	if err != nil {
 		return err
 	}
