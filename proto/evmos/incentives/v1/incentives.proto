@@ -3,7 +3,33 @@ package evmos.incentives.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/bank/v1beta1/bank.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
 option go_package = "github.com/tharsis/evmos/x/incentives/types";
+
+// Incentive defines an instance that organizes distribution conditions for a given
+// smart contract
+message Incentive {
+  // contract address
+  string contract = 1;
+  // denoms and percentage of rewards to be allocated
+  repeated cosmos.base.v1beta1.DecCoin allocations = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
+  ];
+  // number of remaining epochs
+  uint32 epochs = 3;
+  // distribution start time
+  google.protobuf.Timestamp start_time = 4 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+    // TODO rewards are distributed to participants that are returned by at least one
+  // of these queries
+  // evmos.contract.QueryCondition distribute_to = 5
+  //   [ (gogoproto.nullable) = false ];
+}
 
 // RegisterIncentiveProposal is a gov Content type to register an incentive
 message RegisterIncentiveProposal {
@@ -12,8 +38,15 @@ message RegisterIncentiveProposal {
   string title = 1;
   // proposal description
   string description = 2;
-  // contract address of ERC20 token
-  string erc20address = 3;
+  // contract address
+  string contract = 3;
+  // denoms and percentage of rewards to be allocated
+  repeated cosmos.base.v1beta1.DecCoin allocations = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
+  ];
+  // number of remaining epochs
+  uint32 epochs = 5;
 }
 
 // CancelIncentiveProposal is a gov Content type to cancel an incentive
@@ -23,19 +56,6 @@ message CancelIncentiveProposal {
   string title = 1;
   // proposal description
   string description = 2;
-  // contract address of ERC20 token
-  string erc20address = 3;
-}
-
-// UpdateIncentiveDurationProposal is a gov Content type to update an incentive
-message UpdateIncentiveDurationProposal {
-  option (gogoproto.equal) = false;
-  // title of the proposal
-  string title = 1;
-  // proposal description
-  string description = 2;
-  // contract address of ERC20 token
-  string erc20address = 3;
-  // number of epochs until the incentive is cancelled
-  int32 duration = 34
+  // contract address
+  string contract = 3;
 }

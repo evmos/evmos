@@ -35,6 +35,15 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
+- [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
+    - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
+    - [Incentive](#evmos.incentives.v1.Incentive)
+    - [RegisterIncentiveProposal](#evmos.incentives.v1.RegisterIncentiveProposal)
+  
+- [evmos/incentives/v1/genesis.proto](#evmos/incentives/v1/genesis.proto)
+    - [GenesisState](#evmos.incentives.v1.GenesisState)
+    - [Params](#evmos.incentives.v1.Params)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -401,6 +410,127 @@ Msg defines the erc20 Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
 | `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/incentives/v1/incentives.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/incentives/v1/incentives.proto
+
+
+
+<a name="evmos.incentives.v1.CancelIncentiveProposal"></a>
+
+### CancelIncentiveProposal
+CancelIncentiveProposal is a gov Content type to cancel an incentive
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `contract` | [string](#string) |  | contract address |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.Incentive"></a>
+
+### Incentive
+Incentive defines an instance that organizes distribution conditions for a given
+smart contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract address |
+| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
+| `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time
+
+TODO rewards are distributed to participants that are returned by at least one of these queries evmos.contract.QueryCondition distribute_to = 5 [ (gogoproto.nullable) = false ]; |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.RegisterIncentiveProposal"></a>
+
+### RegisterIncentiveProposal
+RegisterIncentiveProposal is a gov Content type to register an incentive
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `contract` | [string](#string) |  | contract address |
+| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
+| `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/incentives/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/incentives/v1/genesis.proto
+
+
+
+<a name="evmos.incentives.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.incentives.v1.Params) |  | module parameters |
+| `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | registered token pairs |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.Params"></a>
+
+### Params
+Params defines the erc20 module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
+| `epoch_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | the duration of a single epoch |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 

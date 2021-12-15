@@ -1,0 +1,27 @@
+syntax = "proto3";
+package evmos.incentives.v1;
+import "evmos/incentives/v1/incentives.proto";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/tharsis/evmos/x/incentives/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+    // module parameters
+    Params params = 1 [(gogoproto.nullable) = false];
+    // registered token pairs
+    repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
+}
+
+// Params defines the erc20 module params
+message Params {
+    // parameter to enable incentives
+    bool enable_incentives = 1;
+    // the duration of a single epoch
+    google.protobuf.Duration epoch_duration = 2 [
+        (gogoproto.stdduration) = true,
+        (gogoproto.nullable) = false
+    ];
+}
