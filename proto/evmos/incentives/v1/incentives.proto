@@ -1,0 +1,41 @@
+syntax = "proto3";
+package evmos.incentives.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/bank/v1beta1/bank.proto";
+option go_package = "github.com/tharsis/evmos/x/incentives/types";
+
+// RegisterIncentiveProposal is a gov Content type to register an incentive
+message RegisterIncentiveProposal {
+  option (gogoproto.equal) = false;
+  // title of the proposal
+  string title = 1;
+  // proposal description
+  string description = 2;
+  // contract address of ERC20 token
+  string erc20address = 3;
+}
+
+// CancelIncentiveProposal is a gov Content type to cancel an incentive
+message CancelIncentiveProposal {
+  option (gogoproto.equal) = false;
+  // title of the proposal
+  string title = 1;
+  // proposal description
+  string description = 2;
+  // contract address of ERC20 token
+  string erc20address = 3;
+}
+
+// UpdateIncentiveDurationProposal is a gov Content type to update an incentive
+message UpdateIncentiveDurationProposal {
+  option (gogoproto.equal) = false;
+  // title of the proposal
+  string title = 1;
+  // proposal description
+  string description = 2;
+  // contract address of ERC20 token
+  string erc20address = 3;
+  // number of epochs until the incentive is cancelled
+  int32 duration = 34
+}
