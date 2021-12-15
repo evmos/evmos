@@ -1,9 +1,9 @@
 syntax = "proto3";
-package evmos.distribution.v1;
+package evmos.feedistr.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/tharsis/evmos/x/distribution/types";
+option go_package = "github.com/tharsis/evmos/x/feedistr/types";
 
 // Distribution defines the fee distribution percentages for block proposer and contract rewards
 message Distribution {

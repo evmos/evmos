@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/distribution/types"
+	"github.com/tharsis/evmos/x/feedistr/types"
 )
 
 // GetParams returns the total set of distribution parameters.

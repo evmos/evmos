@@ -18,9 +18,9 @@ package distribution
 // 	"github.com/spf13/cobra"
 // 	abci "github.com/tendermint/tendermint/abci/types"
 
-// 	"github.com/tharsis/evmos/x/distribution/client/cli"
-// 	"github.com/tharsis/evmos/x/distribution/keeper"
-// 	"github.com/tharsis/evmos/x/distribution/types"
+// 	"github.com/tharsis/evmos/x/feedistr/client/cli"
+// 	"github.com/tharsis/evmos/x/feedistr/keeper"
+// 	"github.com/tharsis/evmos/x/feedistr/types"
 // )
 
 // // type check to ensure the interface is properly implemented

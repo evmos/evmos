@@ -1,6 +1,6 @@
 package keeper_test
 
-// import "github.com/tharsis/evmos/x/distribution/types"
+// import "github.com/tharsis/evmos/x/feedistr/types"
 
 // func (suite *KeeperTestSuite) TestParams() {
 // 	params := suite.app.DistributionKeeper.GetParams(suite.ctx)

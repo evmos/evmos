@@ -5,18 +5,21 @@ package types
 
 import (
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/gogo/protobuf/gogoproto"
+	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -38,9 +41,11 @@ func (*Distribution) ProtoMessage()    {}
 func (*Distribution) Descriptor() ([]byte, []int) {
 	return fileDescriptor_351cceabf66f50a7, []int{0}
 }
+
 func (m *Distribution) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Distribution) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Distribution.Marshal(b, m, deterministic)
@@ -53,12 +58,15 @@ func (m *Distribution) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
+
 func (m *Distribution) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Distribution.Merge(m, src)
 }
+
 func (m *Distribution) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Distribution) XXX_DiscardUnknown() {
 	xxx_messageInfo_Distribution.DiscardUnknown(m)
 }
@@ -79,9 +87,11 @@ func (*ContractWithdrawAddress) ProtoMessage()    {}
 func (*ContractWithdrawAddress) Descriptor() ([]byte, []int) {
 	return fileDescriptor_351cceabf66f50a7, []int{1}
 }
+
 func (m *ContractWithdrawAddress) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *ContractWithdrawAddress) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ContractWithdrawAddress.Marshal(b, m, deterministic)
@@ -94,12 +104,15 @@ func (m *ContractWithdrawAddress) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
+
 func (m *ContractWithdrawAddress) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ContractWithdrawAddress.Merge(m, src)
 }
+
 func (m *ContractWithdrawAddress) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *ContractWithdrawAddress) XXX_DiscardUnknown() {
 	xxx_messageInfo_ContractWithdrawAddress.DiscardUnknown(m)
 }
@@ -121,8 +134,8 @@ func (m *ContractWithdrawAddress) GetWithdrawalAddress() string {
 }
 
 func init() {
-	proto.RegisterType((*Distribution)(nil), "evmos.distribution.v1.Distribution")
-	proto.RegisterType((*ContractWithdrawAddress)(nil), "evmos.distribution.v1.ContractWithdrawAddress")
+	proto.RegisterType((*Distribution)(nil), "evmos.feedistr.v1.Distribution")
+	proto.RegisterType((*ContractWithdrawAddress)(nil), "evmos.feedistr.v1.ContractWithdrawAddress")
 }
 
 func init() {
@@ -243,6 +256,7 @@ func encodeVarintDistribution(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *Distribution) Size() (n int) {
 	if m == nil {
 		return 0
@@ -276,9 +290,11 @@ func (m *ContractWithdrawAddress) Size() (n int) {
 func sovDistribution(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozDistribution(x uint64) (n int) {
 	return sovDistribution(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *Distribution) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -397,6 +413,7 @@ func (m *Distribution) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *ContractWithdrawAddress) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -511,6 +528,7 @@ func (m *ContractWithdrawAddress) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipDistribution(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

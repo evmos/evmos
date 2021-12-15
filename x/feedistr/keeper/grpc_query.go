@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/x/distribution/types"
+	"github.com/tharsis/evmos/x/feedistr/types"
 )
 
 var _ types.QueryServer = Keeper{}
