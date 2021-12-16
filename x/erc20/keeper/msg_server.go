@@ -27,7 +27,7 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	if err != nil {
 		return nil, err
 	}
-
+	// TODO: Audit => How to we check if a account is suicided in the (KV store)
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
 	suicided := k.evmKeeper.HasSuicided(erc20)
