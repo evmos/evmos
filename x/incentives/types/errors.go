@@ -6,5 +6,5 @@ import (
 
 // errors
 var (
-	ErrInternalIncentive = sdkerrors.Register(ModuleName, 1, "internal incentives error")
+	ErrInternalIncentive = sdkerrors.Register(ModuleName, 2, "internal incentives error")
 )
