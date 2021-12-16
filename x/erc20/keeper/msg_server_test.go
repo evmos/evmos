@@ -16,17 +16,26 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 		name     string
 		mint     int64
 		burn     int64
-		malleate func()
+		malleate func(*types.TokenPair)
 		expPass  bool
 	}{
-		{"ok - sufficient funds", 100, 10, func() {}, true},
-		{"ok - equal funds", 10, 10, func() {}, true},
-		{"fail - insufficient funds", 0, 10, func() {}, false},
+		{"ok - sufficient funds", 100, 10, func(*types.TokenPair) {}, true},
+		{"ok - equal funds", 10, 10, func(*types.TokenPair) {}, true},
+		{
+			"ok - equal funds",
+			10,
+			10,
+			func(pair *types.TokenPair) {
+				suite.app.EvmKeeper.Suicide(pair.GetERC20Contract())
+			},
+			false,
+		},
+		{"fail - insufficient funds", 0, 10, func(*types.TokenPair) {}, false},
 		{
 			"fail - minting disabled",
 			100,
 			10,
-			func() {
+			func(*types.TokenPair) {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
@@ -41,7 +50,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			metadata, pair := suite.setupRegisterCoin()
 			suite.Require().NotNil(metadata)
 
-			tc.malleate()
+			tc.malleate(pair)
 			suite.Commit()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
