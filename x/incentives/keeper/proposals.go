@@ -14,6 +14,8 @@ func (k Keeper) RegisterIncentive(
 	contract common.Address,
 	epochs uint32,
 ) (*types.Incentive, error) {
+	// TODO check if sum of all active incentived contracts' allocation is < 100%
+
 	// check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
