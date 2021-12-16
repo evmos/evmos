@@ -16,26 +16,30 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 		name     string
 		mint     int64
 		burn     int64
-		malleate func(*types.TokenPair)
+		malleate func(common.Address)
 		expPass  bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(*types.TokenPair) {}, true},
-		{"ok - equal funds", 10, 10, func(*types.TokenPair) {}, true},
+		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
 		{
 			"ok - equal funds",
 			10,
 			10,
-			func(pair *types.TokenPair) {
-				suite.app.EvmKeeper.Suicide(pair.GetERC20Contract())
+			func(erc20 common.Address) {
+				ok := suite.app.EvmKeeper.Suicide(erc20)
+				fmt.Printf("msg_server_test ok: %v\n", ok)
+				suicided := suite.app.EvmKeeper.HasSuicided(erc20)
+				fmt.Printf("msg_server_test suicided: %v\n", suicided)
+
 			},
 			false,
 		},
-		{"fail - insufficient funds", 0, 10, func(*types.TokenPair) {}, false},
+		{"fail - insufficient funds", 0, 10, func(common.Address) {}, false},
 		{
 			"fail - minting disabled",
 			100,
 			10,
-			func(*types.TokenPair) {
+			func(common.Address) {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
@@ -49,8 +53,8 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			suite.SetupTest()
 			metadata, pair := suite.setupRegisterCoin()
 			suite.Require().NotNil(metadata)
-
-			tc.malleate(pair)
+			erc20 := pair.GetERC20Contract()
+			tc.malleate(erc20)
 			suite.Commit()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
