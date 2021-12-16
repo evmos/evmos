@@ -39,6 +39,7 @@
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [Incentive](#evmos.incentives.v1.Incentive)
     - [RegisterIncentiveProposal](#evmos.incentives.v1.RegisterIncentiveProposal)
+    - [Rewards](#evmos.incentives.v1.Rewards)
   
 - [evmos/incentives/v1/genesis.proto](#evmos/incentives/v1/genesis.proto)
     - [GenesisState](#evmos.incentives.v1.GenesisState)
@@ -451,9 +452,7 @@ smart contract
 | `contract` | [string](#string) |  | contract address |
 | `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
 | `epochs` | [uint32](#uint32) |  | number of remaining epochs |
-| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time
-
-TODO rewards are distributed to participants that are returned by at least one of these queries evmos.contract.QueryCondition distribute_to = 5 [ (gogoproto.nullable) = false ]; |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time |
 
 
 
@@ -473,6 +472,23 @@ RegisterIncentiveProposal is a gov Content type to register an incentive
 | `contract` | [string](#string) |  | contract address |
 | `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
 | `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.Rewards"></a>
+
+### Rewards
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | hex address of the incentivized contract |
+| `participant` | [string](#string) |  | participant address that interacts with the incentive |
+| `cummulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
 
 
 
@@ -521,6 +537,7 @@ Params defines the erc20 module params
 | ----- | ---- | ----- | ----------- |
 | `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
 | `epoch_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | the duration of a single epoch |
+| `allocation_limit` | [uint32](#uint32) |  | the max percentage an incentive can allocate per denomination |
 
 
 

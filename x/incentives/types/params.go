@@ -12,6 +12,7 @@ import (
 var (
 	ParamStoreKeyEnableIncentives = []byte("EnableIncentives")
 	ParamStoreKeyEpochDuration    = []byte("EpochDuration")
+	ParamStoreKeyAllocationLimit  = []byte("AllocationLimit")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -23,11 +24,13 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	enableIncentives bool,
 	epocheDuration time.Duration,
+	allocationLimit uint32,
 
 ) Params {
 	return Params{
 		EnableIncentives: enableIncentives,
 		EpochDuration:    epocheDuration,
+		AllocationLimit:  allocationLimit,
 	}
 }
 
@@ -35,6 +38,7 @@ func DefaultParams() Params {
 	return Params{
 		EnableIncentives: true,
 		EpochDuration:    govtypes.DefaultPeriod,
+		AllocationLimit:  5,
 	}
 }
 
@@ -43,6 +47,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyEpochDuration, &p.EpochDuration, validatePeriod),
+		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
 	}
 }
 
@@ -68,12 +73,34 @@ func validatePeriod(i interface{}) error {
 	return nil
 }
 
+func validatePercentage(i interface{}) error {
+
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v <= 0 {
+		return fmt.Errorf("allocation limit must be positive: %x", v)
+	}
+
+	if v > 100 {
+		return fmt.Errorf("allocation limit must not be larger than 100: %x", v)
+	}
+
+	return nil
+}
+
 func (p Params) Validate() error {
 	if err := validateBool(p.EnableIncentives); err != nil {
 		return err
 	}
 
 	if err := validatePeriod(p.EpochDuration); err != nil {
+		return err
+	}
+
+	if err := validatePercentage(p.AllocationLimit); err != nil {
 		return err
 	}
 

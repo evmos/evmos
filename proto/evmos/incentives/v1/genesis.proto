@@ -24,4 +24,6 @@ message Params {
         (gogoproto.stdduration) = true,
         (gogoproto.nullable) = false
     ];
+    // the max percentage an incentive can allocate per denomination
+    uint32 allocation_limit = 3;
 }

@@ -25,10 +25,15 @@ message Incentive {
     (gogoproto.stdtime) = true,
     (gogoproto.nullable) = false
   ];
-    // TODO rewards are distributed to participants that are returned by at least one
-  // of these queries
-  // evmos.contract.QueryCondition distribute_to = 5
-  //   [ (gogoproto.nullable) = false ];
+}
+
+message Rewards {
+  // hex address of the incentivized contract
+  string contract = 1;
+  // participant address that interacts with the incentive
+  string participant = 2;
+  // cumulative gas spent during the epoch
+  uint64 cummulative_gas = 3;
 }
 
 // RegisterIncentiveProposal is a gov Content type to register an incentive
