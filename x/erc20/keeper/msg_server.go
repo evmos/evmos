@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -32,10 +31,9 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
 	suicided := k.evmKeeper.HasSuicided(erc20)
-	fmt.Printf("\n msg_server suicided: %v", suicided)
 	if suicided {
 		k.DeleteTokenPair(ctx, pair)
-		return nil, types.ErrSuicidedContract
+		return nil, nil
 	}
 
 	// Check ownership

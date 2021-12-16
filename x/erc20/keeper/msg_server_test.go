@@ -27,10 +27,9 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			10,
 			func(erc20 common.Address) {
 				ok := suite.app.EvmKeeper.Suicide(erc20)
-				fmt.Printf("msg_server_test ok: %v\n", ok)
+				suite.Require().True(ok)
 				suicided := suite.app.EvmKeeper.HasSuicided(erc20)
-				fmt.Printf("msg_server_test suicided: %v\n", suicided)
-
+				suite.Require().True(suicided)
 			},
 			false,
 		},
