@@ -16,7 +16,7 @@ import (
 func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	// Allocate rewards
+	// Allocate rewards for each Incentive
 	coinsAllocated := k.allocateCoins(ctx)
 
 	k.IterateIncentives(
