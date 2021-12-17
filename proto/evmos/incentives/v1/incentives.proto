@@ -26,8 +26,8 @@ message Incentive {
     (gogoproto.nullable) = false
   ];
 }
-
-message Rewards {
+// GasMeter tracks the cummulative gas spent per participant in one epoch
+message GasMeter {
   // hex address of the incentivized contract
   string contract = 1;
   // participant address that interacts with the incentive

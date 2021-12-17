@@ -25,8 +25,29 @@ func (k Keeper) GetAllIncentives(ctx sdk.Context) []types.Incentive {
 	return incentives
 }
 
+func (k Keeper) IterateIncentives(
+	ctx sdk.Context,
+	handlerFn func(incentive types.Incentive) (stop bool),
+) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixIncentive)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var incentive types.Incentive
+		k.cdc.MustUnmarshal(iterator.Value(), &incentive)
+
+		if handlerFn(incentive) {
+			break
+		}
+	}
+}
+
 // GetIncentive - get registered incentive from the identifier
-func (k Keeper) GetIncentive(ctx sdk.Context, contract common.Address) (types.Incentive, bool) {
+func (k Keeper) GetIncentive(
+	ctx sdk.Context,
+	contract common.Address,
+) (types.Incentive, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
 	var incentive types.Incentive
 	bz := store.Get(contract.Bytes())
@@ -54,7 +75,19 @@ func (k Keeper) DeleteIncentive(ctx sdk.Context, incentive types.Incentive) {
 }
 
 // IsIncentiveRegistered - check if registered Incentive is registered
-func (k Keeper) IsIncentiveRegistered(ctx sdk.Context, contract common.Address) bool {
+func (k Keeper) IsIncentiveRegistered(
+	ctx sdk.Context,
+	contract common.Address,
+) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
 	return store.Has(contract.Bytes())
+}
+
+func (k Keeper) GetTotalGas(
+	ctx sdk.Context,
+	incentive types.Incentive,
+) uint64 {
+	// TODO Epoch: Get from incentive or iterate over GasMeters?
+
+	return gas
 }

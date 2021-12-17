@@ -37,9 +37,9 @@
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
+    - [GasMeter](#evmos.incentives.v1.GasMeter)
     - [Incentive](#evmos.incentives.v1.Incentive)
     - [RegisterIncentiveProposal](#evmos.incentives.v1.RegisterIncentiveProposal)
-    - [Rewards](#evmos.incentives.v1.Rewards)
   
 - [evmos/incentives/v1/genesis.proto](#evmos/incentives/v1/genesis.proto)
     - [GenesisState](#evmos.incentives.v1.GenesisState)
@@ -440,6 +440,23 @@ CancelIncentiveProposal is a gov Content type to cancel an incentive
 
 
 
+<a name="evmos.incentives.v1.GasMeter"></a>
+
+### GasMeter
+GasMeter tracks the cummulative gas spent per participant in one epoch
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | hex address of the incentivized contract |
+| `participant` | [string](#string) |  | participant address that interacts with the incentive |
+| `cummulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
+
+
+
+
+
+
 <a name="evmos.incentives.v1.Incentive"></a>
 
 ### Incentive
@@ -472,23 +489,6 @@ RegisterIncentiveProposal is a gov Content type to register an incentive
 | `contract` | [string](#string) |  | contract address |
 | `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
 | `epochs` | [uint32](#uint32) |  | number of remaining epochs |
-
-
-
-
-
-
-<a name="evmos.incentives.v1.Rewards"></a>
-
-### Rewards
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | hex address of the incentivized contract |
-| `participant` | [string](#string) |  | participant address that interacts with the incentive |
-| `cummulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
 
 
 

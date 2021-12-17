@@ -113,6 +113,9 @@ import (
 	erc20client "github.com/tharsis/evmos/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
 	erc20types "github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/x/incentives"
+	incentiveskeeper "github.com/tharsis/evmos/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
 )
 
 func init() {
@@ -166,6 +169,7 @@ var (
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
+		incentives.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -179,6 +183,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -238,7 +243,8 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	Erc20Keeper erc20keeper.Keeper
+	Erc20Keeper      erc20keeper.Keeper
+	IncentivesKeeper incentiveskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -294,6 +300,7 @@ func NewEvmos(
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
 		erc20types.StoreKey,
+		incentivestypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -387,7 +394,8 @@ func NewEvmos(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
-		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
+		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -397,6 +405,10 @@ func NewEvmos(
 	// Evmos Keeper
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.EvmKeeper,
+	)
+
+	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
+		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper,
 	)
 
 	app.GovKeeper = *govKeeper.SetHooks(
@@ -467,6 +479,7 @@ func NewEvmos(
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
+		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -504,6 +517,7 @@ func NewEvmos(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 		// Evmos modules
 		erc20types.ModuleName,
+		incentivestypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -804,5 +818,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
+	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	return paramsKeeper
 }

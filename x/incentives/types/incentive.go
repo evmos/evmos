@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
@@ -32,6 +34,10 @@ func (i Incentive) Validate() error {
 		if err := validateAmount(al.Amount); err != nil {
 			return err
 		}
+	}
+
+	if i.Epochs == 0 {
+		return fmt.Errorf("epoch cannot be 0")
 	}
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 // Keeper of this module maintains collections of incentives.
@@ -17,15 +17,19 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	bankKeeper types.BankKeeper
+	accountKeeper types.AccountKeeper
+	bankKeeper    types.BankKeeper
+	govKeeper     types.GovKeeper
 }
 
-// NewKeeper creates new instances of the erc20 Keeper
+// NewKeeper creates new instances of the incentives Keeper
 func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
+	ak types.AccountKeeper,
 	bk types.BankKeeper,
+	govKeeper types.GovKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -33,10 +37,12 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:   storeKey,
-		cdc:        cdc,
-		paramstore: ps,
-		bankKeeper: bk,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		paramstore:    ps,
+		accountKeeper: ak,
+		bankKeeper:    bk,
+		govKeeper:     govKeeper,
 	}
 }
 
