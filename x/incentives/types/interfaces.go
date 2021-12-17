@@ -6,7 +6,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -23,10 +22,7 @@ type BankKeeper interface {
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	IsSendEnabledCoin(ctx sdk.Context, coin sdk.Coin) bool
-	BlockedAddr(addr sdk.AccAddress) bool
-	GetDenomMetaData(ctx sdk.Context, denom string) (banktypes.Metadata, bool)
-	SetDenomMetaData(ctx sdk.Context, denomMetaData banktypes.Metadata)
-	HasSupply(ctx sdk.Context, denom string) bool
+	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 }
 
 // GovKeeper defines the expected governance keeper interface used on incentives

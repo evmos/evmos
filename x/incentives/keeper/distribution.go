@@ -10,23 +10,22 @@ import (
 // incentive.
 func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
+	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 
-	// for incentive in incentives:
-	//	total_gas = GetTotalGas(incentive)
-	// 	for gasmeter in IncentiveGasMeters(incentive)
-	//    incentiveShare =
-	//		transferRewards
-
-	// Allocation
+	// Allocate amount of coins to be ditributed for each incentive
 	var coinsAllocated map[common.Address]sdk.Coins
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
 			var coins sdk.Coins
 			for _, allocation := range incentive.Allocations {
-				moduleBalance :=
-				coinAllocated := moduleBalance * allocation.Amount / 100
-				coin := sdk.NewCoin(allocation.Denom, coinAllocated)
+				balance := k.bankKeeper.GetBalance(ctx, moduleAddr, allocation.Denom)
+				if !balance.IsPositive() {
+					continue
+				}
+				coinAllocated := balance.Amount.ToDec().Mul(allocation.Amount)
+				amount := coinAllocated.TruncateInt()
+				coin := sdk.NewCoin(allocation.Denom, amount)
 				coins.Add(coin)
 			}
 			contract := common.HexToAddress(incentive.Contract)
@@ -35,13 +34,11 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 		},
 	)
 
-	// Distribution
+	// Distribute rewards for each incentive
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
 			contract := common.HexToAddress(incentive.Contract)
-
-			// Get total cummulative gas per contract
 			totalGas := k.GetTotalGas(ctx, incentive)
 
 			// iterate over the gas meters per contract
@@ -49,14 +46,13 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 				ctx,
 				contract,
 				func(gm types.GasMeter) (stop bool) {
-
 					// reward
 					coins := sdk.Coins{}
 					for _, allocation := range incentive.Allocations {
-
-						reward := allocatedCoin * gm.CummulativeGas / totalGas
+						coinAllocated := coinsAllocated[contract].AmountOf(allocation.Denom)
+						reward := coinAllocated.MulRaw(int64(gm.CummulativeGas / totalGas))
 						coin := sdk.Coin{Denom: allocation.Denom, Amount: reward}
-						coinsAllocated.Coins.Add(coin)
+						coins.Add(coin)
 					}
 					participant := common.HexToAddress(gm.Participant)
 					err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, participant.Bytes(), coins)
@@ -73,9 +69,12 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 
 					// remove gas meter
 					k.DeleteGasMeter(ctx, gm)
-					// remuve cummulative gas meter per contract
+
 					return false
 				})
+
+			// remuve cummulative gas meter per contract
+			k.ResetTotalGas(ctx, incentive)
 
 			incentive.Epochs--
 

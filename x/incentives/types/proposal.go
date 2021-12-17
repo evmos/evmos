@@ -84,7 +84,7 @@ func validateAllocations(allocations []sdk.DecCoin) error {
 }
 
 func validateAmount(amount sdk.Dec) error {
-	if amount.BigInt().Int64() > 100 || amount.BigInt().Int64() < 0 {
+	if amount.GT(sdk.OneDec()) || amount.LTE(sdk.ZeroDec()) {
 		return fmt.Errorf("invalid amount for allocation: %s", amount)
 	}
 	return nil

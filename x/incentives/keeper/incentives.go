@@ -83,6 +83,7 @@ func (k Keeper) IsIncentiveRegistered(
 	return store.Has(contract.Bytes())
 }
 
+// GetTotalGas - Get total cummulative gas per contract
 func (k Keeper) GetTotalGas(
 	ctx sdk.Context,
 	incentive types.Incentive,
@@ -90,4 +91,10 @@ func (k Keeper) GetTotalGas(
 	// TODO Epoch: Get from incentive or iterate over GasMeters?
 
 	return gas
+}
+
+// GetTotalGas - Get total cummulative gas per contract
+func (k Keeper) ResetTotalGas(ctx sdk.Context, incentive types.Incentive) {
+	// TODO Epoch: Set from incentive or iterate over GasMeters?
+
 }
