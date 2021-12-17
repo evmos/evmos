@@ -45,6 +45,7 @@ func (AppModuleBasic) ConsensusVersion() uint64 {
 	return 1
 }
 
+// TODO: Do we need to register msg_services like this?
 // RegisterInterfaces registers interfaces and implementations of the incentives module.
 func (AppModuleBasic) RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(interfaceRegistry)
@@ -143,7 +144,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, am.ak, genesisState)
+	InitGenesis(ctx, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
