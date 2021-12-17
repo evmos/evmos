@@ -8,12 +8,44 @@ import (
 
 // Distribute transfers the allocated rewards to the participants of a given
 // incentive.
+//  - allocates the amount to be distribbuted from the inflaction pool
+//  - distributes the rewards to all paricpants
+//  - deletes all gas meters
+//  - sets the cumulative totalGas to zero
+//  - updates the remaining epochs of each incentive
 func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
-	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 
-	// Allocate amount of coins to be ditributed for each incentive
+	// Allocate rewards
+	coinsAllocated := k.allocateCoins(ctx)
+
+	k.IterateIncentives(
+		ctx,
+		func(incentive types.Incentive) (stop bool) {
+			// Distribute rewards and reset total gasMeter
+			k.rewardParticipants(ctx, incentive, coinsAllocated)
+			k.ResetTotalGas(ctx, incentive)
+
+			// Update Epoche and remove incentive from epoch if already finalized
+			incentive.Epochs--
+			if !incentive.IsActive() {
+				k.DeleteIncentive(ctx, incentive)
+				logger.Info(
+					"incentive finalized",
+					"contract", incentive.Contract,
+				)
+			}
+
+			return false
+		})
+
+	return nil
+}
+
+// Allocate amount of coins to be ditributed for each incentive
+func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 	var coinsAllocated map[common.Address]sdk.Coins
+	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
@@ -33,62 +65,48 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 			return false
 		},
 	)
+	return coinsAllocated
+}
 
-	// Distribute rewards for each incentive
-	k.IterateIncentives(
+// Reward Participants of a given Incentive and delete their gas meters
+func (k Keeper) rewardParticipants(
+	ctx sdk.Context,
+	incentive types.Incentive,
+	coinsAllocated map[common.Address]sdk.Coins,
+) {
+	logger := k.Logger(ctx)
+
+	contract := common.HexToAddress(incentive.Contract)
+	totalGas := k.GetTotalGas(ctx, incentive)
+
+	k.IterateIncentiveGasMeters(
 		ctx,
-		func(incentive types.Incentive) (stop bool) {
-			contract := common.HexToAddress(incentive.Contract)
-			totalGas := k.GetTotalGas(ctx, incentive)
-
-			// iterate over the gas meters per contract
-			k.IterateIncentiveGasMeters(
-				ctx,
-				contract,
-				func(gm types.GasMeter) (stop bool) {
-					// reward
-					coins := sdk.Coins{}
-					for _, allocation := range incentive.Allocations {
-						coinAllocated := coinsAllocated[contract].AmountOf(allocation.Denom)
-						reward := coinAllocated.MulRaw(int64(gm.CummulativeGas / totalGas))
-						coin := sdk.Coin{Denom: allocation.Denom, Amount: reward}
-						coins.Add(coin)
-					}
-					participant := common.HexToAddress(gm.Participant)
-					err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, participant.Bytes(), coins)
-					if err != nil {
-						logger.Debug(
-							"failed to distribute incentive",
-							"address", gm.Participant,
-							"amount", coins.String(),
-							"incentive", gm.Contract,
-							"error", err.Error(),
-						)
-						return true // break iteration
-					}
-
-					// remove gas meter
-					k.DeleteGasMeter(ctx, gm)
-
-					return false
-				})
-
-			// remuve cummulative gas meter per contract
-			k.ResetTotalGas(ctx, incentive)
-
-			incentive.Epochs--
-
-			// remove incentive from epoch if already finalized
-			if !incentive.IsActive() {
-				k.DeleteIncentive(ctx, incentive)
-				logger.Info(
-					"incentive finalized",
-					"contract", incentive.Contract,
-				)
+		contract,
+		func(gm types.GasMeter) (stop bool) {
+			// reward
+			coins := sdk.Coins{}
+			for _, allocation := range incentive.Allocations {
+				coinAllocated := coinsAllocated[contract].AmountOf(allocation.Denom)
+				reward := coinAllocated.MulRaw(int64(gm.CummulativeGas / totalGas))
+				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward}
+				coins.Add(coin)
 			}
+			participant := common.HexToAddress(gm.Participant)
+			err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, participant.Bytes(), coins)
+			if err != nil {
+				logger.Debug(
+					"failed to distribute incentive",
+					"address", gm.Participant,
+					"amount", coins.String(),
+					"incentive", gm.Contract,
+					"error", err.Error(),
+				)
+				return true // break iteration
+			}
+
+			// remove gas meter
+			k.DeleteGasMeter(ctx, gm)
 
 			return false
 		})
-
-	return nil
 }

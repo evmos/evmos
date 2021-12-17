@@ -59,7 +59,7 @@ func (k Keeper) GetIncentive(
 	return incentive, true
 }
 
-// SetIncentive stores a token pair
+// SetIncentive stores an incentive
 func (k Keeper) SetIncentive(ctx sdk.Context, incentive types.Incentive) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
 	key := common.HexToAddress(incentive.Contract)
@@ -67,7 +67,7 @@ func (k Keeper) SetIncentive(ctx sdk.Context, incentive types.Incentive) {
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteIncentive removes a token pair.
+// DeleteIncentive removes an incentive.
 func (k Keeper) DeleteIncentive(ctx sdk.Context, incentive types.Incentive) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
 	key := common.HexToAddress(incentive.Contract)
@@ -83,18 +83,18 @@ func (k Keeper) IsIncentiveRegistered(
 	return store.Has(contract.Bytes())
 }
 
-// GetTotalGas - Get total cummulative gas per contract
+// GetTotalGas - Get total cummulative gas of a given incentive
 func (k Keeper) GetTotalGas(
 	ctx sdk.Context,
 	incentive types.Incentive,
 ) uint64 {
-	// TODO Epoch: Get from incentive or iterate over GasMeters?
-
-	return gas
+	// TODO Epoch: Get from store
+	TODOgas := uint64(1234)
+	return TODOgas
 }
 
-// GetTotalGas - Get total cummulative gas per contract
+// ResetTotalGas - Set total cummulative gas of a given incentive to zero
 func (k Keeper) ResetTotalGas(ctx sdk.Context, incentive types.Incentive) {
-	// TODO Epoch: Set from incentive or iterate over GasMeters?
+	// TODO Epoch: Set totalGas to zero
 
 }

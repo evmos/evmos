@@ -23,6 +23,7 @@ type BankKeeper interface {
 	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
 	IsSendEnabledCoin(ctx sdk.Context, coin sdk.Coin) bool
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
+	HasSupply(ctx sdk.Context, denom string) bool
 }
 
 // GovKeeper defines the expected governance keeper interface used on incentives

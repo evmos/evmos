@@ -1,5 +1,7 @@
 package types
 
+import "strings"
+
 // constants
 const (
 	// module name
@@ -25,5 +27,6 @@ var (
 )
 
 func SplitGasMeterKey(key []byte) (contract string, user string) {
-	// TODO
+	keySplit := strings.Split(string(key), "-")
+	return keySplit[0], keySplit[1]
 }
