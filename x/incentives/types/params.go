@@ -24,6 +24,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	enableIncentives bool,
 	epocheDuration time.Duration,
+	// TODO change allocationLimit to Dec type
 	allocationLimit uint32,
 
 ) Params {
@@ -74,7 +75,7 @@ func validatePeriod(i interface{}) error {
 }
 
 func validatePercentage(i interface{}) error {
-
+	// TODO: make allocation limit to type Dec
 	v, ok := i.(uint32)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

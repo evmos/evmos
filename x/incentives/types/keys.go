@@ -1,6 +1,10 @@
 package types
 
-import "strings"
+import (
+	"bytes"
+
+	"github.com/ethereum/go-ethereum/common"
+)
 
 // constants
 const (
@@ -26,7 +30,11 @@ var (
 	KeyPrefixGasMeter  = []byte{prefixGasMeter}
 )
 
-func SplitGasMeterKey(key []byte) (contract string, user string) {
-	keySplit := strings.Split(string(key), "-")
-	return keySplit[0], keySplit[1]
+func SplitGasMeterKey(key []byte) (contract, userAddr string) {
+	keySplit := bytes.SplitN(key, []byte(""), 41)
+	k1 := bytes.Join(keySplit[1:21], []byte(""))
+	k2 := bytes.Join(keySplit[21:41], []byte(""))
+	contract = common.BytesToAddress(k1).String()
+	userAddr = common.BytesToAddress(k2).String()
+	return
 }

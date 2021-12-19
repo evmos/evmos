@@ -1,0 +1,306 @@
+package types
+
+import (
+	"testing"
+	time "time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/tharsis/ethermint/tests"
+)
+
+type ProposalTestSuite struct {
+	suite.Suite
+}
+
+func TestProposalTestSuite(t *testing.T) {
+	suite.Run(t, new(ProposalTestSuite))
+}
+
+func (suite *ProposalTestSuite) TestKeysTypes() {
+	suite.Require().Equal("incentives", (&RegisterIncentiveProposal{}).ProposalRoute())
+	suite.Require().Equal("RegisterIncentive", (&RegisterIncentiveProposal{}).ProposalType())
+	suite.Require().Equal("incentives", (&CancelIncentiveProposal{}).ProposalRoute())
+	suite.Require().Equal("CancelIncentive", (&CancelIncentiveProposal{}).ProposalType())
+}
+
+func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
+	testCases := []struct {
+		msg         string
+		title       string
+		description string
+		incentive   Incentive
+		expectPass  bool
+	}{
+		{
+			"Register incentive - valid",
+			"test",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				10,
+				time.Now(),
+			},
+			true,
+		},
+		{
+			"Register incentive - invalid missing title ",
+			"",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		{
+			"Register incentive - invalid missing description ",
+			"test",
+			"",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		// Invalid address
+		{
+			"Register incentive - invalid address (no hex)",
+			"test",
+			"test desc",
+			Incentive{
+				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		{
+			"Register incentive - invalid address (invalid length 1)",
+			"test",
+			"test desc",
+			Incentive{
+				"0x5dCA2483280D9727c80b5518faC4556617fb19",
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		{
+			"Register incentive - invalid address (invalid length 2)",
+			"test",
+			"test desc",
+			Incentive{
+				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		{
+			"Register incentive - invalid allocation amount >100% ",
+			"test",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(101, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		{
+			"Register incentive - invalid allocation amount 0%",
+			"test",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(0, 2))},
+				10,
+				time.Now(),
+			},
+			false,
+		},
+		{
+			"Register incentive - zero epochs",
+			"test",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+				0,
+				time.Now(),
+			},
+			false,
+		},
+		// TODO how to test without panicking?
+		// {
+		// 	"Register incentive - invalid allocation amount 0%",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		tests.GenerateAddress().String(),
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("(aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+	}
+	for _, tc := range testCases {
+		tx := NewRegisterIncentiveProposal(
+			tc.title,
+			tc.description,
+			tc.incentive.Contract,
+			tc.incentive.Allocations,
+			tc.incentive.Epochs,
+		)
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, tc.msg)
+		} else {
+			suite.Require().Error(err, tc.msg)
+		}
+	}
+}
+
+func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
+	testCases := []struct {
+		msg         string
+		title       string
+		description string
+		contract    string
+		expectPass  bool
+	}{
+		// TODO: Getting weird error about 0 epochs even though epochs are not part of Cancel
+		{
+			"Cancel incentive - valid",
+			"test",
+			"test desc",
+			tests.GenerateAddress().String(),
+			true,
+		},
+		// {
+		// 	"Cancel incentive - invalid missing title ",
+		// 	"",
+		// 	"test desc",
+		// 	Incentive{
+		// 		tests.GenerateAddress().String(),
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// {
+		// 	"Cancel incentive - invalid missing description ",
+		// 	"test",
+		// 	"",
+		// 	Incentive{
+		// 		tests.GenerateAddress().String(),
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// // Invalid address
+		// {
+		// 	"Cancel incentive - invalid address (no hex)",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// {
+		// 	"Cancel incentive - invalid address (invalid length 1)",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		"0x5dCA2483280D9727c80b5518faC4556617fb19",
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// {
+		// 	"Cancel incentive - invalid address (invalid length 2)",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// {
+		// 	"Cancel incentive - invalid allocation amount >100% ",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		tests.GenerateAddress().String(),
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(101, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// {
+		// 	"Cancel incentive - invalid allocation amount 0%",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		tests.GenerateAddress().String(),
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(0, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+		// TODO how to test without panicking?
+		// {
+		// 	"Register incentive - invalid allocation amount 0%",
+		// 	"test",
+		// 	"test desc",
+		// 	Incentive{
+		// 		tests.GenerateAddress().String(),
+		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("(aphoton", sdk.NewDecWithPrec(5, 2))},
+		// 		10,
+		// 		time.Now(),
+		// 	},
+		// 	false,
+		// },
+	}
+	for _, tc := range testCases {
+		tx := NewCancelIncentiveProposal(
+			tc.title,
+			tc.description,
+			tc.contract,
+		)
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, tc.msg)
+		} else {
+			suite.Require().Error(err, tc.msg)
+		}
+	}
+}

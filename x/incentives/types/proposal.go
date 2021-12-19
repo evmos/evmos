@@ -87,6 +87,7 @@ func validateAmount(amount sdk.Dec) error {
 	if amount.GT(sdk.OneDec()) || amount.LTE(sdk.ZeroDec()) {
 		return fmt.Errorf("invalid amount for allocation: %s", amount)
 	}
+	// TODO Add allocation Limit or at keeper level? + tests
 	return nil
 }
 
@@ -114,7 +115,7 @@ func (*CancelIncentiveProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
 func (*CancelIncentiveProposal) ProposalType() string {
-	return ProposalTypeRegisterIncentive
+	return ProposalTypeCancelIncentive
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
