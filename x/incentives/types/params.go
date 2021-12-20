@@ -4,6 +4,7 @@ import (
 	fmt "fmt"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
@@ -25,7 +26,7 @@ func NewParams(
 	enableIncentives bool,
 	epocheDuration time.Duration,
 	// TODO change allocationLimit to Dec type
-	allocationLimit uint32,
+	allocationLimit sdk.DecProto,
 
 ) Params {
 	return Params{
@@ -39,7 +40,7 @@ func DefaultParams() Params {
 	return Params{
 		EnableIncentives: true,
 		EpochDuration:    govtypes.DefaultPeriod,
-		AllocationLimit:  5,
+		AllocationLimit:  sdk.DecProto{Dec: sdk.NewDecWithPrec(5, 2)},
 	}
 }
 
@@ -76,17 +77,17 @@ func validatePeriod(i interface{}) error {
 
 func validatePercentage(i interface{}) error {
 	// TODO: make allocation limit to type Dec
-	v, ok := i.(uint32)
+	dec, ok := i.(sdk.DecProto)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
+	v := dec.Dec.MustFloat64()
 	if v <= 0 {
 		return fmt.Errorf("allocation limit must be positive: %x", v)
 	}
 
-	if v > 100 {
-		return fmt.Errorf("allocation limit must not be larger than 100: %x", v)
+	if v > 1 {
+		return fmt.Errorf("allocation limit must <= 100: %x", v)
 	}
 
 	return nil

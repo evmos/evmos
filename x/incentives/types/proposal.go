@@ -103,7 +103,7 @@ func NewCancelIncentiveProposal(
 	title, desciption string,
 	contract string,
 ) govtypes.Content {
-	return &RegisterIncentiveProposal{
+	return &CancelIncentiveProposal{
 		Title:       title,
 		Description: desciption,
 		Contract:    contract,

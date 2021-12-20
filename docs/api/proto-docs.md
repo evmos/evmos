@@ -537,7 +537,7 @@ Params defines the erc20 module params
 | ----- | ---- | ----- | ----------- |
 | `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
 | `epoch_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | the duration of a single epoch |
-| `allocation_limit` | [uint32](#uint32) |  | the max percentage an incentive can allocate per denomination |
+| `allocation_limit` | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | the max percentage an incentive can allocate per denomination |
 
 
 

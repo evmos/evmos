@@ -4,6 +4,7 @@ import "evmos/incentives/v1/incentives.proto";
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/tharsis/evmos/x/incentives/types";
 
@@ -25,5 +26,7 @@ message Params {
         (gogoproto.nullable) = false
     ];
     // the max percentage an incentive can allocate per denomination
-    uint32 allocation_limit = 3;
+    cosmos.base.v1beta1.DecProto allocation_limit = 3 [
+        (gogoproto.nullable) = false
+    ];
 }
