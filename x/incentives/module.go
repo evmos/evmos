@@ -1,7 +1,6 @@
 package incentives
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -13,14 +12,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/tharsis/evmos/x/incentives/client/cli"
+	//"github.com/tharsis/evmos/x/incentives/client/cli"
+	"github.com/tharsis/evmos/x/erc20/client/cli"
 	"github.com/tharsis/evmos/x/incentives/keeper"
 	"github.com/tharsis/evmos/x/incentives/types"
+
+	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
 )
 
 // type check to ensure the interface is properly implemented
@@ -71,9 +74,9 @@ func (b AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEnc
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {}
 
 func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *runtime.ServeMux) {
-	if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
-		panic(err)
-	}
+	// if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
+	// 	panic(err)
+	// }
 }
 
 // GetTxCmd returns the root tx command for the incentives module.
@@ -90,17 +93,20 @@ type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
+	ek     epochskeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
+	ek epochskeeper.Keeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
+		ek:             ek,
 	}
 }
 
@@ -127,10 +133,10 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
-	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+	// types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
+	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	_ = keeper.NewMigrator(am.keeper)
+	// _ = keeper.NewMigrator(am.keeper)
 }
 
 func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {

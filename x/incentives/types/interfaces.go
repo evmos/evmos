@@ -35,3 +35,8 @@ type GovKeeper interface {
 	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
 	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
 }
+
+// EpochKeeper defines the expected epoch keeper interface used on incentives
+type EpochKeeper interface {
+	Logger(sdk.Context) log.Logger
+}
