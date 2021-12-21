@@ -520,7 +520,8 @@ GenesisState defines the module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.incentives.v1.Params) |  | module parameters |
-| `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | registered token pairs |
+| `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | active incentives |
+| `gasMeters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
 
 
 
@@ -537,7 +538,7 @@ Params defines the erc20 module params
 | ----- | ---- | ----- | ----------- |
 | `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
 | `epoch_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | the duration of a single epoch |
-| `allocation_limit` | [cosmos.base.v1beta1.DecProto](#cosmos.base.v1beta1.DecProto) |  | the max percentage an incentive can allocate per denomination |
+| `allocation_limit` | [string](#string) |  | maximum percentage an incentive can allocate per denomination |
 
 
 

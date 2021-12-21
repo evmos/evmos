@@ -74,8 +74,8 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 	}
 
 	for _, tc := range testCases {
-		tp := NewIncentive(tc.contract, tc.allocations, tc.epochs)
-		err := tp.Validate()
+		i := NewIncentive(tc.contract, tc.allocations, tc.epochs)
+		err := i.Validate()
 
 		if tc.expectPass {
 			suite.Require().NoError(err, tc.name)
@@ -92,7 +92,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 		expectPass bool
 	}{
 		{
-			"Register token pair - invalid address (no hex)",
+			"Register incentive - invalid address (no hex)",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
@@ -102,7 +102,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			false,
 		},
 		{
-			"Register token pair - invalid address (invalid length 1)",
+			"Register incentive - invalid address (invalid length 1)",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
@@ -112,7 +112,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			false,
 		},
 		{
-			"Register token pair - invalid address (invalid length 2)",
+			"Register incentive - invalid address (invalid length 2)",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},

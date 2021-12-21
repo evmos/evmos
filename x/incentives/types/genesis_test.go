@@ -20,7 +20,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := NewGenesisState(DefaultParams(), []Incentive{})
+	newGen := NewGenesisState(DefaultParams(), []Incentive{}, []GasMeter{})
 
 	testCases := []struct {
 		name     string
@@ -42,10 +42,10 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			&GenesisState{
 				Params:     DefaultParams(),
 				Incentives: []Incentive{},
+				GasMeters:  []GasMeter{},
 			},
 			true,
 		},
-		// TODO: Dec coin amount is supposed to be in percent but only accepts int
 		{
 			"valid genesis - with incentives",
 			&GenesisState{
@@ -106,7 +106,53 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			false,
 		},
 		{
-			// Voting period cant be zero
+			"valid genesis - with gasmeters",
+			&GenesisState{
+				Params: DefaultParams(),
+				GasMeters: []GasMeter{
+					{
+						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"invalid genesis - duplicated gasmeter",
+			&GenesisState{
+				Params: DefaultParams(),
+				GasMeters: []GasMeter{
+					{
+						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+					{
+						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+				},
+			},
+			false,
+		},
+		{
+			"invalid genesis - invalid gasmeter",
+			&GenesisState{
+				Params: DefaultParams(),
+				GasMeters: []GasMeter{
+					{
+						Contract:       "0xinvalidaddress",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+				},
+			},
+			false,
+		},
+		{
 			"empty genesis",
 			&GenesisState{},
 			false,

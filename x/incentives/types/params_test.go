@@ -38,7 +38,8 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			NewParams(
 				true,
 				govtypes.DefaultPeriod,
-				sdk.DecProto{Dec: sdk.NewDecWithPrec(5, 2)}),
+				sdk.NewDecWithPrec(5, 2),
+			),
 			false,
 		},
 		{
@@ -46,7 +47,8 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			NewParams(
 				true,
 				govtypes.DefaultPeriod,
-				sdk.DecProto{Dec: sdk.NewDecWithPrec(100, 2)}),
+				sdk.NewDecWithPrec(100, 2),
+			),
 			false,
 		},
 		{
@@ -68,7 +70,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives: true,
 				EpochDuration:    govtypes.DefaultPeriod,
-				AllocationLimit:  sdk.DecProto{Dec: sdk.NewDecWithPrec(0, 2)},
+				AllocationLimit:  sdk.NewDecWithPrec(0, 2),
 			},
 			true,
 		},
@@ -77,7 +79,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives: true,
 				EpochDuration:    govtypes.DefaultPeriod,
-				AllocationLimit:  sdk.DecProto{Dec: sdk.NewDecWithPrec(101, 2)},
+				AllocationLimit:  sdk.NewDecWithPrec(101, 2),
 			},
 			true,
 		},

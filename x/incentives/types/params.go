@@ -25,8 +25,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	enableIncentives bool,
 	epocheDuration time.Duration,
-	// TODO change allocationLimit to Dec type
-	allocationLimit sdk.DecProto,
+	allocationLimit sdk.Dec,
 
 ) Params {
 	return Params{
@@ -40,7 +39,7 @@ func DefaultParams() Params {
 	return Params{
 		EnableIncentives: true,
 		EpochDuration:    govtypes.DefaultPeriod,
-		AllocationLimit:  sdk.DecProto{Dec: sdk.NewDecWithPrec(5, 2)},
+		AllocationLimit:  sdk.NewDecWithPrec(5, 2),
 	}
 }
 
@@ -76,12 +75,11 @@ func validatePeriod(i interface{}) error {
 }
 
 func validatePercentage(i interface{}) error {
-	// TODO: make allocation limit to type Dec
-	dec, ok := i.(sdk.DecProto)
+	dec, ok := i.(sdk.Dec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	v := dec.Dec.MustFloat64()
+	v := dec.MustFloat64()
 	if v <= 0 {
 		return fmt.Errorf("allocation limit must be positive: %x", v)
 	}
