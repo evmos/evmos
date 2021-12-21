@@ -45,7 +45,6 @@ func (AppModuleBasic) ConsensusVersion() uint64 {
 	return 1
 }
 
-// TODO: Do we need to register msg_services like this?
 // RegisterInterfaces registers interfaces and implementations of the incentives module.
 func (AppModuleBasic) RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(interfaceRegistry)

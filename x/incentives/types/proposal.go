@@ -87,7 +87,6 @@ func validateAmount(amount sdk.Dec) error {
 	if amount.GT(sdk.OneDec()) || amount.LTE(sdk.ZeroDec()) {
 		return fmt.Errorf("invalid amount for allocation: %s", amount)
 	}
-	// TODO Add allocation Limit or at keeper level? + tests
 	return nil
 }
 
