@@ -2,16 +2,22 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
-func RegisterCodec(cdc *codec.LegacyAmino) {
-}
+// ModuleCdc references the global incentives module codec. Note, the codec
+// should ONLY be used in certain instances of tests and for JSON encoding.
+//
+// The actual codec used for serialization should be provided to
+// modules/incentives and defined at the application level.
+var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 
-func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+// RegisterInterfaces register implementations
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterImplementations(
+		(*govtypes.Content)(nil),
+		&RegisterIncentiveProposal{},
+		&CancelIncentiveProposal{},
+	)
 }
-
-var (
-	amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(amino)
-)

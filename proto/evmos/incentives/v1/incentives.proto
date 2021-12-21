@@ -5,7 +5,6 @@ import "gogoproto/gogo.proto";
 import "cosmos/bank/v1beta1/bank.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/base/v1beta1/coin.proto";
-
 option go_package = "github.com/tharsis/evmos/x/incentives/types";
 
 // Incentive defines an instance that organizes distribution conditions for a given

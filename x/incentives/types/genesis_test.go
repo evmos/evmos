@@ -20,7 +20,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := NewGenesisState(DefaultParams(), []Incentive{})
+	newGen := NewGenesisState(DefaultParams(), []Incentive{}, []GasMeter{})
 
 	testCases := []struct {
 		name     string
@@ -42,20 +42,22 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			&GenesisState{
 				Params:     DefaultParams(),
 				Incentives: []Incentive{},
+				GasMeters:  []GasMeter{},
 			},
 			true,
 		},
-		// TODO: Dec coin amount is supposed to be in percent but only accepts int
 		{
 			"valid genesis - with incentives",
 			&GenesisState{
 				Params: DefaultParams(),
 				Incentives: []Incentive{
 					{
-						Contract:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						Allocations: sdk.DecCoins{sdk.NewDecCoin("aphoton", sdk.NewInt(1))},
-						Epochs:      10,
-						StartTime:   time.Now(),
+						Contract: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Allocations: sdk.DecCoins{
+							sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2)),
+						},
+						Epochs:    10,
+						StartTime: time.Now(),
 					},
 				},
 			},
@@ -67,16 +69,20 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				Incentives: []Incentive{
 					{
-						Contract:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						Allocations: sdk.DecCoins{sdk.NewDecCoin("aphoton", sdk.NewInt(1))},
-						Epochs:      10,
-						StartTime:   time.Now(),
+						Contract: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Allocations: sdk.DecCoins{
+							sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2)),
+						},
+						Epochs:    10,
+						StartTime: time.Now(),
 					},
 					{
-						Contract:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						Allocations: sdk.DecCoins{sdk.NewDecCoin("aphoton", sdk.NewInt(1))},
-						Epochs:      10,
-						StartTime:   time.Now(),
+						Contract: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Allocations: sdk.DecCoins{
+							sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2)),
+						},
+						Epochs:    10,
+						StartTime: time.Now(),
 					},
 				},
 			},
@@ -88,17 +94,65 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				Incentives: []Incentive{
 					{
-						Contract:    "0xinvalidaddress",
-						Allocations: sdk.DecCoins{sdk.NewDecCoin("aphoton", sdk.NewInt(1))},
-						Epochs:      10,
-						StartTime:   time.Now(),
+						Contract: "0xinvalidaddress",
+						Allocations: sdk.DecCoins{
+							sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2)),
+						},
+						Epochs:    10,
+						StartTime: time.Now(),
 					},
 				},
 			},
 			false,
 		},
 		{
-			// Voting period cant be zero
+			"valid genesis - with gasmeters",
+			&GenesisState{
+				Params: DefaultParams(),
+				GasMeters: []GasMeter{
+					{
+						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"invalid genesis - duplicated gasmeter",
+			&GenesisState{
+				Params: DefaultParams(),
+				GasMeters: []GasMeter{
+					{
+						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+					{
+						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+				},
+			},
+			false,
+		},
+		{
+			"invalid genesis - invalid gasmeter",
+			&GenesisState{
+				Params: DefaultParams(),
+				GasMeters: []GasMeter{
+					{
+						Contract:       "0xinvalidaddress",
+						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CummulativeGas: 10,
+					},
+				},
+			},
+			false,
+		},
+		{
 			"empty genesis",
 			&GenesisState{},
 			false,

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/suite"
@@ -30,31 +31,55 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"default",
 			DefaultParams(),
-			false},
-		{
-			"valid",
-			NewParams(true, govtypes.DefaultPeriod, 5),
 			false,
 		},
 		{
-			"empty",
+			"valid - allocation limit 5%",
+			NewParams(
+				true,
+				govtypes.DefaultPeriod,
+				sdk.NewDecWithPrec(5, 2),
+			),
+			false,
+		},
+		{
+			"valid - allocation limit 100%",
+			NewParams(
+				true,
+				govtypes.DefaultPeriod,
+				sdk.NewDecWithPrec(100, 2),
+			),
+			false,
+		},
+		{
+			"invalid - empty Params",
 			Params{},
 			true,
 		},
+		// TODO panics with allocation limit nil. Is there another way to test?
+		// {
+		// 	"invalid - allocation limit nil ",
+		// 	Params{
+		// 		EnableIncentives: true,
+		// 		EpochDuration:    govtypes.DefaultPeriod,
+		// 	},
+		// 	true,
+		// },
 		{
-			"invalid - non-positive allocation limit ",
+			"invalid - non-positive allocation limit",
 			Params{
 				EnableIncentives: true,
 				EpochDuration:    govtypes.DefaultPeriod,
+				AllocationLimit:  sdk.NewDecWithPrec(0, 2),
 			},
 			true,
 		},
 		{
-			"invalid - allocation limit > 100",
+			"invalid - allocation limit > 100%",
 			Params{
 				EnableIncentives: true,
 				EpochDuration:    govtypes.DefaultPeriod,
-				AllocationLimit:  101,
+				AllocationLimit:  sdk.NewDecWithPrec(101, 2),
 			},
 			true,
 		},

@@ -42,10 +42,11 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	return nil
 }
 
-// Allocate amount of coins to be ditributed for each incentive
+// Allocate amount of coins to be distributed for each incentive
 func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 	var coinsAllocated map[common.Address]sdk.Coins
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
+
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
@@ -57,8 +58,8 @@ func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 				}
 				coinAllocated := balance.Amount.ToDec().Mul(allocation.Amount)
 				amount := coinAllocated.TruncateInt()
-				coin := sdk.NewCoin(allocation.Denom, amount)
-				coins.Add(coin)
+				coin := sdk.Coin{Denom: allocation.Denom, Amount: amount}
+				coins = coins.Add(coin)
 			}
 			contract := common.HexToAddress(incentive.Contract)
 			coinsAllocated[contract] = coins
@@ -89,7 +90,7 @@ func (k Keeper) rewardParticipants(
 				coinAllocated := coinsAllocated[contract].AmountOf(allocation.Denom)
 				reward := coinAllocated.MulRaw(int64(gm.CummulativeGas / totalGas))
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward}
-				coins.Add(coin)
+				coins = coins.Add(coin)
 			}
 			participant := common.HexToAddress(gm.Participant)
 			err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, participant.Bytes(), coins)

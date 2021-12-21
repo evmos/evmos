@@ -10,11 +10,10 @@ import (
 // RegisterIncentive creates an incentive for a contract
 func (k Keeper) RegisterIncentive(
 	ctx sdk.Context,
-	allocations sdk.DecCoins,
 	contract common.Address,
+	allocations sdk.DecCoins,
 	epochs uint32,
 ) (*types.Incentive, error) {
-	// TODO check if sum of all active incentived contracts' allocation is < 100%
 
 	// check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
@@ -33,13 +32,50 @@ func (k Keeper) RegisterIncentive(
 		)
 	}
 
-	// check if the balance is > 0 for coins other than the mint denomination
 	for _, al := range allocations {
+		// check if the balance is > 0 for coins other than the mint denomination
 		// TODO: Skip if al.Denom == the mint denomination
+		// if al.Denom == "aphoton" {
+		// 	continue
+		// }
+
 		if !k.bankKeeper.HasSupply(ctx, al.Denom) {
 			return nil, sdkerrors.Wrapf(
 				sdkerrors.ErrInvalidCoins,
 				"base denomination '%s' cannot have a supply of 0", al.Denom,
+			)
+		}
+
+		// check if allocations are under the allocation limit
+		if al.Amount.GT(params.AllocationLimit) {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInternalIncentive,
+				"allocation for denom '%s' (%v) cannot be above allocation limmit '%v' - ", al.Denom, al.Amount, params.AllocationLimit,
+			)
+		}
+	}
+
+	// check if the proposal allocations + the sum of all active incentived
+	// contracts' allocation for the proposed dominations is < 100%
+	var allocationsSum map[string]sdk.Dec
+	k.IterateIncentives(
+		ctx,
+		func(incentive types.Incentive) (stop bool) {
+			for _, al := range incentive.Allocations {
+				if al.Amount.MustFloat64() == 0 {
+					continue
+				}
+				allocationsSum[al.Denom] = allocationsSum[al.Denom].Add(al.Amount)
+			}
+			return false
+		},
+	)
+
+	for _, al := range allocations {
+		if al.Amount.Add(allocationsSum[al.Denom]).MustFloat64() > 1 {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInternalIncentive,
+				"Allocation for denom %s is lager than 100% : %s", al.Denom, al.Amount,
 			)
 		}
 	}
@@ -60,7 +96,7 @@ func (k Keeper) CancelIncentive(
 	if !found {
 		return sdkerrors.Wrapf(
 			sdkerrors.ErrInvalidAddress,
-			"unmatching contract '%s' cannot have a supply of 0", contract,
+			"unmatching contract '%s' ", contract,
 		)
 	}
 

@@ -5,6 +5,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 var _ evmtypes.EvmHooks = (*Keeper)(nil)
@@ -14,6 +15,9 @@ var _ evmtypes.EvmHooks = (*Keeper)(nil)
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing
 func (k Keeper) PostTxProcessing(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
+	previousGas := k.GetIncentiveGasMeter(ctx, *to, from)
+	gm := types.NewGasMeter(*to, from, previousGas+receipt.GasUsed)
+	k.SetGasMeter(ctx, gm)
 
 	return nil
 }

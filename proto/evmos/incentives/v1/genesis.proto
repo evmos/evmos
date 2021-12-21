@@ -11,8 +11,10 @@ option go_package = "github.com/tharsis/evmos/x/incentives/types";
 message GenesisState {
     // module parameters
     Params params = 1 [(gogoproto.nullable) = false];
-    // registered token pairs
+    // active incentives
     repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
+    // active Gasmeters
+    repeated GasMeter gasMeters = 3 [(gogoproto.nullable) = false];
 }
 
 // Params defines the erc20 module params
@@ -24,6 +26,11 @@ message Params {
         (gogoproto.stdduration) = true,
         (gogoproto.nullable) = false
     ];
-    // the max percentage an incentive can allocate per denomination
-    uint32 allocation_limit = 3;
+    // maximum percentage an incentive can allocate per denomination
+    string allocation_limit = 3 [
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false
+    ];
+
+    string incentives_epoch_identifier = 4  [ (gogoproto.moretags) = "yaml:\"incentives_epoch_identifier\"" ];
 }
