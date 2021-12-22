@@ -20,7 +20,7 @@ type Keeper struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	govKeeper     types.GovKeeper
-	epochKeeper   types.EpochKeeper
+	mintKeeper    types.MintKeeper
 }
 
 // NewKeeper creates new instances of the incentives Keeper
@@ -31,7 +31,7 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	govKeeper types.GovKeeper,
-	ek types.EpochKeeper,
+	mintKeeper types.MintKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -45,7 +45,7 @@ func NewKeeper(
 		accountKeeper: ak,
 		bankKeeper:    bk,
 		govKeeper:     govKeeper,
-		epochKeeper:   ek,
+		mintKeeper:    mintKeeper,
 	}
 }
 

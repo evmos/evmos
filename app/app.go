@@ -417,7 +417,7 @@ func NewEvmos(
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
-		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, epochsKeeper,
+		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.MintKeeper,
 	)
 
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
@@ -425,7 +425,6 @@ func NewEvmos(
 			// insert epoch hooks receivers here
 			app.IncentivesKeeper.Hooks(),
 		),
-	)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(

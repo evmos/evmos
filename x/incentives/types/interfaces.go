@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
@@ -36,7 +37,6 @@ type GovKeeper interface {
 	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
 }
 
-// EpochKeeper defines the expected epoch keeper interface used on incentives
-type EpochKeeper interface {
-	Logger(sdk.Context) log.Logger
+type MintKeeper interface {
+	GetParams(ctx sdk.Context) (params minttypes.Params)
 }

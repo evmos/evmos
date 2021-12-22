@@ -19,13 +19,16 @@ func NewIncentivesProposalHandler(k *keeper.Keeper) govtypes.Handler {
 		case *types.CancelIncentiveProposal:
 			return handleCancelIncentiveProposal(ctx, k, c)
 		default:
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
+			return sdkerrors.Wrapf(
+				sdkerrors.ErrUnknownRequest,
+				"unrecognized %s proposal content type: %T", types.ModuleName, c,
+			)
 		}
 	}
 }
 
 func handleRegisterIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterIncentiveProposal) error {
-	_, err := k.RegisterIncentive(ctx, p.Allocations, common.HexToAddress(p.Contract), p.Epochs)
+	_, err := k.RegisterIncentive(ctx, common.HexToAddress(p.Contract), p.Allocations, p.Epochs)
 	if err != nil {
 		return err
 	}

@@ -30,11 +30,11 @@ var (
 	KeyPrefixGasMeter  = []byte{prefixGasMeter}
 )
 
-func SplitGasMeterKey(key []byte) (contract, userAddr string) {
+func SplitGasMeterKey(key []byte) (contract, userAddr common.Address) {
 	keySplit := bytes.SplitN(key, []byte(""), 41)
-	k1 := bytes.Join(keySplit[1:21], []byte(""))
-	k2 := bytes.Join(keySplit[21:41], []byte(""))
-	contract = common.BytesToAddress(k1).String()
-	userAddr = common.BytesToAddress(k2).String()
+	k1 := bytes.Join(keySplit[1:common.AddressLength+1], []byte(""))
+	k2 := bytes.Join(keySplit[common.AddressLength+1:], []byte(""))
+	contract = common.BytesToAddress(k1)
+	userAddr = common.BytesToAddress(k2)
 	return
 }

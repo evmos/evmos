@@ -21,8 +21,8 @@ func (k Keeper) GetIncentivesGasMeters(ctx sdk.Context) []types.GasMeter {
 		gas := sdk.BigEndianToUint64(iterator.Value())
 
 		gm := types.GasMeter{
-			Contract:       contract,
-			Participant:    userAddress,
+			Contract:       contract.String(),
+			Participant:    userAddress.String(),
 			CummulativeGas: gas,
 		}
 
@@ -48,8 +48,8 @@ func (k Keeper) GetGasMetersByContract(
 		contract, userAddress := types.SplitGasMeterKey(iterator.Key())
 		gas := sdk.BigEndianToUint64(iterator.Value())
 		gm := types.GasMeter{
-			Contract:       contract,
-			Participant:    userAddress,
+			Contract:       contract.String(),
+			Participant:    userAddress.String(),
 			CummulativeGas: gas,
 		}
 
@@ -75,8 +75,8 @@ func (k Keeper) IterateIncentiveGasMeters(
 		gas := sdk.BigEndianToUint64(iterator.Value())
 
 		gm := types.GasMeter{
-			Contract:       contract,
-			Participant:    userAddress,
+			Contract:       contract.String(),
+			Participant:    userAddress.String(),
 			CummulativeGas: gas,
 		}
 
@@ -90,14 +90,14 @@ func (k Keeper) IterateIncentiveGasMeters(
 func (k Keeper) GetIncentiveGasMeter(
 	ctx sdk.Context,
 	contract, userAddress common.Address,
-) uint64 {
+) (uint64, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.KeyPrefixGasMeter, contract.Bytes()...))
 	bz := store.Get(userAddress.Bytes())
 	if len(bz) == 0 {
-		return 0
+		return 0, false
 	}
 
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(bz), true
 }
 
 // SetGasMeter stores a gasMeter

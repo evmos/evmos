@@ -88,7 +88,7 @@ message QueryGasMeterRequest {
 // QueryGasMeterResponse is the response type for the Query/Incentive RPC
 // method.
 message QueryGasMeterResponse {
-  Incentive incentive = 1 [(gogoproto.nullable) = false];
+  uint64 gasMeter = 1;
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

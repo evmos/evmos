@@ -747,7 +747,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `incentive` | [Incentive](#evmos.incentives.v1.Incentive) |  |  |
+| `gasMeter` | [uint64](#uint64) |  |  |
 
 
 
