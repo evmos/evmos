@@ -425,6 +425,7 @@ func NewEvmos(
 			// insert epoch hooks receivers here
 			app.IncentivesKeeper.Hooks(),
 		),
+	)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
