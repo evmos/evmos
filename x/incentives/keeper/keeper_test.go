@@ -32,7 +32,7 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 type KeeperTestSuite struct {
@@ -134,7 +134,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.Erc20Keeper)
+	types.RegisterQueryServer(queryHelper, suite.app.IncentivesKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	acc := &ethermint.EthAccount{

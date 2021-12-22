@@ -45,7 +45,8 @@ func (AppModuleBasic) ConsensusVersion() uint64 {
 	return 1
 }
 
-// RegisterInterfaces registers interfaces and implementations of the incentives module.
+// RegisterInterfaces registers interfaces and implementations of the incentives
+// module.
 func (AppModuleBasic) RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(interfaceRegistry)
 }
@@ -109,8 +110,9 @@ func (AppModule) Name() string {
 
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
+// NewHandler returns nil incentives module doesn't expose tx gRPC endpoints
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return nil
 }
 
 func (am AppModule) Route() sdk.Route {
@@ -126,7 +128,7 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
+	// types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
 	_ = keeper.NewMigrator(am.keeper)

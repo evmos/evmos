@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
@@ -34,4 +35,8 @@ type GovKeeper interface {
 	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
 	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
 	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
+}
+
+type MintKeeper interface {
+	GetParams(ctx sdk.Context) (params minttypes.Params)
 }

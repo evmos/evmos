@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.erc20.v1;
+package evmos.incentives.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/incentives/v1/genesis.proto";
@@ -88,7 +88,7 @@ message QueryGasMeterRequest {
 // QueryGasMeterResponse is the response type for the Query/Incentive RPC
 // method.
 message QueryGasMeterResponse {
-  Incentive incentive = 1 [(gogoproto.nullable) = false];
+  uint64 gasMeter = 1;
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

@@ -45,6 +45,20 @@
     - [GenesisState](#evmos.incentives.v1.GenesisState)
     - [Params](#evmos.incentives.v1.Params)
   
+- [evmos/incentives/v1/query.proto](#evmos/incentives/v1/query.proto)
+    - [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest)
+    - [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse)
+    - [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest)
+    - [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse)
+    - [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest)
+    - [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse)
+    - [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest)
+    - [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse)
+    - [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.incentives.v1.Query)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -549,6 +563,189 @@ Params defines the erc20 module params
  <!-- end enums -->
 
  <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/incentives/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/incentives/v1/query.proto
+
+
+
+<a name="evmos.incentives.v1.QueryGasMeterRequest"></a>
+
+### QueryGasMeterRequest
+QueryGasMeterRequest is the request type for the Query/Incentive RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+| `participant` | [string](#string) |  | participant identifier is the hex address of a user |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryGasMeterResponse"></a>
+
+### QueryGasMeterResponse
+QueryGasMeterResponse is the response type for the Query/Incentive RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gasMeter` | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryGasMetersRequest"></a>
+
+### QueryGasMetersRequest
+QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryGasMetersResponse"></a>
+
+### QueryGasMetersResponse
+QueryGasMetersResponse is the response type for the Query/Incentives RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gasMeters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentiveRequest"></a>
+
+### QueryIncentiveRequest
+QueryIncentiveRequest is the request type for the Query/Incentive RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentiveResponse"></a>
+
+### QueryIncentiveResponse
+QueryIncentiveResponse is the response type for the Query/Incentive RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `incentive` | [Incentive](#evmos.incentives.v1.Incentive) |  |  |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentivesRequest"></a>
+
+### QueryIncentivesRequest
+QueryIncentivesRequest is the request type for the Query/Incentives RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentivesResponse"></a>
+
+### QueryIncentivesResponse
+QueryIncentivesResponse is the response type for the Query/Incentives RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.incentives.v1.Params) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.incentives.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
+| `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
+| `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | Retrieves active gas meters | GET|/evmos/incentives/v1/gasMeters|
+| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | Retrieves a active gas meter | GET|/evmos/incentives/v1/gasMeters/{contract}/{participant}|
+| `Params` | [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse) | Params retrieves the incentives module params | GET|/evmos/incentives/v1/params|
 
  <!-- end services -->
 
