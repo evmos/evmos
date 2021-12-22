@@ -18,6 +18,7 @@ func NewIncentive(
 		Contract:    contract.String(),
 		Allocations: allocations,
 		Epochs:      epochs,
+		TotalGas:    0,
 	}
 }
 
@@ -25,6 +26,10 @@ func NewIncentive(
 func (i Incentive) Validate() error {
 	if err := ethermint.ValidateAddress(i.Contract); err != nil {
 		return err
+	}
+
+	if i.Allocations.IsZero() {
+		return fmt.Errorf("allocations cannot be empty: %s", i.Allocations)
 	}
 
 	for _, al := range i.Allocations {

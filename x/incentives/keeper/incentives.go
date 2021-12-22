@@ -83,18 +83,22 @@ func (k Keeper) IsIncentiveRegistered(
 	return store.Has(contract.Bytes())
 }
 
-// GetTotalGas - Get total cummulative gas of a given incentive
-func (k Keeper) GetTotalGas(
+// GetIncentiveTotalGas - Get total cummulative gas of a given incentive
+func (k Keeper) GetIncentiveTotalGas(
 	ctx sdk.Context,
 	incentive types.Incentive,
 ) uint64 {
-	// TODO Epoch: Get from store
-	TODOgas := uint64(1234)
-	return TODOgas
+	in, _ := k.GetIncentive(ctx, common.HexToAddress(incentive.Contract))
+	return in.TotalGas
 }
 
-// ResetTotalGas - Set total cummulative gas of a given incentive to zero
-func (k Keeper) ResetTotalGas(ctx sdk.Context, incentive types.Incentive) {
-	// TODO Epoch: Set totalGas to zero
-
+// Set total cummulative gas of a given incentive
+func (k Keeper) SetIncentiveTotalGas(
+	ctx sdk.Context,
+	incentive types.Incentive,
+	gas uint64,
+) {
+	in, _ := k.GetIncentive(ctx, common.HexToAddress(incentive.Contract))
+	in.TotalGas = gas
+	k.SetIncentive(ctx, in)
 }

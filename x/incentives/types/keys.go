@@ -31,9 +31,9 @@ var (
 )
 
 func SplitGasMeterKey(key []byte) (contract, userAddr common.Address) {
-	keySplit := bytes.SplitN(key, []byte(""), 41)
-	k1 := bytes.Join(keySplit[1:common.AddressLength+1], []byte(""))
-	k2 := bytes.Join(keySplit[common.AddressLength+1:], []byte(""))
+	keySplit := bytes.Split(key, []byte{})
+	k1 := bytes.Join(keySplit[1:common.AddressLength+1], []byte{})
+	k2 := bytes.Join(keySplit[common.AddressLength+1:], []byte{})
 	contract = common.BytesToAddress(k1)
 	userAddr = common.BytesToAddress(k2)
 	return

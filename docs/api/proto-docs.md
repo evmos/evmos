@@ -484,6 +484,7 @@ smart contract
 | `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
 | `epochs` | [uint32](#uint32) |  | number of remaining epochs |
 | `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time |
+| `total_gas` | [uint64](#uint64) |  | cumulative gas spent by all gasmeters of the incentive during the epoch |
 
 
 

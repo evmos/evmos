@@ -35,6 +35,20 @@ import (
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
+var (
+	participant    = tests.GenerateAddress()
+	contract       = tests.GenerateAddress()
+	contract2      = tests.GenerateAddress()
+	denomMint      = "stake"
+	denomCoin      = "acoin"
+	allocationRate = 5
+	allocations    = sdk.DecCoins{
+		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(int64(allocationRate), 2)),
+		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(int64(allocationRate), 2)),
+	}
+	epochs = uint32(10)
+)
+
 type KeeperTestSuite struct {
 	suite.Suite
 

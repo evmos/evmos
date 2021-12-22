@@ -22,9 +22,9 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
-			// Distribute rewards and reset total gasMeter
+			// Distribute rewards and reset incentive's total gas count
 			k.rewardParticipants(ctx, incentive, coinsAllocated)
-			k.ResetTotalGas(ctx, incentive)
+			k.SetIncentiveTotalGas(ctx, incentive, 0)
 
 			// Update Epoche and remove incentive from epoch if already finalized
 			incentive.Epochs--
@@ -78,7 +78,7 @@ func (k Keeper) rewardParticipants(
 	logger := k.Logger(ctx)
 
 	contract := common.HexToAddress(incentive.Contract)
-	totalGas := k.GetTotalGas(ctx, incentive)
+	totalGas := k.GetIncentiveTotalGas(ctx, incentive)
 
 	k.IterateIncentiveGasMeters(
 		ctx,

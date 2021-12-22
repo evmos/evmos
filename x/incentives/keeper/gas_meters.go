@@ -103,13 +103,13 @@ func (k Keeper) GetIncentiveGasMeter(
 // SetGasMeter stores a gasMeter
 func (k Keeper) SetGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
-	key := append(append(types.KeyPrefixGasMeter, []byte(gm.Contract)...), gm.Participant...)
+	key := append(append(types.KeyPrefixGasMeter, gm.Contract...), gm.Participant...)
 	store.Set(key, sdk.Uint64ToBigEndian(gm.CummulativeGas))
 }
 
 // DeleteIncentive removes a token pair.
 func (k Keeper) DeleteGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
-	key := append(append(types.KeyPrefixGasMeter, []byte(gm.Contract)...), gm.Participant...)
+	key := append(append(types.KeyPrefixGasMeter, common.HexToAddress(gm.Contract).Bytes()...), common.HexToAddress(gm.Participant).Bytes()...)
 	store.Delete(key)
 }

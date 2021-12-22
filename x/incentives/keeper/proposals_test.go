@@ -5,20 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/incentives/types"
-)
-
-var (
-	contract    = tests.GenerateAddress()
-	contract2   = tests.GenerateAddress()
-	denom1      = "aphoton"
-	denom2      = "acoin"
-	allocations = sdk.DecCoins{
-		sdk.NewDecCoinFromDec(denom1, sdk.NewDecWithPrec(5, 2)),
-		sdk.NewDecCoinFromDec(denom2, sdk.NewDecWithPrec(5, 2)),
-	}
-	epochs = uint32(10)
 )
 
 func (suite KeeperTestSuite) TestRegisterIncentive() {
@@ -54,10 +41,12 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 		{
 			"allocation above allocation limit",
 			func() {
-				// Make sure the coin has supply
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(denom1, 1)})
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(denom2, 1)})
+				// Make sure the non-mint coin has supply
+				err := suite.app.BankKeeper.MintCoins(
+					suite.ctx,
+					minttypes.ModuleName,
+					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
+				)
 				suite.Require().NoError(err)
 
 				// decrease allocation limit
@@ -67,13 +56,16 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 			},
 			false,
 		},
+		// TODO:
 		// {
 		// 	"total allocation for denom >100%",
 		// 	func() {
-		// 		// Make sure the coin has supply
-		// 		err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(denom1, 1)})
-		// 		suite.Require().NoError(err)
-		// 		err = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(denom2, 1)})
+		// 		// Make sure the non-mint coin has supply
+		// 		err := suite.app.BankKeeper.MintCoins(
+		// 			suite.ctx,
+		// 			minttypes.ModuleName,
+		// 			sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
+		// 		)
 		// 		suite.Require().NoError(err)
 
 		// 		// increase allocation limit
@@ -83,29 +75,28 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 
 		// 		// Add incentive which takes up 100% of the allocation
 		// 		regIn := types.NewIncentive(
-		// 			contract2,
+		// 			contract,
 		// 			sdk.DecCoins{
-		// 				sdk.NewDecCoinFromDec(denom2, sdk.NewDecWithPrec(100, 2)),
+		// 				sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2)),
 		// 			},
 		// 			epochs,
 		// 		)
+		// 		fmt.Println(regIn)
 		// 		suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
 		// 		suite.Commit()
 		// 	},
 		// 	false,
 		// },
-
 		{
 			"ok",
 			func() {
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(denom1, 1)})
+				// Make sure the non-mint coin has supply
+				err := suite.app.BankKeeper.MintCoins(
+					suite.ctx,
+					minttypes.ModuleName,
+					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
+				)
 				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(denom2, 1)})
-				suite.Require().NoError(err)
-
-				// regIn := types.NewIncentive(contract2, allocations, epochs)
-				// suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
-				// suite.Commit()
 			},
 			true,
 		},
@@ -140,46 +131,46 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 	}
 }
 
-// func (suite KeeperTestSuite) TestCancelIncentive() {
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func()
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"inventive not registered",
-// 			func() {
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"ok",
-// 			func() {
-// 				regIn := types.NewIncentive(contract, allocations, epochs)
-// 				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
-// 				suite.Commit()
-// 			},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			suite.SetupTest() // reset
+func (suite KeeperTestSuite) TestCancelIncentive() {
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"inventive not registered",
+			func() {
+			},
+			false,
+		},
+		{
+			"ok",
+			func() {
+				regIn := types.NewIncentive(contract, allocations, epochs)
+				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
+				suite.Commit()
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 			tc.malleate()
+			tc.malleate()
 
-// 			err := suite.app.IncentivesKeeper.CancelIncentive(suite.ctx, contract)
-// 			suite.Commit()
+			err := suite.app.IncentivesKeeper.CancelIncentive(suite.ctx, contract)
+			suite.Commit()
 
-// 			_, ok := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
-// 			if tc.expPass {
-// 				suite.Require().NoError(err, tc.name)
-// 				suite.Require().False(ok, tc.name)
+			_, ok := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				suite.Require().False(ok, tc.name)
 
-// 			} else {
-// 				suite.Require().Error(err, tc.name)
-// 				suite.Require().True(ok, tc.name)
-// 			}
-// 		})
-// 	}
-// }
+			} else {
+				suite.Require().Error(err, tc.name)
+				suite.Require().False(ok, tc.name)
+			}
+		})
+	}
+}

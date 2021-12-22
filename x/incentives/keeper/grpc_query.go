@@ -70,14 +70,6 @@ func (k Keeper) Incentive(
 		)
 	}
 
-	if len(req.Contract) == 0 {
-		return nil, status.Errorf(
-			codes.NotFound,
-			"incentive with contract '%s'",
-			req.Contract,
-		)
-	}
-
 	incentive, found := k.GetIncentive(ctx, common.HexToAddress(req.Contract))
 	if !found {
 		return nil, status.Errorf(
