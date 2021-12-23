@@ -1,23 +1,8 @@
 syntax = "proto3";
 package evmos.feedistr.v1;
 
-import "gogoproto/gogo.proto";
-
 option go_package = "github.com/tharsis/evmos/x/feedistr/types";
 
-// Distribution defines the fee distribution percentages for block proposer and contract rewards
-message Distribution {
-  // block proposer reward percentage
-  string proposer_reward = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable)   = false
-  ];
-  // contract reward percentage
-  string contract_rewards = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable)   = false
-  ];
-}
 
 // ContractWithdrawAddress 
 message ContractWithdrawAddress {

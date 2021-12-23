@@ -9,8 +9,11 @@ option go_package = "github.com/tharsis/evmos/x/feedistr/types";
 
 // Params defines the fee distribution module params
 message Params {
-  // fee distribution for block proposer and registered contracts
-  Distribution fee_distribution = 1 [(gogoproto.nullable) = false];
+  // fee distribution for registered contract withdraw addresses
+  string contract_distribution = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
   // enable withawal address 
   bool withdraw_addr_enabled = 2;
 }

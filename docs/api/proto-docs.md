@@ -37,7 +37,6 @@
   
 - [evmos/feedistr/v1/feedistr.proto](#evmos/feedistr/v1/feedistr.proto)
     - [ContractWithdrawAddress](#evmos.feedistr.v1.ContractWithdrawAddress)
-    - [Distribution](#evmos.feedistr.v1.Distribution)
   
 - [evmos/feedistr/v1/genesis.proto](#evmos/feedistr/v1/genesis.proto)
     - [GenesisState](#evmos.feedistr.v1.GenesisState)
@@ -454,22 +453,6 @@ ContractWithdrawAddress
 
 
 
-
-<a name="evmos.feedistr.v1.Distribution"></a>
-
-### Distribution
-Distribution defines the fee distribution percentages for block proposer and contract rewards
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `proposer_reward` | [string](#string) |  | block proposer reward percentage |
-| `contract_rewards` | [string](#string) |  | contract reward percentage |
-
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -511,7 +494,7 @@ Params defines the fee distribution module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fee_distribution` | [Distribution](#evmos.feedistr.v1.Distribution) |  | fee distribution for block proposer and registered contracts |
+| `contract_distribution` | [string](#string) |  | fee distribution for registered contract withdraw addresses |
 | `withdraw_addr_enabled` | [bool](#bool) |  | enable withawal address |
 
 

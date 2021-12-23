@@ -20,13 +20,22 @@ type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
+
+	bankKeeper    types.BankKeeper
+	stakingKeeper types.StakingKeeper
+	mintKeeper    types.MintKeeper
+
+	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
 
-// NewKeeper creates new instances of the distribution Keeper
+// NewKeeper creates new instances of the fee distribution Keeper
 func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
+	bankKeeper types.BankKeeper,
+	stakingKeeper types.StakingKeeper,
+	mintKeeper types.MintKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -34,9 +43,12 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:   storeKey,
-		cdc:        cdc,
-		paramstore: ps,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		paramstore:    ps,
+		bankKeeper:    bankKeeper,
+		stakingKeeper: stakingKeeper,
+		mintKeeper:    mintKeeper,
 	}
 }
 

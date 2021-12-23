@@ -9,7 +9,7 @@ import (
 
 // Parameter store key
 var (
-	ParamStoreKeyFeeDistribution       = []byte("FeeDistribution")
+	ParamStoreKeyContractDistribution  = []byte("ContractDistribution")
 	ParamStoreKeyEnableWithdrawAddress = []byte("WithdrawAddress")
 )
 
@@ -21,22 +21,33 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params object
 func NewParams(
 	enableWithdrawAddress bool,
-	distribution Distribution,
+	distr sdk.Dec,
 ) Params {
 	return Params{
-		WithdrawAddrEnabled: enableWithdrawAddress,
-		FeeDistribution:     distribution,
+		WithdrawAddrEnabled:  enableWithdrawAddress,
+		ContractDistribution: distr,
 	}
 }
 
+// DefaultParams returns a Params instance the default module parameter values
 func DefaultParams() Params {
 	return Params{
-		WithdrawAddrEnabled: true,
-		FeeDistribution: Distribution{
-			ProposerReward:  sdk.NewDecWithPrec(5, 1), // 50%,
-			ContractRewards: sdk.NewDecWithPrec(5, 1), // 50%,
-		},
+		WithdrawAddrEnabled:  true,
+		ContractDistribution: sdk.NewDecWithPrec(5, 1), // 50%
 	}
+}
+
+// ParamSetPairs returns the parameter set pairs.
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(ParamStoreKeyContractDistribution, &p.ContractDistribution, validateContractDistribution),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableWithdrawAddress, &p.WithdrawAddrEnabled, validateBool),
+	}
+}
+
+// Validate performs a stateless validation of the distribution fields
+func (p Params) Validate() error {
+	return validateContractDistribution(p.ContractDistribution)
 }
 
 func validateBool(i interface{}) error {
@@ -48,23 +59,19 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validateDistribution(i interface{}) error {
-	distr, ok := i.(Distribution)
+func validateContractDistribution(i interface{}) error {
+	v, ok := i.(sdk.Dec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	return distr.Validate()
-}
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyFeeDistribution, &p.FeeDistribution, validateDistribution),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableWithdrawAddress, &p.WithdrawAddrEnabled, validateBool),
+	if v.IsNegative() {
+		return fmt.Errorf("distribution cannot be negative: %s", v)
 	}
-}
 
-func (p Params) Validate() error {
-	return p.FeeDistribution.Validate()
+	if v.GT(sdk.OneDec()) {
+		return fmt.Errorf("distribution cannot be > 1: %s", v)
+	}
+
+	return nil
 }
