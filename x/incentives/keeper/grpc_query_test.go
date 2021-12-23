@@ -162,40 +162,40 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 			},
 			true,
 		},
-		// {
-		// 	"1 gas meter registered w/pagination",
-		// 	func() {
-		// 		req = &types.QueryGasMetersRequest{
-		// 			Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
-		// 		}
-		// 		gm := types.NewGasMeter(contract, participant, 1)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-		// 		suite.Commit()
+		{
+			"1 gas meter registered w/pagination",
+			func() {
+				req = &types.QueryGasMetersRequest{
+					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
+				}
+				gm := types.NewGasMeter(contract, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.Commit()
 
-		// 		expRes = &types.QueryGasMetersResponse{
-		// 			Pagination: &query.PageResponse{Total: 1},
-		// 			GasMeters:  []types.GasMeter{gm},
-		// 		}
-		// 	},
-		// 	true,
-		// },
-		// {
-		// 	"2 gas meters registered wo/pagination",
-		// 	func() {
-		// 		req = &types.QueryGasMetersRequest{}
-		// 		gm := types.NewGasMeter(contract, participant, 1)
-		// 		gm2 := types.NewGasMeter(contract2, participant, 1)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
-		// 		suite.Commit()
+				expRes = &types.QueryGasMetersResponse{
+					Pagination: &query.PageResponse{Total: 1},
+					GasMeters:  []types.GasMeter{gm},
+				}
+			},
+			true,
+		},
+		{
+			"2 gas meters registered wo/pagination",
+			func() {
+				req = &types.QueryGasMetersRequest{}
+				gm := types.NewGasMeter(contract, participant, 1)
+				gm2 := types.NewGasMeter(contract2, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
+				suite.Commit()
 
-		// 		expRes = &types.QueryGasMetersResponse{
-		// 			Pagination: &query.PageResponse{Total: 2},
-		// 			GasMeters:  []types.GasMeter{gm, gm2},
-		// 		}
-		// 	},
-		// 	true,
-		// },
+				expRes = &types.QueryGasMetersResponse{
+					Pagination: &query.PageResponse{Total: 2},
+					GasMeters:  []types.GasMeter{gm, gm2},
+				}
+			},
+			true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {

@@ -99,11 +99,16 @@ func (k Keeper) GasMeters(
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
-		func(_, value []byte) error {
-			var gm types.GasMeter
-			if err := k.cdc.Unmarshal(value, &gm); err != nil {
-				return err
+		func(key, value []byte) error {
+			contact, participant := types.SplitGasMeterKey(key)
+			cumulativeGas := sdk.BigEndianToUint64(value)
+
+			gm := types.GasMeter{
+				Contract:      contact.Hex(),
+				Participant:   participant.Hex(),
+				CumulativeGas: cumulativeGas,
 			}
+
 			gms = append(gms, gm)
 			return nil
 		},
