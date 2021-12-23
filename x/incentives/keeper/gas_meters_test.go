@@ -17,29 +17,28 @@ func (suite *KeeperTestSuite) TestIncentivesGasMeters() {
 			"no gas meter registered",
 			func() { expRes = []types.GasMeter{} },
 		},
-		// TODO: Fix test
-		// {
-		// 	"1 gas meter registered",
-		// 	func() {
-		// 		gm := types.NewGasMeter(contract, participant, 1)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-		// 		suite.Commit()
+		{
+			"1 gas meter registered",
+			func() {
+				gm := types.NewGasMeter(contract, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.Commit()
 
-		// 		expRes = []types.GasMeter{gm}
-		// 	},
-		// },
-		// {
-		// 	"2 gas meters registered",
-		// 	func() {
-		// 		gm := types.NewGasMeter(contract, participant, 1)
-		// 		gm2 := types.NewGasMeter(contract2, participant, 1)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
-		// 		suite.Commit()
+				expRes = []types.GasMeter{gm}
+			},
+		},
+		{
+			"2 gas meters registered",
+			func() {
+				gm := types.NewGasMeter(contract, participant, 1)
+				gm2 := types.NewGasMeter(contract2, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
+				suite.Commit()
 
-		// 		expRes = []types.GasMeter{gm, gm2}
-		// 	},
-		// },
+				expRes = []types.GasMeter{gm, gm2}
+			},
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {

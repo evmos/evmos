@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/incentives/types"
@@ -80,17 +82,37 @@ func (k Keeper) rewardParticipants(
 	logger := k.Logger(ctx)
 
 	contract := common.HexToAddress(incentive.Contract)
+	contractAllocation, ok := coinsAllocated[contract]
+	if !ok {
+		logger.Debug(
+			"contract allocation coins not found",
+			"contract", incentive.Contract,
+		)
+		return
+	}
+
 	totalGas := k.GetIncentiveTotalGas(ctx, incentive)
+	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 
 	k.IterateIncentiveGasMeters(
 		ctx,
 		contract,
 		func(gm types.GasMeter) (stop bool) {
-			// reward
+			// get the participant ratio of their gas spent / total gas
+			cumulativeGas := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gm.CumulativeGas))
+			gasRatio := cumulativeGas.Quo(totalGasDec).TruncateInt()
+
 			coins := sdk.Coins{}
+
+			// allocate the coins corresponding to the ratio of gas spent
 			for _, allocation := range incentive.Allocations {
-				coinAllocated := coinsAllocated[contract].AmountOf(allocation.Denom)
-				reward := coinAllocated.MulRaw(int64(gm.CumulativeGas / totalGas))
+				coinAllocated := contractAllocation.AmountOf(allocation.Denom)
+				reward := coinAllocated.Mul(gasRatio)
+				if !reward.IsPositive() {
+					continue
+				}
+
+				// NOTE: ignore denom validation
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward}
 				coins = coins.Add(coin)
 			}
@@ -101,14 +123,14 @@ func (k Keeper) rewardParticipants(
 				logger.Debug(
 					"failed to distribute incentive",
 					"address", gm.Participant,
-					"amount", coins.String(),
+					"allocation", coins.String(),
 					"incentive", gm.Contract,
 					"error", err.Error(),
 				)
 				return true // break iteration
 			}
 
-			// remove gas meter
+			// remove gas meter once the incentives are allocated to the user
 			k.DeleteGasMeter(ctx, gm)
 
 			return false

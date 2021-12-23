@@ -38,23 +38,13 @@ func (k Keeper) GetGasMetersByContract(
 	contract common.Address,
 ) []types.GasMeter {
 	gms := []types.GasMeter{}
-	store := ctx.KVStore(k.storeKey)
-	key := append(types.KeyPrefixGasMeter, contract.Bytes()...)
 
-	iterator := sdk.KVStorePrefixIterator(store, key)
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		contract, userAddress := types.SplitGasMeterKey(iterator.Key())
-		gas := sdk.BigEndianToUint64(iterator.Value())
-		gm := types.GasMeter{
-			Contract:      contract.String(),
-			Participant:   userAddress.String(),
-			CumulativeGas: gas,
-		}
-
-		gms = append(gms, gm)
-	}
+	k.IterateIncentiveGasMeters(
+		ctx, contract,
+		func(gm types.GasMeter) (stop bool) {
+			gms = append(gms, gm)
+			return false
+		})
 
 	return gms
 }
@@ -64,10 +54,9 @@ func (k Keeper) IterateIncentiveGasMeters(
 	contract common.Address,
 	handlerFn func(gm types.GasMeter) (stop bool),
 ) {
-	store := ctx.KVStore(k.storeKey)
-	key := append(types.KeyPrefixGasMeter, contract.Bytes()...)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
 
-	iterator := sdk.KVStorePrefixIterator(store, key)
+	iterator := sdk.KVStorePrefixIterator(store, contract.Bytes())
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -89,10 +78,12 @@ func (k Keeper) IterateIncentiveGasMeters(
 // GetIncentiveGasMeter - get cumulativeGas from participant
 func (k Keeper) GetIncentiveGasMeter(
 	ctx sdk.Context,
-	contract, userAddress common.Address,
+	contract, participant common.Address,
 ) (uint64, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.KeyPrefixGasMeter, contract.Bytes()...))
-	bz := store.Get(userAddress.Bytes())
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
+	key := append(contract.Bytes(), participant.Bytes()...)
+
+	bz := store.Get(key)
 	if len(bz) == 0 {
 		return 0, false
 	}
@@ -103,13 +94,17 @@ func (k Keeper) GetIncentiveGasMeter(
 // SetGasMeter stores a gasMeter
 func (k Keeper) SetGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
-	key := append(append(types.KeyPrefixGasMeter, gm.Contract...), gm.Participant...)
+	contract := common.HexToAddress(gm.Contract)
+	participant := common.HexToAddress(gm.Participant)
+	key := append(contract.Bytes(), participant.Bytes()...)
 	store.Set(key, sdk.Uint64ToBigEndian(gm.CumulativeGas))
 }
 
 // DeleteIncentive removes a token pair.
 func (k Keeper) DeleteGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
-	key := append(append(types.KeyPrefixGasMeter, common.HexToAddress(gm.Contract).Bytes()...), common.HexToAddress(gm.Participant).Bytes()...)
+	contract := common.HexToAddress(gm.Contract)
+	participant := common.HexToAddress(gm.Participant)
+	key := append(contract.Bytes(), participant.Bytes()...)
 	store.Delete(key)
 }
