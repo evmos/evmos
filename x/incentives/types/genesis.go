@@ -18,6 +18,7 @@ func (gs GenesisState) Validate() error {
 	seenContractIn := make(map[string]bool)
 
 	for _, in := range gs.Incentives {
+		// only one incentive per contract
 		if seenContractIn[in.Contract] {
 			return fmt.Errorf("contract duplicated on genesis '%s'", in.Contract)
 		}
@@ -33,11 +34,11 @@ func (gs GenesisState) Validate() error {
 	seenParticipant := make(map[string]bool)
 
 	for _, gm := range gs.GasMeters {
+		// only 1 participant per gas meter
 		if seenContractGm[gm.Contract] && seenParticipant[gm.Participant] {
 			return fmt.Errorf(
-				"gasmeter duplicated on genesis cotract: '%s',  participant: '%s'",
-				gm.Contract,
-				gm.Participant,
+				"gas meter duplicated on genesis contract: '%s',  participant: '%s'",
+				gm.Contract, gm.Participant,
 			)
 		}
 

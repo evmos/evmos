@@ -47,6 +47,19 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			true,
 		},
 		{
+			"Register incentive - empty allocations",
+			"test",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{},
+				10,
+				time.Now(),
+				0,
+			},
+			false,
+		},
+		{
 			"Register incentive - invalid missing title ",
 			"",
 			"test desc",

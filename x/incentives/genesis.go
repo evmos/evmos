@@ -24,6 +24,10 @@ func InitGenesis(
 	for _, incentive := range data.Incentives {
 		k.SetIncentive(ctx, incentive)
 	}
+
+	for _, gasMeter := range data.GasMeters {
+		k.SetGasMeter(ctx, gasMeter)
+	}
 }
 
 // ExportGenesis export module status
@@ -31,5 +35,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:     k.GetParams(ctx),
 		Incentives: k.GetAllIncentives(ctx),
+		GasMeters:  k.GetIncentivesGasMeters(ctx),
 	}
 }

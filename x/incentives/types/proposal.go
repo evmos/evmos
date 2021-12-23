@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	fmt "fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -72,16 +73,18 @@ func (rip *RegisterIncentiveProposal) ValidateBasic() error {
 // validateAllocations checks if each allocation has
 // - a valid denom
 // - a valid amount representing the percentage of allocation
-func validateAllocations(allocations []sdk.DecCoin) error {
+func validateAllocations(allocations sdk.DecCoins) error {
+	if allocations.Empty() {
+		return errors.New("incentive allocations cannot be empty")
+	}
+
 	for _, al := range allocations {
-		if err := sdk.ValidateDenom(al.Denom); err != nil {
-			return err
-		}
 		if err := validateAmount(al.Amount); err != nil {
 			return err
 		}
 	}
-	return nil
+
+	return allocations.Validate()
 }
 
 func validateAmount(amount sdk.Dec) error {
@@ -100,12 +103,13 @@ func validateEpochs(epochs uint32) error {
 
 // NewCancelIncentiveProposal returns new instance of RegisterIncentiveProposal
 func NewCancelIncentiveProposal(
-	title, desciption string,
+	title,
+	description,
 	contract string,
 ) govtypes.Content {
 	return &CancelIncentiveProposal{
 		Title:       title,
-		Description: desciption,
+		Description: description,
 		Contract:    contract,
 	}
 }
