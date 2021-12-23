@@ -171,6 +171,7 @@ func (k Keeper) GasMeter(
 		common.HexToAddress(req.Contract),
 		common.HexToAddress(req.Participant),
 	)
+
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,

@@ -216,68 +216,68 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 	}
 }
 
-// func (suite *KeeperTestSuite) TestGasMeter() {
-// 	var (
-// 		req    *types.QueryGasMeterRequest
-// 		expRes *types.QueryGasMeterResponse
-// 	)
+func (suite *KeeperTestSuite) TestGasMeter() {
+	var (
+		req    *types.QueryGasMeterRequest
+		expRes *types.QueryGasMeterResponse
+	)
 
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func()
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"invalid token address",
-// 			func() {
-// 				req = &types.QueryGasMeterRequest{}
-// 				expRes = &types.QueryGasMeterResponse{}
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"gas meter not found",
-// 			func() {
-// 				req = &types.QueryGasMeterRequest{
-// 					Contract: contract.String(),
-// 				}
-// 				expRes = &types.QueryGasMeterResponse{}
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"gas meter found",
-// 			func() {
-// 				gm := types.NewGasMeter(contract, participant, 1)
-// 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-// 				suite.Commit()
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"invalid token address",
+			func() {
+				req = &types.QueryGasMeterRequest{}
+				expRes = &types.QueryGasMeterResponse{}
+			},
+			false,
+		},
+		{
+			"gas meter not found",
+			func() {
+				req = &types.QueryGasMeterRequest{
+					Contract: contract.String(),
+				}
+				expRes = &types.QueryGasMeterResponse{}
+			},
+			false,
+		},
+		{
+			"gas meter found",
+			func() {
+				gm := types.NewGasMeter(contract, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.Commit()
 
-// 				req = &types.QueryGasMeterRequest{
-// 					Contract:    contract.String(),
-// 					Participant: participant.String(),
-// 				}
-// 				expRes = &types.QueryGasMeterResponse{GasMeter: uint64(gm.Size())}
-// 			},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			suite.SetupTest() // reset
+				req = &types.QueryGasMeterRequest{
+					Contract:    contract.String(),
+					Participant: participant.String(),
+				}
+				expRes = &types.QueryGasMeterResponse{GasMeter: 1}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 			ctx := sdk.WrapSDKContext(suite.ctx)
-// 			tc.malleate()
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
 
-// 			res, err := suite.queryClient.GasMeter(ctx, req)
-// 			if tc.expPass {
-// 				suite.Require().NoError(err)
-// 				suite.Require().Equal(expRes, res)
-// 			} else {
-// 				suite.Require().Error(err)
-// 			}
-// 		})
-// 	}
-// }
+			res, err := suite.queryClient.GasMeter(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
 
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
