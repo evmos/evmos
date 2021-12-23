@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestIncentivesGasMeters() {
 	}
 }
 
-// func (suite *KeeperTestSuite) TestGetIncnetive() {
+// func (suite *KeeperTestSuite) TestGetIncentive() {
 // 	expIn := types.NewIncentive(contract, allocations, epochs)
 // 	suite.app.IncentivesKeeper.SetIncentive(suite.ctx, expIn)
 // 	suite.Commit()

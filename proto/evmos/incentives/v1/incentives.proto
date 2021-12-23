@@ -34,7 +34,7 @@ message GasMeter {
   // participant address that interacts with the incentive
   string participant = 2;
   // cumulative gas spent during the epoch
-  uint64 cummulative_gas = 3;
+  uint64 cumulative_gas = 3;
 }
 
 // RegisterIncentiveProposal is a gov Content type to register an incentive

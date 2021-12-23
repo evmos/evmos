@@ -50,7 +50,9 @@ func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
-			var coins sdk.Coins
+			coins := sdk.Coins{}
+			contract := common.HexToAddress(incentive.Contract)
+
 			for _, allocation := range incentive.Allocations {
 				balance := k.bankKeeper.GetBalance(ctx, moduleAddr, allocation.Denom)
 				if !balance.IsPositive() {
@@ -61,7 +63,7 @@ func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: amount}
 				coins = coins.Add(coin)
 			}
-			contract := common.HexToAddress(incentive.Contract)
+
 			coinsAllocated[contract] = coins
 			return false
 		},
@@ -88,10 +90,11 @@ func (k Keeper) rewardParticipants(
 			coins := sdk.Coins{}
 			for _, allocation := range incentive.Allocations {
 				coinAllocated := coinsAllocated[contract].AmountOf(allocation.Denom)
-				reward := coinAllocated.MulRaw(int64(gm.CummulativeGas / totalGas))
+				reward := coinAllocated.MulRaw(int64(gm.CumulativeGas / totalGas))
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward}
 				coins = coins.Add(coin)
 			}
+
 			participant := common.HexToAddress(gm.Participant)
 			err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, participant.Bytes(), coins)
 			if err != nil {

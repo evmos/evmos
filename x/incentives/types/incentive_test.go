@@ -41,14 +41,13 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 			10,
 			false,
 		},
-		// TODO how to test without panicking?
-		// {
-		// 	"Register incentive - invalid allocation denom",
-		// 	tests.GenerateAddress(),
-		// 	sdk.DecCoins{sdk.NewDecCoin("(photon", sdk.NewInt(1))},
-		// 	10,
-		// 	false,
-		// },
+		{
+			"Register incentive - invalid allocation denom",
+			tests.GenerateAddress(),
+			sdk.DecCoins{{Denom: "(photon", Amount: sdk.OneDec()}},
+			10,
+			false,
+		},
 		{
 			"Register incentive - invalid allocation amount (0)",
 			tests.GenerateAddress(),

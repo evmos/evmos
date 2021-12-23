@@ -12,9 +12,9 @@ func NewGasMeter(
 	cumulativeGas uint64,
 ) GasMeter {
 	return GasMeter{
-		Contract:       contract.String(),
-		Participant:    participant.String(),
-		CummulativeGas: cumulativeGas,
+		Contract:      contract.String(),
+		Participant:   participant.String(),
+		CumulativeGas: cumulativeGas,
 	}
 }
 

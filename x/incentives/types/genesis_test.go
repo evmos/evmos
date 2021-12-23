@@ -111,9 +111,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				GasMeters: []GasMeter{
 					{
-						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						CummulativeGas: 10,
+						Contract:      "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CumulativeGas: 10,
 					},
 				},
 			},
@@ -125,14 +125,14 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				GasMeters: []GasMeter{
 					{
-						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						CummulativeGas: 10,
+						Contract:      "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CumulativeGas: 10,
 					},
 					{
-						Contract:       "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						CummulativeGas: 10,
+						Contract:      "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						Participant:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CumulativeGas: 10,
 					},
 				},
 			},
@@ -144,9 +144,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				GasMeters: []GasMeter{
 					{
-						Contract:       "0xinvalidaddress",
-						Participant:    "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						CummulativeGas: 10,
+						Contract:      "0xinvalidaddress",
+						Participant:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						CumulativeGas: 10,
 					},
 				},
 			},

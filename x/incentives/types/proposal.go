@@ -29,14 +29,15 @@ func init() {
 
 // NewRegisterIncentiveProposal returns new instance of RegisterIncentiveProposal
 func NewRegisterIncentiveProposal(
-	title, desciption string,
+	title,
+	description,
 	contract string,
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) govtypes.Content {
 	return &RegisterIncentiveProposal{
 		Title:       title,
-		Description: desciption,
+		Description: description,
 		Contract:    contract,
 		Allocations: allocations,
 		Epochs:      epochs,

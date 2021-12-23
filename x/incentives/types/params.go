@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	fmt "fmt"
 	"time"
 
@@ -79,13 +80,14 @@ func validatePercentage(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	v := dec.MustFloat64()
-	if v <= 0 {
-		return fmt.Errorf("allocation limit must be positive: %x", v)
+	if dec.IsNil() {
+		return errors.New("allocation limit cannot be nil")
 	}
-
-	if v > 1 {
-		return fmt.Errorf("allocation limit must <= 100: %x", v)
+	if dec.IsNegative() {
+		return fmt.Errorf("allocation limit must be positive: %s", dec)
+	}
+	if dec.GT(sdk.OneDec()) {
+		return fmt.Errorf("allocation limit must <= 100: %s", dec)
 	}
 
 	return nil

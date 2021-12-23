@@ -1,8 +1,6 @@
 package types
 
 import (
-	"bytes"
-
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -31,10 +29,7 @@ var (
 )
 
 func SplitGasMeterKey(key []byte) (contract, userAddr common.Address) {
-	keySplit := bytes.Split(key, []byte{})
-	k1 := bytes.Join(keySplit[1:common.AddressLength+1], []byte{})
-	k2 := bytes.Join(keySplit[common.AddressLength+1:], []byte{})
-	contract = common.BytesToAddress(k1)
-	userAddr = common.BytesToAddress(k2)
-	return
+	contract = common.BytesToAddress(key[1 : common.AddressLength+1])
+	userAddr = common.BytesToAddress(key[common.AddressLength+1:])
+	return contract, userAddr
 }

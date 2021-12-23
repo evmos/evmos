@@ -56,21 +56,12 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{},
 			true,
 		},
-		// TODO panics with allocation limit nil. Is there another way to test?
-		// {
-		// 	"invalid - allocation limit nil ",
-		// 	Params{
-		// 		EnableIncentives: true,
-		// 		EpochDuration:    govtypes.DefaultPeriod,
-		// 	},
-		// 	true,
-		// },
 		{
 			"invalid - non-positive allocation limit",
 			Params{
 				EnableIncentives: true,
 				EpochDuration:    govtypes.DefaultPeriod,
-				AllocationLimit:  sdk.NewDecWithPrec(0, 2),
+				AllocationLimit:  sdk.MustNewDecFromStr("-0.02"),
 			},
 			true,
 		},

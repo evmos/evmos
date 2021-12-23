@@ -464,7 +464,7 @@ GasMeter tracks the cummulative gas spent per participant in one epoch
 | ----- | ---- | ----- | ----------- |
 | `contract` | [string](#string) |  | hex address of the incentivized contract |
 | `participant` | [string](#string) |  | participant address that interacts with the incentive |
-| `cummulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
+| `cumulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
 
 
 
