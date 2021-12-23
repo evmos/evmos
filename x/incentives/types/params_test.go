@@ -57,6 +57,15 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			true,
 		},
 		{
+			"invalid - nil allocation limit",
+			Params{
+				EnableIncentives: true,
+				EpochDuration:    govtypes.DefaultPeriod,
+				AllocationLimit:  sdk.Dec{},
+			},
+			true,
+		},
+		{
 			"invalid - non-positive allocation limit",
 			Params{
 				EnableIncentives: true,

@@ -164,19 +164,19 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			},
 			false,
 		},
-		// TODO how to test without panicking?
-		// {
-		// 	"Register incentive - invalid allocation amount 0%",
-		// 	"test",
-		// 	"test desc",
-		// 	Incentive{
-		// 		tests.GenerateAddress().String(),
-		// 		sdk.DecCoins{sdk.NewDecCoinFromDec("(aphoton", sdk.NewDecWithPrec(5, 2))},
-		// 		10,
-		// 		time.Now(),
-		// 	},
-		// 	false,
-		// },
+		{
+			"Register incentive - invalid allocation amount 0%",
+			"test",
+			"test desc",
+			Incentive{
+				tests.GenerateAddress().String(),
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(0, 2))},
+				10,
+				time.Now(),
+				0,
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		tx := NewRegisterIncentiveProposal(
