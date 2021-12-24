@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -28,51 +29,59 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		// {
 		// TODO pass - with non-mint denom and no remaining epochs",
 		// },
-		// {
-		// 	"pass - with non-mint denom and ramaining epochs",
-		// 	func() {
-		// 		// create incnetive
-		// 		regIn = types.NewIncentive(contract2, allocations, epochs)
-		// 		suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
-		// 		// Mint tokens in module account
-		// 		err := suite.app.BankKeeper.MintCoins(
-		// 			suite.ctx,
-		// 			minttypes.ModuleName,
-		// 			sdk.Coins{sdk.NewInt64Coin(denomCoin, mintAmount)},
-		// 		)
-		// 		suite.Require().NoError(err)
+		{
+			"pass - with non-mint denom and ramaining epochs",
+			func() {
+				// create incentive
+				regIn = types.NewIncentive(contract2, allocations, epochs)
+				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
 
-		// 		// create Gas Meter
-		// 		gm := types.NewGasMeter(contract2, participant, gasUsed)
-		// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				// Mint tokens in module account
+				err := suite.app.BankKeeper.MintCoins(
+					suite.ctx,
+					types.ModuleName,
+					sdk.Coins{sdk.NewInt64Coin(denomCoin, mintAmount)},
+				)
+				suite.Require().NoError(err)
 
-		// 		// Set total gas meter
-		// 		suite.app.IncentivesKeeper.SetIncentiveTotalGas(
-		// 			suite.ctx,
-		// 			regIn,
-		// 			totalGasUsed,
-		// 		)
-		// 		suite.Commit()
-		// 	},
-		// 	true,
-		// },
+				// check module balance
+				moduleAddr := suite.app.AccountKeeper.GetModuleAddress(types.ModuleName)
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAddr, denomCoin)
+				suite.Require().True(balance.IsPositive())
+
+				// create Gas Meter
+				gm := types.NewGasMeter(contract2, participant, gasUsed)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+
+				// Set total gas meter
+				suite.app.IncentivesKeeper.SetIncentiveTotalGas(
+					suite.ctx,
+					regIn,
+					totalGasUsed,
+				)
+				suite.Commit()
+			},
+			true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 
 		tc.malleate()
-		fmt.Println(regIn)
 
 		err := suite.app.IncentivesKeeper.DistributeIncentives(suite.ctx)
+		suite.Commit()
 
 		if tc.expPass {
 			suite.Require().NoError(err)
 
 			// distributes the rewards to all paricpants
-			balance := suite.app.BankKeeper.GetBalance(suite.ctx, participant[:], denomCoin)
-			expBalance := int64(mintAmount * (allocationRate / 100) * (gasUsed / totalGasUsed))
-			suite.Require().Equal(expBalance, balance.Amount.Int64())
+			sdkParticipant := sdk.AccAddress(participant.Bytes())
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, denomCoin)
+			fmt.Printf("balance_test: %v \n", balance)
 
+			expBalance := int64(mintAmount * (allocationRate / 100) * gasUsed / totalGasUsed)
+			suite.Require().Equal(expBalance, balance.Amount.Int64())
 			// deletes all gas meters
 			_, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(suite.ctx, contract2, participant)
 			suite.Require().False(found)

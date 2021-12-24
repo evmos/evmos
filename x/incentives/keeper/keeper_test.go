@@ -37,6 +37,7 @@ import (
 
 var (
 	participant    = tests.GenerateAddress()
+	participant2   = tests.GenerateAddress()
 	contract       = tests.GenerateAddress()
 	contract2      = tests.GenerateAddress()
 	denomMint      = "stake"

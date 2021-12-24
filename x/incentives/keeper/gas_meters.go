@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -32,8 +34,8 @@ func (k Keeper) GetIncentivesGasMeters(ctx sdk.Context) []types.GasMeter {
 	return gms
 }
 
-// GetGasMetersByContract - get all registered GasMeters per contract
-func (k Keeper) GetGasMetersByContract(
+// GetIncentiveGasMeters - get all registered GasMeters per contract
+func (k Keeper) GetIncentiveGasMeters(
 	ctx sdk.Context,
 	contract common.Address,
 ) []types.GasMeter {
@@ -44,7 +46,9 @@ func (k Keeper) GetGasMetersByContract(
 		func(gm types.GasMeter) (stop bool) {
 			gms = append(gms, gm)
 			return false
-		})
+		},
+	)
+	fmt.Printf("gms: %v \n", gms)
 
 	return gms
 }
@@ -62,20 +66,19 @@ func (k Keeper) IterateIncentiveGasMeters(
 	for ; iterator.Valid(); iterator.Next() {
 		contract, userAddress := types.SplitGasMeterKey(iterator.Key())
 		gas := sdk.BigEndianToUint64(iterator.Value())
-
 		gm := types.GasMeter{
 			Contract:      contract.String(),
 			Participant:   userAddress.String(),
 			CumulativeGas: gas,
 		}
-
+		fmt.Printf("gm: %v \n", gm)
 		if handlerFn(gm) {
 			break
 		}
 	}
 }
 
-// GetIncentiveGasMeter - get cumulativeGas from participant
+// GetIncentiveGasMeter - get cumulativeGas from gas meter
 func (k Keeper) GetIncentiveGasMeter(
 	ctx sdk.Context,
 	contract, participant common.Address,
@@ -100,7 +103,7 @@ func (k Keeper) SetGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store.Set(key, sdk.Uint64ToBigEndian(gm.CumulativeGas))
 }
 
-// DeleteIncentive removes a token pair.
+// DeleteIncentive removes a gasMeter.
 func (k Keeper) DeleteGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
 	contract := common.HexToAddress(gm.Contract)
