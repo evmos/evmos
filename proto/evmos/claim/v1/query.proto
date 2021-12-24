@@ -1,0 +1,89 @@
+syntax = "proto3";
+package evmos.claim.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1/coin.proto";
+import "evmos/claim/v1/claim.proto";
+import "evmos/claim/v1/params.proto";
+
+option go_package = "github.com/tharsis/evmos/x/claim/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  rpc ModuleAccountBalance(QueryModuleAccountBalanceRequest)
+      returns (QueryModuleAccountBalanceResponse) {
+    option (google.api.http).get =
+        "/evmos/claim/v1/module_account_balance";
+  }
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/claim/v1/params";
+  }
+  rpc ClaimRecord(QueryClaimRecordRequest) returns (QueryClaimRecordResponse) {
+    option (google.api.http).get =
+        "/evmos/claim/v1/claim_record/{address}";
+  }
+  rpc ClaimableForAction(QueryClaimableForActionRequest)
+      returns (QueryClaimableForActionResponse) {
+    option (google.api.http).get =
+        "/evmos/claim/v1/claimable_for_action/{address}/{action}";
+  }
+  rpc TotalClaimable(QueryTotalClaimableRequest)
+      returns (QueryTotalClaimableResponse) {
+    option (google.api.http).get =
+        "/evmos/claim/v1/total_claimable/{address}";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryModuleAccountBalanceRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryModuleAccountBalanceResponse {
+  // params defines the parameters of the module.
+  repeated cosmos.base.v1.Coin moduleAccountBalance = 1 [
+    (gogoproto.moretags) = "yaml:\"coins\"",
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+message QueryClaimRecordRequest {
+  string address = 1;
+}
+
+message QueryClaimRecordResponse {
+  ClaimRecord claim_record = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryClaimableForActionRequest {
+  string address = 1;
+  Action action = 2;
+}
+
+message QueryClaimableForActionResponse {
+  repeated cosmos.base.v1.Coin coins = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+message QueryTotalClaimableRequest {
+  string address = 1;
+}
+
+message QueryTotalClaimableResponse {
+  repeated cosmos.base.v1.Coin coins = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}

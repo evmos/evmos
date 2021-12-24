@@ -1,0 +1,38 @@
+syntax = "proto3";
+package evmos.claim.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1/coin.proto";
+import "cosmos/bank/v1/genesis.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "evmos/claim/v1/claim.proto";
+
+option go_package = "github.com/tharsis/evmos/x/claim/types";
+
+// GenesisState defines the claim module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // list of claim records, one for every airdrop recipient
+  repeated ClaimRecord claim_records = 2 [(gogoproto.nullable) = false];
+}
+
+// Params defines the claim module's parameters.
+message Params {
+  google.protobuf.Timestamp airdrop_start_time = 1 [
+    (gogoproto.nullable) = false,  
+    (gogoproto.stdtime) = true
+  ];
+  google.protobuf.Duration duration_until_decay = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+  google.protobuf.Duration duration_of_decay = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true
+  ];
+  // denom of claimable asset
+  string claim_denom = 4;
+}

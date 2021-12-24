@@ -1,0 +1,34 @@
+syntax = "proto3";
+package evmos.claim.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1/coin.proto";
+import "cosmos/bank/v1/genesis.proto";
+
+option go_package = "github.com/tharsis/evmos/x/claim/types";
+
+enum Action {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  ActionInvalid = 0;
+  ActionVote = 1;
+  ActionDelegate = 2;
+}
+
+// A Claim Records is the metadata of claim data per address
+message ClaimRecord {
+  // address of claim user
+  string address = 1;
+
+  // total initial claimable amount for the user
+  repeated cosmos.base.v1.Coin initial_claimable_amount = 2 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+
+  // true if action is completed
+  // index of bool in array refers to action enum #
+  repeated bool action_completed = 3 [
+    (gogoproto.nullable) = false
+  ];
+}
