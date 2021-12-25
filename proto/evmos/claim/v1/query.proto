@@ -3,9 +3,9 @@ package evmos.claim.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/base/v1/coin.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "evmos/claim/v1/claim.proto";
-import "evmos/claim/v1/params.proto";
+import "evmos/claim/v1/genesis.proto";
 
 option go_package = "github.com/tharsis/evmos/x/claim/types";
 
@@ -41,7 +41,7 @@ message QueryModuleAccountBalanceRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryModuleAccountBalanceResponse {
   // params defines the parameters of the module.
-  repeated cosmos.base.v1.Coin moduleAccountBalance = 1 [
+  repeated cosmos.base.v1beta1.Coin moduleAccountBalance = 1 [
     (gogoproto.moretags) = "yaml:\"coins\"",
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
@@ -71,7 +71,7 @@ message QueryClaimableForActionRequest {
 }
 
 message QueryClaimableForActionResponse {
-  repeated cosmos.base.v1.Coin coins = 1 [
+  repeated cosmos.base.v1beta1.Coin coins = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
@@ -82,7 +82,7 @@ message QueryTotalClaimableRequest {
 }
 
 message QueryTotalClaimableResponse {
-  repeated cosmos.base.v1.Coin coins = 1 [
+  repeated cosmos.base.v1beta1.Coin coins = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];

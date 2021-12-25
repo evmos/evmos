@@ -2,10 +2,12 @@ syntax = "proto3";
 package evmos.claim.v1;
 
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1/coin.proto";
-import "cosmos/bank/v1/genesis.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/bank/v1beta1/genesis.proto";
 
 option go_package = "github.com/tharsis/evmos/x/claim/types";
+
+// TODO: Add Evm and IBC actions
 
 enum Action {
   option (gogoproto.goproto_enum_prefix) = false;
@@ -15,20 +17,25 @@ enum Action {
   ActionDelegate = 2;
 }
 
+// ActionCompleted marks defines if a given action is completed for the user
+message ActionCompleted {
+  // action enum
+  Action action = 1;
+  // true if the action has been completed
+  bool completed = 2;
+}
+
 // A Claim Records is the metadata of claim data per address
 message ClaimRecord {
   // address of claim user
   string address = 1;
 
   // total initial claimable amount for the user
-  repeated cosmos.base.v1.Coin initial_claimable_amount = 2 [
+  repeated cosmos.base.v1beta1.Coin initial_claimable_amount = 2 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false
   ];
 
-  // true if action is completed
-  // index of bool in array refers to action enum #
-  repeated bool action_completed = 3 [
-    (gogoproto.nullable) = false
-  ];
+  // slice of the available actions (enums) completed
+  repeated Action actions_completed = 3;
 }

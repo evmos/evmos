@@ -5,22 +5,13 @@ import (
 	"github.com/tharsis/evmos/x/claim/types"
 )
 
-// GetParams get params
-func (k Keeper) GetParams(ctx sdk.Context) (types.Params, error) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get([]byte(types.ParamsKey))
-	params := types.Params{}
-	err := k.cdc.UnmarshalJSON(bz, &params)
-	return params, err
+// GetParams returns the total set of erc20 parameters.
+func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+	k.paramstore.GetParamSet(ctx, &params)
+	return params
 }
 
-// SetParams set params
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
-	store := ctx.KVStore(k.storeKey)
-	bz, err := k.cdc.MarshalJSON(&params)
-	if err != nil {
-		return err
-	}
-	store.Set([]byte(types.ParamsKey), bz)
-	return nil
+// SetParams sets the erc20 parameters to the param space.
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	k.paramstore.SetParamSet(ctx, &params)
 }

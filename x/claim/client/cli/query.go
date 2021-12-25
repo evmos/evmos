@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cevmoss/cevmoss-sdk/client"
+	"github.com/cevmoss/cevmoss-sdk/client/flags"
+	"github.com/cevmoss/cevmoss-sdk/version"
 	"github.com/spf13/cobra"
 	"github.com/tharsis/evmos/x/claim/types"
 )
@@ -89,7 +89,7 @@ $ %s query claim claim-record <address>
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintObjectLegacy(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -106,7 +106,7 @@ func GetCmdQueryClaimableForAction() *cobra.Command {
 			fmt.Sprintf(`Query an address' claimable amount for a specific action
 
 Example:
-$ %s query claim claimable-for-action osmo1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx ActionAddLiquidity
+$ %s query claim claimable-for-action evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx ActionVote
 `,
 				version.AppName,
 			),
@@ -120,8 +120,8 @@ $ %s query claim claimable-for-action osmo1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcr
 
 			action, ok := types.Action_value[args[1]]
 			if !ok {
-				return fmt.Errorf("invalid Action type: %s.  Valid actions are %s, %s, %s, %s", args[1],
-					types.ActionAddLiquidity, types.ActionSwap, types.ActionVote, types.ActionDelegateStake)
+				return fmt.Errorf("invalid Action type: %s.  Valid actions are %s, %s", args[1],
+					types.ActionVote, types.ActionDelegate)
 			}
 
 			// Query store
@@ -132,7 +132,7 @@ $ %s query claim claimable-for-action osmo1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcr
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintObjectLegacy(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -148,7 +148,7 @@ func GetCmdQueryTotalClaimable() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query the total claimable amount remaining for an account.
 Example:
-$ %s query claim total-claimable osmo1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
+$ %s query claim total-claimable evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
 `,
 				version.AppName,
 			),
@@ -166,7 +166,7 @@ $ %s query claim total-claimable osmo1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintObjectLegacy(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)

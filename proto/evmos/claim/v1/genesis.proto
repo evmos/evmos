@@ -2,8 +2,8 @@ syntax = "proto3";
 package evmos.claim.v1;
 
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1/coin.proto";
-import "cosmos/bank/v1/genesis.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/bank/v1beta1/genesis.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "evmos/claim/v1/claim.proto";
@@ -21,18 +21,23 @@ message GenesisState {
 
 // Params defines the claim module's parameters.
 message Params {
-  google.protobuf.Timestamp airdrop_start_time = 1 [
+  // enable claiming process
+  bool enable_claim = 1;
+  // timestamp of the airdrop start
+  google.protobuf.Timestamp airdrop_start_time = 2 [
     (gogoproto.nullable) = false,  
     (gogoproto.stdtime) = true
   ];
-  google.protobuf.Duration duration_until_decay = 2 [
+  // duration until decay of claimable tokens begin
+  google.protobuf.Duration duration_until_decay = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true
   ];
-  google.protobuf.Duration duration_of_decay = 3 [
+  // duration of the token claim decay period
+  google.protobuf.Duration duration_of_decay = 4 [
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true
   ];
-  // denom of claimable asset
-  string claim_denom = 4;
+  // denom of claimable coin
+  string claim_denom = 5;
 }

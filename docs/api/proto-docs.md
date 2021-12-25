@@ -4,6 +4,30 @@
 
 ## Table of Contents
 
+- [evmos/claim/v1/claim.proto](#evmos/claim/v1/claim.proto)
+    - [ActionCompleted](#evmos.claim.v1.ActionCompleted)
+    - [ClaimRecord](#evmos.claim.v1.ClaimRecord)
+  
+    - [Action](#evmos.claim.v1.Action)
+  
+- [evmos/claim/v1/genesis.proto](#evmos/claim/v1/genesis.proto)
+    - [GenesisState](#evmos.claim.v1.GenesisState)
+    - [Params](#evmos.claim.v1.Params)
+  
+- [evmos/claim/v1/query.proto](#evmos/claim/v1/query.proto)
+    - [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest)
+    - [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse)
+    - [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest)
+    - [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse)
+    - [QueryModuleAccountBalanceRequest](#evmos.claim.v1.QueryModuleAccountBalanceRequest)
+    - [QueryModuleAccountBalanceResponse](#evmos.claim.v1.QueryModuleAccountBalanceResponse)
+    - [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse)
+    - [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest)
+    - [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse)
+  
+    - [Query](#evmos.claim.v1.Query)
+  
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
@@ -36,6 +60,290 @@
     - [Msg](#evmos.erc20.v1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="evmos/claim/v1/claim.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claim/v1/claim.proto
+
+
+
+<a name="evmos.claim.v1.ActionCompleted"></a>
+
+### ActionCompleted
+ActionCompleted marks defines if a given action is completed for the user
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `action` | [Action](#evmos.claim.v1.Action) |  | action enum |
+| `completed` | [bool](#bool) |  | true if the action has been completed |
+
+
+
+
+
+
+<a name="evmos.claim.v1.ClaimRecord"></a>
+
+### ClaimRecord
+A Claim Records is the metadata of claim data per address
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | address of claim user |
+| `initial_claimable_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | total initial claimable amount for the user |
+| `actions_completed` | [Action](#evmos.claim.v1.Action) | repeated | slice of the available actions (enums) completed |
+
+
+
+
+
+ <!-- end messages -->
+
+
+<a name="evmos.claim.v1.Action"></a>
+
+### Action
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ActionInvalid | 0 |  |
+| ActionVote | 1 |  |
+| ActionDelegate | 2 |  |
+
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/claim/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claim/v1/genesis.proto
+
+
+
+<a name="evmos.claim.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the claim module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.claim.v1.Params) |  | params defines all the parameters of the module. |
+| `claim_records` | [ClaimRecord](#evmos.claim.v1.ClaimRecord) | repeated | list of claim records, one for every airdrop recipient |
+
+
+
+
+
+
+<a name="evmos.claim.v1.Params"></a>
+
+### Params
+Params defines the claim module's parameters.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_claim` | [bool](#bool) |  | enable claiming process |
+| `airdrop_start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp of the airdrop start |
+| `duration_until_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration until decay of claimable tokens begin |
+| `duration_of_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration of the token claim decay period |
+| `claim_denom` | [string](#string) |  | denom of claimable coin |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/claim/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claim/v1/query.proto
+
+
+
+<a name="evmos.claim.v1.QueryClaimRecordRequest"></a>
+
+### QueryClaimRecordRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryClaimRecordResponse"></a>
+
+### QueryClaimRecordResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `claim_record` | [ClaimRecord](#evmos.claim.v1.ClaimRecord) |  |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryClaimableForActionRequest"></a>
+
+### QueryClaimableForActionRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+| `action` | [Action](#evmos.claim.v1.Action) |  |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryClaimableForActionResponse"></a>
+
+### QueryClaimableForActionResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryModuleAccountBalanceRequest"></a>
+
+### QueryModuleAccountBalanceRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryModuleAccountBalanceResponse"></a>
+
+### QueryModuleAccountBalanceResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `moduleAccountBalance` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | params defines the parameters of the module. |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.claim.v1.Params) |  | params defines the parameters of the module. |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryTotalClaimableRequest"></a>
+
+### QueryTotalClaimableRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryTotalClaimableResponse"></a>
+
+### QueryTotalClaimableResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.claim.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `ModuleAccountBalance` | [QueryModuleAccountBalanceRequest](#evmos.claim.v1.QueryModuleAccountBalanceRequest) | [QueryModuleAccountBalanceResponse](#evmos.claim.v1.QueryModuleAccountBalanceResponse) |  | GET|/evmos/claim/v1/module_account_balance|
+| `Params` | [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse) |  | GET|/evmos/claim/v1/params|
+| `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse) |  | GET|/evmos/claim/v1/claim_record/{address}|
+| `ClaimableForAction` | [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest) | [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse) |  | GET|/evmos/claim/v1/claimable_for_action/{address}/{action}|
+| `TotalClaimable` | [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest) | [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse) |  | GET|/evmos/claim/v1/total_claimable/{address}|
+
+ <!-- end services -->
 
 
 
