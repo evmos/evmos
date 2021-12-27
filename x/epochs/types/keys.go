@@ -14,9 +14,14 @@ const (
 	QuerierRoute = ModuleName
 )
 
+// prefix bytes for the EVM persistent store
+const (
+	prefixEpoch = iota + 1
+)
+
 var (
 	// KeyPrefixEpoch defines prefix key for storing epochs
-	KeyPrefixEpoch = []byte{0x01}
+	KeyPrefixEpoch = []byte{prefixEpoch}
 )
 
 func KeyPrefix(p string) []byte {

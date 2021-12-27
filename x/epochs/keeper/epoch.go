@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
 	"github.com/tharsis/evmos/x/epochs/types"
@@ -9,8 +10,8 @@ import (
 // GetEpochInfo returns epoch info by identifier
 func (k Keeper) GetEpochInfo(ctx sdk.Context, identifier string) types.EpochInfo {
 	epoch := types.EpochInfo{}
-	store := ctx.KVStore(k.storeKey)
-	b := store.Get(append(types.KeyPrefixEpoch, []byte(identifier)...))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
+	b := store.Get([]byte(identifier))
 	if b == nil {
 		return epoch
 	}
@@ -23,18 +24,18 @@ func (k Keeper) GetEpochInfo(ctx sdk.Context, identifier string) types.EpochInfo
 
 // SetEpochInfo set epoch info
 func (k Keeper) SetEpochInfo(ctx sdk.Context, epoch types.EpochInfo) {
-	store := ctx.KVStore(k.storeKey)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
 	value, err := proto.Marshal(&epoch)
 	if err != nil {
 		panic(err)
 	}
-	store.Set(append(types.KeyPrefixEpoch, []byte(epoch.Identifier)...), value)
+	store.Set([]byte(epoch.Identifier), value)
 }
 
 // DeleteEpochInfo delete epoch info
 func (k Keeper) DeleteEpochInfo(ctx sdk.Context, identifier string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(append(types.KeyPrefixEpoch, []byte(identifier)...))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
+	store.Delete([]byte(identifier))
 }
 
 // IterateEpochInfo iterate through epochs

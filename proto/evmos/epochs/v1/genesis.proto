@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.epochs.v1beta1;
+package evmos.epochs.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";

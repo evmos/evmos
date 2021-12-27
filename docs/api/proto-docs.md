@@ -4,17 +4,17 @@
 
 ## Table of Contents
 
-- [evmos/epochs/genesis.proto](#evmos/epochs/genesis.proto)
-    - [EpochInfo](#evmos.epochs.v1beta1.EpochInfo)
-    - [GenesisState](#evmos.epochs.v1beta1.GenesisState)
+- [evmos/epochs/v1/genesis.proto](#evmos/epochs/v1/genesis.proto)
+    - [EpochInfo](#evmos.epochs.v1.EpochInfo)
+    - [GenesisState](#evmos.epochs.v1.GenesisState)
   
-- [evmos/epochs/query.proto](#evmos/epochs/query.proto)
-    - [QueryCurrentEpochRequest](#evmos.epochs.v1beta1.QueryCurrentEpochRequest)
-    - [QueryCurrentEpochResponse](#evmos.epochs.v1beta1.QueryCurrentEpochResponse)
-    - [QueryEpochsInfoRequest](#evmos.epochs.v1beta1.QueryEpochsInfoRequest)
-    - [QueryEpochsInfoResponse](#evmos.epochs.v1beta1.QueryEpochsInfoResponse)
+- [evmos/epochs/v1/query.proto](#evmos/epochs/v1/query.proto)
+    - [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest)
+    - [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse)
+    - [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest)
+    - [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse)
   
-    - [Query](#evmos.epochs.v1beta1.Query)
+    - [Query](#evmos.epochs.v1.Query)
   
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
@@ -51,14 +51,14 @@
 
 
 
-<a name="evmos/epochs/genesis.proto"></a>
+<a name="evmos/epochs/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/epochs/genesis.proto
+## evmos/epochs/v1/genesis.proto
 
 
 
-<a name="evmos.epochs.v1beta1.EpochInfo"></a>
+<a name="evmos.epochs.v1.EpochInfo"></a>
 
 ### EpochInfo
 
@@ -79,7 +79,7 @@
 
 
 
-<a name="evmos.epochs.v1beta1.GenesisState"></a>
+<a name="evmos.epochs.v1.GenesisState"></a>
 
 ### GenesisState
 GenesisState defines the epochs module's genesis state.
@@ -87,7 +87,7 @@ GenesisState defines the epochs module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epochs` | [EpochInfo](#evmos.epochs.v1beta1.EpochInfo) | repeated |  |
+| `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
 
 
 
@@ -103,14 +103,14 @@ GenesisState defines the epochs module's genesis state.
 
 
 
-<a name="evmos/epochs/query.proto"></a>
+<a name="evmos/epochs/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/epochs/query.proto
+## evmos/epochs/v1/query.proto
 
 
 
-<a name="evmos.epochs.v1beta1.QueryCurrentEpochRequest"></a>
+<a name="evmos.epochs.v1.QueryCurrentEpochRequest"></a>
 
 ### QueryCurrentEpochRequest
 
@@ -125,7 +125,7 @@ GenesisState defines the epochs module's genesis state.
 
 
 
-<a name="evmos.epochs.v1beta1.QueryCurrentEpochResponse"></a>
+<a name="evmos.epochs.v1.QueryCurrentEpochResponse"></a>
 
 ### QueryCurrentEpochResponse
 
@@ -140,17 +140,22 @@ GenesisState defines the epochs module's genesis state.
 
 
 
-<a name="evmos.epochs.v1beta1.QueryEpochsInfoRequest"></a>
+<a name="evmos.epochs.v1.QueryEpochsInfoRequest"></a>
 
 ### QueryEpochsInfoRequest
 
 
 
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
 
 
 
 
-<a name="evmos.epochs.v1beta1.QueryEpochsInfoResponse"></a>
+
+
+<a name="evmos.epochs.v1.QueryEpochsInfoResponse"></a>
 
 ### QueryEpochsInfoResponse
 
@@ -158,7 +163,8 @@ GenesisState defines the epochs module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epochs` | [EpochInfo](#evmos.epochs.v1beta1.EpochInfo) | repeated |  |
+| `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
 
 
 
@@ -171,15 +177,15 @@ GenesisState defines the epochs module's genesis state.
  <!-- end HasExtensions -->
 
 
-<a name="evmos.epochs.v1beta1.Query"></a>
+<a name="evmos.epochs.v1.Query"></a>
 
 ### Query
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `EpochInfos` | [QueryEpochsInfoRequest](#evmos.epochs.v1beta1.QueryEpochsInfoRequest) | [QueryEpochsInfoResponse](#evmos.epochs.v1beta1.QueryEpochsInfoResponse) | EpochInfos provide running epochInfos | GET|/osmosis/epochs/v1beta1/epochs|
-| `CurrentEpoch` | [QueryCurrentEpochRequest](#evmos.epochs.v1beta1.QueryCurrentEpochRequest) | [QueryCurrentEpochResponse](#evmos.epochs.v1beta1.QueryCurrentEpochResponse) | CurrentEpoch provide current epoch of specified identifier | GET|/osmosis/epochs/v1beta1/current_epoch|
+| `EpochInfos` | [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest) | [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse) | EpochInfos provide running epochInfos | GET|/evmos/epochs/v1/epochs|
+| `CurrentEpoch` | [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest) | [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse) | CurrentEpoch provide current epoch of specified identifier | GET|/evmos/epochs/v1/current_epoch|
 
  <!-- end services -->
 
