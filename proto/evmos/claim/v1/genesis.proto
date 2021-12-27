@@ -15,8 +15,8 @@ message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // list of claim records, one for every airdrop recipient
-  repeated ClaimRecord claim_records = 2 [(gogoproto.nullable) = false];
+  // list of claim records with the corresponding airdrop recipient
+  repeated ClaimRecordAddress claim_records = 2 [(gogoproto.nullable) = false];
 }
 
 // Params defines the claim module's parameters.

@@ -106,27 +106,26 @@ func (k Keeper) DeleteClaimRecords(ctx sdk.Context) {
 	}
 }
 
-// SetClaimables set claimable amount from balances object
-func (k Keeper) SetClaimRecords(ctx sdk.Context, claimRecords []types.ClaimRecord) {
-	for _, claimRecord := range claimRecords {
-		addr, _ := sdk.AccAddressFromBech32(claimRecord.Address)
-		k.SetClaimRecord(ctx, addr, claimRecord)
-	}
-}
-
 // GetClaimables get claimables for genesis export
-func (k Keeper) GetClaimRecords(ctx sdk.Context) []types.ClaimRecord {
+func (k Keeper) GetClaimRecords(ctx sdk.Context) []types.ClaimRecordAddress {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
 
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
 
-	claimRecords := []types.ClaimRecord{}
+	claimRecords := []types.ClaimRecordAddress{}
 	for ; iterator.Valid(); iterator.Next() {
 
 		var claimRecord types.ClaimRecord
 		k.cdc.MustUnmarshal(iterator.Value(), &claimRecord)
-		claimRecords = append(claimRecords, claimRecord)
+
+		cr := types.ClaimRecordAddress{
+			Address:                sdk.AccAddress(iterator.Key()[1:]).String(),
+			InitialClaimableAmount: claimRecord.InitialClaimableAmount,
+			ActionsCompleted:       claimRecord.ActionsCompleted,
+		}
+
+		claimRecords = append(claimRecords, cr)
 	}
 
 	return claimRecords

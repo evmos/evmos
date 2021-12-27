@@ -11,7 +11,15 @@ import (
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	k.SetParams(ctx, data.Params)
-	k.SetClaimRecords(ctx, data.ClaimRecords)
+
+	for _, claimRecord := range data.ClaimRecords {
+		addr, _ := sdk.AccAddressFromBech32(claimRecord.Address)
+		cr := types.ClaimRecord{
+			InitialClaimableAmount: claimRecord.InitialClaimableAmount,
+			ActionsCompleted:       claimRecord.ActionsCompleted,
+		}
+		k.SetClaimRecord(ctx, addr, cr)
+	}
 }
 
 // ExportGenesis returns the claim module's exported genesis.

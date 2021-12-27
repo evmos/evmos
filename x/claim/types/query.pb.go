@@ -107,7 +107,7 @@ func (m *QueryModuleAccountBalanceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleAccountBalanceResponse proto.InternalMessageInfo
 
-func (m *QueryModuleAccountBalanceResponse) GetModuleAccountBalances() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *QueryModuleAccountBalanceResponse) GetModuleAccountBalance() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
 		return m.ModuleAccountBalance
 	}
@@ -334,7 +334,7 @@ func (m *QueryClaimableForActionRequest) GetAction() Action {
 	if m != nil {
 		return m.Action
 	}
-	return ActionInvalid
+	return ActionUnspecified
 }
 
 type QueryClaimableForActionResponse struct {

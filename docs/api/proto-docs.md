@@ -7,6 +7,7 @@
 - [evmos/claim/v1/claim.proto](#evmos/claim/v1/claim.proto)
     - [ActionCompleted](#evmos.claim.v1.ActionCompleted)
     - [ClaimRecord](#evmos.claim.v1.ClaimRecord)
+    - [ClaimRecordAddress](#evmos.claim.v1.ClaimRecordAddress)
   
     - [Action](#evmos.claim.v1.Action)
   
@@ -89,14 +90,31 @@ ActionCompleted marks defines if a given action is completed for the user
 <a name="evmos.claim.v1.ClaimRecord"></a>
 
 ### ClaimRecord
-A Claim Records is the metadata of claim data per address
+ClaimRecord defines the initial claimable airdrop amount and the list of
+completed actions to claim the tokens.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address of claim user |
-| `initial_claimable_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | total initial claimable amount for the user |
-| `actions_completed` | [Action](#evmos.claim.v1.Action) | repeated | slice of the available actions (enums) completed |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
+
+
+
+
+
+
+<a name="evmos.claim.v1.ClaimRecordAddress"></a>
+
+### ClaimRecordAddress
+ClaimRecordAddress is the metadata of claim data per address
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | bech32 or hex address of claim user |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
 
 
 
@@ -108,13 +126,15 @@ A Claim Records is the metadata of claim data per address
 <a name="evmos.claim.v1.Action"></a>
 
 ### Action
-
+Action defines the list of available actions to claim the airdrop tokens.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| ActionInvalid | 0 |  |
-| ActionVote | 1 |  |
-| ActionDelegate | 2 |  |
+| ACTION_UNSPECIFIED | 0 | UNSPECIFIED defines an invalid action. |
+| ACTION_VOTE | 1 | VOTE defines a proposal vote. |
+| ACTION_DELEGATE | 2 | DELEGATE defines an staking delegation. |
+| ACTION_EVM | 3 | EVM defines an EVM transaction. |
+| ACTION_IBC_TRANSFER | 4 | IBC Transfer defines a fungible token transfer transaction via IBC. |
 
 
  <!-- end enums -->
@@ -141,7 +161,7 @@ GenesisState defines the claim module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.claim.v1.Params) |  | params defines all the parameters of the module. |
-| `claim_records` | [ClaimRecord](#evmos.claim.v1.ClaimRecord) | repeated | list of claim records, one for every airdrop recipient |
+| `claim_records` | [ClaimRecordAddress](#evmos.claim.v1.ClaimRecordAddress) | repeated | list of claim records with the corresponding airdrop recipient |
 
 
 

@@ -205,7 +205,7 @@ $ %s query claim total-claimable evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
 			}
 
 			// Query store
-			res, err := queryClient.TotalClaimable(context.Background())
+			res, err := queryClient.TotalClaimable(context.Background(), req)
 			if err != nil {
 				return err
 			}

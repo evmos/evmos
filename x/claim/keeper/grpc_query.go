@@ -40,12 +40,12 @@ func (k Keeper) ClaimRecord(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	addr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	claimRecord, found := k.GetClaimRecord(ctx, addr)
 	if !found {
@@ -66,15 +66,16 @@ func (k Keeper) ClaimableForAction(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	if req.Action == types.ActionInvalid {
-		return nil, status.Error(codes.InvalidArgument, "invalid action")
+	if req.Action == types.ActionUnspecified || req.Action > types.ActionIBCTransfer {
+		return nil, status.Error(codes.InvalidArgument, types.ErrInvalidAction.Error())
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
 	addr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	claimRecord, found := k.GetClaimRecord(ctx, addr)
 	if !found {
@@ -83,13 +84,13 @@ func (k Keeper) ClaimableForAction(
 
 	params := k.GetParams(ctx)
 
-	coins, err := k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
+	amt, err := k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &types.QueryClaimableForActionResponse{
-		Coins: coins,
+		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},
 	}, nil
 }
 
@@ -102,18 +103,21 @@ func (k Keeper) TotalClaimable(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
 	addr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	coins, err := k.GetUserTotalClaimable(ctx, addr)
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	params := k.GetParams(ctx)
+
+	amt, err := k.GetUserTotalClaimable(ctx, addr)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &types.QueryTotalClaimableResponse{
-		Coins: coins,
+		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},
 	}, nil
 }
