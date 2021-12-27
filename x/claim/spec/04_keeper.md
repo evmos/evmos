@@ -10,7 +10,7 @@ Claim keeper module provides utility functions to manage epochs.
 
 ```go
   GetModuleAccountAddress(ctx sdk.Context) sdk.AccAddress
-  GetModuleAccountBalance(ctx sdk.Context) sdk.Coin
+  GetModuleAccountBalances(ctx sdk.Context) sdk.Coin
   EndAirdrop(ctx sdk.Context) error
   GetClaimRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimRecord, error)
   GetClaimRecords(ctx sdk.Context) []types.ClaimRecord

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cevmoss/cevmoss-sdk/client"
-	"github.com/cevmoss/cevmoss-sdk/client/flags"
-	"github.com/cevmoss/cevmoss-sdk/version"
 	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/version"
+
 	"github.com/tharsis/evmos/x/claim/types"
 )
 
@@ -22,6 +24,7 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
+	// TODO: module account balance
 	claimQueryCmd.AddCommand(
 		GetCmdQueryParams(),
 		GetCmdQueryClaimRecord(),
@@ -32,7 +35,37 @@ func GetQueryCmd() *cobra.Command {
 	return claimQueryCmd
 }
 
-// GetCmdQueryParams implements a command to return the current minting
+// GetCmdQueryModuleAccountBalance implements a command to return the current balance
+// of the airdrop escrow account.
+func GetCmdQueryModuleAccountBalance() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "module-account",
+		Short: "Query the current escrow account balance",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryModuleAccountBalanceRequest{}
+
+			res, err := queryClient.ModuleAccountBalance(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryParams implements a command to return the current claim
 // parameters.
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
@@ -83,12 +116,15 @@ $ %s query claim claim-record <address>
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
+
 			// Query store
 			res, err := queryClient.ClaimRecord(context.Background(), &types.QueryClaimRecordRequest{Address: args[0]})
 			if err != nil {
 				return err
 			}
+
 			return clientCtx.PrintProto(res)
 		},
 	}
@@ -116,10 +152,12 @@ $ %s query claim claimable-for-action evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kc
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
 			action, ok := types.Action_value[args[1]]
 			if !ok {
+				// TODO: add actions
 				return fmt.Errorf("invalid Action type: %s.  Valid actions are %s, %s", args[1],
 					types.ActionVote, types.ActionDelegate)
 			}
@@ -132,6 +170,7 @@ $ %s query claim claimable-for-action evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kc
 			if err != nil {
 				return err
 			}
+
 			return clientCtx.PrintProto(res)
 		},
 	}
@@ -158,14 +197,19 @@ $ %s query claim total-claimable evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
-			// Query store
-			res, err := queryClient.TotalClaimable(context.Background(), &types.QueryTotalClaimableRequest{
+
+			req := &types.QueryTotalClaimableRequest{
 				Address: args[0],
-			})
+			}
+
+			// Query store
+			res, err := queryClient.TotalClaimable(context.Background())
 			if err != nil {
 				return err
 			}
+
 			return clientCtx.PrintProto(res)
 		},
 	}

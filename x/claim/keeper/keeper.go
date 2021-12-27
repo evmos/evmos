@@ -6,6 +6,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
@@ -53,4 +54,80 @@ func NewKeeper(
 // Logger returns logger
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// GetModuleAccountBalances gets the airdrop coin balance of module account
+func (k Keeper) GetModuleAccountAddress(ctx sdk.Context) sdk.AccAddress {
+	return k.accountKeeper.GetModuleAddress(types.ModuleName)
+}
+
+// GetModuleAccountBalances gets the balances of module account that escrows the
+// airdrop tokens
+func (k Keeper) GetModuleAccountBalances(ctx sdk.Context) sdk.Coins {
+	moduleAccAddr := k.GetModuleAccountAddress(ctx)
+	return k.bankKeeper.GetAllBalances(ctx, moduleAccAddr)
+}
+
+// GetClaimRecord returns the claim record for a specific address
+func (k Keeper) GetClaimRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimRecord, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+
+	bz := store.Get(addr)
+	if len(bz) == 0 {
+		return types.ClaimRecord{}, false
+	}
+
+	var claimRecord types.ClaimRecord
+	k.cdc.MustUnmarshal(bz, &claimRecord)
+
+	return claimRecord, true
+}
+
+// SetClaimRecord sets a claim record for an address in store
+func (k Keeper) SetClaimRecord(ctx sdk.Context, addr sdk.AccAddress, claimRecord types.ClaimRecord) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+	bz := k.cdc.MustMarshal(&claimRecord)
+	store.Set(addr, bz)
+}
+
+// DeleteClaimRecord deletes a claim record from the store
+func (k Keeper) DeleteClaimRecord(ctx sdk.Context, addr sdk.AccAddress) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+	store.Delete(addr)
+}
+
+// DeleteClaimRecords deletes all the claim records from the store
+func (k Keeper) DeleteClaimRecords(ctx sdk.Context) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixClaimRecords)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		store.Delete(iterator.Key())
+	}
+}
+
+// SetClaimables set claimable amount from balances object
+func (k Keeper) SetClaimRecords(ctx sdk.Context, claimRecords []types.ClaimRecord) {
+	for _, claimRecord := range claimRecords {
+		addr, _ := sdk.AccAddressFromBech32(claimRecord.Address)
+		k.SetClaimRecord(ctx, addr, claimRecord)
+	}
+}
+
+// GetClaimables get claimables for genesis export
+func (k Keeper) GetClaimRecords(ctx sdk.Context) []types.ClaimRecord {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+
+	iterator := store.Iterator(nil, nil)
+	defer iterator.Close()
+
+	claimRecords := []types.ClaimRecord{}
+	for ; iterator.Valid(); iterator.Next() {
+
+		var claimRecord types.ClaimRecord
+		k.cdc.MustUnmarshal(iterator.Value(), &claimRecord)
+		claimRecords = append(claimRecords, claimRecord)
+	}
+
+	return claimRecords
 }

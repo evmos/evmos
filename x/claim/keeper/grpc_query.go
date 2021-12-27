@@ -14,7 +14,7 @@ var _ types.QueryServer = Keeper{}
 // Params returns params of the mint module.
 func (k Keeper) ModuleAccountBalance(c context.Context, _ *types.QueryModuleAccountBalanceRequest) (*types.QueryModuleAccountBalanceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	moduleAccBal := sdk.NewCoins(k.GetModuleAccountBalance(ctx))
+	moduleAccBal := k.GetModuleAccountBalances(ctx)
 
 	return &types.QueryModuleAccountBalanceResponse{
 		ModuleAccountBalance: moduleAccBal,
@@ -47,8 +47,8 @@ func (k Keeper) ClaimRecord(
 		return nil, err
 	}
 
-	claimRecord, err := k.GetClaimRecord(ctx, addr)
-	if err != nil {
+	claimRecord, found := k.GetClaimRecord(ctx, addr)
+	if !found {
 		return nil, status.Errorf(codes.NotFound, "claim record for address '%s'", req.Address)
 	}
 
@@ -66,13 +66,24 @@ func (k Keeper) ClaimableForAction(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
+	if req.Action == types.ActionInvalid {
+		return nil, status.Error(codes.InvalidArgument, "invalid action")
+	}
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	addr, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	coins, err := k.GetClaimableAmountForAction(ctx, addr, req.Action)
+	claimRecord, found := k.GetClaimRecord(ctx, addr)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "claim record for address %s", req.Address)
+	}
+
+	params := k.GetParams(ctx)
+
+	coins, err := k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

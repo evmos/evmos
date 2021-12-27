@@ -48,7 +48,7 @@ func TestClaimInitGenesis(t *testing.T) {
 	claim.InitGenesis(ctx, *app.ClaimKeeper, genesis)
 	app.ClaimKeeper.CreateModuleAccount(ctx, sdk.NewInt64Coin(types.DefaultClaimDenom, 750000000))
 
-	coin := app.ClaimKeeper.GetModuleAccountBalance(ctx)
+	coin := app.ClaimKeeper.GetModuleAccountBalances(ctx)
 	require.Equal(t, coin.String(), genesis.ModuleAccountBalance.String())
 
 	params, err := app.ClaimKeeper.GetParams(ctx)

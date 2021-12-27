@@ -2,11 +2,10 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type Actions []Action
@@ -17,13 +16,7 @@ const DefaultIndex uint64 = 1
 // DefaultGenesis returns the default Capability genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		ModuleAccountBalance: sdk.NewCoin(DefaultClaimDenom, sdk.ZeroInt()),
-		Params: Params{
-			AirdropStartTime:   time.Time{},
-			DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
-			DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
-			ClaimDenom:         DefaultClaimDenom,         // uosmo
-		},
+		Params:       DefaultParams(),
 		ClaimRecords: []ClaimRecord{},
 	}
 }
@@ -43,19 +36,19 @@ func GetGenesisStateFromAppState(cdc codec.JSONCodec, appState map[string]json.R
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	totalClaimable := sdk.Coins{}
-
+	// TODO: validate records
 	for _, claimRecord := range gs.ClaimRecords {
-		totalClaimable = totalClaimable.Add(claimRecord.InitialClaimableAmount...)
+		if _, err := sdk.AccAddressFromBech32(claimRecord.Address); err != nil {
+			return err
+		}
+		if claimRecord.InitialClaimableAmount.Empty() {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "empty coins")
+		}
+		if err := claimRecord.InitialClaimableAmount.Validate(); err != nil {
+			return err
+		}
+		// TODO: check repeated actions
 	}
 
-	// if !totalClaimable.IsEqual(sdk.NewCoins(gs.ModuleAccountBalance)) {
-	// 	return ErrIncorrectModuleAccountBalance
-	// }
-
-	if gs.Params.ClaimDenom != gs.ModuleAccountBalance.Denom {
-		return fmt.Errorf("denom for module and claim does not match")
-	}
-
-	return nil
+	return gs.Params.Validate()
 }

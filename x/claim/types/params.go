@@ -15,6 +15,7 @@ var (
 	DefaultDurationOfDecay    = time.Hour * 5
 )
 
+// TODO: fix
 // Parameter store key
 var (
 	ParamStoreKeyAirdropStartTime      = []byte("AirdropStartTime")
@@ -30,13 +31,14 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params object
 func NewParams(
-	airdropStartTime time.Time,
 	enableClaim bool,
+	airdropStartTime time.Time,
 	claimDenom string,
 	durationUntilDecay,
 	durationOfDecay time.Duration,
 ) Params {
 	return Params{
+		EnableClaim:        enableClaim,
 		AirdropStartTime:   airdropStartTime,
 		DurationUntilDecay: durationUntilDecay,
 		DurationOfDecay:    durationOfDecay,
@@ -45,7 +47,13 @@ func NewParams(
 }
 
 func DefaultParams() Params {
-	return Params{}
+	return Params{
+		EnableClaim:        true,
+		AirdropStartTime:   time.Time{},
+		DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
+		DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
+		ClaimDenom:         DefaultClaimDenom,         // aphoton
+	}
 }
 
 func validateBool(i interface{}) error {
