@@ -12,7 +12,7 @@ import (
 	"github.com/tharsis/evmos/x/claim/types"
 )
 
-// TODO: add hooks for EVM txs and IBC
+// TODO: add hooks for IBC
 
 func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
 	_, err := k.ClaimCoinsForAction(ctx, voterAddr, types.ActionVote)
@@ -28,6 +28,16 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 	}
 }
 
+func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, _ common.Hash, _ []*ethtypes.Log) error {
+	// TODO: add sender
+	fromAddr := sdk.AccAddress([]byte{})
+	_, err := k.ClaimCoinsForAction(ctx, fromAddr, types.ActionEVM)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // ________________________________________________________________________________________
 
 // Hooks wrapper struct for the claim keeper
@@ -35,7 +45,7 @@ type Hooks struct {
 	k Keeper
 }
 
-// TODO: add EVM hooks
+// TODO: add IBC hooks
 var (
 	_ evmtypes.EvmHooks         = Hooks{}
 	_ govtypes.GovHooks         = Hooks{}
@@ -49,7 +59,7 @@ func (k Keeper) Hooks() Hooks {
 
 // evm hook
 func (h Hooks) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*ethtypes.Log) error {
-	return nil
+	return h.k.AfterEVMStateTransition(ctx, txHash, logs)
 }
 
 // gov hooks
