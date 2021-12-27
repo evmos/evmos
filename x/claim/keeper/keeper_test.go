@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claim/types"
 )
 
 type KeeperTestSuite struct {
@@ -16,25 +15,15 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 	// querier sdk.Querier
-	app *app.OsmosisApp
+	app *app.Evmos
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	suite.app = app.Setup(false)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "osmosis-1", Time: time.Now().UTC()})
+	suite.app = app.Setup(false, nil)
+	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "evmos_9000-1", Time: time.Now().UTC()})
 
-	airdropStartTime := time.Now()
-	suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000)))
-
-	err := suite.app.ClaimKeeper.SetParams(suite.ctx, types.Params{
-		AirdropStartTime:   airdropStartTime,
-		DurationUntilDecay: types.DefaultDurationUntilDecay,
-		DurationOfDecay:    types.DefaultDurationOfDecay,
-		ClaimDenom:         sdk.DefaultBondDenom,
-	})
-	if err != nil {
-		panic(err)
-	}
+	airdropStartTime := time.Now().UTC()
+	// suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000)))
 
 	suite.ctx = suite.ctx.WithBlockTime(airdropStartTime)
 }
