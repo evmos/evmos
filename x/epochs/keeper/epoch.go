@@ -54,6 +54,7 @@ func (k Keeper) IterateEpochInfo(ctx sdk.Context, fn func(index int64, epochInfo
 	}
 }
 
+// AllEpochInfos returns every epochInfo in the store
 func (k Keeper) AllEpochInfos(ctx sdk.Context) []types.EpochInfo {
 	epochs := []types.EpochInfo{}
 	k.IterateEpochInfo(ctx, func(_ int64, epochInfo types.EpochInfo) (stop bool) {

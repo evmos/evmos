@@ -9,12 +9,14 @@ import (
 	"github.com/tharsis/evmos/x/epochs/types"
 )
 
+// Keeper of this module maintains collections of epochs and hooks.
 type Keeper struct {
 	cdc      codec.Codec
 	storeKey sdk.StoreKey
 	hooks    types.EpochHooks
 }
 
+// NewKeeper returns a new instance of epochs Keeper
 func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
@@ -22,7 +24,7 @@ func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey) *Keeper {
 	}
 }
 
-// Set the epoch hooks
+// SetHooks set the epoch hooks
 func (k *Keeper) SetHooks(eh types.EpochHooks) *Keeper {
 	if k.hooks != nil {
 		panic("cannot set epochs hooks twice")
@@ -33,6 +35,7 @@ func (k *Keeper) SetHooks(eh types.EpochHooks) *Keeper {
 	return k
 }
 
+// Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
