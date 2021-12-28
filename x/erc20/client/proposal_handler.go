@@ -2,6 +2,7 @@ package client
 
 import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
+
 	"github.com/tharsis/evmos/x/erc20/client/cli"
 	"github.com/tharsis/evmos/x/erc20/client/rest"
 )

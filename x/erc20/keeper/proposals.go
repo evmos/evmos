@@ -8,6 +8,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/tharsis/evmos/x/erc20/types"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
 )

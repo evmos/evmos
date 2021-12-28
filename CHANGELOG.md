@@ -41,11 +41,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
 
+### Features
+
+- [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
+
 ### Improvements
 
-*- (deps) bumped Tendermint to `v0.34.15` and tm-db to `v0.6.6`.
+- (deps) bumped Tendermint to `v0.34.15` and tm-db to `v0.6.6`.
 
-### Bug Fixes 
+### Bug Fixes
 
 - (erc20) [\#169](https://github.com/tharsis/evmos/pull/169) Fixes several testnet bugs:
   - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.

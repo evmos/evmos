@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/tharsis/ethermint/tests"
+
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
