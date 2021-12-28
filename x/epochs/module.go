@@ -19,6 +19,7 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	"github.com/tharsis/evmos/x/epochs/client/cli"
 	"github.com/tharsis/evmos/x/epochs/keeper"
 	"github.com/tharsis/evmos/x/epochs/simulation"

@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/epochs/types"
 )

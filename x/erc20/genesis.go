@@ -3,6 +3,7 @@ package erc20
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+
 	"github.com/tharsis/evmos/x/erc20/keeper"
 	"github.com/tharsis/evmos/x/erc20/types"
 )

@@ -109,14 +109,14 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	"github.com/tharsis/evmos/x/erc20"
-	erc20client "github.com/tharsis/evmos/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/x/erc20/types"
 
 	"github.com/tharsis/evmos/x/epochs"
 	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
+	"github.com/tharsis/evmos/x/erc20"
+	erc20client "github.com/tharsis/evmos/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/x/erc20/types"
 )
 
 func init() {

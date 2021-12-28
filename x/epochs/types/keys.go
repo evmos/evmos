@@ -19,10 +19,8 @@ const (
 	prefixEpoch = iota + 1
 )
 
-var (
-	// KeyPrefixEpoch defines prefix key for storing epochs
-	KeyPrefixEpoch = []byte{prefixEpoch}
-)
+// KeyPrefixEpoch defines prefix key for storing epochs
+var KeyPrefixEpoch = []byte{prefixEpoch}
 
 func KeyPrefix(p string) []byte {
 	return []byte(p)

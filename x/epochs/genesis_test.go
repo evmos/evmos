@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
 	simapp "github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/epochs"
 	"github.com/tharsis/evmos/x/epochs/types"

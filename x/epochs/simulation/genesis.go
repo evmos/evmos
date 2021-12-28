@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	"github.com/tharsis/evmos/x/epochs/types"
 )
 
