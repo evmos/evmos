@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
+
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 

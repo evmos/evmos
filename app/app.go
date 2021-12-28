@@ -109,9 +109,13 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
 	"github.com/tharsis/evmos/x/claim"
 	claimkeeper "github.com/tharsis/evmos/x/claim/keeper"
 	claimtypes "github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/x/epochs/types"
 	"github.com/tharsis/evmos/x/erc20"
 	erc20client "github.com/tharsis/evmos/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
@@ -169,6 +173,7 @@ var (
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
+		epochs.AppModuleBasic{},
 		claim.AppModuleBasic{},
 	)
 
@@ -243,8 +248,9 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	Erc20Keeper erc20keeper.Keeper
 	ClaimKeeper claimkeeper.Keeper
+	Erc20Keeper  erc20keeper.Keeper
+	EpochsKeeper epochskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -299,7 +305,7 @@ func NewEvmos(
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
-		erc20types.StoreKey, claimtypes.StoreKey,
+		erc20types.StoreKey, epochstypes.StoreKey, claimtypes.StoreKey
 	)
 
 	// Add the EVM transient store key
@@ -405,6 +411,11 @@ func NewEvmos(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.EvmKeeper,
 	)
 
+	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
+	app.EpochsKeeper = *epochsKeeper.SetHooks(
+		epochstypes.NewMultiEpochHooks(),
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			govtypes.NewMultiGovHooks(
@@ -478,6 +489,7 @@ func NewEvmos(
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
+		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claim.NewAppModule(appCodec, app.ClaimKeeper),
 	)
 
@@ -491,6 +503,8 @@ func NewEvmos(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		evmtypes.ModuleName,
+		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
+		epochstypes.ModuleName,
 		minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
 	)
@@ -498,7 +512,9 @@ func NewEvmos(
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
-		evmtypes.ModuleName, feemarkettypes.ModuleName, claimtypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
+		epochstypes.ModuleName, claimtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -515,7 +531,9 @@ func NewEvmos(
 		// Ethermint modules
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 		// Evmos modules
-		erc20types.ModuleName, claimtypes.ModuleName,
+		erc20types.ModuleName,
+		epochstypes.ModuleName,
+		claimtypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -551,6 +569,7 @@ func NewEvmos(
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
+		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 	)
 

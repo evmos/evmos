@@ -29,6 +29,18 @@
   
     - [Query](#evmos.claim.v1.Query)
   
+- [evmos/epochs/v1/genesis.proto](#evmos/epochs/v1/genesis.proto)
+    - [EpochInfo](#evmos.epochs.v1.EpochInfo)
+    - [GenesisState](#evmos.epochs.v1.GenesisState)
+  
+- [evmos/epochs/v1/query.proto](#evmos/epochs/v1/query.proto)
+    - [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest)
+    - [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse)
+    - [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest)
+    - [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse)
+  
+    - [Query](#evmos.epochs.v1.Query)
+  
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
@@ -362,6 +374,146 @@ Query defines the gRPC querier service.
 | `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse) |  | GET|/evmos/claim/v1/claim_record/{address}|
 | `ClaimableForAction` | [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest) | [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse) |  | GET|/evmos/claim/v1/claimable_for_action/{address}/{action}|
 | `TotalClaimable` | [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest) | [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse) |  | GET|/evmos/claim/v1/total_claimable/{address}|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/epochs/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/epochs/v1/genesis.proto
+
+
+
+<a name="evmos.epochs.v1.EpochInfo"></a>
+
+### EpochInfo
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `identifier` | [string](#string) |  |  |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
+| `duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  |  |
+| `current_epoch` | [int64](#int64) |  |  |
+| `current_epoch_start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
+| `epoch_counting_started` | [bool](#bool) |  |  |
+| `current_epoch_start_height` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the epochs module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/epochs/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/epochs/v1/query.proto
+
+
+
+<a name="evmos.epochs.v1.QueryCurrentEpochRequest"></a>
+
+### QueryCurrentEpochRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `identifier` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.QueryCurrentEpochResponse"></a>
+
+### QueryCurrentEpochResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `current_epoch` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.QueryEpochsInfoRequest"></a>
+
+### QueryEpochsInfoRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.QueryEpochsInfoResponse"></a>
+
+### QueryEpochsInfoResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.epochs.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `EpochInfos` | [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest) | [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse) | EpochInfos provide running epochInfos | GET|/evmos/epochs/v1/epochs|
+| `CurrentEpoch` | [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest) | [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse) | CurrentEpoch provide current epoch of specified identifier | GET|/evmos/epochs/v1/current_epoch|
 
  <!-- end services -->
 
