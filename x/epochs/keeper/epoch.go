@@ -34,9 +34,9 @@ func (k Keeper) DeleteEpochInfo(ctx sdk.Context, identifier string) {
 
 // IterateEpochInfo iterate through epochs
 func (k Keeper) IterateEpochInfo(ctx sdk.Context, fn func(index int64, epochInfo types.EpochInfo) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixEpoch)
+	iterator := sdk.KVStorePrefixIterator(store, nil)
 	defer iterator.Close()
 
 	i := int64(0)
