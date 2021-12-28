@@ -18,7 +18,8 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 		EpochCountingStarted:  false,
 	}
 	suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epochInfo)
-	epochInfoSaved := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "monthly")
+	epochInfoSaved, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, "monthly")
+	suite.Require().True(found)
 	suite.Require().Equal(epochInfo, epochInfoSaved)
 
 	allEpochs := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)

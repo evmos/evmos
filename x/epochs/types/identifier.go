@@ -20,7 +20,7 @@ func ValidateEpochIdentifierInterface(i interface{}) error {
 func ValidateEpochIdentifierString(s string) error {
 	s = strings.TrimSpace(s)
 	if s == "" {
-		return fmt.Errorf("empty distribution epoch identifier: %+v", s)
+		return fmt.Errorf("blank epoch identifier: %s", s)
 	}
 	return nil
 }

@@ -53,9 +53,7 @@ func (AppModuleBasic) Name() string {
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // RegisterInterfaces registers the module's interface types
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
-}
+func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {}
 
 // DefaultGenesis returns the capability module's default genesis state.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
@@ -76,17 +74,20 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)) //nolint:errcheck
+	err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns the capability module's root tx command.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd()
+	return nil
 }
 
 // GetQueryCmd returns the capability module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd(types.StoreKey)
+	return cli.GetQueryCmd()
 }
 
 // ----------------------------------------------------------------------------
@@ -143,7 +144,6 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.Ra
 	cdc.MustUnmarshalJSON(gs, &genState)
 
 	InitGenesis(ctx, am.keeper, genState)
-
 	return []abci.ValidatorUpdate{}
 }
 

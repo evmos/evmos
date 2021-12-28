@@ -12,7 +12,7 @@ import (
 )
 
 // GetQueryCmd returns the cli query commands for this module
-func GetQueryCmd(queryRoute string) *cobra.Command {
+func GetQueryCmd() *cobra.Command {
 	// Group epochs queries under a subcommand
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -41,7 +41,7 @@ func GetCmdEpochsInfos() *cobra.Command {
 			),
 		),
 		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
@@ -87,6 +87,7 @@ func GetCmdCurrentEpoch() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.CurrentEpoch(cmd.Context(), &types.QueryCurrentEpochRequest{

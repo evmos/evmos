@@ -9,13 +9,11 @@ import (
 	"github.com/tharsis/evmos/x/epochs/types"
 )
 
-type (
-	Keeper struct {
-		cdc      codec.Codec
-		storeKey sdk.StoreKey
-		hooks    types.EpochHooks
-	}
-)
+type Keeper struct {
+	cdc      codec.Codec
+	storeKey sdk.StoreKey
+	hooks    types.EpochHooks
+}
 
 func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey) *Keeper {
 	return &Keeper{
@@ -24,7 +22,7 @@ func NewKeeper(cdc codec.Codec, storeKey sdk.StoreKey) *Keeper {
 	}
 }
 
-// Set the gamm hooks
+// Set the epoch hooks
 func (k *Keeper) SetHooks(eh types.EpochHooks) *Keeper {
 	if k.hooks != nil {
 		panic("cannot set epochs hooks twice")
