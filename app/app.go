@@ -109,6 +109,10 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
+	"github.com/tharsis/evmos/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/x/epochs/types"
 	"github.com/tharsis/evmos/x/erc20"
 	erc20client "github.com/tharsis/evmos/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
@@ -170,6 +174,7 @@ var (
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		incentives.AppModuleBasic{},
+		epochs.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -245,6 +250,7 @@ type Evmos struct {
 	// Evmos keepers
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
+	EpochsKeeper     epochskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -301,6 +307,7 @@ func NewEvmos(
 		// evmos keys
 		erc20types.StoreKey,
 		incentivestypes.StoreKey,
+		epochstypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -411,6 +418,14 @@ func NewEvmos(
 		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.MintKeeper,
 	)
 
+	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
+	app.EpochsKeeper = *epochsKeeper.SetHooks(
+		epochstypes.NewMultiEpochHooks(
+			// insert epoch hooks receivers here
+			app.IncentivesKeeper.Hooks(),
+		),
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			govtypes.NewMultiGovHooks(
@@ -480,6 +495,7 @@ func NewEvmos(
 		// Evmos app modules
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
+		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -492,6 +508,8 @@ func NewEvmos(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		evmtypes.ModuleName,
+		// Note: epochs' begin should be "real" start of epochs, we keep epochs beginblock at the beginning
+		epochstypes.ModuleName,
 		minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
 	)
@@ -500,6 +518,8 @@ func NewEvmos(
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName,
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
+		epochstypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -518,6 +538,7 @@ func NewEvmos(
 		// Evmos modules
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
+		epochstypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -553,6 +574,7 @@ func NewEvmos(
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
+		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 	)
 

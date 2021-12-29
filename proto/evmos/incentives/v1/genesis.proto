@@ -31,4 +31,6 @@ message Params {
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false
     ];
+    // identifier for the epochs module hooks
+    string incentives_epoch_identifier = 4;
 }
