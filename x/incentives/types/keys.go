@@ -28,8 +28,15 @@ var (
 	KeyPrefixGasMeter  = []byte{prefixGasMeter}
 )
 
+// SplitGasMeterKey is a helper to split up KV-store keys in a
+// `prefix-contract-participant` format
 func SplitGasMeterKey(key []byte) (contract, userAddr common.Address) {
-	contract = common.BytesToAddress(key[1 : common.AddressLength+1])
-	userAddr = common.BytesToAddress(key[common.AddressLength+1:])
+	// with prefix
+	if len(key) == 41 {
+		key = key[1:]
+	}
+
+	contract = common.BytesToAddress(key[:common.AddressLength])
+	userAddr = common.BytesToAddress(key[common.AddressLength:])
 	return contract, userAddr
 }

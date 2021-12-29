@@ -6,10 +6,13 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
+)
+
+const (
+	DefaultEpochDuration time.Duration = time.Hour * 24 // 1 day
 )
 
 // Parameter store key
@@ -43,7 +46,7 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EnableIncentives:          true,
-		EpochDuration:             govtypes.DefaultPeriod,
+		EpochDuration:             DefaultEpochDuration,
 		AllocationLimit:           sdk.NewDecWithPrec(5, 2),
 		IncentivesEpochIdentifier: "week",
 	}

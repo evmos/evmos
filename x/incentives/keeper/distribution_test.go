@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -78,7 +76,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			// distributes the rewards to all paricpants
 			sdkParticipant := sdk.AccAddress(participant.Bytes())
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, denomCoin)
-			fmt.Printf("balance_test: %v \n", balance)
+			// fmt.Printf("balance_test: %v \n", balance)
 
 			expBalance := int64(mintAmount * (allocationRate / 100) * gasUsed / totalGasUsed)
 			suite.Require().Equal(expBalance, balance.Amount.Int64())

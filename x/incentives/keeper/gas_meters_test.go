@@ -60,13 +60,10 @@ func (suite *KeeperTestSuite) TestGetIncentiveGasMeters() {
 		name     string
 		malleate func()
 	}{
-		// {
-		// 	"no gas meter registered",
-		// 	func() { expRes = []types.GasMeter{} },
-		// },
-		// TODO: exp result doesnt match saved as wrong hex format
-		// 0x9a7de83B1691f270151A10E6c4af3754e4D09172
-		// 0x7DE83b1691f270151a10E6c4Af3754e4d0917251
+		{
+			"no gas meter registered",
+			func() { expRes = []types.GasMeter{} },
+		},
 		{
 			"1 gas meter registered",
 			func() {
@@ -76,17 +73,18 @@ func (suite *KeeperTestSuite) TestGetIncentiveGasMeters() {
 
 				expRes = []types.GasMeter{gm}
 			},
-			// {
-			// 	"2 gas meters registered",
-			// 	func() {
-			// 		gm := types.NewGasMeter(contract, participant, 1)
-			// 		gm2 := types.NewGasMeter(contract2, participant, 1)
-			// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-			// 		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
-			// 		suite.Commit()
+		},
+		{
+			"2 gas meters registered",
+			func() {
+				gm := types.NewGasMeter(contract, participant, 1)
+				gm2 := types.NewGasMeter(contract, participant2, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
+				suite.Commit()
 
-			// 		expRes = []types.GasMeter{gm, gm2}
-			// 	},
+				expRes = []types.GasMeter{gm, gm2}
+			},
 		},
 	}
 	for _, tc := range testCases {
