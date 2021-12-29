@@ -19,7 +19,6 @@ type Keeper struct {
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
-	govKeeper     types.GovKeeper
 	mintKeeper    types.MintKeeper
 }
 

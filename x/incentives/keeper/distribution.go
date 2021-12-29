@@ -101,6 +101,14 @@ func (k Keeper) rewardParticipants(
 	}
 
 	totalGas := k.GetIncentiveTotalGas(ctx, incentive)
+	if totalGas == 0 {
+		logger.Debug(
+			"no gas spent spent on incentive during epoch",
+			"contract", incentive.Contract,
+		)
+		return
+	}
+
 	fmt.Printf("totalGas: %v \n", totalGas)
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 	fmt.Printf("totalGasDec: %v \n", totalGasDec)

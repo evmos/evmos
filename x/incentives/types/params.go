@@ -8,6 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
 // Parameter store key
@@ -15,6 +17,7 @@ var (
 	ParamStoreKeyEnableIncentives = []byte("EnableIncentives")
 	ParamStoreKeyEpochDuration    = []byte("EpochDuration")
 	ParamStoreKeyAllocationLimit  = []byte("AllocationLimit")
+	ParamStoreKeyEpochIdentifier  = []byte("EpochIdentifier")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -27,20 +30,22 @@ func NewParams(
 	enableIncentives bool,
 	epocheDuration time.Duration,
 	allocationLimit sdk.Dec,
-
+	epochIdentifier string,
 ) Params {
 	return Params{
-		EnableIncentives: enableIncentives,
-		EpochDuration:    epocheDuration,
-		AllocationLimit:  allocationLimit,
+		EnableIncentives:          enableIncentives,
+		EpochDuration:             epocheDuration,
+		AllocationLimit:           allocationLimit,
+		IncentivesEpochIdentifier: epochIdentifier,
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		EnableIncentives: true,
-		EpochDuration:    govtypes.DefaultPeriod,
-		AllocationLimit:  sdk.NewDecWithPrec(5, 2),
+		EnableIncentives:          true,
+		EpochDuration:             govtypes.DefaultPeriod,
+		AllocationLimit:           sdk.NewDecWithPrec(5, 2),
+		IncentivesEpochIdentifier: "week",
 	}
 }
 
@@ -50,6 +55,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyEpochDuration, &p.EpochDuration, validatePeriod),
 		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
+		paramtypes.NewParamSetPair(ParamStoreKeyEpochIdentifier, &p.IncentivesEpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
 	}
 }
 
@@ -106,5 +112,5 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return nil
+	return epochtypes.ValidateEpochIdentifierString(p.IncentivesEpochIdentifier)
 }
