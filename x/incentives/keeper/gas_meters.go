@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -48,7 +46,6 @@ func (k Keeper) GetIncentiveGasMeters(
 			return false
 		},
 	)
-	fmt.Printf("gms: %v \n", gms)
 
 	return gms
 }
@@ -71,7 +68,7 @@ func (k Keeper) IterateIncentiveGasMeters(
 			Participant:   userAddress.String(),
 			CumulativeGas: gas,
 		}
-		fmt.Printf("gm: %v \n", gm)
+
 		if handlerFn(gm) {
 			break
 		}

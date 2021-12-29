@@ -42,10 +42,10 @@ var (
 	contract2      = tests.GenerateAddress()
 	denomMint      = "stake"
 	denomCoin      = "acoin"
-	allocationRate = 5
+	allocationRate = int64(5)
 	allocations    = sdk.DecCoins{
-		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(int64(allocationRate), 2)),
-		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(int64(allocationRate), 2)),
+		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
+		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(allocationRate, 2)),
 	}
 	epochs = uint32(10)
 )

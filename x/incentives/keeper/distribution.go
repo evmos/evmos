@@ -13,21 +13,19 @@ import (
 //  - allocates the amount to be distribbuted from the inflaction pool
 //  - distributes the rewards to all paricpants
 //  - deletes all gas meters
-//  - sets the cumulative totalGas to zero
 //  - updates the remaining epochs of each incentive
+//  - sets the cumulative totalGas to zero
 func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
 	// Allocate rewards for each Incentive
 	coinsAllocated := k.allocateCoins(ctx)
-	// fmt.Printf("coinsAllocated: %v \n", coinsAllocated)
 
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
-			// Distribute rewards and reset incentive's total gas count
+			// Distribute rewards
 			k.rewardParticipants(ctx, incentive, coinsAllocated)
-			k.SetIncentiveTotalGas(ctx, incentive, 0)
 
 			// Update Epoche and remove incentive from epoch if already finalized
 			incentive.Epochs--
@@ -37,6 +35,10 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 					"incentive finalized",
 					"contract", incentive.Contract,
 				)
+			} else {
+				k.SetIncentive(ctx, incentive)
+				// reset incentive's total gas count
+				k.SetIncentiveTotalGas(ctx, incentive, 0)
 			}
 
 			return false
@@ -86,11 +88,7 @@ func (k Keeper) rewardParticipants(
 	logger := k.Logger(ctx)
 
 	contract := common.HexToAddress(incentive.Contract)
-	// fmt.Printf("contract: %v \n", contract)
-
 	contractAllocation, ok := coinsAllocated[contract]
-	// fmt.Printf("contractAllocation: %v \n", contractAllocation)
-
 	if !ok {
 		logger.Debug(
 			"contract allocation coins not found",
@@ -107,26 +105,15 @@ func (k Keeper) rewardParticipants(
 		)
 		return
 	}
-
-	// fmt.Printf("totalGas: %v \n", totalGas)
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
-	// fmt.Printf("totalGasDec: %v \n", totalGasDec)
 
 	k.IterateIncentiveGasMeters(
 		ctx,
 		contract,
 		func(gm types.GasMeter) (stop bool) {
-			// fmt.Printf("gm: %v \n", gm)
-			// gmBefore, _ := k.GetIncentiveGasMeter(ctx, common.HexToAddress(gm.Contract), common.HexToAddress(gm.Participant))
-			// fmt.Printf("gmBefore: %v \n", gmBefore)
-
 			// get the participant ratio of their gas spent / total gas
 			cumulativeGas := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gm.CumulativeGas))
-			// fmt.Printf("cumulativeGas: %v \n", cumulativeGas)
-
 			gasRatio := cumulativeGas.Quo(totalGasDec)
-			// fmt.Printf("gasRatio: %v \n", gasRatio)
-
 			coins := sdk.Coins{}
 
 			// allocate the coins corresponding to the ratio of gas spent
@@ -140,19 +127,15 @@ func (k Keeper) rewardParticipants(
 				// NOTE: ignore denom validation
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward.TruncateInt()}
 				coins = coins.Add(coin)
-				// fmt.Printf("coins: %v \n", coins)
 			}
 
 			participant := common.HexToAddress(gm.Participant)
-			// fmt.Printf("participant: %v \n", participant)
 			err := k.bankKeeper.SendCoinsFromModuleToAccount(
 				ctx,
 				types.ModuleName,
 				sdk.AccAddress(participant.Bytes()),
 				coins,
 			)
-			// balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(participant.Bytes()), "acoin")
-			// fmt.Printf("balance: %v \n", balance)
 
 			if err != nil {
 				logger.Debug(
@@ -167,9 +150,6 @@ func (k Keeper) rewardParticipants(
 
 			// remove gas meter once the incentives are allocated to the user
 			k.DeleteGasMeter(ctx, gm)
-
-			// gmDelete, _ := k.GetIncentiveGasMeter(ctx, common.HexToAddress(gm.Contract), common.HexToAddress(gm.Participant))
-			// fmt.Printf("gmDelete: %v \n", gmDelete)
 
 			return false
 		})
