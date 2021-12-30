@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -58,17 +56,12 @@ func (k Keeper) RegisterIncentive(
 	// check if the sum of all allocations for each denom (current + proposed) is
 	// < 100%
 	incentives := k.GetAllIncentives(ctx)
-	fmt.Printf("incentives: %v\n", incentives)
 	if len(incentives) != 0 {
 		currentAllocations := make(map[string]sdk.Dec)
 
 		k.IterateIncentives(
 			ctx,
 			func(incentive types.Incentive) (stop bool) {
-				fmt.Printf("incentive.Allocations[0]: %v\n", incentive.Allocations[0])
-				fmt.Printf("incentive.Allocations[0].Am: %v\n", incentive.Allocations[0].Amount)
-				fmt.Printf("incentive.Allocations[0]: %v\n", incentive.Allocations[0].Denom)
-
 				for _, al := range incentive.Allocations {
 					if al.Amount.Size() == 0 {
 						continue

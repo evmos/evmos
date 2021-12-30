@@ -141,6 +141,7 @@ func (k Keeper) GasMeter(
 		)
 	}
 
+	// Note: can't test
 	if len(req.Contract) == 0 {
 		return nil, status.Errorf(
 			codes.NotFound,

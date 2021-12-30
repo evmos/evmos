@@ -143,147 +143,159 @@ func (suite *KeeperTestSuite) TestIncentive() {
 	}
 }
 
-// func (suite *KeeperTestSuite) TestGasMeters() {
-// 	var (
-// 		req    *types.QueryGasMetersRequest
-// 		expRes *types.QueryGasMetersResponse
-// 	)
+func (suite *KeeperTestSuite) TestGasMeters() {
+	var (
+		req    *types.QueryGasMetersRequest
+		expRes *types.QueryGasMetersResponse
+	)
 
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func()
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"no gas meter registered",
-// 			func() {
-// 				req = &types.QueryGasMetersRequest{}
-// 				expRes = &types.QueryGasMetersResponse{Pagination: &query.PageResponse{}}
-// 			},
-// 			true,
-// 		},
-// 		{
-// 			"1 gas meter registered w/pagination",
-// 			func() {
-// 				req = &types.QueryGasMetersRequest{
-// 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
-// 				}
-// 				gm := types.NewGasMeter(contract, participant, 1)
-// 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-// 				suite.Commit()
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"no gas meter registered",
+			func() {
+				req = &types.QueryGasMetersRequest{}
+				expRes = &types.QueryGasMetersResponse{Pagination: &query.PageResponse{}}
+			},
+			true,
+		},
+		{
+			"1 gas meter registered w/pagination",
+			func() {
+				req = &types.QueryGasMetersRequest{
+					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
+				}
+				gm := types.NewGasMeter(contract, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.Commit()
 
-// 				expRes = &types.QueryGasMetersResponse{
-// 					Pagination: &query.PageResponse{Total: 1},
-// 					GasMeters:  []types.GasMeter{gm},
-// 				}
-// 			},
-// 			true,
-// 		},
-// 		{
-// 			"2 gas meters registered wo/pagination",
-// 			func() {
-// 				req = &types.QueryGasMetersRequest{}
-// 				gm := types.NewGasMeter(contract, participant, 1)
-// 				gm2 := types.NewGasMeter(contract2, participant, 1)
-// 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-// 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
-// 				suite.Commit()
+				expRes = &types.QueryGasMetersResponse{
+					Pagination: &query.PageResponse{Total: 1},
+					GasMeters:  []types.GasMeter{gm},
+				}
+			},
+			true,
+		},
+		{
+			"2 gas meters registered wo/pagination",
+			func() {
+				req = &types.QueryGasMetersRequest{}
+				gm := types.NewGasMeter(contract, participant, 1)
+				gm2 := types.NewGasMeter(contract2, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
+				suite.Commit()
 
-// 				expRes = &types.QueryGasMetersResponse{
-// 					Pagination: &query.PageResponse{Total: 2},
-// 					GasMeters:  []types.GasMeter{gm, gm2},
-// 				}
-// 			},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			suite.SetupTest() // reset
+				expRes = &types.QueryGasMetersResponse{
+					Pagination: &query.PageResponse{Total: 2},
+					GasMeters:  []types.GasMeter{gm, gm2},
+				}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 			ctx := sdk.WrapSDKContext(suite.ctx)
-// 			tc.malleate()
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
 
-// 			res, err := suite.queryClient.GasMeters(ctx, req)
-// 			if tc.expPass {
-// 				suite.Require().NoError(err)
-// 				suite.Require().Equal(expRes.Pagination, res.Pagination)
-// 				suite.Require().ElementsMatch(expRes.GasMeters, res.GasMeters)
-// 			} else {
-// 				suite.Require().Error(err)
-// 			}
-// 		})
-// 	}
-// }
+			res, err := suite.queryClient.GasMeters(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes.Pagination, res.Pagination)
+				suite.Require().ElementsMatch(expRes.GasMeters, res.GasMeters)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
 
-// func (suite *KeeperTestSuite) TestGasMeter() {
-// 	var (
-// 		req    *types.QueryGasMeterRequest
-// 		expRes *types.QueryGasMeterResponse
-// 	)
+func (suite *KeeperTestSuite) TestGasMeter() {
+	var (
+		req    *types.QueryGasMeterRequest
+		expRes *types.QueryGasMeterResponse
+	)
 
-// 	testCases := []struct {
-// 		name     string
-// 		malleate func()
-// 		expPass  bool
-// 	}{
-// 		{
-// 			"invalid token address",
-// 			func() {
-// 				req = &types.QueryGasMeterRequest{}
-// 				expRes = &types.QueryGasMeterResponse{}
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"gas meter not found",
-// 			func() {
-// 				req = &types.QueryGasMeterRequest{
-// 					Contract: contract.String(),
-// 				}
-// 				expRes = &types.QueryGasMeterResponse{}
-// 			},
-// 			false,
-// 		},
-// 		{
-// 			"gas meter found",
-// 			func() {
-// 				gm := types.NewGasMeter(contract, participant, 1)
-// 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
-// 				suite.Commit()
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"invalid token address",
+			func() {
+				req = &types.QueryGasMeterRequest{}
+				expRes = &types.QueryGasMeterResponse{}
+			},
+			false,
+		},
+		{
+			"invalid participant address",
+			func() {
+				req = &types.QueryGasMeterRequest{
+					Contract:    contract.String(),
+					Participant: "1234",
+				}
+				expRes = &types.QueryGasMeterResponse{}
+			},
+			false,
+		},
+		{
+			"gas meter not found",
+			func() {
+				req = &types.QueryGasMeterRequest{
+					Contract:    contract.String(),
+					Participant: participant.String(),
+				}
+				expRes = &types.QueryGasMeterResponse{}
+			},
+			false,
+		},
+		{
+			"gas meter found",
+			func() {
+				gm := types.NewGasMeter(contract, participant, 1)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+				suite.Commit()
 
-// 				req = &types.QueryGasMeterRequest{
-// 					Contract:    contract.String(),
-// 					Participant: participant.String(),
-// 				}
-// 				expRes = &types.QueryGasMeterResponse{GasMeter: 1}
-// 			},
-// 			true,
-// 		},
-// 	}
-// 	for _, tc := range testCases {
-// 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-// 			suite.SetupTest() // reset
+				req = &types.QueryGasMeterRequest{
+					Contract:    contract.String(),
+					Participant: participant.String(),
+				}
+				expRes = &types.QueryGasMeterResponse{GasMeter: 1}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 			ctx := sdk.WrapSDKContext(suite.ctx)
-// 			tc.malleate()
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
 
-// 			res, err := suite.queryClient.GasMeter(ctx, req)
-// 			if tc.expPass {
-// 				suite.Require().NoError(err)
-// 				suite.Require().Equal(expRes, res)
-// 			} else {
-// 				suite.Require().Error(err)
-// 			}
-// 		})
-// 	}
-// }
+			res, err := suite.queryClient.GasMeter(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
 
-// func (suite *KeeperTestSuite) TestQueryParams() {
-// 	ctx := sdk.WrapSDKContext(suite.ctx)
-// 	expParams := types.DefaultParams()
+func (suite *KeeperTestSuite) TestQueryParams() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	expParams := types.DefaultParams()
 
-// 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
-// 	suite.Require().NoError(err)
-// 	suite.Require().Equal(expParams, res.Params)
-// }
+	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expParams, res.Params)
+}
