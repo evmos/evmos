@@ -1,6 +1,8 @@
 package incentives
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -28,11 +30,17 @@ func NewIncentivesProposalHandler(k *keeper.Keeper) govtypes.Handler {
 }
 
 func handleRegisterIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterIncentiveProposal) error {
-	_, err := k.RegisterIncentive(ctx, common.HexToAddress(p.Contract), p.Allocations, p.Epochs)
+	in, err := k.RegisterIncentive(ctx, common.HexToAddress(p.Contract), p.Allocations, p.Epochs)
 	if err != nil {
 		return err
 	}
-	// TODO events
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRegisterIncentive,
+			sdk.NewAttribute(types.AttributeKeyContract, in.Contract),
+			sdk.NewAttribute(types.AttributeKeyEpochs, fmt.Sprint(in.Epochs)),
+		),
+	)
 	return nil
 }
 
@@ -41,7 +49,11 @@ func handleCancelIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types.C
 	if err != nil {
 		return err
 	}
-	// TODO events
-
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRegisterIncentive,
+			sdk.NewAttribute(types.AttributeKeyContract, p.Contract),
+		),
+	)
 	return nil
 }
