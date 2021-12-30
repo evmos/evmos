@@ -126,6 +126,9 @@ func (k Keeper) rewardParticipants(
 					continue
 				}
 
+				// cap rewards to receive cumulativeGas as max amount
+				reward = sdk.MinDec(reward, cumulativeGas)
+
 				// NOTE: ignore denom validation
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward.TruncateInt()}
 				coins = coins.Add(coin)

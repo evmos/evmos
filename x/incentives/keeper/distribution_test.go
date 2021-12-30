@@ -3,6 +3,7 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/tendermint/tendermint/libs/math"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -23,14 +24,25 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		allocations sdk.DecCoins
 		epochs      uint32
 		denom       string
+		mintAmount  int64
 		expPass     bool
 	}{
+		{
+			"pass - with capped reward",
+			contract2,
+			allocations,
+			epochs,
+			denomCoin,
+			1000000,
+			true,
+		},
 		{
 			"pass - with non-mint denom and no remaining epochs",
 			contract2,
 			allocations,
 			1,
 			denomCoin,
+			mintAmount,
 			true,
 		},
 		{
@@ -39,6 +51,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			allocations,
 			epochs,
 			denomCoin,
+			mintAmount,
 			true,
 		},
 		{
@@ -47,6 +60,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			allocations,
 			epochs,
 			denomMint,
+			mintAmount,
 			true,
 		},
 	}
@@ -61,7 +75,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		err := suite.app.BankKeeper.MintCoins(
 			suite.ctx,
 			types.ModuleName,
-			sdk.Coins{sdk.NewInt64Coin(tc.denom, mintAmount)},
+			sdk.Coins{sdk.NewInt64Coin(tc.denom, tc.mintAmount)},
 		)
 		suite.Require().NoError(err)
 
@@ -91,8 +105,9 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			sdkParticipant := sdk.AccAddress(participant.Bytes())
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, tc.denom)
 			gasRatio := float64(gasUsed) / float64(totalGasUsed)
-			coinAllocated := float64(mintAmount) * (float64(allocationRate) / 100)
+			coinAllocated := float64(tc.mintAmount) * (float64(allocationRate) / 100)
 			expBalance := int64(coinAllocated * gasRatio)
+			expBalance = math.MinInt64(expBalance, int64(gasUsed))
 			suite.Require().Equal(expBalance, balance.Amount.Int64(), tc.name)
 
 			// deletes all gas meters
