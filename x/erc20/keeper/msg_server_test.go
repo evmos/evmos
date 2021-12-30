@@ -22,16 +22,14 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true},
 		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
 		{
-			"ok - equal funds",
+			"ok - suicided contract",
 			10,
 			10,
 			func(erc20 common.Address) {
 				ok := suite.app.EvmKeeper.Suicide(erc20)
 				suite.Require().True(ok)
-				suicided := suite.app.EvmKeeper.HasSuicided(erc20)
-				suite.Require().True(suicided)
 			},
-			false,
+			true,
 		},
 		{"fail - insufficient funds", 0, 10, func(common.Address) {}, false},
 		{
@@ -75,10 +73,18 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
-				suite.Require().Equal(expRes, res)
-				suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
-				suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.burn).Int64())
 
+				suicided := suite.app.EvmKeeper.HasSuicided(erc20)
+				if suicided {
+					suite.Require().Equal(expRes, nil)
+					id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, erc20.String())
+					_, found := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
+					suite.Require().False(found)
+				} else {
+					suite.Require().Equal(expRes, res)
+					suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
+					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.burn).Int64())
+				}
 			} else {
 				suite.Require().Error(err, tc.name)
 			}

@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/erc20/types"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
@@ -27,11 +29,12 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Audit => How to we check if a account is suicided in the (KV store)
+
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	suicided := k.evmKeeper.HasSuicided(erc20)
-	if suicided {
+	codeHash := k.evmKeeper.GetCodeHash(erc20)
+	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
+	if hasEmptyCodeHash {
 		k.DeleteTokenPair(ctx, pair)
 		return nil, nil
 	}
@@ -66,10 +69,11 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	suicided := k.evmKeeper.HasSuicided(erc20)
-	if suicided {
+	codeHash := k.evmKeeper.GetCodeHash(erc20)
+	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
+	if hasEmptyCodeHash {
 		k.DeleteTokenPair(ctx, pair)
-		return nil, types.ErrSuicidedContract
+		return nil, nil
 	}
 
 	// Check ownership
