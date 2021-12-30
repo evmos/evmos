@@ -66,7 +66,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			contract := common.HexToAddress(args[0])
+			contract := args[0]
 
 			from := clientCtx.GetFromAddress()
 			content := types.NewRegisterIncentiveProposal(title, description, contract, allocation, uint32(epochs))
@@ -138,7 +138,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 				return fmt.Errorf("invalid contract address: %s", args[0])
 			}
 
-			contract := common.HexToAddress(args[0])
+			contract := args[0]
 
 			from := clientCtx.GetFromAddress()
 			content := types.NewCancelIncentiveProposal(title, description, contract)

@@ -1,11 +1,11 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 	time "time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tharsis/ethermint/tests"
@@ -86,13 +86,12 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			},
 			false,
 		},
-		// Invalid address
 		{
 			"Register incentive - invalid address (no hex)",
 			"test",
 			"test desc",
 			Incentive{
-				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+				"",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -180,10 +179,11 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 		},
 	}
 	for _, tc := range testCases {
+		fmt.Printf("tc.incentive.Contract: %v \n", tc.incentive.Contract)
 		tx := NewRegisterIncentiveProposal(
 			tc.title,
 			tc.description,
-			common.HexToAddress(tc.incentive.Contract),
+			tc.incentive.Contract,
 			tc.incentive.Allocations,
 			tc.incentive.Epochs,
 		)
@@ -206,7 +206,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 		expectPass  bool
 	}{
 		{
-			"Register incentive - valid",
+			"Cancel incentive - valid",
 			"test",
 			"test desc",
 			Incentive{
@@ -219,7 +219,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			true,
 		},
 		{
-			"Register incentive - invalid missing title ",
+			"Cancel incentive - invalid missing title ",
 			"",
 			"test desc",
 			Incentive{
@@ -232,7 +232,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			false,
 		},
 		{
-			"Register incentive - invalid missing description ",
+			"Cancel incentive - invalid missing description ",
 			"test",
 			"",
 			Incentive{
@@ -245,11 +245,11 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			false,
 		},
 		{
-			"Register incentive - invalid address (no hex)",
+			"Cancel incentive - invalid address (no hex)",
 			"test",
 			"test desc",
 			Incentive{
-				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+				"035dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aphoton", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -258,7 +258,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			false,
 		},
 		{
-			"Register incentive - invalid address (invalid length 1)",
+			"Cancel incentive - invalid address (invalid length 1)",
 			"test",
 			"test desc",
 			Incentive{
@@ -271,7 +271,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			false,
 		},
 		{
-			"Register incentive - invalid address (invalid length 2)",
+			"Cancel incentive - invalid address (invalid length 2)",
 			"test",
 			"test desc",
 			Incentive{
@@ -288,7 +288,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 		tx := NewCancelIncentiveProposal(
 			tc.title,
 			tc.description,
-			common.HexToAddress(tc.incentive.Contract),
+			tc.incentive.Contract,
 		)
 		err := tx.ValidateBasic()
 

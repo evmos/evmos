@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -68,7 +67,7 @@ func newRegisterIncentiveProposalHandler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		contract := common.HexToAddress(req.ContractAddress)
+		contract := req.ContractAddress
 
 		content := types.NewRegisterIncentiveProposal(req.Title, req.Description, contract, req.Allocation, req.Epochs)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)
@@ -102,7 +101,7 @@ func newCancelIncentiveProposalRequestHandler(clientCtx client.Context) http.Han
 			return
 		}
 
-		contract := common.HexToAddress(req.ContractAddress)
+		contract := req.ContractAddress
 
 		content := types.NewCancelIncentiveProposal(req.Title, req.Description, contract)
 		msg, err := govtypes.NewMsgSubmitProposal(content, req.Deposit, fromAddr)

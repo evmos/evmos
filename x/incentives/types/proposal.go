@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 )
 
@@ -33,14 +32,14 @@ func init() {
 func NewRegisterIncentiveProposal(
 	title,
 	description string,
-	contract common.Address,
+	contract string,
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) govtypes.Content {
 	return &RegisterIncentiveProposal{
 		Title:       title,
 		Description: description,
-		Contract:    contract.Hex(),
+		Contract:    contract,
 		Allocations: allocations,
 		Epochs:      epochs,
 	}
@@ -106,12 +105,12 @@ func validateEpochs(epochs uint32) error {
 func NewCancelIncentiveProposal(
 	title,
 	description string,
-	contract common.Address,
+	contract string,
 ) govtypes.Content {
 	return &CancelIncentiveProposal{
 		Title:       title,
 		Description: description,
-		Contract:    contract.String(),
+		Contract:    contract,
 	}
 }
 
