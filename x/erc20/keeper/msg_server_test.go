@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 
@@ -8,6 +9,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
@@ -26,8 +28,11 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			10,
 			10,
 			func(erc20 common.Address) {
-				ok := suite.app.EvmKeeper.Suicide(erc20)
-				suite.Require().True(ok)
+				// TODO: Replace SetCode with suicide
+				// ok := suite.app.EvmKeeper.Suicide(erc20)
+				// suite.Require().True(ok)
+				suite.app.EvmKeeper.SetCode(erc20, []byte{})
+				suite.Commit()
 			},
 			true,
 		},
@@ -74,9 +79,9 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				suicided := suite.app.EvmKeeper.HasSuicided(erc20)
-				if suicided {
-					suite.Require().Equal(expRes, nil)
+				codeHash := suite.app.EvmKeeper.GetCodeHash(erc20)
+				hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
+				if hasEmptyCodeHash {
 					id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, erc20.String())
 					_, found := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 					suite.Require().False(found)
