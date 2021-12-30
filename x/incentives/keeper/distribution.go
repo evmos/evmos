@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,6 +43,16 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 				k.SetIncentiveTotalGas(ctx, incentive, 0)
 			}
 
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeDistributeIncentives,
+					sdk.NewAttribute(types.AttributeKeyContract, incentive.Contract),
+					sdk.NewAttribute(
+						types.AttributeKeyEpochs,
+						fmt.Sprint(incentive.Epochs),
+					),
+				),
+			)
 			return false
 		})
 
