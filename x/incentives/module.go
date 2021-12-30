@@ -77,9 +77,7 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 }
 
 // GetTxCmd returns the root tx command for the incentives module.
-func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
-}
+func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
 
 // GetQueryCmd returns no root query command for the incentives module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {

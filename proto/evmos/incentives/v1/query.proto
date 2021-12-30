@@ -65,8 +65,10 @@ message QueryIncentiveResponse {
 
 // QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
 message QueryGasMetersRequest {
+  // contract is the hex contract address of a incentivized smart contract
+  string contract = 1;
   // pagination defines an optional pagination for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryGasMetersResponse is the response type for the Query/Incentives RPC

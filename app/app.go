@@ -118,6 +118,7 @@ import (
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
 	erc20types "github.com/tharsis/evmos/x/erc20/types"
 	"github.com/tharsis/evmos/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/x/incentives/client"
 	incentiveskeeper "github.com/tharsis/evmos/x/incentives/keeper"
 	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
 )
@@ -159,6 +160,7 @@ var (
 			// Evmos proposal types
 			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
 			erc20client.ToggleTokenRelayProposalHandler, erc20client.UpdateTokenPairERC20ProposalHandler,
+			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},

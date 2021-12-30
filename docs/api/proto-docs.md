@@ -769,6 +769,7 @@ QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract is the hex contract address of a incentivized smart contract |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
 

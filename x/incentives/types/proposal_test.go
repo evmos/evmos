@@ -5,6 +5,7 @@ import (
 	time "time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tharsis/ethermint/tests"
@@ -182,7 +183,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 		tx := NewRegisterIncentiveProposal(
 			tc.title,
 			tc.description,
-			tc.incentive.Contract,
+			common.HexToAddress(tc.incentive.Contract),
 			tc.incentive.Allocations,
 			tc.incentive.Epochs,
 		)
@@ -287,7 +288,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 		tx := NewCancelIncentiveProposal(
 			tc.title,
 			tc.description,
-			tc.incentive.Contract,
+			common.HexToAddress(tc.incentive.Contract),
 		)
 		err := tx.ValidateBasic()
 

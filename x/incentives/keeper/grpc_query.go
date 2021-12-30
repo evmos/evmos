@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
@@ -96,6 +97,14 @@ func (k Keeper) GasMeters(
 	var gms []types.GasMeter
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
 
+	// check if the contract is a hex address
+	if err := ethermint.ValidateAddress(req.Contract); err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
+		)
+	}
+
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
@@ -133,20 +142,25 @@ func (k Keeper) GasMeter(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if len(req.Contract) == 0 {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"contract address is empty",
+		)
+	}
+
 	// check if the contract is a hex address
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for contract %s, should be hex ('0x...')", req.Contract,
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
 		)
 	}
 
-	// Note: can't test
-	if len(req.Contract) == 0 {
-		return nil, status.Errorf(
-			codes.NotFound,
-			"gas meter with token '%s'",
-			req.Contract,
+	if len(req.Participant) == 0 {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"participant address is empty",
 		)
 	}
 
@@ -154,16 +168,7 @@ func (k Keeper) GasMeter(
 	if err := ethermint.ValidateAddress(req.Participant); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for participant %s, should be hex ('0x...')",
-			req.Participant,
-		)
-	}
-
-	if len(req.Participant) == 0 {
-		return nil, status.Errorf(
-			codes.NotFound,
-			"gas meter with token '%s'",
-			req.Participant,
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid participant address %s", req.Participant).Error(),
 		)
 	}
 
