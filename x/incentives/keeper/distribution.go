@@ -152,7 +152,6 @@ func (k Keeper) rewardParticipants(
 				sdk.AccAddress(participant.Bytes()),
 				coins,
 			)
-
 			if err != nil {
 				logger.Debug(
 					"failed to distribute incentive",

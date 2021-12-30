@@ -50,7 +50,6 @@ func CancelIncentiveProposalRequestRESTHandler(clientCtx client.Context) govrest
 	}
 }
 
-// nolint: dupl
 func newRegisterIncentiveProposalHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req RegisterIncentiveProposalRequest
@@ -85,7 +84,6 @@ func newRegisterIncentiveProposalHandler(clientCtx client.Context) http.HandlerF
 	}
 }
 
-// nolint: dupl
 func newCancelIncentiveProposalRequestHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req CancelIncentiveProposalRequest

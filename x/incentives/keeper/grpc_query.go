@@ -97,14 +97,6 @@ func (k Keeper) GasMeters(
 	var gms []types.GasMeter
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
 
-	// check if the contract is a hex address
-	if err := ethermint.ValidateAddress(req.Contract); err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
-		)
-	}
-
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
