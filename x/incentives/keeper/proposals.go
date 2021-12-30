@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -32,9 +34,9 @@ func (k Keeper) RegisterIncentive(
 		)
 	}
 
+	// check if the balance is > 0 for coins other than the mint denomination
 	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
 	for _, al := range allocations {
-		// check if the balance is > 0 for coins other than the mint denomination
 		if al.Denom != mintDenom {
 			if !k.bankKeeper.HasSupply(ctx, al.Denom) {
 				return nil, sdkerrors.Wrapf(
@@ -44,7 +46,7 @@ func (k Keeper) RegisterIncentive(
 			}
 		}
 
-		// check if allocations are under the allocation limit
+		// check if each allocation is below the allocation limit
 		if al.Amount.GT(params.AllocationLimit) {
 			return nil, sdkerrors.Wrapf(
 				types.ErrInternalIncentive,
@@ -53,40 +55,50 @@ func (k Keeper) RegisterIncentive(
 		}
 	}
 
-	// TODO: check if the proposal allocations + the sum of all active incentived
-	// contracts' allocation for the proposed dominations is < 100%
-	// var allocationsSum map[string]sdk.Dec
-	// k.IterateIncentives(
-	// 	ctx,
-	// 	func(incentive types.Incentive) (stop bool) {
-	// 		for _, al := range incentive.Allocations {
-	// 			if al.Amount.MustFloat64() == 0 {
-	// 				continue
-	// 			}
-	// 			if _, ok := allocationsSum[al.Denom]; ok {
-	// 				allocationsSum[al.Denom] = allocationsSum[al.Denom].Add(al.Amount)
-	// 			} else {
-	// 				allocationsSum[al.Denom] = al.Amount
-	// 			}
-	// 		}
-	// 		return false
-	// 	},
-	// )
+	// check if the sum of all allocations for each denom (current + proposed) is
+	// < 100%
+	incentives := k.GetAllIncentives(ctx)
+	fmt.Printf("incentives: %v\n", incentives)
+	if len(incentives) != 0 {
+		currentAllocations := make(map[string]sdk.Dec)
 
-	// for _, al := range allocations {
-	// 	fmt.Println(al.Amount)
-	// 	fmt.Printf("%v", allocationsSum)
+		k.IterateIncentives(
+			ctx,
+			func(incentive types.Incentive) (stop bool) {
+				fmt.Printf("incentive.Allocations[0]: %v\n", incentive.Allocations[0])
+				fmt.Printf("incentive.Allocations[0].Am: %v\n", incentive.Allocations[0].Amount)
+				fmt.Printf("incentive.Allocations[0]: %v\n", incentive.Allocations[0].Denom)
 
-	// 	if al.Amount.Add(allocationsSum[al.Denom]).MustFloat64() > 1 {
-	// 		return nil, sdkerrors.Wrapf(
-	// 			types.ErrInternalIncentive,
-	// 			"Allocation for denom %s is lager than 100% : %v",
-	// 			al.Denom,
-	// 			al.Amount,
-	// 			al.Amount,
-	// 		)
-	// 	}
-	// }
+				for _, al := range incentive.Allocations {
+					if al.Amount.Size() == 0 {
+						continue
+					}
+					if _, ok := currentAllocations[al.Denom]; ok {
+						currentAllocations[al.Denom] = currentAllocations[al.Denom].Add(al.Amount)
+					} else {
+						currentAllocations[al.Denom] = al.Amount
+					}
+				}
+				return false
+			},
+		)
+
+		for _, al := range allocations {
+			// skip if no current allocations exist
+			if _, ok := currentAllocations[al.Denom]; !ok {
+				continue
+			}
+
+			allocationSum := al.Amount.Add(currentAllocations[al.Denom])
+			if allocationSum.Size() > 1 {
+				return nil, sdkerrors.Wrapf(
+					types.ErrInternalIncentive,
+					"Allocation for denom %s is lager than 100 percent: %v",
+					al.Denom, allocationSum,
+				)
+			}
+		}
+	}
 
 	// create incentive and set to store
 	incentive := types.NewIncentive(contract, allocations, epochs)

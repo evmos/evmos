@@ -18,16 +18,16 @@ import (
 func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	// Allocate rewards for each Incentive
+	// allocate rewards for each Incentive
 	coinsAllocated := k.allocateCoins(ctx)
 
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
-			// Distribute rewards
+			// distribute rewards
 			k.rewardParticipants(ctx, incentive, coinsAllocated)
 
-			// Update Epoche and remove incentive from epoch if already finalized
+			// update epoch and remove incentive from epoch if already finalized
 			incentive.Epochs--
 			if !incentive.IsActive() {
 				k.DeleteIncentive(ctx, incentive)
@@ -37,6 +37,7 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 				)
 			} else {
 				k.SetIncentive(ctx, incentive)
+
 				// reset incentive's total gas count
 				k.SetIncentiveTotalGas(ctx, incentive, 0)
 			}
@@ -89,6 +90,7 @@ func (k Keeper) rewardParticipants(
 
 	contract := common.HexToAddress(incentive.Contract)
 	contractAllocation, ok := coinsAllocated[contract]
+
 	if !ok {
 		logger.Debug(
 			"contract allocation coins not found",

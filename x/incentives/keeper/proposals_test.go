@@ -56,37 +56,35 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 			},
 			false,
 		},
-		// TODO:
-		// {
-		// 	"total allocation for denom >100%",
-		// 	func() {
-		// 		// Make sure the non-mint coin has supply
-		// 		err := suite.app.BankKeeper.MintCoins(
-		// 			suite.ctx,
-		// 			minttypes.ModuleName,
-		// 			sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
-		// 		)
-		// 		suite.Require().NoError(err)
+		{
+			"Total allocation for at least one denom (current + proposed) > 100%",
+			func() {
+				// Make sure the non-mint coin has supply
+				err := suite.app.BankKeeper.MintCoins(
+					suite.ctx,
+					minttypes.ModuleName,
+					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
+				)
+				suite.Require().NoError(err)
 
-		// 		// increase allocation limit
-		// 		params := types.DefaultParams()
-		// 		params.AllocationLimit = sdk.NewDecWithPrec(100, 2)
-		// 		suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				// increase allocation limit
+				params := types.DefaultParams()
+				params.AllocationLimit = sdk.NewDecWithPrec(100, 2)
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
 
-		// 		// Add incentive which takes up 100% of the allocation
-		// 		regIn := types.NewIncentive(
-		// 			contract,
-		// 			sdk.DecCoins{
-		// 				sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2)),
-		// 			},
-		// 			epochs,
-		// 		)
-		// 		fmt.Println(regIn)
-		// 		suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
-		// 		suite.Commit()
-		// 	},
-		// 	false,
-		// },
+				// Add incentive which takes up 100% of the allocation
+				regIn := types.NewIncentive(
+					contract2,
+					sdk.DecCoins{
+						sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2)),
+					},
+					epochs,
+				)
+				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
+				suite.Commit()
+			},
+			false,
+		},
 		{
 			"ok",
 			func() {
