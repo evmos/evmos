@@ -95,17 +95,26 @@ func (k Keeper) GasMeters(
 	ctx := sdk.UnwrapSDKContext(c)
 
 	var gms []types.GasMeter
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
+	key := append(types.KeyPrefixGasMeter, common.HexToAddress(req.Contract).Bytes()...)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), key)
+
+	// check if the contract is a hex address
+	if err := ethermint.ValidateAddress(req.Contract); err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
+		)
+	}
 
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
 		func(key, value []byte) error {
-			contact, participant := types.SplitGasMeterKey(key)
+			participant := common.BytesToAddress(key)
 			cumulativeGas := sdk.BigEndianToUint64(value)
 
 			gm := types.GasMeter{
-				Contract:      contact.Hex(),
+				Contract:      req.Contract,
 				Participant:   participant.Hex(),
 				CumulativeGas: cumulativeGas,
 			}

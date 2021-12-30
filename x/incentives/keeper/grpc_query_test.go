@@ -160,13 +160,14 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 				req = &types.QueryGasMetersRequest{}
 				expRes = &types.QueryGasMetersResponse{Pagination: &query.PageResponse{}}
 			},
-			true,
+			false,
 		},
 		{
 			"1 gas meter registered w/pagination",
 			func() {
 				req = &types.QueryGasMetersRequest{
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
+					Contract:   contract.Hex(),
 				}
 				gm := types.NewGasMeter(contract, participant, 1)
 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
@@ -180,13 +181,17 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 			true,
 		},
 		{
-			"2 gas meters registered wo/pagination",
+			"2 gas meters registered for one contract wo/pagination",
 			func() {
-				req = &types.QueryGasMetersRequest{}
+				req = &types.QueryGasMetersRequest{
+					Contract: contract.Hex(),
+				}
 				gm := types.NewGasMeter(contract, participant, 1)
-				gm2 := types.NewGasMeter(contract2, participant, 1)
+				gm2 := types.NewGasMeter(contract, participant2, 1)
+				gm3 := types.NewGasMeter(contract2, participant, 1)
 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm2)
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm3)
 				suite.Commit()
 
 				expRes = &types.QueryGasMetersResponse{
