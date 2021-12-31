@@ -547,10 +547,15 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// TotalUnclaimed queries the total unclaimed tokens from the airdrop
 	TotalUnclaimed(ctx context.Context, in *QueryTotalUnclaimedRequest, opts ...grpc.CallOption) (*QueryTotalUnclaimedResponse, error)
+	// Params returns the claim module parameters
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// ClaimRecord returns the claim record metadata for a given address
 	ClaimRecord(ctx context.Context, in *QueryClaimRecordRequest, opts ...grpc.CallOption) (*QueryClaimRecordResponse, error)
+	// ClaimableForAction returns the total amount claimable for a given address and action
 	ClaimableForAction(ctx context.Context, in *QueryClaimableForActionRequest, opts ...grpc.CallOption) (*QueryClaimableForActionResponse, error)
+	// TotalClaimable returns the total amount claimable for a given address
 	TotalClaimable(ctx context.Context, in *QueryTotalClaimableRequest, opts ...grpc.CallOption) (*QueryTotalClaimableResponse, error)
 }
 
@@ -609,10 +614,15 @@ func (c *queryClient) TotalClaimable(ctx context.Context, in *QueryTotalClaimabl
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// TotalUnclaimed queries the total unclaimed tokens from the airdrop
 	TotalUnclaimed(context.Context, *QueryTotalUnclaimedRequest) (*QueryTotalUnclaimedResponse, error)
+	// Params returns the claim module parameters
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// ClaimRecord returns the claim record metadata for a given address
 	ClaimRecord(context.Context, *QueryClaimRecordRequest) (*QueryClaimRecordResponse, error)
+	// ClaimableForAction returns the total amount claimable for a given address and action
 	ClaimableForAction(context.Context, *QueryClaimableForActionRequest) (*QueryClaimableForActionResponse, error)
+	// TotalClaimable returns the total amount claimable for a given address
 	TotalClaimable(context.Context, *QueryTotalClaimableRequest) (*QueryTotalClaimableResponse, error)
 }
 

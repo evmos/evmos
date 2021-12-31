@@ -369,11 +369,11 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse) |  | GET|/evmos/claim/v1/total_unclaimed|
-| `Params` | [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse) |  | GET|/evmos/claim/v1/params|
-| `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse) |  | GET|/evmos/claim/v1/claim_record/{address}|
-| `ClaimableForAction` | [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest) | [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse) |  | GET|/evmos/claim/v1/claimable_for_action/{address}/{action}|
-| `TotalClaimable` | [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest) | [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse) |  | GET|/evmos/claim/v1/total_claimable/{address}|
+| `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claim/v1/total_unclaimed|
+| `Params` | [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse) | Params returns the claim module parameters | GET|/evmos/claim/v1/params|
+| `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse) | ClaimRecord returns the claim record metadata for a given address | GET|/evmos/claim/v1/claim_record/{address}|
+| `ClaimableForAction` | [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest) | [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse) | ClaimableForAction returns the total amount claimable for a given address and action | GET|/evmos/claim/v1/claimable_for_action/{address}/{action}|
+| `TotalClaimable` | [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest) | [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse) | TotalClaimable returns the total amount claimable for a given address | GET|/evmos/claim/v1/total_claimable/{address}|
 
  <!-- end services -->
 

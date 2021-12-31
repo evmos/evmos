@@ -11,23 +11,28 @@ option go_package = "github.com/tharsis/evmos/x/claim/types";
 
 // Query defines the gRPC querier service.
 service Query {
+  // TotalUnclaimed queries the total unclaimed tokens from the airdrop
   rpc TotalUnclaimed(QueryTotalUnclaimedRequest)
       returns (QueryTotalUnclaimedResponse) {
     option (google.api.http).get =
         "/evmos/claim/v1/total_unclaimed";
   }
+  // Params returns the claim module parameters
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/claim/v1/params";
   }
+  // ClaimRecord returns the claim record metadata for a given address
   rpc ClaimRecord(QueryClaimRecordRequest) returns (QueryClaimRecordResponse) {
     option (google.api.http).get =
         "/evmos/claim/v1/claim_record/{address}";
   }
+// ClaimableForAction returns the total amount claimable for a given address and action
   rpc ClaimableForAction(QueryClaimableForActionRequest)
       returns (QueryClaimableForActionResponse) {
     option (google.api.http).get =
         "/evmos/claim/v1/claimable_for_action/{address}/{action}";
   }
+  // TotalClaimable returns the total amount claimable for a given address
   rpc TotalClaimable(QueryTotalClaimableRequest)
       returns (QueryTotalClaimableResponse) {
     option (google.api.http).get =
