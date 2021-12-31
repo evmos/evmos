@@ -24,8 +24,8 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	// TODO: module account balance
 	claimQueryCmd.AddCommand(
+		GetCmdQueryModuleAccountBalance(),
 		GetCmdQueryParams(),
 		GetCmdQueryClaimRecord(),
 		GetCmdQueryClaimableForAction(),
@@ -156,10 +156,12 @@ $ %s query claim claimable-for-action evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kc
 			queryClient := types.NewQueryClient(clientCtx)
 
 			action, ok := types.Action_value[args[1]]
-			if !ok {
-				// TODO: add actions
-				return fmt.Errorf("invalid Action type: %s.  Valid actions are %s, %s", args[1],
-					types.ActionVote, types.ActionDelegate)
+			if !ok || types.Action(action) == types.ActionUnspecified {
+				return fmt.Errorf(
+					"invalid Action type: %s. Valid actions are %s, %s, %s, %s",
+					args[1],
+					types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer,
+				)
 			}
 
 			// Query store

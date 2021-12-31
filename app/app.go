@@ -248,7 +248,7 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	ClaimKeeper claimkeeper.Keeper
+	ClaimKeeper  claimkeeper.Keeper
 	Erc20Keeper  erc20keeper.Keeper
 	EpochsKeeper epochskeeper.Keeper
 
@@ -305,7 +305,7 @@ func NewEvmos(
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
-		erc20types.StoreKey, epochstypes.StoreKey, claimtypes.StoreKey
+		erc20types.StoreKey, epochstypes.StoreKey, claimtypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
