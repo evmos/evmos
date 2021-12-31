@@ -76,6 +76,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			suite.Commit()
 			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
+
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
@@ -108,6 +109,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeCoin() {
 	}{
 		{"ok - sufficient funds", 100, 10, 5, true},
 		{"ok - equal funds", 10, 10, 10, true},
+
 		{"fail - insufficient funds", 10, 1, 5, false},
 	}
 	for _, tc := range testCases {
@@ -171,17 +173,31 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 		name     string
 		mint     int64
 		burn     int64
-		malleate func()
+		malleate func(common.Address)
 		expPass  bool
 	}{
-		{"ok - sufficient funds", 100, 10, func() {}, true},
-		{"ok - equal funds", 10, 10, func() {}, true},
-		{"fail - insufficient funds - callEVM", 0, 10, func() {}, false},
+		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
+		{
+			"ok - suicided contract",
+			10,
+			10,
+			func(erc20 common.Address) {
+				// TODO: Replace SetCode with suicide
+				// ok := suite.app.EvmKeeper.Suicide(erc20)
+				// suite.Require().True(ok)
+				suite.app.EvmKeeper.SetCode(erc20, []byte{})
+				suite.Commit()
+			},
+			true,
+		},
+		{"fail - insufficient funds - callEVM", 0, 10, func(common.Address) {}, false},
 		{
 			"fail - minting disabled",
 			100,
 			10,
-			func() {
+			func(common.Address) {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
@@ -196,7 +212,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			contractAddr := suite.setupRegisterERC20Pair()
 			suite.Require().NotNil(contractAddr)
 
-			tc.malleate()
+			tc.malleate(contractAddr)
 			suite.Commit()
 
 			coinName := types.CreateDenom(contractAddr.String())
@@ -218,10 +234,18 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, coinName)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
-				suite.Require().Equal(expRes, res)
-				suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.burn))
-				suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.mint-tc.burn).Int64())
 
+				codeHash := suite.app.EvmKeeper.GetCodeHash(contractAddr)
+				hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
+				if hasEmptyCodeHash {
+					id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
+					_, found := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
+					suite.Require().False(found)
+				} else {
+					suite.Require().Equal(expRes, res)
+					suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.burn))
+					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.mint-tc.burn).Int64())
+				}
 			} else {
 				suite.Require().Error(err, tc.name)
 			}
