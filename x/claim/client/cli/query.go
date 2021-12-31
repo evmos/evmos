@@ -25,7 +25,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	claimQueryCmd.AddCommand(
-		GetCmdQueryModuleAccountBalance(),
+		GetCmdQueryTotalUnclaimed(),
 		GetCmdQueryParams(),
 		GetCmdQueryClaimRecord(),
 		GetCmdQueryClaimableForAction(),
@@ -35,12 +35,12 @@ func GetQueryCmd() *cobra.Command {
 	return claimQueryCmd
 }
 
-// GetCmdQueryModuleAccountBalance implements a command to return the current balance
+// GetCmdQueryTotalUnclaimed implements a command to return the current balance
 // of the airdrop escrow account.
-func GetCmdQueryModuleAccountBalance() *cobra.Command {
+func GetCmdQueryTotalUnclaimed() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "module-account",
-		Short: "Query the current escrow account balance",
+		Use:   "total-unclaimed",
+		Short: "Query the total amount of unclaimed tokens from the airdrop",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -49,9 +49,9 @@ func GetCmdQueryModuleAccountBalance() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryModuleAccountBalanceRequest{}
+			req := &types.QueryTotalUnclaimedRequest{}
 
-			res, err := queryClient.ModuleAccountBalance(context.Background(), req)
+			res, err := queryClient.TotalUnclaimed(context.Background(), req)
 			if err != nil {
 				return err
 			}

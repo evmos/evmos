@@ -11,17 +11,17 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// Params returns params of the mint module.
-func (k Keeper) ModuleAccountBalance(c context.Context, _ *types.QueryModuleAccountBalanceRequest) (*types.QueryModuleAccountBalanceResponse, error) {
+// TotalUnclaimed.
+func (k Keeper) TotalUnclaimed(c context.Context, _ *types.QueryTotalUnclaimedRequest) (*types.QueryTotalUnclaimedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	moduleAccBal := k.GetModuleAccountBalances(ctx)
 
-	return &types.QueryModuleAccountBalanceResponse{
-		ModuleAccountBalance: moduleAccBal,
+	return &types.QueryTotalUnclaimedResponse{
+		Coins: moduleAccBal,
 	}, nil
 }
 
-// Params returns params of the mint module.
+// Params returns params of the claim module.
 func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
@@ -31,7 +31,7 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	}, nil
 }
 
-// Claimable returns claimable amount per user
+// ClaimRecord returns claimable amount per user
 func (k Keeper) ClaimRecord(
 	goCtx context.Context,
 	req *types.QueryClaimRecordRequest,
@@ -57,7 +57,8 @@ func (k Keeper) ClaimRecord(
 	}, nil
 }
 
-// Activities returns activities
+// ClaimableForAction return the total amount claimable by an address for
+// an action.
 func (k Keeper) ClaimableForAction(
 	goCtx context.Context,
 	req *types.QueryClaimableForActionRequest,
@@ -76,21 +77,21 @@ func (k Keeper) ClaimableForAction(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := k.GetParams(ctx)
+
+	amt := sdk.ZeroInt()
 
 	claimRecord, found := k.GetClaimRecord(ctx, addr)
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "claim record for address %s", req.Address)
+	if found {
+		amt = k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
 	}
-
-	params := k.GetParams(ctx)
-	amt := k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
 
 	return &types.QueryClaimableForActionResponse{
 		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},
 	}, nil
 }
 
-// Activities returns activities
+// TotalClaimable returns the total amount claimable by a user.
 func (k Keeper) TotalClaimable(
 	goCtx context.Context,
 	req *types.QueryTotalClaimableRequest,

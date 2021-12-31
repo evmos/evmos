@@ -31,22 +31,22 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryParamsRequest is the request type for the Query/Params RPC method.
-type QueryModuleAccountBalanceRequest struct {
+// QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC method.
+type QueryTotalUnclaimedRequest struct {
 }
 
-func (m *QueryModuleAccountBalanceRequest) Reset()         { *m = QueryModuleAccountBalanceRequest{} }
-func (m *QueryModuleAccountBalanceRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryModuleAccountBalanceRequest) ProtoMessage()    {}
-func (*QueryModuleAccountBalanceRequest) Descriptor() ([]byte, []int) {
+func (m *QueryTotalUnclaimedRequest) Reset()         { *m = QueryTotalUnclaimedRequest{} }
+func (m *QueryTotalUnclaimedRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryTotalUnclaimedRequest) ProtoMessage()    {}
+func (*QueryTotalUnclaimedRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_75c94980d888f50c, []int{0}
 }
-func (m *QueryModuleAccountBalanceRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryTotalUnclaimedRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryModuleAccountBalanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryTotalUnclaimedRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryModuleAccountBalanceRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryTotalUnclaimedRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -56,36 +56,36 @@ func (m *QueryModuleAccountBalanceRequest) XXX_Marshal(b []byte, deterministic b
 		return b[:n], nil
 	}
 }
-func (m *QueryModuleAccountBalanceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryModuleAccountBalanceRequest.Merge(m, src)
+func (m *QueryTotalUnclaimedRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTotalUnclaimedRequest.Merge(m, src)
 }
-func (m *QueryModuleAccountBalanceRequest) XXX_Size() int {
+func (m *QueryTotalUnclaimedRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryModuleAccountBalanceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryModuleAccountBalanceRequest.DiscardUnknown(m)
+func (m *QueryTotalUnclaimedRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTotalUnclaimedRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryModuleAccountBalanceRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryTotalUnclaimedRequest proto.InternalMessageInfo
 
-// QueryParamsResponse is the response type for the Query/Params RPC method.
-type QueryModuleAccountBalanceResponse struct {
-	// params defines the parameters of the module.
-	ModuleAccountBalance github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=moduleAccountBalance,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"moduleAccountBalance" yaml:"coins"`
+// QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed RPC method.
+type QueryTotalUnclaimedResponse struct {
+	// coins define the unclaimed coins
+	Coins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=coins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"coins"`
 }
 
-func (m *QueryModuleAccountBalanceResponse) Reset()         { *m = QueryModuleAccountBalanceResponse{} }
-func (m *QueryModuleAccountBalanceResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryModuleAccountBalanceResponse) ProtoMessage()    {}
-func (*QueryModuleAccountBalanceResponse) Descriptor() ([]byte, []int) {
+func (m *QueryTotalUnclaimedResponse) Reset()         { *m = QueryTotalUnclaimedResponse{} }
+func (m *QueryTotalUnclaimedResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryTotalUnclaimedResponse) ProtoMessage()    {}
+func (*QueryTotalUnclaimedResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_75c94980d888f50c, []int{1}
 }
-func (m *QueryModuleAccountBalanceResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryTotalUnclaimedResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryModuleAccountBalanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryTotalUnclaimedResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryModuleAccountBalanceResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryTotalUnclaimedResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -95,21 +95,21 @@ func (m *QueryModuleAccountBalanceResponse) XXX_Marshal(b []byte, deterministic 
 		return b[:n], nil
 	}
 }
-func (m *QueryModuleAccountBalanceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryModuleAccountBalanceResponse.Merge(m, src)
+func (m *QueryTotalUnclaimedResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTotalUnclaimedResponse.Merge(m, src)
 }
-func (m *QueryModuleAccountBalanceResponse) XXX_Size() int {
+func (m *QueryTotalUnclaimedResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryModuleAccountBalanceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryModuleAccountBalanceResponse.DiscardUnknown(m)
+func (m *QueryTotalUnclaimedResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTotalUnclaimedResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryModuleAccountBalanceResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryTotalUnclaimedResponse proto.InternalMessageInfo
 
-func (m *QueryModuleAccountBalanceResponse) GetModuleAccountBalance() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *QueryTotalUnclaimedResponse) GetCoins() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.ModuleAccountBalance
+		return m.Coins
 	}
 	return nil
 }
@@ -197,6 +197,7 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryClaimRecordRequest is the request type for the Query/ClaimRecord RPC method.
 type QueryClaimRecordRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
@@ -241,6 +242,7 @@ func (m *QueryClaimRecordRequest) GetAddress() string {
 	return ""
 }
 
+// QueryClaimRecordResponse is the response type for the Query/ClaimRecord RPC method.
 type QueryClaimRecordResponse struct {
 	ClaimRecord ClaimRecord `protobuf:"bytes,1,opt,name=claim_record,json=claimRecord,proto3" json:"claim_record"`
 }
@@ -285,6 +287,7 @@ func (m *QueryClaimRecordResponse) GetClaimRecord() ClaimRecord {
 	return ClaimRecord{}
 }
 
+// QueryClaimableForActionRequest is the request type for the Query/ClaimableForAction RPC method.
 type QueryClaimableForActionRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	Action  Action `protobuf:"varint,2,opt,name=action,proto3,enum=evmos.claim.v1.Action" json:"action,omitempty"`
@@ -337,6 +340,7 @@ func (m *QueryClaimableForActionRequest) GetAction() Action {
 	return ActionUnspecified
 }
 
+// QueryClaimableForActionResponse is the response type for the Query/ClaimableForAction RPC method.
 type QueryClaimableForActionResponse struct {
 	Coins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=coins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"coins"`
 }
@@ -381,6 +385,7 @@ func (m *QueryClaimableForActionResponse) GetCoins() github_com_cosmos_cosmos_sd
 	return nil
 }
 
+// QueryTotalClaimableResponse is the request type for the Query/TotalClaimable RPC method.
 type QueryTotalClaimableRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
@@ -425,6 +430,7 @@ func (m *QueryTotalClaimableRequest) GetAddress() string {
 	return ""
 }
 
+// QueryTotalClaimableResponse is the response type for the Query/TotalClaimable RPC method.
 type QueryTotalClaimableResponse struct {
 	Coins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=coins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"coins"`
 }
@@ -470,8 +476,8 @@ func (m *QueryTotalClaimableResponse) GetCoins() github_com_cosmos_cosmos_sdk_ty
 }
 
 func init() {
-	proto.RegisterType((*QueryModuleAccountBalanceRequest)(nil), "evmos.claim.v1.QueryModuleAccountBalanceRequest")
-	proto.RegisterType((*QueryModuleAccountBalanceResponse)(nil), "evmos.claim.v1.QueryModuleAccountBalanceResponse")
+	proto.RegisterType((*QueryTotalUnclaimedRequest)(nil), "evmos.claim.v1.QueryTotalUnclaimedRequest")
+	proto.RegisterType((*QueryTotalUnclaimedResponse)(nil), "evmos.claim.v1.QueryTotalUnclaimedResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "evmos.claim.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "evmos.claim.v1.QueryParamsResponse")
 	proto.RegisterType((*QueryClaimRecordRequest)(nil), "evmos.claim.v1.QueryClaimRecordRequest")
@@ -485,51 +491,48 @@ func init() {
 func init() { proto.RegisterFile("evmos/claim/v1/query.proto", fileDescriptor_75c94980d888f50c) }
 
 var fileDescriptor_75c94980d888f50c = []byte{
-	// 694 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x95, 0x41, 0x4f, 0x13, 0x41,
-	0x14, 0xc7, 0x3b, 0x28, 0x35, 0x4e, 0x09, 0x87, 0xb1, 0xc1, 0xba, 0x98, 0x6d, 0x1d, 0x13, 0xac,
-	0x12, 0x67, 0x28, 0x18, 0x8d, 0x5e, 0x84, 0x62, 0xbc, 0x18, 0x13, 0x6d, 0x3c, 0x79, 0xa9, 0xd3,
-	0xed, 0x58, 0x56, 0xb7, 0x3b, 0x65, 0x67, 0xdb, 0x48, 0x08, 0x89, 0x31, 0xde, 0x25, 0xe1, 0xea,
-	0x27, 0xd0, 0xb3, 0x7e, 0x06, 0x8e, 0x24, 0x5e, 0x3c, 0xa1, 0xa1, 0x7e, 0x02, 0x3f, 0x81, 0xd9,
-	0x99, 0x81, 0xb6, 0xdb, 0x85, 0x85, 0x8b, 0x27, 0xe8, 0xbc, 0xff, 0x7b, 0xef, 0xf7, 0x66, 0xde,
-	0xbf, 0x85, 0x16, 0xef, 0xb5, 0x85, 0xa4, 0x8e, 0xc7, 0xdc, 0x36, 0xed, 0x55, 0xe8, 0x7a, 0x97,
-	0x07, 0x1b, 0xa4, 0x13, 0x88, 0x50, 0xa0, 0x69, 0x15, 0x23, 0x2a, 0x46, 0x7a, 0x15, 0x2b, 0xdf,
-	0x12, 0x2d, 0xa1, 0x42, 0x34, 0xfa, 0x4f, 0xab, 0xac, 0xab, 0x2d, 0x21, 0x5a, 0x1e, 0xa7, 0xac,
-	0xe3, 0x52, 0xe6, 0xfb, 0x22, 0x64, 0xa1, 0x2b, 0x7c, 0x69, 0xa2, 0xb6, 0x23, 0x64, 0xd4, 0xa0,
-	0xc1, 0x24, 0xa7, 0xbd, 0x4a, 0x83, 0x87, 0xac, 0x42, 0x1d, 0xe1, 0xfa, 0x26, 0x1e, 0xef, 0xaf,
-	0x9b, 0x99, 0xca, 0xb1, 0x58, 0x8b, 0xfb, 0x5c, 0xba, 0xa6, 0x32, 0xc6, 0xb0, 0xf4, 0x3c, 0x82,
-	0x7d, 0x2a, 0x9a, 0x5d, 0x8f, 0xaf, 0x38, 0x8e, 0xe8, 0xfa, 0x61, 0x95, 0x79, 0xcc, 0x77, 0x78,
-	0x8d, 0xaf, 0x77, 0xb9, 0x0c, 0xf1, 0x37, 0x00, 0xaf, 0x9d, 0x20, 0x92, 0x1d, 0xe1, 0x4b, 0x8e,
-	0x3e, 0x01, 0x98, 0x6f, 0x27, 0x08, 0x0a, 0xa0, 0x74, 0xae, 0x9c, 0x5b, 0xbc, 0x42, 0xf4, 0x0c,
-	0x24, 0x9a, 0x81, 0x98, 0x19, 0xc8, 0xaa, 0x70, 0xfd, 0xea, 0xf2, 0xee, 0x7e, 0x31, 0xf3, 0x77,
-	0xbf, 0x38, 0xb5, 0xc1, 0xda, 0xde, 0x03, 0x1c, 0xcd, 0x25, 0xf1, 0x97, 0x5f, 0xc5, 0x72, 0xcb,
-	0x0d, 0xd7, 0xba, 0x0d, 0xe2, 0x88, 0x36, 0x35, 0x17, 0xa0, 0xff, 0xdc, 0x96, 0xcd, 0xb7, 0x34,
-	0xdc, 0xe8, 0x70, 0xa9, 0x0a, 0xc8, 0x5a, 0x62, 0x63, 0x9c, 0x87, 0x48, 0x61, 0x3f, 0x63, 0x01,
-	0x6b, 0xcb, 0xc3, 0x69, 0x9e, 0xc0, 0x4b, 0x23, 0xa7, 0x06, 0xff, 0x0e, 0xcc, 0x76, 0xd4, 0x49,
-	0x01, 0x94, 0x40, 0x39, 0xb7, 0x38, 0x43, 0x46, 0xdf, 0x8d, 0x68, 0x7d, 0xf5, 0x7c, 0x04, 0x5b,
-	0x33, 0x5a, 0xbc, 0x04, 0x2f, 0xab, 0x62, 0xab, 0x91, 0xaa, 0xc6, 0x1d, 0x11, 0x34, 0x4d, 0x1f,
-	0x54, 0x80, 0x17, 0x58, 0xb3, 0x19, 0x70, 0xa9, 0x2b, 0x5e, 0xac, 0x1d, 0x7e, 0xc4, 0xaf, 0x60,
-	0x61, 0x3c, 0xc9, 0x60, 0x3c, 0x82, 0x53, 0xaa, 0x63, 0x3d, 0x50, 0xe7, 0x06, 0x66, 0x36, 0x0e,
-	0x33, 0x94, 0x6a, 0x88, 0x72, 0xce, 0xe0, 0x08, 0xbf, 0x81, 0xf6, 0xa0, 0x03, 0x6b, 0x78, 0xfc,
-	0xb1, 0x08, 0x56, 0x9c, 0x68, 0xa3, 0x52, 0xe9, 0x10, 0x81, 0x59, 0xa6, 0xa4, 0x85, 0x89, 0x12,
-	0x28, 0x4f, 0x8f, 0x5f, 0x84, 0x29, 0x64, 0x54, 0xf8, 0x23, 0x80, 0xc5, 0x63, 0x9b, 0x99, 0xa9,
-	0x18, 0x9c, 0x54, 0xaf, 0x9a, 0xbe, 0x0b, 0x0b, 0xd1, 0x30, 0x67, 0x7a, 0x7b, 0x5d, 0x19, 0xdf,
-	0x85, 0x96, 0xa2, 0x78, 0x21, 0x42, 0xe6, 0x1d, 0xa1, 0xa4, 0x3f, 0xc6, 0x7b, 0x00, 0x67, 0x13,
-	0x13, 0xff, 0x1b, 0xfa, 0xe2, 0x4e, 0x16, 0x4e, 0x2a, 0x04, 0xf4, 0x15, 0xc0, 0x7c, 0x92, 0xc9,
-	0xd0, 0x42, 0xfc, 0x11, 0xd2, 0x4c, 0x6b, 0x55, 0xce, 0x90, 0xa1, 0x47, 0xc5, 0xe4, 0xc3, 0x8f,
-	0x3f, 0x3b, 0x13, 0x65, 0x34, 0x47, 0x63, 0x5f, 0x19, 0xda, 0x5d, 0x75, 0xa6, 0xd3, 0xea, 0x0d,
-	0x03, 0xb5, 0x0e, 0xb3, 0xda, 0x14, 0x08, 0x27, 0x36, 0x1b, 0xf1, 0x9d, 0x75, 0xfd, 0x44, 0x8d,
-	0x41, 0xb0, 0x15, 0x42, 0x01, 0xcd, 0xc4, 0x11, 0xb4, 0xdf, 0xd0, 0x36, 0x80, 0xb9, 0xa1, 0xdd,
-	0x47, 0x37, 0x12, 0x8b, 0x8e, 0xbb, 0xd1, 0x2a, 0xa7, 0x0b, 0xd3, 0x6e, 0x61, 0xd8, 0x97, 0x74,
-	0xd3, 0xec, 0xcf, 0x16, 0xfa, 0x0e, 0x20, 0x1a, 0x5f, 0x7d, 0x44, 0x8e, 0x6f, 0x98, 0x64, 0x48,
-	0x8b, 0x9e, 0x5a, 0x6f, 0x38, 0x1f, 0x2a, 0xce, 0xfb, 0xe8, 0x5e, 0x22, 0x67, 0x94, 0x53, 0x7f,
-	0x2d, 0x82, 0xba, 0x76, 0xe9, 0x80, 0x97, 0x6e, 0xea, 0x93, 0x2d, 0xf4, 0x19, 0xc0, 0xe9, 0xd1,
-	0xa5, 0x47, 0xb7, 0x12, 0x21, 0x12, 0x2d, 0x65, 0xcd, 0x9f, 0x4a, 0x6b, 0x60, 0x2b, 0x0a, 0x76,
-	0x1e, 0xdd, 0x8c, 0xc3, 0x86, 0x91, 0xbe, 0x7e, 0x84, 0x3c, 0xe0, 0xac, 0x2e, 0xef, 0x1e, 0xd8,
-	0x60, 0xef, 0xc0, 0x06, 0xbf, 0x0f, 0x6c, 0xb0, 0xdd, 0xb7, 0x33, 0x7b, 0x7d, 0x3b, 0xf3, 0xb3,
-	0x6f, 0x67, 0x5e, 0xce, 0x0d, 0x19, 0x2c, 0x5c, 0x63, 0x81, 0x74, 0xa5, 0x29, 0xfb, 0xce, 0x14,
-	0x56, 0x26, 0x6b, 0x64, 0xd5, 0x4f, 0xdc, 0xd2, 0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xb1, 0x27,
-	0xe8, 0x7b, 0x9e, 0x07, 0x00, 0x00,
+	// 650 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x95, 0x4f, 0x6f, 0xd3, 0x30,
+	0x18, 0xc6, 0xeb, 0xc1, 0x8a, 0x70, 0xd1, 0x0e, 0x66, 0x1a, 0x21, 0x9b, 0xd2, 0x12, 0xa4, 0x2d,
+	0x30, 0x61, 0xd3, 0x0e, 0x81, 0x38, 0x01, 0x1d, 0xe2, 0xc2, 0x05, 0x2a, 0xb8, 0x70, 0x29, 0x6e,
+	0x6a, 0xb2, 0x40, 0x1b, 0xb7, 0x71, 0x5a, 0x31, 0x4d, 0x93, 0x10, 0xe2, 0x03, 0x4c, 0x70, 0xe5,
+	0x13, 0xf0, 0x01, 0xf8, 0x0c, 0x3b, 0x4e, 0xe2, 0xc2, 0x09, 0x50, 0xcb, 0xa7, 0xe0, 0x84, 0x62,
+	0xbb, 0xff, 0xd2, 0xb4, 0xdd, 0x69, 0xa7, 0xad, 0x7e, 0x9f, 0xf7, 0x7d, 0x7f, 0x71, 0x9e, 0xa7,
+	0x85, 0x26, 0xeb, 0x36, 0xb9, 0x20, 0x6e, 0x83, 0xfa, 0x4d, 0xd2, 0x2d, 0x92, 0x76, 0x87, 0x85,
+	0xfb, 0xb8, 0x15, 0xf2, 0x88, 0xa3, 0x15, 0x59, 0xc3, 0xb2, 0x86, 0xbb, 0x45, 0x73, 0xd5, 0xe3,
+	0x1e, 0x97, 0x25, 0x12, 0xff, 0xa7, 0x54, 0xe6, 0x86, 0xc7, 0xb9, 0xd7, 0x60, 0x84, 0xb6, 0x7c,
+	0x42, 0x83, 0x80, 0x47, 0x34, 0xf2, 0x79, 0x20, 0x74, 0xd5, 0x72, 0xb9, 0x88, 0x17, 0xd4, 0xa8,
+	0x60, 0xa4, 0x5b, 0xac, 0xb1, 0x88, 0x16, 0x89, 0xcb, 0xfd, 0x40, 0xd7, 0x93, 0xfb, 0xd5, 0x32,
+	0x3d, 0x39, 0x51, 0xf3, 0x58, 0xc0, 0x84, 0xaf, 0x27, 0xdb, 0x1b, 0xd0, 0x7c, 0x1e, 0xc3, 0xbe,
+	0xe0, 0x11, 0x6d, 0xbc, 0x0c, 0xa4, 0x8a, 0xd5, 0x2b, 0xac, 0xdd, 0x61, 0x22, 0xb2, 0x3f, 0x00,
+	0xb8, 0x9e, 0x5a, 0x16, 0x2d, 0x1e, 0x08, 0x86, 0x28, 0x5c, 0x8e, 0x29, 0x84, 0x01, 0x0a, 0xe7,
+	0x9c, 0x5c, 0xe9, 0x2a, 0x56, 0x9c, 0x38, 0xe6, 0xc4, 0x9a, 0x13, 0xef, 0x72, 0x3f, 0x28, 0xdf,
+	0x3e, 0xfe, 0x95, 0xcf, 0x7c, 0xfb, 0x9d, 0x77, 0x3c, 0x3f, 0xda, 0xeb, 0xd4, 0xb0, 0xcb, 0x9b,
+	0x44, 0x3f, 0x94, 0xfa, 0x73, 0x4b, 0xd4, 0xdf, 0x91, 0x68, 0xbf, 0xc5, 0x84, 0x6c, 0x10, 0x15,
+	0x35, 0xd9, 0x5e, 0x85, 0x48, 0x12, 0x3c, 0xa3, 0x21, 0x6d, 0x8a, 0x01, 0xd8, 0x53, 0x78, 0x79,
+	0xe2, 0x54, 0xf3, 0xdc, 0x81, 0xd9, 0x96, 0x3c, 0x31, 0x40, 0x01, 0x38, 0xb9, 0xd2, 0x1a, 0x9e,
+	0xbc, 0x7c, 0xac, 0xf4, 0xe5, 0xf3, 0x31, 0x4d, 0x45, 0x6b, 0xed, 0x1d, 0x78, 0x45, 0x0e, 0xdb,
+	0x8d, 0x55, 0x15, 0xe6, 0xf2, 0x70, 0x70, 0x01, 0xc8, 0x80, 0x17, 0x68, 0xbd, 0x1e, 0x32, 0xa1,
+	0x26, 0x5e, 0xac, 0x0c, 0x3e, 0xda, 0xaf, 0xa1, 0x31, 0xdd, 0xa4, 0x31, 0x1e, 0xc3, 0x4b, 0x72,
+	0x63, 0x35, 0x94, 0xe7, 0x1a, 0x66, 0x3d, 0x09, 0x33, 0xd6, 0xaa, 0x89, 0x72, 0xee, 0xe8, 0xc8,
+	0x7e, 0x0b, 0xad, 0xd1, 0x06, 0x5a, 0x6b, 0xb0, 0x27, 0x3c, 0x7c, 0xe4, 0xc6, 0xb6, 0x58, 0x48,
+	0x87, 0x30, 0xcc, 0x52, 0x29, 0x35, 0x96, 0x0a, 0xc0, 0x59, 0x99, 0xbe, 0x08, 0x3d, 0x48, 0xab,
+	0xec, 0x4f, 0x00, 0xe6, 0x67, 0x2e, 0x3b, 0xbb, 0x97, 0x7d, 0x77, 0xdc, 0x8d, 0x43, 0x94, 0xc5,
+	0x2f, 0x63, 0xd2, 0xa7, 0x63, 0x8d, 0x67, 0x86, 0x5e, 0xfa, 0xb7, 0x0c, 0x97, 0x25, 0x02, 0xfa,
+	0x0c, 0xe0, 0xca, 0x64, 0x5e, 0xd0, 0xcd, 0xe4, 0xf5, 0xcf, 0xce, 0x9c, 0xb9, 0x7d, 0x2a, 0xad,
+	0x7a, 0x30, 0x7b, 0xeb, 0xe3, 0x8f, 0xbf, 0x5f, 0x96, 0xae, 0xa1, 0x3c, 0x49, 0xa4, 0x3c, 0x8a,
+	0xf5, 0xd5, 0xce, 0x90, 0xa0, 0x0d, 0xb3, 0xca, 0xfb, 0xc8, 0x4e, 0x9d, 0x3f, 0x11, 0x2f, 0xf3,
+	0xfa, 0x5c, 0x8d, 0xde, 0x6d, 0xc9, 0xdd, 0x06, 0x5a, 0x4b, 0xee, 0x56, 0xb1, 0x42, 0x47, 0x00,
+	0xe6, 0xc6, 0x2c, 0x8e, 0xb6, 0x52, 0x87, 0x4e, 0x87, 0xce, 0x74, 0x16, 0x0b, 0x35, 0x02, 0x96,
+	0x08, 0x0e, 0xda, 0x24, 0x69, 0x5f, 0x80, 0x3a, 0x7e, 0xe4, 0x40, 0xdb, 0xe4, 0x10, 0x7d, 0x07,
+	0x10, 0x4d, 0x3b, 0x1c, 0xe1, 0xd9, 0x0b, 0xd3, 0x72, 0x67, 0x92, 0x53, 0xeb, 0x35, 0xe7, 0x03,
+	0xc9, 0x79, 0x1f, 0xdd, 0x4b, 0xe5, 0x8c, 0x7b, 0xaa, 0x6f, 0x78, 0x58, 0x55, 0x61, 0x1c, 0xf1,
+	0x92, 0x03, 0x75, 0x72, 0x88, 0xbe, 0x0e, 0x3c, 0x35, 0x5c, 0x32, 0xcf, 0x53, 0xc9, 0xe4, 0xcc,
+	0xf3, 0xd4, 0x54, 0x58, 0xec, 0xa2, 0x84, 0xdd, 0x46, 0x37, 0xd2, 0x3d, 0x35, 0x44, 0x1e, 0x71,
+	0x96, 0x1f, 0x1e, 0xf7, 0x2c, 0x70, 0xd2, 0xb3, 0xc0, 0x9f, 0x9e, 0x05, 0x8e, 0xfa, 0x56, 0xe6,
+	0xa4, 0x6f, 0x65, 0x7e, 0xf6, 0xad, 0xcc, 0xab, 0xcd, 0xb1, 0x1c, 0x45, 0x7b, 0x34, 0x14, 0xbe,
+	0xd0, 0x63, 0xdf, 0xeb, 0xc1, 0x32, 0x4b, 0xb5, 0xac, 0xfc, 0x39, 0xda, 0xf9, 0x1f, 0x00, 0x00,
+	0xff, 0xff, 0x60, 0xc8, 0x48, 0xfb, 0x4a, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -544,7 +547,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	ModuleAccountBalance(ctx context.Context, in *QueryModuleAccountBalanceRequest, opts ...grpc.CallOption) (*QueryModuleAccountBalanceResponse, error)
+	TotalUnclaimed(ctx context.Context, in *QueryTotalUnclaimedRequest, opts ...grpc.CallOption) (*QueryTotalUnclaimedResponse, error)
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	ClaimRecord(ctx context.Context, in *QueryClaimRecordRequest, opts ...grpc.CallOption) (*QueryClaimRecordResponse, error)
 	ClaimableForAction(ctx context.Context, in *QueryClaimableForActionRequest, opts ...grpc.CallOption) (*QueryClaimableForActionResponse, error)
@@ -559,9 +562,9 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) ModuleAccountBalance(ctx context.Context, in *QueryModuleAccountBalanceRequest, opts ...grpc.CallOption) (*QueryModuleAccountBalanceResponse, error) {
-	out := new(QueryModuleAccountBalanceResponse)
-	err := c.cc.Invoke(ctx, "/evmos.claim.v1.Query/ModuleAccountBalance", in, out, opts...)
+func (c *queryClient) TotalUnclaimed(ctx context.Context, in *QueryTotalUnclaimedRequest, opts ...grpc.CallOption) (*QueryTotalUnclaimedResponse, error) {
+	out := new(QueryTotalUnclaimedResponse)
+	err := c.cc.Invoke(ctx, "/evmos.claim.v1.Query/TotalUnclaimed", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -606,7 +609,7 @@ func (c *queryClient) TotalClaimable(ctx context.Context, in *QueryTotalClaimabl
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	ModuleAccountBalance(context.Context, *QueryModuleAccountBalanceRequest) (*QueryModuleAccountBalanceResponse, error)
+	TotalUnclaimed(context.Context, *QueryTotalUnclaimedRequest) (*QueryTotalUnclaimedResponse, error)
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	ClaimRecord(context.Context, *QueryClaimRecordRequest) (*QueryClaimRecordResponse, error)
 	ClaimableForAction(context.Context, *QueryClaimableForActionRequest) (*QueryClaimableForActionResponse, error)
@@ -617,8 +620,8 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) ModuleAccountBalance(ctx context.Context, req *QueryModuleAccountBalanceRequest) (*QueryModuleAccountBalanceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ModuleAccountBalance not implemented")
+func (*UnimplementedQueryServer) TotalUnclaimed(ctx context.Context, req *QueryTotalUnclaimedRequest) (*QueryTotalUnclaimedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TotalUnclaimed not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
@@ -637,20 +640,20 @@ func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_ModuleAccountBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryModuleAccountBalanceRequest)
+func _Query_TotalUnclaimed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTotalUnclaimedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).ModuleAccountBalance(ctx, in)
+		return srv.(QueryServer).TotalUnclaimed(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/evmos.claim.v1.Query/ModuleAccountBalance",
+		FullMethod: "/evmos.claim.v1.Query/TotalUnclaimed",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).ModuleAccountBalance(ctx, req.(*QueryModuleAccountBalanceRequest))
+		return srv.(QueryServer).TotalUnclaimed(ctx, req.(*QueryTotalUnclaimedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -732,8 +735,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ModuleAccountBalance",
-			Handler:    _Query_ModuleAccountBalance_Handler,
+			MethodName: "TotalUnclaimed",
+			Handler:    _Query_TotalUnclaimed_Handler,
 		},
 		{
 			MethodName: "Params",
@@ -756,7 +759,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Metadata: "evmos/claim/v1/query.proto",
 }
 
-func (m *QueryModuleAccountBalanceRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryTotalUnclaimedRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -766,12 +769,12 @@ func (m *QueryModuleAccountBalanceRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryModuleAccountBalanceRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryTotalUnclaimedRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryModuleAccountBalanceRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryTotalUnclaimedRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -779,7 +782,7 @@ func (m *QueryModuleAccountBalanceRequest) MarshalToSizedBuffer(dAtA []byte) (in
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryModuleAccountBalanceResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryTotalUnclaimedResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -789,20 +792,20 @@ func (m *QueryModuleAccountBalanceResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryModuleAccountBalanceResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryTotalUnclaimedResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryModuleAccountBalanceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryTotalUnclaimedResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ModuleAccountBalance) > 0 {
-		for iNdEx := len(m.ModuleAccountBalance) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Coins) > 0 {
+		for iNdEx := len(m.Coins) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.ModuleAccountBalance[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Coins[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1085,7 +1088,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryModuleAccountBalanceRequest) Size() (n int) {
+func (m *QueryTotalUnclaimedRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1094,14 +1097,14 @@ func (m *QueryModuleAccountBalanceRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryModuleAccountBalanceResponse) Size() (n int) {
+func (m *QueryTotalUnclaimedResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.ModuleAccountBalance) > 0 {
-		for _, e := range m.ModuleAccountBalance {
+	if len(m.Coins) > 0 {
+		for _, e := range m.Coins {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -1218,7 +1221,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryModuleAccountBalanceRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryTotalUnclaimedRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1241,10 +1244,10 @@ func (m *QueryModuleAccountBalanceRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryModuleAccountBalanceRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryTotalUnclaimedRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryModuleAccountBalanceRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryTotalUnclaimedRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -1268,7 +1271,7 @@ func (m *QueryModuleAccountBalanceRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryModuleAccountBalanceResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryTotalUnclaimedResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1291,15 +1294,15 @@ func (m *QueryModuleAccountBalanceResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryModuleAccountBalanceResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryTotalUnclaimedResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryModuleAccountBalanceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryTotalUnclaimedResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ModuleAccountBalance", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Coins", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1326,8 +1329,8 @@ func (m *QueryModuleAccountBalanceResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ModuleAccountBalance = append(m.ModuleAccountBalance, types.Coin{})
-			if err := m.ModuleAccountBalance[len(m.ModuleAccountBalance)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Coins = append(m.Coins, types.Coin{})
+			if err := m.Coins[len(m.Coins)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

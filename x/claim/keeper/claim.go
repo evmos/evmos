@@ -56,7 +56,7 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) (sdk
 
 	claimRecord, found := k.GetClaimRecord(ctx, addr)
 	if !found {
-		return sdk.ZeroInt(), sdkerrors.Wrap(types.ErrClaimRecordNotFound, addr.String())
+		return sdk.ZeroInt(), nil
 	}
 
 	params := k.GetParams(ctx)

@@ -20,12 +20,12 @@
     - [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse)
     - [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest)
     - [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse)
-    - [QueryModuleAccountBalanceRequest](#evmos.claim.v1.QueryModuleAccountBalanceRequest)
-    - [QueryModuleAccountBalanceResponse](#evmos.claim.v1.QueryModuleAccountBalanceResponse)
     - [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse)
     - [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest)
     - [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse)
+    - [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest)
+    - [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse)
   
     - [Query](#evmos.claim.v1.Query)
   
@@ -218,7 +218,7 @@ Params defines the claim module's parameters.
 <a name="evmos.claim.v1.QueryClaimRecordRequest"></a>
 
 ### QueryClaimRecordRequest
-
+QueryClaimRecordRequest is the request type for the Query/ClaimRecord RPC method.
 
 
 | Field | Type | Label | Description |
@@ -233,7 +233,7 @@ Params defines the claim module's parameters.
 <a name="evmos.claim.v1.QueryClaimRecordResponse"></a>
 
 ### QueryClaimRecordResponse
-
+QueryClaimRecordResponse is the response type for the Query/ClaimRecord RPC method.
 
 
 | Field | Type | Label | Description |
@@ -248,7 +248,7 @@ Params defines the claim module's parameters.
 <a name="evmos.claim.v1.QueryClaimableForActionRequest"></a>
 
 ### QueryClaimableForActionRequest
-
+QueryClaimableForActionRequest is the request type for the Query/ClaimableForAction RPC method.
 
 
 | Field | Type | Label | Description |
@@ -264,37 +264,12 @@ Params defines the claim module's parameters.
 <a name="evmos.claim.v1.QueryClaimableForActionResponse"></a>
 
 ### QueryClaimableForActionResponse
-
+QueryClaimableForActionResponse is the response type for the Query/ClaimableForAction RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
-
-
-
-
-
-
-<a name="evmos.claim.v1.QueryModuleAccountBalanceRequest"></a>
-
-### QueryModuleAccountBalanceRequest
-QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
-
-<a name="evmos.claim.v1.QueryModuleAccountBalanceResponse"></a>
-
-### QueryModuleAccountBalanceResponse
-QueryParamsResponse is the response type for the Query/Params RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `moduleAccountBalance` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | params defines the parameters of the module. |
 
 
 
@@ -329,7 +304,7 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 <a name="evmos.claim.v1.QueryTotalClaimableRequest"></a>
 
 ### QueryTotalClaimableRequest
-
+QueryTotalClaimableResponse is the request type for the Query/TotalClaimable RPC method.
 
 
 | Field | Type | Label | Description |
@@ -344,12 +319,37 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 <a name="evmos.claim.v1.QueryTotalClaimableResponse"></a>
 
 ### QueryTotalClaimableResponse
-
+QueryTotalClaimableResponse is the response type for the Query/TotalClaimable RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryTotalUnclaimedRequest"></a>
+
+### QueryTotalUnclaimedRequest
+QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC method.
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryTotalUnclaimedResponse"></a>
+
+### QueryTotalUnclaimedResponse
+QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins define the unclaimed coins |
 
 
 
@@ -369,7 +369,7 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `ModuleAccountBalance` | [QueryModuleAccountBalanceRequest](#evmos.claim.v1.QueryModuleAccountBalanceRequest) | [QueryModuleAccountBalanceResponse](#evmos.claim.v1.QueryModuleAccountBalanceResponse) |  | GET|/evmos/claim/v1/module_account_balance|
+| `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse) |  | GET|/evmos/claim/v1/total_unclaimed|
 | `Params` | [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse) |  | GET|/evmos/claim/v1/params|
 | `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse) |  | GET|/evmos/claim/v1/claim_record/{address}|
 | `ClaimableForAction` | [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest) | [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse) |  | GET|/evmos/claim/v1/claimable_for_action/{address}/{action}|
