@@ -92,12 +92,6 @@ func (k Keeper) GasMeters(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
-
-	var gms []types.GasMeter
-	key := append(types.KeyPrefixGasMeter, common.HexToAddress(req.Contract).Bytes()...)
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), key)
-
 	// check if the contract is a hex address
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
@@ -105,6 +99,12 @@ func (k Keeper) GasMeters(
 			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
 		)
 	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+	contract := common.HexToAddress(req.Contract)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.KeyPrefixGasMeter, contract.Bytes()...))
+
+	gms := []types.GasMeter{}
 
 	pageRes, err := query.Paginate(
 		store,
@@ -126,6 +126,7 @@ func (k Keeper) GasMeters(
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	return &types.QueryGasMetersResponse{
 		GasMeters:  gms,
 		Pagination: pageRes,
