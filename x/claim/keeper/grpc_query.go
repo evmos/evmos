@@ -83,11 +83,7 @@ func (k Keeper) ClaimableForAction(
 	}
 
 	params := k.GetParams(ctx)
-
-	amt, err := k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
+	amt := k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
 
 	return &types.QueryClaimableForActionResponse{
 		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},

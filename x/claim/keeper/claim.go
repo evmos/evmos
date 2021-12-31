@@ -14,46 +14,30 @@ func (k Keeper) GetClaimableAmountForAction(
 	claimRecord types.ClaimRecord,
 	action types.Action,
 	params types.Params,
-) (sdk.Int, error) {
-	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
-		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
-	}
-
-	// If we are before the start time, do nothing.
-	// This case _shouldn't_ occur on chain, since the
-	// start time ought to be chain start time.
-	if !params.EnableClaim || ctx.BlockTime().Before(params.AirdropStartTime) {
-		return sdk.ZeroInt(), nil
-	}
-
+) sdk.Int {
 	// return zero if there are no coins to claim
 	if claimRecord.InitialClaimableAmount.IsZero() {
-		return sdk.ZeroInt(), nil
+		return sdk.ZeroInt()
 	}
 
-	// if action already completed, nothing is claimable
+	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
 
-	// NOTE: slice size validated during genesis
-	if claimRecord.ActionsCompleted[action-1] {
-		return sdk.ZeroInt(), nil
+	// Safety check: the entire airdrop has completed
+	// NOTE: This shouldn't occur since at the end of the airdrop, the EnableClaim
+	// param is disabled.
+	if elapsedAirdropTime > params.DurationUntilDecay+params.DurationOfDecay {
+		return sdk.ZeroInt()
 	}
 
-	// TODO: update this and explicitely define the % instead of assuming each action
+	// TODO: update this and explicitly define the % instead of assuming each action
 	// has the same weight
 	initialClaimablePerAction := claimRecord.InitialClaimableAmount.Add(
 		claimRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name))),
 	)
 
-	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
-
 	// Are we early enough in the airdrop s.t. theres no decay?
 	if elapsedAirdropTime <= params.DurationUntilDecay {
-		return initialClaimablePerAction, nil
-	}
-
-	// The entire airdrop has completed
-	if elapsedAirdropTime > params.DurationUntilDecay+params.DurationOfDecay {
-		return sdk.ZeroInt(), nil
+		return initialClaimablePerAction
 	}
 
 	// Positive, since goneTime > params.DurationUntilDecay
@@ -63,8 +47,7 @@ func (k Keeper) GetClaimableAmountForAction(
 
 	// TODO: define claimable percent per action
 	claimableCoins := initialClaimablePerAction.ToDec().Mul(claimablePercent).RoundInt()
-
-	return claimableCoins, nil
+	return claimableCoins
 }
 
 // GetClaimable returns claimable amount for a specific action done by an address
@@ -81,11 +64,7 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) (sdk
 	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 
 	for _, action := range actions {
-		claimableForAction, err := k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params)
-		if err != nil {
-			return sdk.ZeroInt(), err
-		}
-
+		claimableForAction := k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params)
 		totalClaimable = totalClaimable.Add(claimableForAction)
 	}
 
@@ -100,15 +79,23 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 
 	params := k.GetParams(ctx)
 
-	claimRecord, found := k.GetClaimRecord(ctx, addr)
-	if !found {
-		return sdk.ZeroInt(), sdkerrors.Wrap(types.ErrClaimRecordNotFound, addr.String())
+	// If we are before the start time or claims are disabled, do nothing.
+	if !params.EnableClaim || ctx.BlockTime().Before(params.AirdropStartTime) {
+		return sdk.ZeroInt(), nil
 	}
 
-	claimableAmount, err := k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params)
-	if err != nil {
-		return sdk.ZeroInt(), err
+	claimRecord, found := k.GetClaimRecord(ctx, addr)
+	if !found {
+		// return nil if not claim record found to avoid panics
+		return sdk.ZeroInt(), nil
 	}
+
+	// if action already completed, nothing is claimable
+	if claimRecord.HasClaimedAction(action) {
+		return sdk.ZeroInt(), nil
+	}
+
+	claimableAmount := k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params)
 
 	if claimableAmount.IsZero() {
 		return sdk.ZeroInt(), nil
@@ -120,8 +107,7 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 		return sdk.ZeroInt(), err
 	}
 
-	claimRecord.ActionsCompleted[action-1] = true
-	k.SetClaimRecord(ctx, addr, claimRecord)
+	claimRecord.ClaimAction(action)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -131,6 +117,12 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 			sdk.NewAttribute(types.AttributeKeyActionType, action.String()),
 		),
 	})
+
+	if claimRecord.HasClaimedAll() {
+		k.DeleteClaimRecord(ctx, addr)
+	} else {
+		k.SetClaimRecord(ctx, addr, claimRecord)
+	}
 
 	return claimableAmount, nil
 }

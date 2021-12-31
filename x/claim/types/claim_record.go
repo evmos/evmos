@@ -19,6 +19,23 @@ func (cr ClaimRecord) Validate() error {
 	return nil
 }
 
+func (cr *ClaimRecord) ClaimAction(action Action) {
+	cr.ActionsCompleted[action-1] = true
+}
+
+func (cr ClaimRecord) HasClaimedAction(action Action) bool {
+	return cr.ActionsCompleted[action-1]
+}
+
+// HasClaimedAll returns true if the user has claimed all the rewards from the
+// available actions
+func (cr ClaimRecord) HasClaimedAll() bool {
+	return cr.HasClaimedAction(ActionVote) &&
+		cr.HasClaimedAction(ActionDelegate) &&
+		cr.HasClaimedAction(ActionEVM) &&
+		cr.HasClaimedAction(ActionIBCTransfer)
+}
+
 // NewClaimRecordAddress creates a new claim record instance
 func NewClaimRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) ClaimRecordAddress {
 	return ClaimRecordAddress{

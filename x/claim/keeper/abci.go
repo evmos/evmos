@@ -39,20 +39,19 @@ func (k Keeper) EndAirdrop(ctx sdk.Context, params types.Params) error {
 		return err
 	}
 
-	if err := k.ClawbackEmptyAccounts(ctx, params.ClaimDenom); err != nil {
-		return err
-	}
-
-	logger.Info("clearing claim record state entries")
-	k.DeleteClaimRecords(ctx)
+	// transfer unclaimed tokens from accounts to community pool and clean up the
+	// claim record state
+	k.ClawbackEmptyAccounts(ctx, params.ClaimDenom)
 
 	// set the EnableClaim param to false so that we don't have to compute duration every block
 	params.EnableClaim = false
 	k.SetParams(ctx, params)
-
+	logger.Info("end EndAirdrop logic")
 	return nil
 }
 
+// ClawbackEscrowedTokens transfers all the escrowed airdrop tokens on the ModuleAccount
+// to the community pool.
 func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
@@ -76,33 +75,41 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	return nil
 }
 
-// ClawbackEmptyAccounts performs the a claw back off all the EVMOS tokens from airdrop
-// recipient accounts with a sequence number of 0.
-func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimDenom string) error {
+// ClawbackEmptyAccounts performs the a clawback off all the allocated tokens from airdrop
+// recipient accounts with a sequence number of 0 (i.e the account hasn't performed a single tx
+// during the claim window).
+// Once the account is clawbacked, the claim record is deleted from state.
+func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimDenom string) {
 	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
 
 	accPruned := int64(0)
+	accClawbacked := int64(0)
 
-	for _, bechAddr := range types.AirdropAddrs {
-		addr, err := sdk.AccAddressFromBech32(bechAddr)
-		if err != nil {
-			return err
-		}
+	k.IterateClaimRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimRecord) (stop bool) {
+		// delete claim record once the account balance is clawed back
+		defer k.DeleteClaimRecord(ctx, addr)
 
 		acc := k.accountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
-			logger.Debug("airdrop account not found during clawback", "address", addr.String())
-			continue
+			logger.Debug(
+				"airdrop account not found during clawback",
+				"address", addr.String(),
+			)
+			return false
 		}
 
 		seq, err := k.accountKeeper.GetSequence(ctx, addr)
 		if err != nil {
-			return err
+			logger.Debug(
+				"airdrop account nonce not found during clawback",
+				"address", addr.String(),
+			)
+			return false
 		}
 
 		if seq != 0 {
-			continue
+			return false
 		}
 
 		balances := k.bankKeeper.GetAllBalances(ctx, addr)
@@ -112,36 +119,44 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimDenom string) error 
 			k.accountKeeper.RemoveAccount(ctx, acc)
 			// TODO: update bank module to allow clearing the empty balance state
 			accPruned++
-			continue
+			return false
 		}
 
 		clawbackCoin := sdk.Coin{Denom: claimDenom, Amount: balances.AmountOfNoDenomValidation(claimDenom)}
 		if !clawbackCoin.IsPositive() {
-			continue
+			return false
 		}
 
 		// When sequence number is 0, _and_ from an airdrop account,
-		// clawback all the aevmos to community pool.
+		// clawback all the claim denomination coins to community pool.
 		//
-		// ***Reminder***
-		// 'Unclaimed' tokens are defined as being in wallets which have a Sequence Number = 0,
+		// NOTE:
+		// "Unclaimed" tokens are defined as being in wallets which have a Sequence Number = 0,
 		// which means the address has NOT performed a single action during the airdrop claim window.
 
 		// ******CLAWBACK PROPOSED FRAMEWORK******
-		// TLDR -- Send ALL unclaimed EVMOS back to the community pool
+		// TLDR -- Send ALL unclaimed airdropped coins back to the community pool
 		// and prune those inactive wallets from current state.
 
 		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{clawbackCoin}, addr); err != nil {
-			return err
+			logger.Debug(
+				"not enough balance to clawback account",
+				"address", addr.String(),
+				"amount", clawbackCoin.String(),
+			)
+			return false
 		}
 
 		totalClawback = totalClawback.Add(clawbackCoin)
-	}
+		accClawbacked++
+
+		return false
+	})
 
 	logger.Info(
 		"clawed back funds into community pool",
 		"total", totalClawback.String(),
-		"pruned-accounts", strconv.FormatInt(accPruned, 64),
+		"clawbacked-accounts", strconv.FormatInt(accClawbacked, 10),
+		"pruned-accounts", strconv.FormatInt(accPruned, 10),
 	)
-	return nil
 }

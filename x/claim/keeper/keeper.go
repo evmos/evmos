@@ -96,37 +96,40 @@ func (k Keeper) DeleteClaimRecord(ctx sdk.Context, addr sdk.AccAddress) {
 	store.Delete(addr)
 }
 
-// DeleteClaimRecords deletes all the claim records from the store
-func (k Keeper) DeleteClaimRecords(ctx sdk.Context) {
+func (k Keeper) IterateClaimRecords(ctx sdk.Context, handlerFn func(addr sdk.AccAddress, cr types.ClaimRecord) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixClaimRecords)
 	defer iterator.Close()
+
 	for ; iterator.Valid(); iterator.Next() {
-		store.Delete(iterator.Key())
+		var claimRecord types.ClaimRecord
+		k.cdc.MustUnmarshal(iterator.Value(), &claimRecord)
+
+		addr := sdk.AccAddress(iterator.Key()[1:])
+		cr := types.ClaimRecord{
+			InitialClaimableAmount: claimRecord.InitialClaimableAmount,
+			ActionsCompleted:       claimRecord.ActionsCompleted,
+		}
+
+		if handlerFn(addr, cr) {
+			break
+		}
 	}
 }
 
 // GetClaimables get claimables for genesis export
 func (k Keeper) GetClaimRecords(ctx sdk.Context) []types.ClaimRecordAddress {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
-
-	iterator := store.Iterator(nil, nil)
-	defer iterator.Close()
-
 	claimRecords := []types.ClaimRecordAddress{}
-	for ; iterator.Valid(); iterator.Next() {
-
-		var claimRecord types.ClaimRecord
-		k.cdc.MustUnmarshal(iterator.Value(), &claimRecord)
-
-		cr := types.ClaimRecordAddress{
-			Address:                sdk.AccAddress(iterator.Key()[1:]).String(),
-			InitialClaimableAmount: claimRecord.InitialClaimableAmount,
-			ActionsCompleted:       claimRecord.ActionsCompleted,
+	k.IterateClaimRecords(ctx, func(addr sdk.AccAddress, cr types.ClaimRecord) (stop bool) {
+		cra := types.ClaimRecordAddress{
+			Address:                addr.String(),
+			InitialClaimableAmount: cr.InitialClaimableAmount,
+			ActionsCompleted:       cr.ActionsCompleted,
 		}
 
-		claimRecords = append(claimRecords, cr)
-	}
+		claimRecords = append(claimRecords, cra)
+		return false
+	})
 
 	return claimRecords
 }
