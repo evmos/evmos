@@ -36,6 +36,11 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
 	if hasEmptyCodeHash {
 		k.DeleteTokenPair(ctx, pair)
+		k.Logger(ctx).Debug(
+			"deleting selfdestructed token pair from state",
+			"contract", pair.Erc20Address,
+		)
+		// NOTE: return nil error to persist the changes from the deletion
 		return nil, nil
 	}
 
@@ -73,6 +78,11 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
 	if hasEmptyCodeHash {
 		k.DeleteTokenPair(ctx, pair)
+		k.Logger(ctx).Debug(
+			"deleting selfdestructed token pair from state",
+			"contract", pair.Erc20Address,
+		)
+		// NOTE: return nil error to persist the changes from the deletion
 		return nil, nil
 	}
 
