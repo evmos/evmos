@@ -39,10 +39,11 @@ import (
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/server/config"
 	srvflags "github.com/tharsis/ethermint/server/flags"
+	"github.com/tharsis/ethermint/testutil/network"
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/ethermint/testutil/network"
+	evmoskr "github.com/tharsis/evmos/crypto/keyring"
 	evmosnetwork "github.com/tharsis/evmos/testutil/network"
 )
 
@@ -262,7 +263,7 @@ func initTestnetFiles(
 		memo := fmt.Sprintf("%s@%s:26656", nodeIDs[i], ip)
 		genFiles = append(genFiles, nodeConfig.GenesisFile())
 
-		kb, err := keyring.New(sdk.KeyringServiceName(), args.keyringBackend, nodeDir, inBuf, hd.EthSecp256k1Option())
+		kb, err := keyring.New(sdk.KeyringServiceName(), args.keyringBackend, nodeDir, inBuf, evmoskr.Option())
 		if err != nil {
 			return err
 		}

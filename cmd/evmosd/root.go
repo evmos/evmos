@@ -32,7 +32,6 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	ethermintclient "github.com/tharsis/ethermint/client"
 	"github.com/tharsis/ethermint/client/debug"
-	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
 	ethermintserver "github.com/tharsis/ethermint/server"
 	servercfg "github.com/tharsis/ethermint/server/config"
@@ -40,6 +39,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 
 	"github.com/tharsis/evmos/app"
+	evmoskr "github.com/tharsis/evmos/crypto/keyring"
 )
 
 const (
@@ -59,7 +59,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(app.DefaultNodeHome).
-		WithKeyringOptions(hd.EthSecp256k1Option()).
+		WithKeyringOptions(evmoskr.Option()).
 		WithViper(EnvPrefix)
 
 	rootCmd := &cobra.Command{
