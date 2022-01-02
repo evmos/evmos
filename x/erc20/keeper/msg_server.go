@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/erc20/types"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
@@ -26,6 +28,20 @@ func (k Keeper) ConvertCoin(goCtx context.Context, msg *types.MsgConvertCoin) (*
 	pair, err := k.MintingEnabled(ctx, sender, receiver.Bytes(), msg.Coin.Denom)
 	if err != nil {
 		return nil, err
+	}
+
+	// Remove token pair if contract is suicided
+	erc20 := common.HexToAddress(pair.Erc20Address)
+	codeHash := k.evmKeeper.GetCodeHash(erc20)
+	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
+	if hasEmptyCodeHash {
+		k.DeleteTokenPair(ctx, pair)
+		k.Logger(ctx).Debug(
+			"deleting selfdestructed token pair from state",
+			"contract", pair.Erc20Address,
+		)
+		// NOTE: return nil error to persist the changes from the deletion
+		return nil, nil
 	}
 
 	// Check ownership
@@ -54,6 +70,20 @@ func (k Keeper) ConvertERC20(goCtx context.Context, msg *types.MsgConvertERC20) 
 	pair, err := k.MintingEnabled(ctx, sender.Bytes(), receiver, msg.ContractAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	// Remove token pair if contract is suicided
+	erc20 := common.HexToAddress(pair.Erc20Address)
+	codeHash := k.evmKeeper.GetCodeHash(erc20)
+	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
+	if hasEmptyCodeHash {
+		k.DeleteTokenPair(ctx, pair)
+		k.Logger(ctx).Debug(
+			"deleting selfdestructed token pair from state",
+			"contract", pair.Erc20Address,
+		)
+		// NOTE: return nil error to persist the changes from the deletion
+		return nil, nil
 	}
 
 	// Check ownership
@@ -171,7 +201,6 @@ func (k Keeper) convertCoinNativeERC20(
 }
 
 // convertERC20NativeCoin handles the erc20 conversion flow for a native coin token pair:
-//  - Escrow tokens on module account
 //  - Burn escrowed tokens
 //  - Unescrow coins that have been previously escrowed with ConvertCoin
 func (k Keeper) convertERC20NativeCoin(
@@ -186,6 +215,7 @@ func (k Keeper) convertERC20NativeCoin(
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
 
+	// Burn escrowed tokens
 	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnCoins", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
