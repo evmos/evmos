@@ -58,10 +58,10 @@ func NewParams(
 	}
 }
 
-func DefaultParams(airdropStartTime time.Time) Params {
+func DefaultParams() Params {
 	return Params{
 		EnableClaim:        true,
-		AirdropStartTime:   airdropStartTime,
+		AirdropStartTime:   time.Time{},
 		DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
 		DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
 		ClaimDenom:         DefaultClaimDenom,         // aphoton
@@ -78,15 +78,10 @@ func validateBool(i interface{}) error {
 }
 
 func validateStartDate(i interface{}) error {
-	v, ok := i.(time.Time)
+	_, ok := i.(time.Time)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	if v.IsZero() || v.UnixNano() == 0 {
-		return fmt.Errorf("start date cannot be zero: %s", v)
-	}
-
 	return nil
 }
 
@@ -113,9 +108,6 @@ func validateDenom(i interface{}) error {
 }
 
 func (p Params) Validate() error {
-	if p.AirdropStartTime.IsZero() || p.AirdropStartTime.UnixNano() == 0 {
-		return fmt.Errorf("airdrop start date cannot be zero: %s", p.AirdropStartTime)
-	}
 	if p.DurationOfDecay <= 0 {
 		return fmt.Errorf("duration of decay must be positive: %d", p.DurationOfDecay)
 	}

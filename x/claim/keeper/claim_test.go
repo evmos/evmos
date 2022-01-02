@@ -1,16 +1,66 @@
 package keeper_test
 
-// import (
-// 	"time"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/x/claim/types"
+)
 
-// 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-// 	"github.com/cosmos/cosmos-sdk/simapp"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-// 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-// 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-// 	"github.com/tharsis/evmos/x/claim/types"
-// )
+func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
+	testCases := []struct {
+		name        string
+		claimRecord types.ClaimRecord
+		params      types.Params
+		expAmt      sdk.Int
+	}{
+		{
+			"zero initial claimable amount",
+			types.ClaimRecord{InitialClaimableAmount: sdk.ZeroInt()},
+			types.Params{},
+			sdk.ZeroInt(),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.SetupTest()
+		action := types.ActionDelegate
+		amt := suite.app.ClaimKeeper.GetClaimableAmountForAction(suite.ctx, addr, tc.claimRecord, action, tc.params)
+		suite.Require().Equal(tc.expAmt.Int64(), amt.Int64())
+	}
+}
+
+func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expAmt   sdk.Int
+	}{
+		{
+			"zero - no claim record",
+			func() {},
+			sdk.ZeroInt(),
+		},
+		{
+			"zero - actions",
+			func() {
+				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
+			},
+			sdk.ZeroInt(),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.SetupTest()
+		tc.malleate()
+
+		amt := suite.app.ClaimKeeper.GetUserTotalClaimable(suite.ctx, addr)
+		suite.Require().Equal(tc.expAmt.Int64(), amt.Int64())
+	}
+}
 
 // func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 // 	suite.SetupTest()

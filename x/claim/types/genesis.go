@@ -3,15 +3,14 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	time "time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
 // DefaultGenesis returns the default claims module genesis state
-func DefaultGenesis(airdropStartTime time.Time) *GenesisState {
+func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params:       DefaultParams(airdropStartTime),
+		Params:       DefaultParams(),
 		ClaimRecords: []ClaimRecordAddress{},
 	}
 }

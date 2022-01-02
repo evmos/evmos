@@ -51,12 +51,12 @@ func (k Keeper) GetClaimableAmountForAction(
 }
 
 // GetClaimable returns claimable amount for a specific action done by an address
-func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) (sdk.Int, error) {
+func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
 	totalClaimable := sdk.ZeroInt()
 
 	claimRecord, found := k.GetClaimRecord(ctx, addr)
 	if !found {
-		return sdk.ZeroInt(), nil
+		return sdk.ZeroInt()
 	}
 
 	params := k.GetParams(ctx)
@@ -68,7 +68,7 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) (sdk
 		totalClaimable = totalClaimable.Add(claimableForAction)
 	}
 
-	return totalClaimable, nil
+	return totalClaimable
 }
 
 // ClaimCoins remove claimable amount entry and transfer it to user's account

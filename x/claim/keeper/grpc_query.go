@@ -109,10 +109,7 @@ func (k Keeper) TotalClaimable(
 
 	params := k.GetParams(ctx)
 
-	amt, err := k.GetUserTotalClaimable(ctx, addr)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
+	amt := k.GetUserTotalClaimable(ctx, addr)
 
 	return &types.QueryTotalClaimableResponse{
 		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},
