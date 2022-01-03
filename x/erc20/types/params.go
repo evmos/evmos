@@ -2,7 +2,6 @@ package types
 
 import (
 	fmt "fmt"
-	"time"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
@@ -40,19 +39,6 @@ func validateBool(i interface{}) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	return nil
-}
-
-func validatePeriod(i interface{}) error {
-	v, ok := i.(time.Duration)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v <= 0 {
-		return fmt.Errorf("voting period must be positive: %s", v)
 	}
 
 	return nil

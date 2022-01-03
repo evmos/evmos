@@ -3,7 +3,6 @@ package evmos.erc20.v1;
 import "evmos/erc20/v1/erc20.proto";
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/duration.proto";
 
 option go_package = "github.com/tharsis/evmos/x/erc20/types";
 
