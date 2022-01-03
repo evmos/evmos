@@ -1,13 +1,8 @@
 package types
 
 import (
-	"time"
-
-	"github.com/tendermint/tendermint/libs/log"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
@@ -32,13 +27,3 @@ type BankKeeper interface {
 // EVMKeeper defines the expected EVM keeper interface used on erc20
 // TODO: define
 type EVMKeeper interface{}
-
-// GovKeeper defines the expected governance keeper interface used on erc20
-type GovKeeper interface {
-	Logger(sdk.Context) log.Logger
-	GetVotingParams(ctx sdk.Context) govtypes.VotingParams
-	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
-	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
-	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
-	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
-}
