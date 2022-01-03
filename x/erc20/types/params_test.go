@@ -29,20 +29,13 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{"default", DefaultParams(), false},
 		{
 			"valid",
-			NewParams(true, 100, true),
+			NewParams(true, true),
 			false,
 		},
 		{
 			"empty",
 			Params{},
-			true,
-		},
-		{
-			"invalid param duration",
-			Params{
-				TokenPairVotingPeriod: -10,
-			},
-			true,
+			false,
 		},
 	}
 
