@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
+- [\#190](https://github.com/tharsis/evmos/pull/190) Remove governance hook from `erc20` module
 
 ### Features
 
@@ -48,13 +49,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (deps) bumped Tendermint to `v0.34.15` and tm-db to `v0.6.6`.
+- [\#180](https://github.com/tharsis/evmos/pull/180) Delete `TokenPair` if ERC20 contract has been selfdestructed.
 
 ### Bug Fixes
 
 - (erc20) [\#169](https://github.com/tharsis/evmos/pull/169) Fixes several testnet bugs:
   - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
   - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
-  - Fix coin metadata validation error when registering an ERC20 with 0 denom units. 
+  - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
 
 ## [v0.4.2] - 2021-12-11
 
