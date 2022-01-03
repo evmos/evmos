@@ -402,7 +402,7 @@ func NewEvmos(
 
 	// Evmos Keeper
 	app.Erc20Keeper = erc20keeper.NewKeeper(
-		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName), app.AccountKeeper, app.BankKeeper, govKeeper, app.EvmKeeper,
+		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
@@ -412,9 +412,7 @@ func NewEvmos(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			govtypes.NewMultiGovHooks(
-				app.Erc20Keeper,
-			),
+			govtypes.NewMultiGovHooks(),
 		),
 	)
 
