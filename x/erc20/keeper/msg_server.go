@@ -128,7 +128,7 @@ func (k Keeper) convertCoinNativeCoin(
 	}
 
 	// Mint Tokens and send to receiver
-	msgEth, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "mint", receiver, msg.Coin.Amount.BigInt())
+	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "mint", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -142,11 +142,6 @@ func (k Keeper) convertCoinNativeCoin(
 			types.ErrInvalidConversionBalance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
-	}
-
-	// Check for unexpected `appove` event in logs
-	if err := k.monitorApprovalEvent(msgEth); err != nil {
-		return nil, err
 	}
 
 	ctx.EventManager().EmitEvents(
@@ -263,7 +258,7 @@ func (k Keeper) convertERC20NativeCoin(
 	balanceToken := k.balanceOf(ctx, erc20, contract, sender)
 
 	// Burn escrowed tokens
-	msgEth, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnCoins", sender, msg.Amount.BigInt())
+	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnCoins", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -295,11 +290,6 @@ func (k Keeper) convertERC20NativeCoin(
 		)
 	}
 
-	// Check for unexpected `appove` event in logs
-	if err := k.monitorApprovalEvent(msgEth); err != nil {
-		return nil, err
-	}
-
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
@@ -322,6 +312,7 @@ func (k Keeper) convertERC20NativeCoin(
 //  - Send minted coins to the receiver
 //  - Check if coin balance increased by amount
 //  - Check if token balance decreased by amount
+//  - Check for unexpected `appove` event in logs
 func (k Keeper) convertERC20NativeToken(
 	ctx sdk.Context,
 	pair types.TokenPair,
