@@ -107,6 +107,7 @@ func (k Keeper) ConvertERC20(
 // token pair:
 //  - Escrow Coins on module account (Coins are not burned)
 //  - Mint Tokens and send to receiver
+//  - Check if token balance increased by amount
 func (k Keeper) convertCoinNativeCoin(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -118,7 +119,6 @@ func (k Keeper) convertCoinNativeCoin(
 	coins := sdk.Coins{msg.Coin}
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
-	balanceCoin := k.bankKeeper.GetBalance(ctx, sender, msg.Coin.Denom)
 	balanceToken := k.balanceOf(ctx, erc20, contract, receiver)
 
 	// Escrow Coins on module account
@@ -132,19 +132,14 @@ func (k Keeper) convertCoinNativeCoin(
 		return nil, err
 	}
 
-	// Check expected Sender balance after transfer execution
-	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)
-	if ok := balanceCoinAfter.IsEqual(balanceCoin.Sub(coins[0])); !ok {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid coin balance ",
-		)
-	}
 	// Check expected Receiver balance after transfer execution
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, receiver)
-	if r := balanceTokenAfter.Cmp(big.NewInt(0).Add(balanceToken, tokens)); r != 0 {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid token balance ",
+	exp := big.NewInt(0).Add(balanceToken, tokens)
+	if r := balanceTokenAfter.Cmp(exp); r != 0 {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidConversionBalance,
+			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
 	}
 
@@ -169,6 +164,7 @@ func (k Keeper) convertCoinNativeCoin(
 //  - Escrow Coins on module account
 //  - Unescrow Tokens that have been previously escrowed with ConvertERC20 and send to receiver
 //  - Burn escrowed Coins
+//  - Check if token balance increased by amount
 func (k Keeper) convertCoinNativeERC20(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -180,7 +176,6 @@ func (k Keeper) convertCoinNativeERC20(
 	coins := sdk.Coins{msg.Coin}
 	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
 	contract := pair.GetERC20Contract()
-	balanceCoin := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)
 	balanceToken := k.balanceOf(ctx, erc20, contract, receiver)
 
 	// Escrow Coins on module account
@@ -210,19 +205,14 @@ func (k Keeper) convertCoinNativeERC20(
 		return nil, sdkerrors.Wrap(err, "failed to burn coins")
 	}
 
-	// Check expected Sender balance after transfer execution
-	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)
-	if ok := balanceCoinAfter.IsEqual(balanceCoin.Sub(coins[0])); !ok {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid coin balance ",
-		)
-	}
 	// Check expected Receiver balance after transfer execution
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, receiver)
-	if r := balanceTokenAfter.Cmp(big.NewInt(0).Add(balanceToken, tokens)); r != 0 {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid token balance ",
+	exp := big.NewInt(0).Add(balanceToken, tokens)
+	if r := balanceTokenAfter.Cmp(exp); r != 0 {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidConversionBalance,
+			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
 	}
 
@@ -245,6 +235,8 @@ func (k Keeper) convertCoinNativeERC20(
 // convertERC20NativeCoin handles the erc20 conversion flow for a native coin token pair:
 //  - Burn escrowed tokens
 //  - Unescrow coins that have been previously escrowed with ConvertCoin
+//  - Check if coin balance increased by amount
+//  - Check if token balance decreased by amount
 func (k Keeper) convertERC20NativeCoin(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -269,20 +261,26 @@ func (k Keeper) convertERC20NativeCoin(
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins); err != nil {
 		return nil, err
 	}
-
-	// Check expected Sender balance after transfer execution
+	// Check expected Receiver balance after transfer execution
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
-	if ok := balanceCoinAfter.IsEqual(balanceCoin.Add(coins[0])); !ok {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid coin balance ",
+	expCoin := balanceCoin.Add(coins[0])
+	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidConversionBalance,
+			"invalid coin balance - expected: %v, actual: %v",
+			expCoin, balanceCoinAfter,
 		)
 	}
-	// Check expected Receiver balance after transfer execution
+
+	// Check expected Sender balance after transfer execution
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, sender)
-	if r := balanceTokenAfter.Cmp(big.NewInt(0).Sub(balanceToken, tokens)); r != 0 {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid token balance ",
+	expToken := big.NewInt(0).Sub(balanceToken, tokens)
+	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidConversionBalance,
+			"invalid token balance - expected: %v, actual: %v",
+			expToken, balanceTokenAfter,
 		)
 	}
 
@@ -306,6 +304,8 @@ func (k Keeper) convertERC20NativeCoin(
 //  - Escrow tokens on module account (Don't burn as module is not contract owner)
 //  - Mint coins on module
 //  - Send minted coins to the receiver
+//  - Check if coin balance increased by amount
+//  - Check if token balance decreased by amount
 func (k Keeper) convertERC20NativeToken(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -350,19 +350,26 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
-	// Check expected Sender balance after transfer execution
+	// Check expected Receiver balance after transfer execution
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
-	if ok := balanceCoinAfter.IsEqual(balanceCoin.Add(coins[0])); !ok {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid coin balance ",
+	expCoin := balanceCoin.Add(coins[0])
+	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidConversionBalance,
+			"invalid coin balance - expected: %v, actual: %v",
+			expCoin, balanceCoinAfter,
 		)
 	}
-	// Check expected Receiver balance after transfer execution
+
+	// Check expected Sencer balance after transfer execution
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, sender)
-	if r := balanceTokenAfter.Cmp(big.NewInt(0).Sub(balanceToken, tokens)); r != 0 {
-		return nil, sdkerrors.Wrap(
-			types.ErrInvalidConversionBalance, "invalid token balance ",
+	expToken := big.NewInt(0).Sub(balanceToken, tokens)
+	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidConversionBalance,
+			"invalid token balance - expected: %v, actual: %v",
+			expToken, balanceTokenAfter,
 		)
 	}
 
