@@ -57,6 +57,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
   - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
   - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
   - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
+- (erc20) [\#191](https://github.com/tharsis/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
+
 
 ## [v0.4.2] - 2021-12-11
 
