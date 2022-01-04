@@ -9,6 +9,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/erc20/types"
@@ -127,7 +128,7 @@ func (k Keeper) convertCoinNativeCoin(
 	}
 
 	// Mint Tokens and send to receiver
-	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "mint", receiver, msg.Coin.Amount.BigInt())
+	msgEth, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "mint", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +142,11 @@ func (k Keeper) convertCoinNativeCoin(
 			types.ErrInvalidConversionBalance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
+	}
+
+	// Check for unexpected `appove` event in logs
+	if err := k.monitorApprovalEvent(msgEth); err != nil {
+		return nil, err
 	}
 
 	ctx.EventManager().EmitEvents(
@@ -184,14 +190,14 @@ func (k Keeper) convertCoinNativeERC20(
 	}
 
 	// Unescrow Tokens and send to receiver
-	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "transfer", receiver, msg.Coin.Amount.BigInt())
+	msgEth, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "transfer", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
 
 	// Check unpackedRet execution
 	var unpackedRet types.ERC20BoolResponse
-	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", res.Ret); err != nil {
+	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", msgEth.Ret); err != nil {
 		return nil, err
 	}
 
@@ -214,6 +220,11 @@ func (k Keeper) convertCoinNativeERC20(
 			types.ErrInvalidConversionBalance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
+	}
+
+	// Check for unexpected `appove` event in logs
+	if err := k.monitorApprovalEvent(msgEth); err != nil {
+		return nil, err
 	}
 
 	ctx.EventManager().EmitEvents(
@@ -252,7 +263,7 @@ func (k Keeper) convertERC20NativeCoin(
 	balanceToken := k.balanceOf(ctx, erc20, contract, sender)
 
 	// Burn escrowed tokens
-	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnCoins", sender, msg.Amount.BigInt())
+	msgEth, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, "burnCoins", sender, msg.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
@@ -282,6 +293,11 @@ func (k Keeper) convertERC20NativeCoin(
 			"invalid token balance - expected: %v, actual: %v",
 			expToken, balanceTokenAfter,
 		)
+	}
+
+	// Check for unexpected `appove` event in logs
+	if err := k.monitorApprovalEvent(msgEth); err != nil {
+		return nil, err
 	}
 
 	ctx.EventManager().EmitEvents(
@@ -325,14 +341,14 @@ func (k Keeper) convertERC20NativeToken(
 	if err != nil {
 		return nil, err
 	}
-	res, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
+	msgEth, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check unpackedRet execution
 	var unpackedRet types.ERC20BoolResponse
-	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", res.Ret); err != nil {
+	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", msgEth.Ret); err != nil {
 		return nil, err
 	}
 
@@ -373,6 +389,11 @@ func (k Keeper) convertERC20NativeToken(
 		)
 	}
 
+	// Check for unexpected `appove` event in logs
+	if err := k.monitorApprovalEvent(msgEth); err != nil {
+		return nil, err
+	}
+
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
@@ -389,6 +410,7 @@ func (k Keeper) convertERC20NativeToken(
 	return &types.MsgConvertERC20Response{}, nil
 }
 
+// balanceOf queries an account's balance for a given ERC20 contract
 func (k Keeper) balanceOf(
 	ctx sdk.Context,
 	abi abi.ABI,
@@ -410,4 +432,23 @@ func (k Keeper) balanceOf(
 	}
 
 	return balance
+}
+
+// monitorApprovalEvent returns an error if the given transactions logs include
+// an unexpected `approve` event
+func (k Keeper) monitorApprovalEvent(msg *evmtypes.MsgEthereumTxResponse) error {
+	LogApprovalSig := []byte("Approval(address,address,uint256)")
+	logApprovalSigHash := crypto.Keccak256Hash(LogApprovalSig)
+	hash := common.BytesToHash([]byte(msg.Hash))
+	logs := k.evmKeeper.GetTxLogsTransient(hash)
+	if len(logs) != 0 {
+		for _, log := range logs {
+			if log.Topics[0].Hex() == logApprovalSigHash.Hex() {
+				return sdkerrors.Wrapf(
+					types.ErrUnexpectedEvent, "unexpected approval event",
+				)
+			}
+		}
+	}
+	return nil
 }
