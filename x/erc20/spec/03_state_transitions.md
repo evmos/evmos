@@ -41,9 +41,13 @@ Conversion of a registered `TokenPair` can be done via:
 
 #### Invariants
 
-- Only the ModuleAccount should have the Minter Role on the ERC20. Otherwise, the user could unilaterally mint an infinite supply of the ERC20 token and then convert them to the native Coin
-- The user and the ModuleAccount (owner) should be the only ones that have the Burn Role for a Cosmos Coin
-- There shouldn't exist any native Cosmos Coin ERC20 Contract (eg Evmos, Atom, Osmo ERC20 contracts) that is not owned by the governance
+- Only the ModuleAccount should have the Minter Role on the ERC20. Otherwise,
+  the user could unilaterally mint an infinite supply of the ERC20 token and
+  then convert them to the native Coin
+- The user and the ModuleAccount (owner) should be the only ones that have the
+  Burn Role for a Cosmos Coin
+- There shouldn't exist any native Cosmos Coin ERC20 Contract (eg Evmos, Atom,
+  Osmo ERC20 contracts) that is not owned by the governance
 - Token/Coin supply is maintained at all times:
     - Total Coin supply = Coins + Escrowed Coins
     - Total Token supply = Escrowed Coins = Minted Tokens
@@ -60,6 +64,7 @@ Conversion of a registered `TokenPair` can be done via:
     1. Escrow Cosmos coin by sending them to the erc20 module account
     2. Call `mint()` ERC20 tokens from the `ModuleAccount` address
     3. Send minted Tokens to recipient address
+4. Check if token balance increased by amount
 
 #### 1.2 ERC20 to Coin
 
@@ -68,6 +73,9 @@ Conversion of a registered `TokenPair` can be done via:
 3. If token is a ERC20 && Token Owner is `ModuleAccount`
     1. Call `burnCoins()` on ERC20 to burn ERC20 tokens from the user balance
     2. Send Coins (previously escrowed  see 1.1) from module to the recipient address.
+4. Check if
+   - Coin balance increased by amount
+   - Token balance decreased by amount
 
 ### 2. Registered ERC20
 
@@ -92,6 +100,9 @@ Conversion of a registered `TokenPair` can be done via:
     1. Escrow ERC20 token by sending them to the erc20 module account
     2. Mint Cosmos coins of the corresponding token pair denomination
     3. Send coins to the recipient address
+4. Check if
+   - Coin balance increased by amount
+   - Token balance decreased by amount
 
 #### 2.2 Coin to ERC20
 
@@ -101,3 +112,4 @@ Conversion of a registered `TokenPair` can be done via:
     1. Escrow Cosmos Coins by sending them to the erc20 module account
     2. Unlock escrowed ERC20 from the module address by sending it to the recipient
     3. Burn escrowed Cosmos coins
+4. Check if token balance increased by amount
