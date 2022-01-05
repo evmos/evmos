@@ -102,9 +102,6 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contrac
 		return nil, err
 	}
 
-	// FIXME: set nonce
-	k.evmKeeper.SetNonce(ctx, from, nonce+1)
-
 	if res.Failed() {
 		return nil, sdkerrors.Wrap(evmtypes.ErrVMExecution, res.VmError)
 	}
