@@ -159,6 +159,6 @@ replace (
 	github.com/cosmos/ibc-go/v3 => github.com/cosmos/ibc-go/v3 v3.0.0-alpha1.0.20220105123212-9d79e86da4a8
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// TODO: remove once v.10 is released
-	github.com/tharsis/ethermint => github.com/tharsis/ethermint v0.6.1-0.20220105130804-8eaffe88a537
+	github.com/tharsis/ethermint => github.com/tharsis/ethermint v0.6.1-0.20220105140831-eea80d50c3d8
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
