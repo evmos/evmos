@@ -77,8 +77,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				acc, err := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, erc20)
-				suite.Require().NoError(err)
+				acc := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, erc20)
 				suite.Require().NotNil(acc)
 
 				if !acc.IsContract() {
@@ -233,8 +232,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				acc, err := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, contractAddr)
-				suite.Require().NoError(err)
+				acc := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, contractAddr)
 				suite.Require().NotNil(acc)
 
 				if !acc.IsContract() {

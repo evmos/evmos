@@ -34,10 +34,7 @@ func (k Keeper) ConvertCoin(
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	acc, err := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
-	if err != nil {
-		return nil, err
-	}
+	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
 
 	if acc == nil || !acc.IsContract() {
 		k.DeleteTokenPair(ctx, pair)
@@ -79,10 +76,7 @@ func (k Keeper) ConvertERC20(
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	acc, err := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
-	if err != nil {
-		return nil, err
-	}
+	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
 
 	if acc == nil || !acc.IsContract() {
 		k.DeleteTokenPair(ctx, pair)
