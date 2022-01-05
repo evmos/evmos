@@ -209,6 +209,49 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string) common.
 	return crypto.CreateAddress(suite.address, nonce)
 }
 
+func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol string) common.Address {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	ctorArgs, err := contracts.ERC20MaliciousDelayedContract.ABI.Pack("", name, symbol)
+	suite.Require().NoError(err)
+
+	data := append(contracts.ERC20MaliciousDelayedContract.Bin, ctorArgs...)
+	args, err := json.Marshal(&evm.TransactionArgs{
+		From: &suite.address,
+		Data: (*hexutil.Bytes)(&data),
+	})
+	suite.Require().NoError(err)
+
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: uint64(config.DefaultGasCap),
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	erc20DeployTx := evm.NewTxContract(
+		chainID,
+		nonce,
+		nil,     // amount
+		res.Gas, // gasLimit
+		nil,     // gasPrice
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		data,                   // input
+		&ethtypes.AccessList{}, // accesses
+	)
+
+	erc20DeployTx.From = suite.address.Hex()
+	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return crypto.CreateAddress(suite.address, nonce)
+}
+
 func (suite *KeeperTestSuite) Commit() {
 	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()

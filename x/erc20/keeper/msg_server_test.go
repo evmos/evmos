@@ -169,6 +169,8 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeCoin() {
 }
 
 func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
+	var contractAddr common.Address
+
 	testCases := []struct {
 		name     string
 		mint     int64
@@ -204,12 +206,21 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			},
 			false,
 		},
+		{
+			"fail - delayed malicious contract",
+			100,
+			10,
+			func(common.Address) {
+				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
-			contractAddr := suite.setupRegisterERC20Pair()
+			contractAddr = suite.setupRegisterERC20Pair()
 			suite.Require().NotNil(contractAddr)
 
 			tc.malleate(contractAddr)
