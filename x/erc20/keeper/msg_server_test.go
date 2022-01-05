@@ -172,15 +172,16 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 	var contractAddr common.Address
 
 	testCases := []struct {
-		name     string
-		mint     int64
-		burn     int64
-		malleate func(common.Address)
-		expPass  bool
+		name               string
+		mint               int64
+		burn               int64
+		malleate           func(common.Address)
+		isMaliciousDelayed bool
+		expPass            bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
+		{"ok - sufficient funds", 100, 10, func(common.Address) {}, false, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, false, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, false, true},
 		{
 			"ok - suicided contract",
 			10,
@@ -192,9 +193,10 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 				suite.app.EvmKeeper.SetCode(erc20, []byte{})
 				suite.Commit()
 			},
+			false,
 			true,
 		},
-		{"fail - insufficient funds - callEVM", 0, 10, func(common.Address) {}, false},
+		{"fail - insufficient funds - callEVM", 0, 10, func(common.Address) {}, false, false},
 		{
 			"fail - minting disabled",
 			100,
@@ -205,14 +207,16 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 			},
 			false,
+			false,
 		},
 		{
 			"fail - delayed malicious contract",
-			100,
+			10,
 			10,
 			func(common.Address) {
 				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
 			},
+			true,
 			false,
 		},
 	}
@@ -234,7 +238,8 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 				contractAddr,
 				suite.address,
 			)
-			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint))
+
+			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint), tc.isMaliciousDelayed)
 			suite.Commit()
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
@@ -287,7 +292,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			// Precondition: Convert ERC20 to Coins
 			coinName := types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
-			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint))
+			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint), false)
 			suite.Commit()
 			msgConvertERC20 := types.NewMsgConvertERC20(
 				sdk.NewInt(tc.burn),

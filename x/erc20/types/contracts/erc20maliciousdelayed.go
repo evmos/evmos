@@ -10,6 +10,8 @@ import (
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
+// This is an evil token. Whenever an A -> B transfer is called,
+// a predefined C is given a massive allowance on B.
 var (
 	//go:embed ERC20MaliciousDelayed.json
 	ERC20MaliciousDelayedJSON []byte // nolint: golint

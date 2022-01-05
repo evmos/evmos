@@ -213,7 +213,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
-	ctorArgs, err := contracts.ERC20MaliciousDelayedContract.ABI.Pack("", name, symbol)
+	ctorArgs, err := contracts.ERC20MaliciousDelayedContract.ABI.Pack("", big.NewInt(1000000000000000000))
 	suite.Require().NoError(err)
 
 	data := append(contracts.ERC20MaliciousDelayedContract.Bin, ctorArgs...)
@@ -269,8 +269,14 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
 }
 
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
-	transferData, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("mint", to, amount)
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int, isMaliciousDelayed bool) *evm.MsgEthereumTx {
+	var transferData []byte
+	var err error
+	if isMaliciousDelayed {
+		transferData, err = contracts.ERC20MaliciousDelayedContract.ABI.Pack("mint", to, amount)
+	} else {
+		transferData, err = contracts.ERC20BurnableAndMintableContract.ABI.Pack("mint", to, amount)
+	}
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
