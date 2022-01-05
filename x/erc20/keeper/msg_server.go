@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
 	"math/big"
 
@@ -9,7 +8,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/erc20/types"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
@@ -24,7 +22,6 @@ func (k Keeper) ConvertCoin(
 	msg *types.MsgConvertCoin,
 ) (*types.MsgConvertCoinResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	k.evmKeeper.WithContext(ctx)
 
 	// Error checked during msg validation
 	receiver := common.HexToAddress(msg.Receiver)
@@ -37,9 +34,12 @@ func (k Keeper) ConvertCoin(
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	codeHash := k.evmKeeper.GetCodeHash(erc20)
-	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
-	if hasEmptyCodeHash {
+	acc, err := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
+	if err != nil {
+		return nil, err
+	}
+
+	if acc == nil || !acc.IsContract() {
 		k.DeleteTokenPair(ctx, pair)
 		k.Logger(ctx).Debug(
 			"deleting selfdestructed token pair from state",
@@ -67,7 +67,6 @@ func (k Keeper) ConvertERC20(
 	msg *types.MsgConvertERC20,
 ) (*types.MsgConvertERC20Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	k.evmKeeper.WithContext(ctx)
 
 	// Error checked during msg validation
 	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
@@ -80,9 +79,12 @@ func (k Keeper) ConvertERC20(
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	codeHash := k.evmKeeper.GetCodeHash(erc20)
-	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
-	if hasEmptyCodeHash {
+	acc, err := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
+	if err != nil {
+		return nil, err
+	}
+
+	if acc == nil || !acc.IsContract() {
 		k.DeleteTokenPair(ctx, pair)
 		k.Logger(ctx).Debug(
 			"deleting selfdestructed token pair from state",
