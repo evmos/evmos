@@ -67,6 +67,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Mint 10 tokens to suite.address (owner)
 				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+
 				stateDB := suite.StateDB()
 				logs := stateDB.Logs()
 				suite.Require().NotEmpty(logs)
