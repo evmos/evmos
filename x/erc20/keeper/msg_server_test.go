@@ -109,7 +109,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 	}{
 		{"ok - sufficient funds", 100, 10, 5, true},
 		{"ok - equal funds", 10, 10, 10, true},
-
 		{"fail - insufficient funds", 10, 1, 5, false},
 	}
 	for _, tc := range testCases {
@@ -235,9 +234,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
 
-			// fmt.Println("")
-			// fmt.Println(tc.name)
-
+			// Deploy contract
 			switch tc.contractType {
 			case contractDirectBalanceManipulation:
 				contractAddr = suite.setupRegisterERC20PairDirectBalanceManiputlation()
@@ -246,6 +243,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			default:
 				contractAddr = suite.setupRegisterERC20Pair()
 			}
+
 			tc.malleate(contractAddr)
 			suite.Require().NotNil(contractAddr)
 			suite.Commit()
@@ -310,17 +308,17 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		{"ok - sufficient funds", 100, 10, 5, func(common.Address) {}, contractBurnerAndMintable, true},
 		{"ok - equal funds", 10, 10, 10, func(common.Address) {}, contractBurnerAndMintable, true},
 		{"fail - insufficient funds", 10, 1, 5, func(common.Address) {}, contractBurnerAndMintable, false},
-		// {
-		// 	"fail - malicious delayed contract",
-		// 	100,
-		// 	10,
-		// 	5,
-		// 	func(common.Address) {
-		// 		contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
-		// 	},
-		// 	contractMaliciousDelayed,
-		// 	false,
-		// },
+		{
+			"fail - malicious delayed contract",
+			100,
+			10,
+			5,
+			func(common.Address) {
+				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
+			},
+			contractMaliciousDelayed,
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {

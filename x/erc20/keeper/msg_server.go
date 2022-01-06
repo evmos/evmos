@@ -432,14 +432,14 @@ func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error 
 	if res == nil {
 		return nil
 	}
-	LogApprovalSig := []byte("Approval(address,address,uint256)")
-	logApprovalSigHash := crypto.Keccak256Hash(LogApprovalSig)
+	// TODO: fetch from response
 	hash := common.BytesToHash([]byte(res.Hash))
 	logs := k.evmKeeper.GetTxLogsTransient(hash)
-
 	if len(logs) == 0 {
 		return nil
 	}
+	logApprovalSig := []byte("Approval(address,address,uint256)")
+	logApprovalSigHash := crypto.Keccak256Hash(logApprovalSig)
 
 	for _, log := range logs {
 		if log.Topics[0].Hex() == logApprovalSigHash.Hex() {
