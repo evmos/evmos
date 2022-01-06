@@ -14,6 +14,12 @@ import (
 )
 
 const (
+	contractBurnerAndMintable = iota + 1
+	contractDirectBalanceManipulation
+	contractMaliciousDelayed
+)
+
+const (
 	erc20Name          = "Coin Token"
 	erc20Symbol        = "CTKN"
 	cosmosTokenBase    = "acoin"
@@ -30,6 +36,16 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
 	suite.Require().NoError(err)
 	return contractAddr
 }
+
+func (suite *KeeperTestSuite) setupRegisterERC20PairDirectBalanceManiputlation() common.Address {
+	suite.SetupTest()
+	contractAddr := suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
+	suite.Commit()
+	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+	suite.Require().NoError(err)
+	return contractAddr
+}
+
 func (suite *KeeperTestSuite) setupRegisterERC20PairMaliciousDelayed() common.Address {
 	suite.SetupTest()
 	contractAddr := suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)

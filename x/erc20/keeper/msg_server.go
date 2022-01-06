@@ -166,6 +166,7 @@ func (k Keeper) convertCoinNativeCoin(
 //  - Unescrow Tokens that have been previously escrowed with ConvertERC20 and send to receiver
 //  - Burn escrowed Coins
 //  - Check if token balance increased by amount
+//  - Check for unexpected `appove` event in logs
 func (k Keeper) convertCoinNativeERC20(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -322,7 +323,7 @@ func (k Keeper) convertERC20NativeToken(
 ) (*types.MsgConvertERC20Response, error) {
 	// NOTE: coin fields already validated
 	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+	erc20 := contracts.ERC20DirectBalanceManipulationContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	balanceToken := k.balanceOf(ctx, erc20, contract, sender)

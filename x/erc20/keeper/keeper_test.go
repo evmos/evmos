@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -251,6 +252,48 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 	suite.Require().Empty(rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce)
 }
+func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name string, symbol string) common.Address {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	ctorArgs, err := contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("", big.NewInt(1000000000000000000))
+	suite.Require().NoError(err)
+
+	data := append(contracts.ERC20DirectBalanceManipulationContract.Bin, ctorArgs...)
+	args, err := json.Marshal(&evm.TransactionArgs{
+		From: &suite.address,
+		Data: (*hexutil.Bytes)(&data),
+	})
+	suite.Require().NoError(err)
+
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: uint64(config.DefaultGasCap),
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+
+	erc20DeployTx := evm.NewTxContract(
+		chainID,
+		nonce,
+		nil,     // amount
+		res.Gas, // gasLimit
+		nil,     // gasPrice
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		data,                   // input
+		&ethtypes.AccessList{}, // accesses
+	)
+
+	erc20DeployTx.From = suite.address.Hex()
+	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return crypto.CreateAddress(suite.address, nonce)
+}
 
 func (suite *KeeperTestSuite) Commit() {
 	_ = suite.app.Commit()
@@ -269,12 +312,17 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
 }
 
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int, isMaliciousDelayed bool) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int, contractType int) *evm.MsgEthereumTx {
 	var transferData []byte
 	var err error
-	if isMaliciousDelayed {
+
+	switch contractType {
+	case contractDirectBalanceManipulation:
+		fmt.Printf("contractDirectBalanceManipulation: %v\n", contractDirectBalanceManipulation)
+		transferData, err = contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("mint", to, amount)
+	case contractMaliciousDelayed:
 		transferData, err = contracts.ERC20MaliciousDelayedContract.ABI.Pack("mint", to, amount)
-	} else {
+	default:
 		transferData, err = contracts.ERC20BurnableAndMintableContract.ABI.Pack("mint", to, amount)
 	}
 	suite.Require().NoError(err)
