@@ -33,7 +33,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Require().NoError(err)
 
 				// Mint 10 tokens to suite.address (owner)
-				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10), false)
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
@@ -48,7 +48,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			"unregistered pair",
 			func(contractAddr common.Address) {
 				// Mint 10 tokens to suite.address (owner)
-				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10), false)
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Require().NoError(err)
 
 				// Mint 10 tokens to suite.address (owner)
-				msg := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				msg := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10), false)
 				hash := msg.AsTransaction().Hash()
 				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
 				suite.Require().NotEmpty(logs)

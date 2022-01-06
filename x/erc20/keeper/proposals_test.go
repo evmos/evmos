@@ -30,6 +30,14 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
 	suite.Require().NoError(err)
 	return contractAddr
 }
+func (suite *KeeperTestSuite) setupRegisterERC20PairMaliciousDelayed() common.Address {
+	suite.SetupTest()
+	contractAddr := suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
+	suite.Commit()
+	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+	suite.Require().NoError(err)
+	return contractAddr
+}
 
 func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
 	suite.SetupTest()
