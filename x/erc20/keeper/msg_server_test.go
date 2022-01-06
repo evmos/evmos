@@ -8,6 +8,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
@@ -230,6 +231,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 				contractAddr,
 				suite.address,
 			)
+			suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin("aphoton", sdk.NewInt(int64(params.TxGas)))))
 			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint))
 			suite.Commit()
 			ctx := sdk.WrapSDKContext(suite.ctx)
