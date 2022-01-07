@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 			suite.ensureHooksSet()
 
-			contractAddr := suite.DeployContract("coin", "token")
+			contractAddr := suite.DeployContract("coin", "token", erc20Decimals)
 			suite.Commit()
 
 			tc.malleate(contractAddr)
