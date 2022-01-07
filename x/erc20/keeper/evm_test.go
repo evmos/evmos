@@ -65,7 +65,7 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 
-		erc20 := contracts.ERC20PresetMinterPauserDecimalContract.ABI
+		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 		contract := suite.DeployContract("coin", "token", erc20Decimals)
 		account := tests.GenerateAddress()
 

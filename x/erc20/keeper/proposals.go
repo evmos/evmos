@@ -66,14 +66,14 @@ func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata)
 // erc20 module account as owner.
 func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
 	decimals := uint8(coinMetadata.DenomUnits[0].Exponent)
-	ctorArgs, err := contracts.ERC20PresetMinterPauserDecimalContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol, decimals)
+	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol, decimals)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
 	}
 
-	data := make([]byte, len(contracts.ERC20PresetMinterPauserDecimalContract.Bin)+len(ctorArgs))
-	copy(data[:len(contracts.ERC20PresetMinterPauserDecimalContract.Bin)], contracts.ERC20PresetMinterPauserDecimalContract.Bin)
-	copy(data[len(contracts.ERC20PresetMinterPauserDecimalContract.Bin):], ctorArgs)
+	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
+	copy(data[:len(contracts.ERC20MinterBurnerDecimalsContract.Bin)], contracts.ERC20MinterBurnerDecimalsContract.Bin)
+	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], ctorArgs)
 
 	nonce, err := k.accountKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
 	if err != nil {

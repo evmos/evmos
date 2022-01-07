@@ -11,25 +11,25 @@ import (
 )
 
 var (
-	//go:embed ERC20PresetMinterPauserDecimal.json
-	ERC20PresetMinterPauserDecimalJSON []byte // nolint: golint
+	//go:embed ERC20MinterBurnerDecimals.json
+	ERC20MinterBurnerDecimalsJSON []byte // nolint: golint
 
-	// ERC20PresetMinterPauserDecimalContract is the compiled erc20 contract
-	ERC20PresetMinterPauserDecimalContract evmtypes.CompiledContract
+	// ERC20MinterBurnerDecimalsContract is the compiled erc20 contract
+	ERC20MinterBurnerDecimalsContract evmtypes.CompiledContract
 
-	// ERC20PresetMinterPauserDecimalAddress is the erc20 module address
-	ERC20PresetMinterPauserDecimalAddress common.Address
+	// ERC20MinterBurnerDecimalsAddress is the erc20 module address
+	ERC20MinterBurnerDecimalsAddress common.Address
 )
 
 func init() {
-	ERC20PresetMinterPauserDecimalAddress = types.ModuleAddress
+	ERC20MinterBurnerDecimalsAddress = types.ModuleAddress
 
-	err := json.Unmarshal(ERC20PresetMinterPauserDecimalJSON, &ERC20PresetMinterPauserDecimalContract)
+	err := json.Unmarshal(ERC20MinterBurnerDecimalsJSON, &ERC20MinterBurnerDecimalsContract)
 	if err != nil {
 		panic(err)
 	}
 
-	if len(ERC20PresetMinterPauserDecimalContract.Bin) == 0 {
+	if len(ERC20MinterBurnerDecimalsContract.Bin) == 0 {
 		panic("load contract failed")
 	}
 }
