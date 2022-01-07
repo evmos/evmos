@@ -19,7 +19,7 @@ const (
 	erc20Decimals      = uint8(18)
 	cosmosTokenBase    = "acoin"
 	cosmosTokenDisplay = "coin"
-	comsosDecimals     = uint8(6)
+	cosmosDecimals     = uint8(6)
 	defaultExponent    = uint32(18)
 	zeroExponent       = uint32(0)
 )
@@ -235,7 +235,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+			contractAddr = suite.DeployContract(erc20Name, erc20Symbol, cosmosDecimals)
 			suite.Commit()
 			coinName := types.CreateDenom(contractAddr.String())
 			pair = types.NewTokenPair(contractAddr, coinName, true, types.OWNER_EXTERNAL)
@@ -257,8 +257,8 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 				suite.Require().Equal(coinName, metadata.DenomUnits[0].Denom)
 				suite.Require().Equal(uint32(zeroExponent), metadata.DenomUnits[0].Exponent)
 				suite.Require().Equal(types.SanitizeERC20Name(erc20Name), metadata.DenomUnits[1].Denom)
-				// Default exponent at contract creation is 18
-				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
+				// Custom exponent at contract creation matches coin with token
+				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(cosmosDecimals))
 			} else {
 				suite.Require().Error(err, tc.name)
 			}
