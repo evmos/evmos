@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"bytes"
 	"fmt"
 	"math/big"
 
@@ -9,34 +8,34 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 	testCases := []struct {
-		name     string
-		mint     int64
-		burn     int64
-		malleate func(common.Address)
-		expPass  bool
+		name           string
+		mint           int64
+		burn           int64
+		malleate       func(common.Address)
+		expPass        bool
+		selfdestructed bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, true},
+		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true, false},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, true, false},
 		{
 			"ok - suicided contract",
 			10,
 			10,
 			func(erc20 common.Address) {
-				// TODO: Replace SetCode with suicide
-				// ok := suite.app.EvmKeeper.Suicide(erc20)
-				// suite.Require().True(ok)
-				suite.app.EvmKeeper.SetCode(erc20, []byte{})
-				suite.Commit()
+				stateDb := suite.StateDB()
+				ok := stateDb.Suicide(erc20)
+				suite.Require().True(ok)
+				suite.Require().NoError(stateDb.Commit())
 			},
 			true,
+			true,
 		},
-		{"fail - insufficient funds", 0, 10, func(common.Address) {}, false},
+		{"fail - insufficient funds", 0, 10, func(common.Address) {}, false, false},
 		{
 			"fail - minting disabled",
 			100,
@@ -46,6 +45,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 			},
+			false,
 			false,
 		},
 	}
@@ -80,9 +80,14 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				codeHash := suite.app.EvmKeeper.GetCodeHash(erc20)
-				hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
-				if hasEmptyCodeHash {
+				acc := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, erc20)
+				if tc.selfdestructed {
+					suite.Require().Nil(acc, "expected contract to be destroyed")
+				} else {
+					suite.Require().NotNil(acc)
+				}
+
+				if tc.selfdestructed || !acc.IsContract() {
 					id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, erc20.String())
 					_, found := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 					suite.Require().False(found)
@@ -177,26 +182,27 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 		burn               int64
 		malleate           func(common.Address)
 		isMaliciousDelayed bool
+		selfdestructed     bool
 		expPass            bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(common.Address) {}, false, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, false, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, false, true},
+		{"ok - sufficient funds", 100, 10, func(common.Address) {}, false, false, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, false, false, true},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, false, false, true},
 		{
 			"ok - suicided contract",
 			10,
 			10,
 			func(erc20 common.Address) {
-				// TODO: Replace SetCode with suicide
-				// ok := suite.app.EvmKeeper.Suicide(erc20)
-				// suite.Require().True(ok)
-				suite.app.EvmKeeper.SetCode(erc20, []byte{})
-				suite.Commit()
+				stateDb := suite.StateDB()
+				ok := stateDb.Suicide(erc20)
+				suite.Require().True(ok)
+				suite.Require().NoError(stateDb.Commit())
 			},
 			false,
 			true,
+			true,
 		},
-		{"fail - insufficient funds - callEVM", 0, 10, func(common.Address) {}, false, false},
+		{"fail - insufficient funds - callEVM", 0, 10, func(common.Address) {}, false, false, false},
 		{
 			"fail - minting disabled",
 			100,
@@ -208,6 +214,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			},
 			false,
 			false,
+			false,
 		},
 		{
 			"fail - delayed malicious contract",
@@ -217,6 +224,7 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
 			},
 			true,
+			false,
 			false,
 		},
 	}
@@ -251,9 +259,14 @@ func (suite *KeeperTestSuite) TestConvertECR20NativeERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				codeHash := suite.app.EvmKeeper.GetCodeHash(contractAddr)
-				hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
-				if hasEmptyCodeHash {
+				acc := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, contractAddr)
+				if tc.selfdestructed {
+					suite.Require().Nil(acc, "expected contract to be destroyed")
+				} else {
+					suite.Require().NotNil(acc)
+				}
+
+				if tc.selfdestructed || !acc.IsContract() {
 					id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 					_, found := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 					suite.Require().False(found)

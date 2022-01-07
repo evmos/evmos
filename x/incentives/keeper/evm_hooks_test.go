@@ -31,12 +31,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				// Submit contract Tx and make sure participant has enough tokens for tx
 				suite.MintERC20Token(contractAddr, suite.address, participant, big.NewInt(100))
 				suite.Commit()
-				res := suite.TransferERC20Token(contractAddr, participant, participant2, big.NewInt(10))
-
-				// check if logs submitted
-				hash := res.AsTransaction().Hash()
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
-				suite.Require().NotEmpty(logs)
+				_ = suite.TransferERC20Token(contractAddr, participant, participant2, big.NewInt(10))
 			},
 			true,
 		},

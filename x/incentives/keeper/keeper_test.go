@@ -147,7 +147,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
-	suite.app.EvmKeeper.WithContext(suite.ctx)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
@@ -194,11 +193,17 @@ func (suite *KeeperTestSuite) Commit() {
 
 	// update ctx
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-	suite.app.EvmKeeper.WithContext(suite.ctx)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+}
+
+func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, types.ModuleName, authtypes.FeeCollectorName, coins)
+	suite.Require().NoError(err)
 }
 
 func (suite *KeeperTestSuite) DeployContract(name string, symbol string) common.Address {
@@ -221,7 +226,7 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string) common.
 	})
 	suite.Require().NoError(err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
 	erc20DeployTx := evm.NewTxContract(
 		chainID,
@@ -280,7 +285,10 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	})
 	suite.Require().NoError(err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+
+	// Mint the max gas to the FeeCollector to ensure balance in case of refund
+	suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).Int64()*int64(res.Gas)))))
 
 	ercTransferTx := evm.NewTx(
 		chainID,

@@ -11,24 +11,21 @@ import (
 
 var _ evmtypes.EvmHooks = (*Keeper)(nil)
 
-// TODO replace code with actual values from txHash when the ethermint version is updated
-// func (k Keeper) PostTxProcessing(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
-// previousGas, _ := k.GetIncentiveGasMeter(ctx, *to, from)
-// gm := types.NewGasMeter(*to, from, previousGas+receipt.GasUsed)
-
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the participants's GasUsed is
 // added to its gasMeter.
-func (k Keeper) PostTxProcessing(ctx sdk.Context, txHash common.Hash, _ []*ethtypes.Log) error {
-	contract := common.Address{}
-	participant := common.Address{}
-	gasUsed := uint64(100)
+func (k Keeper) PostTxProcessing(ctx sdk.Context, participant common.Address, contract *common.Address, receipt *ethtypes.Receipt) error {
 
-	if err := k.addGasToIncentive(ctx, contract, gasUsed); err != nil {
+	// If theres no incentive registered for the contract, do nothing
+	if !k.IsIncentiveRegistered(ctx, *contract) {
+		return nil
+	}
+
+	if err := k.addGasToIncentive(ctx, *contract, receipt.GasUsed); err != nil {
 		return err
 	}
 
-	k.addGasToParticipant(ctx, contract, participant, gasUsed)
+	k.addGasToParticipant(ctx, *contract, participant, receipt.GasUsed)
 
 	return nil
 }

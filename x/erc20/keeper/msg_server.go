@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
 	"math/big"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/erc20/types"
@@ -25,7 +25,6 @@ func (k Keeper) ConvertCoin(
 	msg *types.MsgConvertCoin,
 ) (*types.MsgConvertCoinResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	k.evmKeeper.WithContext(ctx)
 
 	// Error checked during msg validation
 	receiver := common.HexToAddress(msg.Receiver)
@@ -38,9 +37,9 @@ func (k Keeper) ConvertCoin(
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	codeHash := k.evmKeeper.GetCodeHash(erc20)
-	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
-	if hasEmptyCodeHash {
+	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
+
+	if acc == nil || !acc.IsContract() {
 		k.DeleteTokenPair(ctx, pair)
 		k.Logger(ctx).Debug(
 			"deleting selfdestructed token pair from state",
@@ -68,7 +67,6 @@ func (k Keeper) ConvertERC20(
 	msg *types.MsgConvertERC20,
 ) (*types.MsgConvertERC20Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	k.evmKeeper.WithContext(ctx)
 
 	// Error checked during msg validation
 	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
@@ -81,9 +79,9 @@ func (k Keeper) ConvertERC20(
 
 	// Remove token pair if contract is suicided
 	erc20 := common.HexToAddress(pair.Erc20Address)
-	codeHash := k.evmKeeper.GetCodeHash(erc20)
-	hasEmptyCodeHash := bytes.Equal(codeHash.Bytes(), evmtypes.EmptyCodeHash)
-	if hasEmptyCodeHash {
+	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, erc20)
+
+	if acc == nil || !acc.IsContract() {
 		k.DeleteTokenPair(ctx, pair)
 		k.Logger(ctx).Debug(
 			"deleting selfdestructed token pair from state",
@@ -428,20 +426,15 @@ func (k Keeper) balanceOf(
 // monitorApprovalEvent returns an error if the given transactions logs include
 // an unexpected `approve` event
 func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error {
-	if res == nil {
+	if res == nil || len(res.Logs) == 0 {
 		return nil
 	}
-	// TODO: fetch from response
-	hash := common.BytesToHash([]byte(res.Hash))
-	logs := k.evmKeeper.GetTxLogsTransient(hash)
-	if len(logs) == 0 {
-		return nil
-	}
+
 	logApprovalSig := []byte("Approval(address,address,uint256)")
 	logApprovalSigHash := crypto.Keccak256Hash(logApprovalSig)
 
-	for _, log := range logs {
-		if log.Topics[0].Hex() == logApprovalSigHash.Hex() {
+	for _, log := range res.Logs {
+		if log.Topics[0] == logApprovalSigHash.Hex() {
 			return sdkerrors.Wrapf(
 				types.ErrUnexpectedEvent, "unexpected approval event",
 			)

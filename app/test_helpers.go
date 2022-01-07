@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
-	ibctesting "github.com/cosmos/ibc-go/v2/testing"
+	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 	"github.com/tharsis/ethermint/encoding"
 
 	abci "github.com/tendermint/tendermint/abci/types"

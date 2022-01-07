@@ -78,8 +78,6 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Addr
 
 // CallEVMWithPayload performs a smart contract method call using contract data
 func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contract *common.Address, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
-	k.evmKeeper.WithContext(ctx)
-
 	nonce, err := k.accountKeeper.GetSequence(ctx, from.Bytes())
 	if err != nil {
 		return nil, err
@@ -99,12 +97,10 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contrac
 		true,                  // checkNonce
 	)
 
-	res, err := k.evmKeeper.ApplyMessage(msg, evmtypes.NewNoOpTracer(), true)
+	res, err := k.evmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), true)
 	if err != nil {
 		return nil, err
 	}
-
-	k.evmKeeper.SetNonce(from, nonce+1)
 
 	if res.Failed() {
 		return nil, sdkerrors.Wrap(evmtypes.ErrVMExecution, res.VmError)
