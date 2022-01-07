@@ -64,9 +64,17 @@ func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata)
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
 // erc20 module account as owner.
-func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
+func (k Keeper) DeployERC20Contract(
+	ctx sdk.Context,
+	coinMetadata banktypes.Metadata,
+) (common.Address, error) {
 	decimals := uint8(coinMetadata.DenomUnits[0].Exponent)
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol, decimals)
+	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
+		"",
+		coinMetadata.Name,
+		coinMetadata.Symbol,
+		decimals,
+	)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
 	}
