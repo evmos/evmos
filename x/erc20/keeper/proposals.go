@@ -62,16 +62,18 @@ func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata)
 	return types.EqualMetadata(meta, coinMetadata)
 }
 
-// DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the erc20 module account as owner
+// DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
+// erc20 module account as owner.
 func (k Keeper) DeployERC20Contract(ctx sdk.Context, coinMetadata banktypes.Metadata) (common.Address, error) {
-	ctorArgs, err := contracts.ERC20BurnableAndMintableContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol)
+	decimals := uint8(coinMetadata.DenomUnits[0].Exponent)
+	ctorArgs, err := contracts.ERC20PresetMinterPauserDecimalContract.ABI.Pack("", coinMetadata.Name, coinMetadata.Symbol, decimals)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
 	}
 
-	data := make([]byte, len(contracts.ERC20BurnableAndMintableContract.Bin)+len(ctorArgs))
-	copy(data[:len(contracts.ERC20BurnableAndMintableContract.Bin)], contracts.ERC20BurnableAndMintableContract.Bin)
-	copy(data[len(contracts.ERC20BurnableAndMintableContract.Bin):], ctorArgs)
+	data := make([]byte, len(contracts.ERC20PresetMinterPauserDecimalContract.Bin)+len(ctorArgs))
+	copy(data[:len(contracts.ERC20PresetMinterPauserDecimalContract.Bin)], contracts.ERC20PresetMinterPauserDecimalContract.Bin)
+	copy(data[len(contracts.ERC20PresetMinterPauserDecimalContract.Bin):], ctorArgs)
 
 	nonce, err := k.accountKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
 	if err != nil {

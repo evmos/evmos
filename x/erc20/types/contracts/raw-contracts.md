@@ -2,7 +2,9 @@
 
 ## ERC20PresetMinterPauserDecimal
 
-ERC20PresetMinterPauserDecimal is an extension of ERC20PresetMinterPauser. When this token is deployed it additionally allows to customize the decimals.
+ERC20PresetMinterPauserDecimal is an extension of ERC20PresetMinterPauser. When
+this token is deployed it additionally expects the deployer to customize the
+decimals.
 ```
 // SPDX-License-Identifier: MIT
 
