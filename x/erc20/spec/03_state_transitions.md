@@ -103,6 +103,7 @@ Conversion of a registered `TokenPair` can be done via:
 4. Check if
    - Coin balance increased by amount
    - Token balance decreased by amount
+5. Fail if unexpected `appove` event found in logs
 
 #### 2.2 Coin to ERC20
 
@@ -113,3 +114,4 @@ Conversion of a registered `TokenPair` can be done via:
     2. Unlock escrowed ERC20 from the module address by sending it to the recipient
     3. Burn escrowed Cosmos coins
 4. Check if token balance increased by amount
+5. Fail if unexpected `appove` event found in logs

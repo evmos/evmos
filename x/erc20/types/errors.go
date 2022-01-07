@@ -15,4 +15,5 @@ var (
 	ErrUndefinedOwner           = sdkerrors.Register(ModuleName, 8, "undefined owner of contract pair")
 	ErrSuicidedContract         = sdkerrors.Register(ModuleName, 9, "suicided contract pair")
 	ErrInvalidConversionBalance = sdkerrors.Register(ModuleName, 10, "invalid conversion balance")
+	ErrUnexpectedEvent          = sdkerrors.Register(ModuleName, 11, "unexpected event")
 )
