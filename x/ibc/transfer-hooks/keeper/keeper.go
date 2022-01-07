@@ -3,7 +3,6 @@ package keeper
 import (
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 
@@ -41,24 +40,15 @@ func (k *Keeper) SetHooks(th types.TransferHooks) *Keeper {
 	return k
 }
 
-// SetTransferHooksEnabled sets a flag to determine if transfer hooks logic should run for the given channel
-// identified by channel and port identifiers.
-func (k Keeper) SetTransferHooksEnabled(ctx sdk.Context, portID, channelID string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PrefixKeyTransferHooksEnabled)
-	store.Set(types.KeyTransferHooksEnabled(portID, channelID), []byte{1})
-}
+// IsTransferHooks returns whether transfer hooks logic should be run.
+func (k Keeper) IsTransferHooksEnabled(ctx sdk.Context) bool {
+	return k.hooks != nil
+	// if k.hooks == nil {
+	// 	return false
+	// }
 
-// DeleteTransferHooks deletes the transfer hooks enabled flag for a given portID and channelID
-func (k Keeper) DeleteTransferHooksEnabled(ctx sdk.Context, portID, channelID string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PrefixKeyTransferHooksEnabled)
-	store.Delete(types.KeyTransferHooksEnabled(portID, channelID))
-}
-
-// IsTransferHooks returns whether transfer hooks logic should be run for the given port. It will check the
-// transfer hooks enabled flag for the given port and channel identifiers
-func (k Keeper) IsTransferHooksEnabled(ctx sdk.Context, portID, channelID string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PrefixKeyTransferHooksEnabled)
-	return store.Has(types.KeyTransferHooksEnabled(portID, channelID))
+	// // TODO: check params
+	// return true
 }
 
 func (k Keeper) DenomPathFromHash(ctx sdk.Context, denom string) (string, error) {

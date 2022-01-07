@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
 	"github.com/tharsis/evmos/x/ibc/transfer-hooks/keeper"
-	"github.com/tharsis/evmos/x/ibc/transfer-hooks/types"
 )
 
 var _ porttypes.IBCModule = &IBCModule{}
@@ -33,6 +32,7 @@ func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
 }
 
 // OnChanOpenInit implements the IBCModule interface
+// It calls the underlying app's OnChanOpenInit callback.
 func (im IBCModule) OnChanOpenInit(
 	ctx sdk.Context,
 	order channeltypes.Order,
@@ -43,25 +43,12 @@ func (im IBCModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) error {
-	mwVersion, appVersion := channeltypes.SplitChannelVersion(version)
-	// Since it is valid for fee version to not be specified, the above middleware version may be for a middleware
-	// lower down in the stack. Thus, if it is not a fee version we pass the entire version string onto the underlying
-	// application.
-	// If an invalid fee version was passed, we expect the underlying application to fail on its version negotiation.
-	if mwVersion == types.Version {
-		im.keeper.SetTransferHooksEnabled(ctx, portID, channelID)
-	} else {
-		// middleware version is not the expected version for this midddleware. Pass the full version string along,
-		// if it not valid version for any other lower middleware, an error will be returned by base application.
-		appVersion = version
-	}
-
-	// call underlying app's OnChanOpenInit callback with the appVersion
 	return im.app.OnChanOpenInit(ctx, order, connectionHops, portID, channelID,
-		chanCap, counterparty, appVersion)
+		chanCap, counterparty, version)
 }
 
-// OnChanOpenTry implements the IBCModule interface
+// OnChanOpenTry implements the IBCModule interface.
+// It calls the underlying app's OnChanOpenTry callback.
 func (im IBCModule) OnChanOpenTry(
 	ctx sdk.Context,
 	order channeltypes.Order,
@@ -72,59 +59,28 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (version string, err error) {
-	mwVersion, _ := channeltypes.SplitChannelVersion(version)
-	cpMwVersion, cpAppVersion := channeltypes.SplitChannelVersion(counterpartyVersion)
-
-	// Since it is valid for fee version to not be specified, the above middleware version may be for a middleware
-	// lower down in the stack. Thus, if it is not a fee version we pass the entire version string onto the underlying
-	// application.
-	// If an invalid fee version was passed, we expect the underlying application to fail on its version negotiation.
-	if mwVersion == types.Version || cpMwVersion == types.Version {
-		if cpMwVersion != mwVersion {
-			return "", sdkerrors.Wrapf(types.ErrInvalidVersion, "fee versions do not match. self version: %s, counterparty version: %s", mwVersion, cpMwVersion)
-		}
-
-		im.keeper.SetTransferHooksEnabled(ctx, portID, channelID)
-	} else {
-		// middleware versions are not the expected version for this middleware. Pass the full version strings along,
-		// if it not valid version for any other lower middleware, an error will be returned by base application.
-		cpAppVersion = counterpartyVersion
-	}
-
-	// call underlying app's OnChanOpenTry callback with the app versions
 	return im.app.OnChanOpenTry(ctx, order, connectionHops, portID, channelID,
-		chanCap, counterparty, cpAppVersion)
+		chanCap, counterparty, counterpartyVersion)
 }
 
-// OnChanOpenAck implements the IBCModule interface
+// OnChanOpenAck implements the IBCModule interface.
+// It calls the underlying app's OnChanOpenAck callback.
 func (im IBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
 	channelID string,
 	counterpartyVersion string,
 ) error {
-	// If handshake was initialized with fee enabled it must complete with fee enabled.
-	// If handshake was initialized with fee disabled it must complete with fee disabled.
-	cpAppVersion := counterpartyVersion
-	if im.keeper.IsTransferHooksEnabled(ctx, portID, channelID) {
-		var cpFeeVersion string
-		cpFeeVersion, cpAppVersion = channeltypes.SplitChannelVersion(counterpartyVersion)
-
-		if cpFeeVersion != types.Version {
-			return sdkerrors.Wrapf(types.ErrInvalidVersion, "expected counterparty version: %s, got: %s", types.Version, cpFeeVersion)
-		}
-	}
-	// call underlying app's OnChanOpenAck callback with the counterparty app version.
-	return im.app.OnChanOpenAck(ctx, portID, channelID, cpAppVersion)
+	return im.app.OnChanOpenAck(ctx, portID, channelID, counterpartyVersion)
 }
 
-// OnChanOpenConfirm implements the IBCModule interface
+// OnChanOpenConfirm implements the IBCModule interface.
+// It calls the underlying app's OnChanOpenConfirm callback.
 func (im IBCModule) OnChanOpenConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
-	// call underlying app's OnChanOpenConfirm callback.
 	return im.app.OnChanOpenConfirm(ctx, portID, channelID)
 }
 
@@ -134,9 +90,6 @@ func (im IBCModule) OnChanCloseInit(
 	portID,
 	channelID string,
 ) error {
-	// delete fee enabled on channel
-	// and refund any remaining fees escrowed on channel
-	im.keeper.DeleteTransferHooksEnabled(ctx, portID, channelID)
 	return im.app.OnChanCloseInit(ctx, portID, channelID)
 }
 
@@ -146,9 +99,6 @@ func (im IBCModule) OnChanCloseConfirm(
 	portID,
 	channelID string,
 ) error {
-	// delete fee enabled on channel
-	// and refund any remaining fees escrowed on channel
-	im.keeper.DeleteTransferHooksEnabled(ctx, portID, channelID)
 	return im.app.OnChanCloseConfirm(ctx, portID, channelID)
 }
 
@@ -160,7 +110,7 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) exported.Acknowledgement {
 	ack := im.app.OnRecvPacket(ctx, packet, relayer)
-	if ack.Success() && im.keeper.IsTransferHooksEnabled(ctx, packet.DestinationPort, packet.DestinationChannel) {
+	if ack.Success() && im.keeper.IsTransferHooksEnabled(ctx) {
 		// TODO: add Transfer Hook Recv logic
 
 		var data transfertypes.FungibleTokenPacketData
@@ -196,6 +146,10 @@ func (im IBCModule) OnAcknowledgementPacket(
 ) error {
 	if err := im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer); err != nil {
 		return err
+	}
+
+	if !im.keeper.IsTransferHooksEnabled(ctx) {
+		return nil
 	}
 
 	var ack channeltypes.Acknowledgement
