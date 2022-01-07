@@ -4,23 +4,34 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 
 	"github.com/tharsis/evmos/x/ibc/transfer-hooks/types"
 )
 
-// Keeper defines the IBC fungible transfer keeper
+// Keeper defines the IBC fungible transfer hooks keeper
 type Keeper struct {
-	storeKey sdk.StoreKey
+	storeKey   sdk.StoreKey
+	paramstore paramtypes.Subspace
 
 	transferKeeper types.TransferKeeper
 	hooks          types.TransferHooks
 }
 
-// NewKeeper creates a new IBC transfer Keeper instance
-func NewKeeper(key sdk.StoreKey, tk types.TransferKeeper) Keeper {
+// NewKeeper creates a new IBC transfer hooks Keeper instance
+func NewKeeper(
+	key sdk.StoreKey,
+	ps paramtypes.Subspace,
+	tk types.TransferKeeper) Keeper {
+	// set KeyTable if it has not already been set
+	if !ps.HasKeyTable() {
+		ps = ps.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return Keeper{
 		storeKey:       key,
+		paramstore:     ps,
 		transferKeeper: tk,
 	}
 }
@@ -42,13 +53,11 @@ func (k *Keeper) SetHooks(th types.TransferHooks) *Keeper {
 
 // IsTransferHooks returns whether transfer hooks logic should be run.
 func (k Keeper) IsTransferHooksEnabled(ctx sdk.Context) bool {
-	return k.hooks != nil
-	// if k.hooks == nil {
-	// 	return false
-	// }
+	if k.hooks == nil {
+		return false
+	}
 
-	// // TODO: check params
-	// return true
+	return k.GetParams(ctx).EnableTransferHook
 }
 
 func (k Keeper) DenomPathFromHash(ctx sdk.Context, denom string) (string, error) {

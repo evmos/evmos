@@ -47,6 +47,16 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
+- [evmos/ibc/transfer_hooks/v1/genesis.proto](#evmos/ibc/transfer_hooks/v1/genesis.proto)
+    - [GenesisState](#evmos.ibc.transfer_hooks.v1.GenesisState)
+    - [Params](#evmos.ibc.transfer_hooks.v1.Params)
+  
+- [evmos/ibc/transfer_hooks/v1/query.proto](#evmos/ibc/transfer_hooks/v1/query.proto)
+    - [QueryParamsRequest](#evmos.ibc.transfer_hooks.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.ibc.transfer_hooks.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.ibc.transfer_hooks.v1.Query)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -552,6 +562,105 @@ Msg defines the erc20 Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
 | `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/ibc/transfer_hooks/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/ibc/transfer_hooks/v1/genesis.proto
+
+
+
+<a name="evmos.ibc.transfer_hooks.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the ibc transfer hooks app genesis state
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.ibc.transfer_hooks.v1.Params) |  | module parameters |
+
+
+
+
+
+
+<a name="evmos.ibc.transfer_hooks.v1.Params"></a>
+
+### Params
+Params defines the set of on-chain transfer hooks app parameters.
+The following parameters may be used to disable the transfer hooks logic.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_transfer_hook` | [bool](#bool) |  | enable_transfer_hook enables or disables the transfer hooks. |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/ibc/transfer_hooks/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/ibc/transfer_hooks/v1/query.proto
+
+
+
+<a name="evmos.ibc.transfer_hooks.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.ibc.transfer_hooks.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.ibc.transfer_hooks.v1.Params) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.ibc.transfer_hooks.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Params` | [QueryParamsRequest](#evmos.ibc.transfer_hooks.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.ibc.transfer_hooks.v1.QueryParamsResponse) | Params retrieves the transfer hooks app module params | GET|/evmos/ibc/transfer_hooks/v1/params|
 
  <!-- end services -->
 

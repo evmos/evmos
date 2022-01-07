@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package evmos.ibc.transfer_hooks.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/ibc/transfer-hooks/types";
+
+// Params defines the set of on-chain transfer hooks app parameters.
+// The following parameters may be used to disable the transfer hooks logic.
+message Params {
+  // enable_transfer_hook enables or disables the transfer hooks.
+  bool enable_transfer_hook = 1;
+}
+
+// GenesisState defines the ibc transfer hooks app genesis state
+message GenesisState {
+  // module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+}

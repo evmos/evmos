@@ -7,16 +7,18 @@ import (
 
 var _ types.TransferHooks = Keeper{}
 
-func (k Keeper) AfterSendTransferAcked(
+func (k Keeper) AfterTransferAcked(
 	ctx sdk.Context,
 	sourcePort, sourceChannel string,
 	token sdk.Coin,
 	sender sdk.AccAddress,
 	receiver string,
-	isSource bool) {
+	isSource bool,
+) error {
 	if k.hooks != nil {
-		k.hooks.AfterSendTransferAcked(ctx, sourcePort, sourceChannel, token, sender, receiver, isSource)
+		return k.hooks.AfterTransferAcked(ctx, sourcePort, sourceChannel, token, sender, receiver, isSource)
 	}
+	return nil
 }
 
 func (k Keeper) AfterRecvTransfer(
@@ -24,8 +26,10 @@ func (k Keeper) AfterRecvTransfer(
 	destPort, destChannel string,
 	token sdk.Coin,
 	receiver string,
-	isSource bool) {
+	isSource bool,
+) error {
 	if k.hooks != nil {
-		k.hooks.AfterRecvTransfer(ctx, destPort, destChannel, token, receiver, isSource)
+		return k.hooks.AfterRecvTransfer(ctx, destPort, destChannel, token, receiver, isSource)
 	}
+	return nil
 }

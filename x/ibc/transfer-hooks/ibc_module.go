@@ -110,29 +110,33 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) exported.Acknowledgement {
 	ack := im.app.OnRecvPacket(ctx, packet, relayer)
-	if ack.Success() && im.keeper.IsTransferHooksEnabled(ctx) {
-		// TODO: add Transfer Hook Recv logic
-
-		var data transfertypes.FungibleTokenPacketData
-		if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-			err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-			return channeltypes.NewErrorAcknowledgement(err.Error())
-		}
-
-		// parse the transfer amount
-		transferAmount, ok := sdk.NewIntFromString(data.Amount)
-		if !ok {
-			err := sdkerrors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount (%s) into sdk.Int", data.Amount)
-			return channeltypes.NewErrorAcknowledgement(err.Error())
-		}
-
-		token := sdk.NewCoin(data.Denom, transferAmount)
-		isSource := transfertypes.ReceiverChainIsSource(packet.GetSourcePort(), packet.GetSourceChannel(), data.Denom)
-
-		// unmarshal packet
-		im.keeper.AfterRecvTransfer(ctx, packet.DestinationPort, packet.DestinationChannel, token, data.Receiver, isSource)
+	if !ack.Success() || !im.keeper.IsTransferHooksEnabled(ctx) {
+		return ack
 	}
 
+	var data transfertypes.FungibleTokenPacketData
+	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
+		return channeltypes.NewErrorAcknowledgement(err.Error())
+	}
+
+	// parse the transfer amount
+	transferAmount, ok := sdk.NewIntFromString(data.Amount)
+	if !ok {
+		err := sdkerrors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount (%s) into sdk.Int", data.Amount)
+		return channeltypes.NewErrorAcknowledgement(err.Error())
+	}
+
+	token := sdk.NewCoin(data.Denom, transferAmount)
+	isSource := transfertypes.ReceiverChainIsSource(packet.GetSourcePort(), packet.GetSourceChannel(), data.Denom)
+
+	// unmarshal packet
+	err := im.keeper.AfterRecvTransfer(ctx, packet.DestinationPort, packet.DestinationChannel, token, data.Receiver, isSource)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err.Error())
+	}
+
+	// return the original success acknowledgement
 	return ack
 }
 
@@ -148,13 +152,13 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return err
 	}
 
-	if !im.keeper.IsTransferHooksEnabled(ctx) {
-		return nil
-	}
-
 	var ack channeltypes.Acknowledgement
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
+	}
+
+	if !ack.Success() || !im.keeper.IsTransferHooksEnabled(ctx) {
+		return nil
 	}
 
 	var data transfertypes.FungibleTokenPacketData
@@ -186,9 +190,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	}
 
 	isSource := transfertypes.SenderChainIsSource(packet.SourcePort, packet.SourceChannel, fullDenomPath)
-
-	im.keeper.AfterSendTransferAcked(ctx, packet.SourcePort, packet.SourceChannel, token, sender, data.Receiver, isSource)
-	return nil
+	return im.keeper.AfterTransferAcked(ctx, packet.SourcePort, packet.SourceChannel, token, sender, data.Receiver, isSource)
 }
 
 // OnTimeoutPacket implements the IBCModule interface

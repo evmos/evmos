@@ -5,7 +5,7 @@ import (
 )
 
 type TransferHooks interface {
-	AfterSendTransferAcked(
+	AfterTransferAcked(
 		ctx sdk.Context,
 		sourcePort,
 		sourceChannel string,
@@ -13,7 +13,7 @@ type TransferHooks interface {
 		sender sdk.AccAddress,
 		receiver string,
 		isSource bool,
-	)
+	) error
 	AfterRecvTransfer(
 		ctx sdk.Context,
 		destPort,
@@ -21,7 +21,7 @@ type TransferHooks interface {
 		token sdk.Coin,
 		receiver string,
 		isSource bool,
-	)
+	) error
 }
 
 type MultiTransferHooks []TransferHooks
@@ -30,16 +30,21 @@ func NewMultiTransferHooks(hooks ...TransferHooks) MultiTransferHooks {
 	return hooks
 }
 
-func (mths MultiTransferHooks) AfterSendTransferAcked(
+func (mths MultiTransferHooks) AfterTransferAcked(
 	ctx sdk.Context,
 	sourcePort, sourceChannel string,
 	token sdk.Coin,
 	sender sdk.AccAddress,
 	receiver string,
-	isSource bool) {
+	isSource bool,
+) error {
 	for i := range mths {
-		mths[i].AfterSendTransferAcked(ctx, sourcePort, sourceChannel, token, sender, receiver, isSource)
+		err := mths[i].AfterTransferAcked(ctx, sourcePort, sourceChannel, token, sender, receiver, isSource)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (mths MultiTransferHooks) AfterRecvTransfer(
@@ -47,8 +52,13 @@ func (mths MultiTransferHooks) AfterRecvTransfer(
 	destPort, destChannel string,
 	token sdk.Coin,
 	receiver string,
-	isSource bool) {
+	isSource bool,
+) error {
 	for i := range mths {
-		mths[i].AfterRecvTransfer(ctx, destPort, destChannel, token, receiver, isSource)
+		err := mths[i].AfterRecvTransfer(ctx, destPort, destChannel, token, receiver, isSource)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
