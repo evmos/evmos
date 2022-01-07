@@ -452,7 +452,7 @@ func NewEvmos(
 		),
 	)
 
-	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper)
+	app.EvmKeeper = app.EvmKeeper.SetHooks(evmkeeper.NewMultiEvmHooks(app.Erc20Keeper, app.IncentivesKeeper))
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(

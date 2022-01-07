@@ -17,7 +17,7 @@ var _ evmtypes.EvmHooks = (*Keeper)(nil)
 func (k Keeper) PostTxProcessing(ctx sdk.Context, participant common.Address, contract *common.Address, receipt *ethtypes.Receipt) error {
 
 	// If theres no incentive registered for the contract, do nothing
-	if !k.IsIncentiveRegistered(ctx, *contract) {
+	if contract == nil || !k.IsIncentiveRegistered(ctx, *contract) {
 		return nil
 	}
 
