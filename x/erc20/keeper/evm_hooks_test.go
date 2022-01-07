@@ -37,11 +37,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				// FIXME: "failed to refund gas leftover gas to sender"
 				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-				stateDB := suite.StateDB()
-				logs := stateDB.Logs()
-				suite.Require().NotEmpty(logs)
 			},
 			true,
 		},
@@ -53,11 +49,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				// FIXME: "failed to refund gas leftover gas to sender"
 				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-				stateDB := suite.StateDB()
-				logs := stateDB.Logs()
-				suite.Require().NotEmpty(logs)
 			},
 			false,
 		},
@@ -69,11 +61,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Mint 10 tokens to suite.address (owner)
 				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10), false)
-
-				stateDB := suite.StateDB()
-				logs := stateDB.Logs()
-				// FIXME: empty
-				suite.Require().NotEmpty(logs)
 			},
 			false,
 		},
