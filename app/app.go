@@ -125,6 +125,9 @@ import (
 	erc20client "github.com/tharsis/evmos/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
 	erc20types "github.com/tharsis/evmos/x/erc20/types"
+	th "github.com/tharsis/evmos/x/ibc/transfer-hooks"
+	thmiddleware "github.com/tharsis/evmos/x/ibc/transfer-hooks/middleware"
+	thtypes "github.com/tharsis/evmos/x/ibc/transfer-hooks/types"
 )
 
 func init() {
@@ -257,8 +260,9 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	Erc20Keeper  erc20keeper.Keeper
-	EpochsKeeper epochskeeper.Keeper
+	Erc20Keeper             erc20keeper.Keeper
+	EpochsKeeper            epochskeeper.Keeper
+	TransferHooksMiddleware thmiddleware.Middleware
 
 	// the module manager
 	mm *module.Manager
@@ -436,14 +440,17 @@ func NewEvmos(
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper)
 
+	app.TransferHooksMiddleware = thmiddleware.NewMiddleware()
+
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, // FIXME: implement middleware
+		app.TransferHooksMiddleware, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+	// transfer stack contains: TransferHooksMiddleware -> Transfer
+	transferHooksIBCModule := th.NewIBCModule(app.TransferHooksMiddleware, transfer.NewIBCModule(app.TransferKeeper))
 
 	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
 		appCodec, keys[icacontrollertypes.StoreKey], app.GetSubspace(icacontrollertypes.SubModuleName),
@@ -465,7 +472,7 @@ func NewEvmos(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferHooksIBCModule).
 		// TODO: uncomment ICA controller once custom logic is supported
 		// AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
@@ -925,5 +932,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
+	paramsKeeper.Subspace(thtypes.ModuleName)
 	return paramsKeeper
 }

@@ -3,27 +3,26 @@ package transferhooks
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/tharsis/evmos/x/ibc/transfer-hooks/middleware"
 
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
-
-	"github.com/tharsis/evmos/x/ibc/transfer-hooks/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCModule{}
 
 // IBCModule implements the ICS26 callbacks for the fee middleware given the fee keeper and the underlying application.
 type IBCModule struct {
-	keeper keeper.Keeper
-	app    porttypes.IBCModule
+	middleware middleware.Middleware
+	app        porttypes.IBCModule
 }
 
 // NewIBCModule creates a new IBCModule given the keeper and underlying application
-func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
+func NewIBCModule(m middleware.Middleware, app porttypes.IBCModule) IBCModule {
 	return IBCModule{
-		keeper: k,
-		app:    app,
+		middleware: m,
+		app:        app,
 	}
 }
 
@@ -106,7 +105,7 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) exported.Acknowledgement {
 	ack := im.app.OnRecvPacket(ctx, packet, relayer)
-	return im.keeper.OnRecvPacket(ctx, packet, ack)
+	return im.middleware.OnRecvPacket(ctx, packet, ack)
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
@@ -121,7 +120,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return err
 	}
 
-	return im.keeper.OnAcknowledgementPacket(ctx, packet, acknowledgement)
+	return im.middleware.OnAcknowledgementPacket(ctx, packet, acknowledgement)
 }
 
 // OnTimeoutPacket implements the IBCModule interface

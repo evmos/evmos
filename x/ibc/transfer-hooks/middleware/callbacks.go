@@ -1,8 +1,6 @@
-package keeper
+package middleware
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -11,12 +9,12 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 )
 
-func (k Keeper) OnRecvPacket(
+func (m Middleware) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
-	if !ack.Success() || !k.IsTransferHooksEnabled(ctx) {
+	if !ack.Success() || !m.IsTransferHooksEnabled(ctx) {
 		return ack
 	}
 
@@ -34,10 +32,9 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	token := sdk.NewCoin(data.Denom, transferAmount)
-	isSource := transfertypes.ReceiverChainIsSource(packet.GetSourcePort(), packet.GetSourceChannel(), data.Denom)
 
 	// unmarshal packet
-	err := k.AfterRecvTransfer(ctx, packet.DestinationPort, packet.DestinationChannel, token, data.Receiver, isSource)
+	err := m.AfterRecvTransfer(ctx, packet.DestinationPort, packet.DestinationChannel, token, data.Receiver)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
@@ -46,7 +43,7 @@ func (k Keeper) OnRecvPacket(
 	return ack
 }
 
-func (k Keeper) OnAcknowledgementPacket(
+func (m Middleware) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
@@ -56,7 +53,7 @@ func (k Keeper) OnAcknowledgementPacket(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
 	}
 
-	if !ack.Success() || !k.IsTransferHooksEnabled(ctx) {
+	if !ack.Success() || !m.IsTransferHooksEnabled(ctx) {
 		return nil
 	}
 
@@ -78,16 +75,5 @@ func (k Keeper) OnAcknowledgementPacket(
 		return err
 	}
 
-	fullDenomPath := data.Denom
-	// deconstruct the token denomination into the denomination trace info
-	// to determine if the sender is the source chain
-	if strings.HasPrefix(token.Denom, "ibc/") {
-		fullDenomPath, err = k.DenomPathFromHash(ctx, token.Denom)
-		if err != nil {
-			return err
-		}
-	}
-
-	isSource := transfertypes.SenderChainIsSource(packet.SourcePort, packet.SourceChannel, fullDenomPath)
-	return k.AfterTransferAcked(ctx, packet.SourcePort, packet.SourceChannel, token, sender, data.Receiver, isSource)
+	return m.AfterTransferAcked(ctx, packet.SourcePort, packet.SourceChannel, token, sender, data.Receiver)
 }

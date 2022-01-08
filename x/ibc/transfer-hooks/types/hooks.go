@@ -4,6 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const ModuleName = "transfer-hooks"
+
 type TransferHooks interface {
 	AfterTransferAcked(
 		ctx sdk.Context,
@@ -12,7 +14,6 @@ type TransferHooks interface {
 		token sdk.Coin,
 		sender sdk.AccAddress,
 		receiver string,
-		isSource bool,
 	) error
 	AfterRecvTransfer(
 		ctx sdk.Context,
@@ -20,7 +21,6 @@ type TransferHooks interface {
 		destChannel string,
 		token sdk.Coin,
 		receiver string,
-		isSource bool,
 	) error
 }
 
@@ -36,10 +36,9 @@ func (mths MultiTransferHooks) AfterTransferAcked(
 	token sdk.Coin,
 	sender sdk.AccAddress,
 	receiver string,
-	isSource bool,
 ) error {
 	for i := range mths {
-		err := mths[i].AfterTransferAcked(ctx, sourcePort, sourceChannel, token, sender, receiver, isSource)
+		err := mths[i].AfterTransferAcked(ctx, sourcePort, sourceChannel, token, sender, receiver)
 		if err != nil {
 			return err
 		}
@@ -52,10 +51,9 @@ func (mths MultiTransferHooks) AfterRecvTransfer(
 	destPort, destChannel string,
 	token sdk.Coin,
 	receiver string,
-	isSource bool,
 ) error {
 	for i := range mths {
-		err := mths[i].AfterRecvTransfer(ctx, destPort, destChannel, token, receiver, isSource)
+		err := mths[i].AfterRecvTransfer(ctx, destPort, destChannel, token, receiver)
 		if err != nil {
 			return err
 		}
