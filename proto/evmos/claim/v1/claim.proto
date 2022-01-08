@@ -21,12 +21,18 @@ enum Action {
     ACTION_IBC_TRANSFER= 4 [(gogoproto.enumvalue_customname) = "ActionIBCTransfer"];
 }
 
-// ActionCompleted marks defines if a given action is completed for the user
-message ActionCompleted {
+// Claim marks defines the action, completed flag and the remaining claimable amount
+// for a given user. This is only used during client queries.
+message Claim {
   // action enum
   Action action = 1;
   // true if the action has been completed
   bool completed = 2;
+  // claimable token amount for the action. Zero if completed
+  string claimable_amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // ClaimRecordAddress is the metadata of claim data per address

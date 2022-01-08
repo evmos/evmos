@@ -5,7 +5,7 @@
 ## Table of Contents
 
 - [evmos/claim/v1/claim.proto](#evmos/claim/v1/claim.proto)
-    - [ActionCompleted](#evmos.claim.v1.ActionCompleted)
+    - [Claim](#evmos.claim.v1.Claim)
     - [ClaimRecord](#evmos.claim.v1.ClaimRecord)
     - [ClaimRecordAddress](#evmos.claim.v1.ClaimRecordAddress)
   
@@ -16,14 +16,10 @@
     - [Params](#evmos.claim.v1.Params)
   
 - [evmos/claim/v1/query.proto](#evmos/claim/v1/query.proto)
-    - [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest)
-    - [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse)
-    - [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest)
-    - [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse)
+    - [QueryClaimRecordsRequest](#evmos.claim.v1.QueryClaimRecordsRequest)
+    - [QueryClaimRecordsResponse](#evmos.claim.v1.QueryClaimRecordsResponse)
     - [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse)
-    - [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest)
-    - [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse)
     - [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest)
     - [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse)
   
@@ -83,16 +79,18 @@
 
 
 
-<a name="evmos.claim.v1.ActionCompleted"></a>
+<a name="evmos.claim.v1.Claim"></a>
 
-### ActionCompleted
-ActionCompleted marks defines if a given action is completed for the user
+### Claim
+Claim marks defines the action, completed flag and the remaining claimable amount
+for a given user. This is only used during client queries.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `action` | [Action](#evmos.claim.v1.Action) |  | action enum |
 | `completed` | [bool](#bool) |  | true if the action has been completed |
+| `claimable_amount` | [string](#string) |  | claimable token amount for the action. Zero if completed |
 
 
 
@@ -215,61 +213,31 @@ Params defines the claim module's parameters.
 
 
 
-<a name="evmos.claim.v1.QueryClaimRecordRequest"></a>
+<a name="evmos.claim.v1.QueryClaimRecordsRequest"></a>
 
-### QueryClaimRecordRequest
-QueryClaimRecordRequest is the request type for the Query/ClaimRecord RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="evmos.claim.v1.QueryClaimRecordResponse"></a>
-
-### QueryClaimRecordResponse
-QueryClaimRecordResponse is the response type for the Query/ClaimRecord RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `claim_record` | [ClaimRecord](#evmos.claim.v1.ClaimRecord) |  |  |
-
-
-
-
-
-
-<a name="evmos.claim.v1.QueryClaimableForActionRequest"></a>
-
-### QueryClaimableForActionRequest
-QueryClaimableForActionRequest is the request type for the Query/ClaimableForAction RPC method.
+### QueryClaimRecordsRequest
+QueryClaimRecordsRequest is the request type for the Query/ClaimRecord RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `address` | [string](#string) |  |  |
-| `action` | [Action](#evmos.claim.v1.Action) |  |  |
 
 
 
 
 
 
-<a name="evmos.claim.v1.QueryClaimableForActionResponse"></a>
+<a name="evmos.claim.v1.QueryClaimRecordsResponse"></a>
 
-### QueryClaimableForActionResponse
-QueryClaimableForActionResponse is the response type for the Query/ClaimableForAction RPC method.
+### QueryClaimRecordsResponse
+QueryClaimRecordsResponse is the response type for the Query/ClaimRecord RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `claims` | [Claim](#evmos.claim.v1.Claim) | repeated |  |
 
 
 
@@ -295,36 +263,6 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.claim.v1.Params) |  | params defines the parameters of the module. |
-
-
-
-
-
-
-<a name="evmos.claim.v1.QueryTotalClaimableRequest"></a>
-
-### QueryTotalClaimableRequest
-QueryTotalClaimableResponse is the request type for the Query/TotalClaimable RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="evmos.claim.v1.QueryTotalClaimableResponse"></a>
-
-### QueryTotalClaimableResponse
-QueryTotalClaimableResponse is the response type for the Query/TotalClaimable RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
 
 
 
@@ -371,9 +309,7 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claim/v1/total_unclaimed|
 | `Params` | [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse) | Params returns the claim module parameters | GET|/evmos/claim/v1/params|
-| `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claim.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claim.v1.QueryClaimRecordResponse) | ClaimRecord returns the claim record metadata for a given address | GET|/evmos/claim/v1/claim_record/{address}|
-| `ClaimableForAction` | [QueryClaimableForActionRequest](#evmos.claim.v1.QueryClaimableForActionRequest) | [QueryClaimableForActionResponse](#evmos.claim.v1.QueryClaimableForActionResponse) | ClaimableForAction returns the total amount claimable for a given address and action | GET|/evmos/claim/v1/claimable_for_action/{address}/{action}|
-| `TotalClaimable` | [QueryTotalClaimableRequest](#evmos.claim.v1.QueryTotalClaimableRequest) | [QueryTotalClaimableResponse](#evmos.claim.v1.QueryTotalClaimableResponse) | TotalClaimable returns the total amount claimable for a given address | GET|/evmos/claim/v1/total_claimable/{address}|
+| `ClaimRecords` | [QueryClaimRecordsRequest](#evmos.claim.v1.QueryClaimRecordsRequest) | [QueryClaimRecordsResponse](#evmos.claim.v1.QueryClaimRecordsResponse) | ClaimRecords returns the claims records for a given address | GET|/evmos/claim/v1/claim_records/{address}|
 
  <!-- end services -->
 

@@ -31,11 +31,11 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	}, nil
 }
 
-// ClaimRecord returns claimable amount per user
-func (k Keeper) ClaimRecord(
+// ClaimRecords returns claimable amount per user
+func (k Keeper) ClaimRecords(
 	goCtx context.Context,
-	req *types.QueryClaimRecordRequest,
-) (*types.QueryClaimRecordResponse, error) {
+	req *types.QueryClaimRecordsRequest,
+) (*types.QueryClaimRecordsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -52,66 +52,20 @@ func (k Keeper) ClaimRecord(
 		return nil, status.Errorf(codes.NotFound, "claim record for address '%s'", req.Address)
 	}
 
-	return &types.QueryClaimRecordResponse{
-		ClaimRecord: claimRecord,
-	}, nil
-}
-
-// ClaimableForAction return the total amount claimable by an address for
-// an action.
-func (k Keeper) ClaimableForAction(
-	goCtx context.Context,
-	req *types.QueryClaimableForActionRequest,
-) (*types.QueryClaimableForActionResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-
-	if req.Action == types.ActionUnspecified || req.Action > types.ActionIBCTransfer {
-		return nil, status.Error(codes.InvalidArgument, types.ErrInvalidAction.Error())
-	}
-
-	addr, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
+	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 
-	amt := sdk.ZeroInt()
-
-	claimRecord, found := k.GetClaimRecord(ctx, addr)
-	if found {
-		amt = k.GetClaimableAmountForAction(ctx, addr, claimRecord, req.Action, params)
+	claims := make([]types.Claim, len(actions))
+	for i, action := range actions {
+		claims[i] = types.Claim{
+			Action:          action,
+			Completed:       claimRecord.HasClaimedAction(action),
+			ClaimableAmount: k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params),
+		}
 	}
 
-	return &types.QueryClaimableForActionResponse{
-		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},
-	}, nil
-}
-
-// TotalClaimable returns the total amount claimable by a user.
-func (k Keeper) TotalClaimable(
-	goCtx context.Context,
-	req *types.QueryTotalClaimableRequest,
-) (*types.QueryTotalClaimableResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-
-	addr, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	params := k.GetParams(ctx)
-
-	amt := k.GetUserTotalClaimable(ctx, addr)
-
-	return &types.QueryTotalClaimableResponse{
-		Coins: sdk.Coins{{Denom: params.ClaimDenom, Amount: amt}},
+	return &types.QueryClaimRecordsResponse{
+		InitialClaimableAmount: claimRecord.InitialClaimableAmount,
+		Claims:                 claims,
 	}, nil
 }

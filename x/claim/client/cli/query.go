@@ -27,9 +27,7 @@ func GetQueryCmd() *cobra.Command {
 	claimQueryCmd.AddCommand(
 		GetCmdQueryTotalUnclaimed(),
 		GetCmdQueryParams(),
-		GetCmdQueryClaimRecord(),
-		GetCmdQueryClaimableForAction(),
-		GetCmdQueryTotalClaimable(),
+		GetCmdQueryClaimRecords(),
 	)
 
 	return claimQueryCmd
@@ -96,17 +94,17 @@ func GetCmdQueryParams() *cobra.Command {
 }
 
 // GetCmdQueryClaimRecord implements the query claim-records command.
-func GetCmdQueryClaimRecord() *cobra.Command {
+func GetCmdQueryClaimRecords() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "claim-record [address]",
+		Use:   "claim-records [address]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query the claim record for an account.",
+		Short: "Query the claim records for an account.",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query the claim record for an account.
-This contains an address' initial claimable amounts, and the completed actions.
+			fmt.Sprintf(`Query the claim records for an account.
+This contains an address' initial claimable amount, and the claims per action.
 
 Example:
-$ %s query claim claim-record <address>
+$ %s query claim claim-records <address>
 `,
 				version.AppName,
 			),
@@ -120,94 +118,7 @@ $ %s query claim claim-record <address>
 			queryClient := types.NewQueryClient(clientCtx)
 
 			// Query store
-			res, err := queryClient.ClaimRecord(context.Background(), &types.QueryClaimRecordRequest{Address: args[0]})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-// GetCmdQueryClaimableForAction implements the query claimable for action command.
-func GetCmdQueryClaimableForAction() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "claimable-for-action [address] [action]",
-		Args:  cobra.ExactArgs(2),
-		Short: "Query an address' claimable amount for a specific action",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query an address' claimable amount for a specific action
-
-Example:
-$ %s query claim claimable-for-action evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx ActionVote
-`,
-				version.AppName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			action, ok := types.Action_value[args[1]]
-			if !ok || types.Action(action) == types.ActionUnspecified {
-				return fmt.Errorf(
-					"invalid Action type: %s. Valid actions are %s, %s, %s, %s",
-					args[1],
-					types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer,
-				)
-			}
-
-			// Query store
-			res, err := queryClient.ClaimableForAction(context.Background(), &types.QueryClaimableForActionRequest{
-				Address: args[0],
-				Action:  types.Action(action),
-			})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-// GetCmdQueryClaimable implements the query claimables command.
-func GetCmdQueryTotalClaimable() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "total-claimable [address]",
-		Args:  cobra.ExactArgs(1),
-		Short: "Query the total claimable amount remaining for an account.",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query the total claimable amount remaining for an account.
-Example:
-$ %s query claim total-claimable evmos1ey69r37gfxvxg62sh4r0ktpuc46pzjrm23kcrx
-`,
-				version.AppName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryTotalClaimableRequest{
-				Address: args[0],
-			}
-
-			// Query store
-			res, err := queryClient.TotalClaimable(context.Background(), req)
+			res, err := queryClient.ClaimRecords(context.Background(), &types.QueryClaimRecordsRequest{Address: args[0]})
 			if err != nil {
 				return err
 			}

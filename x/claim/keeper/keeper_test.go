@@ -20,11 +20,9 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	suite.app = app.Setup(false, nil)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "evmos_9000-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "evmos_9001-1", Time: time.Now().UTC()})
 
 	airdropStartTime := time.Now().UTC()
-	// suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000)))
-
 	suite.ctx = suite.ctx.WithBlockTime(airdropStartTime)
 }
 
