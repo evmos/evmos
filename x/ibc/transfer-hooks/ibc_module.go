@@ -1,13 +1,9 @@
 package transferhooks
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
@@ -110,34 +106,7 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) exported.Acknowledgement {
 	ack := im.app.OnRecvPacket(ctx, packet, relayer)
-	if !ack.Success() || !im.keeper.IsTransferHooksEnabled(ctx) {
-		return ack
-	}
-
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-		return channeltypes.NewErrorAcknowledgement(err.Error())
-	}
-
-	// parse the transfer amount
-	transferAmount, ok := sdk.NewIntFromString(data.Amount)
-	if !ok {
-		err := sdkerrors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount (%s) into sdk.Int", data.Amount)
-		return channeltypes.NewErrorAcknowledgement(err.Error())
-	}
-
-	token := sdk.NewCoin(data.Denom, transferAmount)
-	isSource := transfertypes.ReceiverChainIsSource(packet.GetSourcePort(), packet.GetSourceChannel(), data.Denom)
-
-	// unmarshal packet
-	err := im.keeper.AfterRecvTransfer(ctx, packet.DestinationPort, packet.DestinationChannel, token, data.Receiver, isSource)
-	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
-	}
-
-	// return the original success acknowledgement
-	return ack
+	return im.keeper.OnRecvPacket(ctx, packet, ack)
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
@@ -152,45 +121,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return err
 	}
 
-	var ack channeltypes.Acknowledgement
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
-	}
-
-	if !ack.Success() || !im.keeper.IsTransferHooksEnabled(ctx) {
-		return nil
-	}
-
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-	}
-
-	// parse the transfer amount
-	transferAmount, ok := sdk.NewIntFromString(data.Amount)
-	if !ok {
-		return sdkerrors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount (%s) into sdk.Int", data.Amount)
-	}
-
-	token := sdk.NewCoin(data.Denom, transferAmount)
-
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
-	if err != nil {
-		return err
-	}
-
-	fullDenomPath := data.Denom
-	// deconstruct the token denomination into the denomination trace info
-	// to determine if the sender is the source chain
-	if strings.HasPrefix(token.Denom, "ibc/") {
-		fullDenomPath, err = im.keeper.DenomPathFromHash(ctx, token.Denom)
-		if err != nil {
-			return err
-		}
-	}
-
-	isSource := transfertypes.SenderChainIsSource(packet.SourcePort, packet.SourceChannel, fullDenomPath)
-	return im.keeper.AfterTransferAcked(ctx, packet.SourcePort, packet.SourceChannel, token, sender, data.Receiver, isSource)
+	return im.keeper.OnAcknowledgementPacket(ctx, packet, acknowledgement)
 }
 
 // OnTimeoutPacket implements the IBCModule interface
