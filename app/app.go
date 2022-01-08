@@ -440,7 +440,14 @@ func NewEvmos(
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper)
 
-	app.TransferHooksMiddleware = thmiddleware.NewMiddleware()
+	transferHooksMiddleware := thmiddleware.NewMiddleware()
+	transferHooksMiddleware.SetHooks(
+		thtypes.NewMultiTransferHooks(
+		//  TODO: add hooks
+		),
+	)
+
+	app.TransferHooksMiddleware = transferHooksMiddleware
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(

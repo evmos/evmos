@@ -24,6 +24,8 @@ type TransferHooks interface {
 	) error
 }
 
+var _ TransferHooks = &MultiTransferHooks{}
+
 type MultiTransferHooks []TransferHooks
 
 func NewMultiTransferHooks(hooks ...TransferHooks) MultiTransferHooks {
