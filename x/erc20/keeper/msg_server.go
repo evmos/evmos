@@ -116,7 +116,7 @@ func (k Keeper) convertCoinNativeCoin(
 ) (*types.MsgConvertCoinResponse, error) {
 	// NOTE: ignore validation from NewCoin constructor
 	coins := sdk.Coins{msg.Coin}
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceToken := k.balanceOf(ctx, erc20, contract, receiver)
 
@@ -173,7 +173,7 @@ func (k Keeper) convertCoinNativeERC20(
 ) (*types.MsgConvertCoinResponse, error) {
 	// NOTE: ignore validation from NewCoin constructor
 	coins := sdk.Coins{msg.Coin}
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceToken := k.balanceOf(ctx, erc20, contract, receiver)
 
@@ -250,7 +250,9 @@ func (k Keeper) convertERC20NativeCoin(
 ) (*types.MsgConvertERC20Response, error) {
 	// NOTE: coin fields already validated
 	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+	// TODO use native contract abi
+
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	balanceToken := k.balanceOf(ctx, erc20, contract, sender)
@@ -320,7 +322,7 @@ func (k Keeper) convertERC20NativeToken(
 ) (*types.MsgConvertERC20Response, error) {
 	// NOTE: coin fields already validated
 	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
-	erc20 := contracts.ERC20BurnableAndMintableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	balanceToken := k.balanceOf(ctx, erc20, contract, sender)
