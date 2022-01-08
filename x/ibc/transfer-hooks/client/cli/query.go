@@ -10,11 +10,11 @@ import (
 	"github.com/tharsis/evmos/x/ibc/transfer-hooks/types"
 )
 
-// GetQueryCmd returns the parent command for all erc20 CLI query commands.
+// GetQueryCmd returns the parent command for all ibc transfer hooks CLI query commands.
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the erc20 module",
+		Short:                      "Querying commands for the ibc transfer hooks module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
