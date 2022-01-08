@@ -28,9 +28,8 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 	}
 }
 
-func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, _ common.Hash, _ []*ethtypes.Log) error {
-	// TODO: add sender
-	fromAddr := sdk.AccAddress([]byte{})
+func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
+	fromAddr := sdk.AccAddress(from.Bytes())
 	_, err := k.ClaimCoinsForAction(ctx, fromAddr, types.ActionEVM)
 	if err != nil {
 		return err
@@ -58,8 +57,8 @@ func (k Keeper) Hooks() Hooks {
 }
 
 // evm hook
-func (h Hooks) PostTxProcessing(ctx sdk.Context, txHash common.Hash, logs []*ethtypes.Log) error {
-	return h.k.AfterEVMStateTransition(ctx, txHash, logs)
+func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
+	return h.k.AfterEVMStateTransition(ctx, from, to, receipt)
 }
 
 // gov hooks
