@@ -26,7 +26,7 @@ func GetQueryCmd() *cobra.Command {
 	return cmd
 }
 
-// GetHubParamsCmd queries module params
+// GetParamsCmd queries module params
 func GetParamsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
