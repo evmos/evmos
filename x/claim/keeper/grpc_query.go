@@ -31,7 +31,7 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	}, nil
 }
 
-// ClaimRecords returns claimable amount per user
+// ClaimRecords returns initial claimable amount per user and the claims per action
 func (k Keeper) ClaimRecords(
 	goCtx context.Context,
 	req *types.QueryClaimRecordsRequest,

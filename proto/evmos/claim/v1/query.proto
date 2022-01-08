@@ -49,12 +49,12 @@ message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryClaimRecordsRequest is the request type for the Query/ClaimRecord RPC method.
+// QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
 message QueryClaimRecordsRequest {
   string address = 1;
 }
 
-// QueryClaimRecordsResponse is the response type for the Query/ClaimRecord RPC method.
+// QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
 message QueryClaimRecordsResponse {
   // total initial claimable amount for the user
   string initial_claimable_amount = 1 [
