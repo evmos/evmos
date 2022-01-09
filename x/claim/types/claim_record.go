@@ -7,6 +7,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// NewClaimRecord creates a new claim record instance
+func NewClaimRecord(initialClaimableAmt sdk.Int) ClaimRecord {
+	return ClaimRecord{
+		InitialClaimableAmount: initialClaimableAmt,
+		ActionsCompleted:       []bool{false, false, false, false},
+	}
+}
+
 // Validate
 func (cr ClaimRecord) Validate() error {
 	if cr.InitialClaimableAmount.IsNil() {

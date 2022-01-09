@@ -386,7 +386,11 @@ func NewEvmos(
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.StakingKeeper = *stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
+		stakingtypes.NewMultiStakingHooks(
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+			app.ClaimKeeper.Hooks(),
+		),
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.BaseApp.MsgServiceRouter())
@@ -425,6 +429,11 @@ func NewEvmos(
 	)
 
 	// Evmos Keeper
+	app.ClaimKeeper = *claimkeeper.NewKeeper(
+		appCodec, keys[claimtypes.StoreKey], app.GetSubspace(claimtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.DistrKeeper,
+	)
+
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
 	)
@@ -436,15 +445,17 @@ func NewEvmos(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			govtypes.NewMultiGovHooks(),
+			govtypes.NewMultiGovHooks(
+				app.ClaimKeeper.Hooks(),
+			),
 		),
 	)
 
-	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper)
-
-	app.ClaimKeeper = *claimkeeper.NewKeeper(
-		appCodec, keys[claimtypes.StoreKey], app.GetSubspace(claimtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.DistrKeeper,
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.ClaimKeeper.Hooks(),
+			app.Erc20Keeper,
+		),
 	)
 
 	// Create Transfer Keepers
@@ -481,6 +492,8 @@ func NewEvmos(
 		// AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
+
+	// TODO: add IBC transfer hooks
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
