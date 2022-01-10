@@ -22,27 +22,29 @@ func (suite *KeeperTestSuite) ensureHooksSet() {
 }
 
 func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
+	var expGasUsed uint64
+
 	testCases := []struct {
-		name       string
-		malleate   func(common.Address)
-		expGasUsed uint64
-		expPass    bool
+		name     string
+		malleate func(common.Address)
+
+		expPass bool
 	}{
 		{
 			"correct execution - one tx",
 			func(contractAddr common.Address) {
-				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
 			},
-			uint64(73820),
 			true,
 		},
 		{
 			"correct execution - two tx",
 			func(contractAddr common.Address) {
-				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
-				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
+				res2 := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
+				expGasUsed = res.AsTransaction().Gas() + res2.AsTransaction().Gas()
 			},
-			uint64(113440),
 			true,
 		},
 		{
@@ -50,7 +52,6 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			func(contractAddr common.Address) {
 				suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
 			},
-			uint64(0),
 			false,
 		},
 		// {"wrong event", func(contractAddr common.Address) {}, false},
@@ -102,8 +103,8 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				suite.Require().NoError(err)
 				suite.Require().True(found)
 				suite.Require().NotZero(gm)
-				suite.Require().Equal(tc.expGasUsed, gm)
-				suite.Require().Equal(tc.expGasUsed, totalGas)
+				suite.Require().Equal(expGasUsed, gm)
+				suite.Require().Equal(expGasUsed, totalGas)
 			} else {
 				suite.Require().NoError(err)
 				suite.Require().Zero(gm)
