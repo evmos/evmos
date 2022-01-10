@@ -31,9 +31,9 @@ func (k Keeper) GetClaimableAmountForAction(
 
 	// TODO: update this and explicitly define the % instead of assuming each action
 	// has the same weight
-	initialClaimablePerAction := claimRecord.InitialClaimableAmount.Add(
-		claimRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name))),
-	)
+
+	// NOTE: use len(actions)-1 we don't consider the Unspecified Action
+	initialClaimablePerAction := claimRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
 
 	// Are we early enough in the airdrop s.t. theres no decay?
 	if elapsedAirdropTime <= params.DurationUntilDecay {

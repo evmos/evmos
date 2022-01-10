@@ -44,6 +44,7 @@ func (suite *KeeperTestSuite) TestTotalUnclaimed() {
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	expParams := types.DefaultParams()
+	expParams.AirdropStartTime = suite.ctx.BlockTime()
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
@@ -94,7 +95,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 			false,
 		},
 		{
-			"valid, non empty amounts",
+			"valid, non empty claimable amounts",
 			func() {
 				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
@@ -116,8 +117,9 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 		} else {
 			suite.Require().NoError(err)
 			suite.Require().Len(res.Claims, 4)
-			// TODO: claim amounts
-			// suite.Require().Equal(int64(0), res.InitialClaimableAmount.Int64())
+			for _, claim := range res.Claims {
+				suite.Require().Equal(res.InitialClaimableAmount.QuoRaw(4).String(), claim.ClaimableAmount.String())
+			}
 		}
 	}
 }

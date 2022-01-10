@@ -63,6 +63,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.ClaimKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	params := types.DefaultParams()
+	params.AirdropStartTime = suite.ctx.BlockTime()
+	suite.app.ClaimKeeper.SetParams(suite.ctx, params)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
