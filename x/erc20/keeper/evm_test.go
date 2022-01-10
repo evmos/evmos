@@ -36,7 +36,7 @@ func (suite *KeeperTestSuite) TestQueryERC20() {
 		if tc.res {
 			suite.Require().NoError(err)
 			suite.Require().Equal(
-				types.ERC20Data{Name: "coin", Symbol: "token", Decimals: 0x12},
+				types.ERC20Data{Name: "coin", Symbol: "token", Decimals: erc20Decimals},
 				res,
 			)
 		} else {

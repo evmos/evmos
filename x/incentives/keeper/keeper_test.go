@@ -257,11 +257,11 @@ func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Addre
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
-// func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTx {
-// 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", types.ModuleAddress, amount)
-// 	suite.Require().NoError(err)
-// 	return suite.sendTx(contractAddr, from, transferData)
-// }
+func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", types.ModuleAddress, amount)
+	suite.Require().NoError(err)
+	return suite.sendTx(contractAddr, from, transferData)
+}
 
 func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, role_string string) *evm.MsgEthereumTx {
 	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
@@ -281,6 +281,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 
 	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
 	suite.Require().NoError(err)
+
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
 		GasCap: uint64(config.DefaultGasCap),
@@ -310,46 +311,46 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	suite.Require().NoError(err)
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
 	suite.Require().NoError(err)
+	fmt.Println(rsp)
 	suite.Require().Empty(rsp.VmError)
 	return ercTransferTx
 }
 
-// func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
-// 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-// 	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
-// 	if err != nil {
-// 		return nil
-// 	}
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
+	if err != nil {
+		return nil
+	}
 
-// 	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
-// 	if len(unpacked) == 0 {
-// 		return nil
-// 	}
+	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
+	if len(unpacked) == 0 {
+		return nil
+	}
 
-// 	return unpacked[0]
-// }
+	return unpacked[0]
+}
 
-// func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
-// 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-// 	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "name")
-// 	if err != nil {
-// 		return nil
-// 	}
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "name")
+	if err != nil {
+		return nil
+	}
 
-// 	unpacked, err := erc20.Unpack("name", res.Ret)
-// 	if len(unpacked) == 0 {
-// 		return nil
-// 	}
+	unpacked, err := erc20.Unpack("name", res.Ret)
+	if len(unpacked) == 0 {
+		return nil
+	}
 
-// 	return unpacked[0]
-// }
+	return unpacked[0]
+}
 
 func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
-
 	suite.Require().NoError(err)
-	fmt.Println("REACHED")
+	fmt.Println("TransferERC20Token")
 	return suite.sendTx(contractAddr, from, transferData)
 }

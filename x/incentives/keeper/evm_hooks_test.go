@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -32,7 +31,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			"correct execution",
 			func(contractAddr common.Address) {
 				// Mint coins to pay for gas fee
-				coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(int64(params.TxGas)+1000)))
+				coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(30000000)))
 				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 				err := suite.app.BankKeeper.SendCoinsFromModuleToAccount(
 					suite.ctx,
@@ -43,11 +42,17 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				suite.Require().NoError(err)
 
 				// Mint tokens to transfer
-				suite.MintERC20Token(contractAddr, suite.address, participant, big.NewInt(100))
+				suite.MintERC20Token(contractAddr, suite.address, participant, big.NewInt(1000000000))
 				suite.Commit()
 
+				balanceCoin := suite.BalanceOf(contractAddr, participant)
+				fmt.Printf("balanceCoin: %v\n", balanceCoin)
+
+				balanceToken := suite.app.EvmKeeper.GetBalance(suite.ctx, participant)
+				fmt.Printf("balanceToken: %v\n", balanceToken)
+
 				// submit contract Tx
-				_ = suite.TransferERC20Token(contractAddr, participant, participant2, big.NewInt(10))
+				suite.TransferERC20Token(contractAddr, participant, participant2, big.NewInt(0))
 			},
 			true,
 		},
@@ -77,6 +82,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 
 			// submit Tx
 			tc.malleate(contractAddr)
+			suite.Commit()
 
 			expGasUsed := int64(10)
 			gm, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(
