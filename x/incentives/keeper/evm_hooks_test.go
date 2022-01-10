@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/tharsis/ethermint/tests"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -20,43 +21,38 @@ func (suite *KeeperTestSuite) ensureHooksSet() {
 	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper)
 }
 
-// TODO Fix test when the ethermint version is updated
 func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 	testCases := []struct {
-		name     string
-		malleate func(common.Address)
-		expPass  bool
+		name       string
+		malleate   func(common.Address)
+		expGasUsed uint64
+		expPass    bool
 	}{
 		{
-			"correct execution",
+			"correct execution - one tx",
 			func(contractAddr common.Address) {
-				// Mint coins to pay for gas fee
-				coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(30000000)))
-				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-				err := suite.app.BankKeeper.SendCoinsFromModuleToAccount(
-					suite.ctx,
-					types.ModuleName,
-					sdk.AccAddress(participant.Bytes()),
-					coins,
-				)
-				suite.Require().NoError(err)
-
-				// Mint tokens to transfer
-				suite.MintERC20Token(contractAddr, suite.address, participant, big.NewInt(1000000000))
-				suite.Commit()
-
-				balanceToken := suite.BalanceOf(contractAddr, participant)
-				fmt.Printf("balanceToken: %v\n", balanceToken)
-
-				balanceCoin := suite.app.EvmKeeper.GetBalance(suite.ctx, participant)
-				fmt.Printf("balanceCoin: %v\n", balanceCoin)
-
-				// submit contract Tx
-				suite.TransferERC20Token(contractAddr, participant, participant2, balanceToken)
+				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
 			},
+			uint64(73820),
 			true,
 		},
-		// {"unincentivized contract", func(contractAddr common.Address) {}, false},
+		{
+			"correct execution - two tx",
+			func(contractAddr common.Address) {
+				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
+				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
+			},
+			uint64(113440),
+			true,
+		},
+		{
+			"tx with unincentivized contract",
+			func(contractAddr common.Address) {
+				suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
+			},
+			uint64(0),
+			false,
+		},
 		// {"wrong event", func(contractAddr common.Address) {}, false},
 	}
 	for _, tc := range testCases {
@@ -65,11 +61,12 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			suite.SetupTest()
 			suite.ensureHooksSet()
 
-			// Deploy contract, nint and create incentive
+			// Deploy Contract
 			contractAddr := suite.DeployContract(denomCoin, "COIN", erc20Decimals)
 			suite.Commit()
 
-			in, err := suite.app.IncentivesKeeper.RegisterIncentive(
+			// Register Incentive
+			incentive, err := suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
 				contractAddr,
 				sdk.DecCoins{
@@ -78,31 +75,39 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				epochs,
 			)
 			suite.Require().NoError(err)
-			suite.Commit()
 
-			// submit Tx
+			// Mint coins to pay gas fee
+			coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(30000000)))
+			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+
+			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(
+				suite.ctx,
+				types.ModuleName,
+				sdk.AccAddress(suite.address.Bytes()),
+				coins,
+			)
+			suite.Require().NoError(err)
+
+			// Submit tx
 			tc.malleate(contractAddr)
-			suite.Commit()
 
-			expGasUsed := int64(10)
+			totalGas := suite.app.IncentivesKeeper.GetIncentiveTotalGas(suite.ctx, *incentive)
 			gm, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(
 				suite.ctx,
 				contractAddr,
-				participant,
+				suite.address,
 			)
-			suite.Require().True(found)
-			suite.Commit()
 
-			// check if gasUsed is logged
 			if tc.expPass {
 				suite.Require().NoError(err)
+				suite.Require().True(found)
 				suite.Require().NotZero(gm)
-				suite.Require().Equal(expGasUsed, gm)
-				suite.Require().Equal(expGasUsed, in.TotalGas)
+				suite.Require().Equal(tc.expGasUsed, gm)
+				suite.Require().Equal(tc.expGasUsed, totalGas)
 			} else {
-				suite.Require().Error(err)
+				suite.Require().NoError(err)
 				suite.Require().Zero(gm)
-				suite.Require().Zero(in.TotalGas)
+				suite.Require().Zero(totalGas)
 			}
 		})
 	}

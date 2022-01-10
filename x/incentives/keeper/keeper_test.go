@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -307,12 +306,11 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	)
 
 	ercTransferTx.From = from.Hex()
-	signer := tests.NewSigner(nil) // TODO: add
-	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), signer)
+
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
 	suite.Require().NoError(err)
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
 	suite.Require().NoError(err)
-	fmt.Println(rsp)
 	suite.Require().Empty(rsp.VmError)
 	return ercTransferTx
 }
@@ -348,9 +346,9 @@ func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
 	return unpacked[0]
 }
 
-func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+// TransferERC20Token transfers tokens from the suite.address to a given address
+func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
 	suite.Require().NoError(err)
-	fmt.Println("TransferERC20Token")
-	return suite.sendTx(contractAddr, from, transferData)
+	return suite.sendTx(contractAddr, suite.address, transferData)
 }
