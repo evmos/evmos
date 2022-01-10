@@ -176,16 +176,41 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 	var contractAddr common.Address
 
 	testCases := []struct {
-		name         string
-		mint         int64
-		burn         int64
-		malleate     func(common.Address)
-		contractType int
-		expPass      bool
+		name           string
+		mint           int64
+		burn           int64
+		malleate       func(common.Address)
+		contractType   int
+		expPass        bool
+		selfdestructed bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(common.Address) {}, contractBurnerAndMintable, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, contractBurnerAndMintable, true},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, contractBurnerAndMintable, true},
+		{
+			"ok - sufficient funds",
+			100,
+			10,
+			func(common.Address) {},
+			contractBurnerAndMintable,
+			true,
+			false,
+		},
+		{
+			"ok - equal funds",
+			10,
+			10,
+			func(common.Address) {},
+			contractBurnerAndMintable,
+			true,
+			false,
+		},
+		{
+			"ok - equal funds",
+			10,
+			10,
+			func(common.Address) {},
+			contractBurnerAndMintable,
+			true,
+			false,
+		},
 		{
 			"ok - suicided contract",
 			10,
@@ -200,7 +225,15 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			true,
 			true,
 		},
-		{"fail - insufficient funds - callEVM", 0, 10, func(common.Address) {}, contractBurnerAndMintable, false},
+		{
+			"fail - insufficient funds - callEVM",
+			0,
+			10,
+			func(common.Address) {},
+			contractBurnerAndMintable,
+			false,
+			false,
+		},
 		{
 			"fail - minting disabled",
 			100,
@@ -211,6 +244,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 			},
 			contractBurnerAndMintable,
+			false,
 			false,
 		},
 		{

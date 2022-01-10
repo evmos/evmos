@@ -283,7 +283,7 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name strin
 	})
 	suite.Require().NoError(err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.address)
+	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
 	erc20DeployTx := evm.NewTxContract(
 		chainID,
@@ -332,7 +332,7 @@ func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Addre
 		transferData, err = contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("mint", to, amount)
 	case contractMaliciousDelayed:
 		transferData, err = contracts.ERC20MaliciousDelayedContract.ABI.Pack("mint", to, amount)
-	} else {
+	default:
 		transferData, err = contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
 	}
 	suite.Require().NoError(err)
