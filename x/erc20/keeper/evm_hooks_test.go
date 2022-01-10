@@ -60,7 +60,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Require().NoError(err)
 
 				// Mint 10 tokens to suite.address (owner)
-				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10), false)
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10), contractBurnerAndMintable)
 			},
 			false,
 		},
