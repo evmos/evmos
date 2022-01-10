@@ -1,6 +1,8 @@
 package claim
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/evmos/x/claim/keeper"
@@ -12,6 +14,14 @@ import (
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	k.SetParams(ctx, data.Params)
 
+	escrowedCoin := sdk.Coin{Denom: data.Params.ClaimDenom, Amount: sdk.ZeroInt()}
+	escrowedCoins := k.GetModuleAccountBalances(ctx)
+	if escrowedCoins != nil {
+		escrowedCoin.Amount = escrowedCoins.AmountOfNoDenomValidation(data.Params.ClaimDenom)
+	}
+
+	totalToClaim := sdk.Coin{Denom: data.Params.ClaimDenom, Amount: sdk.ZeroInt()}
+
 	for _, claimRecord := range data.ClaimRecords {
 		addr, _ := sdk.AccAddressFromBech32(claimRecord.Address)
 		cr := types.ClaimRecord{
@@ -19,6 +29,18 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 			ActionsCompleted:       claimRecord.ActionsCompleted,
 		}
 		k.SetClaimRecord(ctx, addr, cr)
+
+		amt := sdk.Coin{Denom: data.Params.ClaimDenom, Amount: cr.InitialClaimableAmount}
+		totalToClaim = totalToClaim.Add(amt)
+	}
+
+	if !totalToClaim.IsEqual(escrowedCoin) {
+		panic(
+			fmt.Errorf(
+				"sum of claimable amount ≠ escrowed module account amount (%s ≠ %s)",
+				totalToClaim, escrowedCoin,
+			),
+		)
 	}
 }
 

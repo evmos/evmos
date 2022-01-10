@@ -11,7 +11,7 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// TotalUnclaimed.
+// TotalUnclaimed returns the total amount unclaimed from the airdrop.
 func (k Keeper) TotalUnclaimed(c context.Context, _ *types.QueryTotalUnclaimedRequest) (*types.QueryTotalUnclaimedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	moduleAccBal := k.GetModuleAccountBalances(ctx)
