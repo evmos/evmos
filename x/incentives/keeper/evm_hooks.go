@@ -30,22 +30,6 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, participant common.Address, co
 	return nil
 }
 
-// addGasToParticipant adds gasUsed to a participant's gas meter's cumulative
-// gas used
-func (k Keeper) addGasToParticipant(
-	ctx sdk.Context,
-	contract, participant common.Address,
-	gasUsed uint64,
-) {
-	previousGas, found := k.GetIncentiveGasMeter(ctx, contract, participant)
-	if found {
-		gasUsed += previousGas
-	}
-
-	gm := types.NewGasMeter(contract, participant, gasUsed)
-	k.SetGasMeter(ctx, gm)
-}
-
 // addGasToIncentive adds gasUsed to an incentive's cumulated totalGas
 func (k Keeper) addGasToIncentive(
 	ctx sdk.Context,
@@ -63,4 +47,20 @@ func (k Keeper) addGasToIncentive(
 	incentive.TotalGas += gasUsed
 	k.SetIncentive(ctx, incentive)
 	return nil
+}
+
+// addGasToParticipant adds gasUsed to a participant's gas meter's cumulative
+// gas used
+func (k Keeper) addGasToParticipant(
+	ctx sdk.Context,
+	contract, participant common.Address,
+	gasUsed uint64,
+) {
+	previousGas, found := k.GetIncentiveGasMeter(ctx, contract, participant)
+	if found {
+		gasUsed += previousGas
+	}
+
+	gm := types.NewGasMeter(contract, participant, gasUsed)
+	k.SetGasMeter(ctx, gm)
 }

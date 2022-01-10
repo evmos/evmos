@@ -6,6 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/params"
+	evm "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
@@ -28,9 +31,22 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 		{
 			"correct execution",
 			func(contractAddr common.Address) {
-				// Submit contract Tx and make sure participant has enough tokens for tx
+				// Mint coins to pay for gas fee
+				coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(int64(params.TxGas)+1000)))
+				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+				err := suite.app.BankKeeper.SendCoinsFromModuleToAccount(
+					suite.ctx,
+					types.ModuleName,
+					sdk.AccAddress(participant.Bytes()),
+					coins,
+				)
+				suite.Require().NoError(err)
+
+				// Mint tokens to transfer
 				suite.MintERC20Token(contractAddr, suite.address, participant, big.NewInt(100))
 				suite.Commit()
+
+				// submit contract Tx
 				_ = suite.TransferERC20Token(contractAddr, participant, participant2, big.NewInt(10))
 			},
 			true,
@@ -45,8 +61,9 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			suite.ensureHooksSet()
 
 			// Deploy contract, nint and create incentive
-			contractAddr := suite.DeployContract(denomCoin, "COIN")
+			contractAddr := suite.DeployContract(denomCoin, "COIN", erc20Decimals)
 			suite.Commit()
+
 			in, err := suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
 				contractAddr,
@@ -58,6 +75,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			suite.Require().NoError(err)
 			suite.Commit()
 
+			// submit Tx
 			tc.malleate(contractAddr)
 
 			expGasUsed := int64(10)
@@ -68,6 +86,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			)
 			suite.Require().True(found)
 			suite.Commit()
+
 			// check if gasUsed is logged
 			if tc.expPass {
 				suite.Require().NoError(err)
