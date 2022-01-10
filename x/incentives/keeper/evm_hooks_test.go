@@ -45,14 +45,14 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				suite.MintERC20Token(contractAddr, suite.address, participant, big.NewInt(1000000000))
 				suite.Commit()
 
-				balanceCoin := suite.BalanceOf(contractAddr, participant)
-				fmt.Printf("balanceCoin: %v\n", balanceCoin)
-
-				balanceToken := suite.app.EvmKeeper.GetBalance(suite.ctx, participant)
+				balanceToken := suite.BalanceOf(contractAddr, participant)
 				fmt.Printf("balanceToken: %v\n", balanceToken)
 
+				balanceCoin := suite.app.EvmKeeper.GetBalance(suite.ctx, participant)
+				fmt.Printf("balanceCoin: %v\n", balanceCoin)
+
 				// submit contract Tx
-				suite.TransferERC20Token(contractAddr, participant, participant2, big.NewInt(0))
+				suite.TransferERC20Token(contractAddr, participant, participant2, balanceToken.(*big.Int))
 			},
 			true,
 		},
