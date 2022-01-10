@@ -703,7 +703,6 @@ Params defines the erc20 module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
-| `epoch_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | the duration of a single epoch |
 | `allocation_limit` | [string](#string) |  | maximum percentage an incentive can allocate per denomination |
 | `incentives_epoch_identifier` | [string](#string) |  | identifier for the epochs module hooks |
 

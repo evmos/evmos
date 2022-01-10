@@ -21,16 +21,11 @@ message GenesisState {
 message Params {
     // parameter to enable incentives
     bool enable_incentives = 1;
-    // the duration of a single epoch
-    google.protobuf.Duration epoch_duration = 2 [
-        (gogoproto.stdduration) = true,
-        (gogoproto.nullable) = false
-    ];
     // maximum percentage an incentive can allocate per denomination
-    string allocation_limit = 3 [
+    string allocation_limit = 2 [
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false
     ];
     // identifier for the epochs module hooks
-    string incentives_epoch_identifier = 4;
+    string incentives_epoch_identifier = 3;
 }

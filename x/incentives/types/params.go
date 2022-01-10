@@ -11,14 +11,9 @@ import (
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
-const (
-	DefaultEpochDuration time.Duration = time.Hour * 24 // 1 day
-)
-
 // Parameter store key
 var (
 	ParamStoreKeyEnableIncentives = []byte("EnableIncentives")
-	ParamStoreKeyEpochDuration    = []byte("EpochDuration")
 	ParamStoreKeyAllocationLimit  = []byte("AllocationLimit")
 	ParamStoreKeyEpochIdentifier  = []byte("EpochIdentifier")
 )
@@ -37,7 +32,6 @@ func NewParams(
 ) Params {
 	return Params{
 		EnableIncentives:          enableIncentives,
-		EpochDuration:             epocheDuration,
 		AllocationLimit:           allocationLimit,
 		IncentivesEpochIdentifier: epochIdentifier,
 	}
@@ -46,7 +40,6 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EnableIncentives:          true,
-		EpochDuration:             DefaultEpochDuration,
 		AllocationLimit:           sdk.NewDecWithPrec(5, 2),
 		IncentivesEpochIdentifier: "week",
 	}
@@ -56,7 +49,6 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyEpochDuration, &p.EpochDuration, validatePeriod),
 		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
 		paramtypes.NewParamSetPair(ParamStoreKeyEpochIdentifier, &p.IncentivesEpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
 	}
@@ -104,10 +96,6 @@ func validatePercentage(i interface{}) error {
 
 func (p Params) Validate() error {
 	if err := validateBool(p.EnableIncentives); err != nil {
-		return err
-	}
-
-	if err := validatePeriod(p.EpochDuration); err != nil {
 		return err
 	}
 

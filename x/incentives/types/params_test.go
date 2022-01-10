@@ -62,7 +62,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - nil allocation limit",
 			Params{
 				EnableIncentives:          true,
-				EpochDuration:             govtypes.DefaultPeriod,
 				AllocationLimit:           sdk.Dec{},
 				IncentivesEpochIdentifier: "week",
 			},
@@ -72,7 +71,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - non-positive allocation limit",
 			Params{
 				EnableIncentives:          true,
-				EpochDuration:             govtypes.DefaultPeriod,
 				AllocationLimit:           sdk.MustNewDecFromStr("-0.02"),
 				IncentivesEpochIdentifier: "week",
 			},
@@ -82,7 +80,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - allocation limit > 100%",
 			Params{
 				EnableIncentives:          true,
-				EpochDuration:             govtypes.DefaultPeriod,
 				AllocationLimit:           sdk.NewDecWithPrec(101, 2),
 				IncentivesEpochIdentifier: "week",
 			},
@@ -92,7 +89,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - empty epoch identifier",
 			Params{
 				EnableIncentives:          true,
-				EpochDuration:             govtypes.DefaultPeriod,
 				AllocationLimit:           sdk.NewDecWithPrec(101, 2),
 				IncentivesEpochIdentifier: "",
 			},
