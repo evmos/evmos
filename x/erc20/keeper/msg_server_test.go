@@ -248,24 +248,20 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			false,
 		},
 		// TODO fail - direct balance manipultaion contract
-		{
-			"fail - direct balance manipulation contract",
-			10,
-			10,
-			func(common.Address) {
-				contractAddr = suite.setupRegisterERC20PairDirectBalanceManiputlation()
-			},
-			contractDirectBalanceManipulation,
-			false,
-			false,
-		},
+		// {
+		// 	"fail - direct balance manipulation contract",
+		// 	10,
+		// 	10,
+		// 	func(common.Address) {},
+		// 	contractDirectBalanceManipulation,
+		// 	false,
+		// 	false,
+		// },
 		{
 			"fail - delayed malicious contract",
 			10,
 			10,
-			func(common.Address) {
-				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
-			},
+			func(common.Address) {},
 			contractMaliciousDelayed,
 			false,
 			false,
@@ -276,15 +272,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
 
-			// Deploy contract
-			switch tc.contractType {
-			case contractDirectBalanceManipulation:
-				contractAddr = suite.setupRegisterERC20PairDirectBalanceManiputlation()
-			case contractMaliciousDelayed:
-				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
-			default:
-				contractAddr = suite.setupRegisterERC20Pair()
-			}
+			contractAddr = suite.setupRegisterERC20Pair(tc.contractType)
 
 			tc.malleate(contractAddr)
 			suite.Require().NotNil(contractAddr)
@@ -360,9 +348,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			10,
 			5,
-			func(common.Address) {
-				contractAddr = suite.setupRegisterERC20PairMaliciousDelayed()
-			},
+			func(common.Address) {},
 			contractMaliciousDelayed,
 			false,
 		},
@@ -372,7 +358,8 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
-			contractAddr = suite.setupRegisterERC20Pair()
+			contractAddr = suite.setupRegisterERC20Pair(tc.contractType)
+
 			suite.Require().NotNil(contractAddr)
 
 			tc.malleate(contractAddr)
