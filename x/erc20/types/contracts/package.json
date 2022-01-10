@@ -1,0 +1,26 @@
+{
+  "name": "evmos",
+  "version": "1.0.0",
+  "description": "<!-- parent:   order: false -->",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tharsis/evmos.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tharsis/evmos/issues"
+  },
+  "homepage": "https://github.com/tharsis/evmos#readme"
+}
