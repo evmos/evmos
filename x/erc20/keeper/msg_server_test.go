@@ -189,7 +189,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
-			contractBurnerAndMintable,
+			contractMinterBurner,
 			true,
 			false,
 		},
@@ -198,7 +198,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			10,
 			func(common.Address) {},
-			contractBurnerAndMintable,
+			contractMinterBurner,
 			true,
 			false,
 		},
@@ -207,7 +207,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			10,
 			func(common.Address) {},
-			contractBurnerAndMintable,
+			contractMinterBurner,
 			true,
 			false,
 		},
@@ -221,7 +221,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.Require().True(ok)
 				suite.Require().NoError(stateDb.Commit())
 			},
-			contractBurnerAndMintable,
+			contractMinterBurner,
 			true,
 			true,
 		},
@@ -230,7 +230,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			0,
 			10,
 			func(common.Address) {},
-			contractBurnerAndMintable,
+			contractMinterBurner,
 			false,
 			false,
 		},
@@ -243,10 +243,11 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 			},
-			contractBurnerAndMintable,
+			contractMinterBurner,
 			false,
 			false,
 		},
+		// TODO fail - direct balance manipultaion contract
 		{
 			"fail - direct balance manipulation contract",
 			10,
@@ -351,9 +352,9 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		contractType int
 		expPass      bool
 	}{
-		{"ok - sufficient funds", 100, 10, 5, func(common.Address) {}, contractBurnerAndMintable, true},
-		{"ok - equal funds", 10, 10, 10, func(common.Address) {}, contractBurnerAndMintable, true},
-		{"fail - insufficient funds", 10, 1, 5, func(common.Address) {}, contractBurnerAndMintable, false},
+		{"ok - sufficient funds", 100, 10, 5, func(common.Address) {}, contractMinterBurner, true},
+		{"ok - equal funds", 10, 10, 10, func(common.Address) {}, contractMinterBurner, true},
+		{"fail - insufficient funds", 10, 1, 5, func(common.Address) {}, contractMinterBurner, false},
 		{
 			"fail - malicious delayed contract",
 			100,
@@ -365,6 +366,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			contractMaliciousDelayed,
 			false,
 		},
+		// TODO fail - direct balance manipultaion contract
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {

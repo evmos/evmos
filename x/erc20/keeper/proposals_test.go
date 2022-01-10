@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	contractBurnerAndMintable = iota + 1
+	contractMinterBurner = iota + 1
 	contractDirectBalanceManipulation
 	contractMaliciousDelayed
 )
