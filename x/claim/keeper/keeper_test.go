@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"testing"
 	"time"
 
@@ -34,7 +35,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = app.Setup(false, nil)
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9000-1",
@@ -66,6 +67,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime()
+
+	suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(params.GetClaimDenom(), sdk.NewInt(10000000)))
 	suite.app.ClaimKeeper.SetParams(suite.ctx, params)
 }
 

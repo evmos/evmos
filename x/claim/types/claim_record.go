@@ -36,7 +36,7 @@ func (cr *ClaimRecord) ClaimAction(action Action) {
 
 // HasClaimedAction checks if the user has claimed a given action
 func (cr ClaimRecord) HasClaimedAction(action Action) bool {
-	return len(cr.ActionsCompleted) == len(Action_value)-1 && cr.ActionsCompleted[action-1]
+	return len(cr.ActionsCompleted) == len(Action_value)-1 || cr.ActionsCompleted[action-1]
 }
 
 // HasClaimedAll returns true if the user has claimed all the rewards from the
