@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				fmt.Printf("balanceCoin: %v\n", balanceCoin)
 
 				// submit contract Tx
-				suite.TransferERC20Token(contractAddr, participant, participant2, balanceToken.(*big.Int))
+				suite.TransferERC20Token(contractAddr, participant, participant2, balanceToken)
 			},
 			true,
 		},

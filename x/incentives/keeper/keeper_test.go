@@ -306,8 +306,9 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 		&ethtypes.AccessList{}, // accesses
 	)
 
-	ercTransferTx.From = suite.address.Hex()
-	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	ercTransferTx.From = from.Hex()
+	signer := tests.NewSigner(nil) // TODO: add
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), signer)
 	suite.Require().NoError(err)
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
 	suite.Require().NoError(err)
@@ -316,20 +317,19 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	return ercTransferTx
 }
 
-func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
+func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.Int {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
-	if err != nil {
-		return nil
-	}
+	suite.Require().NoError(err)
+	suite.Require().NotNil(res)
 
 	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
-	if len(unpacked) == 0 {
-		return nil
-	}
+	suite.Require().NoError(err)
+	suite.Require().NotEmpty(unpacked)
+	suite.Require().IsType(unpacked[0], &big.Int{})
 
-	return unpacked[0]
+	return unpacked[0].(*big.Int)
 }
 
 func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
