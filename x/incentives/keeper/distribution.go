@@ -119,7 +119,7 @@ func (k Keeper) rewardParticipants(
 ) {
 	logger := k.Logger(ctx)
 
-	// Check if coin allocation was successfull
+	// Check if coin allocation was successful
 	contract := common.HexToAddress(incentive.Contract)
 	contractAllocation, ok := coinsAllocated[contract]
 	if !ok {

@@ -435,7 +435,7 @@ func NewEvmos(
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
-		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.MintKeeper,
+		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.MintKeeper, app.StakingKeeper,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])

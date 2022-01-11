@@ -20,6 +20,11 @@ type Keeper struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	mintKeeper    types.MintKeeper
+
+	// Currently not used, but added to prevent breaking change s in case we want
+	// to alloccate incentives to staking instead of transferring the deferred
+	// rewards to the user's wallet
+	stakeKeeper types.StakeKeeper
 }
 
 // NewKeeper creates new instances of the incentives Keeper
@@ -29,7 +34,8 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	mintKeeper types.MintKeeper,
+	mk types.MintKeeper,
+	sk types.StakeKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -42,7 +48,8 @@ func NewKeeper(
 		paramstore:    ps,
 		accountKeeper: ak,
 		bankKeeper:    bk,
-		mintKeeper:    mintKeeper,
+		mintKeeper:    mk,
+		stakeKeeper:   sk,
 	}
 }
 
