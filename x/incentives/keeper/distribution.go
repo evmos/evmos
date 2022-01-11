@@ -66,22 +66,34 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 	coinsAllocated := make(map[common.Address]sdk.Coins)
 
+	// Get all balances from the incentive module account
+	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
+	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+	for _, coin := range coins {
+		if !coin.Amount.IsPositive() {
+			continue
+		}
+		denomBalances[coin.Denom] = coin.Amount
+	}
 
+	// Iterate over each incentive's allocations
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
 			coins := sdk.Coins{}
 			contract := common.HexToAddress(incentive.Contract)
 
-			for _, allocation := range incentive.Allocations {
-				balance := k.bankKeeper.GetBalance(ctx, moduleAddr, allocation.Denom)
-				if !balance.IsPositive() {
+			for _, al := range incentive.Allocations {
+				// Check if a balance to allocate exists
+				if _, ok := denomBalances[al.Denom]; !ok {
 					continue
 				}
-				coinAllocated := balance.Amount.ToDec().Mul(allocation.Amount)
+
+				// Create escrow balance for allocation
+				coinAllocated := denomBalances[al.Denom].ToDec().Mul(al.Amount)
 				amount := coinAllocated.TruncateInt()
-				coin := sdk.Coin{Denom: allocation.Denom, Amount: amount}
+				coin := sdk.Coin{Denom: al.Denom, Amount: amount}
 				coins = coins.Add(coin)
 			}
 
@@ -95,6 +107,11 @@ func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 }
 
 // Reward Participants of a given Incentive and delete their gas meters
+//  - Check if participants spent gas on interacting with incentive
+//  - Iterate over the incentive participants' gas meters
+//    - Allocate rewards according to participants gasRatio and cap them at 100% of their gas spent on interaction with incentive
+//    - Send rewards to participants
+//    - Delete gas meter
 func (k Keeper) rewardParticipants(
 	ctx sdk.Context,
 	incentive types.Incentive,
@@ -102,9 +119,9 @@ func (k Keeper) rewardParticipants(
 ) {
 	logger := k.Logger(ctx)
 
+	// Check if coin allocation was successfull
 	contract := common.HexToAddress(incentive.Contract)
 	contractAllocation, ok := coinsAllocated[contract]
-
 	if !ok {
 		logger.Debug(
 			"contract allocation coins not found",
@@ -113,6 +130,7 @@ func (k Keeper) rewardParticipants(
 		return
 	}
 
+	// Check if participants spent gas on interacting with incentive
 	totalGas := k.GetIncentiveTotalGas(ctx, incentive)
 	if totalGas == 0 {
 		logger.Debug(
@@ -123,16 +141,17 @@ func (k Keeper) rewardParticipants(
 	}
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 
+	// Iterate over the incentive's gas meters and distribute rewards
 	k.IterateIncentiveGasMeters(
 		ctx,
 		contract,
 		func(gm types.GasMeter) (stop bool) {
-			// get the participant ratio of their gas spent / total gas
+			// Get participant's ratio of `gas spent / total gas spent`
 			cumulativeGas := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gm.CumulativeGas))
 			gasRatio := cumulativeGas.Quo(totalGasDec)
 			coins := sdk.Coins{}
 
-			// allocate the coins corresponding to the ratio of gas spent
+			// Allocate rewards according to gasRatio
 			for _, allocation := range incentive.Allocations {
 				coinAllocated := contractAllocation.AmountOf(allocation.Denom)
 				reward := gasRatio.MulInt(coinAllocated)
@@ -140,7 +159,8 @@ func (k Keeper) rewardParticipants(
 					continue
 				}
 
-				// cap rewards to receive cumulativeGas as max amount
+				// TODO: Decide if rewards should be capped per denom
+				// Cap rewards to receive up to 100% of the participant's gas spent
 				reward = sdk.MinDec(reward, cumulativeGas)
 
 				// NOTE: ignore denom validation
@@ -148,6 +168,7 @@ func (k Keeper) rewardParticipants(
 				coins = coins.Add(coin)
 			}
 
+			// Send rewards to participant
 			participant := common.HexToAddress(gm.Participant)
 			err := k.bankKeeper.SendCoinsFromModuleToAccount(
 				ctx,
@@ -166,7 +187,7 @@ func (k Keeper) rewardParticipants(
 				return true // break iteration
 			}
 
-			// remove gas meter once the incentives are allocated to the user
+			// Remove gas meter once the rewards are distributed
 			k.DeleteGasMeter(ctx, gm)
 
 			return false
