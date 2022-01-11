@@ -247,16 +247,16 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			false,
 			false,
 		},
-		// TODO fail - direct balance manipultaion contract
-		// {
-		// 	"fail - direct balance manipulation contract",
-		// 	10,
-		// 	10,
-		// 	func(common.Address) {},
-		// 	contractDirectBalanceManipulation,
-		// 	false,
-		// 	false,
-		// },
+		// TODO fail - direct balance manipulation contract
+		{
+			"fail - direct balance manipulation contract",
+			10,
+			10,
+			func(common.Address) {},
+			contractDirectBalanceManipulation,
+			false,
+			false,
+		},
 		{
 			"fail - delayed malicious contract",
 			10,
@@ -352,8 +352,16 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			contractMaliciousDelayed,
 			false,
 		},
-		// TODO fail - direct balance manipultaion contract
-	}
+		// TODO fail - direct balance manipulation contract
+		{
+			"fail - direct balance manipulation contract",
+			100,
+			10,
+			5,
+			func(common.Address) {},
+			contractDirectBalanceManipulation,
+			false,
+		}}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
