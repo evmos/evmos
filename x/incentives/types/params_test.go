@@ -2,7 +2,6 @@ package types
 
 import (
 	"testing"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -110,7 +109,4 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 func (suite *ParamsTestSuite) TestParamsValidatePriv() {
 	suite.Require().Error(validateBool(1))
 	suite.Require().NoError(validateBool(true))
-	suite.Require().Error(validatePeriod(1))
-	suite.Require().Error(validatePeriod(time.Duration(-1)))
-	suite.Require().NoError(validatePeriod(time.Duration(1)))
 }

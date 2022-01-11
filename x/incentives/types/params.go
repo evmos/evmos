@@ -63,19 +63,6 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validatePeriod(i interface{}) error {
-	v, ok := i.(time.Duration)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v <= 0 {
-		return fmt.Errorf("voting period must be positive: %s", v)
-	}
-
-	return nil
-}
-
 func validatePercentage(i interface{}) error {
 	dec, ok := i.(sdk.Dec)
 	if !ok {
