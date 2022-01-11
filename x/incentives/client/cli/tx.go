@@ -52,7 +52,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			if common.IsHexAddress(args[0]) {
+			if !common.IsHexAddress(args[0]) {
 				return fmt.Errorf("invalid contract address: %s", args[0])
 			}
 
@@ -86,7 +86,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -158,7 +158,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}

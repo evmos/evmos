@@ -88,7 +88,7 @@ func (m *GenesisState) GetGasMeters() []GasMeter {
 	return nil
 }
 
-// Params defines the erc20 module params
+// Params defines the incentives module params
 type Params struct {
 	// parameter to enable incentives
 	EnableIncentives bool `protobuf:"varint,1,opt,name=enable_incentives,json=enableIncentives,proto3" json:"enable_incentives,omitempty"`

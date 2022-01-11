@@ -25,6 +25,8 @@ func (k Keeper) GetAllIncentives(ctx sdk.Context) []types.Incentive {
 	return incentives
 }
 
+// IterateIncentives iterates over all registered `Incentives` and performs a
+// callback.
 func (k Keeper) IterateIncentives(
 	ctx sdk.Context,
 	handlerFn func(incentive types.Incentive) (stop bool),

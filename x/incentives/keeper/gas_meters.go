@@ -50,6 +50,8 @@ func (k Keeper) GetIncentiveGasMeters(
 	return gms
 }
 
+// IterateIncentiveGasMeters iterates over all the given registered incentivized
+// contract's `GasMeter` and performs a callback.
 func (k Keeper) IterateIncentiveGasMeters(
 	ctx sdk.Context,
 	contract common.Address,

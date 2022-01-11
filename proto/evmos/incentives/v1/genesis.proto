@@ -16,7 +16,7 @@ message GenesisState {
     repeated GasMeter gas_meters = 3 [(gogoproto.nullable) = false];
 }
 
-// Params defines the erc20 module params
+// Params defines the incentives module params
 message Params {
     // parameter to enable incentives
     bool enable_incentives = 1;

@@ -11,22 +11,22 @@ option go_package = "github.com/tharsis/evmos/x/incentives/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Retrieves registered incentives
+  // Incentives retrieves registered incentives
   rpc Incentives(QueryIncentivesRequest) returns (QueryIncentivesResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/incentives";
   }
 
-  // Retrieves a registered incentive
+  // Incentives retrieves a registered incentive
   rpc Incentive(QueryIncentiveRequest) returns (QueryIncentiveResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/incentives/{contract}";
   }
 
-  // Retrieves active gas meters
+  // GasMeters retrieves active gas meters
   rpc GasMeters(QueryGasMetersRequest) returns (QueryGasMetersResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/gasMeters";
   }
 
-  // Retrieves a active gas meter
+  // GasMeter Rretrieves a active gas meter
   rpc GasMeter(QueryGasMeterRequest) returns (QueryGasMeterResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/gasMeters/{contract}/{participant}";
   }

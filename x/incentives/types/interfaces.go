@@ -37,6 +37,7 @@ type GovKeeper interface {
 	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
 }
 
+// MintKeeper defines the expected governance keeper interface used on incentives
 type MintKeeper interface {
 	GetParams(ctx sdk.Context) (params minttypes.Params)
 }

@@ -95,8 +95,8 @@ func validateAmount(amount sdk.Dec) error {
 }
 
 func validateEpochs(epochs uint32) error {
-	if epochs <= 0 {
-		return fmt.Errorf("invalid epochs. %x epochs cannot be 0 or negative", epochs)
+	if epochs == 0 {
+		return fmt.Errorf("epochs value (%d) cannot be 0", epochs)
 	}
 	return nil
 }

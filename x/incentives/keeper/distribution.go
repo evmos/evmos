@@ -60,6 +60,9 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 }
 
 // Allocate amount of coins to be distributed for each incentive
+//  - Iterate over all the registered and active incentives
+//  - create an allocation (module account) from escrow balance to be distributed to the contract address
+//  - checks that escrow balance is sufficient
 func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 	coinsAllocated := make(map[common.Address]sdk.Coins)
 

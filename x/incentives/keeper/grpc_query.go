@@ -75,7 +75,7 @@ func (k Keeper) Incentive(
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
-			"incentive with contract'%s'",
+			"incentive with contract '%s'",
 			req.Contract,
 		)
 	}
