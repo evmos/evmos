@@ -42,7 +42,7 @@ func (m *Middleware) SetHooks(th types.TransferHooks) *Middleware {
 }
 
 // IsTransferHooksEnabled returns whether transfer hooks logic should be run.
-func (m Middleware) IsTransferHooksEnabled(ctx sdk.Context) bool {
+func (m Middleware) IsTransferHooksEnabled() bool {
 	return m.hooks != nil
 }
 
