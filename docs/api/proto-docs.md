@@ -687,7 +687,7 @@ GenesisState defines the module's genesis state.
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.incentives.v1.Params) |  | module parameters |
 | `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | active incentives |
-| `gasMeters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
+| `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
 
 
 
@@ -752,7 +752,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `gasMeter` | [uint64](#uint64) |  |  |
+| `gas_meter` | [uint64](#uint64) |  |  |
 
 
 
@@ -784,7 +784,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `gasMeters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated |  |
+| `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 

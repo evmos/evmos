@@ -3,7 +3,6 @@ package evmos.incentives.v1;
 import "evmos/incentives/v1/incentives.proto";
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/duration.proto";
 
 option go_package = "github.com/tharsis/evmos/x/incentives/types";
 
@@ -14,7 +13,7 @@ message GenesisState {
     // active incentives
     repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
     // active Gasmeters
-    repeated GasMeter gasMeters = 3 [(gogoproto.nullable) = false];
+    repeated GasMeter gas_meters = 3 [(gogoproto.nullable) = false];
 }
 
 // Params defines the erc20 module params

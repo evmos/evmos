@@ -74,7 +74,7 @@ message QueryGasMetersRequest {
 // QueryGasMetersResponse is the response type for the Query/Incentives RPC
 // method.
 message QueryGasMetersResponse {
-  repeated GasMeter gasMeters = 1 [(gogoproto.nullable) = false];
+  repeated GasMeter gas_meters = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -90,7 +90,7 @@ message QueryGasMeterRequest {
 // QueryGasMeterResponse is the response type for the Query/Incentive RPC
 // method.
 message QueryGasMeterResponse {
-  uint64 gasMeter = 1;
+  uint64 gas_meter = 1;
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
