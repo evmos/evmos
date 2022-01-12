@@ -73,14 +73,15 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
 
 				// Add incentive which takes up 100% of the allocation
-				regIn := types.NewIncentive(
+				_, err = suite.app.IncentivesKeeper.RegisterIncentive(
+					suite.ctx,
 					contract2,
 					sdk.DecCoins{
 						sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2)),
 					},
 					epochs,
 				)
-				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
+				suite.Require().NoError(err)
 				suite.Commit()
 			},
 			false,

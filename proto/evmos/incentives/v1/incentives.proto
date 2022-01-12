@@ -36,15 +36,6 @@ message GasMeter {
   uint64 cumulative_gas = 3;
 }
 
-// AllocationMeter tracks the total allocation of all incentives per denom
-message AllocationMeter {
-  // denoms and percentage of total allocations
-  cosmos.base.v1beta1.DecCoin allocation = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
-  ];
-}
-
 // RegisterIncentiveProposal is a gov Content type to register an incentive
 message RegisterIncentiveProposal {
   option (gogoproto.equal) = false;

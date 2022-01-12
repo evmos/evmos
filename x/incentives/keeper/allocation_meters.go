@@ -1,22 +1,28 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 // GetAllAllocationMeters - get all registered AllocationMeters
-func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []types.AllocationMeter {
-	allocationMeters := []types.AllocationMeter{}
+func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []sdk.DecCoin {
+	allocationMeters := []sdk.DecCoin{}
 
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixAllocationMeter)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var allocationMeter types.AllocationMeter
-		k.cdc.MustUnmarshal(iterator.Value(), &allocationMeter)
+
+		denom := fmt.Sprintf("%s", iterator.Value())
+		allocationMeter, found := k.GetAllocationMeter(ctx, denom)
+		if !found {
+			panic(fmt.Errorf("unable to unmarshal amount value %v", found))
+		}
 
 		allocationMeters = append(allocationMeters, allocationMeter)
 	}
@@ -28,29 +34,43 @@ func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []types.AllocationMeter 
 func (k Keeper) GetAllocationMeter(
 	ctx sdk.Context,
 	denom string,
-) (sdk.Dec, bool) {
+) (sdk.DecCoin, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
-	var allocationMeter types.AllocationMeter
+
 	bz := store.Get([]byte(denom))
-	if len(bz) == 0 {
-		return sdk.Dec{}, false
+	if bz == nil {
+		return sdk.DecCoin{
+			Denom:  denom,
+			Amount: sdk.ZeroDec(),
+		}, false
 	}
 
-	k.cdc.MustUnmarshal(bz, &allocationMeter)
-	return allocationMeter.Allocation.Amount, true
+	var amount sdk.Dec
+	err := amount.Unmarshal(bz)
+	if err != nil {
+		panic(fmt.Errorf("unable to unmarshal amount value %v", err))
+	}
+	return sdk.DecCoin{
+		Denom:  denom,
+		Amount: amount,
+	}, true
 }
 
 // SetAllocationMeter stores an allocationMeter
-func (k Keeper) SetAllocationMeter(ctx sdk.Context, am types.AllocationMeter) {
+func (k Keeper) SetAllocationMeter(ctx sdk.Context, am sdk.DecCoin) {
+	bz, err := am.Amount.Marshal()
+	if err != nil {
+		panic(fmt.Errorf("unable to marshal amount value %v", err))
+	}
+
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
-	key := []byte(am.Allocation.Denom)
-	intBz, _ := am.Allocation.Amount.Marshal()
-	store.Set(key, intBz)
+	key := []byte(am.Denom)
+	store.Set(key, bz)
 }
 
 // DeleteAllocationMeter removes an allocationMeter.
-func (k Keeper) DeleteAllocationMeter(ctx sdk.Context, am types.AllocationMeter) {
+func (k Keeper) DeleteAllocationMeter(ctx sdk.Context, am sdk.DecCoin) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
-	key := []byte(am.Allocation.Denom)
+	key := []byte(am.Denom)
 	store.Delete(key)
 }

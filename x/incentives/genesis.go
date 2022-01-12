@@ -21,10 +21,28 @@ func InitGenesis(
 		panic("the incentives module account has not been set")
 	}
 
+	allocationMeters := make(map[string]sdk.Dec)
+
 	for _, incentive := range data.Incentives {
+		// Set Incentives
 		k.SetIncentive(ctx, incentive)
+
+		// build allocation meter map
+		for _, al := range incentive.Allocations {
+			allocationMeters[al.Denom] = allocationMeters[al.Denom].Add(al.Amount)
+		}
 	}
 
+	// Set allocation meters
+	for denom, amount := range allocationMeters {
+		am := sdk.DecCoin{
+			Denom:  denom,
+			Amount: amount,
+		}
+		k.SetAllocationMeter(ctx, am)
+	}
+
+	// Set gas meters
 	for _, gasMeter := range data.GasMeters {
 		k.SetGasMeter(ctx, gasMeter)
 	}

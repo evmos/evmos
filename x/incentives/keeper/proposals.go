@@ -53,32 +53,36 @@ func (k Keeper) RegisterIncentive(
 		}
 	}
 
-	// check if the sum of all allocations for each denom (current + proposed) is
-	// < 100%
-	incentives := k.GetAllIncentives(ctx)
-	if len(incentives) != 0 {
-
-		for _, al := range allocations {
-			allocationMeter, ok := k.GetAllocationMeter(ctx, al.Denom)
-			// skip if no current allocation exists
-			if !ok {
-				continue
-			}
-
-			allocationSum := allocationMeter.Add(al.Amount)
-			if allocationSum.GT(sdk.OneDec()) {
-				return nil, sdkerrors.Wrapf(
-					types.ErrInternalIncentive,
-					"Allocation for denom %s is lager than 100 percent: %v",
-					al.Denom, allocationSum,
-				)
-			}
+	// Iterate over allocations to update allocation meters
+	allocationMeters := []sdk.DecCoin{}
+	for _, al := range allocations {
+		allocationMeter, _ := k.GetAllocationMeter(ctx, al.Denom)
+		// check if the sum of all allocations (current + proposed) exceeds 100%
+		allocationSum := allocationMeter.Amount.Add(al.Amount)
+		if allocationSum.GT(sdk.OneDec()) {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInternalIncentive,
+				"Allocation for denom %s is lager than 100 percent: %v",
+				al.Denom, allocationSum,
+			)
 		}
+
+		// build new allocation meter
+		newAllocationMeter := sdk.DecCoin{
+			Denom:  al.Denom,
+			Amount: allocationSum,
+		}
+		allocationMeters = append(allocationMeters, newAllocationMeter)
 	}
 
 	// create incentive and set to store
 	incentive := types.NewIncentive(contract, allocations, epochs)
 	k.SetIncentive(ctx, incentive)
+
+	// Update allocation meters
+	for _, am := range allocationMeters {
+		k.SetAllocationMeter(ctx, am)
+	}
 
 	return &incentive, nil
 }

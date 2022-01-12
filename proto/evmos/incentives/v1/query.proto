@@ -31,16 +31,6 @@ service Query {
     option (google.api.http).get = "/evmos/incentives/v1/gas_meters/{contract}/{participant}";
   }
 
-//  // AllocationMeters retrieves registered total incentives' allocations
-//   rpc AllocationMeters(QueryAllocationMetersRequest) returns (QueryAllocationMetersResponse) {
-//     option (google.api.http).get = "/evmos/incentives/v1/total_incentives_allocations";
-//   }
-
-//   // AllocationMeter retrieves a registered total incentives' allocation
-//   rpc AllocationMeter(QueryAllocationMeterRequest) returns (QueryAllocationMeterResponse) {
-//     option (google.api.http).get = "/evmos/incentives/v1/total_incentives_allocations/{denom}";
-//   }
-
   // Params retrieves the incentives module params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/params";
@@ -96,32 +86,6 @@ message QueryGasMeterRequest {
   // participant identifier is the hex address of a user
   string participant = 2;
 }
-
-// // QueryAllocationMetersRequest is the request type for the Query/AllocationMeters RPC method.
-// message QueryAllocationMetersRequest {
-//   // pagination defines an optional pagination for the request.
-//   cosmos.base.query.v1beta1.PageRequest pagination = 1;
-// }
-
-// // QueryAllocationMetersResponse is the response type for the Query/AllocationMeters RPC
-// // method.
-// message QueryAllocationMetersResponse {
-//   repeated AllocationMeter total_incentives_allocations = 1 [(gogoproto.nullable) = false];
-//   // pagination defines the pagination in the response.
-//   cosmos.base.query.v1beta1.PageResponse pagination = 2;
-// }
-
-// // QueryIncentiveRequest is the request type for the Query/AllocationMeter RPC method.
-// message QueryAllocationMeterRequest {
-//   // denom represents the string name of the given denom unit (e.g uatom).
-//   string denom = 1;
-// }
-
-// // QueryAllocationMeterResponse is the response type for the Query/AllocationMeter RPC
-// // method.
-// message QueryAllocationMeterResponse {
-//   Incentive incentive = 1 [(gogoproto.nullable) = false];
-// }
 
 // QueryGasMeterResponse is the response type for the Query/Incentive RPC
 // method.
