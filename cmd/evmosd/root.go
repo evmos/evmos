@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -190,11 +191,11 @@ func txCommand() *cobra.Command {
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-	customAppTemplate, customAppConfig := servercfg.AppConfig(ethermint.AttoPhoton)
+	customAppTemplate, customAppConfig := servercfg.AppConfig(cmdcfg.BaseDenom)
 
 	srvCfg, ok := customAppConfig.(servercfg.Config)
 	if !ok {
-		panic("unknown app config type")
+		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
 	}
 
 	srvCfg.StateSync.SnapshotInterval = 1500
