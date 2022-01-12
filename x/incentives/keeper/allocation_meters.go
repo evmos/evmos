@@ -28,24 +28,24 @@ func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []types.AllocationMeter 
 func (k Keeper) GetAllocationMeter(
 	ctx sdk.Context,
 	denom string,
-) (types.AllocationMeter, bool) {
+) (sdk.Dec, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
 	var allocationMeter types.AllocationMeter
 	bz := store.Get([]byte(denom))
 	if len(bz) == 0 {
-		return types.AllocationMeter{}, false
+		return sdk.Dec{}, false
 	}
 
 	k.cdc.MustUnmarshal(bz, &allocationMeter)
-	return allocationMeter, true
+	return allocationMeter.Allocation.Amount, true
 }
 
 // SetAllocationMeter stores an allocationMeter
 func (k Keeper) SetAllocationMeter(ctx sdk.Context, am types.AllocationMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
 	key := []byte(am.Allocation.Denom)
-	bz := k.cdc.MustMarshal(&am)
-	store.Set(key, bz)
+	intBz, _ := am.Allocation.Amount.Marshal()
+	store.Set(key, intBz)
 }
 
 // DeleteAllocationMeter removes an allocationMeter.

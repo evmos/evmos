@@ -58,34 +58,14 @@ func (k Keeper) RegisterIncentive(
 	incentives := k.GetAllIncentives(ctx)
 	if len(incentives) != 0 {
 
-		// TODO REMOVE: Iterate over incentives to get the currentAllocation
-		// currentTotalAllocations := k.GetAllTotalAllocatedIncentives()
-
-		currentAllocations := make(map[string]sdk.Dec)
-		k.IterateIncentives(
-			ctx,
-			func(incentive types.Incentive) (stop bool) {
-				for _, al := range incentive.Allocations {
-					if al.Amount.Size() == 0 {
-						continue
-					}
-					if _, ok := currentAllocations[al.Denom]; ok {
-						currentAllocations[al.Denom] = currentAllocations[al.Denom].Add(al.Amount)
-					} else {
-						currentAllocations[al.Denom] = al.Amount
-					}
-				}
-				return false
-			},
-		)
-
 		for _, al := range allocations {
-			// skip if no current allocations exist
-			if _, ok := currentAllocations[al.Denom]; !ok {
+			allocationMeter, ok := k.GetAllocationMeter(ctx, al.Denom)
+			// skip if no current allocation exists
+			if !ok {
 				continue
 			}
 
-			allocationSum := al.Amount.Add(currentAllocations[al.Denom])
+			allocationSum := allocationMeter.Add(al.Amount)
 			if allocationSum.GT(sdk.OneDec()) {
 				return nil, sdkerrors.Wrapf(
 					types.ErrInternalIncentive,
