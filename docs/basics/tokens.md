@@ -20,7 +20,7 @@ The denomination used for staking, governance and gas consumption on the EVM is 
 
 Evmos uses [Atto](https://en.wikipedia.org/wiki/Atto-) Photon as the base denomination to maintain parity with Ethereum.
 
-$$1 photon = 1 ~ * ~ 10^{18} aphoton$$
+$$1 evmos = 1 ~ * ~ 10^{18} aevmos$$
 
 This matches Ethereum denomination of:
 

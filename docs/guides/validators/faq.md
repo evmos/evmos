@@ -54,7 +54,7 @@ Any participant in the network can signal their intent to become a validator by 
 ```bash
 evmosd tx staking create-validator
     --pubkey evmosvalconspub1zcjduepqs5s0vddx5m65h5ntjzwd0x8g3245rgrytpds4ds7vdtlwx06mcesmnkzly
-    --amount "2aphoton"
+    --amount "2aevmos"
     --from tmp
     --commission-rate="0.20"
     --commission-max-rate="1.00"
@@ -172,7 +172,7 @@ To understand more about the proposer selection process in Tendermint BFT consen
 Each member of a validator's staking pool earns different types of revenue:
 
 - **Block rewards:** Native tokens of applications run by validators (e.g. Photons on Evmos) are inflated to produce block provisions. These provisions exist to incentivize Photon holders to bond their stake, as non-bonded Photon will be diluted over time.
-- **Transaction fees:** Evmos maintains a whitelist of token that are accepted as fee payment. The initial fee token is the `photon`.
+- **Transaction fees:** Evmos maintains a whitelist of token that are accepted as fee payment. The initial fee token is the `evmos`.
 
 This total revenue is divided among validators' staking pools according to each validator's weight. Then, within each validator's staking pool the revenue is divided among delegators in proportion to each delegator's stake. A commission on delegators' revenue is applied by the validator before it is distributed.
 
