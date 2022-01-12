@@ -2,6 +2,7 @@ package types
 
 import "fmt"
 
+// NewGenesisState creates a new genesis state.
 func NewGenesisState(
 	params Params,
 	incentives []Incentive,
@@ -14,6 +15,16 @@ func NewGenesisState(
 	}
 }
 
+// DefaultGenesisState sets default evm genesis state with empty accounts and
+// default params and chain config values.
+func DefaultGenesisState() *GenesisState {
+	return &GenesisState{
+		Params: DefaultParams(),
+	}
+}
+
+// Validate performs basic genesis state validation returning an error upon any
+// failure.
 func (gs GenesisState) Validate() error {
 	seenContractIn := make(map[string]bool)
 
@@ -51,10 +62,4 @@ func (gs GenesisState) Validate() error {
 	}
 
 	return gs.Params.Validate()
-}
-
-func DefaultGenesisState() *GenesisState {
-	return &GenesisState{
-		Params: DefaultParams(),
-	}
 }

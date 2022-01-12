@@ -447,12 +447,15 @@ func NewEvmos(
 	)
 
 	app.GovKeeper = *govKeeper.SetHooks(
-		govtypes.NewMultiGovHooks(
-			govtypes.NewMultiGovHooks(),
-		),
+		govtypes.NewMultiGovHooks(),
 	)
 
-	app.EvmKeeper = app.EvmKeeper.SetHooks(evmkeeper.NewMultiEvmHooks(app.Erc20Keeper, app.IncentivesKeeper))
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
+			app.IncentivesKeeper.Hooks(),
+		),
+	)
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(

@@ -26,7 +26,7 @@ message Incentive {
   // cumulative gas spent by all gasmeters of the incentive during the epoch
   uint64 total_gas = 5;
 }
-// GasMeter tracks the cummulative gas spent per participant in one epoch
+// GasMeter tracks the cumulative gas spent per participant in one epoch
 message GasMeter {
   // hex address of the incentivized contract
   string contract = 1;

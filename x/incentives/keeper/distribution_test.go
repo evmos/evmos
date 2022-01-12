@@ -32,7 +32,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			contract2,
 			allocations,
 			epochs,
-			denomCoin,
+			denomMint,
 			1000000,
 			true,
 		},
@@ -121,7 +121,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				suite.Require().True(found)
 				suite.Require().Equal(tc.epochs-1, regIn.Epochs)
 
-				expTotalGas := suite.app.IncentivesKeeper.GetIncentiveTotalGas(suite.ctx, regIn)
+				expTotalGas := regIn.TotalGas
 				suite.Require().Zero(expTotalGas)
 			} else {
 				suite.Require().False(found)

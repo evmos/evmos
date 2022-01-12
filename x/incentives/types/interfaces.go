@@ -43,5 +43,5 @@ type MintKeeper interface {
 	GetParams(ctx sdk.Context) (params minttypes.Params)
 }
 
-// Stakekeeper defines the expected governance keeper interface used on incentives
+// Stakekeeper defines the expected staking keeper interface used on incentives
 type StakeKeeper interface{}

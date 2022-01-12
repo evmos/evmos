@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -20,7 +21,10 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
 	// allocate rewards for each Incentive
-	coinsAllocated := k.allocateCoins(ctx)
+	coinsAllocated, err := k.allocateCoins(ctx)
+	if err != nil {
+		return err
+	}
 
 	k.IterateIncentives(
 		ctx,
@@ -63,19 +67,21 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 //  - Iterate over all the registered and active incentives
 //  - create an allocation (module account) from escrow balance to be distributed to the contract address
 //  - check that escrow balance is sufficient
-func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
+func (k Keeper) allocateCoins(ctx sdk.Context) (map[common.Address]sdk.Coins, error) {
 	coinsAllocated := make(map[common.Address]sdk.Coins)
 
 	// Get all balances from the incentive module account
 	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	coins := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
-	for _, coin := range coins {
+	escrowedCoins := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+	for _, coin := range escrowedCoins {
 		if !coin.Amount.IsPositive() {
 			continue
 		}
 		denomBalances[coin.Denom] = coin.Amount
 	}
+
+	totalAllocated := sdk.Coins{}
 
 	// Iterate over each incentive's allocations
 	k.IterateIncentives(
@@ -98,12 +104,21 @@ func (k Keeper) allocateCoins(ctx sdk.Context) map[common.Address]sdk.Coins {
 			}
 
 			coinsAllocated[contract] = coins
+			totalAllocated = totalAllocated.Add(coins...)
 
 			return false
 		},
 	)
 
-	return coinsAllocated
+	// checks if escrow balance has sufficient balance for allocation
+	if totalAllocated.IsAnyGTE(escrowedCoins) {
+		return nil, sdkerrors.Wrap(
+			sdkerrors.ErrInsufficientFunds,
+			"escrowed balance is less than total coins allocated",
+		)
+	}
+
+	return coinsAllocated, nil
 }
 
 // Reward Participants of a given Incentive and delete their gas meters
@@ -131,7 +146,7 @@ func (k Keeper) rewardParticipants(
 	}
 
 	// Check if participants spent gas on interacting with incentive
-	totalGas := k.GetIncentiveTotalGas(ctx, incentive)
+	totalGas := incentive.TotalGas
 	if totalGas == 0 {
 		logger.Debug(
 			"no gas spent on incentive during epoch",
@@ -159,9 +174,12 @@ func (k Keeper) rewardParticipants(
 					continue
 				}
 
-				// TODO: Decide if rewards should be capped per denom
-				// Cap rewards to receive up to 100% of the participant's gas spent
-				reward = sdk.MinDec(reward, cumulativeGas)
+				// Cap rewards in mint denom (i.e. aevmos) to receive only up to 100% of
+				// the participant's gas spent and prevent gaming
+				mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+				if mintDenom == allocation.Denom {
+					reward = sdk.MinDec(reward, cumulativeGas)
+				}
 
 				// NOTE: ignore denom validation
 				coin := sdk.Coin{Denom: allocation.Denom, Amount: reward.TruncateInt()}

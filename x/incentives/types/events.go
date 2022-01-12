@@ -1,6 +1,6 @@
 package types
 
-// erc20 events
+// incentives events
 const (
 	EventTypeRegisterIncentive    = "register_incentive"
 	EventTypeCancelIncentive      = "cancel_incentive"

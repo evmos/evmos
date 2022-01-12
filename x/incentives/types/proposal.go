@@ -30,9 +30,7 @@ func init() {
 
 // NewRegisterIncentiveProposal returns new instance of RegisterIncentiveProposal
 func NewRegisterIncentiveProposal(
-	title,
-	description string,
-	contract string,
+	title, description, contract string,
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) govtypes.Content {
@@ -103,9 +101,7 @@ func validateEpochs(epochs uint32) error {
 
 // NewCancelIncentiveProposal returns new instance of RegisterIncentiveProposal
 func NewCancelIncentiveProposal(
-	title,
-	description string,
-	contract string,
+	title, description, contract string,
 ) govtypes.Content {
 	return &CancelIncentiveProposal{
 		Title:       title,

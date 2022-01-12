@@ -18,7 +18,7 @@ func (suite *KeeperTestSuite) ensureHooksSet() {
 		err := recover()
 		suite.Require().NotNil(err)
 	}()
-	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper)
+	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper.Hooks())
 }
 
 func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
@@ -54,7 +54,6 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			},
 			false,
 		},
-		// {"wrong event", func(contractAddr common.Address) {}, false},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -67,7 +66,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			suite.Commit()
 
 			// Register Incentive
-			incentive, err := suite.app.IncentivesKeeper.RegisterIncentive(
+			_, err := suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
 				contractAddr,
 				sdk.DecCoins{
@@ -92,7 +91,8 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			// Submit tx
 			tc.malleate(contractAddr)
 
-			totalGas := suite.app.IncentivesKeeper.GetIncentiveTotalGas(suite.ctx, *incentive)
+			incentive, _ := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contractAddr)
+			totalGas := incentive.TotalGas
 			gm, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(
 				suite.ctx,
 				contractAddr,

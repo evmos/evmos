@@ -48,7 +48,7 @@ func (k Keeper) RegisterIncentive(
 		if al.Amount.GT(params.AllocationLimit) {
 			return nil, sdkerrors.Wrapf(
 				types.ErrInternalIncentive,
-				"allocation for denom '%s' (%v) cannot be above allocation limmit '%v' - ", al.Denom, al.Amount, params.AllocationLimit,
+				"allocation for denom '%s' (%s) cannot be above allocation limmit '%s' - ", al.Denom, al.Amount, params.AllocationLimit,
 			)
 		}
 	}
@@ -83,7 +83,7 @@ func (k Keeper) RegisterIncentive(
 			}
 
 			allocationSum := al.Amount.Add(currentAllocations[al.Denom])
-			if allocationSum.Size() > 1 {
+			if allocationSum.GT(sdk.OneDec()) {
 				return nil, sdkerrors.Wrapf(
 					types.ErrInternalIncentive,
 					"Allocation for denom %s is lager than 100 percent: %v",
