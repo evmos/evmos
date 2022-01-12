@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Features
 
 - [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
+- [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom InitCmd function.
 
 ### Improvements
 
