@@ -14,6 +14,8 @@ message GenesisState {
     repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
     // active Gasmeters
     repeated GasMeter gas_meters = 3 [(gogoproto.nullable) = false];
+    // total of active incentives' allocations
+    repeated AllocationMeter allocation_meter = 4 [(gogoproto.nullable) = false];
 }
 
 // Params defines the incentives module params

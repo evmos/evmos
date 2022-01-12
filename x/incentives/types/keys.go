@@ -28,12 +28,14 @@ func init() {
 const (
 	prefixIncentive = iota + 1
 	prefixGasMeter
+	prefixAllocationMeter
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixIncentive = []byte{prefixIncentive}
-	KeyPrefixGasMeter  = []byte{prefixGasMeter}
+	KeyPrefixIncentive       = []byte{prefixIncentive}
+	KeyPrefixGasMeter        = []byte{prefixGasMeter}
+	KeyPrefixAllocationMeter = []byte{prefixAllocationMeter}
 )
 
 // SplitGasMeterKey is a helper to split up KV-store keys in a

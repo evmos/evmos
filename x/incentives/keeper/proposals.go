@@ -57,8 +57,11 @@ func (k Keeper) RegisterIncentive(
 	// < 100%
 	incentives := k.GetAllIncentives(ctx)
 	if len(incentives) != 0 {
-		currentAllocations := make(map[string]sdk.Dec)
 
+		// TODO REMOVE: Iterate over incentives to get the currentAllocation
+		// currentTotalAllocations := k.GetAllTotalAllocatedIncentives()
+
+		currentAllocations := make(map[string]sdk.Dec)
 		k.IterateIncentives(
 			ctx,
 			func(incentive types.Incentive) (stop bool) {

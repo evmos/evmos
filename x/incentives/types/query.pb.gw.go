@@ -506,9 +506,9 @@ var (
 
 	pattern_Query_Incentive_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 1, 1, 0, 4, 1, 5, 3}, []string{"evmos", "incentives", "v1", "contract"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_GasMeters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "incentives", "v1", "gasMeters"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_GasMeters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "incentives", "v1", "gas_meters"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_GasMeter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"evmos", "incentives", "v1", "gasMeters", "contract", "participant"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_GasMeter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"evmos", "incentives", "v1", "gas_meters", "contract", "participant"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "incentives", "v1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
 )

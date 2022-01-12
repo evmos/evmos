@@ -48,6 +48,7 @@
     - [Msg](#evmos.erc20.v1.Msg)
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
+    - [AllocationMeter](#evmos.incentives.v1.AllocationMeter)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [GasMeter](#evmos.incentives.v1.GasMeter)
     - [Incentive](#evmos.incentives.v1.Incentive)
@@ -588,6 +589,21 @@ Msg defines the erc20 Msg service.
 
 
 
+<a name="evmos.incentives.v1.AllocationMeter"></a>
+
+### AllocationMeter
+AllocationMeter tracks the total allocation of all incentives per denom
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `allocation` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | denoms and percentage of total allocations |
+
+
+
+
+
+
 <a name="evmos.incentives.v1.CancelIncentiveProposal"></a>
 
 ### CancelIncentiveProposal
@@ -608,7 +624,7 @@ CancelIncentiveProposal is a gov Content type to cancel an incentive
 <a name="evmos.incentives.v1.GasMeter"></a>
 
 ### GasMeter
-GasMeter tracks the cummulative gas spent per participant in one epoch
+GasMeter tracks the cumulative gas spent per participant in one epoch
 
 
 | Field | Type | Label | Description |
@@ -688,6 +704,7 @@ GenesisState defines the module's genesis state.
 | `params` | [Params](#evmos.incentives.v1.Params) |  | module parameters |
 | `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | active incentives |
 | `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
+| `allocation_meter` | [AllocationMeter](#evmos.incentives.v1.AllocationMeter) | repeated | total of active incentives' allocations |
 
 
 
@@ -894,10 +911,10 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
-| `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
-| `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | Retrieves active gas meters | GET|/evmos/incentives/v1/gasMeters|
-| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | Retrieves a active gas meter | GET|/evmos/incentives/v1/gasMeters/{contract}/{participant}|
+| `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Incentives retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
+| `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Incentive retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
+| `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | GasMeters retrieves active gas meters | GET|/evmos/incentives/v1/gas_meters|
+| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
 | `Params` | [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse) | Params retrieves the incentives module params | GET|/evmos/incentives/v1/params|
 
  <!-- end services -->
