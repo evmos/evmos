@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -373,6 +374,9 @@ func (k Keeper) convertERC20NativeToken(
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, sender)
 	expToken := big.NewInt(0).Sub(balanceToken, tokens)
+	fmt.Printf("balanceToken: %v\n", balanceToken)
+	fmt.Printf("balanceTokenAfter: %v\n", balanceTokenAfter)
+	fmt.Printf("expToken: %v\n", expToken)
 	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidConversionBalance,

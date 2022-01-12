@@ -184,85 +184,85 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 		expPass        bool
 		selfdestructed bool
 	}{
-		{
-			"ok - sufficient funds",
-			100,
-			10,
-			func(common.Address) {},
-			contractMinterBurner,
-			true,
-			false,
-		},
-		{
-			"ok - equal funds",
-			10,
-			10,
-			func(common.Address) {},
-			contractMinterBurner,
-			true,
-			false,
-		},
-		{
-			"ok - equal funds",
-			10,
-			10,
-			func(common.Address) {},
-			contractMinterBurner,
-			true,
-			false,
-		},
-		{
-			"ok - suicided contract",
-			10,
-			10,
-			func(erc20 common.Address) {
-				stateDb := suite.StateDB()
-				ok := stateDb.Suicide(erc20)
-				suite.Require().True(ok)
-				suite.Require().NoError(stateDb.Commit())
-			},
-			contractMinterBurner,
-			true,
-			true,
-		},
-		{
-			"fail - insufficient funds - callEVM",
-			0,
-			10,
-			func(common.Address) {},
-			contractMinterBurner,
-			false,
-			false,
-		},
-		{
-			"fail - minting disabled",
-			100,
-			10,
-			func(common.Address) {
-				params := types.DefaultParams()
-				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
-			},
-			contractMinterBurner,
-			false,
-			false,
-		},
+		// {
+		// 	"ok - sufficient funds",
+		// 	100,
+		// 	10,
+		// 	func(common.Address) {},
+		// 	contractMinterBurner,
+		// 	true,
+		// 	false,
+		// },
+		// {
+		// 	"ok - equal funds",
+		// 	10,
+		// 	10,
+		// 	func(common.Address) {},
+		// 	contractMinterBurner,
+		// 	true,
+		// 	false,
+		// },
+		// {
+		// 	"ok - equal funds",
+		// 	10,
+		// 	10,
+		// 	func(common.Address) {},
+		// 	contractMinterBurner,
+		// 	true,
+		// 	false,
+		// },
+		// {
+		// 	"ok - suicided contract",
+		// 	10,
+		// 	10,
+		// 	func(erc20 common.Address) {
+		// 		stateDb := suite.StateDB()
+		// 		ok := stateDb.Suicide(erc20)
+		// 		suite.Require().True(ok)
+		// 		suite.Require().NoError(stateDb.Commit())
+		// 	},
+		// 	contractMinterBurner,
+		// 	true,
+		// 	true,
+		// },
+		// {
+		// 	"fail - insufficient funds - callEVM",
+		// 	0,
+		// 	10,
+		// 	func(common.Address) {},
+		// 	contractMinterBurner,
+		// 	false,
+		// 	false,
+		// },
+		// {
+		// 	"fail - minting disabled",
+		// 	100,
+		// 	10,
+		// 	func(common.Address) {
+		// 		params := types.DefaultParams()
+		// 		params.EnableErc20 = false
+		// 		suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+		// 	},
+		// 	contractMinterBurner,
+		// 	false,
+		// 	false,
+		// },
+		// {
+		// 	"fail - delayed malicious contract",
+		// 	10,
+		// 	10,
+		// 	func(common.Address) {},
+		// 	contractMaliciousDelayed,
+		// 	false,
+		// 	false,
+		// },
 		// TODO fail - direct balance manipulation contract
 		{
 			"fail - direct balance manipulation contract",
-			10,
+			100,
 			10,
 			func(common.Address) {},
 			contractDirectBalanceManipulation,
-			false,
-			false,
-		},
-		{
-			"fail - delayed malicious contract",
-			10,
-			10,
-			func(common.Address) {},
-			contractMaliciousDelayed,
 			false,
 			false,
 		},
@@ -286,14 +286,17 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				contractAddr,
 				suite.address,
 			)
+
 			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint), tc.contractType)
 			suite.Commit()
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			res, err := suite.app.Erc20Keeper.ConvertERC20(ctx, msg)
 
+			// force fail for debug
 			if tc.contractType == contractDirectBalanceManipulation {
-				fmt.Printf("err after ConvertERC20: %v\n", err)
+				fmt.Printf("tc.mint: %v\n", tc.mint)
+				fmt.Printf("err from ConvertERC20: %v\n", err)
 				suite.Require().NoError(err)
 			}
 
@@ -353,15 +356,16 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			false,
 		},
 		// TODO fail - direct balance manipulation contract
-		{
-			"fail - direct balance manipulation contract",
-			100,
-			10,
-			5,
-			func(common.Address) {},
-			contractDirectBalanceManipulation,
-			false,
-		}}
+		// {
+		// 	"fail - direct balance manipulation contract",
+		// 	100,
+		// 	10,
+		// 	5,
+		// 	func(common.Address) {},
+		// 	contractDirectBalanceManipulation,
+		// 	false,
+		// },
+	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
