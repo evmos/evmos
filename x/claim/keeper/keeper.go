@@ -36,6 +36,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
+	ics4Wrapper transfertypes.ICS4Wrapper,
 ) *Keeper {
 
 	// set KeyTable if it has not already been set
@@ -51,6 +52,7 @@ func NewKeeper(
 		bankKeeper:    bk,
 		stakingKeeper: sk,
 		distrKeeper:   dk,
+		ics4Wrapper:   ics4Wrapper,
 	}
 }
 

@@ -432,6 +432,7 @@ func NewEvmos(
 	app.ClaimKeeper = *claimkeeper.NewKeeper(
 		appCodec, keys[claimtypes.StoreKey], app.GetSubspace(claimtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -464,7 +465,8 @@ func NewEvmos(
 	// we use the ChannelKeeper as the ICS4 wrapper
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.ClaimKeeper.Hooks(), // claims IBC middleware
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)

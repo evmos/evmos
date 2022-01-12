@@ -53,6 +53,17 @@ func (cr ClaimRecord) HasClaimedAll() bool {
 	return true
 }
 
+// HasClaimedAny returns true if the user has claimed any of the rewards from the
+// available actions
+func (cr ClaimRecord) HasClaimedAny() bool {
+	for _, completed := range cr.ActionsCompleted {
+		if completed {
+			return true
+		}
+	}
+	return false
+}
+
 // NewClaimRecordAddress creates a new claim record instance
 func NewClaimRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) ClaimRecordAddress {
 	return ClaimRecordAddress{
