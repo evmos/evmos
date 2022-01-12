@@ -51,7 +51,7 @@ func displayInfo(info printInfo) error {
 	}
 
 	if _, err := fmt.Fprintf(os.Stderr, "%s\n", string(sdk.MustSortJSON(out))); err != nil {
-		return err			
+		return err
 	}
 
 	return nil
