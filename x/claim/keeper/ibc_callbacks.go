@@ -1,20 +1,22 @@
-package middleware
+package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tharsis/evmos/x/claim/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 )
 
-func (m Middleware) OnRecvPacket(
+// OnRecvPacket performs an IBC callback.
+func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
-	if !ack.Success() || !m.IsTransferHooksEnabled(ctx) {
+	if !ack.Success() || !k.IsTransferHooksEnabled(ctx) {
 		return ack
 	}
 
@@ -24,18 +26,25 @@ func (m Middleware) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
-	// parse the transfer amount
-	transferAmount, ok := sdk.NewIntFromString(data.Amount)
-	if !ok {
-		err := sdkerrors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount (%s) into sdk.Int", data.Amount)
+	sender, err := sdk.AccAddressFromBech32(data.Sender)
+	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
-	token := sdk.NewCoin(data.Denom, transferAmount)
-
-	// unmarshal packet
-	err := m.AfterRecvTransfer(ctx, packet.DestinationPort, packet.DestinationChannel, token, data.Receiver)
+	recipient, err := sdk.AccAddressFromBech32(data.Receiver)
 	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err.Error())
+	}
+
+	// migrate the claim record to recipient address
+	claimRecord, found := k.GetClaimRecord(ctx, sender)
+	if found {
+		k.SetClaimRecord(ctx, recipient, claimRecord)
+		k.DeleteClaimRecord(ctx, sender)
+	}
+
+	// claim IBC action
+	if _, err := k.ClaimCoinsForAction(ctx, recipient, claimRecord, types.ActionIBCTransfer); err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
@@ -43,7 +52,7 @@ func (m Middleware) OnRecvPacket(
 	return ack
 }
 
-func (m Middleware) OnAcknowledgementPacket(
+func (k Keeper) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
@@ -53,7 +62,7 @@ func (m Middleware) OnAcknowledgementPacket(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
 	}
 
-	if !ack.Success() || !m.IsTransferHooksEnabled(ctx) {
+	if !ack.Success() || !k.IsTransferHooksEnabled(ctx) {
 		return nil
 	}
 
@@ -62,18 +71,20 @@ func (m Middleware) OnAcknowledgementPacket(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
 	}
 
-	// parse the transfer amount
-	transferAmount, ok := sdk.NewIntFromString(data.Amount)
-	if !ok {
-		return sdkerrors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount (%s) into sdk.Int", data.Amount)
-	}
-
-	token := sdk.NewCoin(data.Denom, transferAmount)
-
 	sender, err := sdk.AccAddressFromBech32(data.Sender)
 	if err != nil {
 		return err
 	}
 
-	return m.AfterTransferAcked(ctx, packet.SourcePort, packet.SourceChannel, token, sender, data.Receiver)
+	claimRecord, found := k.GetClaimRecord(ctx, sender)
+	if !found {
+		return nil
+	}
+
+	// claim IBC action
+	if _, err := k.ClaimCoinsForAction(ctx, sender, claimRecord, types.ActionIBCTransfer); err != nil {
+		return err
+	}
+
+	return nil
 }

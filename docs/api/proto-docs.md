@@ -4,6 +4,27 @@
 
 ## Table of Contents
 
+- [evmos/claim/v1/claim.proto](#evmos/claim/v1/claim.proto)
+    - [Claim](#evmos.claim.v1.Claim)
+    - [ClaimRecord](#evmos.claim.v1.ClaimRecord)
+    - [ClaimRecordAddress](#evmos.claim.v1.ClaimRecordAddress)
+  
+    - [Action](#evmos.claim.v1.Action)
+  
+- [evmos/claim/v1/genesis.proto](#evmos/claim/v1/genesis.proto)
+    - [GenesisState](#evmos.claim.v1.GenesisState)
+    - [Params](#evmos.claim.v1.Params)
+  
+- [evmos/claim/v1/query.proto](#evmos/claim/v1/query.proto)
+    - [QueryClaimRecordsRequest](#evmos.claim.v1.QueryClaimRecordsRequest)
+    - [QueryClaimRecordsResponse](#evmos.claim.v1.QueryClaimRecordsResponse)
+    - [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse)
+    - [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest)
+    - [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse)
+  
+    - [Query](#evmos.claim.v1.Query)
+  
 - [evmos/epochs/v1/genesis.proto](#evmos/epochs/v1/genesis.proto)
     - [EpochInfo](#evmos.epochs.v1.EpochInfo)
     - [GenesisState](#evmos.epochs.v1.GenesisState)
@@ -47,17 +68,250 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
-- [evmos/ibc/transfer_hooks/v1/genesis.proto](#evmos/ibc/transfer_hooks/v1/genesis.proto)
-    - [GenesisState](#evmos.ibc.transfer_hooks.v1.GenesisState)
-    - [Params](#evmos.ibc.transfer_hooks.v1.Params)
-  
-- [evmos/ibc/transfer_hooks/v1/query.proto](#evmos/ibc/transfer_hooks/v1/query.proto)
-    - [QueryParamsRequest](#evmos.ibc.transfer_hooks.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#evmos.ibc.transfer_hooks.v1.QueryParamsResponse)
-  
-    - [Query](#evmos.ibc.transfer_hooks.v1.Query)
-  
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="evmos/claim/v1/claim.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claim/v1/claim.proto
+
+
+
+<a name="evmos.claim.v1.Claim"></a>
+
+### Claim
+Claim marks defines the action, completed flag and the remaining claimable amount
+for a given user. This is only used during client queries.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `action` | [Action](#evmos.claim.v1.Action) |  | action enum |
+| `completed` | [bool](#bool) |  | true if the action has been completed |
+| `claimable_amount` | [string](#string) |  | claimable token amount for the action. Zero if completed |
+
+
+
+
+
+
+<a name="evmos.claim.v1.ClaimRecord"></a>
+
+### ClaimRecord
+ClaimRecord defines the initial claimable airdrop amount and the list of
+completed actions to claim the tokens.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
+
+
+
+
+
+
+<a name="evmos.claim.v1.ClaimRecordAddress"></a>
+
+### ClaimRecordAddress
+ClaimRecordAddress is the metadata of claim data per address
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | bech32 or hex address of claim user |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
+
+
+
+
+
+ <!-- end messages -->
+
+
+<a name="evmos.claim.v1.Action"></a>
+
+### Action
+Action defines the list of available actions to claim the airdrop tokens.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ACTION_UNSPECIFIED | 0 | UNSPECIFIED defines an invalid action. |
+| ACTION_VOTE | 1 | VOTE defines a proposal vote. |
+| ACTION_DELEGATE | 2 | DELEGATE defines an staking delegation. |
+| ACTION_EVM | 3 | EVM defines an EVM transaction. |
+| ACTION_IBC_TRANSFER | 4 | IBC Transfer defines a fungible token transfer transaction via IBC. |
+
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/claim/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claim/v1/genesis.proto
+
+
+
+<a name="evmos.claim.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the claim module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.claim.v1.Params) |  | params defines all the parameters of the module. |
+| `claim_records` | [ClaimRecordAddress](#evmos.claim.v1.ClaimRecordAddress) | repeated | list of claim records with the corresponding airdrop recipient |
+
+
+
+
+
+
+<a name="evmos.claim.v1.Params"></a>
+
+### Params
+Params defines the claim module's parameters.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_claim` | [bool](#bool) |  | enable claiming process |
+| `airdrop_start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp of the airdrop start |
+| `duration_until_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration until decay of claimable tokens begin |
+| `duration_of_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration of the token claim decay period |
+| `claim_denom` | [string](#string) |  | denom of claimable coin |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/claim/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claim/v1/query.proto
+
+
+
+<a name="evmos.claim.v1.QueryClaimRecordsRequest"></a>
+
+### QueryClaimRecordsRequest
+QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryClaimRecordsResponse"></a>
+
+### QueryClaimRecordsResponse
+QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `claims` | [Claim](#evmos.claim.v1.Claim) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.claim.v1.Params) |  | params defines the parameters of the module. |
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryTotalUnclaimedRequest"></a>
+
+### QueryTotalUnclaimedRequest
+QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC method.
+
+
+
+
+
+
+<a name="evmos.claim.v1.QueryTotalUnclaimedResponse"></a>
+
+### QueryTotalUnclaimedResponse
+QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins define the unclaimed coins |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.claim.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claim.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claim.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claim/v1/total_unclaimed|
+| `Params` | [QueryParamsRequest](#evmos.claim.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claim.v1.QueryParamsResponse) | Params returns the claim module parameters | GET|/evmos/claim/v1/params|
+| `ClaimRecords` | [QueryClaimRecordsRequest](#evmos.claim.v1.QueryClaimRecordsRequest) | [QueryClaimRecordsResponse](#evmos.claim.v1.QueryClaimRecordsResponse) | ClaimRecords returns the claims records for a given address | GET|/evmos/claim/v1/claim_records/{address}|
+
+ <!-- end services -->
 
 
 
@@ -562,105 +816,6 @@ Msg defines the erc20 Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
 | `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
-
- <!-- end services -->
-
-
-
-<a name="evmos/ibc/transfer_hooks/v1/genesis.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## evmos/ibc/transfer_hooks/v1/genesis.proto
-
-
-
-<a name="evmos.ibc.transfer_hooks.v1.GenesisState"></a>
-
-### GenesisState
-GenesisState defines the ibc transfer hooks app genesis state
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.ibc.transfer_hooks.v1.Params) |  | module parameters |
-
-
-
-
-
-
-<a name="evmos.ibc.transfer_hooks.v1.Params"></a>
-
-### Params
-Params defines the set of on-chain transfer hooks app parameters.
-The following parameters may be used to disable the transfer hooks logic.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `enable_transfer_hook` | [bool](#bool) |  | enable_transfer_hook enables or disables the transfer hooks. |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="evmos/ibc/transfer_hooks/v1/query.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## evmos/ibc/transfer_hooks/v1/query.proto
-
-
-
-<a name="evmos.ibc.transfer_hooks.v1.QueryParamsRequest"></a>
-
-### QueryParamsRequest
-QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
-
-<a name="evmos.ibc.transfer_hooks.v1.QueryParamsResponse"></a>
-
-### QueryParamsResponse
-QueryParamsResponse is the response type for the Query/Params RPC
-method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.ibc.transfer_hooks.v1.Params) |  |  |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
-
-<a name="evmos.ibc.transfer_hooks.v1.Query"></a>
-
-### Query
-Query defines the gRPC querier service.
-
-| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
-| ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#evmos.ibc.transfer_hooks.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.ibc.transfer_hooks.v1.QueryParamsResponse) | Params retrieves the transfer hooks app module params | GET|/evmos/ibc/transfer_hooks/v1/params|
 
  <!-- end services -->
 

@@ -118,6 +118,9 @@ import (
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
+	"github.com/tharsis/evmos/x/claim"
+	claimkeeper "github.com/tharsis/evmos/x/claim/keeper"
+	claimtypes "github.com/tharsis/evmos/x/claim/types"
 	"github.com/tharsis/evmos/x/epochs"
 	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
@@ -125,9 +128,6 @@ import (
 	erc20client "github.com/tharsis/evmos/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
 	erc20types "github.com/tharsis/evmos/x/erc20/types"
-	th "github.com/tharsis/evmos/x/ibc/transfer-hooks"
-	thmiddleware "github.com/tharsis/evmos/x/ibc/transfer-hooks/middleware"
-	thtypes "github.com/tharsis/evmos/x/ibc/transfer-hooks/types"
 )
 
 func init() {
@@ -183,6 +183,7 @@ var (
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 		epochs.AppModuleBasic{},
+		claim.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -196,6 +197,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		claimtypes.ModuleName:          nil,
 		icatypes.ModuleName:            nil,
 	}
 
@@ -260,9 +262,9 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	Erc20Keeper             erc20keeper.Keeper
-	EpochsKeeper            epochskeeper.Keeper
-	TransferHooksMiddleware thmiddleware.Middleware
+	ClaimKeeper  claimkeeper.Keeper
+	Erc20Keeper  erc20keeper.Keeper
+	EpochsKeeper epochskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -319,7 +321,7 @@ func NewEvmos(
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
-		erc20types.StoreKey, epochstypes.StoreKey,
+		erc20types.StoreKey, epochstypes.StoreKey, claimtypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -384,7 +386,11 @@ func NewEvmos(
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.StakingKeeper = *stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
+		stakingtypes.NewMultiStakingHooks(
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+			app.ClaimKeeper.Hooks(),
+		),
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.BaseApp.MsgServiceRouter())
@@ -423,6 +429,11 @@ func NewEvmos(
 	)
 
 	// Evmos Keeper
+	app.ClaimKeeper = *claimkeeper.NewKeeper(
+		appCodec, keys[claimtypes.StoreKey], app.GetSubspace(claimtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.DistrKeeper,
+	)
+
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
 	)
@@ -434,30 +445,31 @@ func NewEvmos(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			govtypes.NewMultiGovHooks(),
+			govtypes.NewMultiGovHooks(
+				app.ClaimKeeper.Hooks(),
+			),
 		),
 	)
 
-	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper)
-
-	transferHooksMiddleware := thmiddleware.NewMiddleware()
-	transferHooksMiddleware.SetHooks(
-		thtypes.NewMultiTransferHooks(
-		//  TODO: add hooks
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.ClaimKeeper.Hooks(),
+			app.Erc20Keeper,
 		),
 	)
-
-	app.TransferHooksMiddleware = transferHooksMiddleware
 
 	// Create Transfer Keepers
+
+	// NOTE: since the transfer keeper is the last layer of the stack,
+	// we use the ChannelKeeper as the ICS4 wrapper
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.TransferHooksMiddleware, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	// transfer stack contains: TransferHooksMiddleware -> Transfer
-	transferHooksIBCModule := th.NewIBCModule(app.TransferHooksMiddleware, transfer.NewIBCModule(app.TransferKeeper))
+	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
+	transferStack := claim.NewIBCModule(app.ClaimKeeper, transfer.NewIBCModule(app.TransferKeeper))
 
 	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
 		appCodec, keys[icacontrollertypes.StoreKey], app.GetSubspace(icacontrollertypes.SubModuleName),
@@ -479,11 +491,13 @@ func NewEvmos(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferHooksIBCModule).
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack).
 		// TODO: uncomment ICA controller once custom logic is supported
 		// AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
+
+	// TODO: add IBC transfer hooks
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -532,6 +546,7 @@ func NewEvmos(
 		// Evmos app modules
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
+		claim.NewAppModule(appCodec, app.ClaimKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -566,6 +581,7 @@ func NewEvmos(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		erc20types.ModuleName,
+		claimtypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -577,6 +593,7 @@ func NewEvmos(
 		feemarkettypes.ModuleName,
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
+		claimtypes.ModuleName,
 		// no-op modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -627,6 +644,7 @@ func NewEvmos(
 		// Evmos modules
 		erc20types.ModuleName,
 		epochstypes.ModuleName,
+		claimtypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -939,5 +957,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
+	paramsKeeper.Subspace(claimtypes.ModuleName)
 	return paramsKeeper
 }
