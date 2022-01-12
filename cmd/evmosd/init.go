@@ -50,9 +50,11 @@ func displayInfo(info printInfo) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(os.Stderr, "%s\n", string(sdk.MustSortJSON(out)))
+	if _, err := fmt.Fprintf(os.Stderr, "%s\n", string(sdk.MustSortJSON(out))); err != nil {
+		return err			
+	}
 
-	return err
+	return nil
 }
 
 // InitCmd returns a command that initializes all files needed for Tendermint
@@ -80,7 +82,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
-				chainID = fmt.Sprintf("test-chain-%v", tmrand.Str(6))
+				chainID = fmt.Sprintf("evmos_9000-%v", tmrand.Str(6))
 			}
 
 			// Get bip39 mnemonic
@@ -134,7 +136,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			genDoc.Validators = nil
 			genDoc.AppState = appState
 
-			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
+			if err := genutil.ExportGenesisFile(genDoc, genFile); err != nil {
 				return errors.Wrap(err, "Failed to export gensis file")
 			}
 
