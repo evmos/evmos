@@ -116,3 +116,12 @@ func (p Params) Validate() error {
 	}
 	return sdk.ValidateDenom(p.ClaimDenom)
 }
+
+// IsClaimActive returns true if the claiming process is active, i.e block time
+// is after the airdrop start time and claims are enabled.
+func (p Params) IsClaimActive(blockTime time.Time) bool {
+	if !p.EnableClaim || blockTime.Before(p.AirdropStartTime) {
+		return false
+	}
+	return true
+}

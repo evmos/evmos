@@ -59,12 +59,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// IsTransferHooksEnabled returns whether transfer hooks logic should be run.
-func (k Keeper) IsTransferHooksEnabled(ctx sdk.Context) bool {
-	params := k.GetParams(ctx)
-	return params.EnableClaim
-}
-
 // GetModuleAccountBalances gets the airdrop coin balance of module account
 func (k Keeper) GetModuleAccountAddress(ctx sdk.Context) sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)

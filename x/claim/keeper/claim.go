@@ -72,15 +72,19 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.
 }
 
 // ClaimCoins remove claimable amount entry and transfer it to user's account
-func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, claimRecord types.ClaimRecord, action types.Action) (sdk.Int, error) {
+func (k Keeper) ClaimCoinsForAction(
+	ctx sdk.Context,
+	addr sdk.AccAddress,
+	claimRecord types.ClaimRecord,
+	action types.Action,
+	params types.Params,
+) (sdk.Int, error) {
 	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
 
-	params := k.GetParams(ctx)
-
 	// If we are before the start time or claims are disabled, do nothing.
-	if !params.EnableClaim || ctx.BlockTime().Before(params.AirdropStartTime) {
+	if !params.IsClaimActive(ctx.BlockTime()) {
 		return sdk.ZeroInt(), nil
 	}
 

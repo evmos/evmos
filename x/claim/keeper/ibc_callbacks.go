@@ -16,7 +16,9 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
-	if !ack.Success() || !k.IsTransferHooksEnabled(ctx) {
+	params := k.GetParams(ctx)
+
+	if !ack.Success() || !params.IsClaimActive(ctx.BlockTime()) {
 		return ack
 	}
 
@@ -44,7 +46,8 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// claim IBC action
-	if _, err := k.ClaimCoinsForAction(ctx, recipient, claimRecord, types.ActionIBCTransfer); err != nil {
+	_, err = k.ClaimCoinsForAction(ctx, recipient, claimRecord, types.ActionIBCTransfer, params)
+	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
@@ -62,7 +65,9 @@ func (k Keeper) OnAcknowledgementPacket(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
 	}
 
-	if !ack.Success() || !k.IsTransferHooksEnabled(ctx) {
+	params := k.GetParams(ctx)
+
+	if !ack.Success() || !params.IsClaimActive(ctx.BlockTime()) {
 		return nil
 	}
 
@@ -82,7 +87,8 @@ func (k Keeper) OnAcknowledgementPacket(
 	}
 
 	// claim IBC action
-	if _, err := k.ClaimCoinsForAction(ctx, sender, claimRecord, types.ActionIBCTransfer); err != nil {
+	_, err = k.ClaimCoinsForAction(ctx, sender, claimRecord, types.ActionIBCTransfer, params)
+	if err != nil {
 		return err
 	}
 

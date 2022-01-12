@@ -12,7 +12,8 @@ import (
 
 var _ porttypes.IBCModule = &IBCModule{}
 
-// IBCModule implements the ICS26 callbacks for the fee middleware given the fee keeper and the underlying application.
+// IBCModule implements the ICS26 callbacks for the transfer middleware given
+// the claim keeper and the underlying application.
 type IBCModule struct {
 	keeper keeper.Keeper
 	app    porttypes.IBCModule
