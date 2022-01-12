@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Features
 
 - [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
+- [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom InitCmd function.
 
 ### Improvements
 
@@ -60,6 +61,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [\#191](https://github.com/tharsis/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
 - (erc20) [\#192](https://github.com/tharsis/evmos/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
 - (erc20) [\#200](https://github.com/tharsis/evmos/pull/200) Match coin and token decimals for erc20 deployment during registerCoin
+- (erc20) [\#201](https://github.com/tharsis/evmos/pull/201) bug(erc-20): Compile built-in contracts in the build process (IF-ETHERMINT-02).
 
 ## [v0.4.2] - 2021-12-11
 
