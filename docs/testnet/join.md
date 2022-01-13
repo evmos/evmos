@@ -122,7 +122,7 @@ For more details on how to configure your validator, follow the validator [setup
 
 ```bash
 evmosd tx staking create-validator \
-  --amount=1000000000000aphoton \
+  --amount=1000000000000aevmos \
   --pubkey=$(evmosd tendermint show-validator) \
   --moniker="EvmosWhale" \
   --chain-id=<chain_id> \
@@ -131,7 +131,7 @@ evmosd tx staking create-validator \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
-  --gas-prices="0.025aphoton" \
+  --gas-prices="0.025aevmos" \
   --from=<key_name>
 ```
 
