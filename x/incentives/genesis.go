@@ -16,7 +16,7 @@ func InitGenesis(
 ) {
 	k.SetParams(ctx, data.Params)
 
-	// ensure incentives module account is set on genesis
+	// Ensure incentives module account is set on genesis
 	if acc := accountKeeper.GetModuleAccount(ctx, types.ModuleName); acc == nil {
 		panic("the incentives module account has not been set")
 	}
@@ -27,7 +27,7 @@ func InitGenesis(
 		// Set Incentives
 		k.SetIncentive(ctx, incentive)
 
-		// build allocation meter map
+		// Build allocation meter map
 		for _, al := range incentive.Allocations {
 			allocationMeters[al.Denom] = allocationMeters[al.Denom].Add(al.Amount)
 		}

@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	"fmt"
 	"math/big"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -53,7 +53,7 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 					sdk.NewAttribute(types.AttributeKeyContract, incentive.Contract),
 					sdk.NewAttribute(
 						types.AttributeKeyEpochs,
-						fmt.Sprint(incentive.Epochs),
+						strconv.FormatUint(uint64(incentive.Epochs), 10),
 					),
 				),
 			)
@@ -112,9 +112,10 @@ func (k Keeper) allocateCoins(ctx sdk.Context) (map[common.Address]sdk.Coins, er
 
 	// checks if escrow balance has sufficient balance for allocation
 	if totalAllocated.IsAnyGTE(escrowedCoins) {
-		return nil, sdkerrors.Wrap(
+		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
-			"escrowed balance is less than total coins allocated",
+			"escrowed balance < total coins allocated (%s < %s)",
+			escrowedCoins, totalAllocated,
 		)
 	}
 
@@ -156,6 +157,8 @@ func (k Keeper) rewardParticipants(
 	}
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 
+	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+
 	// Iterate over the incentive's gas meters and distribute rewards
 	k.IterateIncentiveGasMeters(
 		ctx,
@@ -176,7 +179,6 @@ func (k Keeper) rewardParticipants(
 
 				// Cap rewards in mint denom (i.e. aevmos) to receive only up to 100% of
 				// the participant's gas spent and prevent gaming
-				mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
 				if mintDenom == allocation.Denom {
 					reward = sdk.MinDec(reward, cumulativeGas)
 				}

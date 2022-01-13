@@ -102,7 +102,7 @@ func (suite *KeeperTestSuite) TestGetIncentiveGasMeters() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestGetIncentiveGasMeter() {
+func (suite *KeeperTestSuite) GetGasMeter() {
 	expGm := types.NewGasMeter(contract, participant, 1)
 	suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, expGm)
 	suite.Commit()
@@ -121,7 +121,7 @@ func (suite *KeeperTestSuite) TestGetIncentiveGasMeter() {
 		{"valid id", contract, participant, true},
 	}
 	for _, tc := range testCases {
-		gm, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(
+		gm, found := suite.app.IncentivesKeeper.GetGasMeter(
 			suite.ctx,
 			tc.contract,
 			tc.participant,
@@ -159,7 +159,7 @@ func (suite *KeeperTestSuite) TestDeleteGasMeter() {
 	}
 	for _, tc := range testCases {
 		tc.malleate()
-		gm, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(
+		gm, found := suite.app.IncentivesKeeper.GetGasMeter(
 			suite.ctx,
 			common.HexToAddress(tc.gm.Contract),
 			common.HexToAddress(tc.gm.Participant),

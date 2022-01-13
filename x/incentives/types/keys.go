@@ -17,14 +17,14 @@ const (
 	RouterKey = ModuleName
 )
 
-// ModuleAddress is the native module address for EVM
+// ModuleAddress is the native module address for incentives module
 var ModuleAddress common.Address
 
 func init() {
 	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
 }
 
-// prefix bytes for the EVM persistent store
+// prefix bytes for the incentives persistent store
 const (
 	prefixIncentive = iota + 1
 	prefixGasMeter

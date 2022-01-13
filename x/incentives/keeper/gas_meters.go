@@ -77,8 +77,8 @@ func (k Keeper) IterateIncentiveGasMeters(
 	}
 }
 
-// GetIncentiveGasMeter - get cumulativeGas from gas meter
-func (k Keeper) GetIncentiveGasMeter(
+// GetGasMeter - get cumulativeGas from gas meter
+func (k Keeper) GetGasMeter(
 	ctx sdk.Context,
 	contract, participant common.Address,
 ) (uint64, bool) {

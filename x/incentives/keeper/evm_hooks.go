@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -20,10 +19,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, participant common.Address, con
 		return nil
 	}
 
-	if err := h.addGasToIncentive(ctx, *contract, receipt.GasUsed); err != nil {
-		return err
-	}
-
+	h.addGasToIncentive(ctx, *contract, receipt.GasUsed)
 	h.addGasToParticipant(ctx, *contract, participant, receipt.GasUsed)
 
 	return nil
@@ -34,18 +30,11 @@ func (h Hooks) addGasToIncentive(
 	ctx sdk.Context,
 	contract common.Address,
 	gasUsed uint64,
-) error {
-	incentive, found := h.k.GetIncentive(ctx, contract)
-	if !found {
-		return sdkerrors.Wrapf(
-			types.ErrInternalIncentive,
-			"incentive for contract %s not found during addGasToIncentive()", contract,
-		)
-	}
-
+) {
+	// NOTE: existence of contract incentive is already checked
+	incentive, _ := h.k.GetIncentive(ctx, contract)
 	incentive.TotalGas += gasUsed
 	h.k.SetIncentive(ctx, incentive)
-	return nil
 }
 
 // addGasToParticipant adds gasUsed to a participant's gas meter's cumulative
@@ -55,7 +44,7 @@ func (h Hooks) addGasToParticipant(
 	contract, participant common.Address,
 	gasUsed uint64,
 ) {
-	previousGas, found := h.k.GetIncentiveGasMeter(ctx, contract, participant)
+	previousGas, found := h.k.GetGasMeter(ctx, contract, participant)
 	if found {
 		gasUsed += previousGas
 	}

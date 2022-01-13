@@ -174,7 +174,7 @@ func (k Keeper) GasMeter(
 		)
 	}
 
-	gm, found := k.GetIncentiveGasMeter(
+	gm, found := k.GetGasMeter(
 		ctx,
 		common.HexToAddress(req.Contract),
 		common.HexToAddress(req.Participant),

@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				suite.Require().Equal(expBalance, balance.Amount.Int64(), tc.name)
 
 				// deletes all gas meters
-				_, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(suite.ctx, tc.contract, participant)
+				_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, tc.contract, participant)
 				suite.Require().False(found)
 
 				// updates the remaining epochs of each incentive and sets the cumulative

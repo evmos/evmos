@@ -27,7 +27,6 @@ func DefaultGenesisState() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 	seenContractIn := make(map[string]bool)
-
 	for _, in := range gs.Incentives {
 		// only one incentive per contract
 		if seenContractIn[in.Contract] {
@@ -41,12 +40,10 @@ func (gs GenesisState) Validate() error {
 		seenContractIn[in.Contract] = true
 	}
 
-	seenContractGm := make(map[string]bool)
-	seenParticipant := make(map[string]bool)
-
+	seenGasMeters := make(map[string]bool)
 	for _, gm := range gs.GasMeters {
-		// only 1 participant per gas meter
-		if seenContractGm[gm.Contract] && seenParticipant[gm.Participant] {
+		// only one gas meter per contract+participant combination
+		if seenGasMeters[gm.Contract+gm.Participant] {
 			return fmt.Errorf(
 				"gas meter duplicated on genesis contract: '%s',  participant: '%s'",
 				gm.Contract, gm.Participant,
@@ -57,8 +54,7 @@ func (gs GenesisState) Validate() error {
 			return err
 		}
 
-		seenContractGm[gm.Contract] = true
-		seenParticipant[gm.Participant] = true
+		seenGasMeters[gm.Contract+gm.Participant] = true
 	}
 
 	return gs.Params.Validate()

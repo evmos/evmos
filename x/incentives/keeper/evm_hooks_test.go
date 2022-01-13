@@ -91,7 +91,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 
 			incentive, _ := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contractAddr)
 			totalGas := incentive.TotalGas
-			gm, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(
+			gm, found := suite.app.IncentivesKeeper.GetGasMeter(
 				suite.ctx,
 				contractAddr,
 				suite.address,
