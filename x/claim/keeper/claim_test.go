@@ -304,24 +304,27 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	claimRecord, found = suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addrs[0])
 	suite.Require().True(found)
 
-	suite.Require().True(claimRecord.ActionsCompleted[types.ActionEVM-1]) // We have Unspecified action in 0
-	suite.Require().True(claimRecord.ActionsCompleted[types.ActionDelegate-1])
+	suite.Require().True(claimRecord.HasClaimedAction(types.ActionEVM)) // We have Unspecified action in 0
+	suite.Require().True(claimRecord.HasClaimedAction(types.ActionDelegate))
 
 	// get balance after 2 actions done
 	bal1 := suite.app.BankKeeper.GetAllBalances(suite.ctx, addrs[0])
 	suite.Require().Equal(bal1.String(), sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimDenom(), 50)).String())
 
 	// check that claimable for completed activity is 0
-	bal4 := suite.app.ClaimKeeper.GetClaimableAmountForAction(suite.ctx, addrs[0], claimRecords[0], types.ActionEVM, params)
-	suite.Require().Equal(bal4.String(), sdk.Coins{}.String()) // 2 = 10.Quo(4)
+	claimRecord1, _ := suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addrs[0])
+	bal4 := suite.app.ClaimKeeper.GetClaimableAmountForAction(suite.ctx, addrs[0], claimRecord1, types.ActionEVM, params)
+	suite.Require().Equal(bal4, sdk.NewInt(0))
 
 	// do rest of actions
-	suite.app.ClaimKeeper.AfterProposalVote(suite.ctx, 1, addrs[0])
-	suite.app.ClaimKeeper.AfterDelegationModified(suite.ctx, addrs[0], sdk.ValAddress(addrs[0]))
+	_, err = suite.app.ClaimKeeper.ClaimCoinsForAction(suite.ctx, addrs[0], types.ActionIBCTransfer)
+	suite.Require().NoError(err)
+	_, err = suite.app.ClaimKeeper.ClaimCoinsForAction(suite.ctx, addrs[0], types.ActionVote)
+	suite.Require().NoError(err)
 
 	// get balance after rest actions done
 	bal1 = suite.app.BankKeeper.GetAllBalances(suite.ctx, addrs[0])
-	suite.Require().Equal(coins1.String(), sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimDenom(), 100)).String())
+	suite.Require().Equal(coins1, sdk.NewInt(100))
 
 	// get claimable after withdrawing all
 	coins1 = suite.app.ClaimKeeper.GetUserTotalClaimable(suite.ctx, addrs[0])
@@ -337,7 +340,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 
 	coins2 = suite.app.ClaimKeeper.GetUserTotalClaimable(suite.ctx, addrs[1])
 	suite.Require().NoError(err)
-	suite.Require().Equal(coins2, sdk.Coins{})
+	suite.Require().Equal(coins2, sdk.NewInt(0))
 }
 
 func (suite *KeeperTestSuite) TestClaimOfDecayed() {
