@@ -40,6 +40,10 @@ func (k Keeper) GetClaimableAmountForAction(
 		return initialClaimablePerAction
 	}
 
+	if claimRecord.ActionsCompleted[action] {
+		return sdk.ZeroInt()
+	}
+
 	// Positive, since goneTime > params.DurationUntilDecay
 	decayTime := elapsedAirdropTime - params.DurationUntilDecay
 	decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(params.DurationOfDecay.Nanoseconds())
