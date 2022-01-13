@@ -1,7 +1,7 @@
 package incentives
 
 import (
-	"fmt"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -38,7 +38,10 @@ func handleRegisterIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types
 		sdk.NewEvent(
 			types.EventTypeRegisterIncentive,
 			sdk.NewAttribute(types.AttributeKeyContract, in.Contract),
-			sdk.NewAttribute(types.AttributeKeyEpochs, fmt.Sprint(in.Epochs)),
+			sdk.NewAttribute(
+				types.AttributeKeyEpochs,
+				strconv.FormatUint(uint64(in.Epochs), 10),
+			),
 		),
 	)
 	return nil
@@ -51,7 +54,7 @@ func handleCancelIncentiveProposal(ctx sdk.Context, k *keeper.Keeper, p *types.C
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeRegisterIncentive,
+			types.EventTypeCancelIncentive,
 			sdk.NewAttribute(types.AttributeKeyContract, p.Contract),
 		),
 	)
