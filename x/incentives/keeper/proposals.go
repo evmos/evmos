@@ -48,7 +48,7 @@ func (k Keeper) RegisterIncentive(
 		if al.Amount.GT(params.AllocationLimit) {
 			return nil, sdkerrors.Wrapf(
 				types.ErrInternalIncentive,
-				"allocation for denom '%s' (%s) cannot be above allocation limmit '%s' - ", al.Denom, al.Amount, params.AllocationLimit,
+				"allocation for denom '%s' (%s) cannot be above allocation limit (%s)", al.Denom, al.Amount, params.AllocationLimit,
 			)
 		}
 	}
