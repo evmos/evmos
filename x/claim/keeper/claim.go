@@ -29,6 +29,10 @@ func (k Keeper) GetClaimableAmountForAction(
 		return sdk.ZeroInt()
 	}
 
+	if claimRecord.HasClaimedAction(action) {
+		return sdk.ZeroInt()
+	}
+
 	// TODO: update this and explicitly define the % instead of assuming each action
 	// has the same weight
 
@@ -38,10 +42,6 @@ func (k Keeper) GetClaimableAmountForAction(
 	// Are we early enough in the airdrop s.t. theres no decay?
 	if elapsedAirdropTime <= params.DurationUntilDecay {
 		return initialClaimablePerAction
-	}
-
-	if claimRecord.ActionsCompleted[action] {
-		return sdk.ZeroInt()
 	}
 
 	// Positive, since goneTime > params.DurationUntilDecay
