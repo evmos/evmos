@@ -154,17 +154,17 @@ Where metadata.json contains (example):
 		{
 			"denom": "aevmos",
 			"exponent": 0,
-			"aliases": ["atto photon"]
+			"aliases": ["atto evmos"]
 		},
 		{
-			"denom": "photon",
+			"denom": "evmos",
 			"exponent": 18
 		}
 	],
 	"base": "aevmos",
-	"display: "photon",
-	"name": "Photon",
-	"symbol": "PHOTON"
+	"display: "evmos",
+	"name": "Evmos",
+	"symbol": "EVMOS"
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
