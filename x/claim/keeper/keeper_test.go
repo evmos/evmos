@@ -67,9 +67,14 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime()
-
-	suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(params.GetClaimDenom(), sdk.NewInt(10000000)))
 	suite.app.ClaimKeeper.SetParams(suite.ctx, params)
+
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = params.GetClaimDenom()
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
+	govParams := suite.app.GovKeeper.GetDepositParams(suite.ctx)
+	govParams.MinDeposit[0].Denom = params.GetClaimDenom()
 }
 
 func TestKeeperTestSuite(t *testing.T) {

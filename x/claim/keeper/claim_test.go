@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+func (suite *KeeperTestSuite) SetupClaimTest() {
+	suite.SetupTest()
+	params := suite.app.ClaimKeeper.GetParams(suite.ctx)
+	suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(params.GetClaimDenom(), sdk.NewInt(10000000)))
+}
+
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
@@ -30,7 +36,7 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 	}
 
 	for _, tc := range testCases {
-		suite.SetupTest()
+		suite.SetupClaimTest()
 		action := types.ActionDelegate
 		amt := suite.app.ClaimKeeper.GetClaimableAmountForAction(suite.ctx, addr, tc.claimRecord, action, tc.params)
 		suite.Require().Equal(tc.expAmt.Int64(), amt.Int64())
@@ -60,7 +66,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 	}
 
 	for _, tc := range testCases {
-		suite.SetupTest()
+		suite.SetupClaimTest()
 		tc.malleate()
 
 		amt := suite.app.ClaimKeeper.GetUserTotalClaimable(suite.ctx, addr)
@@ -69,7 +75,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 }
 
 func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	pub1 := secp256k1.GenPrivKey().PubKey()
 	addr1 := sdk.AccAddress(pub1.Address())
@@ -87,7 +93,7 @@ func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 }
 
 func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	airdropStartTime := time.Now().Add(time.Hour)
 	params := suite.app.ClaimKeeper.GetParams(suite.ctx)
@@ -129,7 +135,7 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 }
 
 func (suite *KeeperTestSuite) TestHookAfterAirdropEnd() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	// airdrop recipient address
 	pub1 := secp256k1.GenPrivKey().PubKey()
@@ -154,7 +160,7 @@ func (suite *KeeperTestSuite) TestHookAfterAirdropEnd() {
 }
 
 func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	pub1 := secp256k1.GenPrivKey().PubKey()
 	addr1 := sdk.AccAddress(pub1.Address())
@@ -192,12 +198,11 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 }
 
 func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	pub1 := secp256k1.GenPrivKey().PubKey()
 	pub2 := secp256k1.GenPrivKey().PubKey()
 	addrs := []sdk.AccAddress{sdk.AccAddress(pub1.Address()), sdk.AccAddress(pub2.Address())}
-
 	params := suite.app.ClaimKeeper.GetParams(suite.ctx)
 
 	claimRecords := []types.ClaimRecord{
@@ -248,7 +253,7 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 }
 
 func (suite *KeeperTestSuite) TestAirdropFlow() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	addrs := []sdk.AccAddress{
 		sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address()),
@@ -345,6 +350,8 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 }
 
 func (suite *KeeperTestSuite) TestClaimOfDecayed() {
+	suite.SetupClaimTest()
+
 	airdropStartTime := time.Now()
 	durationUntilDecay := time.Hour
 	durationOfDecay := time.Hour * 4
@@ -415,14 +422,14 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	}
 
 	for _, test := range tests {
-		suite.SetupTest()
+		suite.SetupClaimTest()
 
 		suite.app.ClaimKeeper.SetParams(suite.ctx, types.Params{
 			AirdropStartTime:   airdropStartTime,
 			DurationUntilDecay: durationUntilDecay,
 			DurationOfDecay:    durationOfDecay,
 			EnableClaim:        true,
-			ClaimDenom:         "aphoton", // aphoton
+			ClaimDenom:         params.GetClaimDenom(),
 		})
 
 		suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr1, nil, 0, 0))
@@ -433,7 +440,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackAirdrop() {
-	suite.SetupTest()
+	suite.SetupClaimTest()
 
 	tests := []struct {
 		name           string
