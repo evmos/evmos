@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -328,7 +327,6 @@ func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Addre
 
 	switch contractType {
 	case contractDirectBalanceManipulation:
-		fmt.Printf("contractDirectBalanceManipulation: %v\n", contractDirectBalanceManipulation)
 		transferData, err = contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("mint", to, amount)
 	case contractMaliciousDelayed:
 		transferData, err = contracts.ERC20MaliciousDelayedContract.ABI.Pack("mint", to, amount)

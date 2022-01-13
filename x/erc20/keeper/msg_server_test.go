@@ -178,21 +178,21 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 	testCases := []struct {
 		name           string
 		mint           int64
-		burn           int64
+		transfer       int64
 		malleate       func(common.Address)
 		contractType   int
 		expPass        bool
 		selfdestructed bool
 	}{
-		// {
-		// 	"ok - sufficient funds",
-		// 	100,
-		// 	10,
-		// 	func(common.Address) {},
-		// 	contractMinterBurner,
-		// 	true,
-		// 	false,
-		// },
+		{
+			"ok - sufficient funds",
+			100,
+			10,
+			func(common.Address) {},
+			contractMinterBurner,
+			true,
+			false,
+		},
 		// {
 		// 	"ok - equal funds",
 		// 	10,
@@ -269,6 +269,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			fmt.Println(tc.name)
 			suite.mintFeeCollector = true
 			suite.SetupTest()
 
@@ -281,7 +282,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			coinName := types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertERC20(
-				sdk.NewInt(tc.burn),
+				sdk.NewInt(tc.transfer),
 				sender,
 				contractAddr,
 				suite.address,
@@ -292,13 +293,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
 			res, err := suite.app.Erc20Keeper.ConvertERC20(ctx, msg)
-
-			// force fail for debug
-			if tc.contractType == contractDirectBalanceManipulation {
-				fmt.Printf("tc.mint: %v\n", tc.mint)
-				fmt.Printf("err from ConvertERC20: %v\n", err)
-				suite.Require().NoError(err)
-			}
 
 			expRes := &types.MsgConvertERC20Response{}
 			suite.Commit()
@@ -320,8 +314,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.Require().False(found)
 				} else {
 					suite.Require().Equal(expRes, res)
-					suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.burn))
-					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.mint-tc.burn).Int64())
+					suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.transfer))
+					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.mint-tc.transfer).Int64())
 				}
 			} else {
 				suite.Require().Error(err, tc.name)
@@ -343,18 +337,18 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		contractType int
 		expPass      bool
 	}{
-		{"ok - sufficient funds", 100, 10, 5, func(common.Address) {}, contractMinterBurner, true},
-		{"ok - equal funds", 10, 10, 10, func(common.Address) {}, contractMinterBurner, true},
-		{"fail - insufficient funds", 10, 1, 5, func(common.Address) {}, contractMinterBurner, false},
-		{
-			"fail - malicious delayed contract",
-			100,
-			10,
-			5,
-			func(common.Address) {},
-			contractMaliciousDelayed,
-			false,
-		},
+		// {"ok - sufficient funds", 100, 10, 5, func(common.Address) {}, contractMinterBurner, true},
+		// {"ok - equal funds", 10, 10, 10, func(common.Address) {}, contractMinterBurner, true},
+		// {"fail - insufficient funds", 10, 1, 5, func(common.Address) {}, contractMinterBurner, false},
+		// {
+		// 	"fail - malicious delayed contract",
+		// 	100,
+		// 	10,
+		// 	5,
+		// 	func(common.Address) {},
+		// 	contractMaliciousDelayed,
+		// 	false,
+		// },
 		// TODO fail - direct balance manipulation contract
 		// {
 		// 	"fail - direct balance manipulation contract",
