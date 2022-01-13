@@ -35,8 +35,8 @@ func GetQueryCmd() *cobra.Command {
 func GetIncentivesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "incentives",
-		Short: "Gets incentives",
-		Long:  "Gets incentives",
+		Short: "Gets all registered incentives",
+		Long:  "Gets all registered incentives",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -72,8 +72,8 @@ func GetIncentivesCmd() *cobra.Command {
 func GetIncentiveCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "incentive [contract-address]",
-		Short: "Gets incentive",
-		Long:  "Gets incentive",
+		Short: "Gets incentive for a given contract",
+		Long:  "Gets incentive for a given contract",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !common.IsHexAddress(args[0]) {
@@ -108,8 +108,8 @@ func GetIncentiveCmd() *cobra.Command {
 func GetGasMetersCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gas-meters [contract-address]",
-		Short: "Gets meters for a given incentive contract",
-		Long:  "Gets meters for a given incentive contract",
+		Short: "Gets gas meters for a given incentive",
+		Long:  "Gets gas meters for a given incentive",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !common.IsHexAddress(args[0]) {
@@ -150,8 +150,8 @@ func GetGasMetersCmd() *cobra.Command {
 func GetGasMeterCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gas-meter [contract-address] [participant-address]",
-		Short: "Gets meter for a given incentive contract and user address",
-		Long:  "Gets meter for a given incentive contract and user address",
+		Short: "Gets gas meter for a given incentive and user",
+		Long:  "Gets gas meter for a given incentive and user",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !common.IsHexAddress(args[0]) {
