@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,7 +11,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/claim/types"
-	"time"
 )
 
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
