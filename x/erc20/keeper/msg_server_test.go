@@ -193,70 +193,69 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			true,
 			false,
 		},
-		// {
-		// 	"ok - equal funds",
-		// 	10,
-		// 	10,
-		// 	func(common.Address) {},
-		// 	contractMinterBurner,
-		// 	true,
-		// 	false,
-		// },
-		// {
-		// 	"ok - equal funds",
-		// 	10,
-		// 	10,
-		// 	func(common.Address) {},
-		// 	contractMinterBurner,
-		// 	true,
-		// 	false,
-		// },
-		// {
-		// 	"ok - suicided contract",
-		// 	10,
-		// 	10,
-		// 	func(erc20 common.Address) {
-		// 		stateDb := suite.StateDB()
-		// 		ok := stateDb.Suicide(erc20)
-		// 		suite.Require().True(ok)
-		// 		suite.Require().NoError(stateDb.Commit())
-		// 	},
-		// 	contractMinterBurner,
-		// 	true,
-		// 	true,
-		// },
-		// {
-		// 	"fail - insufficient funds - callEVM",
-		// 	0,
-		// 	10,
-		// 	func(common.Address) {},
-		// 	contractMinterBurner,
-		// 	false,
-		// 	false,
-		// },
-		// {
-		// 	"fail - minting disabled",
-		// 	100,
-		// 	10,
-		// 	func(common.Address) {
-		// 		params := types.DefaultParams()
-		// 		params.EnableErc20 = false
-		// 		suite.app.Erc20Keeper.SetParams(suite.ctx, params)
-		// 	},
-		// 	contractMinterBurner,
-		// 	false,
-		// 	false,
-		// },
-		// {
-		// 	"fail - delayed malicious contract",
-		// 	10,
-		// 	10,
-		// 	func(common.Address) {},
-		// 	contractMaliciousDelayed,
-		// 	false,
-		// 	false,
-		// },
-		// TODO fail - direct balance manipulation contract
+		{
+			"ok - equal funds",
+			10,
+			10,
+			func(common.Address) {},
+			contractMinterBurner,
+			true,
+			false,
+		},
+		{
+			"ok - equal funds",
+			10,
+			10,
+			func(common.Address) {},
+			contractMinterBurner,
+			true,
+			false,
+		},
+		{
+			"ok - suicided contract",
+			10,
+			10,
+			func(erc20 common.Address) {
+				stateDb := suite.StateDB()
+				ok := stateDb.Suicide(erc20)
+				suite.Require().True(ok)
+				suite.Require().NoError(stateDb.Commit())
+			},
+			contractMinterBurner,
+			true,
+			true,
+		},
+		{
+			"fail - insufficient funds - callEVM",
+			0,
+			10,
+			func(common.Address) {},
+			contractMinterBurner,
+			false,
+			false,
+		},
+		{
+			"fail - minting disabled",
+			100,
+			10,
+			func(common.Address) {
+				params := types.DefaultParams()
+				params.EnableErc20 = false
+				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+			},
+			contractMinterBurner,
+			false,
+			false,
+		},
+		{
+			"fail - delayed malicious contract",
+			10,
+			10,
+			func(common.Address) {},
+			contractMaliciousDelayed,
+			false,
+			false,
+		},
 		{
 			"fail - direct balance manipulation contract",
 			100,

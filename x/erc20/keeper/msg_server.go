@@ -305,21 +305,6 @@ func (k Keeper) convertERC20NativeToken(
 		)
 	}
 
-	// TODO REMOVE? Check expected Sender balance after transfer execution
-	// tokens := coins[0].Amount.BigInt()
-	// balanceTokenAfter := k.balanceOf(ctx, erc20, contract, sender)
-	// expToken := big.NewInt(0).Sub(balanceToken, tokens)
-	// fmt.Printf("balanceToken: %v\n", balanceToken)
-	// fmt.Printf("balanceTokenAfter: %v\n", balanceTokenAfter)
-	// fmt.Printf("expToken: %v\n", expToken)
-	// if r := balanceTokenAfter.Cmp(expToken); r != 0 {
-	// 	return nil, sdkerrors.Wrapf(
-	// 		types.ErrInvalidConversionBalance,
-	// 		"invalid token balance - expected: %v, actual: %v",
-	// 		expToken, balanceTokenAfter,
-	// 	)
-	// }
-
 	// Check for unexpected `appove` event in logs
 	if err := k.monitorApprovalEvent(res); err != nil {
 		return nil, err
