@@ -17,11 +17,10 @@ func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []sdk.DecCoin {
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-
-		denom := string(iterator.Value())
+		denom := string(iterator.Key()[1:])
 		allocationMeter, found := k.GetAllocationMeter(ctx, denom)
 		if !found {
-			panic(fmt.Errorf("unable to unmarshal amount value %v", found))
+			continue
 		}
 
 		allocationMeters = append(allocationMeters, allocationMeter)
@@ -65,12 +64,11 @@ func (k Keeper) SetAllocationMeter(ctx sdk.Context, am sdk.DecCoin) {
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
 	key := []byte(am.Denom)
-	store.Set(key, bz)
-}
 
-// DeleteAllocationMeter removes an allocationMeter.
-func (k Keeper) DeleteAllocationMeter(ctx sdk.Context, am sdk.DecCoin) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
-	key := []byte(am.Denom)
-	store.Delete(key)
+	// Remove zero allocation meters
+	if am.IsZero() {
+		store.Delete(key)
+	} else {
+		store.Set(key, bz)
+	}
 }

@@ -10,9 +10,10 @@ import (
 
 func (suite KeeperTestSuite) TestRegisterIncentive() {
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name                string
+		malleate            func()
+		expAllocationMeters []sdk.DecCoin
+		expPass             bool
 	}{
 		{
 			"incentives are disabled globally",
@@ -21,6 +22,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				params.EnableIncentives = false
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
 			},
+			[]sdk.DecCoin{},
 			false,
 		},
 		{
@@ -30,12 +32,14 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
 				suite.Commit()
 			},
+			[]sdk.DecCoin{},
 			false,
 		},
 		{
 			"coin doesn't have supply",
 			func() {
 			},
+			[]sdk.DecCoin{},
 			false,
 		},
 		{
@@ -54,6 +58,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				params.AllocationLimit = sdk.NewDecWithPrec(1, 2)
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
 			},
+			[]sdk.DecCoin{},
 			false,
 		},
 		{
@@ -84,6 +89,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				suite.Require().NoError(err)
 				suite.Commit()
 			},
+			[]sdk.DecCoin{sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2))},
 			false,
 		},
 		{
@@ -97,6 +103,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				)
 				suite.Require().NoError(err)
 			},
+			[]sdk.DecCoin{allocations[1], allocations[0]},
 			true,
 		},
 	}
@@ -120,6 +127,9 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				Epochs:      epochs,
 			}
 
+			allocationMeters := suite.app.IncentivesKeeper.GetAllAllocationMeters(suite.ctx)
+			suite.Require().Equal(tc.expAllocationMeters, allocationMeters)
+
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expIn, in)
@@ -132,14 +142,16 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 
 func (suite KeeperTestSuite) TestCancelIncentive() {
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name                string
+		malleate            func()
+		expAllocationMeters []sdk.DecCoin
+		expPass             bool
 	}{
 		{
 			"inventive not registered",
 			func() {
 			},
+			[]sdk.DecCoin{},
 			false,
 		},
 		{
@@ -154,6 +166,7 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 				suite.Require().NoError(err)
 				suite.Commit()
 			},
+			[]sdk.DecCoin{},
 			true,
 		},
 	}
@@ -167,10 +180,13 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 			suite.Commit()
 
 			_, ok := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
+
+			allocationMeters := suite.app.IncentivesKeeper.GetAllAllocationMeters(suite.ctx)
+			suite.Require().Equal(tc.expAllocationMeters, allocationMeters)
+
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().False(ok, tc.name)
-
 			} else {
 				suite.Require().Error(err, tc.name)
 				suite.Require().False(ok, tc.name)
