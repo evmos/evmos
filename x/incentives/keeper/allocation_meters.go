@@ -18,7 +18,7 @@ func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []sdk.DecCoin {
 
 	for ; iterator.Valid(); iterator.Next() {
 
-		denom := fmt.Sprintf("%s", iterator.Value())
+		denom := string(iterator.Value())
 		allocationMeter, found := k.GetAllocationMeter(ctx, denom)
 		if !found {
 			panic(fmt.Errorf("unable to unmarshal amount value %v", found))
