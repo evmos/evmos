@@ -498,7 +498,7 @@ func (suite *KeeperTestSuite) TestClawbackAirdrop() {
 				"balance incorrect. test: %s", tc.name)
 		} else {
 			suite.Require().True(coins.IsEqual(sdk.NewCoins(
-				sdk.NewInt64Coin("uosmo", 100),
+				sdk.NewInt64Coin("uevmos", 100),
 			)), "balance incorrect. test: %s", tc.name)
 		}
 	}
