@@ -34,13 +34,30 @@ import (
 	"github.com/tharsis/ethermint/server/config"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
-	"github.com/tharsis/ethermint/x/evm/statedb"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/erc20/types"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
+	"github.com/tharsis/evmos/x/incentives/types"
+)
+
+var (
+	participant     = tests.GenerateAddress()
+	participant2    = tests.GenerateAddress()
+	contract        = tests.GenerateAddress()
+	contract2       = tests.GenerateAddress()
+	denomMint       = "stake"
+	denomCoin       = "acoin"
+	allocationRate  = int64(5)
+	mintAllocations = sdk.DecCoins{
+		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
+	}
+	allocations = sdk.DecCoins{
+		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
+		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(allocationRate, 2)),
+	}
+	epochs        = uint32(10)
+	erc20Decimals = uint8(18)
 )
 
 type KeeperTestSuite struct {
@@ -141,7 +158,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.Erc20Keeper)
+	types.RegisterQueryServer(queryHelper, suite.app.IncentivesKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	acc := &ethermint.EthAccount{
@@ -167,8 +184,24 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.DoSetupTest(suite.T())
 }
 
-func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
+}
+
+func (suite *KeeperTestSuite) Commit() {
+	_ = suite.app.Commit()
+	header := suite.ctx.BlockHeader()
+	header.Height += 1
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: header,
+	})
+
+	// update ctx
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+
+	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
+	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
 }
 
 func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
@@ -221,73 +254,8 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimal
 	return crypto.CreateAddress(suite.address, nonce)
 }
 
-func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol string) common.Address {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20MaliciousDelayedContract.ABI.Pack("", big.NewInt(1000000000000000000))
-	suite.Require().NoError(err)
-
-	data := append(contracts.ERC20MaliciousDelayedContract.Bin, ctorArgs...)
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &suite.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	suite.Require().NoError(err)
-
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
-	})
-	suite.Require().NoError(err)
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	erc20DeployTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil,     // amount
-		res.Gas, // gasLimit
-		nil,     // gasPrice
-		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
-	)
-
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	suite.Require().NoError(err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	suite.Require().NoError(err)
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
-}
-
-func (suite *KeeperTestSuite) Commit() {
-	_ = suite.app.Commit()
-	header := suite.ctx.BlockHeader()
-	header.Height += 1
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
-}
-
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int, isMaliciousDelayed bool) *evm.MsgEthereumTx {
-	var transferData []byte
-	var err error
-	if isMaliciousDelayed {
-		transferData, err = contracts.ERC20MaliciousDelayedContract.ABI.Pack("mint", to, amount)
-	} else {
-		transferData, err = contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
-	}
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
@@ -316,6 +284,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 
 	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
 	suite.Require().NoError(err)
+
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
 		GasCap: uint64(config.DefaultGasCap),
@@ -340,7 +309,8 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 		&ethtypes.AccessList{}, // accesses
 	)
 
-	ercTransferTx.From = suite.address.Hex()
+	ercTransferTx.From = from.Hex()
+
 	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
 	suite.Require().NoError(err)
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
@@ -349,20 +319,19 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	return ercTransferTx
 }
 
-func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interface{} {
+func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.Int {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
-	if err != nil {
-		return nil
-	}
+	suite.Require().NoError(err)
+	suite.Require().NotNil(res)
 
 	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
-	if len(unpacked) == 0 {
-		return nil
-	}
+	suite.Require().NoError(err)
+	suite.Require().NotEmpty(unpacked)
+	suite.Require().IsType(unpacked[0], &big.Int{})
 
-	return unpacked[0]
+	return unpacked[0].(*big.Int)
 }
 
 func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
@@ -379,12 +348,9 @@ func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	return fmt.Sprintf("%v", unpacked[0])
 }
 
-func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+// TransferERC20Token transfers tokens from the suite.address to a given address
+func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
 	suite.Require().NoError(err)
-	return suite.sendTx(contractAddr, from, transferData)
-}
-
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
+	return suite.sendTx(contractAddr, suite.address, transferData)
 }

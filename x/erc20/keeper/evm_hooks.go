@@ -15,19 +15,29 @@ import (
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
 )
 
-var _ evmtypes.EvmHooks = (*Keeper)(nil)
+// Hooks wrapper struct for erc20 keeper
+type Hooks struct {
+	k Keeper
+}
+
+var _ evmtypes.EvmHooks = Hooks{}
+
+// Return the wrapper struct
+func (k Keeper) Hooks() Hooks {
+	return Hooks{k}
+}
 
 // TODO: Make sure that if ConvertERC20 is called, that the Hook doesnt trigger
 // if it does, delete minting from ConvertErc20
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing
-func (k Keeper) PostTxProcessing(
+func (h Hooks) PostTxProcessing(
 	ctx sdk.Context,
 	from common.Address,
 	to *common.Address,
 	receipt *ethtypes.Receipt,
 ) error {
-	params := k.GetParams(ctx)
+	params := h.k.GetParams(ctx)
 	if !params.EnableEVMHook {
 		return sdkerrors.Wrap(types.ErrInternalTokenPair, "EVM Hook is currently disabled")
 	}
@@ -48,13 +58,13 @@ func (k Keeper) PostTxProcessing(
 		}
 
 		if event.Name != types.ERC20EventTransfer {
-			k.Logger(ctx).Info("emitted event", "name", event.Name, "signature", event.Sig)
+			h.k.Logger(ctx).Info("emitted event", "name", event.Name, "signature", event.Sig)
 			continue
 		}
 
 		transferEvent, err := erc20.Unpack(event.Name, log.Data)
 		if err != nil {
-			k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
+			h.k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
 			continue
 		}
 
@@ -71,14 +81,14 @@ func (k Keeper) PostTxProcessing(
 		// check that the contract is a registered token pair
 		contractAddr := log.Address
 
-		id := k.GetERC20Map(ctx, contractAddr)
+		id := h.k.GetERC20Map(ctx, contractAddr)
 
 		if len(id) == 0 {
 			// no token is registered for the caller contract
 			continue
 		}
 
-		pair, found := k.GetTokenPair(ctx, id)
+		pair, found := h.k.GetTokenPair(ctx, id)
 		if !found {
 			continue
 		}
@@ -103,15 +113,15 @@ func (k Keeper) PostTxProcessing(
 		// Mint the coin only if ERC20 is external
 		switch pair.ContractOwner {
 		case types.OWNER_MODULE:
-			_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, "burn", tokens)
+			_, err = h.k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, "burn", tokens)
 		case types.OWNER_EXTERNAL:
-			err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+			err = h.k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 		default:
 			err = types.ErrUndefinedOwner
 		}
 
 		if err != nil {
-			k.Logger(ctx).Debug(
+			h.k.Logger(ctx).Debug(
 				"failed to process EVM hook for ER20 -> coin conversion",
 				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
 			)
@@ -123,8 +133,8 @@ func (k Keeper) PostTxProcessing(
 		recipient := sdk.AccAddress(from.Bytes())
 
 		// transfer the tokens from ModuleAccount to sender address
-		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
-			k.Logger(ctx).Debug(
+		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
+			h.k.Logger(ctx).Debug(
 				"failed to process EVM hook for ER20 -> coin conversion",
 				"tx-hash", receipt.TxHash.Hex(), "log-idx", i,
 				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
