@@ -197,7 +197,7 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryClaimRecordsRequest is the request type for the Query/ClaimRecord RPC method.
+// QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
 type QueryClaimRecordsRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
@@ -242,7 +242,7 @@ func (m *QueryClaimRecordsRequest) GetAddress() string {
 	return ""
 }
 
-// QueryClaimRecordsResponse is the response type for the Query/ClaimRecord RPC method.
+// QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
 type QueryClaimRecordsResponse struct {
 	// total initial claimable amount for the user
 	InitialClaimableAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,1,opt,name=initial_claimable_amount,json=initialClaimableAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"initial_claimable_amount"`
