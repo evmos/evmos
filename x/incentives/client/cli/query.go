@@ -76,7 +76,7 @@ func GetIncentiveCmd() *cobra.Command {
 		Long:  "Gets incentive",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if common.IsHexAddress(args[0]) {
+			if !common.IsHexAddress(args[0]) {
 				return fmt.Errorf("invalid contract address: %s", args[0])
 			}
 
@@ -112,7 +112,7 @@ func GetGasMetersCmd() *cobra.Command {
 		Long:  "Gets meters for a given incentive contract",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if common.IsHexAddress(args[0]) {
+			if !common.IsHexAddress(args[0]) {
 				return fmt.Errorf("invalid contract address: %s", args[0])
 			}
 
@@ -146,7 +146,7 @@ func GetGasMetersCmd() *cobra.Command {
 	return cmd
 }
 
-// GetGasMetersCmd queries the list of incentives
+// GetGasMeterCmd queries the list of incentives
 func GetGasMeterCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gas-meter [contract-address] [participant-address]",
@@ -154,11 +154,11 @@ func GetGasMeterCmd() *cobra.Command {
 		Long:  "Gets meter for a given incentive contract and user address",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if common.IsHexAddress(args[0]) {
+			if !common.IsHexAddress(args[0]) {
 				return fmt.Errorf("invalid contract address: %s", args[0])
 			}
 
-			if common.IsHexAddress(args[1]) {
+			if !common.IsHexAddress(args[1]) {
 				return fmt.Errorf("invalid user address: %s", args[0])
 			}
 

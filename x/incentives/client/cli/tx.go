@@ -134,7 +134,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			if common.IsHexAddress(args[0]) {
+			if !common.IsHexAddress(args[0]) {
 				return fmt.Errorf("invalid contract address: %s", args[0])
 			}
 
