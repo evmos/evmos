@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -70,10 +72,25 @@ func (k Keeper) SetIncentive(ctx sdk.Context, incentive types.Incentive) {
 }
 
 // DeleteIncentive removes an incentive.
-func (k Keeper) DeleteIncentive(ctx sdk.Context, incentive types.Incentive) {
+func (k Keeper) DeleteIncentiveAndUpdateAllocationMeters(ctx sdk.Context, incentive types.Incentive) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
 	key := common.HexToAddress(incentive.Contract)
 	store.Delete(key.Bytes())
+
+	// Subtract allocations from allocation meters
+	for _, al := range incentive.Allocations {
+		am, found := k.GetAllocationMeter(ctx, al.Denom)
+		if !found {
+			panic(fmt.Errorf("unable to get allocation meter for denom: %s", al.Denom))
+		}
+		amount := am.Amount.Sub(al.Amount)
+		am = sdk.DecCoin{
+			Denom:  al.Denom,
+			Amount: amount,
+		}
+
+		k.SetAllocationMeter(ctx, am)
+	}
 }
 
 // IsIncentiveRegistered - check if registered Incentive is registered

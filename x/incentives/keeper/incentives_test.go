@@ -77,24 +77,29 @@ func (suite *KeeperTestSuite) TestGetIncetive() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestDeleteIncentive() {
-	regIn := types.NewIncentive(contract, allocations, epochs)
-	suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
-	suite.Commit()
+func (suite *KeeperTestSuite) TestDeleteIncentiveAndUpdateAllocationMeters() {
+	// Register Incentive
+	_, err := suite.app.IncentivesKeeper.RegisterIncentive(
+		suite.ctx,
+		contract,
+		mintAllocations,
+		epochs,
+	)
+	suite.Require().NoError(err)
+
+	regIn, found := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
+	suite.Require().True(found)
 
 	testCases := []struct {
 		name     string
-		in       types.Incentive
 		malleate func()
 		ok       bool
 	}{
-		{"nil incentive", types.Incentive{}, func() {}, false},
-		{"valid incentive", regIn, func() {}, true},
+		{"valid incentive", func() {}, true},
 		{
-			"deteted incentive",
-			regIn,
+			"deleted incentive",
 			func() {
-				suite.app.IncentivesKeeper.DeleteIncentive(suite.ctx, regIn)
+				suite.app.IncentivesKeeper.DeleteIncentiveAndUpdateAllocationMeters(suite.ctx, regIn)
 			},
 			false,
 		},
@@ -103,7 +108,7 @@ func (suite *KeeperTestSuite) TestDeleteIncentive() {
 		tc.malleate()
 		in, found := suite.app.IncentivesKeeper.GetIncentive(
 			suite.ctx,
-			common.HexToAddress(tc.in.Contract),
+			common.HexToAddress(regIn.Contract),
 		)
 		if tc.ok {
 			suite.Require().True(found, tc.name)

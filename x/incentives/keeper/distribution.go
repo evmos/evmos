@@ -35,7 +35,7 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 			// update epoch and remove incentive from epoch if already finalized
 			incentive.Epochs--
 			if !incentive.IsActive() {
-				k.DeleteIncentive(ctx, incentive)
+				k.DeleteIncentiveAndUpdateAllocationMeters(ctx, incentive)
 				logger.Info(
 					"incentive finalized",
 					"contract", incentive.Contract,

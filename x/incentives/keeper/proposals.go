@@ -100,6 +100,7 @@ func (k Keeper) CancelIncentive(
 		)
 	}
 
-	k.DeleteIncentive(ctx, incentive)
+	k.DeleteIncentiveAndUpdateAllocationMeters(ctx, incentive)
+
 	return nil
 }

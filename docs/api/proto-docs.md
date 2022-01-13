@@ -48,7 +48,6 @@
     - [Msg](#evmos.erc20.v1.Msg)
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
-    - [AllocationMeter](#evmos.incentives.v1.AllocationMeter)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [GasMeter](#evmos.incentives.v1.GasMeter)
     - [Incentive](#evmos.incentives.v1.Incentive)
@@ -589,21 +588,6 @@ Msg defines the erc20 Msg service.
 
 
 
-<a name="evmos.incentives.v1.AllocationMeter"></a>
-
-### AllocationMeter
-AllocationMeter tracks the total allocation of all incentives per denom
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `allocation` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | denoms and percentage of total allocations |
-
-
-
-
-
-
 <a name="evmos.incentives.v1.CancelIncentiveProposal"></a>
 
 ### CancelIncentiveProposal
@@ -704,7 +688,6 @@ GenesisState defines the module's genesis state.
 | `params` | [Params](#evmos.incentives.v1.Params) |  | module parameters |
 | `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | active incentives |
 | `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
-| `allocation_meter` | [AllocationMeter](#evmos.incentives.v1.AllocationMeter) | repeated | total of active incentives' allocations |
 
 
 

@@ -69,9 +69,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			_, err := suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
 				contractAddr,
-				sdk.DecCoins{
-					sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
-				},
+				mintAllocations,
 				epochs,
 			)
 			suite.Require().NoError(err)

@@ -102,7 +102,7 @@ func (k Keeper) SetGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store.Set(key, sdk.Uint64ToBigEndian(gm.CumulativeGas))
 }
 
-// DeleteIncentive removes a gasMeter.
+// DeleteGasMeter removes a gasMeter.
 func (k Keeper) DeleteGasMeter(ctx sdk.Context, gm types.GasMeter) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
 	contract := common.HexToAddress(gm.Contract)

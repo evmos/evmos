@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tendermint/tendermint/libs/math"
@@ -12,10 +14,6 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		mintAmount   int64  = 100
 		gasUsed      uint64 = 500
 		totalGasUsed uint64 = 1000
-	)
-
-	var (
-		regIn types.Incentive
 	)
 
 	testCases := []struct {
@@ -30,7 +28,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		{
 			"pass - with capped reward",
 			contract2,
-			allocations,
+			mintAllocations,
 			epochs,
 			denomMint,
 			1000000,
@@ -57,7 +55,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		{
 			"pass - with mint denom and ramaining epochs",
 			contract,
-			allocations,
+			mintAllocations,
 			epochs,
 			denomMint,
 			mintAmount,
@@ -65,70 +63,80 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		},
 	}
 	for _, tc := range testCases {
-		suite.SetupTest() // reset
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-		// create incentive
-		regIn = types.NewIncentive(tc.contract, tc.allocations, tc.epochs)
-		suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
+			// Mint tokens in module account
+			err := suite.app.BankKeeper.MintCoins(
+				suite.ctx,
+				types.ModuleName,
+				sdk.Coins{sdk.NewInt64Coin(tc.denom, tc.mintAmount)},
+			)
+			suite.Require().NoError(err)
 
-		// Mint tokens in module account
-		err := suite.app.BankKeeper.MintCoins(
-			suite.ctx,
-			types.ModuleName,
-			sdk.Coins{sdk.NewInt64Coin(tc.denom, tc.mintAmount)},
-		)
-		suite.Require().NoError(err)
+			// create incentive
+			_, err = suite.app.IncentivesKeeper.RegisterIncentive(
+				suite.ctx,
+				tc.contract,
+				tc.allocations,
+				tc.epochs,
+			)
+			suite.Require().NoError(err)
 
-		// check module balance
-		moduleAddr := suite.app.AccountKeeper.GetModuleAddress(types.ModuleName)
-		balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAddr, tc.denom)
-		suite.Require().True(balance.IsPositive())
+			regIn, found := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, tc.contract)
+			suite.Require().True(found)
 
-		// create Gas Meter
-		gm := types.NewGasMeter(tc.contract, participant, gasUsed)
-		suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
+			// check module balance
+			moduleAddr := suite.app.AccountKeeper.GetModuleAddress(types.ModuleName)
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAddr, tc.denom)
+			suite.Require().True(balance.IsPositive())
 
-		// Set total gas meter
-		suite.app.IncentivesKeeper.SetIncentiveTotalGas(
-			suite.ctx,
-			regIn,
-			totalGasUsed,
-		)
-		suite.Commit()
+			// create Gas Meter
+			gm := types.NewGasMeter(tc.contract, participant, gasUsed)
+			suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
 
-		err = suite.app.IncentivesKeeper.DistributeIncentives(suite.ctx)
+			// Set total gas meter
+			suite.app.IncentivesKeeper.SetIncentiveTotalGas(
+				suite.ctx,
+				regIn,
+				totalGasUsed,
+			)
+			suite.Commit()
 
-		if tc.expPass {
-			suite.Require().NoError(err, tc.name)
+			err = suite.app.IncentivesKeeper.DistributeIncentives(suite.ctx)
 
-			// distributes the rewards to all paricpants
-			sdkParticipant := sdk.AccAddress(participant.Bytes())
-			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, tc.denom)
-			gasRatio := float64(gasUsed) / float64(totalGasUsed)
-			coinAllocated := float64(tc.mintAmount) * (float64(allocationRate) / 100)
-			expBalance := int64(coinAllocated * gasRatio)
-			expBalance = math.MinInt64(expBalance, int64(gasUsed))
-			suite.Require().Equal(expBalance, balance.Amount.Int64(), tc.name)
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
 
-			// deletes all gas meters
-			_, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(suite.ctx, tc.contract, participant)
-			suite.Require().False(found)
+				// distributes the rewards to all paricpants
+				sdkParticipant := sdk.AccAddress(participant.Bytes())
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, tc.denom)
+				gasRatio := float64(gasUsed) / float64(totalGasUsed)
+				coinAllocated := float64(tc.mintAmount) * (float64(allocationRate) / 100)
+				expBalance := int64(coinAllocated * gasRatio)
+				expBalance = math.MinInt64(expBalance, int64(gasUsed))
+				suite.Require().Equal(expBalance, balance.Amount.Int64(), tc.name)
 
-			// updates the remaining epochs of each incentive and sets the cumulative
-			// totalGas to zero OR deletes incentive
-			regIn, found = suite.app.IncentivesKeeper.GetIncentive(suite.ctx, tc.contract)
-			if regIn.IsActive() {
-				suite.Require().True(found)
-				suite.Require().Equal(tc.epochs-1, regIn.Epochs)
-
-				expTotalGas := regIn.TotalGas
-				suite.Require().Zero(expTotalGas)
-			} else {
+				// deletes all gas meters
+				_, found := suite.app.IncentivesKeeper.GetIncentiveGasMeter(suite.ctx, tc.contract, participant)
 				suite.Require().False(found)
-			}
 
-		} else {
-			suite.Require().Error(err)
-		}
+				// updates the remaining epochs of each incentive and sets the cumulative
+				// totalGas to zero OR deletes incentive
+				regIn, found = suite.app.IncentivesKeeper.GetIncentive(suite.ctx, tc.contract)
+				if regIn.IsActive() {
+					suite.Require().True(found)
+					suite.Require().Equal(tc.epochs-1, regIn.Epochs)
+
+					expTotalGas := regIn.TotalGas
+					suite.Require().Zero(expTotalGas)
+				} else {
+					suite.Require().False(found)
+				}
+
+			} else {
+				suite.Require().Error(err)
+			}
+		})
 	}
 }

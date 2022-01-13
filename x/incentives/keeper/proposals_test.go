@@ -145,8 +145,13 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 		{
 			"ok",
 			func() {
-				regIn := types.NewIncentive(contract, allocations, epochs)
-				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
+				_, err := suite.app.IncentivesKeeper.RegisterIncentive(
+					suite.ctx,
+					contract,
+					mintAllocations,
+					epochs,
+				)
+				suite.Require().NoError(err)
 				suite.Commit()
 			},
 			true,
