@@ -70,7 +70,7 @@ If it's empty, make sure to edit the field with some value, for example `10token
  # The minimum gas prices a validator is willing to accept for processing a
  # transaction. A transaction's fees must meet the minimum of any denomination
  # specified in this config (e.g. 0.25token1;0.0001token2).
- minimum-gas-prices = "0aphoton"
+ minimum-gas-prices = "0aevmos"
 ```
 
 ### Pruning of State

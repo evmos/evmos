@@ -152,19 +152,19 @@ Where metadata.json contains (example):
   "description": "staking, gas and governance token of the Evmos testnets"
   "denom_units": [
 		{
-			"denom": "aphoton",
+			"denom": "aevmos",
 			"exponent": 0,
-			"aliases": ["atto photon"]
+			"aliases": ["atto evmos"]
 		},
 		{
-			"denom": "photon",
+			"denom": "evmos",
 			"exponent": 18
 		}
 	],
-	"base": "aphoton",
-	"display: "photon",
-	"name": "Photon",
-	"symbol": "PHOTON"
+	"base": "aevmos",
+	"display: "evmos",
+	"name": "Evmos",
+	"symbol": "EVMOS"
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -217,7 +217,7 @@ Where metadata.json contains (example):
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -283,7 +283,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -349,7 +349,7 @@ func NewToggleTokenRelayProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -416,7 +416,7 @@ func NewUpdateTokenPairERC20ProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
