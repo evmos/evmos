@@ -62,7 +62,7 @@ func (k Keeper) RegisterIncentive(
 		if allocationSum.GT(sdk.OneDec()) {
 			return nil, sdkerrors.Wrapf(
 				types.ErrInternalIncentive,
-				"Allocation for denom %s is lager than 100 percent: %v",
+				"allocation for denom %s is lager than 100 percent: %v",
 				al.Denom, allocationSum,
 			)
 		}

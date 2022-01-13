@@ -5,6 +5,7 @@ import (
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
+// BeforeEpochStart performs a no-op
 func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {}
 
 // AfterEpochEnd distributes the contract incentives at the end of each epoch

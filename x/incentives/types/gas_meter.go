@@ -24,9 +24,5 @@ func (gm GasMeter) Validate() error {
 		return err
 	}
 
-	if err := ethermint.ValidateAddress(gm.Participant); err != nil {
-		return err
-	}
-
-	return nil
+	return ethermint.ValidateAddress(gm.Participant)
 }

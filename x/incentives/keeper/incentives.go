@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -53,12 +51,12 @@ func (k Keeper) GetIncentive(
 	contract common.Address,
 ) (types.Incentive, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
-	var incentive types.Incentive
 	bz := store.Get(contract.Bytes())
 	if len(bz) == 0 {
 		return types.Incentive{}, false
 	}
 
+	var incentive types.Incentive
 	k.cdc.MustUnmarshal(bz, &incentive)
 	return incentive, true
 }
@@ -71,7 +69,8 @@ func (k Keeper) SetIncentive(ctx sdk.Context, incentive types.Incentive) {
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteIncentive removes an incentive.
+// DeleteIncentiveAndUpdateAllocationMeters removes an incentive and updates the
+// percentage of incentives allocated to each denomination.
 func (k Keeper) DeleteIncentiveAndUpdateAllocationMeters(ctx sdk.Context, incentive types.Incentive) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixIncentive)
 	key := common.HexToAddress(incentive.Contract)
@@ -79,10 +78,8 @@ func (k Keeper) DeleteIncentiveAndUpdateAllocationMeters(ctx sdk.Context, incent
 
 	// Subtract allocations from allocation meters
 	for _, al := range incentive.Allocations {
-		am, found := k.GetAllocationMeter(ctx, al.Denom)
-		if !found {
-			panic(fmt.Errorf("unable to get allocation meter for denom: %s", al.Denom))
-		}
+		// NOTE: existence of incentive is already checked
+		am, _ := k.GetAllocationMeter(ctx, al.Denom)
 		amount := am.Amount.Sub(al.Amount)
 		am = sdk.DecCoin{
 			Denom:  al.Denom,
