@@ -114,7 +114,11 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				gasRatio := float64(gasUsed) / float64(totalGasUsed)
 				coinAllocated := float64(tc.mintAmount) * (float64(allocationRate) / 100)
 				expBalance := int64(coinAllocated * gasRatio)
-				expBalance = math.MinInt64(expBalance, int64(gasUsed))
+
+				// scal
+				params := suite.app.IncentivesKeeper.GetParams(suite.ctx)
+				rewardScaler := params.RewardScaler.MustFloat64()
+				expBalance = math.MinInt64(expBalance, int64(rewardScaler*float64(gasUsed)))
 				suite.Require().Equal(expBalance, balance.Amount.Int64(), tc.name)
 
 				// deletes all gas meters
