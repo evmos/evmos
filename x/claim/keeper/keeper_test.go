@@ -30,14 +30,14 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	checkTx := false
+
 	// consensus key
 	priv, err := ethsecp256k1.GenerateKey()
 	suite.Require().NoError(err)
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9000-1",
 		Time:            time.Now().UTC(),
@@ -76,7 +76,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	govParams := suite.app.GovKeeper.GetDepositParams(suite.ctx)
 	govParams.MinDeposit[0].Denom = params.GetClaimDenom()
+}
 
+func init() {
 	config := sdk.GetConfig()
 	cmdcfg.SetBech32Prefixes(config)
 }
