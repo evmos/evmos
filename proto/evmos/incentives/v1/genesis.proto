@@ -27,4 +27,9 @@ message Params {
     ];
     // identifier for the epochs module hooks
     string incentives_epoch_identifier = 3;
+    // scaling factor for capping rewards
+    string reward_scaler = 4 [
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false
+    ];
 }

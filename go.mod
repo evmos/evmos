@@ -19,7 +19,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7-0.20211203155021-4fa83b55a0b5
 	github.com/tharsis/ethermint v0.10.0-alpha1
 	go.opencensus.io v0.23.0
-	google.golang.org/genproto v0.0.0-20220111164026-67b88f271998
+	google.golang.org/genproto v0.0.0-20220112215332-a9c7c0acf9f2
 	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 )
@@ -62,6 +62,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v0.0.0-20200901110807-248326c1351b // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
+	github.com/envoyproxy/protoc-gen-validate v0.6.3 // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect
@@ -147,7 +148,7 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/zondax/hid v0.9.0 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
+	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20211210111614-af8b64212486 // indirect

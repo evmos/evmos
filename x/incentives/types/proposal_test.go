@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"testing"
 	time "time"
 
@@ -179,7 +178,6 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 		},
 	}
 	for _, tc := range testCases {
-		fmt.Printf("tc.incentive.Contract: %v \n", tc.incentive.Contract)
 		tx := NewRegisterIncentiveProposal(
 			tc.title,
 			tc.description,
