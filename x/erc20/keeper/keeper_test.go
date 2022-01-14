@@ -321,18 +321,8 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
 }
 
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int, contractType int) *evm.MsgEthereumTx {
-	var transferData []byte
-	var err error
-	// TODO Try removing the switch, as the ABI of the different contracts is the same
-	switch contractType {
-	case contractDirectBalanceManipulation:
-		transferData, err = contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("mint", to, amount)
-	case contractMaliciousDelayed:
-		transferData, err = contracts.ERC20MaliciousDelayedContract.ABI.Pack("mint", to, amount)
-	default:
-		transferData, err = contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
-	}
+func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }

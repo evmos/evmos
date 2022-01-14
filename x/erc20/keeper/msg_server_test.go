@@ -286,7 +286,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.address,
 			)
 
-			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint), tc.contractType)
+			suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(tc.mint))
 			suite.Commit()
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
@@ -396,7 +396,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 
 			// Precondition: Mint escrow tokens on module account
 			suite.GrantERC20Token(contractAddr, suite.address, types.ModuleAddress, "MINTER_ROLE")
-			suite.MintERC20Token(contractAddr, types.ModuleAddress, types.ModuleAddress, big.NewInt(tc.mint), tc.contractType)
+			suite.MintERC20Token(contractAddr, types.ModuleAddress, types.ModuleAddress, big.NewInt(tc.mint))
 			tokenBalance := suite.BalanceOf(contractAddr, types.ModuleAddress)
 			suite.Require().Equal(big.NewInt(tc.mint), tokenBalance)
 
