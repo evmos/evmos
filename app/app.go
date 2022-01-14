@@ -203,7 +203,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		claimtypes.ModuleName:          {authtypes.Minter},
+		claimtypes.ModuleName:          nil,
 		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
 	}
