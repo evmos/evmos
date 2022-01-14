@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +18,7 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-// ConvertCoin converts ERC20 tokens into Cosmos-native Coins for both
+// ConvertCoin converts Cosmos-native Coins into ERC20 tokens for both
 // Cosmos-native and ERC20 TokenPair Owners
 func (k Keeper) ConvertCoin(
 	goCtx context.Context,
@@ -271,11 +270,8 @@ func (k Keeper) convertERC20NativeToken(
 
 	// Check expected escrow balance after transfer execution
 	tokens := coins[0].Amount.BigInt()
-
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, types.ModuleAddress)
 	expToken := big.NewInt(0).Add(balanceToken, tokens)
-	fmt.Printf("expToken: %v\n", expToken)
-	fmt.Printf("balanceTokenAfter: %v\n", balanceTokenAfter)
 	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInvalidConversionBalance,
@@ -368,12 +364,6 @@ func (k Keeper) convertCoinNativeERC20(
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute unescrow tokens from user")
 	}
 
-	// Burn escrowed Coins
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to burn coins")
-	}
-
 	// Check expected Receiver balance after transfer execution
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, receiver)
@@ -383,6 +373,12 @@ func (k Keeper) convertCoinNativeERC20(
 			types.ErrInvalidConversionBalance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
+	}
+
+	// Burn escrowed Coins
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to burn coins")
 	}
 
 	// Check for unexpected `appove` event in logs

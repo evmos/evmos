@@ -324,7 +324,7 @@ func (suite *KeeperTestSuite) Commit() {
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int, contractType int) *evm.MsgEthereumTx {
 	var transferData []byte
 	var err error
-
+	// TODO Try removing the switch, as the ABI of the different contracts is the same
 	switch contractType {
 	case contractDirectBalanceManipulation:
 		transferData, err = contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("mint", to, amount)

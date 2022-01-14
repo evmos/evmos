@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -118,8 +117,6 @@ func (suite *TokenPairTestSuite) TestIsNativeCoin() {
 
 	for _, tc := range testCases {
 		res := tc.pair.IsNativeCoin()
-		fmt.Println(res)
-
 		if tc.expectPass {
 			suite.Require().True(res, tc.name)
 		} else {
@@ -153,8 +150,6 @@ func (suite *TokenPairTestSuite) TestIsNativeERC20() {
 
 	for _, tc := range testCases {
 		res := tc.pair.IsNativeERC20()
-		fmt.Println(res)
-
 		if tc.expectPass {
 			suite.Require().True(res, tc.name)
 		} else {

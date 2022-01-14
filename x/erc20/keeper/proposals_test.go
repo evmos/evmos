@@ -37,7 +37,6 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Ad
 	// Deploy contract
 	switch contractType {
 	case contractDirectBalanceManipulation:
-		fmt.Printf("DeployContractDirectBalanceManipulation: %v\n", contractDirectBalanceManipulation)
 		contractAddr = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
 	case contractMaliciousDelayed:
 		contractAddr = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
