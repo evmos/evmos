@@ -14,13 +14,13 @@ Evmos is a Cosmos SDK-based chain with full EVM support. Because of this archite
 
 Accounts can own SDK coins in their balance, which are used for operations with other Cosmos modules and transactions. Examples of these are using the coins for staking, IBC transfers, governance deposits and EVM  
 
-### Photon
+### EVMOS
 
-The denomination used for staking, governance and gas consumption on the EVM is the Photon. The Photon provides the utility of: securing the Proof-of-Stake chain, token used for governance proposals, fee distribution and as a mean of gas for running smart contracts on the EVM.
+The denomination used for staking, governance and gas consumption on the EVM is the EVMOS. The EVMOS provides the utility of: securing the Proof-of-Stake chain, token used for governance proposals, fee distribution and as a mean of gas for running smart contracts on the EVM.
 
-Evmos uses [Atto](https://en.wikipedia.org/wiki/Atto-) Photon as the base denomination to maintain parity with Ethereum.
+Evmos uses [Atto](https://en.wikipedia.org/wiki/Atto-) EVMOS as the base denomination to maintain parity with Ethereum.
 
-$$1 photon = 1 ~ * ~ 10^{18} aphoton$$
+$$1 evmos = 1 ~ * ~ 10^{18} aevmos$$
 
 This matches Ethereum denomination of:
 

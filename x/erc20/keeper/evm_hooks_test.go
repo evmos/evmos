@@ -17,7 +17,7 @@ func (suite *KeeperTestSuite) ensureHooksSet() {
 		err := recover()
 		suite.Require().NotNil(err)
 	}()
-	suite.app.EvmKeeper.SetHooks(suite.app.Erc20Keeper)
+	suite.app.EvmKeeper.SetHooks(suite.app.Erc20Keeper.Hooks())
 }
 
 func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {

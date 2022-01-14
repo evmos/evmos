@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -400,20 +401,18 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 	return unpacked[0]
 }
 
-func (suite *KeeperTestSuite) NameOf(contract common.Address) interface{} {
+func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "name")
-	if err != nil {
-		return nil
-	}
+	suite.Require().NoError(err)
+	suite.Require().NotNil(res)
 
 	unpacked, err := erc20.Unpack("name", res.Ret)
-	if len(unpacked) == 0 {
-		return nil
-	}
+	suite.Require().NoError(err)
+	suite.Require().NotEmpty(unpacked)
 
-	return unpacked[0]
+	return fmt.Sprintf("%v", unpacked[0])
 }
 
 func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
