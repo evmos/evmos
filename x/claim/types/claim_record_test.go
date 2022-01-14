@@ -101,7 +101,7 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		require.True(t, tc.expBool == tc.claimRecord.HasClaimedAction(tc.action), tc.name)
+		require.Equal(t, tc.expBool, tc.claimRecord.HasClaimedAction(tc.action), tc.name)
 	}
 }
 
