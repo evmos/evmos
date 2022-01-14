@@ -1,10 +1,10 @@
 package keeper_test
 
 import (
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	cmdcfg "github.com/tharsis/evmos/cmd/config"
 	"testing"
 	"time"
+
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -73,14 +73,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
-	govParams := suite.app.GovKeeper.GetDepositParams(suite.ctx)
-	govParams.MinDeposit[0].Denom = params.GetClaimDenom()
-}
-
-func init() {
-	config := sdk.GetConfig()
-	cmdcfg.SetBech32Prefixes(config)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

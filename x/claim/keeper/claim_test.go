@@ -1,21 +1,29 @@
 package keeper_test
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/claim/types"
-	"time"
 )
 
 func (suite *KeeperTestSuite) SetupClaimTest() {
 	suite.SetupTest()
 	params := suite.app.ClaimKeeper.GetParams(suite.ctx)
-	suite.app.ClaimKeeper.CreateModuleAccount(suite.ctx, sdk.NewCoin(params.GetClaimDenom(), sdk.NewInt(10000000)))
+
+	coins := sdk.NewCoins(sdk.NewCoin(params.GetClaimDenom(), sdk.NewInt(10000000)))
+
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, minttypes.ModuleName, types.ModuleName, coins)
+	suite.Require().NoError(err)
 }
 
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
@@ -190,7 +198,6 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 
 	_, err = suite.app.ClaimKeeper.ClaimCoinsForAction(suite.ctx, addr1, types.ActionEVM)
 
-	claim, found = suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addr1)
 	suite.NoError(err)
 	suite.True(claim.ActionsCompleted[types.ActionEVM-1])
 	claimedCoins = suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
