@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	cmdcfg "github.com/tharsis/evmos/cmd/config"
 	"testing"
 	"time"
 
@@ -75,6 +76,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	govParams := suite.app.GovKeeper.GetDepositParams(suite.ctx)
 	govParams.MinDeposit[0].Denom = params.GetClaimDenom()
+
+	config := sdk.GetConfig()
+	cmdcfg.SetBech32Prefixes(config)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

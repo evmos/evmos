@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -154,5 +153,4 @@ func (k Keeper) CreateModuleAccount(ctx sdk.Context, amount sdk.Coin) {
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintCoins); err != nil {
 		panic(err)
 	}
-
 }
