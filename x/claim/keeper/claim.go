@@ -7,7 +7,7 @@ import (
 	"github.com/tharsis/evmos/x/claim/types"
 )
 
-// GetClaimable returns claimable amount for a specific action done by an address
+// GetClaimableAmountForAction returns claimable amount for a specific action done by an address
 func (k Keeper) GetClaimableAmountForAction(
 	ctx sdk.Context,
 	addr sdk.AccAddress,
@@ -26,6 +26,10 @@ func (k Keeper) GetClaimableAmountForAction(
 	// NOTE: This shouldn't occur since at the end of the airdrop, the EnableClaim
 	// param is disabled.
 	if elapsedAirdropTime > params.DurationUntilDecay+params.DurationOfDecay {
+		return sdk.ZeroInt()
+	}
+
+	if claimRecord.HasClaimedAction(action) {
 		return sdk.ZeroInt()
 	}
 
@@ -50,7 +54,7 @@ func (k Keeper) GetClaimableAmountForAction(
 	return claimableCoins
 }
 
-// GetClaimable returns claimable amount for a specific action done by an address
+// GetUserTotalClaimable returns claimable amount for a specific action done by an address
 func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
 	totalClaimable := sdk.ZeroInt()
 
@@ -71,7 +75,7 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.
 	return totalClaimable
 }
 
-// ClaimCoins remove claimable amount entry and transfer it to user's account
+// ClaimCoinsForAction remove claimable amount entry and transfer it to user's account
 func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action types.Action) (sdk.Int, error) {
 	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)

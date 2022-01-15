@@ -56,7 +56,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// GetModuleAccountBalances gets the airdrop coin balance of module account
+// GetModuleAccountAddress gets the airdrop coin balance of module account
 func (k Keeper) GetModuleAccountAddress(ctx sdk.Context) sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
@@ -117,7 +117,7 @@ func (k Keeper) IterateClaimRecords(ctx sdk.Context, handlerFn func(addr sdk.Acc
 	}
 }
 
-// GetClaimables get claimables for genesis export
+// GetClaimRecords get claimables for genesis export
 func (k Keeper) GetClaimRecords(ctx sdk.Context) []types.ClaimRecordAddress {
 	claimRecords := []types.ClaimRecordAddress{}
 	k.IterateClaimRecords(ctx, func(addr sdk.AccAddress, cr types.ClaimRecord) (stop bool) {
