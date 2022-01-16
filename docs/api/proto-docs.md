@@ -616,7 +616,7 @@ Msg defines the erc20 Msg service.
 <a name="evmos.fees.v1.ContractWithdrawAddress"></a>
 
 ### ContractWithdrawAddress
-ContractWithdrawAddress
+ContractWithdrawAddress defines a contract with the fees withdraw address
 
 
 | Field | Type | Label | Description |
@@ -669,8 +669,8 @@ Params defines the fee distribution module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract_distribution` | [string](#string) |  | fee distribution for registered contract withdraw addresses |
-| `withdraw_addr_enabled` | [bool](#bool) |  | enable withawal address |
+| `developer_distribution` | [string](#string) |  | fee distribution for registered developer smart contracts contract withdraw addresses |
+| `fees_enabled` | [bool](#bool) |  | enable fee distribution to devs |
 
 
 
@@ -841,7 +841,8 @@ MsgRegisterContractResponse returns no fields
 <a name="evmos.fees.v1.MsgUpdateWithdawAddress"></a>
 
 ### MsgUpdateWithdawAddress
-MsgUpdateWithdawAddress defines a Msg to .
+MsgUpdateWithdawAddress defines a Msg to update the withdraw address to which
+tx fees will be allocated.
 
 
 | Field | Type | Label | Description |

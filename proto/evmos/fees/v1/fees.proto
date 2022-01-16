@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package evmos.fees.v1;
 
 option go_package = "github.com/tharsis/evmos/x/fees/types";

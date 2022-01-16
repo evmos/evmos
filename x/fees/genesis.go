@@ -1,4 +1,4 @@
-package distribution
+package fees
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,8 +15,6 @@ func InitGenesis(
 	data types.GenesisState,
 ) {
 	k.SetParams(ctx, data.Params)
-
-	// TODO: module account?
 
 	for _, cwa := range data.WithdrawAddresses {
 		contractAddr := common.HexToAddress(cwa.ContractAddress)

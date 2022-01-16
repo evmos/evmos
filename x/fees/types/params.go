@@ -9,8 +9,8 @@ import (
 
 // Parameter store key
 var (
-	ParamStoreKeyContractDistribution  = []byte("ContractDistribution")
-	ParamStoreKeyEnableWithdrawAddress = []byte("WithdrawAddress")
+	ParamStoreKeyDeveloperDistribution = []byte("DeveloperDistribution")
+	ParamStoreKeyEnableFees            = []byte("Fees")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -20,34 +20,34 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params object
 func NewParams(
-	enableWithdrawAddress bool,
-	distr sdk.Dec,
+	enableFees bool,
+	devDistr sdk.Dec,
 ) Params {
 	return Params{
-		WithdrawAddrEnabled:  enableWithdrawAddress,
-		ContractDistribution: distr,
+		FeesEnabled:           enableFees,
+		DeveloperDistribution: devDistr,
 	}
 }
 
 // DefaultParams returns a Params instance the default module parameter values
 func DefaultParams() Params {
 	return Params{
-		WithdrawAddrEnabled:  true,
-		ContractDistribution: sdk.NewDecWithPrec(5, 1), // 50%
+		FeesEnabled:           true,
+		DeveloperDistribution: sdk.NewDecWithPrec(5, 1), // 50%
 	}
 }
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyContractDistribution, &p.ContractDistribution, validateContractDistribution),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableWithdrawAddress, &p.WithdrawAddrEnabled, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperDistribution, &p.DeveloperDistribution, validateDeveloperDistribution),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableFees, &p.FeesEnabled, validateBool),
 	}
 }
 
 // Validate performs a stateless validation of the distribution fields
 func (p Params) Validate() error {
-	return validateContractDistribution(p.ContractDistribution)
+	return validateDeveloperDistribution(p.DeveloperDistribution)
 }
 
 func validateBool(i interface{}) error {
@@ -59,7 +59,7 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validateContractDistribution(i interface{}) error {
+func validateDeveloperDistribution(i interface{}) error {
 	v, ok := i.(sdk.Dec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

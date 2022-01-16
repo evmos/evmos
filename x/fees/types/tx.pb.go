@@ -131,7 +131,8 @@ func (m *MsgRegisterContractResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRegisterContractResponse proto.InternalMessageInfo
 
-// MsgUpdateWithdawAddress defines a Msg to .
+// MsgUpdateWithdawAddress defines a Msg to update the withdraw address to which
+// tx fees will be allocated.
 type MsgUpdateWithdawAddress struct {
 	// contract hex address registered on the fee distribution module
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`

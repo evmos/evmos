@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package evmos.fees.v1;
 
 import "gogoproto/gogo.proto";

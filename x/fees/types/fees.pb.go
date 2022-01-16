@@ -22,7 +22,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// ContractWithdrawAddress
+// ContractWithdrawAddress defines a contract with the fees withdraw address
 type ContractWithdrawAddress struct {
 	// contract hex address registered on the fee distribution module
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`

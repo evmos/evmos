@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package evmos.fees.v1;
 
 import "evmos/fees/v1/fees.proto";
@@ -14,8 +15,8 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];
-  // enable withawal address 
-  bool withdraw_addr_enabled = 2;
+  // enable fee distribution to devs
+  bool fees_enabled = 2;
 }
 
 // GenesisState defines the module's genesis state.
