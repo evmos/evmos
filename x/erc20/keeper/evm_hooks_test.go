@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
@@ -16,7 +17,7 @@ func (suite *KeeperTestSuite) ensureHooksSet() {
 		err := recover()
 		suite.Require().NotNil(err)
 	}()
-	suite.app.EvmKeeper.SetHooks(suite.app.Erc20Keeper)
+	suite.app.EvmKeeper.SetHooks(suite.app.Erc20Keeper.Hooks())
 }
 
 func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
@@ -36,10 +37,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-				hash := msg.AsTransaction().Hash()
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
-				suite.Require().NotEmpty(logs)
+				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
 			},
 			true,
 		},
@@ -51,10 +49,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				msg := suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-				hash := msg.AsTransaction().Hash()
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
-				suite.Require().NotEmpty(logs)
+				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
 			},
 			false,
 		},
@@ -65,10 +60,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Require().NoError(err)
 
 				// Mint 10 tokens to suite.address (owner)
-				msg := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
-				hash := msg.AsTransaction().Hash()
-				logs := suite.app.EvmKeeper.GetTxLogsTransient(hash)
-				suite.Require().NotEmpty(logs)
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
 			},
 			false,
 		},
@@ -80,7 +72,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 			suite.ensureHooksSet()
 
-			contractAddr := suite.DeployContract("coin", "token")
+			contractAddr := suite.DeployContract("coin", "token", erc20Decimals)
 			suite.Commit()
 
 			tc.malleate(contractAddr)
@@ -88,7 +80,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(suite.address.Bytes()), types.CreateDenom(contractAddr.String()))
 			suite.Commit()
 			if tc.result {
-				// Check if the execution was successfull
+				// Check if the execution was successful
 				suite.Require().Equal(int64(10), balance.Amount.Int64())
 			} else {
 				// Check that no changes were made to the account
@@ -151,7 +143,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
 
 			if tc.result {
-				// Check if the execution was successfull
+				// Check if the execution was successful
 				suite.Require().NoError(err)
 				suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.mint-tc.burn+tc.reconvert))
 			} else {

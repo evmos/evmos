@@ -1,0 +1,30 @@
+syntax = "proto3";
+package evmos.incentives.v1;
+import "evmos/incentives/v1/incentives.proto";
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/incentives/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+    // module parameters
+    Params params = 1 [(gogoproto.nullable) = false];
+    // active incentives
+    repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
+    // active Gasmeters
+    repeated GasMeter gas_meters = 3 [(gogoproto.nullable) = false];
+}
+
+// Params defines the incentives module params
+message Params {
+    // parameter to enable incentives
+    bool enable_incentives = 1;
+    // maximum percentage an incentive can allocate per denomination
+    string allocation_limit = 2 [
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false
+    ];
+    // identifier for the epochs module hooks
+    string incentives_epoch_identifier = 3;
+}

@@ -16,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	ethermint "github.com/tharsis/ethermint/types"
+
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
@@ -141,29 +142,29 @@ func NewRegisterCoinProposalCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Short: "Submit a register coin proposal",
 		Long: `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit.
-Upon passing, the 
+Upon passing, the
 The proposal details must be supplied via a JSON file.`,
 		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin <path/to/metadata.json> --from=<key_or_address>
 
 Where metadata.json contains (example):
-	
+
 {
   "description": "staking, gas and governance token of the Evmos testnets"
   "denom_units": [
 		{
-			"denom": "aphoton",
+			"denom": "aevmos",
 			"exponent": 0,
-			"aliases": ["atto photon"]
+			"aliases": ["atto evmos"]
 		},
 		{
-			"denom": "photon",
+			"denom": "evmos",
 			"exponent": 18
 		}
 	],
-	"base": "aphoton",
-	"display: "photon",
-	"name": "Photon",
-	"symbol": "PHOTON"
+	"base": "aevmos",
+	"display: "evmos",
+	"name": "Evmos",
+	"symbol": "EVMOS"
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -216,7 +217,7 @@ Where metadata.json contains (example):
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -282,7 +283,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -348,7 +349,7 @@ func NewToggleTokenRelayProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
@@ -415,7 +416,7 @@ func NewUpdateTokenPairERC20ProposalCmd() *cobra.Command {
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
 	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
-	cmd.Flags().String(cli.FlagDeposit, "1aphoton", "deposit of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}

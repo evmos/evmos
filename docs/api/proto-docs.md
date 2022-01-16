@@ -4,6 +4,18 @@
 
 ## Table of Contents
 
+- [evmos/epochs/v1/genesis.proto](#evmos/epochs/v1/genesis.proto)
+    - [EpochInfo](#evmos.epochs.v1.EpochInfo)
+    - [GenesisState](#evmos.epochs.v1.GenesisState)
+  
+- [evmos/epochs/v1/query.proto](#evmos/epochs/v1/query.proto)
+    - [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest)
+    - [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse)
+    - [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest)
+    - [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse)
+  
+    - [Query](#evmos.epochs.v1.Query)
+  
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
@@ -60,7 +72,171 @@
   
     - [Msg](#evmos.feedistr.v1.Msg)
   
+- [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
+    - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
+    - [GasMeter](#evmos.incentives.v1.GasMeter)
+    - [Incentive](#evmos.incentives.v1.Incentive)
+    - [RegisterIncentiveProposal](#evmos.incentives.v1.RegisterIncentiveProposal)
+  
+- [evmos/incentives/v1/genesis.proto](#evmos/incentives/v1/genesis.proto)
+    - [GenesisState](#evmos.incentives.v1.GenesisState)
+    - [Params](#evmos.incentives.v1.Params)
+  
+- [evmos/incentives/v1/query.proto](#evmos/incentives/v1/query.proto)
+    - [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest)
+    - [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse)
+    - [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest)
+    - [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse)
+    - [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest)
+    - [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse)
+    - [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest)
+    - [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse)
+    - [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.incentives.v1.Query)
+  
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="evmos/epochs/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/epochs/v1/genesis.proto
+
+
+
+<a name="evmos.epochs.v1.EpochInfo"></a>
+
+### EpochInfo
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `identifier` | [string](#string) |  |  |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
+| `duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  |  |
+| `current_epoch` | [int64](#int64) |  |  |
+| `current_epoch_start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
+| `epoch_counting_started` | [bool](#bool) |  |  |
+| `current_epoch_start_height` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the epochs module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/epochs/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/epochs/v1/query.proto
+
+
+
+<a name="evmos.epochs.v1.QueryCurrentEpochRequest"></a>
+
+### QueryCurrentEpochRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `identifier` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.QueryCurrentEpochResponse"></a>
+
+### QueryCurrentEpochResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `current_epoch` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.QueryEpochsInfoRequest"></a>
+
+### QueryEpochsInfoRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+
+
+
+
+
+
+<a name="evmos.epochs.v1.QueryEpochsInfoResponse"></a>
+
+### QueryEpochsInfoResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.epochs.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `EpochInfos` | [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest) | [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse) | EpochInfos provide running epochInfos | GET|/evmos/epochs/v1/epochs|
+| `CurrentEpoch` | [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest) | [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse) | CurrentEpoch provide current epoch of specified identifier | GET|/evmos/epochs/v1/current_epoch|
+
+ <!-- end services -->
 
 
 
@@ -215,7 +391,6 @@ Params defines the erc20 module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_erc20` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
-| `token_pair_voting_period` | [google.protobuf.Duration](#google.protobuf.Duration) |  | overrides the governance voting period for token pairs proposals |
 | `enable_evm_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
 
 
@@ -705,6 +880,329 @@ Msg defines the intrarelayer Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterContract` | [MsgRegisterContract](#evmos.feedistr.v1.MsgRegisterContract) | [MsgRegisterContractResponse](#evmos.feedistr.v1.MsgRegisterContractResponse) | RegisterContract registers the contract on the fee distribution module in order for the owner to recieve txs fees. | GET|/evmos/distribution/v1/tx/register_contract|
 | `UpdateWithdawAddress` | [MsgUpdateWithdawAddress](#evmos.feedistr.v1.MsgUpdateWithdawAddress) | [MsgUpdateWithdawAddressResponse](#evmos.feedistr.v1.MsgUpdateWithdawAddressResponse) | UpdateWithdawAddress updates the withdrawal address for the contract that has been | GET|/evmos/distribution/v1/tx/update_withdraw_address|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/incentives/v1/incentives.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/incentives/v1/incentives.proto
+
+
+
+<a name="evmos.incentives.v1.CancelIncentiveProposal"></a>
+
+### CancelIncentiveProposal
+CancelIncentiveProposal is a gov Content type to cancel an incentive
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `contract` | [string](#string) |  | contract address |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.GasMeter"></a>
+
+### GasMeter
+GasMeter tracks the cumulative gas spent per participant in one epoch
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | hex address of the incentivized contract |
+| `participant` | [string](#string) |  | participant address that interacts with the incentive |
+| `cumulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.Incentive"></a>
+
+### Incentive
+Incentive defines an instance that organizes distribution conditions for a given
+smart contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract address |
+| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
+| `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time |
+| `total_gas` | [uint64](#uint64) |  | cumulative gas spent by all gasmeters of the incentive during the epoch |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.RegisterIncentiveProposal"></a>
+
+### RegisterIncentiveProposal
+RegisterIncentiveProposal is a gov Content type to register an incentive
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `contract` | [string](#string) |  | contract address |
+| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
+| `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/incentives/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/incentives/v1/genesis.proto
+
+
+
+<a name="evmos.incentives.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.incentives.v1.Params) |  | module parameters |
+| `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | active incentives |
+| `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.Params"></a>
+
+### Params
+Params defines the incentives module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
+| `allocation_limit` | [string](#string) |  | maximum percentage an incentive can allocate per denomination |
+| `incentives_epoch_identifier` | [string](#string) |  | identifier for the epochs module hooks |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/incentives/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/incentives/v1/query.proto
+
+
+
+<a name="evmos.incentives.v1.QueryGasMeterRequest"></a>
+
+### QueryGasMeterRequest
+QueryGasMeterRequest is the request type for the Query/Incentive RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+| `participant` | [string](#string) |  | participant identifier is the hex address of a user |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryGasMeterResponse"></a>
+
+### QueryGasMeterResponse
+QueryGasMeterResponse is the response type for the Query/Incentive RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gas_meter` | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryGasMetersRequest"></a>
+
+### QueryGasMetersRequest
+QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract is the hex contract address of a incentivized smart contract |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryGasMetersResponse"></a>
+
+### QueryGasMetersResponse
+QueryGasMetersResponse is the response type for the Query/Incentives RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentiveRequest"></a>
+
+### QueryIncentiveRequest
+QueryIncentiveRequest is the request type for the Query/Incentive RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentiveResponse"></a>
+
+### QueryIncentiveResponse
+QueryIncentiveResponse is the response type for the Query/Incentive RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `incentive` | [Incentive](#evmos.incentives.v1.Incentive) |  |  |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentivesRequest"></a>
+
+### QueryIncentivesRequest
+QueryIncentivesRequest is the request type for the Query/Incentives RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryIncentivesResponse"></a>
+
+### QueryIncentivesResponse
+QueryIncentivesResponse is the response type for the Query/Incentives RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.incentives.v1.Params) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.incentives.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Incentives retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
+| `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Incentive retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
+| `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | GasMeters retrieves active gas meters | GET|/evmos/incentives/v1/gas_meters|
+| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
+| `Params` | [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse) | Params retrieves the incentives module params | GET|/evmos/incentives/v1/params|
 
  <!-- end services -->
 

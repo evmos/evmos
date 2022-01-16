@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
+
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
@@ -20,7 +21,6 @@ type Keeper struct {
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
-	govKeeper     types.GovKeeper
 	evmKeeper     *evmkeeper.Keeper // TODO: use interface
 }
 
@@ -31,7 +31,6 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	govKeeper types.GovKeeper,
 	evmKeeper *evmkeeper.Keeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -45,7 +44,6 @@ func NewKeeper(
 		paramstore:    ps,
 		accountKeeper: ak,
 		bankKeeper:    bk,
-		govKeeper:     govKeeper,
 		evmKeeper:     evmKeeper,
 	}
 }
