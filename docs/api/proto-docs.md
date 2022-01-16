@@ -47,30 +47,30 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
-- [evmos/feedistr/v1/feedistr.proto](#evmos/feedistr/v1/feedistr.proto)
-    - [ContractWithdrawAddress](#evmos.feedistr.v1.ContractWithdrawAddress)
+- [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
+    - [ContractWithdrawAddress](#evmos.fees.v1.ContractWithdrawAddress)
   
-- [evmos/feedistr/v1/genesis.proto](#evmos/feedistr/v1/genesis.proto)
-    - [GenesisState](#evmos.feedistr.v1.GenesisState)
-    - [Params](#evmos.feedistr.v1.Params)
+- [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
+    - [GenesisState](#evmos.fees.v1.GenesisState)
+    - [Params](#evmos.fees.v1.Params)
   
-- [evmos/feedistr/v1/query.proto](#evmos/feedistr/v1/query.proto)
-    - [QueryParamsRequest](#evmos.feedistr.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#evmos.feedistr.v1.QueryParamsResponse)
-    - [QueryWithdrawAddressRequest](#evmos.feedistr.v1.QueryWithdrawAddressRequest)
-    - [QueryWithdrawAddressResponse](#evmos.feedistr.v1.QueryWithdrawAddressResponse)
-    - [QueryWithdrawAddressesRequest](#evmos.feedistr.v1.QueryWithdrawAddressesRequest)
-    - [QueryWithdrawAddressesResponse](#evmos.feedistr.v1.QueryWithdrawAddressesResponse)
+- [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
+    - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
+    - [QueryWithdrawAddressRequest](#evmos.fees.v1.QueryWithdrawAddressRequest)
+    - [QueryWithdrawAddressResponse](#evmos.fees.v1.QueryWithdrawAddressResponse)
+    - [QueryWithdrawAddressesRequest](#evmos.fees.v1.QueryWithdrawAddressesRequest)
+    - [QueryWithdrawAddressesResponse](#evmos.fees.v1.QueryWithdrawAddressesResponse)
   
-    - [Query](#evmos.feedistr.v1.Query)
+    - [Query](#evmos.fees.v1.Query)
   
-- [evmos/feedistr/v1/tx.proto](#evmos/feedistr/v1/tx.proto)
-    - [MsgRegisterContract](#evmos.feedistr.v1.MsgRegisterContract)
-    - [MsgRegisterContractResponse](#evmos.feedistr.v1.MsgRegisterContractResponse)
-    - [MsgUpdateWithdawAddress](#evmos.feedistr.v1.MsgUpdateWithdawAddress)
-    - [MsgUpdateWithdawAddressResponse](#evmos.feedistr.v1.MsgUpdateWithdawAddressResponse)
+- [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
+    - [MsgRegisterContract](#evmos.fees.v1.MsgRegisterContract)
+    - [MsgRegisterContractResponse](#evmos.fees.v1.MsgRegisterContractResponse)
+    - [MsgUpdateWithdawAddress](#evmos.fees.v1.MsgUpdateWithdawAddress)
+    - [MsgUpdateWithdawAddressResponse](#evmos.fees.v1.MsgUpdateWithdawAddressResponse)
   
-    - [Msg](#evmos.feedistr.v1.Msg)
+    - [Msg](#evmos.fees.v1.Msg)
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
@@ -347,7 +347,7 @@ Owner enumerates the ownership of a ERC20 contract.
 | Name | Number | Description |
 | ---- | ------ | ----------- |
 | OWNER_UNSPECIFIED | 0 | OWNER_UNSPECIFIED defines an invalid/undefined owner. |
-| OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the intrarelayer module account. |
+| OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the erc20 module account. |
 | OWNER_EXTERNAL | 2 | EXTERNAL erc20 is owned by an external account. |
 
 
@@ -606,14 +606,14 @@ Msg defines the erc20 Msg service.
 
 
 
-<a name="evmos/feedistr/v1/feedistr.proto"></a>
+<a name="evmos/fees/v1/fees.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/feedistr/v1/feedistr.proto
+## evmos/fees/v1/fees.proto
 
 
 
-<a name="evmos.feedistr.v1.ContractWithdrawAddress"></a>
+<a name="evmos.fees.v1.ContractWithdrawAddress"></a>
 
 ### ContractWithdrawAddress
 ContractWithdrawAddress
@@ -638,14 +638,14 @@ ContractWithdrawAddress
 
 
 
-<a name="evmos/feedistr/v1/genesis.proto"></a>
+<a name="evmos/fees/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/feedistr/v1/genesis.proto
+## evmos/fees/v1/genesis.proto
 
 
 
-<a name="evmos.feedistr.v1.GenesisState"></a>
+<a name="evmos.fees.v1.GenesisState"></a>
 
 ### GenesisState
 GenesisState defines the module's genesis state.
@@ -653,15 +653,15 @@ GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.feedistr.v1.Params) |  | fee distribution module parameters |
-| `withdraw_addresses` | [ContractWithdrawAddress](#evmos.feedistr.v1.ContractWithdrawAddress) | repeated | hex addresses of contract used for withdrawing tx fees |
+| `params` | [Params](#evmos.fees.v1.Params) |  | fee distribution module parameters |
+| `withdraw_addresses` | [ContractWithdrawAddress](#evmos.fees.v1.ContractWithdrawAddress) | repeated | hex addresses of contract used for withdrawing tx fees |
 
 
 
 
 
 
-<a name="evmos.feedistr.v1.Params"></a>
+<a name="evmos.fees.v1.Params"></a>
 
 ### Params
 Params defines the fee distribution module params
@@ -686,14 +686,14 @@ Params defines the fee distribution module params
 
 
 
-<a name="evmos/feedistr/v1/query.proto"></a>
+<a name="evmos/fees/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/feedistr/v1/query.proto
+## evmos/fees/v1/query.proto
 
 
 
-<a name="evmos.feedistr.v1.QueryParamsRequest"></a>
+<a name="evmos.fees.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
 QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -703,7 +703,7 @@ QueryParamsRequest is the request type for the Query/Params RPC method.
 
 
 
-<a name="evmos.feedistr.v1.QueryParamsResponse"></a>
+<a name="evmos.fees.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
 QueryParamsResponse is the response type for the Query/Params RPC
@@ -712,14 +712,14 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.feedistr.v1.Params) |  | distribution module parameters |
+| `params` | [Params](#evmos.fees.v1.Params) |  | distribution module parameters |
 
 
 
 
 
 
-<a name="evmos.feedistr.v1.QueryWithdrawAddressRequest"></a>
+<a name="evmos.fees.v1.QueryWithdrawAddressRequest"></a>
 
 ### QueryWithdrawAddressRequest
 QueryWithdrawAddressRequest is the request type for the Query/WithdrawAddress RPC method.
@@ -734,7 +734,7 @@ QueryWithdrawAddressRequest is the request type for the Query/WithdrawAddress RP
 
 
 
-<a name="evmos.feedistr.v1.QueryWithdrawAddressResponse"></a>
+<a name="evmos.fees.v1.QueryWithdrawAddressResponse"></a>
 
 ### QueryWithdrawAddressResponse
 QueryWithdrawAddressResponse is the response type for the Query/WithdrawAddress RPC
@@ -750,7 +750,7 @@ method.
 
 
 
-<a name="evmos.feedistr.v1.QueryWithdrawAddressesRequest"></a>
+<a name="evmos.fees.v1.QueryWithdrawAddressesRequest"></a>
 
 ### QueryWithdrawAddressesRequest
 QueryWithdrawAddressesRequest is the request type for the Query/WithdrawAddresses RPC method.
@@ -765,7 +765,7 @@ QueryWithdrawAddressesRequest is the request type for the Query/WithdrawAddresse
 
 
 
-<a name="evmos.feedistr.v1.QueryWithdrawAddressesResponse"></a>
+<a name="evmos.fees.v1.QueryWithdrawAddressesResponse"></a>
 
 ### QueryWithdrawAddressesResponse
 QueryWithdrawAddressesResponse is the response type for the Query/WithdrawAddresses RPC
@@ -774,7 +774,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `withdraw_addresses` | [ContractWithdrawAddress](#evmos.feedistr.v1.ContractWithdrawAddress) | repeated | hex addresses of contract used for withdrawing tx fees |
+| `withdraw_addresses` | [ContractWithdrawAddress](#evmos.fees.v1.ContractWithdrawAddress) | repeated | hex addresses of contract used for withdrawing tx fees |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -788,29 +788,29 @@ method.
  <!-- end HasExtensions -->
 
 
-<a name="evmos.feedistr.v1.Query"></a>
+<a name="evmos.fees.v1.Query"></a>
 
 ### Query
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `WithdrawAddresses` | [QueryWithdrawAddressesRequest](#evmos.feedistr.v1.QueryWithdrawAddressesRequest) | [QueryWithdrawAddressesResponse](#evmos.feedistr.v1.QueryWithdrawAddressesResponse) | WithdrawAddresses retrieves all withdrawal addresses of contracts for fee distribution | GET|/evmos/distribution/v1/withdraw_addresses|
-| `WithdrawAddress` | [QueryWithdrawAddressRequest](#evmos.feedistr.v1.QueryWithdrawAddressRequest) | [QueryWithdrawAddressResponse](#evmos.feedistr.v1.QueryWithdrawAddressResponse) | WithdrawAddress retrieves a registered withdrawal address of contract for fee distribution | GET|/evmos/distribution/v1/withdraw_addresses/{contract_address}|
-| `Params` | [QueryParamsRequest](#evmos.feedistr.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.feedistr.v1.QueryParamsResponse) | Params retrieves the distribution module params | GET|/evmos/distribution/v1/params|
+| `WithdrawAddresses` | [QueryWithdrawAddressesRequest](#evmos.fees.v1.QueryWithdrawAddressesRequest) | [QueryWithdrawAddressesResponse](#evmos.fees.v1.QueryWithdrawAddressesResponse) | WithdrawAddresses retrieves all withdrawal addresses of contracts for fee distribution | GET|/evmos/distribution/v1/withdraw_addresses|
+| `WithdrawAddress` | [QueryWithdrawAddressRequest](#evmos.fees.v1.QueryWithdrawAddressRequest) | [QueryWithdrawAddressResponse](#evmos.fees.v1.QueryWithdrawAddressResponse) | WithdrawAddress retrieves a registered withdrawal address of contract for fee distribution | GET|/evmos/distribution/v1/withdraw_addresses/{contract_address}|
+| `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the distribution module params | GET|/evmos/distribution/v1/params|
 
  <!-- end services -->
 
 
 
-<a name="evmos/feedistr/v1/tx.proto"></a>
+<a name="evmos/fees/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/feedistr/v1/tx.proto
+## evmos/fees/v1/tx.proto
 
 
 
-<a name="evmos.feedistr.v1.MsgRegisterContract"></a>
+<a name="evmos.fees.v1.MsgRegisterContract"></a>
 
 ### MsgRegisterContract
 MsgRegisterContract defines a Msg to register a contract deployer to receive
@@ -828,7 +828,7 @@ tx fees.
 
 
 
-<a name="evmos.feedistr.v1.MsgRegisterContractResponse"></a>
+<a name="evmos.fees.v1.MsgRegisterContractResponse"></a>
 
 ### MsgRegisterContractResponse
 MsgRegisterContractResponse returns no fields
@@ -838,7 +838,7 @@ MsgRegisterContractResponse returns no fields
 
 
 
-<a name="evmos.feedistr.v1.MsgUpdateWithdawAddress"></a>
+<a name="evmos.fees.v1.MsgUpdateWithdawAddress"></a>
 
 ### MsgUpdateWithdawAddress
 MsgUpdateWithdawAddress defines a Msg to .
@@ -855,7 +855,7 @@ MsgUpdateWithdawAddress defines a Msg to .
 
 
 
-<a name="evmos.feedistr.v1.MsgUpdateWithdawAddressResponse"></a>
+<a name="evmos.fees.v1.MsgUpdateWithdawAddressResponse"></a>
 
 ### MsgUpdateWithdawAddressResponse
 MsgUpdateWithdawAddressResponse returns no fields
@@ -871,15 +871,15 @@ MsgUpdateWithdawAddressResponse returns no fields
  <!-- end HasExtensions -->
 
 
-<a name="evmos.feedistr.v1.Msg"></a>
+<a name="evmos.fees.v1.Msg"></a>
 
 ### Msg
 Msg defines the intrarelayer Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `RegisterContract` | [MsgRegisterContract](#evmos.feedistr.v1.MsgRegisterContract) | [MsgRegisterContractResponse](#evmos.feedistr.v1.MsgRegisterContractResponse) | RegisterContract registers the contract on the fee distribution module in order for the owner to recieve txs fees. | GET|/evmos/distribution/v1/tx/register_contract|
-| `UpdateWithdawAddress` | [MsgUpdateWithdawAddress](#evmos.feedistr.v1.MsgUpdateWithdawAddress) | [MsgUpdateWithdawAddressResponse](#evmos.feedistr.v1.MsgUpdateWithdawAddressResponse) | UpdateWithdawAddress updates the withdrawal address for the contract that has been | GET|/evmos/distribution/v1/tx/update_withdraw_address|
+| `RegisterContract` | [MsgRegisterContract](#evmos.fees.v1.MsgRegisterContract) | [MsgRegisterContractResponse](#evmos.fees.v1.MsgRegisterContractResponse) | RegisterContract registers the contract on the fee distribution module in order for the owner to recieve txs fees. | GET|/evmos/distribution/v1/tx/register_contract|
+| `UpdateWithdawAddress` | [MsgUpdateWithdawAddress](#evmos.fees.v1.MsgUpdateWithdawAddress) | [MsgUpdateWithdawAddressResponse](#evmos.fees.v1.MsgUpdateWithdawAddressResponse) | UpdateWithdawAddress updates the withdrawal address for the contract that has been | GET|/evmos/distribution/v1/tx/update_withdraw_address|
 
  <!-- end services -->
 

@@ -1,13 +1,13 @@
 syntax = "proto3";
-package evmos.feedistr.v1;
+package evmos.fees.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/feedistr/v1/feedistr.proto";
-import "evmos/feedistr/v1/genesis.proto";
+import "evmos/fees/v1/fees.proto";
+import "evmos/fees/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/tharsis/evmos/x/feedistr/types";
+option go_package = "github.com/tharsis/evmos/x/fees/types";
 
 // Query defines the gRPC querier service.
 service Query {

@@ -12,7 +12,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/x/feedistr/types"
+	"github.com/tharsis/evmos/x/fees/types"
 )
 
 // Keeper of this module maintains .

@@ -1,7 +1,7 @@
 syntax = "proto3";
-package evmos.feedistr.v1;
+package evmos.fees.v1;
 
-option go_package = "github.com/tharsis/evmos/x/feedistr/types";
+option go_package = "github.com/tharsis/evmos/x/fees/types";
 
 
 // ContractWithdrawAddress 

@@ -1,10 +1,10 @@
 syntax = "proto3";
-package evmos.feedistr.v1;
+package evmos.fees.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/tharsis/evmos/x/feedistr/types";
+option go_package = "github.com/tharsis/evmos/x/fees/types";
 
 // Msg defines the intrarelayer Msg service.
 service Msg {

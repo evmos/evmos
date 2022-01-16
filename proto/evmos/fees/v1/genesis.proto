@@ -1,11 +1,11 @@
 syntax = "proto3";
-package evmos.feedistr.v1;
+package evmos.fees.v1;
 
-import "evmos/feedistr/v1/feedistr.proto";
+import "evmos/fees/v1/fees.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/tharsis/evmos/x/feedistr/types";
+option go_package = "github.com/tharsis/evmos/x/fees/types";
 
 // Params defines the fee distribution module params
 message Params {
