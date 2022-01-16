@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 

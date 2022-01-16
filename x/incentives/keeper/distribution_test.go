@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tendermint/tendermint/libs/math"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 

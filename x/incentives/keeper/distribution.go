@@ -7,13 +7,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 // Distribute transfers the allocated rewards to the participants of a given
 // incentive.
-//  - allocates the amount to be distribbuted from the inflaction pool
-//  - distributes the rewards to all paricpants
+//  - allocates the amount to be distributed from the inflation pool
+//  - distributes the rewards to all particpants
 //  - deletes all gas meters
 //  - updates the remaining epochs of each incentive
 //  - sets the cumulative totalGas to zero
@@ -26,7 +27,7 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 		return err
 	}
 
-	// Iterate over each incetive and distribute allocated rewards
+	// Iterate over each incentive and distribute allocated rewards
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
@@ -160,6 +161,7 @@ func (k Keeper) rewardParticipants(
 
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+	rewardScaler := k.GetParams(ctx).RewardScaler
 
 	// Iterate over the incentive's gas meters and distribute rewards
 	k.IterateIncentiveGasMeters(
@@ -182,8 +184,6 @@ func (k Keeper) rewardParticipants(
 				// Cap rewards in mint denom (i.e. aevmos) to receive only up to 100% of
 				// the participant's gas spent and prevent gaming
 				if mintDenom == allocation.Denom {
-					params := k.GetParams(ctx)
-					rewardScaler := params.RewardScaler
 					rewardCap := cumulativeGas.Mul(rewardScaler)
 					reward = sdk.MinDec(reward, rewardCap)
 				}

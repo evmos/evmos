@@ -3,6 +3,7 @@ package incentives
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+
 	"github.com/tharsis/evmos/x/incentives/keeper"
 	"github.com/tharsis/evmos/x/incentives/types"
 )

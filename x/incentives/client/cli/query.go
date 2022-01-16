@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
