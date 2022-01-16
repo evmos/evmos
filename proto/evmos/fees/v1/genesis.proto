@@ -9,8 +9,8 @@ option go_package = "github.com/tharsis/evmos/x/fees/types";
 
 // Params defines the fee distribution module params
 message Params {
-  // fee distribution for registered contract withdraw addresses
-  string contract_distribution = 1 [
+  // fee distribution for registered developer smart contracts contract withdraw addresses
+  string developer_distribution = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];

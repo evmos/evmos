@@ -116,7 +116,7 @@ func (k Keeper) SetContractWithdrawAddressInverse(ctx sdk.Context, contractAddr,
 }
 
 // DeleteContractWithdrawAddressInverse removes a contract from the withdraw address records.
-func (k Keeper) DeleteContractWithdrawAddressInverse(ctx sdk.Context, withdrawAddr, contractAddr common.Address) {
+func (k Keeper) DeleteContractWithdrawAddressInverse(ctx sdk.Context, contractAddr, withdrawAddr common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), append(types.KeyPrefixContractOwnerInverse, withdrawAddr.Bytes()...))
 	store.Delete(contractAddr.Bytes())
 }

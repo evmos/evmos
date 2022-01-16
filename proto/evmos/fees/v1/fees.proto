@@ -4,7 +4,7 @@ package evmos.fees.v1;
 option go_package = "github.com/tharsis/evmos/x/fees/types";
 
 
-// ContractWithdrawAddress 
+// ContractWithdrawAddress defines a contract with the fees withdraw address
 message ContractWithdrawAddress {
   // contract hex address registered on the fee distribution module
   string contract_address = 1;

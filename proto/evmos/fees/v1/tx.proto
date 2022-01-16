@@ -34,7 +34,8 @@ message MsgRegisterContract {
 message MsgRegisterContractResponse{}
 
 
-// MsgUpdateWithdawAddress defines a Msg to .
+// MsgUpdateWithdawAddress defines a Msg to update the withdraw address to which
+// tx fees will be allocated.
 message MsgUpdateWithdawAddress {
   // contract hex address registered on the fee distribution module
   string contract_address = 1;
