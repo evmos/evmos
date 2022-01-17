@@ -454,68 +454,65 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	}
 }
 
-// NOTE: need to implement clawback first
-//func (suite *KeeperTestSuite) TestClawbackAirdrop() {
-//	suite.SetupClaimTest()
-//
-//	tests := []struct {
-//		name           string
-//		address        string
-//		sequence       uint64
-//		expectClawback bool
-//	}{
-//		{
-//			name:           "airdrop address active",
-//			address:        "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-//			sequence:       1,
-//			expectClawback: false,
-//		},
-//		{
-//			name:           "airdrop address inactive",
-//			address:        "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-//			sequence:       0,
-//			expectClawback: true,
-//		},
-//		{
-//			name:           "non airdrop address active",
-//			address:        sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address()).String(),
-//			sequence:       1,
-//			expectClawback: false,
-//		},
-//		{
-//			name:           "non airdrop address inactive",
-//			address:        sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address()).String(),
-//			sequence:       0,
-//			expectClawback: false,
-//		},
-//	}
-//
-//	for _, tc := range tests {
-//		addr, err := sdk.AccAddressFromBech32(tc.address)
-//		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
-//		acc := authtypes.NewBaseAccountWithAddress(addr)
-//		err = acc.SetSequence(tc.sequence)
-//		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
-//		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
-//		coins := sdk.NewCoins(
-//			sdk.NewInt64Coin("uevmos", 100))
-//		simapp.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
-//	}
-//
-//	err := suite.app.ClaimKeeper.EndAirdrop(suite.ctx, suite.app.ClaimKeeper.GetParams(suite.ctx))
-//	suite.Require().NoError(err, "err: %s", err)
-//
-//	for _, tc := range tests {
-//		addr, err := sdk.AccAddressFromBech32(tc.address)
-//		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
-//		coins := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
-//		if tc.expectClawback {
-//			suite.Require().True(coins.IsEqual(sdk.NewCoins()),
-//				"balance incorrect. test: %s", tc.name)
-//		} else {
-//			suite.Require().True(coins.IsEqual(sdk.NewCoins(
-//				sdk.NewInt64Coin("uevmos", 100),
-//			)), "balance incorrect. test: %s", tc.name)
-//		}
-//	}
-//}
+func (suite *KeeperTestSuite) TestClawbackAirdrop() {
+	suite.SetupClaimTest()
+
+	claimRecord := types.ClaimRecord{
+		InitialClaimableAmount: sdk.NewInt(100),
+		ActionsCompleted:       []bool{false, false, false, false},
+	}
+
+	tests := []struct {
+		name           string
+		address        string
+		sequence       uint64
+		expectClawback bool
+	}{
+		{
+			name:           "address active",
+			address:        "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			sequence:       1,
+			expectClawback: false,
+		},
+		{
+			name:           "address inactive",
+			address:        "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			sequence:       0,
+			expectClawback: true,
+		},
+		{
+			name:           "non airdrop address active",
+			address:        sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address()).String(),
+			sequence:       1,
+			expectClawback: false,
+		},
+	}
+
+	for _, tc := range tests {
+		addr, err := sdk.AccAddressFromBech32(tc.address)
+		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
+		acc := authtypes.NewBaseAccountWithAddress(addr)
+		err = acc.SetSequence(tc.sequence)
+		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
+		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+		suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+		coins := sdk.NewCoins(sdk.NewInt64Coin("aevmos", 100))
+		simapp.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+	}
+
+	err := suite.app.ClaimKeeper.EndAirdrop(suite.ctx, suite.app.ClaimKeeper.GetParams(suite.ctx))
+	suite.Require().NoError(err, "err: %s", err)
+
+	for _, tc := range tests {
+		addr, err := sdk.AccAddressFromBech32(tc.address)
+		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
+		coins := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
+		if tc.expectClawback {
+			suite.Require().True(coins.AmountOf("aevmos").Equal(sdk.NewInt(0)),
+				"balance incorrect. test: %s", tc.name)
+		} else {
+			suite.Require().True(coins.AmountOf("aevmos").Equal(sdk.NewInt(100)),
+				"balance incorrect. test: %s", tc.name)
+		}
+	}
+}
