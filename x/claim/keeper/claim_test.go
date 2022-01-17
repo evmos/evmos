@@ -511,7 +511,7 @@ func (suite *KeeperTestSuite) TestClawbackAirdrop() {
 			suite.Require().True(coins.AmountOf("aevmos").Equal(sdk.NewInt(0)),
 				"balance incorrect. test: %s", tc.name)
 		} else {
-			suite.Require().True(coins.AmountOf("aevmos").Equal(sdk.NewInt(100)),
+			suite.Require().True(coins. AmountOfNoDenomValidation("aevmos").Equal(sdk.NewInt(100)),
 				"balance incorrect. test: %s", tc.name)
 		}
 	}
