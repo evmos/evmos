@@ -514,10 +514,10 @@ func (suite *KeeperTestSuite) TestClawbackAirdrop() {
 		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
 		coins := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
 		if tc.expectClawback {
-			suite.Require().True(coins.AmountOf("aevmos").Equal(sdk.NewInt(0)),
+			suite.Require().True(coins.AmountOfNoDenomValidation("aevmos").Equal(sdk.ZeroInt()),
 				"balance incorrect. test: %s", tc.name)
 		} else {
-			suite.Require().True(coins.AmountOf("aevmos").Equal(sdk.NewInt(100)),
+			suite.Require().True(coins. AmountOfNoDenomValidation("aevmos").Equal(sdk.NewInt(100)),
 				"balance incorrect. test: %s", tc.name)
 		}
 	}
