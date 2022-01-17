@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
@@ -11,6 +12,7 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {}
 // AfterEpochEnd distributes the contract incentives at the end of each epoch
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) {
 	params := k.GetParams(ctx)
+
 	if epochIdentifier != params.IncentivesEpochIdentifier {
 		return
 	}
@@ -34,11 +36,12 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
-// epochs hooks
+// BeforeEpochStart implements EpochHooks
 func (h Hooks) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	h.k.BeforeEpochStart(ctx, epochIdentifier, epochNumber)
 }
 
+// AfterEpochEnd implements EpochHooks
 func (h Hooks) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	h.k.AfterEpochEnd(ctx, epochIdentifier, epochNumber)
 }

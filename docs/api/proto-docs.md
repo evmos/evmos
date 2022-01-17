@@ -705,6 +705,7 @@ Params defines the incentives module params
 | `enable_incentives` | [bool](#bool) |  | parameter to enable incentives |
 | `allocation_limit` | [string](#string) |  | maximum percentage an incentive can allocate per denomination |
 | `incentives_epoch_identifier` | [string](#string) |  | identifier for the epochs module hooks |
+| `reward_scaler` | [string](#string) |  | scaling factor for capping rewards |
 
 
 

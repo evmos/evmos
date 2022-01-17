@@ -7,44 +7,47 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 // Distribute transfers the allocated rewards to the participants of a given
 // incentive.
-//  - allocates the amount to be distribbuted from the inflaction pool
-//  - distributes the rewards to all paricpants
+//  - allocates the amount to be distributed from the inflation pool
+//  - distributes the rewards to all particpants
 //  - deletes all gas meters
 //  - updates the remaining epochs of each incentive
 //  - sets the cumulative totalGas to zero
 func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	// allocate rewards for each Incentive
+	// Allocate rewards for each Incentive
 	coinsAllocated, err := k.allocateCoins(ctx)
 	if err != nil {
 		return err
 	}
 
+	// Iterate over each incentive and distribute allocated rewards
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
-			// distribute rewards
+			// Distribute rewards
 			k.rewardParticipants(ctx, incentive, coinsAllocated)
 
-			// update epoch and remove incentive from epoch if already finalized
+			// Update epoch
 			incentive.Epochs--
-			if !incentive.IsActive() {
+
+			// Update Incentive and reset its total gas count
+			if incentive.IsActive() {
+				k.SetIncentive(ctx, incentive)
+				k.SetIncentiveTotalGas(ctx, incentive, 0)
+			} else {
+				// Remove incentive if it has no remaining epochs
 				k.DeleteIncentiveAndUpdateAllocationMeters(ctx, incentive)
 				logger.Info(
 					"incentive finalized",
 					"contract", incentive.Contract,
 				)
-			} else {
-				k.SetIncentive(ctx, incentive)
-
-				// reset incentive's total gas count
-				k.SetIncentiveTotalGas(ctx, incentive, 0)
 			}
 
 			ctx.EventManager().EmitEvent(
@@ -155,9 +158,10 @@ func (k Keeper) rewardParticipants(
 		)
 		return
 	}
-	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 
+	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+	rewardScaler := k.GetParams(ctx).RewardScaler
 
 	// Iterate over the incentive's gas meters and distribute rewards
 	k.IterateIncentiveGasMeters(
@@ -180,7 +184,8 @@ func (k Keeper) rewardParticipants(
 				// Cap rewards in mint denom (i.e. aevmos) to receive only up to 100% of
 				// the participant's gas spent and prevent gaming
 				if mintDenom == allocation.Denom {
-					reward = sdk.MinDec(reward, cumulativeGas)
+					rewardCap := cumulativeGas.Mul(rewardScaler)
+					reward = sdk.MinDec(reward, rewardCap)
 				}
 
 				// NOTE: ignore denom validation

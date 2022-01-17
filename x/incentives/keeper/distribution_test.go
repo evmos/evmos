@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/tendermint/tendermint/libs/math"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -108,14 +108,17 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				// distributes the rewards to all paricpants
+				// distributes the rewards to all participants
 				sdkParticipant := sdk.AccAddress(participant.Bytes())
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, tc.denom)
-				gasRatio := float64(gasUsed) / float64(totalGasUsed)
-				coinAllocated := float64(tc.mintAmount) * (float64(allocationRate) / 100)
-				expBalance := int64(coinAllocated * gasRatio)
-				expBalance = math.MinInt64(expBalance, int64(gasUsed))
-				suite.Require().Equal(expBalance, balance.Amount.Int64(), tc.name)
+
+				gasRatio := sdk.NewDec(int64(gasUsed)).QuoInt64(int64(totalGasUsed))
+				coinAllocated := sdk.NewDec(tc.mintAmount).MulInt64(allocationRate).QuoInt64(100)
+				expBalance := coinAllocated.Mul(gasRatio)
+				params := suite.app.IncentivesKeeper.GetParams(suite.ctx)
+				expBalance = sdk.MinDec(expBalance, params.RewardScaler.MulInt64(int64(gasUsed)))
+
+				suite.Require().Equal(expBalance.TruncateInt(), balance.Amount, tc.name)
 
 				// deletes all gas meters
 				_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, tc.contract, participant)
