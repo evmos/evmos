@@ -6,12 +6,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
-	ethermint "github.com/tharsis/ethermint/types"
 )
 
 var (
-	DefaultClaimDenom         = ethermint.AttoPhoton
+	DefaultClaimDenom         = "aevmos"
 	DefaultDurationUntilDecay = time.Hour
 	DefaultDurationOfDecay    = time.Hour * 5
 )

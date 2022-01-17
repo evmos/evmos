@@ -433,7 +433,8 @@ func NewEvmos(
 	// Evmos Keeper
 	app.ClaimKeeper = *claimkeeper.NewKeeper(
 		appCodec, keys[claimtypes.StoreKey], app.GetSubspace(claimtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.IBCKeeper.ChannelKeeper,
+		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// register the staking hooks

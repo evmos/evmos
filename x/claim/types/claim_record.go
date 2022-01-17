@@ -15,7 +15,7 @@ func NewClaimRecord(initialClaimableAmt sdk.Int) ClaimRecord {
 	}
 }
 
-// Validate
+// Validate performs a stateless validation of the fields
 func (cr ClaimRecord) Validate() error {
 	if cr.InitialClaimableAmount.IsNil() {
 		return errors.New("initial claimable amount is nil")
@@ -30,13 +30,31 @@ func (cr ClaimRecord) Validate() error {
 	return nil
 }
 
+// ClaimAction marks the given action as completed. It performs a no-op if the
+// action is invalid or if the ActionsCompleted slice has an invalid length.
 func (cr *ClaimRecord) ClaimAction(action Action) {
-	cr.ActionsCompleted[action-1] = true
+	switch {
+	case len(cr.ActionsCompleted) != len(Action_value)-1:
+		return
+	case action == ActionUnspecified || int(action) > len(Action_value)-1:
+		return
+	default:
+		cr.ActionsCompleted[action-1] = true
+	}
 }
 
-// HasClaimedAction checks if the user has claimed a given action
+// HasClaimedAction checks if the user has claimed a given action. It also
+// returns false if the action is invalid or if the ActionsCompleted slice has
+// an invalid length.
 func (cr ClaimRecord) HasClaimedAction(action Action) bool {
-	return len(cr.ActionsCompleted) == len(Action_value)-1 && cr.ActionsCompleted[action-1]
+	switch {
+	case len(cr.ActionsCompleted) != len(Action_value)-1:
+		return false
+	case action == 0 || int(action) > len(Action_value)-1:
+		return false
+	default:
+		return cr.ActionsCompleted[action-1]
+	}
 }
 
 // HasClaimedAll returns true if the user has claimed all the rewards from the
@@ -73,6 +91,7 @@ func NewClaimRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) 
 	}
 }
 
+// Validate performs a stateless validation of the fields
 func (cra ClaimRecordAddress) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(cra.Address); err != nil {
 		return err
