@@ -10,7 +10,10 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tharsis/ethermint/tests"
+	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/evmos/x/claim/types"
 )
 
@@ -482,7 +485,7 @@ func (suite *KeeperTestSuite) TestClawbackAirdrop() {
 		},
 		{
 			name:           "non airdrop address active",
-			address:        sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address()).String(),
+			address:        sdk.AccAddress(tests.GenerateAddress().String()).String(),
 			sequence:       1,
 			expectClawback: false,
 		},
@@ -491,7 +494,10 @@ func (suite *KeeperTestSuite) TestClawbackAirdrop() {
 	for _, tc := range tests {
 		addr, err := sdk.AccAddressFromBech32(tc.address)
 		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
-		acc := authtypes.NewBaseAccountWithAddress(addr)
+		acc := &ethermint.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(addr.Bytes()), nil, 0, 0),
+			CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
+		}
 		err = acc.SetSequence(tc.sequence)
 		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
 		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
