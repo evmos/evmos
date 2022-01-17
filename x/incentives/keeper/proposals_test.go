@@ -149,6 +149,16 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 		expPass             bool
 	}{
 		{
+			"incentives are disabled globally",
+			func() {
+				params := types.DefaultParams()
+				params.EnableIncentives = false
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+			},
+			[]sdk.DecCoin{},
+			false,
+		},
+		{
 			"inventive not registered",
 			func() {
 			},

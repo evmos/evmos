@@ -15,7 +15,6 @@ func (k Keeper) RegisterIncentive(
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) (*types.Incentive, error) {
-
 	// check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
@@ -93,6 +92,15 @@ func (k Keeper) CancelIncentive(
 	ctx sdk.Context,
 	contract common.Address,
 ) error {
+	// check if the Incentives are globally enabled
+	params := k.GetParams(ctx)
+	if !params.EnableIncentives {
+		return sdkerrors.Wrap(
+			types.ErrInternalIncentive,
+			"incentives are currently disabled by governance",
+		)
+	}
+
 	incentive, found := k.GetIncentive(ctx, contract)
 	if !found {
 		return sdkerrors.Wrapf(
