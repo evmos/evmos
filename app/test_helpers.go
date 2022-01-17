@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
+	//"github.com/cosmos/cosmos-sdk/simapp"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 	"github.com/tharsis/ethermint/encoding"
 
+	"github.com/cosmos/ibc-go/v3/testing/simapp"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -15,6 +16,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 )
+
+var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
 // Evmos testing.

@@ -39,7 +39,11 @@ func (im IBCModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) error {
-	return im.app.OnChanOpenInit(ctx, order, connectionHops, portID, channelID,
+	if err := im.app.OnChanOpenInit(ctx, order, connectionHops, portID, channelID, chanCap, counterparty, version); err != nil {
+		return err
+	}
+
+	return im.keeper.OnChanOpenInit(ctx, order, connectionHops, portID, channelID,
 		chanCap, counterparty, version)
 }
 
@@ -55,7 +59,7 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (version string, err error) {
-	return im.app.OnChanOpenTry(ctx, order, connectionHops, portID, channelID,
+	return im.keeper.OnChanOpenTry(ctx, order, connectionHops, portID, channelID,
 		chanCap, counterparty, counterpartyVersion)
 }
 

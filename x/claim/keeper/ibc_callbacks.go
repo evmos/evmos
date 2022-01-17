@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/tharsis/evmos/x/claim/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
@@ -123,4 +124,39 @@ func (k Keeper) OnAcknowledgementPacket(
 	}
 
 	return nil
+}
+
+func (k Keeper) OnChanOpenInit(
+	ctx sdk.Context,
+	order channeltypes.Order,
+	connectionHops []string,
+	portID string,
+	channelID string,
+	chanCap *capabilitytypes.Capability,
+	counterparty channeltypes.Counterparty,
+	version string,
+) error {
+	// TODO
+	// // the authentication module *must* claim the channel capability on OnChanOpenInit
+	// if err := k.ClaimCapability(ctx, chanCap, host.ChannelCapabilityPath(portID, channelID)); err != nil {
+	// 	return err
+	// }
+
+	// perform custom logic
+
+	return nil
+}
+
+func (k Keeper) OnChanOpenTry(
+	ctx sdk.Context,
+	order channeltypes.Order,
+	connectionHops []string,
+	portID,
+	channelID string,
+	chanCap *capabilitytypes.Capability,
+	counterparty channeltypes.Counterparty,
+	counterpartyVersion string,
+) (version string, err error) {
+	// FIXME
+	return "fee29-1:ics20-1", nil
 }
