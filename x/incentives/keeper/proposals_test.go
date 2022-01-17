@@ -142,6 +142,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 }
 
 func (suite KeeperTestSuite) TestCancelIncentive() {
+
 	testCases := []struct {
 		name                string
 		malleate            func()
@@ -176,6 +177,9 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 				)
 				suite.Require().NoError(err)
 				suite.Commit()
+
+				gm := types.NewGasMeter(contract, participant, uint64(100))
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
 			},
 			[]sdk.DecCoin{},
 			true,
@@ -195,9 +199,11 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 			allocationMeters := suite.app.IncentivesKeeper.GetAllAllocationMeters(suite.ctx)
 			suite.Require().Equal(tc.expAllocationMeters, allocationMeters)
 
+			_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, contract, participant)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().False(ok, tc.name)
+				suite.Require().False(found)
 			} else {
 				suite.Require().Error(err, tc.name)
 				suite.Require().False(ok, tc.name)

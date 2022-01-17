@@ -111,5 +111,11 @@ func (k Keeper) CancelIncentive(
 
 	k.DeleteIncentiveAndUpdateAllocationMeters(ctx, incentive)
 
+	// Delete incentive's gas meters
+	gms := k.GetIncentiveGasMeters(ctx, contract)
+	for _, gm := range gms {
+		k.DeleteGasMeter(ctx, gm)
+	}
+
 	return nil
 }

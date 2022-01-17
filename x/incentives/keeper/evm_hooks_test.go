@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				params.EnableIncentives = false
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
 			},
-			true,
+			false,
 		},
 		{
 			"correct execution - one tx",
