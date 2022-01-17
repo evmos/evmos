@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				params := suite.app.IncentivesKeeper.GetParams(suite.ctx)
 				expBalance = sdk.MinDec(expBalance, params.RewardScaler.MulInt64(int64(gasUsed)))
 
-				suite.Require().Equal(expBalance, sdk.NewDecFromInt(balance.Amount), tc.name)
+				suite.Require().Equal(expBalance.TruncateInt(), balance.Amount, tc.name)
 
 				// deletes all gas meters
 				_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, tc.contract, participant)
