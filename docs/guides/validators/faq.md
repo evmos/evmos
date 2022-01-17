@@ -14,7 +14,7 @@ Evmos is powered by [Tendermint](https://tendermint.com/docs/introduction/what-i
 
 ### What is "staking"?
 
-Evmos is a public Proof-of-Stake (PoS) blockchain, meaning that validator's weight is determined by the amount of staking tokens (Photon) bonded as collateral. These staking tokens can be staked directly by the validator or delegated to them by Photon holders.
+Evmos is a public Proof-of-Stake (PoS) blockchain, meaning that validator's weight is determined by the amount of staking tokens (EVMOS) bonded as collateral. These staking tokens can be staked directly by the validator or delegated to them by EVMOS holders.
 
 Any user in the system can declare its intention to become a validator by sending a [`create-validator`](#how-to-become-a-validator) transaction. From there, they become validators.
 
@@ -28,7 +28,7 @@ Of course, it is possible and encouraged for any user to run full nodes even if 
 
 ### What is a delegator?
 
-Delegators are Photon holders who cannot, or do not want to run validator operations themselves. Users can delegate Photons to a validator and obtain a part of its revenue in exchange (for more detail on how revenue is distributed, see [What is the incentive to stake?](#what-is-the-incentive-to-stake) and [What is a validator's commission?](#what-is-a-validators-commission) sections below).
+Delegators are EVMOS holders who cannot, or do not want to run validator operations themselves. Users can delegate Photons to a validator and obtain a part of its revenue in exchange (for more detail on how revenue is distributed, see [What is the incentive to stake?](#what-is-the-incentive-to-stake) and [What is a validator's commission?](#what-is-a-validators-commission) sections below).
 
 Because they share revenue with their validators, delegators also share responsibility. Should a validator misbehave, each of its delegators will be partially slashed in proportion to their stake. This is why delegators should perform due-diligence on validators before delegating, as well as diversifying by spreading their stake over multiple validators.
 
@@ -48,13 +48,13 @@ Any participant in the network can signal their intent to become a validator by 
 - **Initial commission rate**: The commission rate on block provisions, block rewards and fees charged to delegators.
 - **Maximum commission**: The maximum commission rate which this validator will be allowed to charge.
 - **Commission change rate**: The maximum daily increase of the validator commission.
-- **Minimum self-bond amount**: Minimum amount of Photon the validator needs to have bonded at all times. If the validator's self-bonded stake falls below this limit, its entire staking pool will be unbonded.
-- **Initial self-bond amount**: Initial amount of Photon the validator wants to self-bond.
+- **Minimum self-bond amount**: Minimum amount of EVMOS the validator needs to have bonded at all times. If the validator's self-bonded stake falls below this limit, its entire staking pool will be unbonded.
+- **Initial self-bond amount**: Initial amount of EVMOS the validator wants to self-bond.
 
 ```bash
 evmosd tx staking create-validator
     --pubkey evmosvalconspub1zcjduepqs5s0vddx5m65h5ntjzwd0x8g3245rgrytpds4ds7vdtlwx06mcesmnkzly
-    --amount "2aphoton"
+    --amount "2aevmos"
     --from tmp
     --commission-rate="0.20"
     --commission-max-rate="1.00"
@@ -66,7 +66,7 @@ evmosd tx staking create-validator
     --node tcp://127.0.0.1:26647
 ```
 
-Once a validator is created and registered, Photon holders can delegate Photons to it, effectively adding stake to its pool. The total stake of a validator is the sum of the Photon self-bonded by the validator's operator and the Photon bonded by external delegators.
+Once a validator is created and registered, EVMOS holders can delegate Photons to it, effectively adding stake to its pool. The total stake of a validator is the sum of the EVMOS self-bonded by the validator's operator and the EVMOS bonded by external delegators.
 
 **Only the top 125 validators with the most stake are considered the active validators**, becoming **bonded validators**. If ever a validator's total stake dips below the top 125, the validator loses its validator privileges (meaning that it won't generate rewards) and no longer serves as part of the active set (i.e doesn't participate in consensus), entering **unbonding mode** and eventually becomes **unbonded**.
 
@@ -96,24 +96,24 @@ After a validator is created with a `create-validator` transaction, it can be in
 
 - `unbonding`: Validator is not in the active set and does not participate in consensus. Validator is not earning rewards, but can still be slashed for misbehaviour. This is a transition state from `bonded` to `unbonded`. If validator does not send a `rebond` transaction while in `unbonding` mode, it will take three weeks for the state transition to complete.
 
-- `unbonded`: Validator is not in the active set, and therefore not signing blocks. Unbonded validators cannot be slashed, but do not earn any rewards from their operation. It is still possible to delegate Photon to this validator. Un-delegating from an `unbonded` validator is immediate.
+- `unbonded`: Validator is not in the active set, and therefore not signing blocks. Unbonded validators cannot be slashed, but do not earn any rewards from their operation. It is still possible to delegate EVMOS to this validator. Un-delegating from an `unbonded` validator is immediate.
 
 Delegators have the same state as their validator.
 
 ::: warning
-Delegations are not necessarily bonded. Photon can be delegated and bonded, delegated and unbonding, delegated and unbonded, or liquid.
+Delegations are not necessarily bonded. EVMOS can be delegated and bonded, delegated and unbonding, delegated and unbonded, or liquid.
 :::
 
 ### What is "self-bond"? How can I increase my "self-bond"?
 
-The validator operator's "self-bond" refers to the amount of Photon stake delegated to itself. You can increase your self-bond by delegating more Photon to your validator account.
+The validator operator's "self-bond" refers to the amount of EVMOS stake delegated to itself. You can increase your self-bond by delegating more EVMOS to your validator account.
 
 ### Is there a faucet?
 
 <!-- TODO: add link -->
 If you want to obtain coins for the testnet, you can do so by using the faucet (link to be announced).
 
-### Is there a minimum amount of Photon that must be staked to be an active (bonded) validator?
+### Is there a minimum amount of EVMOS that must be staked to be an active (bonded) validator?
 
 There is no minimum. The top 125 validators with the highest total stake (where `total stake = self-bonded stake + delegators stake`) are the active validators.
 
@@ -121,9 +121,9 @@ There is no minimum. The top 125 validators with the highest total stake (where 
 
 Delegators are free to choose validators according to their own subjective criteria. That said, criteria anticipated to be important include:
 
-- **Amount of self-bonded Photon:** Number of Photons a validator self-bonded to its staking pool. A validator with higher amount of self-bonded Photon has more skin in the game, making it more liable for its actions.
+- **Amount of self-bonded EVMOS:** Number of Photons a validator self-bonded to its staking pool. A validator with higher amount of self-bonded EVMOS has more skin in the game, making it more liable for its actions.
 
-- **Amount of delegated Photons:** Total number of Photon delegated to a validator. A high stake shows that the community trusts this validator, but it also means that this validator is a bigger target for hackers. Validators are expected to become less and less attractive as their amount of delegated Photon grows. Bigger validators also increase the centralization of the network.
+- **Amount of delegated Photons:** Total number of EVMOS delegated to a validator. A high stake shows that the community trusts this validator, but it also means that this validator is a bigger target for hackers. Validators are expected to become less and less attractive as their amount of delegated EVMOS grows. Bigger validators also increase the centralization of the network.
 
 - **Commission rate:** Commission applied on revenue by validators before it is distributed to their delegators
 
@@ -149,19 +149,19 @@ Additionally, validators are expected to be active members of the community. The
 
 ### What does staking imply?
 
-Staking Photon can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an unbonding transaction. Then, Photon undergo a _three weeks unbonding period_ during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
+Staking EVMOS can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an unbonding transaction. Then, EVMOS undergo a _three weeks unbonding period_ during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
 
-Validators, and by association delegators, receive block provisions, block rewards, and fee rewards. If a validator misbehaves, a certain portion of its total stake is slashed (the severity of the penalty depends on the type of misbehavior). This means that every user that bonded Photon to this validator gets penalized in proportion to its stake. Delegators are therefore incentivized to delegate to validators that they anticipate will function safely.
+Validators, and by association delegators, receive block provisions, block rewards, and fee rewards. If a validator misbehaves, a certain portion of its total stake is slashed (the severity of the penalty depends on the type of misbehavior). This means that every user that bonded EVMOS to this validator gets penalized in proportion to its stake. Delegators are therefore incentivized to delegate to validators that they anticipate will function safely.
 
-### Can a validator run away with its delegators' Photon?
+### Can a validator run away with its delegators' EVMOS?
 
-By delegating to a validator, a user delegates staking power. The more staking power a validator has, the more weight it has in the consensus and processes. This does not mean that the validator has custody of its delegators' Photon. _By no means can a validator run away with its delegator's funds_.
+By delegating to a validator, a user delegates staking power. The more staking power a validator has, the more weight it has in the consensus and processes. This does not mean that the validator has custody of its delegators' EVMOS. _By no means can a validator run away with its delegator's funds_.
 
 Even though delegated funds cannot be stolen by their validators, delegators are still liable if their validators misbehave. In such case, each delegators' stake will be partially slashed in proportion to their relative stake.
 
-### How often will a validator be chosen to propose the next block? Does it go up with the quantity of Photon staked?
+### How often will a validator be chosen to propose the next block? Does it go up with the quantity of EVMOS staked?
 
-The validator that is selected to mine the next block is called the **proposer**, the "leader" in the consensus for the round. Each proposer is selected deterministically, and the frequency of being chosen is equal to the relative total stake (where total stake = self-bonded stake + delegators stake) of the validator. For example, if the total bonded stake across all validators is 100 Photon, and a validator's total stake is 10 Photon, then this validator will be chosen 10% of the time as the proposer.
+The validator that is selected to mine the next block is called the **proposer**, the "leader" in the consensus for the round. Each proposer is selected deterministically, and the frequency of being chosen is equal to the relative total stake (where total stake = self-bonded stake + delegators stake) of the validator. For example, if the total bonded stake across all validators is 100 EVMOS, and a validator's total stake is 10 EVMOS, then this validator will be chosen 10% of the time as the proposer.
 
 To understand more about the proposer selection process in Tendermint BFT consensus, read more [in their official docs](https://docs.tendermint.com/master/spec/reactors/consensus/proposer-selection.html).
 
@@ -171,8 +171,8 @@ To understand more about the proposer selection process in Tendermint BFT consen
 
 Each member of a validator's staking pool earns different types of revenue:
 
-- **Block rewards:** Native tokens of applications run by validators (e.g. Photons on Evmos) are inflated to produce block provisions. These provisions exist to incentivize Photon holders to bond their stake, as non-bonded Photon will be diluted over time.
-- **Transaction fees:** Evmos maintains a whitelist of token that are accepted as fee payment. The initial fee token is the `photon`.
+- **Block rewards:** Native tokens of applications run by validators (e.g. Photons on Evmos) are inflated to produce block provisions. These provisions exist to incentivize EVMOS holders to bond their stake, as non-bonded EVMOS will be diluted over time.
+- **Transaction fees:** Evmos maintains a whitelist of token that are accepted as fee payment. The initial fee token is the `evmos`.
 
 This total revenue is divided among validators' staking pools according to each validator's weight. Then, within each validator's staking pool the revenue is divided among delegators in proportion to each delegator's stake. A commission on delegators' revenue is applied by the validator before it is distributed.
 
@@ -190,7 +190,7 @@ Revenue received by a validator's pool is split between the validator and its de
 
 Block provisions (rewards) are distributed proportionally to all validators relative to their total stake (voting power). This means that even though each validator gains Photons with each provision, all validators will still maintain equal weight.
 
-Let us take an example where we have 10 validators with equal staking power and a commission rate of 1%. Let us also assume that the provision for a block is 1000 Photons and that each validator has 20% of self-bonded Photon. These tokens do not go directly to the proposer. Instead, they are evenly spread among validators. So now each validator's pool has 100 Photons. These 100 Photons will be distributed according to each participant's stake:
+Let us take an example where we have 10 validators with equal staking power and a commission rate of 1%. Let us also assume that the provision for a block is 1000 Photons and that each validator has 20% of self-bonded EVMOS. These tokens do not go directly to the proposer. Instead, they are evenly spread among validators. So now each validator's pool has 100 Photons. These 100 Photons will be distributed according to each participant's stake:
 
 - Commission: `100*80%*1% = 0.8 Photons`
 - Validator gets: `100\*20% + Commission = 20.8 Photons`
@@ -204,7 +204,7 @@ Fees are similarly distributed with the exception that the block proposer can ge
 
 When a validator is selected to propose the next block, it must include at least ⅔ precommits for the previous block in the form of validator signatures. However, there is an incentive to include more than ⅔ precommits in the form of a bonus. The bonus is linear: it ranges from 1% if the proposer includes ⅔rd precommits (minimum for the block to be valid) to 5% if the proposer includes 100% precommits. Of course the proposer should not wait too long or other validators may timeout and move on to the next proposer. As such, validators have to find a balance between wait-time to get the most signatures and risk of losing out on proposing the next block. This mechanism aims to incentivize non-empty block proposals, better networking between validators as well as to mitigate censorship.
 
-Let's take a concrete example to illustrate the aforementioned concept. In this example, there are 10 validators with equal stake. Each of them applies a 1% commission and has 20% of self-bonded Photon. Now comes a successful block that collects a total of 1005 Photons in fees. Let's assume that the proposer included 100% of the signatures in its block. It thus obtains the full bonus of 5%.
+Let's take a concrete example to illustrate the aforementioned concept. In this example, there are 10 validators with equal stake. Each of them applies a 1% commission and has 20% of self-bonded EVMOS. Now comes a successful block that collects a total of 1005 Photons in fees. Let's assume that the proposer included 100% of the signatures in its block. It thus obtains the full bonus of 5%.
 
 We have to solve this simple equation to find the reward $R$ for each validator:
 
@@ -238,9 +238,9 @@ Note that even if a validator does not intentionally misbehave, it can still be 
 
 No, they do not. A validators total stake is equal to the sum of its own self-bonded stake and of its delegated stake. This means that a validator can compensate its low amount of self-bonded stake by attracting more delegators. This is why reputation is very important for validators.
 
-Even though there is no obligation for validators to self-bond Photon, delegators should want their validator to have self-bonded Photon in their staking pool. In other words, validators should have skin-in-the-game.
+Even though there is no obligation for validators to self-bond EVMOS, delegators should want their validator to have self-bonded EVMOS in their staking pool. In other words, validators should have skin-in-the-game.
 
-In order for delegators to have some guarantee about how much skin-in-the-game their validator has, the latter can signal a minimum amount of self-bonded Photon. If a validator's self-bond goes below the limit that it predefined, this validator and all of its delegators will unbond.
+In order for delegators to have some guarantee about how much skin-in-the-game their validator has, the latter can signal a minimum amount of self-bonded EVMOS. If a validator's self-bond goes below the limit that it predefined, this validator and all of its delegators will unbond.
 
 ### How to prevent concentration of stake in the hands of a few top validators?
 

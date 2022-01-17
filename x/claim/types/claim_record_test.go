@@ -57,11 +57,29 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 	testCases := []struct {
 		name        string
 		claimRecord ClaimRecord
+		action      Action
 		expBool     bool
 	}{
 		{
 			"false - empty",
 			ClaimRecord{},
+			ActionEVM,
+			false,
+		},
+		{
+			"false - unspecified action",
+			ClaimRecord{
+				ActionsCompleted: []bool{false, false, false, false},
+			},
+			ActionUnspecified,
+			false,
+		},
+		{
+			"false - invalid action",
+			ClaimRecord{
+				ActionsCompleted: []bool{false, false, false, false},
+			},
+			Action(10),
 			false,
 		},
 		{
@@ -69,6 +87,7 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 			ClaimRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
+			ActionEVM,
 			false,
 		},
 		{
@@ -76,12 +95,13 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 			ClaimRecord{
 				ActionsCompleted: []bool{true, true, true, true},
 			},
+			ActionEVM,
 			true,
 		},
 	}
 
 	for _, tc := range testCases {
-		require.True(t, tc.expBool == tc.claimRecord.HasClaimedAction(ActionEVM), tc.name)
+		require.Equal(t, tc.expBool, tc.claimRecord.HasClaimedAction(tc.action), tc.name)
 	}
 }
 

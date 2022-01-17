@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
@@ -28,14 +30,14 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	checkTx := false
+
 	// consensus key
 	priv, err := ethsecp256k1.GenerateKey()
 	suite.Require().NoError(err)
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = app.Setup(false, nil)
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
+	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9000-1",
 		Time:            time.Now().UTC(),
@@ -67,6 +69,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime()
 	suite.app.ClaimKeeper.SetParams(suite.ctx, params)
+
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = params.GetClaimDenom()
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
