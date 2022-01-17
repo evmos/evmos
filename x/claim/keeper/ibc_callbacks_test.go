@@ -42,7 +42,7 @@ func TestCallbackTestSuite(t *testing.T) {
 }
 
 var (
-	timeoutHeight = clienttypes.NewHeight(0, 10000)
+	timeoutHeight = clienttypes.NewHeight(2, 10000)
 	maxSequence   = uint64(10)
 )
 
@@ -51,6 +51,11 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	path.EndpointA.ChannelConfig.PortID = ibctesting.TransferPort
 	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
 
+	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
+	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
+	path.EndpointA.ChannelConfig.Version = "ics20-1"
+	path.EndpointB.ChannelConfig.Version = "ics20-1"
+
 	return path
 }
 
@@ -58,8 +63,8 @@ func (suite *CallbackTestSuite) TestCallbacks() {
 	path := NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
 	suite.coordinator.Setup(path)                       // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", path.EndpointA.ClientID)
-	suite.Require().Equal("connection-0", path.EndpointA.ClientID)
-	suite.Require().Equal("channel-0", path.EndpointA.ClientID)
+	suite.Require().Equal("connection-0", path.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-0", path.EndpointA.ChannelID)
 
 	packet := channeltypes.NewPacket(ibctesting.MockPacketData, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
