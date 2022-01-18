@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	cmdcfg "github.com/tharsis/evmos/cmd/config"
 	"testing"
 	"time"
 
@@ -73,6 +74,11 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+}
+
+func init() {
+	config := sdk.GetConfig()
+	cmdcfg.SetBech32Prefixes(config)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
