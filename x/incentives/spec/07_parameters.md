@@ -4,10 +4,7 @@ order: 7
 
 # Parameters
 
-
 The `x/incentives` module contains the parameters described below. All parameters can be modified via governance.
-
-[Untitled](https://www.notion.so/d9687d82324d4354a5f4b713cb9dcf87)
 
 | Key                         | Type    | Default Value                      |
 | --------------------------- | ------- | ---------------------------------- |

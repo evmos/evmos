@@ -16,7 +16,7 @@ The `x/incentives` module keeps the following objects in state:
 
 ### Incentive
 
-Instance that organizes distribution conditions for a given smart contract.
+An instance that organizes distribution conditions for a given smart contract.
 
 ```go
 type Incentive struct {
@@ -33,11 +33,11 @@ type Incentive struct {
 }
 ```
 
-As long as an incentive has remaining epochs, it distributes rewards according to its allocations. The allocations are stored as `sdk.DecCoins` where each containing `[sdk.DecCoin`](https://github.com/cosmos/cosmos-sdk/blob/master/types/dec_coin.go) describes the percentage of rewards (`Amount`) that are allocated to the contract for a given coin denomination (`Denom`). An incentive can contain several allocations, resulting in users to receive rewards in form of several different denominations.
+As long as an incentive has remaining epochs, it distributes rewards according to its allocations. The allocations are stored as `sdk.DecCoins` where each containing [`sdk.DecCoin`](https://github.com/cosmos/cosmos-sdk/blob/master/types/dec_coin.go) describes the percentage of rewards (`Amount`) that are allocated to the contract for a given coin denomination (`Denom`). An incentive can contain several allocations, resulting in users to receive rewards in form of several different denominations.
 
 ### GasMeter
 
-Tracks the cumulative gas spent in a contract per participant during one epoch
+Tracks the cumulative gas spent in a contract per participant during one epoch.
 
 ```go
 type GasMeter struct {
@@ -58,7 +58,7 @@ Say, there are several incentives that have registered an allocation for the $EV
 
 ## Genesis State
 
-The `x/incentives` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains the module parameters and the list of active incentives and their corresponding gas meters :
+The `x/incentives` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains the module parameters and the list of active incentives and their corresponding gas meters:
 
 ```go
 // GenesisState defines the module's genesis state.

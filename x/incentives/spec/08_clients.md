@@ -30,7 +30,7 @@ Allows users to query an incentive for a given contract.
 evmosd query incentives incentive [contract-address] [flags]
 ```
 
-`**gas-meters**`
+**`gas-meters`**
 
 Allows users to query all gas meters for a given incentive.
 
@@ -46,7 +46,7 @@ Allows users to query a gas meter for a given incentive and user.
 evmosd query incentives gas-meter [contract-address] [participant-address] [flags]
 ```
 
-`**params**`
+**`params`**
 
 Allows users to query incentives params.
 
@@ -58,7 +58,7 @@ evmosd query incentives params [flags]
 
 The `tx gov submit-proposal` commands allow users to query create a proposal using the governance module CLI:
 
-`**register-incentive**`
+**`register-incentive`**
 
 Allows users to submit a `RegisterIncentiveProposal`.
 
@@ -66,7 +66,7 @@ Allows users to submit a `RegisterIncentiveProposal`.
 evmosd tx gov submit-proposal register-incentive [contract-address] [allocation] [epochs] [flags]
 ```
 
-`**cancel-incentive**`
+**`cancel-incentive`**
 
 Allows users to submit a `CanelIncentiveProposal`.
 
@@ -74,7 +74,7 @@ Allows users to submit a `CanelIncentiveProposal`.
 evmosd tx gov submit-proposal cancel-incentive [contract-address] [flags]
 ```
 
-`**param-change**`
+**`param-change`**
 
 Allows users to submit a `ParameterChangeProposal``.
 
@@ -85,7 +85,6 @@ evmosd tx gov submit-proposal param-change [proposal-file] [flags]
 ## gRPC
 
 ### Queries
-[Queries ](https://www.notion.so/99d01de195b64b068133f49bb55a2ac6)
 
 | Verb   | Method                                                     | Description                                   |
 | ------ | ---------------------------------------------------------- | --------------------------------------------- |
@@ -93,27 +92,13 @@ evmosd tx gov submit-proposal param-change [proposal-file] [flags]
 | `gRPC` | `evmos.incentives.v1.Query/Incentive`                      | Gets incentive for a given contract           |
 | `gRPC` | `evmos.incentives.v1.Query/GasMeters`                      | Gets gas meters for a given incentive         |
 | `gRPC` | `evmos.incentives.v1.Query/GasMeter`                       | Gets gas meter for a given incentive and user |
+| `gRPC` | `evmos.incentives.v1.Query/AllocationMeters`               | Gets all allocation meters                    |
+| `gRPC` | `evmos.incentives.v1.Query/AllocationMeter`                | Gets allocation meter for a denom             |
 | `gRPC` | `evmos.incentives.v1.Query/Params`                         | Gets incentives params                        |
 | `GET`  | `/evmos/incentives/v1/incentives`                          | Gets all registered incentives                |
 | `GET`  | `/evmos/incentives/v1/incentives/{contract}`               | Gets incentive for a given contract           |
 | `GET`  | `/evmos/incentives/v1/gas_meters`                          | Gets gas meters for a given incentive         |
 | `GET`  | `/evmos/incentives/v1/gas_meters/{contract}/{participant}` | Gets gas meter for a given incentive and user |
+| `GET`  | `/evmos/incentives/v1/allocation_meters`                   | Gets all allocation meters                    |
+| `GET`  | `/evmos/incentives/v1/allocation_meters/{denom}`           | Gets allocation meter for a denom             |
 | `GET`  | `/evmos/incentives/v1/params`                              | Gets incentives params                        |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
