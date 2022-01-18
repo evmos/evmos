@@ -3,6 +3,7 @@ package evmos.claim.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "evmos/claim/v1/claim.proto";
 import "evmos/claim/v1/genesis.proto";
@@ -20,9 +21,13 @@ service Query {
   // Params returns the claim module parameters
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/claim/v1/params";
-  }
-  // ClaimRecords returns the claims records for a given address
+  }  // ClaimRecords returns all the claims record
   rpc ClaimRecords(QueryClaimRecordsRequest) returns (QueryClaimRecordsResponse) {
+    option (google.api.http).get =
+        "/evmos/claim/v1/claim_records";
+  }
+  // ClaimRecord returns the claims record for a given address
+  rpc ClaimRecord(QueryClaimRecordRequest) returns (QueryClaimRecordResponse) {
     option (google.api.http).get =
         "/evmos/claim/v1/claim_records/{address}";
   }
@@ -51,11 +56,24 @@ message QueryParamsResponse {
 
 // QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
 message QueryClaimRecordsRequest {
-  string address = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 // QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
 message QueryClaimRecordsResponse {
+  repeated ClaimRecordAddress claims = 1 [(gogoproto.nullable) = false];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryClaimRecordRequest is the request type for the Query/ClaimRecord RPC method.
+message QueryClaimRecordRequest {
+  string address = 1;
+}
+
+// QueryClaimRecordResponse is the response type for the Query/ClaimRecord RPC method.
+message QueryClaimRecordResponse {
   // total initial claimable amount for the user
   string initial_claimable_amount = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",

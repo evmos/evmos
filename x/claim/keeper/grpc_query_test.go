@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 func (suite *KeeperTestSuite) TestClaimRecords() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
-	req := &types.QueryClaimRecordsRequest{}
+	req := &types.QueryClaimRecordRequest{}
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	testCases := []struct {
@@ -68,7 +68,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 		{
 			"invalid address",
 			func() {
-				req = &types.QueryClaimRecordsRequest{
+				req = &types.QueryClaimRecordRequest{
 					Address: "evmos1",
 				}
 			},
@@ -77,7 +77,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 		{
 			"claim record not found for address",
 			func() {
-				req = &types.QueryClaimRecordsRequest{
+				req = &types.QueryClaimRecordRequest{
 					Address: addr.String(),
 				}
 			},
@@ -88,7 +88,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 			func() {
 				claimRecord := types.NewClaimRecord(sdk.ZeroInt())
 				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
-				req = &types.QueryClaimRecordsRequest{
+				req = &types.QueryClaimRecordRequest{
 					Address: addr.String(),
 				}
 			},
@@ -99,7 +99,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 			func() {
 				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
-				req = &types.QueryClaimRecordsRequest{
+				req = &types.QueryClaimRecordRequest{
 					Address: addr.String(),
 				}
 			},
@@ -111,7 +111,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 
 		tc.malleate()
 
-		res, err := suite.queryClient.ClaimRecords(ctx, req)
+		res, err := suite.queryClient.ClaimRecord(ctx, req)
 		if tc.expErr {
 			suite.Require().Error(err)
 		} else {

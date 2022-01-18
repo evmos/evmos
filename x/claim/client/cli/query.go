@@ -3,7 +3,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -93,22 +92,52 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryClaimRecord implements the query claim-records command.
+// GetCmdQueryClaimRecords implements the query claim-records command.
 func GetCmdQueryClaimRecords() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "claim-records [address]",
-		Args:  cobra.ExactArgs(1),
-		Short: "Query the claim records for an account.",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query the claim records for an account.
-This contains an address' initial claimable amount, and the claims per action.
+		Use:     "claim-records",
+		Args:    cobra.NoArgs,
+		Short:   "Query all the claim records",
+		Long:    "Query the list of all the claim records",
+		Example: fmt.Sprintf("%s query claim claim-records", version.AppName),
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
-Example:
-$ %s query claim claim-records <address>
-`,
-				version.AppName,
-			),
-		),
+			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryClaimRecordsRequest{
+				Pagination: pageReq,
+			}
+
+			// Query store
+			res, err := queryClient.ClaimRecords(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetCmdQueryClaimRecord implements the query claim-record command.
+func GetCmdQueryClaimRecord() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "claim-record [address]",
+		Args:    cobra.ExactArgs(1),
+		Short:   "Query the claim records for an account.",
+		Long:    "Query the claim records for an account.\nThis contains an address' initial claimable amount, and the claims per action.",
+		Example: fmt.Sprintf("%s query claim claim-record <address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -118,7 +147,7 @@ $ %s query claim claim-records <address>
 			queryClient := types.NewQueryClient(clientCtx)
 
 			// Query store
-			res, err := queryClient.ClaimRecords(context.Background(), &types.QueryClaimRecordsRequest{Address: args[0]})
+			res, err := queryClient.ClaimRecord(context.Background(), &types.QueryClaimRecordRequest{Address: args[0]})
 			if err != nil {
 				return err
 			}

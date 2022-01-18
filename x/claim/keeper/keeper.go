@@ -58,7 +58,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // GetModuleAccountAccount returns the module account for the claim module
-func (k Keeper) GetModuleAccountAccount(ctx sdk.Context) authtypes.AccountI {
+func (k Keeper) GetModuleAccountAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 

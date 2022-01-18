@@ -3,7 +3,9 @@ package keeper
 import (
 	"context"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/tharsis/evmos/x/claim/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,11 +33,54 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	}, nil
 }
 
-// ClaimRecords returns initial claimable amount per user and the claims per action
+// ClaimRecords returns all the the claimable records
 func (k Keeper) ClaimRecords(
 	goCtx context.Context,
 	req *types.QueryClaimRecordsRequest,
 ) (*types.QueryClaimRecordsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+
+	claimRecords := []types.ClaimRecordAddress{}
+
+	pageRes, err := query.Paginate(
+		store,
+		req.Pagination,
+		func(key, value []byte) error {
+			var cr types.ClaimRecord
+			if err := k.cdc.Unmarshal(value, &cr); err != nil {
+				return err
+			}
+
+			cra := types.ClaimRecordAddress{
+				Address:                sdk.AccAddress(key[1:]).String(),
+				InitialClaimableAmount: cr.InitialClaimableAmount,
+				ActionsCompleted:       cr.ActionsCompleted,
+			}
+
+			claimRecords = append(claimRecords, cra)
+			return nil
+		},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryClaimRecordsResponse{
+		Claims:     claimRecords,
+		Pagination: pageRes,
+	}, nil
+}
+
+// ClaimRecord returns initial claimable amount per user and the claims per action
+func (k Keeper) ClaimRecord(
+	goCtx context.Context,
+	req *types.QueryClaimRecordRequest,
+) (*types.QueryClaimRecordResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -64,7 +109,7 @@ func (k Keeper) ClaimRecords(
 		}
 	}
 
-	return &types.QueryClaimRecordsResponse{
+	return &types.QueryClaimRecordResponse{
 		InitialClaimableAmount: claimRecord.InitialClaimableAmount,
 		Claims:                 claims,
 	}, nil
