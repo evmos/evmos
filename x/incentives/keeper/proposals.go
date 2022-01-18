@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -14,7 +15,6 @@ func (k Keeper) RegisterIncentive(
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) (*types.Incentive, error) {
-
 	// check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
@@ -34,14 +34,13 @@ func (k Keeper) RegisterIncentive(
 
 	// check if the balance is > 0 for coins other than the mint denomination
 	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	for _, al := range allocations {
-		if al.Denom != mintDenom {
-			if !k.bankKeeper.HasSupply(ctx, al.Denom) {
-				return nil, sdkerrors.Wrapf(
-					sdkerrors.ErrInvalidCoins,
-					"base denomination '%s' cannot have a supply of 0", al.Denom,
-				)
-			}
+		if al.Denom != mintDenom && k.bankKeeper.GetBalance(ctx, moduleAddr, al.Denom).IsZero() {
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidCoins,
+				"base denomination '%s' cannot have a supply of 0", al.Denom,
+			)
 		}
 
 		// check if each allocation is below the allocation limit
@@ -77,6 +76,7 @@ func (k Keeper) RegisterIncentive(
 
 	// create incentive and set to store
 	incentive := types.NewIncentive(contract, allocations, epochs)
+	incentive.StartTime = ctx.BlockTime()
 	k.SetIncentive(ctx, incentive)
 
 	// Update allocation meters
@@ -92,6 +92,15 @@ func (k Keeper) CancelIncentive(
 	ctx sdk.Context,
 	contract common.Address,
 ) error {
+	// check if the Incentives are globally enabled
+	params := k.GetParams(ctx)
+	if !params.EnableIncentives {
+		return sdkerrors.Wrap(
+			types.ErrInternalIncentive,
+			"incentives are currently disabled by governance",
+		)
+	}
+
 	incentive, found := k.GetIncentive(ctx, contract)
 	if !found {
 		return sdkerrors.Wrapf(
@@ -101,6 +110,12 @@ func (k Keeper) CancelIncentive(
 	}
 
 	k.DeleteIncentiveAndUpdateAllocationMeters(ctx, incentive)
+
+	// Delete incentive's gas meters
+	gms := k.GetIncentiveGasMeters(ctx, contract)
+	for _, gm := range gms {
+		k.DeleteGasMeter(ctx, gm)
+	}
 
 	return nil
 }

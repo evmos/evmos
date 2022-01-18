@@ -16,6 +16,7 @@ var (
 	ParamStoreKeyEnableIncentives = []byte("EnableIncentives")
 	ParamStoreKeyAllocationLimit  = []byte("AllocationLimit")
 	ParamStoreKeyEpochIdentifier  = []byte("EpochIdentifier")
+	ParamStoreKeyRewardScaler     = []byte("RewardScaler")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -29,11 +30,13 @@ func NewParams(
 	epocheDuration time.Duration,
 	allocationLimit sdk.Dec,
 	epochIdentifier string,
+	rewardScaler sdk.Dec,
 ) Params {
 	return Params{
 		EnableIncentives:          enableIncentives,
 		AllocationLimit:           allocationLimit,
 		IncentivesEpochIdentifier: epochIdentifier,
+		RewardScaler:              rewardScaler,
 	}
 }
 
@@ -42,6 +45,7 @@ func DefaultParams() Params {
 		EnableIncentives:          true,
 		AllocationLimit:           sdk.NewDecWithPrec(5, 2),
 		IncentivesEpochIdentifier: "week",
+		RewardScaler:              sdk.NewDecWithPrec(12, 1),
 	}
 }
 
@@ -51,6 +55,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
 		paramtypes.NewParamSetPair(ParamStoreKeyEpochIdentifier, &p.IncentivesEpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
+		paramtypes.NewParamSetPair(ParamStoreKeyRewardScaler, &p.RewardScaler, validateUncappedPercentage),
 	}
 }
 
@@ -81,12 +86,31 @@ func validatePercentage(i interface{}) error {
 	return nil
 }
 
+func validateUncappedPercentage(i interface{}) error {
+	dec, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if dec.IsNil() {
+		return errors.New("allocation limit cannot be nil")
+	}
+	if dec.IsNegative() {
+		return fmt.Errorf("allocation limit must be positive: %s", dec)
+	}
+
+	return nil
+}
+
 func (p Params) Validate() error {
 	if err := validateBool(p.EnableIncentives); err != nil {
 		return err
 	}
 
 	if err := validatePercentage(p.AllocationLimit); err != nil {
+		return err
+	}
+
+	if err := validateUncappedPercentage(p.RewardScaler); err != nil {
 		return err
 	}
 
