@@ -15,6 +15,7 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
+
 	"github.com/tharsis/evmos/x/claim/types"
 )
 

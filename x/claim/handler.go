@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/tharsis/evmos/x/claim/keeper"
 	"github.com/tharsis/evmos/x/claim/types"
 )

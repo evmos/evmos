@@ -9,6 +9,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
 	"github.com/tharsis/evmos/x/claim/types"
 )
 

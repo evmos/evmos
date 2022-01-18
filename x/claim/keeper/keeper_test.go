@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
-	cmdcfg "github.com/tharsis/evmos/cmd/config"
 	"testing"
 	"time"
+
+	cmdcfg "github.com/tharsis/evmos/cmd/config"
 
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
