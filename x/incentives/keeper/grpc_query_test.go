@@ -102,7 +102,7 @@ func (suite *KeeperTestSuite) TestIncentive() {
 			false,
 		},
 		{
-			"gas meter not found",
+			"incentive not found",
 			func() {
 				req = &types.QueryIncentiveRequest{
 					Contract: contract.String(),
@@ -112,7 +112,7 @@ func (suite *KeeperTestSuite) TestIncentive() {
 			false,
 		},
 		{
-			"gas meter found",
+			"incentive found",
 			func() {
 				in := types.NewIncentive(contract, allocations, epochs)
 				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, in)
@@ -287,6 +287,140 @@ func (suite *KeeperTestSuite) TestGasMeter() {
 			tc.malleate()
 
 			res, err := suite.queryClient.GasMeter(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestAllocationMeters() {
+	var (
+		req    *types.QueryAllocationMetersRequest
+		expRes *types.QueryAllocationMetersResponse
+	)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"no allocation meter registered",
+			func() {
+				req = &types.QueryAllocationMetersRequest{}
+				expRes = &types.QueryAllocationMetersResponse{Pagination: &query.PageResponse{}}
+			},
+			true,
+		},
+		{
+			"1 allocation meter registered w/pagination",
+			func() {
+				req = &types.QueryAllocationMetersRequest{
+					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
+				}
+
+				am := sdk.NewDecCoin(denomMint, sdk.OneInt())
+				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am)
+
+				expRes = &types.QueryAllocationMetersResponse{
+					Pagination:       &query.PageResponse{Total: 1},
+					AllocationMeters: []sdk.DecCoin{am},
+				}
+			},
+			true,
+		},
+		{
+			"2 allocation meter registered wo/pagination",
+			func() {
+				req = &types.QueryAllocationMetersRequest{}
+
+				am := sdk.NewDecCoin(denomMint, sdk.OneInt())
+				am2 := sdk.NewDecCoin(denomCoin, sdk.OneInt())
+				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am)
+				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am2)
+
+				expRes = &types.QueryAllocationMetersResponse{
+					Pagination:       &query.PageResponse{Total: 2},
+					AllocationMeters: []sdk.DecCoin{am, am2},
+				}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
+
+			res, err := suite.queryClient.AllocationMeters(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes.Pagination, res.Pagination)
+				suite.Require().ElementsMatch(expRes.AllocationMeters, res.AllocationMeters)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestAllocationMeter() {
+	var (
+		req    *types.QueryAllocationMeterRequest
+		expRes *types.QueryAllocationMeterResponse
+	)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"invalid contract address",
+			func() {
+				req = &types.QueryAllocationMeterRequest{}
+				expRes = &types.QueryAllocationMeterResponse{}
+			},
+			false,
+		},
+		{
+			"allocation meter not found",
+			func() {
+				req = &types.QueryAllocationMeterRequest{
+					Denom: denomMint,
+				}
+				expRes = &types.QueryAllocationMeterResponse{}
+			},
+			false,
+		},
+		{
+			"allocation meter found",
+			func() {
+				am := sdk.NewDecCoin(denomMint, sdk.OneInt())
+				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am)
+
+				req = &types.QueryAllocationMeterRequest{
+					Denom: denomMint,
+				}
+				expRes = &types.QueryAllocationMeterResponse{AllocationMeter: am}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
+
+			res, err := suite.queryClient.AllocationMeter(ctx, req)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes, res)
