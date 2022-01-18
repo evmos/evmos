@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -19,10 +18,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, participant common.Address, con
 	// check if the Incentives are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableIncentives {
-		return sdkerrors.Wrap(
-			types.ErrInternalIncentive,
-			"incentives are currently disabled by governance",
-		)
+		return nil
 	}
 
 	// If theres no incentive registered for the contract, do nothing

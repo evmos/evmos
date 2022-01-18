@@ -210,11 +210,15 @@ func (k Keeper) AllocationMeters(
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
-		func(denom, value []byte) error {
-			allocationMeter, found := k.GetAllocationMeter(ctx, string(denom))
-			if found {
-				allocationMeters = append(allocationMeters, allocationMeter)
+		func(key, value []byte) error {
+			denom := string(key)
+			var amount sdk.Dec
+			if err := amount.Unmarshal(value); err != nil {
+				return err
 			}
+
+			allocationMeters = append(allocationMeters, sdk.DecCoin{Denom: denom, Amount: amount})
+
 			return nil
 		},
 	)

@@ -27,7 +27,7 @@ service Query {
     option (google.api.http).get = "/evmos/incentives/v1/gas_meters/{contract}";
   }
 
-  // GasMeter Rretrieves a active gas meter
+  // GasMeter Retrieves a active gas meter
   rpc GasMeter(QueryGasMeterRequest) returns (QueryGasMeterResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/gas_meters/{contract}/{participant}";
   }
@@ -37,9 +37,9 @@ service Query {
     option (google.api.http).get = "/evmos/incentives/v1/allocation_meters";
   }
 
-  // AllocationMeter Rretrieves a active gas meter
+  // AllocationMeter Retrieves a active gas meter
   rpc AllocationMeter(QueryAllocationMeterRequest) returns (QueryAllocationMeterResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/alocation_meters/{denom}";
+    option (google.api.http).get = "/evmos/incentives/v1/allocation_meters/{denom}";
   }
 
   // Params retrieves the incentives module params
@@ -125,7 +125,7 @@ message QueryAllocationMetersResponse {
 // QueryAllocationMeterRequest is the request type for the Query/AllocationMeter
 // RPC method.
 message QueryAllocationMeterRequest {
-  // contract identifier is the hex contract address of a contract
+// denom is the coin denom to query an allocation meter for.
   string denom = 1;
 }
 
