@@ -21,9 +21,9 @@ service Query {
     option (google.api.http).get = "/evmos/incentives/v1/incentives/{contract}";
   }
 
-  // GasMeters retrieves active gas meters
+  // GasMeters retrieves active gas meters for a given contract
   rpc GasMeters(QueryGasMetersRequest) returns (QueryGasMetersResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/gas_meters";
+    option (google.api.http).get = "/evmos/incentives/v1/gas_meters/{contract}";
   }
 
   // GasMeter Rretrieves a active gas meter

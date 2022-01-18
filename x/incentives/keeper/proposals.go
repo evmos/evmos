@@ -34,14 +34,13 @@ func (k Keeper) RegisterIncentive(
 
 	// check if the balance is > 0 for coins other than the mint denomination
 	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	for _, al := range allocations {
-		if al.Denom != mintDenom {
-			if !k.bankKeeper.HasSupply(ctx, al.Denom) {
-				return nil, sdkerrors.Wrapf(
-					sdkerrors.ErrInvalidCoins,
-					"base denomination '%s' cannot have a supply of 0", al.Denom,
-				)
-			}
+		if al.Denom != mintDenom && k.bankKeeper.GetBalance(ctx, moduleAddr, al.Denom).IsZero() {
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidCoins,
+				"base denomination '%s' cannot have a supply of 0", al.Denom,
+			)
 		}
 
 		// check if each allocation is below the allocation limit

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -49,7 +48,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// Make sure the non-mint coin has supply
 				err := suite.app.BankKeeper.MintCoins(
 					suite.ctx,
-					minttypes.ModuleName,
+					types.ModuleName,
 					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
 				)
 				suite.Require().NoError(err)
@@ -68,7 +67,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// Make sure the non-mint coin has supply
 				err := suite.app.BankKeeper.MintCoins(
 					suite.ctx,
-					minttypes.ModuleName,
+					types.ModuleName,
 					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
 				)
 				suite.Require().NoError(err)
@@ -99,7 +98,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// Make sure the non-mint coin has supply
 				err := suite.app.BankKeeper.MintCoins(
 					suite.ctx,
-					minttypes.ModuleName,
+					types.ModuleName,
 					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
 				)
 				suite.Require().NoError(err)
