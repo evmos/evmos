@@ -58,6 +58,10 @@
     - [Params](#evmos.incentives.v1.Params)
   
 - [evmos/incentives/v1/query.proto](#evmos/incentives/v1/query.proto)
+    - [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest)
+    - [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse)
+    - [QueryAllocationMetersRequest](#evmos.incentives.v1.QueryAllocationMetersRequest)
+    - [QueryAllocationMetersResponse](#evmos.incentives.v1.QueryAllocationMetersResponse)
     - [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest)
     - [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse)
     - [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest)
@@ -728,6 +732,71 @@ Params defines the incentives module params
 
 
 
+<a name="evmos.incentives.v1.QueryAllocationMeterRequest"></a>
+
+### QueryAllocationMeterRequest
+QueryAllocationMeterRequest is the request type for the Query/AllocationMeter
+RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `denom` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryAllocationMeterResponse"></a>
+
+### QueryAllocationMeterResponse
+QueryAllocationMeterResponse is the response type for the
+Query/AllocationMeter RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `allocation_meter` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  |  |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryAllocationMetersRequest"></a>
+
+### QueryAllocationMetersRequest
+QueryAllocationMetersRequest is the request type for the
+Query/AllocationMeters RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.incentives.v1.QueryAllocationMetersResponse"></a>
+
+### QueryAllocationMetersResponse
+QueryAllocationMetersResponse is the response type for the
+Query/AllocationMeters RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `allocation_meters` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
 <a name="evmos.incentives.v1.QueryGasMeterRequest"></a>
 
 ### QueryGasMeterRequest
@@ -897,8 +966,10 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Incentives retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
 | `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Incentive retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
-| `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | GasMeters retrieves active gas meters | GET|/evmos/incentives/v1/gas_meters|
+| `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | GasMeters retrieves active gas meters for a given contract | GET|/evmos/incentives/v1/gas_meters/{contract}|
 | `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
+| `AllocationMeters` | [QueryAllocationMetersRequest](#evmos.incentives.v1.QueryAllocationMetersRequest) | [QueryAllocationMetersResponse](#evmos.incentives.v1.QueryAllocationMetersResponse) | AllocationMeters retrieves active allocation meters for a given denomination | GET|/evmos/incentives/v1/allocation_meters|
+| `AllocationMeter` | [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest) | [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse) | AllocationMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/alocation_meters/{denom}|
 | `Params` | [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse) | Params retrieves the incentives module params | GET|/evmos/incentives/v1/params|
 
  <!-- end services -->

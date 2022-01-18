@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -49,7 +48,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// Make sure the non-mint coin has supply
 				err := suite.app.BankKeeper.MintCoins(
 					suite.ctx,
-					minttypes.ModuleName,
+					types.ModuleName,
 					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
 				)
 				suite.Require().NoError(err)
@@ -68,7 +67,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// Make sure the non-mint coin has supply
 				err := suite.app.BankKeeper.MintCoins(
 					suite.ctx,
-					minttypes.ModuleName,
+					types.ModuleName,
 					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
 				)
 				suite.Require().NoError(err)
@@ -99,7 +98,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// Make sure the non-mint coin has supply
 				err := suite.app.BankKeeper.MintCoins(
 					suite.ctx,
-					minttypes.ModuleName,
+					types.ModuleName,
 					sdk.Coins{sdk.NewInt64Coin(denomCoin, 1)},
 				)
 				suite.Require().NoError(err)
@@ -126,6 +125,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				Contract:    contract.String(),
 				Allocations: allocations,
 				Epochs:      epochs,
+				StartTime:   suite.ctx.BlockTime(),
 			}
 
 			allocationMeters := suite.app.IncentivesKeeper.GetAllAllocationMeters(suite.ctx)
@@ -142,12 +142,23 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 }
 
 func (suite KeeperTestSuite) TestCancelIncentive() {
+
 	testCases := []struct {
 		name                string
 		malleate            func()
 		expAllocationMeters []sdk.DecCoin
 		expPass             bool
 	}{
+		{
+			"incentives are disabled globally",
+			func() {
+				params := types.DefaultParams()
+				params.EnableIncentives = false
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+			},
+			[]sdk.DecCoin{},
+			false,
+		},
 		{
 			"inventive not registered",
 			func() {
@@ -166,6 +177,9 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 				)
 				suite.Require().NoError(err)
 				suite.Commit()
+
+				gm := types.NewGasMeter(contract, participant, uint64(100))
+				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
 			},
 			[]sdk.DecCoin{},
 			true,
@@ -185,9 +199,11 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 			allocationMeters := suite.app.IncentivesKeeper.GetAllAllocationMeters(suite.ctx)
 			suite.Require().Equal(tc.expAllocationMeters, allocationMeters)
 
+			_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, contract, participant)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().False(ok, tc.name)
+				suite.Require().False(found)
 			} else {
 				suite.Require().Error(err, tc.name)
 				suite.Require().False(ok, tc.name)

@@ -193,6 +193,67 @@ func (k Keeper) GasMeter(
 	return &types.QueryGasMeterResponse{GasMeter: gm}, nil
 }
 
+// AllocationMeters return registered allocation meters
+func (k Keeper) AllocationMeters(
+	c context.Context,
+	req *types.QueryAllocationMetersRequest,
+) (*types.QueryAllocationMetersResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	var allocationMeters []sdk.DecCoin
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
+
+	pageRes, err := query.Paginate(
+		store,
+		req.Pagination,
+		func(key, value []byte) error {
+			denom := string(key)
+			var amount sdk.Dec
+			if err := amount.Unmarshal(value); err != nil {
+				return err
+			}
+
+			allocationMeters = append(allocationMeters, sdk.DecCoin{Denom: denom, Amount: amount})
+
+			return nil
+		},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &types.QueryAllocationMetersResponse{
+		AllocationMeters: allocationMeters,
+		Pagination:       pageRes,
+	}, nil
+}
+
+// AllocationMeter returns a given registered allocation meter
+func (k Keeper) AllocationMeter(
+	c context.Context,
+	req *types.QueryAllocationMeterRequest,
+) (*types.QueryAllocationMeterResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	allocationMeter, found := k.GetAllocationMeter(ctx, req.Denom)
+	if !found {
+		return nil, status.Errorf(
+			codes.NotFound,
+			"allocationMeter with denomination '%s'",
+			req.Denom,
+		)
+	}
+
+	return &types.QueryAllocationMeterResponse{AllocationMeter: allocationMeter}, nil
+}
+
 // Params return hub contract param
 func (k Keeper) Params(
 	c context.Context,

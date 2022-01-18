@@ -71,9 +71,7 @@ func (k Keeper) DistributeIncentives(ctx sdk.Context) error {
 //  - create an allocation (module account) from escrow balance to be distributed to the contract address
 //  - check that escrow balance is sufficient
 func (k Keeper) allocateCoins(ctx sdk.Context) (map[common.Address]sdk.Coins, error) {
-	coinsAllocated := make(map[common.Address]sdk.Coins)
-
-	// Get all balances from the incentive module account
+	// Get balances on incentive module account
 	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	escrowedCoins := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
@@ -84,9 +82,9 @@ func (k Keeper) allocateCoins(ctx sdk.Context) (map[common.Address]sdk.Coins, er
 		denomBalances[coin.Denom] = coin.Amount
 	}
 
+	// Iterate over each incentive's allocations to create map off allocated coins
+	coinsAllocated := make(map[common.Address]sdk.Coins)
 	totalAllocated := sdk.Coins{}
-
-	// Iterate over each incentive's allocations
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
@@ -114,7 +112,7 @@ func (k Keeper) allocateCoins(ctx sdk.Context) (map[common.Address]sdk.Coins, er
 	)
 
 	// checks if escrow balance has sufficient balance for allocation
-	if totalAllocated.IsAnyGTE(escrowedCoins) {
+	if totalAllocated.IsAnyGT(escrowedCoins) {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"escrowed balance < total coins allocated (%s < %s)",
