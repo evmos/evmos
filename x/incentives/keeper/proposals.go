@@ -77,6 +77,7 @@ func (k Keeper) RegisterIncentive(
 
 	// create incentive and set to store
 	incentive := types.NewIncentive(contract, allocations, epochs)
+	incentive.StartTime = ctx.BlockTime()
 	k.SetIncentive(ctx, incentive)
 
 	// Update allocation meters

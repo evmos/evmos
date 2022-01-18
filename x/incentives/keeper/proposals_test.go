@@ -126,6 +126,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				Contract:    contract.String(),
 				Allocations: allocations,
 				Epochs:      epochs,
+				StartTime:   suite.ctx.BlockTime(),
 			}
 
 			allocationMeters := suite.app.IncentivesKeeper.GetAllAllocationMeters(suite.ctx)
