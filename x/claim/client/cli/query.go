@@ -27,6 +27,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryTotalUnclaimed(),
 		GetCmdQueryParams(),
 		GetCmdQueryClaimRecords(),
+		GetCmdQueryClaimRecord(),
 	)
 
 	return claimQueryCmd
