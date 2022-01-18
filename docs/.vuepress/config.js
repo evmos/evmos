@@ -236,7 +236,7 @@ module.exports = {
       }
     },
     footer: {
-      logo: '/evmos-black-with-icon.svg',
+      logo: '/evmos-black.svg',
       textLink: {
         text: 'evmos.org',
         url: 'https://evmos.org'
