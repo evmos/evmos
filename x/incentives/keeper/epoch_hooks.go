@@ -13,7 +13,13 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {}
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) {
 	params := k.GetParams(ctx)
 
+	// check if epochIdentifier signal equals the identifier in the params
 	if epochIdentifier != params.IncentivesEpochIdentifier {
+		return
+	}
+
+	// check if the Incentives are globally enabled
+	if !params.EnableIncentives {
 		return
 	}
 

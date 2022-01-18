@@ -32,6 +32,15 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 		expPass bool
 	}{
 		{
+			"incentives are disabled globally",
+			func(contractAddr common.Address) {
+				params := types.DefaultParams()
+				params.EnableIncentives = false
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+			},
+			false,
+		},
+		{
 			"correct execution - one tx",
 			func(contractAddr common.Address) {
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))

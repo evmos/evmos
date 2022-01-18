@@ -27,6 +27,8 @@ func GetQueryCmd() *cobra.Command {
 		GetIncentiveCmd(),
 		GetGasMetersCmd(),
 		GetGasMeterCmd(),
+		GetAllocationMetersCmd(),
+		GetAllocationMeterCmd(),
 		GetParamsCmd(),
 	)
 	return cmd
@@ -176,6 +178,75 @@ func GetGasMeterCmd() *cobra.Command {
 			}
 
 			res, err := queryClient.GasMeter(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetAllocationMetersCmd queries the list of allocation meters
+func GetAllocationMetersCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "allocation-meters",
+		Short: "Gets all registered allocation meters",
+		Long:  "Gets all registered allocation meters",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryAllocationMetersRequest{
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.AllocationMeters(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetAllocationMeterCmd queries a given denom allocation meter
+func GetAllocationMeterCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "allocation-meter [denom]",
+		Short: "Gets allocation meter for a denom",
+		Long:  "Gets allocation meter for a denom",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryAllocationMeterRequest{
+				Denom: args[0],
+			}
+
+			res, err := queryClient.AllocationMeter(context.Background(), req)
 			if err != nil {
 				return err
 			}
