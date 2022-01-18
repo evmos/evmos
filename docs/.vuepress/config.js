@@ -284,12 +284,8 @@ module.exports = {
         title: 'Community',
         children: [{
           title: 'Evmos Community',
-          url: 'https://discord.gg/trje9XuAmy'
+          url: 'https://discord.gg/evmos'
         },
-        {
-          title: 'Evmos Forum',
-          url: 'https://forum.cosmos.network/c/ethermint'
-        }
         ]
       },
       {

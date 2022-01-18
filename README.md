@@ -66,7 +66,7 @@ To learn how the Evmos works from a high-level perspective, go to the [Introduct
 The following chat channels and forums are a great spot to ask questions about Evmos:
 
 - [Evmos Twitter](https://twitter.com/EvmosOrg)
-- [Evmos Discord](https://discord.gg/trje9XuAmy)
+- [Evmos Discord](https://discord.gg/evmos)
 - [Evmos Forum](https://forum.cosmos.network/c/ethermint)
 - [Tharsis Twitter](https://twitter.com/TharsisHQ)
 

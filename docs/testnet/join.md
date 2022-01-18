@@ -100,7 +100,7 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
-A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
+A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
 PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
@@ -178,7 +178,7 @@ evmosd start
 
 ## Share your Peer
 
-You can share your peer to posting it in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy).
+You can share your peer to posting it in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos).
 
 ::: tip
 To get your Node ID use
