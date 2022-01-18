@@ -33,9 +33,6 @@ func (k Keeper) GetClaimableAmountForAction(
 		return sdk.ZeroInt()
 	}
 
-	// TODO: update this and explicitly define the % instead of assuming each action
-	// has the same weight
-
 	// NOTE: use len(actions)-1 we don't consider the Unspecified Action
 	initialClaimablePerAction := claimRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
 
@@ -49,7 +46,6 @@ func (k Keeper) GetClaimableAmountForAction(
 	decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(params.DurationOfDecay.Nanoseconds())
 	claimablePercent := sdk.OneDec().Sub(decayPercent)
 
-	// TODO: define claimable percent per action
 	claimableCoins := initialClaimablePerAction.ToDec().Mul(claimablePercent).RoundInt()
 	return claimableCoins
 }

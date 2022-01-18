@@ -12,15 +12,25 @@ import (
 // InitGenesis initializes the claim module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
-	k.SetParams(ctx, data.Params)
+	totalEscrowed := sdk.ZeroInt()
+	sumClaims := sdk.ZeroInt()
 
-	escrowedCoin := sdk.Coin{Denom: data.Params.ClaimDenom, Amount: sdk.ZeroInt()}
-	escrowedCoins := k.GetModuleAccountBalances(ctx)
-	if escrowedCoins != nil {
-		escrowedCoin.Amount = escrowedCoins.AmountOfNoDenomValidation(data.Params.ClaimDenom)
+	// ensure claim module account is set on genesis
+	if acc := k.GetModuleAccountAccount(ctx); acc == nil {
+		panic("the claim module account has not been set")
 	}
 
-	totalToClaim := sdk.Coin{Denom: data.Params.ClaimDenom, Amount: sdk.ZeroInt()}
+	// set the start time to the current block time by default
+	if data.Params.AirdropStartTime.IsZero() {
+		data.Params.AirdropStartTime = ctx.BlockTime()
+	}
+
+	k.SetParams(ctx, data.Params)
+
+	escrowedCoins := k.GetModuleAccountBalances(ctx)
+	if escrowedCoins != nil {
+		totalEscrowed = escrowedCoins.AmountOfNoDenomValidation(data.Params.ClaimDenom)
+	}
 
 	for _, claimRecord := range data.ClaimRecords {
 		addr, _ := sdk.AccAddressFromBech32(claimRecord.Address)
@@ -30,15 +40,14 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 		}
 		k.SetClaimRecord(ctx, addr, cr)
 
-		amt := sdk.Coin{Denom: data.Params.ClaimDenom, Amount: cr.InitialClaimableAmount}
-		totalToClaim = totalToClaim.Add(amt)
+		sumClaims = sumClaims.Add(cr.InitialClaimableAmount)
 	}
 
-	if !totalToClaim.IsEqual(escrowedCoin) {
+	if !sumClaims.Equal(totalEscrowed) {
 		panic(
 			fmt.Errorf(
 				"sum of claimable amount ≠ escrowed module account amount (%s ≠ %s)",
-				totalToClaim, escrowedCoin,
+				sumClaims, totalEscrowed,
 			),
 		)
 	}

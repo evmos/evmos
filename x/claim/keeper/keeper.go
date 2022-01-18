@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/tharsis/evmos/x/claim/types"
@@ -54,6 +55,11 @@ func NewKeeper(
 // Logger returns logger
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// GetModuleAccountAccount returns the module account for the claim module
+func (k Keeper) GetModuleAccountAccount(ctx sdk.Context) authtypes.AccountI {
+	return k.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // GetModuleAccountAddress gets the airdrop coin balance of module account

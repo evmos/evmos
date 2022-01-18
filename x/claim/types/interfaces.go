@@ -18,6 +18,7 @@ type BankKeeper interface {
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
+	GetModuleAccount(ctx sdk.Context, name string) authtypes.AccountI
 	SetModuleAccount(ctx sdk.Context, macc authtypes.ModuleAccountI)
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)

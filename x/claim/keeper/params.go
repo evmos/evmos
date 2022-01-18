@@ -5,13 +5,13 @@ import (
 	"github.com/tharsis/evmos/x/claim/types"
 )
 
-// GetParams returns the total set of erc20 parameters.
+// GetParams returns the total set of claim parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramstore.GetParamSet(ctx, &params)
 	return params
 }
 
-// SetParams sets the erc20 parameters to the param space.
+// SetParams sets the claim parameters to the param space.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramstore.SetParamSet(ctx, &params)
 }

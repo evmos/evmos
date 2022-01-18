@@ -62,7 +62,7 @@ func DefaultParams() Params {
 		AirdropStartTime:   time.Time{},
 		DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
 		DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
-		ClaimDenom:         DefaultClaimDenom,         // aphoton
+		ClaimDenom:         DefaultClaimDenom,         // aevmos
 	}
 }
 
