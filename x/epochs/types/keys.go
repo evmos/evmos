@@ -7,11 +7,8 @@ const (
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
 
-	// RouterKey is the message route for slashing
+	// RouterKey is the message route for epochs
 	RouterKey = ModuleName
-
-	// QuerierRoute defines the module's query routing key
-	QuerierRoute = ModuleName
 )
 
 // prefix bytes for the epochs persistent store
@@ -21,7 +18,3 @@ const (
 
 // KeyPrefixEpoch defines prefix key for storing epochs
 var KeyPrefixEpoch = []byte{prefixEpoch}
-
-func KeyPrefix(p string) []byte {
-	return []byte(p)
-}
