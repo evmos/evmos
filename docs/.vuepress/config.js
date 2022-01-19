@@ -52,10 +52,10 @@ module.exports = {
     custom: true,
     project: {
       name: 'Evmos',
-      denom: 'EVMOS',
+      denom: 'Evmos',
       ticker: 'EVMOS',
       binary: 'evmosd',
-      testnet_denom: 'tEVMOS',
+      testnet_denom: 'tEvmos',
       testnet_ticker: 'tEVMOS',
       rpc_url: 'http://localhost:8545/',
       rpc_url_testnet: 'https://ethereum.rpc.evmos.dev',
