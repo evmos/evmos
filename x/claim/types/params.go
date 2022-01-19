@@ -114,3 +114,13 @@ func (p Params) Validate() error {
 	}
 	return sdk.ValidateDenom(p.ClaimDenom)
 }
+
+// DecayStartTime returns the time at which the Decay period starts
+func (p Params) DecayStartTime() time.Time {
+	return p.AirdropStartTime.Add(p.DurationUntilDecay)
+}
+
+// AirdropEndTime returns the time at which no further claims will be processed.
+func (p Params) AirdropEndTime() time.Time {
+	return p.AirdropStartTime.Add(p.DurationUntilDecay).Add(p.DurationOfDecay)
+}

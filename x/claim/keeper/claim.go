@@ -16,16 +16,16 @@ func (k Keeper) GetClaimableAmountForAction(
 	params types.Params,
 ) sdk.Int {
 	// return zero if there are no coins to claim
-	if claimRecord.InitialClaimableAmount.IsZero() {
+	if claimRecord.InitialClaimableAmount.IsNil() || claimRecord.InitialClaimableAmount.IsZero() {
 		return sdk.ZeroInt()
 	}
 
-	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
+	airdropEndTime := params.AirdropEndTime()
 
 	// Safety check: the entire airdrop has completed
 	// NOTE: This shouldn't occur since at the end of the airdrop, the EnableClaim
 	// param is disabled.
-	if elapsedAirdropTime > params.DurationUntilDecay+params.DurationOfDecay {
+	if ctx.BlockTime().After(airdropEndTime) {
 		return sdk.ZeroInt()
 	}
 
@@ -36,17 +36,27 @@ func (k Keeper) GetClaimableAmountForAction(
 	// NOTE: use len(actions)-1 we don't consider the Unspecified Action
 	initialClaimablePerAction := claimRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
 
-	// Are we early enough in the airdrop s.t. theres no decay?
-	if elapsedAirdropTime <= params.DurationUntilDecay {
+	decayStartTime := params.DecayStartTime()
+	// claim amount is the full amount if the elapsed time is before or equal
+	// the decay start time
+	if !ctx.BlockTime().After(decayStartTime) {
 		return initialClaimablePerAction
 	}
 
-	// Positive, since goneTime > params.DurationUntilDecay
-	decayTime := elapsedAirdropTime - params.DurationUntilDecay
-	decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(params.DurationOfDecay.Nanoseconds())
-	claimablePercent := sdk.OneDec().Sub(decayPercent)
+	// calculate the claimable percent based on the elapsed time since the decay period started
 
-	claimableCoins := initialClaimablePerAction.ToDec().Mul(claimablePercent).RoundInt()
+	elapsedDecay := ctx.BlockTime().Sub(decayStartTime)
+
+	elapsedDecayRatio := sdk.NewDec(elapsedDecay.Nanoseconds()).QuoInt64(params.DurationOfDecay.Nanoseconds())
+
+	// claimable percent is (1 - elapsed decay) x 100
+
+	// NOTE: the idea is that if you claim early in the decay period, you should
+	// be entitled to more coins than if you claim at the end of it.
+	claimableRatio := sdk.OneDec().Sub(elapsedDecayRatio)
+
+	// calculate the claimable coins, while rounding the decimals
+	claimableCoins := initialClaimablePerAction.ToDec().Mul(claimableRatio).RoundInt()
 	return claimableCoins
 }
 
