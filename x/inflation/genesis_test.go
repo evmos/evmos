@@ -1,4 +1,4 @@
-package mint_test
+package inflation_test
 
 import (
 	"testing"

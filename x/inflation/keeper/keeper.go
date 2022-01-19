@@ -8,13 +8,15 @@ import (
 	"github.com/osmosis-labs/osmosis/x/mint/types"
 	poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
 	"github.com/tendermint/tendermint/libs/log"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // Keeper of the mint store
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         sdk.StoreKey
-	paramSpace       paramtypes.Subspace
+	storeKey   sdk.StoreKey
+	cdc        codec.BinaryCodec
+	paramstore paramtypes.Subspace
+
 	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	distrKeeper      types.DistrKeeper
@@ -25,8 +27,13 @@ type Keeper struct {
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
-	cdc codec.BinaryCodec, key sdk.StoreKey, paramSpace paramtypes.Subspace,
-	ak types.AccountKeeper, bk types.BankKeeper, dk types.DistrKeeper, epochKeeper types.EpochKeeper,
+	storeKey sdk.StoreKey,
+	cdc codec.BinaryCodec,
+	ps paramtypes.Subspace,
+	ak types.AccountKeeper,
+	bk types.BankKeeper,
+	dk types.DistrKeeper,
+	ek types.EpochKeeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -35,18 +42,18 @@ func NewKeeper(
 	}
 
 	// set KeyTable if it has not already been set
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	if !ps.HasKeyTable() {
+		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
 
 	return Keeper{
+		storeKey:         storeKey,
 		cdc:              cdc,
-		storeKey:         key,
-		paramSpace:       paramSpace,
+		paramstore:       ps,
 		accountKeeper:    ak,
 		bankKeeper:       bk,
 		distrKeeper:      dk,
-		epochKeeper:      epochKeeper,
+		epochKeeper:      ek,
 		feeCollectorName: feeCollectorName,
 	}
 }
@@ -122,13 +129,13 @@ func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
 
 // GetParams returns the total set of minting parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramSpace.GetParamSet(ctx, &params)
+	k.paramstore.GetParamSet(ctx, &params)
 	return params
 }
 
 // SetParams sets the total set of minting parameters.
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	k.paramSpace.SetParamSet(ctx, &params)
+	k.paramstore.SetParamSet(ctx, &params)
 }
 
 // _____________________________________________________________________
