@@ -138,6 +138,9 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".evmosd")
+
+	// manually update the power reduction
+	sdk.DefaultPowerReduction = ethermint.PowerReduction
 }
 
 const (
