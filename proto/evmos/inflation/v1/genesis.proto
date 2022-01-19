@@ -1,0 +1,20 @@
+syntax = "proto3";
+package evmos.inflation.v1;
+
+import "gogoproto/gogo.proto";
+import "evmos/inflation/v1/inflation.proto";
+
+option go_package = "github.com/tharsis/evmos/x/inflation/types";
+
+// GenesisState defines the mint module's genesis state.
+message GenesisState {
+  // minter is a space for holding current rewards information.
+  Minter minter = 1 [ (gogoproto.nullable) = false ];
+
+  // params defines all the paramaters of the module.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+
+  // current halven period start epoch
+  int64 halven_started_epoch = 3
+      [ (gogoproto.moretags) = "yaml:\"halven_started_epoch\"" ];
+}

@@ -2,8 +2,8 @@ package inflation
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/osmosis-labs/osmosis/x/mint/keeper"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
+	"github.com/tharsis/evmos/x/inflation/keeper"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // InitGenesis new mint genesis
