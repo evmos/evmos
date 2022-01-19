@@ -14,7 +14,7 @@ const (
 	QuerierRoute = ModuleName
 )
 
-// prefix bytes for the EVM persistent store
+// prefix bytes for the epochs persistent store
 const (
 	prefixEpoch = iota + 1
 )
