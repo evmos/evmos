@@ -30,9 +30,10 @@ func (suite *CallbackTestSuite) SetupTest() {
 
 	ibctesting.DefaultTestingAppInit = app.SetupTestingApp
 
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2) // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain("evmos_9000-1")   // convenience and readability
-	suite.chainB = suite.coordinator.GetChain("evmos_9000-2")   // convenience and readability
+	ibctesting.ChainIDPrefix = "evmos_9000-"
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
+	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(0)) // convenience and readability
+	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), minttypes.ModuleName, coins)
