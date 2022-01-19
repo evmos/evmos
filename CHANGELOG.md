@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (app) [\#224](https://github.com/tharsis/evmos/pull/224) Fix power reduction my setting the correct value on app initialization.
 - [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
 - [\#190](https://github.com/tharsis/evmos/pull/190) Remove governance hook from `erc20` module
 
