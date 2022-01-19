@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Evmos Documentation",
   "main": "index.js",
+  "engines": {
+    "node": "v12.22.5"
+  },
   "scripts": {
     "preserve": "./pre.sh",
     "serve": "vuepress dev",
