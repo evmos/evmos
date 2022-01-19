@@ -22,8 +22,8 @@ func DefaultInitialMinter() Minter {
 	return InitialMinter()
 }
 
-// validate minter
-func ValidateMinter(minter Minter) error {
+// TODO validate minter
+func (m Minter) Validate() error {
 	return nil
 }
 

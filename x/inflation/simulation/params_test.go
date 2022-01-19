@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/osmosis-labs/osmosis/x/mint/simulation"
+	"github.com/tharsis/evmos/x/inflation/simulation"
 )
 
 func TestParamChanges(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	simapp "github.com/osmosis-labs/osmosis/app"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
+	simapp "github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // returns context and an app with updated mint keeper

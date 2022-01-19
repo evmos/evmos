@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	"github.com/osmosis-labs/osmosis/app"
-	minttypes "github.com/osmosis-labs/osmosis/x/mint/types"
+	"github.com/tharsis/evmos/app"
+	minttypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 type IntegrationTestSuite struct {

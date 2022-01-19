@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/kv"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // NewDecodeStore returns a decoder function closure that umarshals the KVPair's

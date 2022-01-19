@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // RandomizedGenState generates a random GenesisState for mint

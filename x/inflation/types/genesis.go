@@ -23,13 +23,12 @@ func DefaultGenesisState() *GenesisState {
 	}
 }
 
-// TODO replace ValidateGenesis with Validate method
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	if err := data.Params.Validate(); err != nil {
+	if err := gs.Params.Validate(); err != nil {
 		return err
 	}
 
-	return ValidateMinter(data.Minter)
+	return gs.Minter.Validate()
 }

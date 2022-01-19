@@ -9,13 +9,13 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 
-	"github.com/osmosis-labs/osmosis/app"
 	lockuptypes "github.com/osmosis-labs/osmosis/x/lockup/types"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
 	poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 type KeeperTestSuite struct {

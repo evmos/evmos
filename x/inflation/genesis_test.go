@@ -4,17 +4,23 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	simapp "github.com/osmosis-labs/osmosis/app"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	simapp "github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 func TestMintInitGenesis(t *testing.T) {
-	app := simapp.Setup(false)
+	// setup feemarketGenesis params
+	feemarketGenesis := feemarkettypes.DefaultGenesisState()
+	feemarketGenesis.Params.EnableHeight = 1
+	feemarketGenesis.Params.NoBaseFee = false
+	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
+	app := simapp.Setup(false, feemarketGenesis)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	validateGenesis := types.ValidateGenesis(*types.DefaultGenesisState())
+	validateGenesis := types.DefaultGenesisState().Validate()
 	require.NoError(t, validateGenesis)
 
 	developerAccount := app.AccountKeeper.GetModuleAddress(types.DeveloperVestingModuleAcctName)
@@ -23,5 +29,5 @@ func TestMintInitGenesis(t *testing.T) {
 	expectedVestingCoins, ok := sdk.NewIntFromString("225000000000000")
 	require.True(t, ok)
 	require.Equal(t, expectedVestingCoins, initialVestingCoins.Amount)
-	require.Equal(t, int64(0), app.MintKeeper.GetLastHalvenEpochNum(ctx))
+	require.Equal(t, int64(0), app.InflationKeeper.GetLastHalvenEpochNum(ctx))
 }

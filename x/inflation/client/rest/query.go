@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {

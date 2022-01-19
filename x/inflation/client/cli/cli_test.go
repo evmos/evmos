@@ -14,8 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	"github.com/osmosis-labs/osmosis/app"
-	"github.com/osmosis-labs/osmosis/x/mint/client/cli"
+	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/x/inflation/client/cli"
 )
 
 type IntegrationTestSuite struct {

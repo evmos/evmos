@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	keep "github.com/osmosis-labs/osmosis/x/mint/keeper"
-	"github.com/osmosis-labs/osmosis/x/mint/types"
+	keep "github.com/tharsis/evmos/x/inflation/keeper"
+	"github.com/tharsis/evmos/x/inflation/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )

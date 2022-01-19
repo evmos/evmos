@@ -436,7 +436,7 @@ func NewEvmos(
 		),
 	)
 
-	// TODO is &stakingKeeper and authtypes.FeeCollectorName needed?
+	// TODO is &stakingKeeper needed?
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		keys[inflationtypes.StoreKey], appCodec, app.GetSubspace(inflationtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.EpochsKeeper, authtypes.FeeCollectorName,
