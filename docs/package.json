@@ -26,11 +26,11 @@
     "entities": "^2.0.3",
     "markdown-it": "^12.3.2",
     "markdown-it-katex": "^2.0.3",
-    "vuepress-theme-cosmos": "^1.0.182"
+    "vuepress-theme-cosmos": "^1.0.183"
   },
   "devDependencies": {
     "vuepress-plugin-element-tabs": "^0.2.8",
-    "watchpack": "^1.7.2"
+    "watchpack": "^2.3.1"
   },
   "resolutions": {
     "serialize-javascript": "^4.0.0"
