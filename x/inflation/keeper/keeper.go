@@ -127,19 +127,6 @@ func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
 
 // _____________________________________________________________________
 
-// GetParams returns the total set of minting parameters.
-func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramstore.GetParamSet(ctx, &params)
-	return params
-}
-
-// SetParams sets the total set of minting parameters.
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	k.paramstore.SetParamSet(ctx, &params)
-}
-
-// _____________________________________________________________________
-
 // MintCoins implements an alias call to the underlying supply keeper's
 // MintCoins to be used in BeginBlocker.
 func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {

@@ -440,7 +440,6 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
 	)
 
-	// TODO Add GetParams Method to InflationKeeper (check MintKeeper Interface)
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
 		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper,
