@@ -55,14 +55,14 @@ module.exports = {
       denom: 'Evmos',
       ticker: 'EVMOS',
       binary: 'evmosd',
-      testnet_denom: 'Photon',
-      testnet_ticker: 'PHOTON',
+      testnet_denom: 'tEvmos',
+      testnet_ticker: 'tEVMOS',
       rpc_url: 'http://localhost:8545/',
       rpc_url_testnet: 'https://ethereum.rpc.evmos.dev',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v0.4.0',
+      latest_version: 'v0.4.2',
       version_number: '1',
       testnet_version_number: '2',
       block_explorer_url: 'https://evm.evmos.org',
@@ -226,15 +226,8 @@ module.exports = {
       chat: {
         title: 'Developer Chat',
         text: 'Chat with Evmos developers on Discord.',
-        url: 'https://discord.gg/trje9XuAmy',
+        url: 'https://discord.gg/evmos',
         bg: 'linear-gradient(103.75deg, #1B1E36 0%, #22253F 100%)'
-      },
-      forum: {
-        title: 'Evmos Developer Forum',
-        text: 'Join the Evmos Developer Forum to learn more.',
-        url: 'https://forum.cosmos.network/c/ethermint',
-        bg: 'linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)',
-        logo: 'ethereum-white'
       },
       github: {
         title: 'Found an Issue?',
@@ -291,12 +284,8 @@ module.exports = {
         title: 'Community',
         children: [{
           title: 'Evmos Community',
-          url: 'https://discord.gg/trje9XuAmy'
+          url: 'https://discord.gg/evmos'
         },
-        {
-          title: 'Evmos Forum',
-          url: 'https://forum.cosmos.network/c/ethermint'
-        }
         ]
       },
       {
