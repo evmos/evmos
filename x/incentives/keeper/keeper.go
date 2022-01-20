@@ -17,9 +17,9 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	accountKeeper   types.AccountKeeper
-	bankKeeper      types.BankKeeper
-	inflationKeeper types.InflationKeeper
+	accountKeeper types.AccountKeeper
+	bankKeeper    types.BankKeeper
+	mintKeeper    types.MintKeeper
 
 	// Currently not used, but added to prevent breaking change s in case we want
 	// to allocate incentives to staking instead of transferring the deferred
@@ -34,7 +34,7 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	ik types.InflationKeeper,
+	mk types.MintKeeper,
 	sk types.StakeKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -43,13 +43,13 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:        storeKey,
-		cdc:             cdc,
-		paramstore:      ps,
-		accountKeeper:   ak,
-		bankKeeper:      bk,
-		inflationKeeper: ik,
-		stakeKeeper:     sk,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		paramstore:    ps,
+		accountKeeper: ak,
+		bankKeeper:    bk,
+		mintKeeper:    mk,
+		stakeKeeper:   sk,
 	}
 }
 
