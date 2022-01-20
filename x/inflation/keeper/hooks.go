@@ -38,16 +38,9 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 		// mint coins, update supply
 		mintedCoin := minter.EpochProvision(params)
-		mintedCoins := sdk.NewCoins(mintedCoin)
 
 		// We over-allocate by the developer vesting portion, and burn this later
-		err := k.MintCoins(ctx, mintedCoins)
-		if err != nil {
-			panic(err)
-		}
-
-		// send the minted coins to the fee collector account
-		err = k.DistributeMintedCoin(ctx, mintedCoin)
+		err := k.MintAndAllocateInflation(ctx, mintedCoin)
 		if err != nil {
 			panic(err)
 		}

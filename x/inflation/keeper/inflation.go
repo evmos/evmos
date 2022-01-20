@@ -6,15 +6,28 @@ import (
 	// poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
 )
 
-// TODO Refactor into one function that performs inflation minting and allocation
+// MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
+	// TODO understand why Osmosis over-allocates by the developer vesting portion, and burn this later
+	err := k.MintCoins(ctx, coin)
+	if err != nil {
+		panic(err)
+	}
+
+	// send the minted coins to the fee collector account
+	err = k.DistributeMintedCoin(ctx, coin)
+	if err != nil {
+		panic(err)
+	}
 
 	return nil
 }
 
 // MintCoins implements an alias call to the underlying supply keeper's
 // MintCoins to be used in BeginBlocker.
-func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
+func (k Keeper) MintCoins(ctx sdk.Context, newCoin sdk.Coin) error {
+	newCoins := sdk.NewCoins(newCoin)
+
 	if newCoins.Empty() {
 		// skip as no coins need to be minted
 		return nil
