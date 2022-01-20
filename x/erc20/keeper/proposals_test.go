@@ -5,12 +5,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/ethermint/tests"
 
 	"github.com/tharsis/evmos/x/erc20/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 const (
@@ -71,7 +72,7 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 		Display: cosmosTokenBase,
 	}
 
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 	suite.Require().NoError(err)
 
 	// pair := types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
@@ -153,7 +154,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 					Display: cosmosTokenDisplay,
 				}
 
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 				suite.Require().NoError(err)
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, validMetadata)
 			},
@@ -162,7 +163,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		{
 			"ok",
 			func() {
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
 				suite.Require().NoError(err)
 			},
 			true,

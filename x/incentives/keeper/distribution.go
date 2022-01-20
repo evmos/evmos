@@ -158,7 +158,7 @@ func (k Keeper) rewardParticipants(
 	}
 
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
-	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+	mintDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	rewardScaler := k.GetParams(ctx).RewardScaler
 
 	// Iterate over the incentive's gas meters and distribute rewards

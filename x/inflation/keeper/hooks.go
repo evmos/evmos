@@ -14,6 +14,7 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
+	// TODO daily epoch logic
 	return
 	// check if epochIdentifier signal equals the identifier in the params
 	if epochIdentifier != params.EpochIdentifier {

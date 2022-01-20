@@ -33,7 +33,7 @@ func (k Keeper) RegisterIncentive(
 	}
 
 	// check if the balance is > 0 for coins other than the mint denomination
-	mintDenom := k.mintKeeper.GetParams(ctx).MintDenom
+	mintDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	for _, al := range allocations {
 		if al.Denom != mintDenom && k.bankKeeper.GetBalance(ctx, moduleAddr, al.Denom).IsZero() {

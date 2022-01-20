@@ -17,8 +17,6 @@ func InitGenesis(
 	k.SetMinter(ctx, data.Minter)
 	k.SetParams(ctx, data.Params)
 	ak.GetModuleAccount(ctx, types.ModuleName)
-	totalDeveloperVestingCoins := sdk.NewCoin(data.Params.MintDenom, sdk.NewInt(225_000_000_000_000))
-	k.CreateDeveloperVestingModuleAccount(ctx, totalDeveloperVestingCoins)
 	k.SetLastHalvenEpochNum(ctx, data.HalvenStartedEpoch)
 }
 
