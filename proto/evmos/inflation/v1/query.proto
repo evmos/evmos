@@ -11,13 +11,13 @@ option go_package = "github.com/tharsis/evmos/x/inflation/types";
 service Query {
   // Params returns the total set of minting parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/osmosis/mint/v1beta1/params";
+    option (google.api.http).get = "/evmos/inflation/v1/params";
   }
 
   // EpochProvisions current minting epoch provisions value.
   rpc EpochProvisions(QueryEpochProvisionsRequest)
       returns (QueryEpochProvisionsResponse) {
-    option (google.api.http).get = "/osmosis/mint/v1beta1/epoch_provisions";
+    option (google.api.http).get = "/evmos/inflation/v1/epoch_provisions";
   }
 }
 

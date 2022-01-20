@@ -168,7 +168,6 @@ var (
 			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
 			erc20client.ToggleTokenRelayProposalHandler, erc20client.UpdateTokenPairERC20ProposalHandler,
 			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
-			// TODO inflation proposals?
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -421,7 +420,6 @@ func NewEvmos(
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
 		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
-		// TODO inflation proposals?
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,

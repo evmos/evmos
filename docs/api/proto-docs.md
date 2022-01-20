@@ -1185,8 +1185,8 @@ Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/osmosis/mint/v1beta1/params|
-| `EpochProvisions` | [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest) | [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse) | EpochProvisions current minting epoch provisions value. | GET|/osmosis/mint/v1beta1/epoch_provisions|
+| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/evmos/inflation/v1/params|
+| `EpochProvisions` | [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest) | [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse) | EpochProvisions current minting epoch provisions value. | GET|/evmos/inflation/v1/epoch_provisions|
 
  <!-- end services -->
 

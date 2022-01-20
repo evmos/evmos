@@ -1,47 +1,49 @@
 package simulation_test
 
-import (
-	"fmt"
-	"testing"
+// import (
+// 	"fmt"
+// 	"testing"
 
-	"github.com/stretchr/testify/require"
+// 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
-	simapp "github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/inflation/simulation"
-	"github.com/tharsis/evmos/x/inflation/types"
-)
+// 	sdk "github.com/cosmos/cosmos-sdk/types"
+// 	"github.com/cosmos/cosmos-sdk/types/kv"
+// 	simapp "github.com/tharsis/evmos/app"
+// 	"github.com/tharsis/evmos/x/inflation/simulation"
+// 	"github.com/tharsis/evmos/x/inflation/types"
+// )
 
-func TestDecodeStore(t *testing.T) {
-	cdc, _ := simapp.MakeCodecs()
-	dec := simulation.NewDecodeStore(cdc)
+// func TestDecodeStore(t *testing.T) {
 
-	minter := types.NewMinter(sdk.NewDec(15))
+// 	cdc, _ := simapp.MakeCodecs()
 
-	kvPairs := kv.Pairs{
-		Pairs: []kv.Pair{
-			{Key: types.MinterKey, Value: cdc.MustMarshal(&minter)},
-			{Key: []byte{0x99}, Value: []byte{0x99}},
-		},
-	}
-	tests := []struct {
-		name        string
-		expectedLog string
-	}{
-		{"Minter", fmt.Sprintf("%v\n%v", minter, minter)},
-		{"other", ""},
-	}
+// 	dec := simulation.NewDecodeStore(cdc)
 
-	for i, tt := range tests {
-		i, tt := i, tt
-		t.Run(tt.name, func(t *testing.T) {
-			switch i {
-			case len(tests) - 1:
-				require.Panics(t, func() { dec(kvPairs.Pairs[i], kvPairs.Pairs[i]) }, tt.name)
-			default:
-				require.Equal(t, tt.expectedLog, dec(kvPairs.Pairs[i], kvPairs.Pairs[i]), tt.name)
-			}
-		})
-	}
-}
+// 	minter := types.NewMinter(sdk.NewDec(15))
+
+// 	kvPairs := kv.Pairs{
+// 		Pairs: []kv.Pair{
+// 			{Key: types.MinterKey, Value: cdc.MustMarshal(&minter)},
+// 			{Key: []byte{0x99}, Value: []byte{0x99}},
+// 		},
+// 	}
+// 	tests := []struct {
+// 		name        string
+// 		expectedLog string
+// 	}{
+// 		{"Minter", fmt.Sprintf("%v\n%v", minter, minter)},
+// 		{"other", ""},
+// 	}
+
+// 	for i, tt := range tests {
+// 		i, tt := i, tt
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			switch i {
+// 			case len(tests) - 1:
+// 				require.Panics(t, func() { dec(kvPairs.Pairs[i], kvPairs.Pairs[i]) }, tt.name)
+// 			default:
+// 				require.Equal(t, tt.expectedLog, dec(kvPairs.Pairs[i], kvPairs.Pairs[i]), tt.name)
+// 			}
+// 		})
+// 	}
+// }
