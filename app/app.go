@@ -462,8 +462,8 @@ func NewEvmos(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			// TODO activate Inflation hook
-			// app.InflationKeeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
+			app.InflationKeeper.Hooks(),
 		),
 	)
 

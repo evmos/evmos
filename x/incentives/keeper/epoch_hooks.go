@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
@@ -12,6 +14,9 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {}
 // AfterEpochEnd distributes the contract incentives at the end of each epoch
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) {
 	params := k.GetParams(ctx)
+	fmt.Printf("epochIdentifier: %v\n", epochIdentifier)
+	fmt.Printf("params.IncentivesEpochIdentifier: %v\n", params.IncentivesEpochIdentifier)
+	fmt.Println("REACHED!!!!")
 
 	// check if epochIdentifier signal equals the identifier in the params
 	if epochIdentifier != params.IncentivesEpochIdentifier {
