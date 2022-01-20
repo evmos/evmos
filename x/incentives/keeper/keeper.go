@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
+	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -17,14 +18,15 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	mintKeeper    types.MintKeeper
+	accountKeeper   types.AccountKeeper
+	bankKeeper      types.BankKeeper
+	inflationKeeper types.InflationKeeper
 
 	// Currently not used, but added to prevent breaking change s in case we want
 	// to allocate incentives to staking instead of transferring the deferred
 	// rewards to the user's wallet
 	stakeKeeper types.StakeKeeper
+	evmKeeper   *evmkeeper.Keeper // TODO: use interface
 }
 
 // NewKeeper creates new instances of the incentives Keeper
@@ -34,8 +36,9 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	mk types.MintKeeper,
+	ik types.InflationKeeper,
 	sk types.StakeKeeper,
+	evmKeeper *evmkeeper.Keeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -43,13 +46,14 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:      storeKey,
-		cdc:           cdc,
-		paramstore:    ps,
-		accountKeeper: ak,
-		bankKeeper:    bk,
-		mintKeeper:    mk,
-		stakeKeeper:   sk,
+		storeKey:        storeKey,
+		cdc:             cdc,
+		paramstore:      ps,
+		accountKeeper:   ak,
+		bankKeeper:      bk,
+		inflationKeeper: ik,
+		stakeKeeper:     sk,
+		evmKeeper:       evmKeeper,
 	}
 }
 

@@ -75,6 +75,23 @@
   
     - [Query](#evmos.incentives.v1.Query)
   
+- [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
+    - [DistributionProportions](#evmos.inflation.v1.DistributionProportions)
+    - [Minter](#evmos.inflation.v1.Minter)
+    - [Params](#evmos.inflation.v1.Params)
+    - [WeightedAddress](#evmos.inflation.v1.WeightedAddress)
+  
+- [evmos/inflation/v1/genesis.proto](#evmos/inflation/v1/genesis.proto)
+    - [GenesisState](#evmos.inflation.v1.GenesisState)
+  
+- [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
+    - [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest)
+    - [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse)
+    - [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.inflation.v1.Query)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -741,7 +758,7 @@ RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `denom` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+| `denom` | [string](#string) |  | denom is the coin denom to query an allocation meter for. |
 
 
 
@@ -967,10 +984,209 @@ Query defines the gRPC querier service.
 | `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Incentives retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
 | `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Incentive retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
 | `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | GasMeters retrieves active gas meters for a given contract | GET|/evmos/incentives/v1/gas_meters/{contract}|
-| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
+| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Retrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
 | `AllocationMeters` | [QueryAllocationMetersRequest](#evmos.incentives.v1.QueryAllocationMetersRequest) | [QueryAllocationMetersResponse](#evmos.incentives.v1.QueryAllocationMetersResponse) | AllocationMeters retrieves active allocation meters for a given denomination | GET|/evmos/incentives/v1/allocation_meters|
-| `AllocationMeter` | [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest) | [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse) | AllocationMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/alocation_meters/{denom}|
+| `AllocationMeter` | [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest) | [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse) | AllocationMeter Retrieves a active gas meter | GET|/evmos/incentives/v1/allocation_meters/{denom}|
 | `Params` | [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse) | Params retrieves the incentives module params | GET|/evmos/incentives/v1/params|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/inflation/v1/inflation.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/inflation/v1/inflation.proto
+
+
+
+<a name="evmos.inflation.v1.DistributionProportions"></a>
+
+### DistributionProportions
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `staking` | [string](#string) |  | staking defines the proportion of the minted minted_denom that is to be allocated as staking rewards. |
+| `pool_incentives` | [string](#string) |  | pool_incentives defines the proportion of the minted minted_denom that is to be allocated as pool incentives. |
+| `developer_rewards` | [string](#string) |  | developer_rewards defines the proportion of the minted minted_denom that is to be allocated to developer rewards address. |
+| `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool. |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.Minter"></a>
+
+### Minter
+Minter represents the minting state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `epoch_provisions` | [string](#string) |  | current epoch provisions |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.Params"></a>
+
+### Params
+Params holds parameters for the mint module.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `mint_denom` | [string](#string) |  | type of coin to mint |
+| `genesis_epoch_provisions` | [string](#string) |  | epoch provisions from the first epoch |
+| `epoch_identifier` | [string](#string) |  | mint epoch identifier |
+| `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
+| `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
+| `distribution_proportions` | [DistributionProportions](#evmos.inflation.v1.DistributionProportions) |  | distribution_proportions defines the proportion of the minted denom |
+| `weighted_developer_rewards_receivers` | [WeightedAddress](#evmos.inflation.v1.WeightedAddress) | repeated | address to receive developer rewards |
+| `minting_rewards_distribution_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.WeightedAddress"></a>
+
+### WeightedAddress
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+| `weight` | [string](#string) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/inflation/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/inflation/v1/genesis.proto
+
+
+
+<a name="evmos.inflation.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the mint module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `minter` | [Minter](#evmos.inflation.v1.Minter) |  | minter is a space for holding current rewards information. |
+| `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
+| `halven_started_epoch` | [int64](#int64) |  | current halven period start epoch |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/inflation/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/inflation/v1/query.proto
+
+
+
+<a name="evmos.inflation.v1.QueryEpochProvisionsRequest"></a>
+
+### QueryEpochProvisionsRequest
+QueryEpochProvisionsRequest is the request type for the
+Query/EpochProvisions RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryEpochProvisionsResponse"></a>
+
+### QueryEpochProvisionsResponse
+QueryEpochProvisionsResponse is the response type for the
+Query/EpochProvisions RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `epoch_provisions` | [bytes](#bytes) |  | epoch_provisions is the current minting per epoch provisions value. |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.inflation.v1.Params) |  | params defines the parameters of the module. |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.inflation.v1.Query"></a>
+
+### Query
+Query provides defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/evmos/inflation/v1/params|
+| `EpochProvisions` | [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest) | [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse) | EpochProvisions current minting epoch provisions value. | GET|/evmos/inflation/v1/epoch_provisions|
 
  <!-- end services -->
 

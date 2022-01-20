@@ -47,7 +47,7 @@ var (
 	participant2    = tests.GenerateAddress()
 	contract        = tests.GenerateAddress()
 	contract2       = tests.GenerateAddress()
-	denomMint       = "stake"
+	denomMint       = evm.DefaultEVMDenom
 	denomCoin       = "acoin"
 	allocationRate  = int64(5)
 	mintAllocations = sdk.DecCoins{
