@@ -5,9 +5,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
+
+	// poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
 	"github.com/tendermint/tendermint/libs/log"
 
+	epochkeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	"github.com/tharsis/evmos/x/inflation/types"
 )
 
@@ -20,7 +22,7 @@ type Keeper struct {
 	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	distrKeeper      types.DistrKeeper
-	epochKeeper      types.EpochKeeper
+	epochKeeper      epochkeeper.Keeper // TODO: use interface
 	hooks            types.MintHooks
 	feeCollectorName string
 }
@@ -33,7 +35,7 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	dk types.DistrKeeper,
-	ek types.EpochKeeper,
+	ek epochkeeper.Keeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -155,12 +157,13 @@ func (k Keeper) DistributeMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error
 		return err
 	}
 
-	// allocate pool allocation ratio to pool-incentives module account account
-	poolIncentivesCoins := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.PoolIncentives))
-	err = k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, poolincentivestypes.ModuleName, poolIncentivesCoins)
-	if err != nil {
-		return err
-	}
+	// TODO replace poolIncentives with usageIncentives
+	// // allocate pool allocation ratio to pool-incentives module account account
+	// poolIncentivesCoins := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.PoolIncentives))
+	// err = k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, poolincentivestypes.ModuleName, poolIncentivesCoins)
+	// if err != nil {
+	// 	return err
+	// }
 
 	devRewardCoin := k.GetProportions(ctx, mintedCoin, proportions.DeveloperRewards)
 	devRewardCoins := sdk.NewCoins(devRewardCoin)
@@ -201,12 +204,13 @@ func (k Keeper) DistributeMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error
 		}
 	}
 
-	// subtract from original provision to ensure no coins left over after the allocations
-	communityPoolCoins := sdk.NewCoins(mintedCoin).Sub(stakingIncentivesCoins).Sub(poolIncentivesCoins).Sub(devRewardCoins)
-	err = k.distrKeeper.FundCommunityPool(ctx, communityPoolCoins, k.accountKeeper.GetModuleAddress(types.ModuleName))
-	if err != nil {
-		return err
-	}
+	// TODO substraction logic needed?
+	// // subtract from original provision to ensure no coins left over after the allocations
+	// communityPoolCoins := sdk.NewCoins(mintedCoin).Sub(stakingIncentivesCoins).Sub(poolIncentivesCoins).Sub(devRewardCoins)
+	// err = k.distrKeeper.FundCommunityPool(ctx, communityPoolCoins, k.accountKeeper.GetModuleAddress(types.ModuleName))
+	// if err != nil {
+	// 	return err
+	// }
 
 	// call an hook after the minting and distribution of new coins
 	k.hooks.AfterDistributeMintedCoin(ctx, mintedCoin)

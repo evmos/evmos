@@ -29,11 +29,15 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 func NewParams(
-	mintDenom string, genesisEpochProvisions sdk.Dec, epochIdentifier string,
-	ReductionFactor sdk.Dec, reductionPeriodInEpochs int64, distrProportions DistributionProportions,
-	weightedDevRewardsReceivers []WeightedAddress, mintingRewardsDistributionStartEpoch int64,
+	mintDenom string,
+	genesisEpochProvisions sdk.Dec,
+	epochIdentifier string,
+	ReductionFactor sdk.Dec,
+	reductionPeriodInEpochs int64,
+	distrProportions DistributionProportions,
+	weightedDevRewardsReceivers []WeightedAddress,
+	mintingRewardsDistributionStartEpoch int64,
 ) Params {
-
 	return Params{
 		MintDenom:                            mintDenom,
 		GenesisEpochProvisions:               genesisEpochProvisions,
@@ -51,14 +55,14 @@ func DefaultParams() Params {
 	return Params{
 		MintDenom:               sdk.DefaultBondDenom,
 		GenesisEpochProvisions:  sdk.NewDec(5000000),
-		EpochIdentifier:         "week",                   // 1 week
-		ReductionPeriodInEpochs: 156,                      // 3 years
+		EpochIdentifier:         "day",                    // 1 day
+		ReductionPeriodInEpochs: 365,                      // 1 year
 		ReductionFactor:         sdk.NewDecWithPrec(5, 1), // 0.5
 		DistributionProportions: DistributionProportions{
-			Staking:          sdk.NewDecWithPrec(4, 1), // 0.4
-			PoolIncentives:   sdk.NewDecWithPrec(3, 1), // 0.3
-			DeveloperRewards: sdk.NewDecWithPrec(2, 1), // 0.2
-			CommunityPool:    sdk.NewDecWithPrec(1, 1), // 0.1
+			Staking:          sdk.NewDecWithPrec(4, 1),  // 0.4
+			PoolIncentives:   sdk.NewDecWithPrec(25, 2), // 0.25
+			DeveloperRewards: sdk.NewDecWithPrec(25, 2), // 0.25
+			CommunityPool:    sdk.NewDecWithPrec(1, 1),  // 0.1
 		},
 		WeightedDeveloperRewardsReceivers:    []WeightedAddress{},
 		MintingRewardsDistributionStartEpoch: 0,
