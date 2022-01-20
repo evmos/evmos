@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/tharsis/evmos/x/inflation/types"
 )
@@ -43,15 +42,16 @@ func (k Keeper) SetLastHalvenEpochNum(ctx sdk.Context, epochNum int64) {
 	store.Set(types.LastHalvenEpochKey, sdk.Uint64ToBigEndian(uint64(epochNum)))
 }
 
+// TODO Do we already have vesting module accounts?
 // CreateDeveloperVestingModuleAccount creates the module account for developer vesting.
 func (k Keeper) CreateDeveloperVestingModuleAccount(ctx sdk.Context, amount sdk.Coin) {
-	moduleAcc := authtypes.NewEmptyModuleAccount(
-		types.DeveloperVestingModuleAcctName, authtypes.Minter)
+	// moduleAcc := authtypes.NewEmptyModuleAccount(
+	// 	types.DeveloperVestingModuleAcctName, authtypes.Minter,
+	// )
+	// k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
 
-	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
-
-	err := k.bankKeeper.MintCoins(ctx, types.DeveloperVestingModuleAcctName, sdk.NewCoins(amount))
-	if err != nil {
-		panic(err)
-	}
+	// err := k.bankKeeper.MintCoins(ctx, types.DeveloperVestingModuleAcctName, sdk.NewCoins(amount))
+	// if err != nil {
+	// 	panic(err)
+	// }
 }

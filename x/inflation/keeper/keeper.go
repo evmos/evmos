@@ -7,7 +7,6 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	epochkeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	"github.com/tharsis/evmos/x/inflation/types"
 )
 
@@ -20,7 +19,6 @@ type Keeper struct {
 	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	distrKeeper      types.DistrKeeper
-	epochKeeper      epochkeeper.Keeper // TODO: use interface
 	hooks            types.MintHooks
 	feeCollectorName string
 }
@@ -33,7 +31,6 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	dk types.DistrKeeper,
-	ek epochkeeper.Keeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -53,7 +50,6 @@ func NewKeeper(
 		accountKeeper:    ak,
 		bankKeeper:       bk,
 		distrKeeper:      dk,
-		epochKeeper:      ek,
 		feeCollectorName: feeCollectorName,
 	}
 }
