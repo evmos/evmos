@@ -36,7 +36,7 @@ func NewParams(
 	epochIdentifier string,
 	reductionFactor sdk.Dec,
 	reductionPeriodInEpochs int64,
-	allocationProportions AllocationProportions,
+	inflationDistribution InflationDistribution,
 	teamVestingProvision sdk.Coin,
 	teamVestingReceiver string,
 	mintingRewardsAllocationStartEpoch int64,
@@ -47,7 +47,7 @@ func NewParams(
 		EpochIdentifier:                    epochIdentifier,
 		ReductionPeriodInEpochs:            reductionPeriodInEpochs,
 		ReductionFactor:                    reductionFactor,
-		AllocationProportions:              allocationProportions,
+		InflationDistribution:              inflationDistribution,
 		TeamVestingProvision:               teamVestingProvision,
 		TeamVestingReceiver:                teamVestingReceiver,
 		MintingRewardsAllocationStartEpoch: mintingRewardsAllocationStartEpoch,
@@ -62,7 +62,7 @@ func DefaultParams() Params {
 		EpochIdentifier:         "day",                    // 1 day
 		ReductionPeriodInEpochs: 365,                      // 1 year
 		ReductionFactor:         sdk.NewDecWithPrec(5, 1), // 0.5
-		AllocationProportions: AllocationProportions{
+		InflationDistribution: InflationDistribution{
 			StakingRewards:  sdk.NewDecWithPrec(4, 1),  // 0.4
 			TeamVesting:     sdk.NewDecWithPrec(25, 2), // 0.25
 			UsageIncentives: sdk.NewDecWithPrec(25, 2), // 0.25
@@ -91,7 +91,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
 		paramtypes.NewParamSetPair(KeyReductionPeriodInEpochs, &p.ReductionPeriodInEpochs, validateReductionPeriodInEpochs),
 		paramtypes.NewParamSetPair(KeyReductionFactor, &p.ReductionFactor, validateReductionFactor),
-		paramtypes.NewParamSetPair(KeyPoolAllocationRatio, &p.AllocationProportions, validateAllocationProportions),
+		paramtypes.NewParamSetPair(KeyPoolAllocationRatio, &p.InflationDistribution, validateInflationDistribution),
 		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
 		paramtypes.NewParamSetPair(KeyTeamVestingReceiver, &p.TeamVestingReceiver, validateTeamVestingReceiver),
 		paramtypes.NewParamSetPair(KeyMintingRewardsAllocationStartEpoch, &p.MintingRewardsAllocationStartEpoch, validateMintingRewardsAllocationStartEpoch),
@@ -157,8 +157,8 @@ func validateReductionFactor(i interface{}) error {
 	return nil
 }
 
-func validateAllocationProportions(i interface{}) error {
-	v, ok := i.(AllocationProportions)
+func validateInflationDistribution(i interface{}) error {
+	v, ok := i.(InflationDistribution)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -229,7 +229,7 @@ func (p Params) Validate() error {
 	if err := validateReductionFactor(p.ReductionFactor); err != nil {
 		return err
 	}
-	if err := validateAllocationProportions(p.AllocationProportions); err != nil {
+	if err := validateInflationDistribution(p.InflationDistribution); err != nil {
 		return err
 	}
 	if err := validateTeamVestingProvision(p.TeamVestingProvision); err != nil {

@@ -14,8 +14,8 @@ message Minter {
   ];
 }
 
-// AllocationProportions defines the proportions in which inflation is allocated
-message AllocationProportions {
+// InflationDistribution defines the proportions in which inflation is allocated
+message InflationDistribution {
   // staking_rewards defines the proportion of the minted minted_denom that is
   // to be allocated as staking rewards
   string staking_rewards = 1 [

@@ -76,7 +76,7 @@
     - [Query](#evmos.incentives.v1.Query)
   
 - [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
-    - [AllocationProportions](#evmos.inflation.v1.AllocationProportions)
+    - [InflationDistribution](#evmos.inflation.v1.InflationDistribution)
     - [Minter](#evmos.inflation.v1.Minter)
   
 - [evmos/inflation/v1/genesis.proto](#evmos/inflation/v1/genesis.proto)
@@ -999,10 +999,10 @@ Query defines the gRPC querier service.
 
 
 
-<a name="evmos.inflation.v1.AllocationProportions"></a>
+<a name="evmos.inflation.v1.InflationDistribution"></a>
 
-### AllocationProportions
-AllocationProportions defines the proportions in which inflation is allocated
+### InflationDistribution
+InflationDistribution defines the proportions in which inflation is allocated
 
 
 | Field | Type | Label | Description |
@@ -1078,7 +1078,7 @@ Params holds parameters for the inflation module.
 | `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
 | `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
 | `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
-| `allocation_proportions` | [AllocationProportions](#evmos.inflation.v1.AllocationProportions) |  | allocation_proportions defines the proportion of the minted denom |
+| `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation_distribution defines the distribution of the minted denom |
 | `team_vesting_provision` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coin to allocate from team vesting supply |
 | `team_vesting_receiver` | [string](#string) |  | address to receive team vesting rewards |
 | `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |

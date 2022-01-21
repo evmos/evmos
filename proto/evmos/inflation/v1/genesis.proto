@@ -37,8 +37,8 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // allocation_proportions defines the proportion of the minted denom
-  AllocationProportions allocation_proportions = 6 [
+  // inflation_distribution defines the distribution of the minted denom
+  InflationDistribution inflation_distribution = 6 [
     (gogoproto.nullable) = false
   ];
   // coin to allocate from team vesting supply

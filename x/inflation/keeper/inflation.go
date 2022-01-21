@@ -48,7 +48,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoin sdk.Coin) error {
 // modules
 func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 	params := k.GetParams(ctx)
-	proportions := params.AllocationProportions
+	proportions := params.InflationDistribution
 
 	// Allocate staking rewards into fee collector account
 	stakingRewards := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.StakingRewards))
