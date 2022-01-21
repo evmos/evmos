@@ -13,16 +13,16 @@ import (
 )
 
 // Parameter store keys
-var (
-	KeyMintDenom                          = []byte("MintDenom")
-	KeyGenesisEpochProvisions             = []byte("GenesisEpochProvisions")
-	KeyEpochIdentifier                    = []byte("EpochIdentifier")
-	KeyReductionPeriodInEpochs            = []byte("ReductionPeriodInEpochs")
-	KeyReductionFactor                    = []byte("ReductionFactor")
-	KeyPoolAllocationRatio                = []byte("PoolAllocationRatio")
-	KeyTeamVestingProvision               = []byte("TeamVestingProvision")
-	KeyTeamVestingReceiver                = []byte("TeamVestingReceiver")
-	KeyMintingRewardsAllocationStartEpoch = []byte("MintingRewardsAllocationStartEpoch")
+const (
+	KeyMintDenom = iota + 1
+	KeyGenesisEpochProvisions
+	KeyEpochIdentifier
+	KeyReductionPeriodInEpochs
+	KeyReductionFactor
+	KeyPoolAllocationRatio
+	KeyTeamVestingProvision
+	KeyTeamAddress
+	KeyMintingRewardsAllocationStartEpoch
 )
 
 // ParamTable for minting module.
@@ -38,7 +38,7 @@ func NewParams(
 	reductionPeriodInEpochs int64,
 	inflationDistribution InflationDistribution,
 	teamVestingProvision sdk.Coin,
-	teamVestingReceiver string,
+	teamAddress string,
 	mintingRewardsAllocationStartEpoch int64,
 ) Params {
 	return Params{
@@ -49,7 +49,7 @@ func NewParams(
 		ReductionFactor:                    reductionFactor,
 		InflationDistribution:              inflationDistribution,
 		TeamVestingProvision:               teamVestingProvision,
-		TeamVestingReceiver:                teamVestingReceiver,
+		TeamAddress:                        teamAddress,
 		MintingRewardsAllocationStartEpoch: mintingRewardsAllocationStartEpoch,
 	}
 }
@@ -72,7 +72,7 @@ func DefaultParams() Params {
 			sdk.DefaultBondDenom,
 			sdk.NewInt(136986), // 200000000/(4*365)
 		),
-		TeamVestingReceiver:                "",
+		TeamAddress:                        ModuleAddress.Hex(),
 		MintingRewardsAllocationStartEpoch: 0,
 	}
 }
@@ -86,15 +86,15 @@ func (p Params) String() string {
 // Implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyGenesisEpochProvisions, &p.GenesisEpochProvisions, validateGenesisEpochProvisions),
-		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
-		paramtypes.NewParamSetPair(KeyReductionPeriodInEpochs, &p.ReductionPeriodInEpochs, validateReductionPeriodInEpochs),
-		paramtypes.NewParamSetPair(KeyReductionFactor, &p.ReductionFactor, validateReductionFactor),
-		paramtypes.NewParamSetPair(KeyPoolAllocationRatio, &p.InflationDistribution, validateInflationDistribution),
-		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
-		paramtypes.NewParamSetPair(KeyTeamVestingReceiver, &p.TeamVestingReceiver, validateTeamVestingReceiver),
-		paramtypes.NewParamSetPair(KeyMintingRewardsAllocationStartEpoch, &p.MintingRewardsAllocationStartEpoch, validateMintingRewardsAllocationStartEpoch),
+		paramtypes.NewParamSetPair([]byte{KeyMintDenom}, &p.MintDenom, validateMintDenom),
+		paramtypes.NewParamSetPair([]byte{KeyGenesisEpochProvisions}, &p.GenesisEpochProvisions, validateGenesisEpochProvisions),
+		paramtypes.NewParamSetPair([]byte{KeyEpochIdentifier}, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
+		paramtypes.NewParamSetPair([]byte{KeyReductionPeriodInEpochs}, &p.ReductionPeriodInEpochs, validateReductionPeriodInEpochs),
+		paramtypes.NewParamSetPair([]byte{KeyReductionFactor}, &p.ReductionFactor, validateReductionFactor),
+		paramtypes.NewParamSetPair([]byte{KeyPoolAllocationRatio}, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair([]byte{KeyTeamVestingProvision}, &p.TeamVestingProvision, validateTeamVestingProvision),
+		paramtypes.NewParamSetPair([]byte{KeyTeamAddress}, &p.TeamAddress, validateTeamAddress),
+		paramtypes.NewParamSetPair([]byte{KeyMintingRewardsAllocationStartEpoch}, &p.MintingRewardsAllocationStartEpoch, validateMintingRewardsAllocationStartEpoch),
 	}
 }
 
@@ -196,7 +196,7 @@ func validateTeamVestingProvision(i interface{}) error {
 }
 
 // TODO
-func validateTeamVestingReceiver(i interface{}) error {
+func validateTeamAddress(i interface{}) error {
 	return nil
 }
 
@@ -235,7 +235,7 @@ func (p Params) Validate() error {
 	if err := validateTeamVestingProvision(p.TeamVestingProvision); err != nil {
 		return err
 	}
-	if err := validateTeamVestingReceiver(p.TeamVestingReceiver); err != nil {
+	if err := validateTeamAddress(p.TeamAddress); err != nil {
 		return err
 	}
 

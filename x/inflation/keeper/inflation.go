@@ -12,19 +12,16 @@ import (
 // MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
 	// Mint over-allocates by the developer vesting portion, and burn this later
-	err := k.MintCoins(ctx, coin)
-	if err != nil {
+	if err := k.MintCoins(ctx, coin); err != nil {
 		panic(err)
 	}
 
 	// Allocate minted coins according to allocation proportions
-	err = k.AllocateMintedCoin(ctx, coin)
-	if err != nil {
+	if err := k.AllocateMintedCoin(ctx, coin); err != nil {
 		panic(err)
 	}
 
-	err = k.AllocateTeamVesting(ctx)
-	if err != nil {
+	if err := k.AllocateTeamVesting(ctx); err != nil {
 		panic(err)
 	}
 
@@ -109,34 +106,34 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 		)
 	}
 
-	// Get team vesting provision to allocate from the teamVestingSupply. If team
-	// vesting account doesn't have sufficient balance to allocate, only allocate
-	// remaining coins
+	// Get team vesting provision to allocate from the tharsis account balance. If
+	// tharsis account doesn't have sufficient balance to allocate, only allocate
+	// remaining coins.
 	coin := params.TeamVestingProvision
-	teamVestingSupplyAddr := k.accountKeeper.GetModuleAddress(types.TeamVestingSupplyModuleAcctName)
-	teamVestingSupply := k.bankKeeper.GetBalance(ctx, teamVestingSupplyAddr, params.MintDenom)
+	tharsisAccount := k.accountKeeper.GetModuleAddress(types.TharsisAccount)
+	balance := k.bankKeeper.GetBalance(ctx, tharsisAccount, params.MintDenom)
 
-	if teamVestingSupply.IsLT(coin) {
-		coin = teamVestingSupply
+	if balance.IsLT(coin) {
+		coin = balance
 	}
 	coins := sdk.NewCoins(coin)
 
 	// Allocate teamVesting to community pool when rewards address is empty
-	if params.TeamVestingReceiver == "" {
-		if err := k.distrKeeper.FundCommunityPool(ctx, coins, teamVestingSupplyAddr); err != nil {
+	if params.TeamAddress == "" {
+		if err := k.distrKeeper.FundCommunityPool(ctx, coins, tharsisAccount); err != nil {
 			return err
 		}
 	}
 
 	// Send coins to teamVestingReceiver account
-	teamVestingReceiver, err := sdk.AccAddressFromHex(params.TeamVestingReceiver)
+	teamAddress, err := sdk.AccAddressFromHex(params.TeamAddress)
 	if err != nil {
 		return err
 	}
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
-		teamVestingSupplyAddr.String(),
-		teamVestingReceiver,
+		tharsisAccount.String(),
+		teamAddress,
 		coins,
 	)
 

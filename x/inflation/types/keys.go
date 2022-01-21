@@ -17,14 +17,14 @@ const (
 	RouterKey = ModuleName
 )
 
-// ModuleAddress is the native module address for incentives module
+// ModuleAddress is the native module address for inflation module
 var ModuleAddress common.Address
 
 func init() {
 	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
 }
 
-// prefix bytes for the incentives persistent store
+// prefix bytes for the inflation persistent store
 const (
 	prefixMinter = iota + 1
 )
@@ -45,8 +45,8 @@ var MinterKey = []byte{0x00}
 var LastHalvenEpochKey = []byte{0x03}
 
 const (
-	// module acct name for developer vesting
-	TeamVestingSupplyModuleAcctName = "team_vesting_supply"
+	// module account name for team vesting
+	TharsisAccount = "tharsis_account"
 
 	// QuerierRoute is the querier route for the minting store.
 	QuerierRoute = StoreKey

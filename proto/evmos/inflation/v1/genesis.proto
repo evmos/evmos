@@ -46,8 +46,8 @@ message Params {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  // address to receive team vesting rewards
-  string team_vesting_receiver = 8;
+  // aaddress to receive the team allocation from the inflation distribution
+  string team_address = 8;
   // start epoch to distribute minting rewards
   int64 minting_rewards_allocation_start_epoch = 9;
 }

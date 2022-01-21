@@ -1002,7 +1002,8 @@ Query defines the gRPC querier service.
 <a name="evmos.inflation.v1.InflationDistribution"></a>
 
 ### InflationDistribution
-InflationDistribution defines the proportions in which inflation is allocated
+InflationDistribution defines the distribution in which inflation is
+allocated (staking, incentives, community and team).
 
 
 | Field | Type | Label | Description |
@@ -1080,7 +1081,7 @@ Params holds parameters for the inflation module.
 | `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation_distribution defines the distribution of the minted denom |
 | `team_vesting_provision` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coin to allocate from team vesting supply |
-| `team_vesting_receiver` | [string](#string) |  | address to receive team vesting rewards |
+| `team_address` | [string](#string) |  | aaddress to receive the team allocation from the inflation distribution |
 | `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
 
 

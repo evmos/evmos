@@ -63,7 +63,8 @@ func (m *Minter) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Minter proto.InternalMessageInfo
 
-// InflationDistribution defines the proportions in which inflation is allocated
+// InflationDistribution defines the distribution in which inflation is
+// allocated (staking, incentives, community and team).
 type InflationDistribution struct {
 	// staking_rewards defines the proportion of the minted minted_denom that is
 	// to be allocated as staking rewards
