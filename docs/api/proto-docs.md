@@ -76,7 +76,7 @@
     - [Query](#evmos.incentives.v1.Query)
   
 - [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
-    - [DistributionProportions](#evmos.inflation.v1.DistributionProportions)
+    - [AllocationProportions](#evmos.inflation.v1.AllocationProportions)
     - [Minter](#evmos.inflation.v1.Minter)
     - [Params](#evmos.inflation.v1.Params)
     - [WeightedAddress](#evmos.inflation.v1.WeightedAddress)
@@ -1000,18 +1000,18 @@ Query defines the gRPC querier service.
 
 
 
-<a name="evmos.inflation.v1.DistributionProportions"></a>
+<a name="evmos.inflation.v1.AllocationProportions"></a>
 
-### DistributionProportions
-
+### AllocationProportions
+AllocationProportions defines the proportions in which inflation is allocated
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `staking` | [string](#string) |  | staking defines the proportion of the minted minted_denom that is to be allocated as staking rewards. |
-| `pool_incentives` | [string](#string) |  | pool_incentives defines the proportion of the minted minted_denom that is to be allocated as pool incentives. |
-| `developer_rewards` | [string](#string) |  | developer_rewards defines the proportion of the minted minted_denom that is to be allocated to developer rewards address. |
-| `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool. |
+| `staking_rewards` | [string](#string) |  | staking_rewards defines the proportion of the minted minted_denom that is to be allocated as staking rewards |
+| `team_vesting` | [string](#string) |  | team_vesting defines the proportion of the minted minted_denom that is to be allocated to the team vesting address |
+| `usage_incentives` | [string](#string) |  | usage_incentives defines the proportion of the minted minted_denom that is to be allocated to the incentives module address |
+| `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool |
 
 
 
@@ -1021,7 +1021,7 @@ Query defines the gRPC querier service.
 <a name="evmos.inflation.v1.Minter"></a>
 
 ### Minter
-Minter represents the minting state.
+Minter represents the minting state
 
 
 | Field | Type | Label | Description |
@@ -1036,7 +1036,7 @@ Minter represents the minting state.
 <a name="evmos.inflation.v1.Params"></a>
 
 ### Params
-Params holds parameters for the mint module.
+Params holds parameters for the inflation module.
 
 
 | Field | Type | Label | Description |
@@ -1046,9 +1046,9 @@ Params holds parameters for the mint module.
 | `epoch_identifier` | [string](#string) |  | mint epoch identifier |
 | `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
 | `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
-| `distribution_proportions` | [DistributionProportions](#evmos.inflation.v1.DistributionProportions) |  | distribution_proportions defines the proportion of the minted denom |
+| `allocation_proportions` | [AllocationProportions](#evmos.inflation.v1.AllocationProportions) |  | allocation_proportions defines the proportion of the minted denom |
 | `weighted_developer_rewards_receivers` | [WeightedAddress](#evmos.inflation.v1.WeightedAddress) | repeated | address to receive developer rewards |
-| `minting_rewards_distribution_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
+| `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
 
 
 
