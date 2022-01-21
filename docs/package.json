@@ -33,6 +33,7 @@
     "watchpack": "^2.3.1"
   },
   "resolutions": {
-    "serialize-javascript": "^4.0.0"
+    "serialize-javascript": "^4.0.0",
+    "**/node-sass": "npm:sass@*"
   }
 }
