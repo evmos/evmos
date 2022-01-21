@@ -1,98 +1,114 @@
 package claim_test
 
-// import (
-// 	"testing"
-// 	"time"
+import (
+	"testing"
+	"time"
 
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/stretchr/testify/require"
-// 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-// 	simapp "github.com/tharsis/evmos/app"
-// 	"github.com/tharsis/evmos/x/claim"
-// 	"github.com/tharsis/evmos/x/claim/types"
-// )
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"github.com/stretchr/testify/require"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	simapp "github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/x/claim"
+	"github.com/tharsis/evmos/x/claim/types"
+)
 
-// var (
-// 	now         = time.Now().UTC()
-// 	acc1        = sdk.AccAddress([]byte("addr1---------------"))
-// 	acc2        = sdk.AccAddress([]byte("addr2---------------"))
-// 	testGenesis = types.GenesisState{
-// 		ModuleAccountBalance: sdk.NewInt64Coin(types.DefaultClaimDenom, 750000000),
-// 		Params: types.Params{
-// 			AirdropStartTime:   now,
-// 			DurationUntilDecay: types.DefaultDurationUntilDecay,
-// 			DurationOfDecay:    types.DefaultDurationOfDecay,
-// 			ClaimDenom:         types.DefaultClaimDenom, // uosmo
-// 		},
-// 		ClaimRecords: []types.ClaimRecord{
-// 			{
-// 				Address:                acc1.String(),
-// 				InitialClaimableAmount: sdk.Coins{sdk.NewInt64Coin(types.DefaultClaimDenom, 1000000000)},
-// 				ActionCompleted:        []bool{true, false, true, true},
-// 			},
-// 			{
-// 				Address:                acc2.String(),
-// 				InitialClaimableAmount: sdk.Coins{sdk.NewInt64Coin(types.DefaultClaimDenom, 500000000)},
-// 				ActionCompleted:        []bool{false, false, false, false},
-// 			},
-// 		},
-// 	}
-// )
+var (
+	now         = time.Now().UTC()
+	acc1        = sdk.AccAddress([]byte("addr1---------------"))
+	acc2        = sdk.AccAddress([]byte("addr2---------------"))
+	testGenesis = types.GenesisState{
+		Params: types.Params{
+			AirdropStartTime:   now,
+			DurationUntilDecay: types.DefaultDurationUntilDecay,
+			DurationOfDecay:    types.DefaultDurationOfDecay,
+			ClaimDenom:         types.DefaultClaimDenom, // aevmos
+		},
+		ClaimRecords: []types.ClaimRecordAddress{
+			{
+				Address:                acc1.String(),
+				InitialClaimableAmount: sdk.NewInt(10000),
+				ActionsCompleted:       []bool{true, false, true, true},
+			},
+			{
+				Address:                acc2.String(),
+				InitialClaimableAmount: sdk.NewInt(400),
+				ActionsCompleted:       []bool{false, false, false, false},
+			},
+		},
+	}
+)
 
-// func TestClaimInitGenesis(t *testing.T) {
-// 	app := simapp.Setup(false)
-// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
-// 	ctx = ctx.WithBlockTime(now.Add(time.Second))
-// 	genesis := testGenesis
-// 	claim.InitGenesis(ctx, *app.ClaimKeeper, genesis)
-// 	app.ClaimKeeper.CreateModuleAccount(ctx, sdk.NewInt64Coin(types.DefaultClaimDenom, 750000000))
+func TestClaimInitGenesis(t *testing.T) {
+	// setup feemarketGenesis params
+	feemarketGenesis := feemarkettypes.DefaultGenesisState()
+	feemarketGenesis.Params.EnableHeight = 1
+	feemarketGenesis.Params.NoBaseFee = false
+	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
-// 	coin := app.ClaimKeeper.GetModuleAccountBalances(ctx)
-// 	require.Equal(t, coin.String(), genesis.ModuleAccountBalance.String())
+	app := simapp.Setup(false, feemarketGenesis)
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx = ctx.WithBlockTime(now.Add(time.Second))
+	genesis := testGenesis
 
-// 	params, err := app.ClaimKeeper.GetParams(ctx)
-// 	require.NoError(t, err)
-// 	require.Equal(t, params, genesis.Params)
+	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
+	require.NoError(t, err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, types.ModuleName, coins)
+	require.NoError(t, err)
 
-// 	claimRecords := app.ClaimKeeper.GetClaimRecords(ctx)
-// 	require.Equal(t, claimRecords, genesis.ClaimRecords)
-// }
+	claim.InitGenesis(ctx, app.ClaimKeeper, genesis)
 
-// func TestClaimExportGenesis(t *testing.T) {
-// 	app := simapp.Setup(false)
-// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
-// 	ctx = ctx.WithBlockTime(now.Add(time.Second))
-// 	genesis := testGenesis
-// 	claim.InitGenesis(ctx, *app.ClaimKeeper, genesis)
-// 	app.ClaimKeeper.CreateModuleAccount(ctx, sdk.NewInt64Coin(types.DefaultClaimDenom, 750000000))
+	params := app.ClaimKeeper.GetParams(ctx)
+	require.Equal(t, params, genesis.Params)
 
-// 	claimRecord, err := app.ClaimKeeper.GetClaimRecord(ctx, acc2)
-// 	require.NoError(t, err)
-// 	require.Equal(t, claimRecord, types.ClaimRecord{
-// 		Address:                acc2.String(),
-// 		InitialClaimableAmount: sdk.Coins{sdk.NewInt64Coin(types.DefaultClaimDenom, 500000000)},
-// 		ActionCompleted:        []bool{false, false, false, false},
-// 	})
+	claimRecords := app.ClaimKeeper.GetClaimRecords(ctx)
+	require.Equal(t, claimRecords, genesis.ClaimRecords)
+}
 
-// 	claimableAmount, err := app.ClaimKeeper.GetClaimableAmountForAction(ctx, acc2, types.ActionSwap)
-// 	require.NoError(t, err)
-// 	require.Equal(t, claimableAmount, sdk.Coins{sdk.NewInt64Coin(types.DefaultClaimDenom, 125000000)})
+func TestClaimExportGenesis(t *testing.T) {
+	// setup feemarketGenesis params
+	feemarketGenesis := feemarkettypes.DefaultGenesisState()
+	feemarketGenesis.Params.EnableHeight = 1
+	feemarketGenesis.Params.NoBaseFee = false
+	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
-// 	app.ClaimKeeper.AfterSwap(ctx, acc2)
+	app := simapp.Setup(false, feemarketGenesis)
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx = ctx.WithBlockTime(now.Add(time.Second))
+	genesis := testGenesis
 
-// 	genesisExported := claim.ExportGenesis(ctx, *app.ClaimKeeper)
-// 	require.Equal(t, genesisExported.ModuleAccountBalance, genesis.ModuleAccountBalance.Sub(claimableAmount[0]))
-// 	require.Equal(t, genesisExported.Params, genesis.Params)
-// 	require.Equal(t, genesisExported.ClaimRecords, []types.ClaimRecord{
-// 		{
-// 			Address:                acc1.String(),
-// 			InitialClaimableAmount: sdk.Coins{sdk.NewInt64Coin(types.DefaultClaimDenom, 1000000000)},
-// 			ActionCompleted:        []bool{true, false, true, true},
-// 		},
-// 		{
-// 			Address:                acc2.String(),
-// 			InitialClaimableAmount: sdk.Coins{sdk.NewInt64Coin(types.DefaultClaimDenom, 500000000)},
-// 			ActionCompleted:        []bool{false, true, false, false},
-// 		},
-// 	})
-// }
+	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
+	require.NoError(t, err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, types.ModuleName, coins)
+	require.NoError(t, err)
+
+	claim.InitGenesis(ctx, app.ClaimKeeper, genesis)
+
+	claimRecord, found := app.ClaimKeeper.GetClaimRecord(ctx, acc2)
+	require.True(t, found)
+	require.Equal(t, claimRecord, types.ClaimRecord{
+		InitialClaimableAmount: sdk.NewInt(400),
+		ActionsCompleted:       []bool{false, false, false, false},
+	})
+
+	claimableAmount := app.ClaimKeeper.GetClaimableAmountForAction(ctx, acc2, claimRecord, types.ActionIBCTransfer, genesis.Params)
+	require.Equal(t, claimableAmount, sdk.NewInt(100))
+
+	genesisExported := claim.ExportGenesis(ctx, app.ClaimKeeper)
+	require.Equal(t, genesisExported.Params, genesis.Params)
+	require.Equal(t, genesisExported.ClaimRecords, []types.ClaimRecordAddress{
+		{
+			Address:                acc1.String(),
+			InitialClaimableAmount: sdk.NewInt(10000),
+			ActionsCompleted:       []bool{true, false, true, true},
+		},
+		{
+			Address:                acc2.String(),
+			InitialClaimableAmount: sdk.NewInt(400),
+			ActionsCompleted:       []bool{false, false, false, false},
+		},
+	})
+}
