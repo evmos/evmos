@@ -1079,6 +1079,7 @@ Params holds parameters for the inflation module.
 | `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
 | `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
 | `allocation_proportions` | [AllocationProportions](#evmos.inflation.v1.AllocationProportions) |  | allocation_proportions defines the proportion of the minted denom |
+| `team_vesting_provision` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coin to allocate from team vesting supply |
 | `team_vesting_receiver` | [string](#string) |  | address to receive team vesting rewards |
 | `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
 

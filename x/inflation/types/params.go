@@ -20,6 +20,7 @@ var (
 	KeyReductionPeriodInEpochs            = []byte("ReductionPeriodInEpochs")
 	KeyReductionFactor                    = []byte("ReductionFactor")
 	KeyPoolAllocationRatio                = []byte("PoolAllocationRatio")
+	KeyTeamVestingProvision               = []byte("TeamVestingProvision")
 	KeyTeamVestingReceiver                = []byte("TeamVestingReceiver")
 	KeyMintingRewardsAllocationStartEpoch = []byte("MintingRewardsAllocationStartEpoch")
 )
@@ -36,6 +37,7 @@ func NewParams(
 	reductionFactor sdk.Dec,
 	reductionPeriodInEpochs int64,
 	allocationProportions AllocationProportions,
+	teamVestingProvision sdk.Coin,
 	teamVestingReceiver string,
 	mintingRewardsAllocationStartEpoch int64,
 ) Params {
@@ -46,6 +48,7 @@ func NewParams(
 		ReductionPeriodInEpochs:            reductionPeriodInEpochs,
 		ReductionFactor:                    reductionFactor,
 		AllocationProportions:              allocationProportions,
+		TeamVestingProvision:               teamVestingProvision,
 		TeamVestingReceiver:                teamVestingReceiver,
 		MintingRewardsAllocationStartEpoch: mintingRewardsAllocationStartEpoch,
 	}
@@ -65,6 +68,10 @@ func DefaultParams() Params {
 			UsageIncentives: sdk.NewDecWithPrec(25, 2), // 0.25
 			CommunityPool:   sdk.NewDecWithPrec(1, 1),  // 0.1
 		},
+		TeamVestingProvision: sdk.NewCoin(
+			sdk.DefaultBondDenom,
+			sdk.NewInt(136986), // 200000000/(4*365)
+		),
 		TeamVestingReceiver:                "",
 		MintingRewardsAllocationStartEpoch: 0,
 	}
@@ -85,6 +92,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyReductionPeriodInEpochs, &p.ReductionPeriodInEpochs, validateReductionPeriodInEpochs),
 		paramtypes.NewParamSetPair(KeyReductionFactor, &p.ReductionFactor, validateReductionFactor),
 		paramtypes.NewParamSetPair(KeyPoolAllocationRatio, &p.AllocationProportions, validateAllocationProportions),
+		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
 		paramtypes.NewParamSetPair(KeyTeamVestingReceiver, &p.TeamVestingReceiver, validateTeamVestingReceiver),
 		paramtypes.NewParamSetPair(KeyMintingRewardsAllocationStartEpoch, &p.MintingRewardsAllocationStartEpoch, validateMintingRewardsAllocationStartEpoch),
 	}
@@ -183,6 +191,11 @@ func validateAllocationProportions(i interface{}) error {
 }
 
 // TODO
+func validateTeamVestingProvision(i interface{}) error {
+	return nil
+}
+
+// TODO
 func validateTeamVestingReceiver(i interface{}) error {
 	return nil
 }
@@ -217,6 +230,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateAllocationProportions(p.AllocationProportions); err != nil {
+		return err
+	}
+	if err := validateTeamVestingProvision(p.TeamVestingProvision); err != nil {
 		return err
 	}
 	if err := validateTeamVestingReceiver(p.TeamVestingReceiver); err != nil {

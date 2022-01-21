@@ -2,6 +2,8 @@ syntax = "proto3";
 package evmos.inflation.v1;
 
 import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
 import "evmos/inflation/v1/inflation.proto";
 
 option go_package = "github.com/tharsis/evmos/x/inflation/types";
@@ -39,8 +41,13 @@ message Params {
   AllocationProportions allocation_proportions = 6 [
     (gogoproto.nullable) = false
   ];
+  // coin to allocate from team vesting supply
+  cosmos.base.v1beta1.Coin team_vesting_provision = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // address to receive team vesting rewards
-  string team_vesting_receiver = 7;
+  string team_vesting_receiver = 8;
   // start epoch to distribute minting rewards
-  int64 minting_rewards_allocation_start_epoch = 8;
+  int64 minting_rewards_allocation_start_epoch = 9;
 }

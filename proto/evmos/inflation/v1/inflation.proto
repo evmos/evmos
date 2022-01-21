@@ -34,7 +34,6 @@ message AllocationProportions {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-
   // community_pool defines the proportion of the minted minted_denom that is to
   // be allocated to the community pool
   string community_pool = 4 [

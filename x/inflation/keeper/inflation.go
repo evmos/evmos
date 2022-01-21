@@ -115,14 +115,13 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 		)
 	}
 
-	// Get coins to allocate from the teamVestingSupply
+	// Get team vesting provision to allocate from the teamVestingSupply. If team
+	// vesting account doesn't have sufficient balance to allocate, only allocate
+	// remaining coins
+	coin := params.TeamVestingProvision
 	teamVestingSupplyAddr := k.accountKeeper.GetModuleAddress(types.TeamVestingSupplyModuleAcctName)
 	teamVestingSupply := k.bankKeeper.GetBalance(ctx, teamVestingSupplyAddr, params.MintDenom)
-	// TODO replace linear team vesting amount with param
-	coin := sdk.NewCoin(params.MintDenom, sdk.NewInt(200000000/(4*365)))
 
-	// Only allocate remaining coins if team vesting account doesn't have sufficient
-	// balance to allocate
 	if teamVestingSupply.IsLT(coin) {
 		coin = teamVestingSupply
 	}
