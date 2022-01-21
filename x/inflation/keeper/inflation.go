@@ -93,14 +93,8 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 	moduleAddr := sdk.AccAddress(types.ModuleAddress.Bytes())
 	balance := sdk.NewCoins(k.bankKeeper.GetBalance(ctx, moduleAddr, mintedCoin.Denom))
 	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, balance)
-	if err != nil {
-		return err
-	}
 
-	// call an hook after the minting and allocation of new coins
-	k.hooks.AfterDistributeMintedCoin(ctx, mintedCoin)
-
-	return nil
+	return err
 }
 
 // AllocateTeamVesting allocates the team vesting proportion from the team

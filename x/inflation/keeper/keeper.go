@@ -19,7 +19,6 @@ type Keeper struct {
 	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	distrKeeper      types.DistrKeeper
-	hooks            types.MintHooks
 	feeCollectorName string
 }
 
@@ -52,17 +51,6 @@ func NewKeeper(
 		distrKeeper:      dk,
 		feeCollectorName: feeCollectorName,
 	}
-}
-
-// Set the mint hooks
-func (k *Keeper) SetHooks(h types.MintHooks) *Keeper {
-	if k.hooks != nil {
-		panic("cannot set mint hooks twice")
-	}
-
-	k.hooks = h
-
-	return k
 }
 
 // Logger returns a module-specific logger.
