@@ -39,12 +39,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (app) [\#224](https://github.com/tharsis/evmos/pull/224) Fix power reduction my setting the correct value on app initialization.
 - [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
 - [\#190](https://github.com/tharsis/evmos/pull/190) Remove governance hook from `erc20` module
 
 ### Features
 
 - [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
+- [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom InitCmd function.
+- [\#176](https://github.com/tharsis/evmos/pull/176) Add `x/incentives` module.
 
 ### Improvements
 
@@ -58,7 +61,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
   - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
   - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
 - (erc20) [\#191](https://github.com/tharsis/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
-
+- (erc20) [\#192](https://github.com/tharsis/evmos/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
+- (erc20) [\#200](https://github.com/tharsis/evmos/pull/200) Match coin and token decimals for erc20 deployment during registerCoin
+- (erc20) [\#201](https://github.com/tharsis/evmos/pull/201) bug(erc-20): Compile built-in contracts in the build process (IF-ETHERMINT-02).
 
 ## [v0.4.2] - 2021-12-11
 

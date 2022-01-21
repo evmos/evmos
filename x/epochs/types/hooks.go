@@ -13,7 +13,7 @@ type EpochHooks interface {
 
 var _ EpochHooks = MultiEpochHooks{}
 
-// combine multiple gamm hooks, all hook functions are run in array sequence
+// combine multiple epoch hooks, all hook functions are run in array sequence
 type MultiEpochHooks []EpochHooks
 
 func NewMultiEpochHooks(hooks ...EpochHooks) MultiEpochHooks {

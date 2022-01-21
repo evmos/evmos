@@ -26,7 +26,7 @@ RECIPIENT=$(evmosd keys show recipient -a --keyring-backend=file)
 The command above creates a local key-pair that is not yet registered on the chain. An account is created the first time it receives tokens from another account. Now, run the following command to send tokens to the `recipient` account:
 
 ```bash
-evmosd tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000aphoton --chain-id=evmos_9000-2 --keyring-backend=file
+evmosd tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000aevmos --chain-id=evmos_9000-2 --keyring-backend=file
 
 # Check that the recipient account did receive the tokens.
 evmosd query bank balances $RECIPIENT --chain-id=evmos_9000-2
@@ -35,7 +35,7 @@ evmosd query bank balances $RECIPIENT --chain-id=evmos_9000-2
 Finally, delegate some of the stake tokens sent to the `recipient` account to the validator:
 
 ```bash
-evmosd tx staking delegate $(evmosd keys show my_validator --bech val -a --keyring-backend=file) 500aphoton --from=recipient --chain-id=evmos_9000-2 --keyring-backend=file
+evmosd tx staking delegate $(evmosd keys show my_validator --bech val -a --keyring-backend=file) 500aevmos --from=recipient --chain-id=evmos_9000-2 --keyring-backend=file
 
 # Query the total delegations to `validator`.
 evmosd query staking delegations-to $(evmosd keys show my_validator --bech val -a --keyring-backend=file) --chain-id=evmos_9000-2

@@ -79,10 +79,10 @@ Let's add 10 PHOTON to the multisig wallet:
 evmosd tx send \
     test1 \
     evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
-    10000000000000000000aphoton \
+    10000000000000000000aevmos \
     --chain-id=evmos_9000-2 \
     --gas=auto \
-    --fees=1000000aphoton \
+    --fees=1000000aevmos \
     --broadcast-mode=block
 ```
 
@@ -94,9 +94,9 @@ We want to send 5 PHOTON from our multisig account to `evmos1rgjxswhuxhcrhmyxlva
 evmosd tx send \
     evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
     evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
-    5000000000000000000aphoton \
+    5000000000000000000aevmos \
     --gas=200000 \
-    --fees=1000000aphoton \
+    --fees=1000000aevmos \
     --chain-id=evmos_9000-2 \
     --generate-only > unsignedTx.json
 ```
@@ -113,7 +113,7 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
         "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
         "amount": [
           {
-            "denom": "aphoton",
+            "denom": "aevmos",
             "amount": "5000000000000000000"
           }
         ]
@@ -129,7 +129,7 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
     "fee": {
       "amount": [
         {
-          "denom": "aphoton",
+          "denom": "aevmos",
           "amount": "1000000"
         }
       ],
@@ -189,7 +189,7 @@ The TX is now signed:
         "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
         "amount": [
           {
-            "denom": "aphoton",
+            "denom": "aevmos",
             "amount": "5000000000000000000"
           }
         ]
@@ -247,7 +247,7 @@ The TX is now signed:
     "fee": {
       "amount": [
         {
-          "denom": "aphoton",
+          "denom": "aevmos",
           "amount": "1000000"
         }
       ],

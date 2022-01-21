@@ -28,7 +28,7 @@ parent:
   </a>
 </div>
 <div align="center">
-  <a href="https://discord.gg/trje9XuAmy">
+  <a href="https://discord.gg/evmos">
     <img alt="Discord" src="https://img.shields.io/discord/809048090249134080.svg" />
   </a>
   <a href="https://github.com/tharsis/evmos/actions?query=branch%3Amain+workflow%3ALint">
@@ -45,7 +45,7 @@ parent:
 Evmos is a scalable, high-throughput Proof-of-Stake blockchain that is fully compatible and
 interoperable with Ethereum. It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) which runs on top of [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
 
-**Note**: Requires [Go 1.17+](https://golang.org/dl/)
+**Note**: Requires [Go 1.17.5+](https://golang.org/dl/)
 
 ## Installation
 
@@ -66,7 +66,7 @@ To learn how the Evmos works from a high-level perspective, go to the [Introduct
 The following chat channels and forums are a great spot to ask questions about Evmos:
 
 - [Evmos Twitter](https://twitter.com/EvmosOrg)
-- [Evmos Discord](https://discord.gg/trje9XuAmy)
+- [Evmos Discord](https://discord.gg/evmos)
 - [Evmos Forum](https://forum.cosmos.network/c/ethermint)
 - [Tharsis Twitter](https://twitter.com/TharsisHQ)
 

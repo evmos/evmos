@@ -14,18 +14,37 @@ import (
 )
 
 const (
+	contractMinterBurner = iota + 1
+	contractDirectBalanceManipulation
+	contractMaliciousDelayed
+)
+
+const (
 	erc20Name          = "Coin Token"
 	erc20Symbol        = "CTKN"
+	erc20Decimals      = uint8(18)
 	cosmosTokenBase    = "acoin"
 	cosmosTokenDisplay = "coin"
+	cosmosDecimals     = uint8(6)
 	defaultExponent    = uint32(18)
 	zeroExponent       = uint32(0)
 )
 
-func (suite *KeeperTestSuite) setupRegisterERC20Pair() common.Address {
+func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Address {
 	suite.SetupTest()
-	contractAddr := suite.DeployContract(erc20Name, erc20Symbol)
+
+	var contractAddr common.Address
+	// Deploy contract
+	switch contractType {
+	case contractDirectBalanceManipulation:
+		contractAddr = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
+	case contractMaliciousDelayed:
+		contractAddr = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
+	default:
+		contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+	}
 	suite.Commit()
+
 	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 	suite.Require().NoError(err)
 	return contractAddr
@@ -225,7 +244,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+			contractAddr = suite.DeployContract(erc20Name, erc20Symbol, cosmosDecimals)
 			suite.Commit()
 			coinName := types.CreateDenom(contractAddr.String())
 			pair = types.NewTokenPair(contractAddr, coinName, true, types.OWNER_EXTERNAL)
@@ -247,8 +266,8 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 				suite.Require().Equal(coinName, metadata.DenomUnits[0].Denom)
 				suite.Require().Equal(uint32(zeroExponent), metadata.DenomUnits[0].Exponent)
 				suite.Require().Equal(types.SanitizeERC20Name(erc20Name), metadata.DenomUnits[1].Denom)
-				// Default exponent at contract creation is 18
-				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(defaultExponent))
+				// Custom exponent at contract creation matches coin with token
+				suite.Require().Equal(metadata.DenomUnits[1].Exponent, uint32(cosmosDecimals))
 			} else {
 				suite.Require().Error(err, tc.name)
 			}
@@ -272,7 +291,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 		{
 			"token not registered",
 			func() {
-				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Commit()
 				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 			},
@@ -282,7 +301,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 		{
 			"token not registered - pair not found",
 			func() {
-				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Commit()
 				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
@@ -293,7 +312,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 		{
 			"disable relay",
 			func() {
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 			},
@@ -303,7 +322,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 		{
 			"disable and enable relay",
 			func() {
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				pair, _ = suite.app.Erc20Keeper.ToggleRelay(suite.ctx, contractAddr.String())
@@ -352,7 +371,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 		{
 			"token not registered",
 			func() {
-				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Commit()
 				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 			},
@@ -361,7 +380,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 		{
 			"token not registered - pair not found",
 			func() {
-				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Commit()
 				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 
@@ -372,7 +391,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 		{
 			"token not registered - Metadata not found",
 			func() {
-				contractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				contractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 				suite.Commit()
 				pair = types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
 
@@ -385,7 +404,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 		{
 			"newErc20 not found",
 			func() {
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				newContractAddr = common.Address{}
 			},
 			false,
@@ -394,15 +413,15 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			"empty denom units",
 			func() {
 				var found bool
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, found = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				suite.Require().True(found)
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, banktypes.Metadata{Base: pair.Denom})
 				suite.Commit()
 
-				// Deploy a new contrat with the same values
-				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				// Deploy a new contract with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 			},
 			false,
 		},
@@ -410,7 +429,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			"metadata ERC20 details mismatch",
 			func() {
 				var found bool
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, found = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				suite.Require().True(found)
@@ -418,8 +437,8 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
 				suite.Commit()
 
-				// Deploy a new contrat with the same values
-				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				// Deploy a new contract with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 			},
 			false,
 		},
@@ -427,7 +446,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			"no denom unit with ERC20 name",
 			func() {
 				var found bool
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, found = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				suite.Require().True(found)
@@ -435,8 +454,8 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
 				suite.Commit()
 
-				// Deploy a new contrat with the same values
-				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				// Deploy a new contract with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 			},
 			false,
 		},
@@ -444,7 +463,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			"denom unit and ERC20 decimals mismatch",
 			func() {
 				var found bool
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, found = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				suite.Require().True(found)
@@ -452,8 +471,8 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
 				suite.Commit()
 
-				// Deploy a new contrat with the same values
-				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				// Deploy a new contract with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 			},
 			false,
 		},
@@ -461,7 +480,7 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 			"ok",
 			func() {
 				var found bool
-				contractAddr = suite.setupRegisterERC20Pair()
+				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, found = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				suite.Require().True(found)
@@ -469,8 +488,8 @@ func (suite KeeperTestSuite) TestUpdateTokenPairERC20() {
 				suite.app.BankKeeper.SetDenomMetaData(suite.ctx, metadata)
 				suite.Commit()
 
-				// Deploy a new contrat with the same values
-				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol)
+				// Deploy a new contract with the same values
+				newContractAddr = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 			},
 			true,
 		},

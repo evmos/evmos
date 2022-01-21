@@ -13,23 +13,28 @@ import (
 // BeginBlocker of epochs module
 func (k Keeper) BeginBlocker(ctx sdk.Context) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
+
 	logger := k.Logger(ctx)
+
 	k.IterateEpochInfo(ctx, func(_ int64, epochInfo types.EpochInfo) (stop bool) {
 		// Has it not started, and is the block time > initial epoch start time
 		shouldInitialEpochStart := !epochInfo.EpochCountingStarted && !epochInfo.StartTime.After(ctx.BlockTime())
 
 		epochEndTime := epochInfo.CurrentEpochStartTime.Add(epochInfo.Duration)
-		shouldEpochStart := ctx.BlockTime().After(epochEndTime) && !shouldInitialEpochStart && !epochInfo.StartTime.After(ctx.BlockTime())
+		shouldEpochEnd := ctx.BlockTime().After(epochEndTime) && !shouldInitialEpochStart && !epochInfo.StartTime.After(ctx.BlockTime())
 
 		epochInfo.CurrentEpochStartHeight = ctx.BlockHeight()
 
 		switch {
 		case shouldInitialEpochStart:
-			epochInfo = startInitialEpoch(epochInfo)
+			epochInfo.StartInitialEpoch()
+
 			logger.Info("starting epoch", "identifier", epochInfo.Identifier)
-		case shouldEpochStart:
-			epochInfo = endEpoch(epochInfo)
+		case shouldEpochEnd:
+			epochInfo.EndEpoch()
+
 			logger.Info("ending epoch", "identifier", epochInfo.Identifier)
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeEpochEnd,
@@ -56,17 +61,4 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 
 		return false
 	})
-}
-
-func startInitialEpoch(epochInfo types.EpochInfo) types.EpochInfo {
-	epochInfo.EpochCountingStarted = true
-	epochInfo.CurrentEpoch = 1
-	epochInfo.CurrentEpochStartTime = epochInfo.StartTime
-	return epochInfo
-}
-
-func endEpoch(epochInfo types.EpochInfo) types.EpochInfo {
-	epochInfo.CurrentEpoch++
-	epochInfo.CurrentEpochStartTime = epochInfo.CurrentEpochStartTime.Add(epochInfo.Duration)
-	return epochInfo
 }

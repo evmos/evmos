@@ -93,7 +93,7 @@ Please **NO DOT** make Pull Requests from `development`.
 
 ## <span id="dependencies">Dependencies</span>
 
-We use [Go 1.17](https://github.com/golang/go/wiki/Modules) Modules to manage dependency versions.
+We use [Go Modules](https://github.com/golang/go/wiki/Modules) to manage dependency versions.
 
 The master branch of every Cosmos repository should just build with `go get`, which means they should be kept up-to-date
 with their dependencies, so we can get away with telling people they can just `go get` our software.

@@ -22,10 +22,10 @@ LOGLEVEL="info"
 
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evmosd add-genesis-account $KEY 100000000000000000000000000aphoton --keyring-backend $KEYRING
+evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
 
 # Sign genesis transaction
-evmosd gentx $KEY 1000000000000000000000aphoton --keyring-backend $KEYRING --chain-id $CHAINID
+evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
 ```
 
 The default configuration will generate a single validator localnet with the chain-id
@@ -70,10 +70,10 @@ Before starting the chain, you need to populate the state with at least one acco
 evmosd keys add my_validator --keyring-backend=test
 ```
 
-Once you have created a local account, go ahead and grant it some `aphoton` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence:
+Once you have created a local account, go ahead and grant it some `aevmos` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence:
 
 ```bash
-evmosd add-genesis-account my_validator 10000000000aphoton --keyring-backend test
+evmosd add-genesis-account my_validator 10000000000aevmos --keyring-backend test
 ```
 
 Now that your account has some tokens, you need to add a validator to your chain.
@@ -84,7 +84,7 @@ Now that your account has some tokens, you need to add a validator to your chain
 # Create a gentx
 # NOTE: this command lets you set the number of coins. 
 # Make sure this account has some coins with the genesis.app_state.staking.params.bond_denom denom
-evmosd add-genesis-account my_validator 1000000000stake,10000000000aphoton
+evmosd add-genesis-account my_validator 1000000000stake,10000000000aevmos
 ```
 
 A `gentx` does three things:
