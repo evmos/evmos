@@ -9,13 +9,13 @@ import (
 	"github.com/tharsis/evmos/x/epochs/types"
 )
 
-// InitGenesis initializes the capability module's state from a provided genesis
+// InitGenesis initializes the epochs module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 	// set epoch info from genesis
 	for _, epoch := range genState.Epochs {
 		// Initialize empty epoch values via Cosmos SDK
-		if epoch.StartTime.Equal(time.Time{}) {
+		if epoch.StartTime.Equal(time.Time{}) || epoch.StartTime.IsZero() {
 			epoch.StartTime = ctx.BlockTime()
 		}
 
@@ -25,7 +25,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	}
 }
 
-// ExportGenesis returns the capability module's exported genesis.
+// ExportGenesis returns the epochs module's exported genesis.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Epochs: k.AllEpochInfos(ctx),
