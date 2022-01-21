@@ -3,7 +3,7 @@ package evmos.inflation.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "evmos/inflation/v1/inflation.proto";
+import "evmos/inflation/v1/genesis.proto";
 
 option go_package = "github.com/tharsis/evmos/x/inflation/types";
 

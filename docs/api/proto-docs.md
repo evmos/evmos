@@ -78,11 +78,10 @@
 - [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
     - [AllocationProportions](#evmos.inflation.v1.AllocationProportions)
     - [Minter](#evmos.inflation.v1.Minter)
-    - [Params](#evmos.inflation.v1.Params)
-    - [WeightedAddress](#evmos.inflation.v1.WeightedAddress)
   
 - [evmos/inflation/v1/genesis.proto](#evmos/inflation/v1/genesis.proto)
     - [GenesisState](#evmos.inflation.v1.GenesisState)
+    - [Params](#evmos.inflation.v1.Params)
   
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
     - [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest)
@@ -1032,44 +1031,6 @@ Minter represents the minting state
 
 
 
-
-<a name="evmos.inflation.v1.Params"></a>
-
-### Params
-Params holds parameters for the inflation module.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `mint_denom` | [string](#string) |  | type of coin to mint |
-| `genesis_epoch_provisions` | [string](#string) |  | epoch provisions from the first epoch |
-| `epoch_identifier` | [string](#string) |  | mint epoch identifier |
-| `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
-| `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
-| `allocation_proportions` | [AllocationProportions](#evmos.inflation.v1.AllocationProportions) |  | allocation_proportions defines the proportion of the minted denom |
-| `weighted_developer_rewards_receivers` | [WeightedAddress](#evmos.inflation.v1.WeightedAddress) | repeated | address to receive developer rewards |
-| `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
-
-
-
-
-
-
-<a name="evmos.inflation.v1.WeightedAddress"></a>
-
-### WeightedAddress
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
-| `weight` | [string](#string) |  |  |
-
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1090,7 +1051,7 @@ Params holds parameters for the inflation module.
 <a name="evmos.inflation.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the mint module's genesis state.
+GenesisState defines the inflation module's genesis state.
 
 
 | Field | Type | Label | Description |
@@ -1098,6 +1059,28 @@ GenesisState defines the mint module's genesis state.
 | `minter` | [Minter](#evmos.inflation.v1.Minter) |  | minter is a space for holding current rewards information. |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
 | `halven_started_epoch` | [int64](#int64) |  | current halven period start epoch |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.Params"></a>
+
+### Params
+Params holds parameters for the inflation module.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `mint_denom` | [string](#string) |  | type of coin to mint |
+| `genesis_epoch_provisions` | [string](#string) |  | epoch provisions from the first epoch |
+| `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
+| `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
+| `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
+| `allocation_proportions` | [AllocationProportions](#evmos.inflation.v1.AllocationProportions) |  | allocation_proportions defines the proportion of the minted denom |
+| `team_vesting_receiver` | [string](#string) |  | address to receive team vesting rewards |
+| `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
 
 
 

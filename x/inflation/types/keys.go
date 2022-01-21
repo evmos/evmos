@@ -46,7 +46,7 @@ var LastHalvenEpochKey = []byte{0x03}
 
 const (
 	// module acct name for developer vesting
-	DeveloperVestingModuleAcctName = "developer_vesting_unvested"
+	TeamVestingSupplyModuleAcctName = "team_vesting_supply"
 
 	// QuerierRoute is the querier route for the minting store.
 	QuerierRoute = StoreKey

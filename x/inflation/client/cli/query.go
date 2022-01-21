@@ -45,7 +45,6 @@ func GetCmdQueryParams() *cobra.Command {
 
 			params := &types.QueryParamsRequest{}
 			res, err := queryClient.Params(context.Background(), params)
-
 			if err != nil {
 				return err
 			}
@@ -75,7 +74,6 @@ func GetCmdQueryEpochProvisions() *cobra.Command {
 
 			params := &types.QueryEpochProvisionsRequest{}
 			res, err := queryClient.EpochProvisions(context.Background(), params)
-
 			if err != nil {
 				return err
 			}
