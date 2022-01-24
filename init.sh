@@ -44,11 +44,11 @@ current_date=$(date -u +"%Y-%m-%dT%TZ")
 cat $HOME/.evmosd/config/genesis.json | jq -r --arg current_date "$current_date" '.app_state["claim"]["params"]["airdrop_start_time"]=$current_date' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 # Add account to claims
 amount_to_claim=$(echo 10000)
-cat $HOME/.evmosd/config/genesis.json | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claim"]["claim_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[true,true, true, true],"address":$node_address}]' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
+cat $HOME/.evmosd/config/genesis.json | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claim"]["claim_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Claim module account:
 # 0xDD1B3c312Cf7D816130354452E9629cE39355b0c || evmos1m5dncvfv7lvpvycr23zja93fecun2kcvqsckn6
-evmosd add-genesis-account evmos1m5dncvfv7lvpvycr23zja93fecun2kcvqsckn6 ${amount_to_claim}aevmos
+cat $HOME/.evmosd/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos1m5dncvfv7lvpvycr23zja93fecun2kcvqsckn6","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # disable produce empty block
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -83,6 +83,11 @@ fi
 
 # Allocate genesis accounts (cosmos formatted addresses)
 evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
+
+# Update total supply with claim values
+validators_supply=$(cat $HOME/.evmosd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
+total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
+cat $HOME/.evmosd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Sign genesis transaction
 evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
