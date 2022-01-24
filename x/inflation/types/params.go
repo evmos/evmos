@@ -15,13 +15,13 @@ import (
 // Parameter store keys
 const (
 	KeyMintDenom = iota + 1
-	KeyGenesisEpochProvisions
 	KeyEpochIdentifier
-	KeyReductionPeriodInEpochs
-	KeyReductionFactor
-	KeyPoolAllocationRatio
-	KeyTeamVestingProvision
+	KeyEpochsPerPeriod
+	KeyExponentialCalculation
+	KeyInflationDistribution
 	KeyTeamAddress
+	KeyTeamVestingProvision
+	KeyGenesisEpochProvisions
 	KeyMintingRewardsAllocationStartEpoch
 )
 
@@ -32,24 +32,24 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 func NewParams(
 	mintDenom string,
-	genesisEpochProvisions sdk.Dec,
 	epochIdentifier string,
-	reductionFactor sdk.Dec,
-	reductionPeriodInEpochs int64,
+	epochsPerPeriod int64,
+	exponentialCalculation ExponentialCalculation,
 	inflationDistribution InflationDistribution,
-	teamVestingProvision sdk.Coin,
 	teamAddress string,
+	teamVestingProvision sdk.Dec,
+	genesisEpochProvisions sdk.Dec,
 	mintingRewardsAllocationStartEpoch int64,
 ) Params {
 	return Params{
 		MintDenom:                          mintDenom,
-		GenesisEpochProvisions:             genesisEpochProvisions,
 		EpochIdentifier:                    epochIdentifier,
-		ReductionPeriodInEpochs:            reductionPeriodInEpochs,
-		ReductionFactor:                    reductionFactor,
+		EpochsPerPeriod:                    epochsPerPeriod,
+		ExponentialCalculation:             exponentialCalculation,
 		InflationDistribution:              inflationDistribution,
-		TeamVestingProvision:               teamVestingProvision,
 		TeamAddress:                        teamAddress,
+		TeamVestingProvision:               teamVestingProvision,
+		GenesisEpochProvisions:             genesisEpochProvisions,
 		MintingRewardsAllocationStartEpoch: mintingRewardsAllocationStartEpoch,
 	}
 }
@@ -57,22 +57,24 @@ func NewParams(
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom:               sdk.DefaultBondDenom,
-		GenesisEpochProvisions:  sdk.NewDec(5000000),
-		EpochIdentifier:         "day",                    // 1 day
-		ReductionPeriodInEpochs: 365,                      // 1 year
-		ReductionFactor:         sdk.NewDecWithPrec(5, 1), // 0.5
+		MintDenom:       sdk.DefaultBondDenom,
+		EpochIdentifier: "day", // 1 day
+		EpochsPerPeriod: 365,   // 1 year
+		ExponentialCalculation: ExponentialCalculation{
+			A: sdk.NewDec(int64(300000000)),
+			R: sdk.NewDecWithPrec(5, 1), // 0.5
+			C: sdk.NewDec(int64(9375000)),
+			B: sdk.ZeroDec(),
+		},
 		InflationDistribution: InflationDistribution{
 			StakingRewards:  sdk.NewDecWithPrec(4, 1),  // 0.4
 			TeamVesting:     sdk.NewDecWithPrec(25, 2), // 0.25
 			UsageIncentives: sdk.NewDecWithPrec(25, 2), // 0.25
 			CommunityPool:   sdk.NewDecWithPrec(1, 1),  // 0.1
 		},
-		TeamVestingProvision: sdk.NewCoin(
-			sdk.DefaultBondDenom,
-			sdk.NewInt(136986), // 200000000/(4*365)
-		),
 		TeamAddress:                        ModuleAddress.Hex(),
+		TeamVestingProvision:               sdk.NewDec(int64(136986)), // 200000000/(4*365)
+		GenesisEpochProvisions:             sdk.NewDec(5000000),
 		MintingRewardsAllocationStartEpoch: 0,
 	}
 }
@@ -87,13 +89,13 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair([]byte{KeyMintDenom}, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair([]byte{KeyGenesisEpochProvisions}, &p.GenesisEpochProvisions, validateGenesisEpochProvisions),
 		paramtypes.NewParamSetPair([]byte{KeyEpochIdentifier}, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
-		paramtypes.NewParamSetPair([]byte{KeyReductionPeriodInEpochs}, &p.ReductionPeriodInEpochs, validateReductionPeriodInEpochs),
-		paramtypes.NewParamSetPair([]byte{KeyReductionFactor}, &p.ReductionFactor, validateReductionFactor),
-		paramtypes.NewParamSetPair([]byte{KeyPoolAllocationRatio}, &p.InflationDistribution, validateInflationDistribution),
-		paramtypes.NewParamSetPair([]byte{KeyTeamVestingProvision}, &p.TeamVestingProvision, validateTeamVestingProvision),
+		paramtypes.NewParamSetPair([]byte{KeyEpochsPerPeriod}, &p.EpochsPerPeriod, validateEpochsPerPeriod),
+		paramtypes.NewParamSetPair([]byte{KeyExponentialCalculation}, &p.ExponentialCalculation, validateExponentialCalculation),
+		paramtypes.NewParamSetPair([]byte{KeyInflationDistribution}, &p.InflationDistribution, validateInflationDistribution),
 		paramtypes.NewParamSetPair([]byte{KeyTeamAddress}, &p.TeamAddress, validateTeamAddress),
+		paramtypes.NewParamSetPair([]byte{KeyTeamVestingProvision}, &p.TeamVestingProvision, validateTeamVestingProvision),
+		paramtypes.NewParamSetPair([]byte{KeyGenesisEpochProvisions}, &p.GenesisEpochProvisions, validateGenesisEpochProvisions),
 		paramtypes.NewParamSetPair([]byte{KeyMintingRewardsAllocationStartEpoch}, &p.MintingRewardsAllocationStartEpoch, validateMintingRewardsAllocationStartEpoch),
 	}
 }
@@ -127,7 +129,7 @@ func validateGenesisEpochProvisions(i interface{}) error {
 	return nil
 }
 
-func validateReductionPeriodInEpochs(i interface{}) error {
+func validateEpochsPerPeriod(i interface{}) error {
 	v, ok := i.(int64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -154,6 +156,10 @@ func validateReductionFactor(i interface{}) error {
 		return fmt.Errorf("reduction factor cannot be negative")
 	}
 
+	return nil
+}
+func validateExponentialCalculation(i interface{}) error {
+	// TODO
 	return nil
 }
 
@@ -217,27 +223,27 @@ func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
 	}
-	if err := validateGenesisEpochProvisions(p.GenesisEpochProvisions); err != nil {
-		return err
-	}
 	if err := epochtypes.ValidateEpochIdentifierInterface(p.EpochIdentifier); err != nil {
 		return err
 	}
-	if err := validateReductionPeriodInEpochs(p.ReductionPeriodInEpochs); err != nil {
+	if err := validateEpochsPerPeriod(p.EpochsPerPeriod); err != nil {
 		return err
 	}
-	if err := validateReductionFactor(p.ReductionFactor); err != nil {
+	if err := validateExponentialCalculation(p.ExponentialCalculation); err != nil {
 		return err
 	}
 	if err := validateInflationDistribution(p.InflationDistribution); err != nil {
 		return err
 	}
-	if err := validateTeamVestingProvision(p.TeamVestingProvision); err != nil {
-		return err
-	}
 	if err := validateTeamAddress(p.TeamAddress); err != nil {
 		return err
 	}
+	if err := validateTeamVestingProvision(p.TeamVestingProvision); err != nil {
+		return err
+	}
 
+	if err := validateGenesisEpochProvisions(p.GenesisEpochProvisions); err != nil {
+		return err
+	}
 	return validateMintingRewardsAllocationStartEpoch(p.MintingRewardsAllocationStartEpoch)
 }

@@ -6,12 +6,11 @@ import (
 
 	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
 	"github.com/tharsis/evmos/x/inflation/types"
-	// poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
 )
 
 // MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
-	// Mint over-allocates by the developer vesting portion, and burn this later
+	// Mint coins for distribution
 	if err := k.MintCoins(ctx, coin); err != nil {
 		panic(err)
 	}
@@ -71,25 +70,15 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 		return err
 	}
 
-	// Allocate community pool inflation to community pool address
-	communityPool := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.CommunityPool))
+	// Allocate community pool inflation (remaining module balance) to community
+	// pool address
+	moduleAddr := sdk.AccAddress(types.ModuleAddress.Bytes())
+	communityPool := sdk.NewCoins(k.bankKeeper.GetBalance(ctx, moduleAddr, mintedCoin.Denom))
 	err = k.distrKeeper.FundCommunityPool(
 		ctx,
 		communityPool,
 		k.accountKeeper.GetModuleAddress(types.ModuleName),
 	)
-	if err != nil {
-		return err
-	}
-
-	// Burn remaining team vesting allocation. These coins are instead allocated
-	// from the developer vesting account address, not the inflation module
-	// address to comply with taxation policies. We over-minted coins to the
-	// inflation module address earlier, in order to allocate according to the
-	// allocation proportions.
-	moduleAddr := sdk.AccAddress(types.ModuleAddress.Bytes())
-	balance := sdk.NewCoins(k.bankKeeper.GetBalance(ctx, moduleAddr, mintedCoin.Denom))
-	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, balance)
 
 	return err
 }
@@ -109,7 +98,7 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	// Get team vesting provision to allocate from the tharsis account balance. If
 	// tharsis account doesn't have sufficient balance to allocate, only allocate
 	// remaining coins.
-	coin := params.TeamVestingProvision
+	coin := sdk.NewCoin(params.MintDenom, sdk.NewInt(params.TeamVestingProvision.BigInt().Int64()))
 	tharsisAccount := k.accountKeeper.GetModuleAddress(types.TharsisAccount)
 	balance := k.bankKeeper.GetBalance(ctx, tharsisAccount, params.MintDenom)
 
@@ -140,7 +129,32 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	return err
 }
 
-// GetProportions gets the balance of the `MintedDenom` from minted coins and returns coins according to the `AllocationRatio`
+// GetProportions gets the balance of the `MintedDenom` from minted coins and
+// returns coins according to the `InflationDistribution`
 func (k Keeper) GetProportions(ctx sdk.Context, mintedCoin sdk.Coin, ratio sdk.Dec) sdk.Coin {
-	return sdk.NewCoin(mintedCoin.Denom, mintedCoin.Amount.ToDec().Mul(ratio).TruncateInt())
+	params := k.GetParams(ctx)
+
+	// The InflationDistribution param is based on the totalProvision, which
+	// includes the teamVestingProvision, that is minted once at genesis. To
+	// calculate the proportions based on the MintProvision, the distribution
+	// ratio needs to be corrected into the mintRatio.
+	//
+	// Example:
+	// TotalProvision = MintProvision (75%) + TeamVestingProvision (25%)
+	// 800M 					= 600M          			+ 200M
+	//
+	// Adjust ratio to mintedRatio by taking out teamVesting ratio
+	// 25% / (1 - 25%) = 0.33
+	// 40% / (1 - 25%) = 0.53
+	// 10% / (1 - 25%) = 0.13
+
+	// mintRatio = ratio / (1 - teamVestingRatio)
+	teamVestingFactor := sdk.OneDec().Sub(params.InflationDistribution.TeamVesting)
+	mintRatioBigInt := sdk.OneDec().BigInt().Div(ratio.BigInt(), teamVestingFactor.BigInt())
+	mintRatio := sdk.NewDecFromBigInt(mintRatioBigInt)
+
+	// proportion = MintProvision * mintRatio
+	proportion := mintedCoin.Amount.ToDec().Mul(mintRatio).TruncateInt()
+
+	return sdk.NewCoin(mintedCoin.Denom, proportion)
 }

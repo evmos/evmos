@@ -76,8 +76,8 @@
     - [Query](#evmos.incentives.v1.Query)
   
 - [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
+    - [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation)
     - [InflationDistribution](#evmos.inflation.v1.InflationDistribution)
-    - [Minter](#evmos.inflation.v1.Minter)
   
 - [evmos/inflation/v1/genesis.proto](#evmos/inflation/v1/genesis.proto)
     - [GenesisState](#evmos.inflation.v1.GenesisState)
@@ -999,6 +999,25 @@ Query defines the gRPC querier service.
 
 
 
+<a name="evmos.inflation.v1.ExponentialCalculation"></a>
+
+### ExponentialCalculation
+ExponentialCalculation holds factors to calculate exponential inflation on
+each period
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `a` | [string](#string) |  | initial value |
+| `r` | [string](#string) |  | decay |
+| `c` | [string](#string) |  | long term inflation |
+| `b` | [string](#string) |  | bonding |
+
+
+
+
+
+
 <a name="evmos.inflation.v1.InflationDistribution"></a>
 
 ### InflationDistribution
@@ -1012,21 +1031,6 @@ allocated (staking, incentives, community and team).
 | `team_vesting` | [string](#string) |  | team_vesting defines the proportion of the minted minted_denom that is to be allocated to the team vesting address |
 | `usage_incentives` | [string](#string) |  | usage_incentives defines the proportion of the minted minted_denom that is to be allocated to the incentives module address |
 | `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool |
-
-
-
-
-
-
-<a name="evmos.inflation.v1.Minter"></a>
-
-### Minter
-Minter represents the minting state
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `epoch_provisions` | [string](#string) |  | current epoch provisions |
 
 
 
@@ -1057,9 +1061,7 @@ GenesisState defines the inflation module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `minter` | [Minter](#evmos.inflation.v1.Minter) |  | minter is a space for holding current rewards information. |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
-| `halven_started_epoch` | [int64](#int64) |  | current halven period start epoch |
 
 
 
@@ -1075,13 +1077,13 @@ Params holds parameters for the inflation module.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `mint_denom` | [string](#string) |  | type of coin to mint |
-| `genesis_epoch_provisions` | [string](#string) |  | epoch provisions from the first epoch |
 | `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
-| `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
-| `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
+| `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
+| `exponential_calculation` | [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation) |  | variables to calculate exponential inflation |
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation_distribution defines the distribution of the minted denom |
-| `team_vesting_provision` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | coin to allocate from team vesting supply |
 | `team_address` | [string](#string) |  | aaddress to receive the team allocation from the inflation distribution |
+| `team_vesting_provision` | [string](#string) |  | coin to allocate from team vesting supply |
+| `genesis_epoch_provisions` | [string](#string) |  | TODO remove below? epoch provisions from the first epoch |
 | `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
 
 

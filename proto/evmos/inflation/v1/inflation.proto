@@ -5,15 +5,6 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/tharsis/evmos/x/inflation/types";
 
-// Minter represents the minting state
-message Minter {
-  // current epoch provisions
-  string epoch_provisions = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-}
-
 // InflationDistribution defines the distribution in which inflation is
 // allocated (staking, incentives, community and team).
 message InflationDistribution {
@@ -38,6 +29,31 @@ message InflationDistribution {
   // community_pool defines the proportion of the minted minted_denom that is to
   // be allocated to the community pool
   string community_pool = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// ExponentialCalculation holds factors to calculate exponential inflation on
+// each period
+message ExponentialCalculation {
+  // initial value
+  string a = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // decay
+  string r = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // long term inflation
+  string c = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // bonding
+  string b = 4 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
