@@ -65,7 +65,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	// Create a connection to the gRPC server.
 	grpcConn, err := grpc.Dial(
 		s.network.Validators[0].AppConfig.GRPC.Address, // gRPC server address.
-		grpc.WithInsecure(),                            // The Cosmos SDK doesn't support any transport security mechanism.
+		grpc.WithInsecure(),                            // nosemgrep
 	)
 	s.Require().NoError(err)
 
