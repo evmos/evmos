@@ -1,12 +1,12 @@
 syntax = "proto3";
-package evmos.claim.v1;
+package evmos.claims.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "evmos/claim/v1/claim.proto";
+import "evmos/claims/v1/claims.proto";
 
-option go_package = "github.com/tharsis/evmos/x/claim/types";
+option go_package = "github.com/tharsis/evmos/x/claims/types";
 
 // GenesisState defines the claim module's genesis state.
 message GenesisState {

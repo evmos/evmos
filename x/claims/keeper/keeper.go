@@ -11,7 +11,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 // Keeper struct

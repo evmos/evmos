@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 // EndBlocker checks if the airdrop claiming period has ended

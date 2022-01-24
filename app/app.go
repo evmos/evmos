@@ -111,9 +111,8 @@ import (
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/x/claim"
-	claimkeeper "github.com/tharsis/evmos/x/claim/keeper"
-	claimtypes "github.com/tharsis/evmos/x/claim/types"
+	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/x/claims/types"
 	"github.com/tharsis/evmos/x/epochs"
 	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
@@ -184,7 +183,7 @@ var (
 		erc20.AppModuleBasic{},
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
-		claim.AppModuleBasic{},
+		claims.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -198,7 +197,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
-		claimtypes.ModuleName:          nil,
+		claimstypes.ModuleName:         nil,
 		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	}
 
@@ -259,7 +258,7 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	ClaimKeeper      claimkeeper.Keeper
+	ClaimKeeper      claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
@@ -320,7 +319,7 @@ func NewEvmos(
 		erc20types.StoreKey,
 		incentivestypes.StoreKey,
 		epochstypes.StoreKey,
-		claimtypes.StoreKey,
+		claimstypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -417,8 +416,8 @@ func NewEvmos(
 	)
 
 	// Evmos Keeper
-	app.ClaimKeeper = *claimkeeper.NewKeeper(
-		appCodec, keys[claimtypes.StoreKey], app.GetSubspace(claimtypes.ModuleName),
+	app.ClaimKeeper = *claimskeeper.NewKeeper(
+		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
 	)
 
@@ -526,7 +525,7 @@ func NewEvmos(
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		claim.NewAppModule(appCodec, app.ClaimKeeper),
+		claims.NewAppModule(appCodec, app.ClaimKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -560,7 +559,7 @@ func NewEvmos(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		erc20types.ModuleName,
-		claimtypes.ModuleName,
+		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
 	)
 
@@ -573,7 +572,7 @@ func NewEvmos(
 		feemarkettypes.ModuleName,
 		// Note: epochs' endblock should be "real" end of epochs, we keep epochs endblock at the end
 		epochstypes.ModuleName,
-		claimtypes.ModuleName,
+		claimstypes.ModuleName,
 		// no-op modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -606,7 +605,7 @@ func NewEvmos(
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		// NOTE: staking requires the claiming hook
-		claimtypes.ModuleName,
+		claimstypes.ModuleName,
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
@@ -934,7 +933,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	// evmos subspaces
 	paramsKeeper.Subspace(erc20types.ModuleName)
-	paramsKeeper.Subspace(claimtypes.ModuleName)
+	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	return paramsKeeper
 }

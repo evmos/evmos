@@ -1,4 +1,4 @@
-package claim
+package claims
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/tharsis/evmos/x/claim/client/cli"
-	"github.com/tharsis/evmos/x/claim/keeper"
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/client/cli"
+	"github.com/tharsis/evmos/x/claims/keeper"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 var (

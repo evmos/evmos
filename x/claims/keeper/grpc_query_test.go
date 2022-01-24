@@ -5,7 +5,7 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {

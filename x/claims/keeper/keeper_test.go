@@ -19,7 +19,7 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 type KeeperTestSuite struct {
@@ -32,7 +32,6 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-
 	// consensus key
 	priv, err := ethsecp256k1.GenerateKey()
 	suite.Require().NoError(err)

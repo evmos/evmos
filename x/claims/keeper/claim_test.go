@@ -16,7 +16,7 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) SetupClaimTest() {
@@ -190,14 +190,14 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 
 	claim, found := suite.app.ClaimKeeper.GetClaimRecord(suite.ctx, addr1)
 	suite.Require().True(found)
-	suite.Require().True(claim.ActionsCompleted[types.ActionEVM-1])
+	suite.Require().True(claims.ActionsCompleted[types.ActionEVM-1])
 	claimedCoins := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	suite.Require().Equal(claimedCoins.AmountOf(params.GetClaimDenom()), claimRecord.InitialClaimableAmount.Quo(sdk.NewInt(4)))
 
 	_, err = suite.app.ClaimKeeper.ClaimCoinsForAction(suite.ctx, addr1, types.ActionEVM)
 
 	suite.NoError(err)
-	suite.True(claim.ActionsCompleted[types.ActionEVM-1])
+	suite.True(claims.ActionsCompleted[types.ActionEVM-1])
 	claimedCoins = suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 	suite.Require().Equal(claimedCoins.AmountOf(params.GetClaimDenom()), claimRecord.InitialClaimableAmount.Quo(sdk.NewInt(4)))
 }
