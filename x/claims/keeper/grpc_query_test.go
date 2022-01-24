@@ -87,7 +87,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 			"valid, all zero",
 			func() {
 				claimRecord := types.NewClaimRecord(sdk.ZeroInt())
-				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
 				req = &types.QueryClaimRecordRequest{
 					Address: addr.String(),
 				}
@@ -98,7 +98,7 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 			"valid, non empty claimable amounts",
 			func() {
 				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
-				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
 				req = &types.QueryClaimRecordRequest{
 					Address: addr.String(),
 				}

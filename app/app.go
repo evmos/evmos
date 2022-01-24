@@ -111,6 +111,7 @@ import (
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
+	"github.com/tharsis/evmos/x/claims"
 	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/x/claims/types"
 	"github.com/tharsis/evmos/x/epochs"
@@ -258,7 +259,7 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	ClaimKeeper      claimskeeper.Keeper
+	ClaimsKeeper     claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
@@ -416,7 +417,7 @@ func NewEvmos(
 	)
 
 	// Evmos Keeper
-	app.ClaimKeeper = *claimskeeper.NewKeeper(
+	app.ClaimsKeeper = *claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
 	)
@@ -428,7 +429,7 @@ func NewEvmos(
 		stakingtypes.NewMultiStakingHooks(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
-			app.ClaimKeeper.Hooks(),
+			app.ClaimsKeeper.Hooks(),
 		),
 	)
 
@@ -450,7 +451,7 @@ func NewEvmos(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			app.ClaimKeeper.Hooks(),
+			app.ClaimsKeeper.Hooks(),
 		),
 	)
 
@@ -458,7 +459,7 @@ func NewEvmos(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
-			app.ClaimKeeper.Hooks(),
+			app.ClaimsKeeper.Hooks(),
 		),
 	)
 
@@ -525,7 +526,7 @@ func NewEvmos(
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		claims.NewAppModule(appCodec, app.ClaimKeeper),
+		claims.NewAppModule(appCodec, app.ClaimsKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
