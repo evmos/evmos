@@ -1,7 +1,7 @@
 package types
 
 // NewGenesisState creates a new GenesisState object
-func NewGenesisState(params Params, period int64) GenesisState {
+func NewGenesisState(params Params, period uint64) GenesisState {
 	return GenesisState{
 		Params: params,
 		Period: period,
@@ -12,7 +12,7 @@ func NewGenesisState(params Params, period int64) GenesisState {
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params: DefaultParams(),
-		Period: int64(0),
+		Period: uint64(0),
 	}
 }
 

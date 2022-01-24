@@ -12,7 +12,7 @@ message GenesisState {
   // params defines all the paramaters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
   // current period
-  int64 period = 2;
+  uint64 period = 2;
 }
 
 // Params holds parameters for the inflation module.

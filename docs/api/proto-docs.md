@@ -1066,7 +1066,7 @@ GenesisState defines the inflation module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
-| `period` | [int64](#int64) |  | current period |
+| `period` | [uint64](#uint64) |  | current period |
 
 
 
