@@ -15,7 +15,7 @@ func InitGenesis(
 ) {
 	k.SetParams(ctx, data.Params)
 
-	// Ensure incentives module account is set on genesis
+	// Ensure inflation module account is set on genesis
 	if acc := ak.GetModuleAccount(ctx, types.ModuleName); acc == nil {
 		panic("the inflation module account has not been set")
 	}
@@ -25,6 +25,10 @@ func InitGenesis(
 
 	epochMintProvisions := types.CalculateEpochMintProvisions(data.Params, period)
 	k.SetEpochMintProvision(ctx, epochMintProvisions)
+
+	// Mint initial coins for teamVesting
+	initialTeamVestingCoins := sdk.NewCoin(data.Params.MintDenom, sdk.NewInt(200_000_000))
+	k.MintInitialTeamVestingCoins(ctx, initialTeamVestingCoins)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

@@ -72,7 +72,7 @@ func DefaultParams() Params {
 			UsageIncentives: sdk.NewDecWithPrec(333333, 6), // 0.33 = 25% / (1 - 25%)
 			CommunityPool:   sdk.NewDecWithPrec(133333, 6), // 0.13 = 10% / (1 - 25%)
 		},
-		TeamAddress:                        ModuleAddress.Hex(),
+		TeamAddress:                        TharsisAccountAddress.Hex(),
 		TeamVestingProvision:               sdk.NewDec(int64(136986)), // 200000000/(4*365)
 		GenesisEpochProvisions:             sdk.NewDec(5000000),
 		MintingRewardsAllocationStartEpoch: 0,
