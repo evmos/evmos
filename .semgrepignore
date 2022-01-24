@@ -17,6 +17,7 @@ vendor/
 test/
 tests/
 *_test.go
+*.pb.gw.go
 
 # Semgrep rules folder
 .semgrep
