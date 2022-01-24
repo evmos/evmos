@@ -1088,8 +1088,6 @@ Params holds parameters for the inflation module.
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation_distribution defines the distribution of the minted denom |
 | `team_address` | [string](#string) |  | aaddress to receive the team allocation from the inflation distribution |
 | `team_vesting_provision` | [string](#string) |  | coin to allocate from team vesting supply |
-| `genesis_epoch_provisions` | [string](#string) |  | TODO remove below? epoch provisions from the first epoch |
-| `minting_rewards_allocation_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
 
 
 

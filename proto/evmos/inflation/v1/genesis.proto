@@ -39,13 +39,4 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-
-  // TODO remove below?
-  // epoch provisions from the first epoch
-  string genesis_epoch_provisions = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // start epoch to distribute minting rewards
-  int64 minting_rewards_allocation_start_epoch = 9;
 }
