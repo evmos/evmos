@@ -1009,9 +1009,9 @@ each period
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `a` | [string](#string) |  | initial value |
-| `r` | [string](#string) |  | decay |
+| `r` | [string](#string) |  | reduction factor |
 | `c` | [string](#string) |  | long term inflation |
-| `b` | [string](#string) |  | bonding |
+| `b` | [string](#string) |  | bonding factor` |
 
 
 

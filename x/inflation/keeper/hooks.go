@@ -43,9 +43,9 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// }
 
 	// mint coins, update supply
-	epochMintProvision, err := k.GetEpochMintProvision(ctx)
-	if err {
-		panic(err)
+	epochMintProvision, found := k.GetEpochMintProvision(ctx)
+	if found {
+		panic("the epochMintProvision has was not found")
 	}
 
 	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())

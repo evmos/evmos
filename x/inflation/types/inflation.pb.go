@@ -81,11 +81,11 @@ var xxx_messageInfo_InflationDistribution proto.InternalMessageInfo
 type ExponentialCalculation struct {
 	// initial value
 	A github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=a,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"a"`
-	// decay
+	// reduction factor
 	R github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=r,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"r"`
 	// long term inflation
 	C github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=c,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"c"`
-	// bonding
+	// bonding factor`
 	B github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=b,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"b"`
 }
 

@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	ethermint "github.com/tharsis/ethermint/types"
 	"gopkg.in/yaml.v2"
 
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
@@ -115,19 +116,6 @@ func validateMintDenom(i interface{}) error {
 	return nil
 }
 
-func validateGenesisEpochProvisions(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.LT(sdk.ZeroDec()) {
-		return fmt.Errorf("genesis epoch provision must be non-negative")
-	}
-
-	return nil
-}
-
 func validateEpochsPerPeriod(i interface{}) error {
 	v, ok := i.(int64)
 	if !ok {
@@ -141,24 +129,40 @@ func validateEpochsPerPeriod(i interface{}) error {
 	return nil
 }
 
-func validateReductionFactor(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+func validateExponentialCalculation(i interface{}) error {
+	v, ok := i.(ExponentialCalculation)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.GT(sdk.NewDec(1)) {
+	// validate initial value
+	if v.A.IsNegative() {
+		return fmt.Errorf("initial value cannot be negative")
+	}
+
+	// validate reduction factor
+	if v.R.GT(sdk.NewDec(1)) {
 		return fmt.Errorf("reduction factor cannot be greater than 1")
 	}
 
-	if v.IsNegative() {
+	if v.R.IsNegative() {
 		return fmt.Errorf("reduction factor cannot be negative")
 	}
 
-	return nil
-}
-func validateExponentialCalculation(i interface{}) error {
-	// TODO
+	// validate long term inflation
+	if v.C.IsNegative() {
+		return fmt.Errorf("long term inflation cannot be negative")
+	}
+
+	// validate bonding factor
+	if v.B.GT(sdk.NewDec(1)) {
+		return fmt.Errorf("bonding factor cannot be greater than 1")
+	}
+
+	if v.B.IsNegative() {
+		return fmt.Errorf("bonding factor cannot be negative")
+	}
+
 	return nil
 }
 
@@ -169,21 +173,18 @@ func validateInflationDistribution(i interface{}) error {
 	}
 
 	if v.StakingRewards.IsNegative() {
-		return errors.New("staking allocation ratio must not be negative")
+		return errors.New("staking distribution ratio must not be negative")
 	}
 
 	if v.UsageIncentives.IsNegative() {
-		return errors.New("pool incentives allocation ratio must not be negative")
+		return errors.New("pool incentives distribution ratio must not be negative")
 	}
 
-	// TODO: Maybe we should allow this :joy:, lets you burn osmo from community pool
-	// for new chains
 	if v.CommunityPool.IsNegative() {
-		return errors.New("community pool allocation ratio must not be negative")
+		return errors.New("community pool distribution ratio must not be negative")
 	}
 
 	totalProportions := v.StakingRewards.Add(v.UsageIncentives).Add(v.CommunityPool)
-
 	if !totalProportions.Equal(sdk.NewDec(1)) {
 		return errors.New("total distributions ratio should be 1")
 	}
@@ -191,13 +192,42 @@ func validateInflationDistribution(i interface{}) error {
 	return nil
 }
 
-// TODO
-func validateTeamVestingProvision(i interface{}) error {
+func validateTeamAddress(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if err := ethermint.ValidateAddress(v); err != nil {
+		return fmt.Errorf("invalid receiver hex address %w", err)
+	}
+
 	return nil
 }
 
-// TODO
-func validateTeamAddress(i interface{}) error {
+func validateTeamVestingProvision(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.LT(sdk.ZeroDec()) {
+		return errors.New("team vesting provision must not be negative")
+	}
+
+	return nil
+}
+
+func validateGenesisEpochProvisions(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.LT(sdk.ZeroDec()) {
+		return fmt.Errorf("genesis epoch provision must be non-negative")
+	}
+
 	return nil
 }
 

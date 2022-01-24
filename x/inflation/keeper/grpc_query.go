@@ -20,7 +20,9 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 // EpochProvisions returns minter.EpochProvisions of the mint module.
 func (k Keeper) EpochProvisions(c context.Context, _ *types.QueryEpochProvisionsRequest) (*types.QueryEpochProvisionsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	minter := k.GetMinter(ctx)
-
-	return &types.QueryEpochProvisionsResponse{EpochProvisions: minter.EpochProvisions}, nil
+	epochMintProvision, found := k.GetEpochMintProvision(ctx)
+	if found {
+		panic("the epochMintProvision has was not found")
+	}
+	return &types.QueryEpochProvisionsResponse{EpochProvisions: epochMintProvision}, nil
 }
