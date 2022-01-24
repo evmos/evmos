@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/x/claim/types"
@@ -14,13 +15,11 @@ import (
 func (suite *KeeperTestSuite) TestEndBlock() {
 
 	testCases := []struct {
-		name      string
-		NoBaseFee bool
-		malleate  func()
+		name     string
+		malleate func()
 	}{
 		{
 			"claim enabled ",
-			true,
 			func() {
 				params := suite.app.ClaimKeeper.GetParams(suite.ctx)
 				params.EnableClaim = true
@@ -38,6 +37,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 			tc.malleate()
 
 			suite.app.ClaimKeeper.EndBlocker(suite.ctx)
+
 		})
 	}
 }
@@ -48,28 +48,30 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 	suite.Require().NoError(err)
 	addr := sdk.AccAddress(priv.PubKey().Address())
 
+	var amount int64 = 10000
+
 	testCases := []struct {
-		name      string
-		NoBaseFee bool
-		malleate  func()
+		name     string
+		funds    int64
+		malleate func()
 	}{
 		{
 			"No claims records ",
-			true,
+			0,
 			func() {
 
 			},
 		},
 		{
 			"No account ",
-			true,
+			0,
 			func() {
 				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
 			},
 		},
 		{
 			"Sequence not zero ",
-			true,
+			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 1))
 				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
@@ -77,7 +79,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 		},
 		{
 			"No balance ",
-			true,
+			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 				suite.app.ClaimKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
@@ -85,12 +87,12 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 		},
 		{
 			"Balance non zero ",
-			true,
+			amount,
 			func() {
 
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
 				_ = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
 				_ = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
 
@@ -99,12 +101,12 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 		},
 		{
 			"Balance non zero not claim denom  ",
-			true,
+			0,
 			func() {
 
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(10400)))
+				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
 				_ = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
 				_ = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
 
@@ -120,29 +122,35 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 
 			suite.app.ClaimKeeper.ClawbackEmptyAccounts(suite.ctx, "aevmos")
 
+			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
+			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
+
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 
+	var amount int64 = 10000
+
 	testCases := []struct {
-		name      string
-		NoBaseFee bool
-		malleate  func()
+		name     string
+		funds    int64
+		malleate func()
 	}{
 		{
 			"No balance",
-			true,
+			0,
 			func() {
 
 			},
 		},
 		{
 			"Balance on module account",
-			true,
+			amount,
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
 				_ = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
 				_ = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, minttypes.ModuleName, types.ModuleName, coins)
 			},
@@ -155,6 +163,9 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			tc.malleate()
 
 			suite.app.ClaimKeeper.ClawbackEscrowedTokens(suite.ctx)
+			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
+			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
 
 		})
 	}
