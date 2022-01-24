@@ -12,7 +12,7 @@ import (
 	"github.com/tharsis/evmos/x/inflation/types"
 )
 
-func TestMintInitGenesis(t *testing.T) {
+func TesInflationInitGenesis(t *testing.T) {
 	// setup feemarketGenesis params
 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
 	feemarketGenesis.Params.EnableHeight = 1
@@ -25,4 +25,6 @@ func TestMintInitGenesis(t *testing.T) {
 	require.NoError(t, validateGenesis)
 	epochMintProvision, _ := app.InflationKeeper.GetEpochMintProvision(ctx)
 	require.Equal(t, int64(0), epochMintProvision)
+
+	// TODO test minting vesting on genesis
 }

@@ -13,15 +13,16 @@ import (
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
+// TODO refactor into iota
 // Parameter store keys
-const (
-	KeyMintDenom = iota + 1
-	KeyEpochIdentifier
-	KeyEpochsPerPeriod
-	KeyExponentialCalculation
-	KeyInflationDistribution
-	KeyTeamAddress
-	KeyTeamVestingProvision
+var (
+	KeyMintDenom              = []byte("KeyMintDenom")
+	KeyEpochIdentifier        = []byte("KeyEpochIdentifier")
+	KeyEpochsPerPeriod        = []byte("KeyEpochsPerPeriod")
+	KeyExponentialCalculation = []byte("KeyExponentialCalculation")
+	KeyInflationDistribution  = []byte("KeyInflationDistribution")
+	KeyTeamAddress            = []byte("KeyTeamAddress")
+	KeyTeamVestingProvision   = []byte("KeyTeamVestingProvision")
 )
 
 // ParamTable for inflation module
@@ -80,13 +81,13 @@ func (p Params) String() string {
 // Implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair([]byte{KeyMintDenom}, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair([]byte{KeyEpochIdentifier}, &p.EpochIdentifier, validateEpochIdentifier),
-		paramtypes.NewParamSetPair([]byte{KeyEpochsPerPeriod}, &p.EpochsPerPeriod, validateEpochsPerPeriod),
-		paramtypes.NewParamSetPair([]byte{KeyExponentialCalculation}, &p.ExponentialCalculation, validateExponentialCalculation),
-		paramtypes.NewParamSetPair([]byte{KeyInflationDistribution}, &p.InflationDistribution, validateInflationDistribution),
-		paramtypes.NewParamSetPair([]byte{KeyTeamAddress}, &p.TeamAddress, validateTeamAddress),
-		paramtypes.NewParamSetPair([]byte{KeyTeamVestingProvision}, &p.TeamVestingProvision, validateTeamVestingProvision),
+		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
+		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, validateEpochIdentifier),
+		paramtypes.NewParamSetPair(KeyEpochsPerPeriod, &p.EpochsPerPeriod, validateEpochsPerPeriod),
+		paramtypes.NewParamSetPair(KeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
+		paramtypes.NewParamSetPair(KeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair(KeyTeamAddress, &p.TeamAddress, validateTeamAddress),
+		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
 	}
 }
 

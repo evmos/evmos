@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/suite"
 	"github.com/tharsis/ethermint/tests"
 )
@@ -17,9 +18,9 @@ func TestParamsTestSuite(t *testing.T) {
 }
 
 // TODO fix iota use
-// func (suite *ParamsTestSuite) TestParamKeyTable() {
-// 	suite.Require().IsType(paramtypes.KeyTable{}, ParamKeyTable())
-// }
+func (suite *ParamsTestSuite) TestParamKeyTable() {
+	suite.Require().IsType(paramtypes.KeyTable{}, ParamKeyTable())
+}
 
 func (suite *ParamsTestSuite) TestParamsValidate() {
 	validExponentialCalculation := ExponentialCalculation{
