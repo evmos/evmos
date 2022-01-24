@@ -1,26 +1,23 @@
 package types
 
 // NewGenesisState creates a new GenesisState object
-func NewGenesisState(params Params) GenesisState {
+func NewGenesisState(params Params, period int64) GenesisState {
 	return GenesisState{
 		Params: params,
+		Period: period,
 	}
 }
 
-// TODO do we need to set Minter and HalvenStarted Epoch here?
 // DefaultGenesisState creates a default GenesisState object
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params: DefaultParams(),
+		Period: int64(0),
 	}
 }
 
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	if err := gs.Params.Validate(); err != nil {
-		return err
-	}
-
-	return gs.Minter.Validate()
+	return gs.Params.Validate()
 }

@@ -4,17 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// TODO move to parmas
-
-// EpochProvision returns the provisions for a block based on the epoch
-// provisions rate.
-// func EpochProvision(params Params) sdk.Coin {
-// 	provisionAmt := m.EpochProvisions
-// 	return sdk.NewCoin(params.MintDenom, provisionAmt.TruncateInt())
-// }
-
 // CalculateEpochProvisions returns mint provision per epoch
-func CalculateEpochProvisions(params Params, period int64) sdk.Dec {
+func CalculateEpochMintProvisions(params Params, period int64) sdk.Dec {
 	x := sdk.NewDec(period)                               // period
 	a := params.ExponentialCalculation.A                  // sdk.NewDec(int64(300000000)) // initial value
 	r := params.ExponentialCalculation.R                  // sdk.NewDecWithPrec(5, 1)     // 0.5 // decay factor

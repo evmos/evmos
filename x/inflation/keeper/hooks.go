@@ -16,48 +16,41 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	params := k.GetParams(ctx)
 	// TODO daily epoch logic
 	return
-	// check if epochIdentifier signal equals the identifier in the params
-	if epochIdentifier != params.EpochIdentifier {
-		return
-	}
+	// // check if epochIdentifier signal equals the identifier in the params
+	// if epochIdentifier != params.EpochIdentifier {
+	// 	return
+	// }
 
-	// not distribute rewards if it's not time yet for rewards allocation
-	if epochNumber < params.MintingRewardsAllocationStartEpoch {
-		return
-	} else if epochNumber == params.MintingRewardsAllocationStartEpoch {
-		k.SetLastHalvenEpochNum(ctx, epochNumber)
-	}
-	// fetch stored minter & params
-	minter := k.GetMinter(ctx)
-	// params := k.GetParams(ctx)
+	// // not distribute rewards if it's not time yet for rewards allocation
+	// if epochNumber < params.MintingRewardsAllocationStartEpoch {
+	// 	return
+	// } else if epochNumber == params.MintingRewardsAllocationStartEpoch {
+	// 	k.SetLastHalvenEpochNum(ctx, epochNumber)
+	// }
+	// // fetch stored minter & params
+	// minter := k.GetMinter(ctx)
+	// // params := k.GetParams(ctx)
 
-	// Check if we have hit an epoch where we update the inflation parameter.
-	// Since epochs only update based on BFT time data, it is safe to store the
-	// "halvening period time" in terms of the number of epochs that have
-	// transpired.
-	if epochNumber >= k.GetParams(ctx).ReductionPeriodInEpochs+k.GetLastHalvenEpochNum(ctx) {
-		// Halven the reward per halven period
-		minter.EpochProvisions = minter.NextEpochProvisions(params)
-		k.SetMinter(ctx, minter)
-		k.SetLastHalvenEpochNum(ctx, epochNumber)
-	}
-
-	// TODO
-
-	// Check if period ended
-	// Update EpochProvision and store if period over
-	// Get EpochProvision
-	// Call inflation with provision
-
-	// What to store?
-	//  - adjust the params, so that time can further update it itself
+	// // Check if we have hit an epoch where we update the inflation parameter.
+	// // Since epochs only update based on BFT time data, it is safe to store the
+	// // "halvening period time" in terms of the number of epochs that have
+	// // transpired.
+	// if epochNumber >= k.GetParams(ctx).ReductionPeriodInEpochs+k.GetLastHalvenEpochNum(ctx) {
+	// 	// Halven the reward per halven period
+	// 	minter.EpochProvisions = minter.NextEpochProvisions(params)
+	// 	k.SetMinter(ctx, minter)
+	// 	k.SetLastHalvenEpochNum(ctx, epochNumber)
+	// }
 
 	// mint coins, update supply
-	mintedCoin := minter.EpochProvision(params)
+	epochMintProvision, err := k.GetEpochMintProvision(ctx)
+	if err {
+		panic(err)
+	}
 
+	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
 	// We over-allocate by the developer vesting portion, and burn this later
-	err := k.MintAndAllocateInflation(ctx, mintedCoin)
-	if err != nil {
+	if err := k.MintAndAllocateInflation(ctx, mintedCoin); err != nil {
 		panic(err)
 	}
 
@@ -69,7 +62,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		sdk.NewEvent(
 			types.EventTypeMint,
 			sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
-			sdk.NewAttribute(types.AttributeKeyEpochProvisions, minter.EpochProvisions.String()),
+			// sdk.NewAttribute(types.AttributeKeyEpochProvisions, minter.EpochProvisions.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
 		),
 	)

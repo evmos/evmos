@@ -1022,13 +1022,17 @@ each period
 
 ### InflationDistribution
 InflationDistribution defines the distribution in which inflation is
-allocated (staking, incentives, community and team).
+allocated through minting on each epoch (staking, incentives, community). It
+excludes the team vesting distribution, as this is minted once at genesis.
+The initial InflationDistribution can be calculated from the Evmvos Token
+Model like this:
+mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
+0.5333333         = 40%           / (1 - 25%)
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `staking_rewards` | [string](#string) |  | staking_rewards defines the proportion of the minted minted_denom that is to be allocated as staking rewards |
-| `team_vesting` | [string](#string) |  | team_vesting defines the proportion of the minted minted_denom that is to be allocated to the team vesting address |
 | `usage_incentives` | [string](#string) |  | usage_incentives defines the proportion of the minted minted_denom that is to be allocated to the incentives module address |
 | `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool |
 
@@ -1062,6 +1066,7 @@ GenesisState defines the inflation module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
+| `period` | [int64](#int64) |  | current period |
 
 
 

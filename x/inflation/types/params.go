@@ -67,10 +67,9 @@ func DefaultParams() Params {
 			B: sdk.ZeroDec(),
 		},
 		InflationDistribution: InflationDistribution{
-			StakingRewards:  sdk.NewDecWithPrec(4, 1),  // 0.4
-			TeamVesting:     sdk.NewDecWithPrec(25, 2), // 0.25
-			UsageIncentives: sdk.NewDecWithPrec(25, 2), // 0.25
-			CommunityPool:   sdk.NewDecWithPrec(1, 1),  // 0.1
+			StakingRewards:  sdk.NewDecWithPrec(533334, 6), // 0.53 = 40% / (1 - 25%)
+			UsageIncentives: sdk.NewDecWithPrec(333333, 6), // 0.33 = 25% / (1 - 25%)
+			CommunityPool:   sdk.NewDecWithPrec(133333, 6), // 0.13 = 10% / (1 - 25%)
 		},
 		TeamAddress:                        ModuleAddress.Hex(),
 		TeamVestingProvision:               sdk.NewDec(int64(136986)), // 200000000/(4*365)
@@ -177,17 +176,13 @@ func validateInflationDistribution(i interface{}) error {
 		return errors.New("pool incentives allocation ratio must not be negative")
 	}
 
-	if v.TeamVesting.IsNegative() {
-		return errors.New("developer rewards allocation ratio must not be negative")
-	}
-
 	// TODO: Maybe we should allow this :joy:, lets you burn osmo from community pool
 	// for new chains
 	if v.CommunityPool.IsNegative() {
 		return errors.New("community pool allocation ratio must not be negative")
 	}
 
-	totalProportions := v.StakingRewards.Add(v.UsageIncentives).Add(v.TeamVesting).Add(v.CommunityPool)
+	totalProportions := v.StakingRewards.Add(v.UsageIncentives).Add(v.CommunityPool)
 
 	if !totalProportions.Equal(sdk.NewDec(1)) {
 		return errors.New("total distributions ratio should be 1")

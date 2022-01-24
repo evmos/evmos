@@ -6,17 +6,16 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/tharsis/evmos/x/inflation/types";
 
 // InflationDistribution defines the distribution in which inflation is
-// allocated (staking, incentives, community and team).
+// allocated through minting on each epoch (staking, incentives, community). It
+// excludes the team vesting distribution, as this is minted once at genesis.
+// The initial InflationDistribution can be calculated from the Evmvos Token
+// Model like this:
+// mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
+// 0.5333333         = 40%           / (1 - 25%)
 message InflationDistribution {
   // staking_rewards defines the proportion of the minted minted_denom that is
   // to be allocated as staking rewards
   string staking_rewards = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // team_vesting defines the proportion of the minted minted_denom that is to
-  // be allocated to the team vesting address
-  string team_vesting = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];

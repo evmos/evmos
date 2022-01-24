@@ -23,5 +23,6 @@ func TestMintInitGenesis(t *testing.T) {
 
 	validateGenesis := types.DefaultGenesisState().Validate()
 	require.NoError(t, validateGenesis)
-	require.Equal(t, int64(0), app.InflationKeeper.GetLastHalvenEpochNum(ctx))
+	epochMintProvision, _ := app.InflationKeeper.GetEpochMintProvision(ctx)
+	require.Equal(t, int64(0), epochMintProvision)
 }

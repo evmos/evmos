@@ -13,16 +13,18 @@ func InitGenesis(
 	ak types.AccountKeeper,
 	data types.GenesisState,
 ) {
+	k.SetParams(ctx, data.Params)
+
 	// Ensure incentives module account is set on genesis
 	if acc := ak.GetModuleAccount(ctx, types.ModuleName); acc == nil {
 		panic("the inflation module account has not been set")
 	}
 
-	k.SetEpochProvision(data.Params.GenesisEpochProvisions)
+	period := data.Period
+	k.SetPeriod(ctx, period)
 
-	data.Minter.EpochProvisions = data.Params.GenesisEpochProvisions
-	k.SetParams(ctx, data.Params)
-	ak.GetModuleAccount(ctx, types.ModuleName)
+	epochMintProvisions := types.CalculateEpochMintProvisions(data.Params, period)
+	k.SetEpochMintProvision(ctx, epochMintProvisions)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

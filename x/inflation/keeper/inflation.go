@@ -130,31 +130,7 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 }
 
 // GetProportions gets the balance of the `MintedDenom` from minted coins and
-// returns coins according to the `InflationDistribution`
+// returns coins according to the `InflationDistribution`.
 func (k Keeper) GetProportions(ctx sdk.Context, mintedCoin sdk.Coin, ratio sdk.Dec) sdk.Coin {
-	params := k.GetParams(ctx)
-
-	// The InflationDistribution param is based on the totalProvision, which
-	// includes the teamVestingProvision, that is minted once at genesis. To
-	// calculate the proportions based on the MintProvision, the distribution
-	// ratio needs to be corrected into the mintRatio.
-	//
-	// Example:
-	// TotalProvision = MintProvision (75%) + TeamVestingProvision (25%)
-	// 800M 					= 600M          			+ 200M
-	//
-	// Adjust ratio to mintedRatio by taking out teamVesting ratio
-	// 25% / (1 - 25%) = 0.33
-	// 40% / (1 - 25%) = 0.53
-	// 10% / (1 - 25%) = 0.13
-
-	// mintRatio = ratio / (1 - teamVestingRatio)
-	teamVestingFactor := sdk.OneDec().Sub(params.InflationDistribution.TeamVesting)
-	mintRatioBigInt := sdk.OneDec().BigInt().Div(ratio.BigInt(), teamVestingFactor.BigInt())
-	mintRatio := sdk.NewDecFromBigInt(mintRatioBigInt)
-
-	// proportion = MintProvision * mintRatio
-	proportion := mintedCoin.Amount.ToDec().Mul(mintRatio).TruncateInt()
-
-	return sdk.NewCoin(mintedCoin.Denom, proportion)
+	return sdk.NewCoin(mintedCoin.Denom, mintedCoin.Amount.ToDec().Mul(ratio).TruncateInt())
 }
