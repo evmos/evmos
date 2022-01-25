@@ -33,6 +33,7 @@ func InitGenesis(
 		if err != nil {
 			panic(fmt.Errorf("invalid team bech32 address: %w", err))
 		}
+
 		if acc := ak.GetAccount(ctx, teamAddr); acc == nil {
 			panic(fmt.Errorf("the team account %s has not been set", data.Params.TeamAddress))
 		}

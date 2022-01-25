@@ -8,6 +8,7 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 	"github.com/tharsis/ethermint/encoding"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -38,6 +39,7 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 
 // Setup initializes a new Evmos. A Nop logger is set in Evmos.
 func Setup(
+	ctx sdk.Context,
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
 	inflationGenesis *inflationtypes.GenesisState,

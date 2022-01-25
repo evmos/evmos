@@ -79,10 +79,18 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// setup inflation
 	inflationGenesis := inflationtypes.DefaultGenesisState()
-	teamAddress := sdk.AccAddress(suite.address.Bytes()).String()
-	inflationGenesis.Params.TeamAddress = teamAddress
+	teamAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	inflationGenesis.Params.TeamAddress = teamAddress.String()
 
-	suite.app = app.Setup(checkTx, feemarketGenesis, inflationGenesis)
+	// TODO Set Account?
+	var teamAccount authtypes.AccountI
+	err = teamAccount.SetAddress(teamAddress)
+	if err != nil {
+		panic(err)
+	}
+	suite.app.AccountKeeper.SetAccount(suite.ctx, teamAccount)
+
+	suite.app = app.Setup(suite.ctx, checkTx, feemarketGenesis, inflationGenesis)
 
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector

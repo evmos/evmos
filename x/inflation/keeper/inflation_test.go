@@ -26,7 +26,9 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin(denomMint, sdk.NewInt(600_000)))
 				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-				suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, types.ModuleName, types.UnvestedTeamAccount, coins)
+				suite.app.BankKeeper.SendCoinsFromModuleToModule(
+					suite.ctx, types.ModuleName, types.UnvestedTeamAccount, coins,
+				)
 			},
 			sdk.NewCoin(denomMint, sdk.NewInt(1000)),
 			sdk.NewCoin(denomMint, sdk.NewInt(1000)),
