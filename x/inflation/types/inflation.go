@@ -5,7 +5,7 @@ import (
 )
 
 // CalculateEpochProvisions returns mint provision per epoch
-func CalculateEpochMintProvisions(params Params, period uint64) sdk.Dec {
+func CalculateEpochMintProvision(params Params, period uint64) sdk.Dec {
 	x := period                                           // period
 	a := params.ExponentialCalculation.A                  // initial value
 	r := params.ExponentialCalculation.R                  // reduction factor

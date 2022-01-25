@@ -5,24 +5,41 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tharsis/evmos/x/inflation/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var _ types.QueryServer = Keeper{}
 
-// Params returns params of the mint module.
-func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+// Period returns the current period of the inflation module.
+func (k Keeper) Period(
+	c context.Context,
+	_ *types.QueryPeriodRequest,
+) (*types.QueryPeriodResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.GetParams(ctx)
-
-	return &types.QueryParamsResponse{Params: params}, nil
+	period := k.GetPeriod(ctx)
+	return &types.QueryPeriodResponse{Period: period}, nil
 }
 
-// EpochProvisions returns minter.EpochProvisions of the mint module.
-func (k Keeper) EpochProvisions(c context.Context, _ *types.QueryEpochProvisionsRequest) (*types.QueryEpochProvisionsResponse, error) {
+// EpochMintProvision returns the EpochMintProvision of the inflation module.
+func (k Keeper) EpochMintProvision(
+	c context.Context,
+	_ *types.QueryEpochMintProvisionRequest,
+) (*types.QueryEpochMintProvisionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	epochMintProvision, found := k.GetEpochMintProvision(ctx)
-	if found {
-		panic("the epochMintProvision has was not found")
+	if !found {
+		return nil, status.Error(codes.NotFound, "epoch mint provision not found")
 	}
-	return &types.QueryEpochProvisionsResponse{EpochProvisions: epochMintProvision}, nil
+	return &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}, nil
+}
+
+// Params returns params of the mint module.
+func (k Keeper) Params(
+	c context.Context,
+	_ *types.QueryParamsRequest,
+) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	params := k.GetParams(ctx)
+	return &types.QueryParamsResponse{Params: params}, nil
 }

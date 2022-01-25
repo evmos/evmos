@@ -21,9 +21,10 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
+	// TODO CLI
 	mintingQueryCmd.AddCommand(
+		GetCmdQueryEpochMintProvision(),
 		GetCmdQueryParams(),
-		GetCmdQueryEpochProvisions(),
 	)
 
 	return mintingQueryCmd
@@ -58,9 +59,9 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryEpochProvisions implements a command to return the current minting
+// GetCmdQueryEpochMintProvision implements a command to return the current minting
 // epoch provisions value.
-func GetCmdQueryEpochProvisions() *cobra.Command {
+func GetCmdQueryEpochMintProvision() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "epoch-provisions",
 		Short: "Query the current minting epoch provisions value",
@@ -72,13 +73,13 @@ func GetCmdQueryEpochProvisions() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryEpochProvisionsRequest{}
-			res, err := queryClient.EpochProvisions(context.Background(), params)
+			params := &types.QueryEpochMintProvisionRequest{}
+			res, err := queryClient.EpochMintProvision(context.Background(), params)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.EpochProvisions))
+			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.EpochMintProvision))
 		},
 	}
 

@@ -84,10 +84,12 @@
     - [Params](#evmos.inflation.v1.Params)
   
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
-    - [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest)
-    - [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse)
+    - [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest)
+    - [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse)
     - [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse)
+    - [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest)
+    - [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse)
   
     - [Query](#evmos.inflation.v1.Query)
   
@@ -1112,27 +1114,27 @@ Params holds parameters for the inflation module.
 
 
 
-<a name="evmos.inflation.v1.QueryEpochProvisionsRequest"></a>
+<a name="evmos.inflation.v1.QueryEpochMintProvisionRequest"></a>
 
-### QueryEpochProvisionsRequest
-QueryEpochProvisionsRequest is the request type for the
-Query/EpochProvisions RPC method.
-
-
+### QueryEpochMintProvisionRequest
+QueryEpochMintProvisionRequest is the request type for the
+Query/EpochMintProvision RPC method.
 
 
 
 
-<a name="evmos.inflation.v1.QueryEpochProvisionsResponse"></a>
 
-### QueryEpochProvisionsResponse
-QueryEpochProvisionsResponse is the response type for the
-Query/EpochProvisions RPC method.
+
+<a name="evmos.inflation.v1.QueryEpochMintProvisionResponse"></a>
+
+### QueryEpochMintProvisionResponse
+QueryEpochMintProvisionResponse is the response type for the
+Query/EpochMintProvision RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epoch_provisions` | [bytes](#bytes) |  | epoch_provisions is the current minting per epoch provisions value. |
+| `epoch_mint_provision` | [bytes](#bytes) |  | epoch_mint_provision is the current minting per epoch provision value. |
 
 
 
@@ -1163,6 +1165,31 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
 
 
+
+<a name="evmos.inflation.v1.QueryPeriodRequest"></a>
+
+### QueryPeriodRequest
+QueryPeriodRequest is the request type for the Query/Period RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryPeriodResponse"></a>
+
+### QueryPeriodResponse
+QueryPeriodResponse is the response type for the Query/Period RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `period` | [uint64](#uint64) |  | period is the current minting per epoch provision value. |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1177,8 +1204,9 @@ Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/evmos/inflation/v1/params|
-| `EpochProvisions` | [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest) | [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse) | EpochProvisions current minting epoch provisions value. | GET|/evmos/inflation/v1/epoch_provisions|
+| `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/epoch_mint_provision|
+| `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
+| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
 
  <!-- end services -->
 

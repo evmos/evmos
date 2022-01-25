@@ -16,7 +16,7 @@ func TestInflationSuite(t *testing.T) {
 	suite.Run(t, new(InflationTestSuite))
 }
 
-func (suite *InflationTestSuite) TestCalculateEpochMintProvisions() {
+func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 	testCases := []struct {
 		name              string
 		period            uint64
@@ -63,7 +63,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvisions() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			params := DefaultParams()
-			epochMintProvisions := CalculateEpochMintProvisions(params, tc.period)
+			epochMintProvisions := CalculateEpochMintProvision(params, tc.period)
 			suite.Require().Equal(tc.expEpochProvision, epochMintProvisions)
 		})
 	}

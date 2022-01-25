@@ -23,8 +23,8 @@ func InitGenesis(
 	period := data.Period
 	k.SetPeriod(ctx, period)
 
-	epochMintProvisions := types.CalculateEpochMintProvisions(data.Params, period)
-	k.SetEpochMintProvision(ctx, epochMintProvisions)
+	epochMintProvision := types.CalculateEpochMintProvision(data.Params, period)
+	k.SetEpochMintProvision(ctx, epochMintProvision)
 
 	// TODO mint team vesting coins
 	// Mint initial coins for teamVesting

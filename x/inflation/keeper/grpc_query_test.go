@@ -1,56 +1,125 @@
 package keeper_test
 
-// import (
-// 	gocontext "context"
-// 	"testing"
+import (
+	"fmt"
 
-// 	"github.com/cosmos/cosmos-sdk/baseapp"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/stretchr/testify/suite"
-// 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-// 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-// 	simapp "github.com/tharsis/evmos/app"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// 	"github.com/tharsis/evmos/x/inflation/types"
-// )
+	"github.com/tharsis/evmos/x/inflation/types"
+)
 
-// type MintTestSuite struct {
-// 	suite.Suite
+func (suite *KeeperTestSuite) TestPeriod() {
+	var (
+		req    *types.QueryPeriodRequest
+		expRes *types.QueryPeriodResponse
+	)
 
-// 	app         *simapp.Evmos
-// 	ctx         sdk.Context
-// 	queryClient types.QueryClient
-// }
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"default period",
+			func() {
+				req = &types.QueryPeriodRequest{}
+				expRes = &types.QueryPeriodResponse{}
+			},
+			true,
+		},
+		{
+			"set period",
+			func() {
+				period := uint64(9)
+				suite.app.InflationKeeper.SetPeriod(suite.ctx, period)
+				suite.Commit()
 
-// func (suite *MintTestSuite) SetupTest() {
-// 	// setup feemarketGenesis params
-// 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
-// 	feemarketGenesis.Params.EnableHeight = 1
-// 	feemarketGenesis.Params.NoBaseFee = false
-// 	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
-// 	app := simapp.Setup(false, feemarketGenesis)
-// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+				req = &types.QueryPeriodRequest{}
+				expRes = &types.QueryPeriodResponse{Period: period}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-// 	types.RegisterQueryServer(queryHelper, app.InflationKeeper)
-// 	queryClient := types.NewQueryClient(queryHelper)
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
 
-// 	suite.app = app
-// 	suite.ctx = ctx
+			res, err := suite.queryClient.Period(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
 
-// 	suite.queryClient = queryClient
-// }
+func (suite *KeeperTestSuite) TestEpochMintProvision() {
+	var (
+		req    *types.QueryEpochMintProvisionRequest
+		expRes *types.QueryEpochMintProvisionResponse
+	)
 
-// func (suite *MintTestSuite) TestGRPCParams() {
-// 	_, _, queryClient := suite.app, suite.ctx, suite.queryClient
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"default epochMintProvision",
+			func() {
+				params := types.DefaultParams()
+				defaultEpochMintProvision := types.CalculateEpochMintProvision(
+					params,
+					uint64(0),
+				)
+				req = &types.QueryEpochMintProvisionRequest{}
+				expRes = &types.QueryEpochMintProvisionResponse{
+					EpochMintProvision: defaultEpochMintProvision,
+				}
+			},
+			true,
+		},
+		{
+			"set epochMintProvision",
+			func() {
+				epochMintProvision := sdk.NewDec(1_000_000)
+				suite.app.InflationKeeper.SetEpochMintProvision(suite.ctx, epochMintProvision)
+				suite.Commit()
 
-// 	_, err := queryClient.Params(gocontext.Background(), &types.QueryParamsRequest{})
-// 	suite.Require().NoError(err)
+				req = &types.QueryEpochMintProvisionRequest{}
+				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-// 	_, err = queryClient.EpochProvisions(gocontext.Background(), &types.QueryEpochProvisionsRequest{})
-// 	suite.Require().NoError(err)
-// }
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
 
-// func TestMintTestSuite(t *testing.T) {
-// 	suite.Run(t, new(MintTestSuite))
-// }
+			res, err := suite.queryClient.EpochMintProvision(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestQueryParams() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	expParams := types.DefaultParams()
+
+	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expParams, res.Params)
+}
