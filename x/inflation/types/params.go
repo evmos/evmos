@@ -59,7 +59,7 @@ func DefaultParams() Params {
 			A: sdk.NewDec(int64(300_000_000)),
 			R: sdk.NewDecWithPrec(5, 1), // 0.5
 			C: sdk.NewDec(int64(9_375_000)),
-			B: sdk.OneDec(),
+			B: sdk.ZeroDec(),
 		},
 		InflationDistribution: InflationDistribution{
 			StakingRewards:  sdk.NewDecWithPrec(533334, 6), // 0.53 = 40% / (1 - 25%)
