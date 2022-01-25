@@ -8,9 +8,8 @@ import (
 // GetPeriod gets current period
 func (k Keeper) GetPeriod(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
-
 	bz := store.Get(types.KeyPrefixPeriod)
-	if bz == nil {
+	if len(bz) == 0 {
 		return 0
 	}
 

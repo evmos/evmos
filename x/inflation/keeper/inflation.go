@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -77,7 +79,7 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 	err = k.distrKeeper.FundCommunityPool(
 		ctx,
 		communityPool,
-		k.accountKeeper.GetModuleAddress(types.ModuleName),
+		moduleAddr,
 	)
 
 	return err
@@ -88,10 +90,15 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
 
+	// TODO logg instead of error
 	// Check team vesting account balance
-	if ok := k.bankKeeper.HasSupply(ctx, params.MintDenom); !ok {
+	tharsisAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTharsisAccount)
+	fmt.Println(params.MintDenom)
+	balance := k.bankKeeper.GetBalance(ctx, tharsisAccount, params.MintDenom)
+	if balance.IsZero() {
 		return sdkerrors.Wrapf(
-			sdkerrors.ErrInsufficientFunds, "team vesting account has no supply",
+			sdkerrors.ErrInsufficientFunds, "%s account has no supply",
+			types.UnvestedTharsisAccount,
 		)
 	}
 
@@ -99,9 +106,6 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	// tharsis account doesn't have sufficient balance to allocate, only allocate
 	// remaining coins.
 	coin := sdk.NewCoin(params.MintDenom, sdk.NewInt(params.TeamVestingProvision.BigInt().Int64()))
-	tharsisAccount := k.accountKeeper.GetModuleAddress(types.TharsisAccount)
-	balance := k.bankKeeper.GetBalance(ctx, tharsisAccount, params.MintDenom)
-
 	if balance.IsLT(coin) {
 		coin = balance
 	}

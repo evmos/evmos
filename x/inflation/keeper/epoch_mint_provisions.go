@@ -10,7 +10,7 @@ import (
 // GetEpochMintProvision gets the current EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) (sdk.Dec, bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.KeyprefixEpochMintProvisions)
+	bz := store.Get(types.KeyprefixEpochMintProvision)
 	if len(bz) == 0 {
 		return sdk.ZeroDec(), false
 	}
@@ -32,5 +32,5 @@ func (k Keeper) SetEpochMintProvision(ctx sdk.Context, epochProvisions sdk.Dec) 
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.KeyprefixEpochMintProvisions, bz)
+	store.Set(types.KeyprefixEpochMintProvision, bz)
 }

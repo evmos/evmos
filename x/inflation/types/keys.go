@@ -37,11 +37,11 @@ func init() {
 // prefix bytes for the inflation persistent store
 const (
 	prefixPeriod = iota + 1
-	prefixEpochMintProvisions
+	prefixEpochMintProvision
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixPeriod              = []byte{prefixPeriod}
-	KeyprefixEpochMintProvisions = []byte{prefixEpochMintProvisions}
+	KeyPrefixPeriod             = []byte{prefixPeriod}
+	KeyprefixEpochMintProvision = []byte{prefixEpochMintProvision}
 )
