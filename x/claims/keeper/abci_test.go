@@ -13,7 +13,6 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {
-
 	testCases := []struct {
 		name     string
 		malleate func()
@@ -37,13 +36,11 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 			tc.malleate()
 
 			suite.app.ClaimsKeeper.EndBlocker(suite.ctx)
-
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
-
 	priv, err := ethsecp256k1.GenerateKey()
 	suite.Require().NoError(err)
 	addr := sdk.AccAddress(priv.PubKey().Address())
@@ -56,21 +53,20 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 		malleate func()
 	}{
 		{
-			"No claims records ",
+			"no claims records",
 			0,
 			func() {
-
 			},
 		},
 		{
-			"No account ",
+			"no account",
 			0,
 			func() {
 				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
 			},
 		},
 		{
-			"Sequence not zero ",
+			"sequence not zero",
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 1))
@@ -78,7 +74,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"No balance ",
+			"no balance",
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
@@ -86,10 +82,9 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"Balance non zero ",
+			"balance non zero",
 			amount,
 			func() {
-
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
@@ -101,10 +96,9 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"Balance non zero not claim denom  ",
+			"balance non zero not claim denom",
 			0,
 			func() {
-
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
@@ -127,13 +121,11 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
 			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
-
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
-
 	var amount int64 = 10000
 
 	testCases := []struct {
@@ -142,14 +134,13 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 		malleate func()
 	}{
 		{
-			"No balance",
+			"no balance",
 			0,
 			func() {
-
 			},
 		},
 		{
-			"Balance on module account",
+			"balance on module account",
 			amount,
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
@@ -170,7 +161,6 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
 			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
-
 		})
 	}
 }

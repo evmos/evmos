@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 	suite.Require().Equal(expParams, res.Params)
 }
 
-func (suite *KeeperTestSuite) TestClaimRecords() {
+func (suite *KeeperTestSuite) TestClaimRecord() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
 	req := &types.QueryClaimRecordRequest{}
@@ -120,6 +120,47 @@ func (suite *KeeperTestSuite) TestClaimRecords() {
 			for _, claim := range res.Claims {
 				suite.Require().Equal(res.InitialClaimableAmount.QuoRaw(4).String(), claim.ClaimableAmount.String())
 			}
+		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestClaimRecords() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+
+	req := &types.QueryClaimRecordsRequest{}
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expErr   bool
+	}{
+		{
+			"empty req", func() {}, false,
+		},
+		{
+			"single record", func() {
+				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+			},
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+
+		tc.malleate()
+
+		res, err := suite.queryClient.ClaimRecords(ctx, req)
+		if tc.expErr {
+			suite.Require().Error(err)
+		} else {
+			suite.Require().NoError(err)
+			suite.Require().NotNil(res)
+			for _, c := range res.Claims {
+				suite.Require().Equal(addr.String(), c.Address)
+			}
+
 		}
 	}
 }
