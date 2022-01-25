@@ -120,7 +120,6 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 				suite.Require().Len(res.Claims[0].ActionsCompleted, 4)
 				for i, claim := range res.Claims[0].ActionsCompleted {
 					suite.Require().Equal(claim, tc.actions[i])
-
 				}
 				suite.Require().Equal(res.Claims[0].InitialClaimableAmount.String(), tc.initialAmount.String())
 
@@ -132,7 +131,7 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestClaimRecords() {
+func (suite *KeeperTestSuite) TestClaimRecord() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
 	req := &types.QueryClaimRecordRequest{}

@@ -498,12 +498,12 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 	coins = suite.app.ClaimsKeeper.GetModuleAccountBalances(ctx)
 	suite.Require().Equal(coins.AmountOf(params.GetClaimDenom()), sdk.NewInt(0))
 
-	// ensure commuity pool has the unclaimed escrow amount
+	// ensure community pool has the unclaimed escrow amount
 	bal = suite.app.BankKeeper.GetBalance(ctx, distrModuleAddr, params.GetClaimDenom())
 	suite.Require().Equal(bal.Amount, escrow.Sub(claimedCoins))
 
 	// make sure the claim records is empty
-	suite.Require().True(len(suite.app.ClaimsKeeper.GetClaimRecords(ctx)) == 0)
+	suite.Require().Empty(suite.app.ClaimsKeeper.GetClaimRecords(ctx))
 }
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
@@ -541,7 +541,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 
 	for _, tc := range tests {
 		addr, err := sdk.AccAddressFromBech32(tc.address)
-		suite.Require().NoError(err, "err: %s test: %s", err, tc.name)
+		suite.Require().NoError(err, tc.name)
 		acc := &ethermint.EthAccount{
 			BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(addr.Bytes()), nil, 0, 0),
 			CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),

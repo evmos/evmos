@@ -16,8 +16,8 @@ import (
 
 var (
 	now         = time.Now().UTC()
-	acc1        = sdk.AccAddress([]byte("addr1---------------"))
-	acc2        = sdk.AccAddress([]byte("addr2---------------"))
+	acc1, _     = sdk.AccAddressFromBech32("evmos1qxx0fdsmruzuar2fay88lfw6sce6emamyu2s8h4d")
+	acc2, _     = sdk.AccAddressFromBech32("evmos1nsrs4t7dngkdltehkm3p6n8dp22sz3mct9uhc8")
 	testGenesis = types.GenesisState{
 		Params: types.Params{
 			AirdropStartTime:   now,

@@ -4,8 +4,7 @@ import (
 	"testing"
 	"time"
 
-	cmdcfg "github.com/tharsis/evmos/cmd/config"
-
+	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -15,8 +14,6 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
-
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/claims/types"
@@ -33,9 +30,7 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	// consensus key
-	priv, err := ethsecp256k1.GenerateKey()
-	suite.Require().NoError(err)
-	consAddress := sdk.ConsAddress(priv.PubKey().Address())
+	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
 
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
@@ -74,11 +69,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-}
-
-func init() {
-	config := sdk.GetConfig()
-	cmdcfg.SetBech32Prefixes(config)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
