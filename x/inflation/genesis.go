@@ -1,6 +1,8 @@
 package inflation
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tharsis/evmos/x/inflation/keeper"
 	"github.com/tharsis/evmos/x/inflation/types"
@@ -25,10 +27,15 @@ func InitGenesis(
 		panic("the unvested team module account has not been set")
 	}
 
-	// TODO Ensure team account is set on genesis
-	acc := ak.GetAccount(ctx, sdk.AccAddress(data.Params.TeamAddress))
-	if acc.GetAddress().Empty() {
-		panic("the team account has not been set")
+	// ensure team account exists
+	if data.Params.TeamAddress != "" {
+		teamAddr, err := sdk.AccAddressFromBech32(data.Params.TeamAddress)
+		if err != nil {
+			panic(fmt.Errorf("invalid team bech32 address: %w", err))
+		}
+		if acc := ak.GetAccount(ctx, teamAddr); acc == nil {
+			panic(fmt.Errorf("the team account %s has not been set", data.Params.TeamAddress))
+		}
 	}
 
 	// Set Period
