@@ -13,11 +13,11 @@ func (k Keeper) GetPeriod(ctx sdk.Context) uint64 {
 		return 0
 	}
 
-	return uint64(sdk.BigEndianToUint64(bz))
+	return sdk.BigEndianToUint64(bz)
 }
 
 // SetPeriod stores the current period
 func (k Keeper) SetPeriod(ctx sdk.Context, period uint64) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.KeyPrefixPeriod, sdk.Uint64ToBigEndian(uint64(period)))
+	store.Set(types.KeyPrefixPeriod, sdk.Uint64ToBigEndian(period))
 }

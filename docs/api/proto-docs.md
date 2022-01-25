@@ -1003,7 +1003,9 @@ Query defines the gRPC querier service.
 
 ### ExponentialCalculation
 ExponentialCalculation holds factors to calculate exponential inflation on
-each period
+each period. Calculation reference:
+periodProvision = exponentialDecay     *  bondingRatio
+f(x)            = a * (1 - r) ^ x + c  *  (1 + (1 - b) / 2)
 
 
 | Field | Type | Label | Description |
@@ -1066,7 +1068,7 @@ GenesisState defines the inflation module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
-| `period` | [uint64](#uint64) |  | current period |
+| `period` | [uint64](#uint64) |  | amount of past periods, based on the epochs per period param |
 
 
 

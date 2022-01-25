@@ -60,7 +60,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // CreateDeveloperVestingModuleAccount creates the module account for developer vesting.
 func (k Keeper) MintInitialTeamVestingCoins(ctx sdk.Context, amount sdk.Coin) {
-	err := k.bankKeeper.MintCoins(ctx, types.UnvestedTharsisAccount, sdk.NewCoins(amount))
+	err := k.bankKeeper.MintCoins(ctx, types.UnvestedTeamAccount, sdk.NewCoins(amount))
 	if err != nil {
 		panic(err)
 	}

@@ -36,5 +36,6 @@ func InitGenesis(
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
+		Period: k.GetPeriod(ctx),
 	}
 }

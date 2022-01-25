@@ -28,7 +28,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type GenesisState struct {
 	// params defines all the paramaters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// current period
+	// amount of past periods, based on the epochs per period param
 	Period uint64 `protobuf:"varint,2,opt,name=period,proto3" json:"period,omitempty"`
 }
 

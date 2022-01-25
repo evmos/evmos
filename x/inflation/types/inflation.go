@@ -20,7 +20,7 @@ func CalculateEpochMintProvisions(params Params, period uint64) sdk.Dec {
 	// bondingRatio := 1 + (1 - b) / 2
 	bondingRatio := (sdk.OneDec().Sub(b)).Mul(sdk.NewDecWithPrec(5, 1)).Add(sdk.OneDec())
 
-	// periodProvision = exponentialDecau * bondingRatio
+	// periodProvision = exponentialDecay * bondingRatio
 	periodProvision := exponentialDecay.Mul(bondingRatio)
 
 	// epochProvision = periodProvision / epochsPerPeriod

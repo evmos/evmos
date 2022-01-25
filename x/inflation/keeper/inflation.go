@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -49,40 +47,38 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 	proportions := params.InflationDistribution
 
 	// Allocate staking rewards into fee collector account
-	stakingRewards := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.StakingRewards))
+	stakingRewardsAmt := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.StakingRewards))
 	err := k.bankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		types.ModuleName,
 		k.feeCollectorName,
-		stakingRewards,
+		stakingRewardsAmt,
 	)
 	if err != nil {
 		return err
 	}
 
 	// Allocate usage incentives to incentives module account
-	usageIncentives := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.UsageIncentives))
+	usageIncentivesAmt := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.UsageIncentives))
 	err = k.bankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		types.ModuleName,
 		incentivestypes.ModuleName,
-		usageIncentives,
+		usageIncentivesAmt,
 	)
 	if err != nil {
 		return err
 	}
 
-	// Allocate community pool inflation (remaining module balance) to community
+	// Allocate community pool amount (remaining module balance) to community
 	// pool address
 	moduleAddr := sdk.AccAddress(types.ModuleAddress.Bytes())
-	communityPool := sdk.NewCoins(k.bankKeeper.GetBalance(ctx, moduleAddr, mintedCoin.Denom))
-	err = k.distrKeeper.FundCommunityPool(
+	communityPoolAmt := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+	return k.distrKeeper.FundCommunityPool(
 		ctx,
-		communityPool,
+		communityPoolAmt,
 		moduleAddr,
 	)
-
-	return err
 }
 
 // AllocateTeamVesting allocates the team vesting proportion from the team
@@ -90,44 +86,44 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
 
-	// TODO logg instead of error
+	// TODO log instead of error
 	// Check team vesting account balance
-	tharsisAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTharsisAccount)
-	fmt.Println(params.MintDenom)
-	balance := k.bankKeeper.GetBalance(ctx, tharsisAccount, params.MintDenom)
+	unvestedTeamAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTeamAccount)
+	balance := k.bankKeeper.GetBalance(ctx, unvestedTeamAccount, params.MintDenom)
 	if balance.IsZero() {
 		return sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds, "%s account has no supply",
-			types.UnvestedTharsisAccount,
+			types.UnvestedTeamAccount,
 		)
 	}
 
-	// Get team vesting provision to allocate from the tharsis account balance. If
-	// tharsis account doesn't have sufficient balance to allocate, only allocate
-	// remaining coins.
+	// Get team vesting provision to allocate from the tharsis account balance.
 	coin := sdk.NewCoin(params.MintDenom, sdk.NewInt(params.TeamVestingProvision.BigInt().Int64()))
+
+	// Check if team account has sufficient balance to allocate. If not, only
+	// allocate remaining balance.
 	if balance.IsLT(coin) {
 		coin = balance
 	}
-	coins := sdk.NewCoins(coin)
+	teamVestingAmt := sdk.NewCoins(coin)
 
 	// Allocate teamVesting to community pool when rewards address is empty
 	if params.TeamAddress == "" {
-		if err := k.distrKeeper.FundCommunityPool(ctx, coins, tharsisAccount); err != nil {
+		if err := k.distrKeeper.FundCommunityPool(ctx, teamVestingAmt, unvestedTeamAccount); err != nil {
 			return err
 		}
 	}
 
-	// Send coins to teamVestingReceiver account
-	teamAddress, err := sdk.AccAddressFromHex(params.TeamAddress)
+	// Send coins to team address
+	teamAddress, err := sdk.AccAddressFromBech32(params.TeamAddress)
 	if err != nil {
 		return err
 	}
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
-		tharsisAccount.String(),
+		unvestedTeamAccount.String(),
 		teamAddress,
-		coins,
+		teamVestingAmt,
 	)
 
 	return err

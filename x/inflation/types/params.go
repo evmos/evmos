@@ -13,7 +13,6 @@ import (
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
-// TODO refactor into iota
 // Parameter store keys
 var (
 	KeyMintDenom              = []byte("KeyMintDenom")
@@ -36,7 +35,7 @@ func NewParams(
 	epochsPerPeriod int64,
 	exponentialCalculation ExponentialCalculation,
 	inflationDistribution InflationDistribution,
-	teamAddress string,
+	teamAddress sdk.AccAddress,
 	teamVestingProvision sdk.Dec,
 ) Params {
 	return Params{
@@ -45,7 +44,7 @@ func NewParams(
 		EpochsPerPeriod:        epochsPerPeriod,
 		ExponentialCalculation: exponentialCalculation,
 		InflationDistribution:  inflationDistribution,
-		TeamAddress:            teamAddress,
+		TeamAddress:            teamAddress.String(),
 		TeamVestingProvision:   teamVestingProvision,
 	}
 }
@@ -82,7 +81,7 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, validateEpochIdentifier),
+		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
 		paramtypes.NewParamSetPair(KeyEpochsPerPeriod, &p.EpochsPerPeriod, validateEpochsPerPeriod),
 		paramtypes.NewParamSetPair(KeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
 		paramtypes.NewParamSetPair(KeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
@@ -103,17 +102,6 @@ func validateMintDenom(i interface{}) error {
 	if err := sdk.ValidateDenom(v); err != nil {
 		return err
 	}
-
-	return nil
-}
-
-func validateEpochIdentifier(i interface{}) error {
-	err := epochtypes.ValidateEpochIdentifierInterface(i)
-	if err != nil {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	// TODO add day, week, year?
 
 	return nil
 }

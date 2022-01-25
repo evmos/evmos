@@ -17,21 +17,21 @@ const (
 	RouterKey = ModuleName
 
 	// module account name for team vesting
-	TharsisAccount         = "tharsis_account"
-	UnvestedTharsisAccount = "unvested_tharsis_account"
+	TharsisAccount      = "tharsis_account"
+	UnvestedTeamAccount = "unvested_team_account"
 )
 
 // ModuleAddress is the native module address for inflation module
 var (
-	ModuleAddress                 common.Address
-	TharsisAccountAddress         common.Address
-	UnvestedTharsisAccountAddress common.Address
+	ModuleAddress              common.Address
+	TharsisAccountAddress      common.Address
+	UnvestedTeamAccountAddress common.Address
 )
 
 func init() {
 	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
 	TharsisAccountAddress = common.BytesToAddress(authtypes.NewModuleAddress(TharsisAccount).Bytes())
-	UnvestedTharsisAccountAddress = common.BytesToAddress(authtypes.NewModuleAddress(UnvestedTharsisAccount).Bytes())
+	UnvestedTeamAccountAddress = common.BytesToAddress(authtypes.NewModuleAddress(UnvestedTeamAccount).Bytes())
 }
 
 // prefix bytes for the inflation persistent store

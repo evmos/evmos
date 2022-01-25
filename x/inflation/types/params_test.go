@@ -17,7 +17,6 @@ func TestParamsTestSuite(t *testing.T) {
 	suite.Run(t, new(ParamsTestSuite))
 }
 
-// TODO fix iota use
 func (suite *ParamsTestSuite) TestParamKeyTable() {
 	suite.Require().IsType(paramtypes.KeyTable{}, ParamKeyTable())
 }
@@ -54,7 +53,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				365,
 				validExponentialCalculation,
 				validInflationDistribution,
-				tests.GenerateAddress().Hex(),
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				sdk.NewDec(1_000_000),
 			),
 			false,
@@ -80,7 +79,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				365,
 				validExponentialCalculation,
 				validInflationDistribution,
-				tests.GenerateAddress().Hex(),
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				sdk.NewDec(1_000_000),
 			),
 			true,
