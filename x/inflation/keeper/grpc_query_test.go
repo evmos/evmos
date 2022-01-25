@@ -118,6 +118,8 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	expParams := types.DefaultParams()
+	// manually set team address at genesis
+	expParams.TeamAddress = sdk.AccAddress(suite.address.Bytes()).String()
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)

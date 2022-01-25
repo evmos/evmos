@@ -79,7 +79,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// setup inflation
 	inflationGenesis := inflationtypes.DefaultGenesisState()
-	inflationGenesis.Params.TeamAddress = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+	teamAddress := sdk.AccAddress(suite.address.Bytes()).String()
+	inflationGenesis.Params.TeamAddress = teamAddress
 
 	suite.app = app.Setup(checkTx, feemarketGenesis, inflationGenesis)
 
@@ -164,6 +165,18 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+
+	// ------------------------- Genesis setup ---------------------------------//
+
+	// test epochMintProvison
+	epochMintProvision, _ := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
+	require.Equal(t, sdk.NewDec(847602), epochMintProvision)
+
+	// TODO test unvested team account balance
+	// sdkAddr := sdk.AccAddress(types.UnvestedTeamAccount)
+	// balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkAddr, inflationGenesis.Params.MintDenom)
+	// expbalance := sdk.NewCoin(denomMint, sdk.NewInt(200_000_000))
+	// require.Equal(t, expbalance, balance)
 }
 
 func (suite *KeeperTestSuite) SetupTest() {

@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	evm "github.com/tharsis/ethermint/x/evm/types"
 	"gopkg.in/yaml.v2"
 
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
@@ -51,7 +52,7 @@ func NewParams(
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom:       sdk.DefaultBondDenom,
+		MintDenom:       evm.DefaultEVMDenom,
 		EpochIdentifier: "day", // 1 day
 		EpochsPerPeriod: 365,   // 1 year
 		ExponentialCalculation: ExponentialCalculation{
