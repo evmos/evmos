@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	ethermint "github.com/tharsis/ethermint/types"
 	"gopkg.in/yaml.v2"
 
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
@@ -36,7 +35,7 @@ func NewParams(
 	exponentialCalculation ExponentialCalculation,
 	inflationDistribution InflationDistribution,
 	teamAddress sdk.AccAddress,
-	teamVestingProvision sdk.Dec,
+	teamVestingProvision sdk.Int,
 ) Params {
 	return Params{
 		MintDenom:              mintDenom,
@@ -66,8 +65,8 @@ func DefaultParams() Params {
 			UsageIncentives: sdk.NewDecWithPrec(333333, 6), // 0.33 = 25% / (1 - 25%)
 			CommunityPool:   sdk.NewDecWithPrec(133333, 6), // 0.13 = 10% / (1 - 25%)
 		},
-		TeamAddress:          TharsisAccountAddress.Hex(),
-		TeamVestingProvision: sdk.NewDec(int64(136986)), // 200000000/(4*365)
+		TeamAddress:          "",
+		TeamVestingProvision: sdk.NewInt(136986), // 200000000/(4*365)
 	}
 }
 
@@ -188,20 +187,20 @@ func validateTeamAddress(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if err := ethermint.ValidateAddress(v); err != nil {
-		return fmt.Errorf("invalid receiver hex address %w", err)
+	if _, err := sdk.AccAddressFromBech32(v); err != nil {
+		return fmt.Errorf("invalid address %w", err)
 	}
 
 	return nil
 }
 
 func validateTeamVestingProvision(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.LT(sdk.ZeroDec()) {
+	if v.LT(sdk.ZeroInt()) {
 		return errors.New("team vesting provision must not be negative")
 	}
 

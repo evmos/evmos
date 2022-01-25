@@ -20,16 +20,31 @@ func InitGenesis(
 		panic("the inflation module account has not been set")
 	}
 
+	// Ensure unvested team module account is set on genesis
+	if acc := ak.GetModuleAccount(ctx, types.UnvestedTeamAccount); acc == nil {
+		panic("the unvested team module account has not been set")
+	}
+
+	// Ensure team account is set on genesis
+	acc := ak.GetAccount(ctx, sdk.AccAddress(data.Params.TeamAddress))
+	if acc.GetAddress().Empty() {
+		panic("the team account has not been set")
+	}
+
+	// Set Period
 	period := data.Period
 	k.SetPeriod(ctx, period)
 
+	// Calculate epoch mint provision
 	epochMintProvision := types.CalculateEpochMintProvision(data.Params, period)
 	k.SetEpochMintProvision(ctx, epochMintProvision)
 
-	// TODO mint team vesting coins
-	// Mint initial coins for teamVesting
-	// initialTeamVestingCoins := sdk.NewCoin(data.Params.MintDenom, sdk.NewInt(200_000_000))
-	// k.MintInitialTeamVestingCoins(ctx, initialTeamVestingCoins)
+	// Mint genesis coins for teamVesting
+	amount := sdk.NewInt(200_000_000)
+	coins := sdk.NewCoins(sdk.NewCoin(data.Params.MintDenom, amount))
+	if err := k.MintGenesisTeamVestingCoins(ctx, coins); err != nil {
+		panic(err)
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

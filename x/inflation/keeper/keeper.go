@@ -58,10 +58,23 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// CreateDeveloperVestingModuleAccount creates the module account for developer vesting.
-func (k Keeper) MintInitialTeamVestingCoins(ctx sdk.Context, amount sdk.Coin) {
-	err := k.bankKeeper.MintCoins(ctx, types.UnvestedTeamAccount, sdk.NewCoins(amount))
-	if err != nil {
-		panic(err)
+// CreateDeveloperVestingModuleAccount mints and sends coins to the unvested
+// team account.
+func (k Keeper) MintGenesisTeamVestingCoins(
+	ctx sdk.Context,
+	amount sdk.Coins,
+) error {
+	// Mint coins to inflation account
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, amount); err != nil {
+		return err
 	}
+
+	// Send coins from inflation module mto unvested team module account
+	return k.bankKeeper.SendCoinsFromModuleToModule(
+		ctx,
+		types.ModuleName,
+		types.UnvestedTeamAccount,
+		amount,
+	)
+
 }

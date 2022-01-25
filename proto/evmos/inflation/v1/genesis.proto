@@ -36,7 +36,7 @@ message Params {
   string team_address = 6;
   // coin to allocate from team vesting supply
   string team_vesting_provision = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
 }

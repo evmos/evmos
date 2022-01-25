@@ -3,7 +3,9 @@ package types
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+	"github.com/tharsis/ethermint/tests"
 )
 
 type GenesisTestSuite struct {
@@ -18,7 +20,11 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := NewGenesisState(DefaultParams(), uint64(0))
+	// Team Address needs to be set manually at Genesis
+	validParams := DefaultParams()
+	validParams.TeamAddress = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+
+	newGen := NewGenesisState(validParams, uint64(0))
 
 	testCases := []struct {
 		name     string
@@ -26,34 +32,34 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		expPass  bool
 	}{
 		{
+			"empty genesis",
+			&GenesisState{},
+			false,
+		},
+		{
+			"invalid default genesis without address",
+			DefaultGenesisState(),
+			false,
+		},
+		{
 			"valid genesis constructor",
 			&newGen,
 			true,
 		},
 		{
-			"default",
-			DefaultGenesisState(),
-			true,
-		},
-		{
 			"valid genesis",
 			&GenesisState{
-				Params: DefaultParams(),
+				Params: validParams,
 			},
 			true,
 		},
 		{
 			"valid genesis - with period",
 			&GenesisState{
-				Params: DefaultParams(),
-				Period: uint64(0),
+				Params: validParams,
+				Period: uint64(5),
 			},
 			true,
-		},
-		{
-			"empty genesis",
-			&GenesisState{},
-			false,
 		},
 	}
 

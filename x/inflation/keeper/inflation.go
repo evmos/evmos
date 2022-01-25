@@ -15,11 +15,14 @@ func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
 		panic(err)
 	}
 
-	// Allocate minted coins according to allocation proportions
+	// Allocate minted coins according to allocation proportions (staking, usage
+	// incentives, community pool)
 	if err := k.AllocateMintedCoin(ctx, coin); err != nil {
 		panic(err)
 	}
 
+	// Transfer coins (allocated at genesis) from unvested_team_account to team
+	// address
 	if err := k.AllocateTeamVesting(ctx); err != nil {
 		panic(err)
 	}
@@ -72,7 +75,7 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 
 	// Allocate community pool amount (remaining module balance) to community
 	// pool address
-	moduleAddr := sdk.AccAddress(types.ModuleAddress.Bytes())
+	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	communityPoolAmt := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
 	return k.distrKeeper.FundCommunityPool(
 		ctx,
@@ -87,31 +90,37 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
 
 	// TODO log instead of error
-	// Check team vesting account balance
+	// Check unvested team account balance
 	unvestedTeamAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTeamAccount)
-	balance := k.bankKeeper.GetBalance(ctx, unvestedTeamAccount, params.MintDenom)
-	if balance.IsZero() {
+	balances := k.bankKeeper.GetAllBalances(ctx, unvestedTeamAccount)
+	if balances.IsZero() {
 		return sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds, "%s account has no supply",
 			types.UnvestedTeamAccount,
 		)
 	}
 
-	// Get team vesting provision to allocate from the tharsis account balance.
-	coin := sdk.NewCoin(params.MintDenom, sdk.NewInt(params.TeamVestingProvision.BigInt().Int64()))
+	// Get team vesting provision to allocate from the unvested team account
+	// balance.
+	mintCoin := sdk.NewCoin(params.MintDenom, params.TeamVestingProvision)
 
-	// Check if team account has sufficient balance to allocate. If not, only
-	// allocate remaining balance.
-	if balance.IsLT(coin) {
-		coin = balance
+	// Create teamVesitingAmt from balances
+	var teamVestingAmt sdk.Coins
+	for _, coin := range balances {
+		if coin.Denom == mintCoin.Denom {
+			// Check if unvested team account has sufficient balance to allocate. If
+			// yes, only allocate mintCoin, else allocate remaining balance.
+			if coin.IsGTE(mintCoin) {
+				coin = mintCoin
+			}
+		}
+		// add coin to teamVestingAmt
+		teamVestingAmt = append(teamVestingAmt, coin)
 	}
-	teamVestingAmt := sdk.NewCoins(coin)
 
 	// Allocate teamVesting to community pool when rewards address is empty
 	if params.TeamAddress == "" {
-		if err := k.distrKeeper.FundCommunityPool(ctx, teamVestingAmt, unvestedTeamAccount); err != nil {
-			return err
-		}
+		return k.distrKeeper.FundCommunityPool(ctx, teamVestingAmt, unvestedTeamAccount)
 	}
 
 	// Send coins to team address
