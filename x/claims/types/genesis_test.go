@@ -4,72 +4,119 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 	"github.com/tharsis/ethermint/tests"
 )
 
-func TestGenesisStateValidate(t *testing.T) {
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+type GenesisTestSuite struct {
+	suite.Suite
+}
+
+func (suite *GenesisTestSuite) SetupTest() {
+}
+
+func TestGenesisTestSuite(t *testing.T) {
+	suite.Run(t, new(GenesisTestSuite))
+}
+
+func (suite *GenesisTestSuite) TestValidateGenesis() {
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name     string
-		gs       *GenesisState
-		expError bool
+		genState *GenesisState
+		expPass  bool
 	}{
 		{
-			"valid - default params",
-			DefaultGenesis(),
-			false,
+			name:     "default",
+			genState: DefaultGenesis(),
+			expPass:  true,
 		},
 		{
-			"invalid - empty literal",
-			&GenesisState{},
-			true,
-		},
-		{
-			"invalid claim record",
-			&GenesisState{
-				Params: DefaultParams(),
-				ClaimRecords: []ClaimRecordAddress{
-					{},
-				},
+			name: "valid genesis",
+			genState: &GenesisState{
+				Params:       DefaultParams(),
+				ClaimRecords: []ClaimRecordAddress{},
 			},
-			true,
+			expPass: true,
 		},
 		{
-			"duplicated claim records",
-			&GenesisState{
+			name: "valid genesis - with claim record",
+			genState: &GenesisState{
 				Params: DefaultParams(),
 				ClaimRecords: []ClaimRecordAddress{
 					{
-						Address:                addr,
-						InitialClaimableAmount: sdk.NewInt(100),
-						ActionsCompleted:       []bool{false, false, false, false},
-					},
-					{
-						Address:                addr,
-						InitialClaimableAmount: sdk.NewInt(10),
-						ActionsCompleted:       []bool{true, true, true, true},
+						Address:                addr.String(),
+						InitialClaimableAmount: sdk.NewInt(1),
+						ActionsCompleted:       []bool{true, true, false, false},
 					},
 				},
 			},
-			true,
+			expPass: true,
 		},
 		{
-			"invalid params",
-			&GenesisState{
-				Params: Params{},
+			name: "invalid genesis - duplicated claim record",
+			genState: &GenesisState{
+				Params: DefaultParams(),
+				ClaimRecords: []ClaimRecordAddress{
+					{
+						Address:                addr.String(),
+						InitialClaimableAmount: sdk.NewInt(1),
+						ActionsCompleted:       []bool{true, true, false, false},
+					},
+					{
+						Address:                addr.String(),
+						InitialClaimableAmount: sdk.NewInt(1),
+						ActionsCompleted:       []bool{true, true, false, false},
+					},
+				},
 			},
-			true,
+			expPass: false,
+		},
+
+		{
+			name: "invalid genesis - invalid address",
+			genState: &GenesisState{
+				Params: DefaultParams(),
+				ClaimRecords: []ClaimRecordAddress{
+					{
+						Address:                "badaddress",
+						InitialClaimableAmount: sdk.NewInt(1),
+						ActionsCompleted:       []bool{true, true, false, false},
+					},
+				},
+			},
+			expPass: false,
+		},
+		{
+			name: "invalid genesis - invalid claimable amount",
+			genState: &GenesisState{
+				Params: DefaultParams(),
+				ClaimRecords: []ClaimRecordAddress{
+					{
+						Address:                addr.String(),
+						InitialClaimableAmount: sdk.NewInt(-100),
+						ActionsCompleted:       []bool{true, true, false, false},
+					},
+				},
+			},
+			expPass: false,
+		},
+		{
+			// duration of decay must be positive
+			name:     "empty genesis",
+			genState: &GenesisState{},
+			expPass:  false,
 		},
 	}
 
 	for _, tc := range testCases {
-		err := tc.gs.Validate()
-		if tc.expError {
-			require.Error(t, err, tc.name)
+		tc := tc
+		err := tc.genState.Validate()
+		if tc.expPass {
+			suite.Require().NoError(err, tc.name)
 		} else {
-			require.NoError(t, err, tc.name)
+			suite.Require().Error(err, tc.name)
 		}
 	}
 }
