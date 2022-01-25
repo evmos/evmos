@@ -58,7 +58,7 @@ func (k Keeper) ClaimRecords(
 			}
 
 			cra := types.ClaimRecordAddress{
-				Address:                sdk.AccAddress(key[1:]).String(),
+				Address:                sdk.AccAddress(key).String(),
 				InitialClaimableAmount: cr.InitialClaimableAmount,
 				ActionsCompleted:       cr.ActionsCompleted,
 			}
