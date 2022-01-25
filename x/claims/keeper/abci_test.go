@@ -19,7 +19,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 		malleate func()
 	}{
 		{
-			"claim enabled ",
+			"claim enabled",
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaim = true
@@ -93,9 +93,10 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				_ = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
-				_ = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
-
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
 			},
 		},
@@ -107,9 +108,10 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
-				_ = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
-				_ = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
-
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
 			},
 		},
@@ -151,8 +153,10 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			amount,
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				_ = suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
-				_ = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, minttypes.ModuleName, types.ModuleName, coins)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, minttypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
 			},
 		},
 	}

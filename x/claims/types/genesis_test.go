@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+	"github.com/tharsis/ethermint/tests"
 )
 
 type GenesisTestSuite struct {
@@ -19,6 +20,8 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
 	testCases := []struct {
 		name     string
 		genState *GenesisState
@@ -43,7 +46,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				ClaimRecords: []ClaimRecordAddress{
 					{
-						Address:                "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3",
+						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
@@ -57,12 +60,12 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				ClaimRecords: []ClaimRecordAddress{
 					{
-						Address:                "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3",
+						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
 					{
-						Address:                "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3",
+						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
@@ -91,7 +94,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				ClaimRecords: []ClaimRecordAddress{
 					{
-						Address:                "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3",
+						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(-100),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
