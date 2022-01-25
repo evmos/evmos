@@ -19,7 +19,7 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 		expCommunityPool   sdk.Coins
 		expPass            bool
 	}{
-		// TODO fix with accounts
+		// TODO fix with team account
 		{
 			"pass",
 			sdk.NewCoin(denomMint, sdk.NewInt(600_000)),
