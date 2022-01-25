@@ -26,10 +26,10 @@ func InitGenesis(
 	}
 
 	// TODO Ensure team account is set on genesis
-	// acc := ak.GetAccount(ctx, sdk.AccAddress(data.Params.TeamAddress))
-	// if acc.GetAddress().Empty() {
-	// 	panic("the team account has not been set")
-	// }
+	acc := ak.GetAccount(ctx, sdk.AccAddress(data.Params.TeamAddress))
+	if acc.GetAddress().Empty() {
+		panic("the team account has not been set")
+	}
 
 	// Set Period
 	period := data.Period
