@@ -76,5 +76,4 @@ func (k Keeper) MintGenesisTeamVestingCoins(
 		types.UnvestedTeamAccount,
 		amount,
 	)
-
 }

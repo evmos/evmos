@@ -6,10 +6,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	simapp "github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/inflation/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 func TesInflationInitGenesis(t *testing.T) {
@@ -18,7 +20,12 @@ func TesInflationInitGenesis(t *testing.T) {
 	feemarketGenesis.Params.EnableHeight = 1
 	feemarketGenesis.Params.NoBaseFee = false
 	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
-	app := simapp.Setup(false, feemarketGenesis)
+
+	// setup inflation
+	inflationGenesis := inflationtypes.DefaultGenesisState()
+	inflationGenesis.Params.TeamAddress = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+
+	app := simapp.Setup(false, feemarketGenesis, inflationGenesis)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	validateGenesis := types.DefaultGenesisState().Validate()

@@ -25,7 +25,7 @@ func InitGenesis(
 		panic("the unvested team module account has not been set")
 	}
 
-	// Ensure team account is set on genesis
+	// TODO Ensure team account is set on genesis
 	acc := ak.GetAccount(ctx, sdk.AccAddress(data.Params.TeamAddress))
 	if acc.GetAddress().Empty() {
 		panic("the team account has not been set")
