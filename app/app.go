@@ -677,7 +677,7 @@ func NewEvmos(
 		IBCChannelKeeper: app.IBCKeeper.ChannelKeeper,
 		FeeMarketKeeper:  app.FeeMarketKeeper,
 		SignModeHandler:  encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:   ante.DefaultSigVerificationGasConsumer,
+		SigGasConsumer:   SigVerificationGasConsumer,
 	}
 
 	if err := options.Validate(); err != nil {
