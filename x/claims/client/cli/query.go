@@ -96,11 +96,11 @@ func GetCmdQueryParams() *cobra.Command {
 // GetCmdQueryClaimsRecords implements the query claim-records command.
 func GetCmdQueryClaimsRecords() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "claim-records",
+		Use:     "claims-records",
 		Args:    cobra.NoArgs,
-		Short:   "Query all the claim records",
-		Long:    "Query the list of all the claim records",
-		Example: fmt.Sprintf("%s query claim claim-records", version.AppName),
+		Short:   "Query all the claims records",
+		Long:    "Query the list of all the claims records",
+		Example: fmt.Sprintf("%s query claims claims-records", version.AppName),
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -134,11 +134,11 @@ func GetCmdQueryClaimsRecords() *cobra.Command {
 // GetCmdQueryClaimsRecord implements the query claim-record command.
 func GetCmdQueryClaimsRecord() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "claim-record [address]",
+		Use:     "claims-record [address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query the claim records for an account.",
-		Long:    "Query the claim records for an account.\nThis contains an address' initial claimable amount, and the claims per action.",
-		Example: fmt.Sprintf("%s query claim claim-record <address>", version.AppName),
+		Short:   "Query the claims records for an account.",
+		Long:    "Query the claims records for an account.\nThis contains an address' initial claimable amount, and the claims per action.",
+		Example: fmt.Sprintf("%s query claims claims-record <address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
