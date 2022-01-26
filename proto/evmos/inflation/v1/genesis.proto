@@ -2,19 +2,41 @@ syntax = "proto3";
 package evmos.inflation.v1;
 
 import "gogoproto/gogo.proto";
+
 import "evmos/inflation/v1/inflation.proto";
 
 option go_package = "github.com/tharsis/evmos/x/inflation/types";
 
-// GenesisState defines the mint module's genesis state.
+// GenesisState defines the inflation module's genesis state.
 message GenesisState {
-  // minter is a space for holding current rewards information.
-  Minter minter = 1 [ (gogoproto.nullable) = false ];
-
   // params defines all the paramaters of the module.
-  Params params = 2 [ (gogoproto.nullable) = false ];
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  // amount of past periods, based on the epochs per period param
+  uint64 period = 2;
+}
 
-  // current halven period start epoch
-  int64 halven_started_epoch = 3
-      [ (gogoproto.moretags) = "yaml:\"halven_started_epoch\"" ];
+// Params holds parameters for the inflation module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  // type of coin to mint
+  string mint_denom = 1;
+  // inflation epoch identifier
+  string epoch_identifier = 2;
+  // number of epochs after which inflation is recalculated
+  int64 epochs_per_period = 3;
+  // variables to calculate exponential inflation
+  ExponentialCalculation exponential_calculation = 4 [
+    (gogoproto.nullable) = false
+  ];
+  // inflation_distribution defines the distribution of the minted denom
+  InflationDistribution inflation_distribution = 5 [
+    (gogoproto.nullable) = false
+  ];
+  // aaddress to receive the team allocation from the inflation distribution
+  string team_address = 6;
+  // coin to allocate from team vesting supply
+  string team_vesting_provision = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
 }

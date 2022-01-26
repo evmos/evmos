@@ -76,19 +76,20 @@
     - [Query](#evmos.incentives.v1.Query)
   
 - [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
-    - [DistributionProportions](#evmos.inflation.v1.DistributionProportions)
-    - [Minter](#evmos.inflation.v1.Minter)
-    - [Params](#evmos.inflation.v1.Params)
-    - [WeightedAddress](#evmos.inflation.v1.WeightedAddress)
+    - [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation)
+    - [InflationDistribution](#evmos.inflation.v1.InflationDistribution)
   
 - [evmos/inflation/v1/genesis.proto](#evmos/inflation/v1/genesis.proto)
     - [GenesisState](#evmos.inflation.v1.GenesisState)
+    - [Params](#evmos.inflation.v1.Params)
   
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
-    - [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest)
-    - [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse)
+    - [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest)
+    - [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse)
     - [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse)
+    - [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest)
+    - [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse)
   
     - [Query](#evmos.inflation.v1.Query)
   
@@ -1000,71 +1001,44 @@ Query defines the gRPC querier service.
 
 
 
-<a name="evmos.inflation.v1.DistributionProportions"></a>
+<a name="evmos.inflation.v1.ExponentialCalculation"></a>
 
-### DistributionProportions
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `staking` | [string](#string) |  | staking defines the proportion of the minted minted_denom that is to be allocated as staking rewards. |
-| `pool_incentives` | [string](#string) |  | pool_incentives defines the proportion of the minted minted_denom that is to be allocated as pool incentives. |
-| `developer_rewards` | [string](#string) |  | developer_rewards defines the proportion of the minted minted_denom that is to be allocated to developer rewards address. |
-| `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool. |
-
-
-
-
-
-
-<a name="evmos.inflation.v1.Minter"></a>
-
-### Minter
-Minter represents the minting state.
+### ExponentialCalculation
+ExponentialCalculation holds factors to calculate exponential inflation on
+each period. Calculation reference:
+periodProvision = exponentialDecay       *  bondingRatio
+f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epoch_provisions` | [string](#string) |  | current epoch provisions |
+| `a` | [string](#string) |  | initial value |
+| `r` | [string](#string) |  | reduction factor |
+| `c` | [string](#string) |  | long term inflation |
+| `b` | [string](#string) |  | bonding factor` |
 
 
 
 
 
 
-<a name="evmos.inflation.v1.Params"></a>
+<a name="evmos.inflation.v1.InflationDistribution"></a>
 
-### Params
-Params holds parameters for the mint module.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `mint_denom` | [string](#string) |  | type of coin to mint |
-| `genesis_epoch_provisions` | [string](#string) |  | epoch provisions from the first epoch |
-| `epoch_identifier` | [string](#string) |  | mint epoch identifier |
-| `reduction_period_in_epochs` | [int64](#int64) |  | number of epochs take to reduce rewards |
-| `reduction_factor` | [string](#string) |  | reduction multiplier to execute on each period |
-| `distribution_proportions` | [DistributionProportions](#evmos.inflation.v1.DistributionProportions) |  | distribution_proportions defines the proportion of the minted denom |
-| `weighted_developer_rewards_receivers` | [WeightedAddress](#evmos.inflation.v1.WeightedAddress) | repeated | address to receive developer rewards |
-| `minting_rewards_distribution_start_epoch` | [int64](#int64) |  | start epoch to distribute minting rewards |
-
-
-
-
-
-
-<a name="evmos.inflation.v1.WeightedAddress"></a>
-
-### WeightedAddress
-
+### InflationDistribution
+InflationDistribution defines the distribution in which inflation is
+allocated through minting on each epoch (staking, incentives, community). It
+excludes the team vesting distribution, as this is minted once at genesis.
+The initial InflationDistribution can be calculated from the Evmvos Token
+Model like this:
+mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
+0.5333333         = 40%           / (1 - 25%)
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
-| `weight` | [string](#string) |  |  |
+| `staking_rewards` | [string](#string) |  | staking_rewards defines the proportion of the minted minted_denom that is to be allocated as staking rewards |
+| `usage_incentives` | [string](#string) |  | usage_incentives defines the proportion of the minted minted_denom that is to be allocated to the incentives module address |
+| `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool |
 
 
 
@@ -1090,14 +1064,34 @@ Params holds parameters for the mint module.
 <a name="evmos.inflation.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the mint module's genesis state.
+GenesisState defines the inflation module's genesis state.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `minter` | [Minter](#evmos.inflation.v1.Minter) |  | minter is a space for holding current rewards information. |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines all the paramaters of the module. |
-| `halven_started_epoch` | [int64](#int64) |  | current halven period start epoch |
+| `period` | [uint64](#uint64) |  | amount of past periods, based on the epochs per period param |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.Params"></a>
+
+### Params
+Params holds parameters for the inflation module.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `mint_denom` | [string](#string) |  | type of coin to mint |
+| `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
+| `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
+| `exponential_calculation` | [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation) |  | variables to calculate exponential inflation |
+| `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation_distribution defines the distribution of the minted denom |
+| `team_address` | [string](#string) |  | aaddress to receive the team allocation from the inflation distribution |
+| `team_vesting_provision` | [string](#string) |  | coin to allocate from team vesting supply |
 
 
 
@@ -1120,27 +1114,27 @@ GenesisState defines the mint module's genesis state.
 
 
 
-<a name="evmos.inflation.v1.QueryEpochProvisionsRequest"></a>
+<a name="evmos.inflation.v1.QueryEpochMintProvisionRequest"></a>
 
-### QueryEpochProvisionsRequest
-QueryEpochProvisionsRequest is the request type for the
-Query/EpochProvisions RPC method.
-
-
+### QueryEpochMintProvisionRequest
+QueryEpochMintProvisionRequest is the request type for the
+Query/EpochMintProvision RPC method.
 
 
 
 
-<a name="evmos.inflation.v1.QueryEpochProvisionsResponse"></a>
 
-### QueryEpochProvisionsResponse
-QueryEpochProvisionsResponse is the response type for the
-Query/EpochProvisions RPC method.
+
+<a name="evmos.inflation.v1.QueryEpochMintProvisionResponse"></a>
+
+### QueryEpochMintProvisionResponse
+QueryEpochMintProvisionResponse is the response type for the
+Query/EpochMintProvision RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epoch_provisions` | [bytes](#bytes) |  | epoch_provisions is the current minting per epoch provisions value. |
+| `epoch_mint_provision` | [bytes](#bytes) |  | epoch_mint_provision is the current minting per epoch provision value. |
 
 
 
@@ -1171,6 +1165,31 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
 
 
+
+<a name="evmos.inflation.v1.QueryPeriodRequest"></a>
+
+### QueryPeriodRequest
+QueryPeriodRequest is the request type for the Query/Period RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryPeriodResponse"></a>
+
+### QueryPeriodResponse
+QueryPeriodResponse is the response type for the Query/Period RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `period` | [uint64](#uint64) |  | period is the current minting per epoch provision value. |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1185,8 +1204,9 @@ Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params returns the total set of minting parameters. | GET|/evmos/inflation/v1/params|
-| `EpochProvisions` | [QueryEpochProvisionsRequest](#evmos.inflation.v1.QueryEpochProvisionsRequest) | [QueryEpochProvisionsResponse](#evmos.inflation.v1.QueryEpochProvisionsResponse) | EpochProvisions current minting epoch provisions value. | GET|/evmos/inflation/v1/epoch_provisions|
+| `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/epoch_mint_provision|
+| `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
+| `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
 
  <!-- end services -->
 

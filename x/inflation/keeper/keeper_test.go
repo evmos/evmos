@@ -1,181 +1,105 @@
 package keeper_test
 
-// import (
-// 	"testing"
-// 	"time"
+import (
+	"testing"
+	"time"
 
-// 	"github.com/cosmos/cosmos-sdk/simapp"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-// 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
+	"github.com/tendermint/tendermint/version"
 
-// 	lockuptypes "github.com/osmosis-labs/osmosis/x/lockup/types"
-// 	poolincentivestypes "github.com/osmosis-labs/osmosis/x/pool-incentives/types"
-// 	"github.com/stretchr/testify/suite"
-// 	abci "github.com/tendermint/tendermint/abci/types"
-// 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-// 	"github.com/tharsis/evmos/app"
-// 	"github.com/tharsis/evmos/x/inflation/types"
-// )
+	"github.com/tharsis/ethermint/tests"
+	evm "github.com/tharsis/ethermint/x/evm/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 
-// type KeeperTestSuite struct {
-// 	suite.Suite
+	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/x/inflation/types"
+)
 
-// 	app *app.OsmosisApp
-// 	ctx sdk.Context
-// }
+var (
+	denomMint = evm.DefaultEVMDenom
+)
 
-// func (suite *KeeperTestSuite) SetupTest() {
-// 	suite.app = app.Setup(false)
-// 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, Time: time.Now().UTC()})
-// }
+type KeeperTestSuite struct {
+	suite.Suite
 
-// func TestKeeperTestSuite(t *testing.T) {
-// 	suite.Run(t, new(KeeperTestSuite))
-// }
+	ctx            sdk.Context
+	app            *app.Evmos
+	queryClientEvm evm.QueryClient
+	queryClient    types.QueryClient
+	consAddress    sdk.ConsAddress
+}
 
-// func (suite *KeeperTestSuite) TestMintCoinsToFeeCollectorAndGetProportions() {
-// 	mintKeeper := suite.app.MintKeeper
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
+}
 
-// 	// When coin is minted to the fee collector
-// 	fee := sdk.NewCoin("stake", sdk.NewInt(0))
-// 	fees := sdk.NewCoins(fee)
-// 	coin := mintKeeper.GetProportions(suite.ctx, fee, sdk.NewDecWithPrec(2, 1))
-// 	suite.Equal("0stake", coin.String())
+func (suite *KeeperTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
 
-// 	// When mint the 100K stake coin to the fee collector
-// 	fee = sdk.NewCoin("stake", sdk.NewInt(100000))
-// 	fees = sdk.NewCoins(fee)
+// Test helpers
+func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
+	checkTx := false
 
-// 	err := simapp.FundModuleAccount(suite.app.BankKeeper,
-// 		suite.ctx,
-// 		authtypes.FeeCollectorName,
-// 		fees)
-// 	suite.NoError(err)
+	// init app
+	suite.app = app.Setup(checkTx, nil)
 
-// 	// check proportion for 20%
-// 	coin = mintKeeper.GetProportions(suite.ctx, fee, sdk.NewDecWithPrec(2, 1))
-// 	suite.Equal(fees[0].Amount.Quo(sdk.NewInt(5)), coin.Amount)
-// }
+	// setup inflation params
+	inflationGenesis := inflationtypes.DefaultGenesisState()
+	teamAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	inflationGenesis.Params.TeamAddress = teamAddress.String()
 
-// func (suite *KeeperTestSuite) TestDistrAssetToDeveloperRewardsAddrWhenNotEmpty() {
-// 	mintKeeper := suite.app.MintKeeper
-// 	params := suite.app.MintKeeper.GetParams(suite.ctx)
-// 	devRewardsReceiver := sdk.AccAddress([]byte("addr1---------------"))
-// 	gaugeCreator := sdk.AccAddress([]byte("addr2---------------"))
-// 	devRewardsReceiver2 := sdk.AccAddress([]byte("addr3---------------"))
-// 	devRewardsReceiver3 := sdk.AccAddress([]byte("addr4---------------"))
-// 	params.WeightedDeveloperRewardsReceivers = []types.WeightedAddress{
-// 		{
-// 			Address: devRewardsReceiver.String(),
-// 			Weight:  sdk.NewDec(1),
-// 		},
-// 	}
-// 	suite.app.MintKeeper.SetParams(suite.ctx, params)
+	// setup context
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+		Height:          1,
+		ChainID:         "evmos_9000-1",
+		Time:            time.Now().UTC(),
+		ProposerAddress: suite.consAddress.Bytes(),
 
-// 	// Create record
-// 	coins := sdk.Coins{sdk.NewInt64Coin("stake", 10000)}
-// 	err := simapp.FundAccount(suite.app.BankKeeper, suite.ctx, gaugeCreator, coins)
-// 	suite.NoError(err)
-// 	distrTo := lockuptypes.QueryCondition{
-// 		LockQueryType: lockuptypes.ByDuration,
-// 		Denom:         "lptoken",
-// 		Duration:      time.Second,
-// 	}
-// 	gaugeId, err := suite.app.IncentivesKeeper.CreateGauge(suite.ctx, true, gaugeCreator, coins, distrTo, time.Now(), 1)
-// 	suite.NoError(err)
-// 	err = suite.app.PoolIncentivesKeeper.UpdateDistrRecords(suite.ctx, poolincentivestypes.DistrRecord{
-// 		GaugeId: gaugeId,
-// 		Weight:  sdk.NewInt(100),
-// 	})
-// 	suite.NoError(err)
+		Version: tmversion.Consensus{
+			Block: version.BlockProtocol,
+		},
+		LastBlockId: tmproto.BlockID{
+			Hash: tmhash.Sum([]byte("block_id")),
+			PartSetHeader: tmproto.PartSetHeader{
+				Total: 11,
+				Hash:  tmhash.Sum([]byte("partset_header")),
+			},
+		},
+		AppHash:            tmhash.Sum([]byte("app")),
+		DataHash:           tmhash.Sum([]byte("data")),
+		EvidenceHash:       tmhash.Sum([]byte("evidence")),
+		ValidatorsHash:     tmhash.Sum([]byte("validators")),
+		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
+		ConsensusHash:      tmhash.Sum([]byte("consensus")),
+		LastResultsHash:    tmhash.Sum([]byte("last_result")),
+	})
 
-// 	// At this time, there is no distr record, so the asset should be allocated to the community pool.
-// 	mintCoin := sdk.NewCoin("stake", sdk.NewInt(100000))
-// 	mintCoins := sdk.Coins{mintCoin}
-// 	err = mintKeeper.MintCoins(suite.ctx, mintCoins)
-// 	suite.NoError(err)
-// 	err = mintKeeper.DistributeMintedCoin(suite.ctx, mintCoin)
-// 	suite.NoError(err)
+	// setup query helpers
+	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, suite.app.InflationKeeper)
+	suite.queryClient = types.NewQueryClient(queryHelper)
+}
 
-// 	feePool := suite.app.DistrKeeper.GetFeePool(suite.ctx)
-// 	feeCollector := suite.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-// 	suite.Equal(
-// 		mintCoin.Amount.ToDec().Mul(params.DistributionProportions.Staking).TruncateInt(),
-// 		suite.app.BankKeeper.GetAllBalances(suite.ctx, feeCollector).AmountOf("stake"))
-// 	suite.Equal(
-// 		mintCoin.Amount.ToDec().Mul(params.DistributionProportions.CommunityPool),
-// 		feePool.CommunityPool.AmountOf("stake"))
-// 	suite.Equal(
-// 		mintCoin.Amount.ToDec().Mul(params.DistributionProportions.DeveloperRewards).TruncateInt(),
-// 		suite.app.BankKeeper.GetBalance(suite.ctx, devRewardsReceiver, "stake").Amount)
+func (suite *KeeperTestSuite) Commit() {
+	_ = suite.app.Commit()
+	header := suite.ctx.BlockHeader()
+	header.Height += 1
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: header,
+	})
 
-// 	// Test for multiple dev reward addresses
-// 	params.WeightedDeveloperRewardsReceivers = []types.WeightedAddress{
-// 		{
-// 			Address: devRewardsReceiver2.String(),
-// 			Weight:  sdk.NewDecWithPrec(6, 1),
-// 		},
-// 		{
-// 			Address: devRewardsReceiver3.String(),
-// 			Weight:  sdk.NewDecWithPrec(4, 1),
-// 		},
-// 	}
-// 	suite.app.MintKeeper.SetParams(suite.ctx, params)
+	// update ctx
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
-// 	err = mintKeeper.MintCoins(suite.ctx, mintCoins)
-// 	suite.NoError(err)
-// 	err = mintKeeper.DistributeMintedCoin(suite.ctx, mintCoin)
-// 	suite.NoError(err)
-
-// 	suite.Equal(
-// 		mintCoins[0].Amount.ToDec().Mul(params.DistributionProportions.DeveloperRewards).Mul(params.WeightedDeveloperRewardsReceivers[0].Weight).TruncateInt(),
-// 		suite.app.BankKeeper.GetBalance(suite.ctx, devRewardsReceiver2, "stake").Amount)
-// 	suite.Equal(
-// 		mintCoins[0].Amount.ToDec().Mul(params.DistributionProportions.DeveloperRewards).Mul(params.WeightedDeveloperRewardsReceivers[1].Weight).TruncateInt(),
-// 		suite.app.BankKeeper.GetBalance(suite.ctx, devRewardsReceiver3, "stake").Amount)
-// }
-
-// func (suite *KeeperTestSuite) TestDistrAssetToCommunityPoolWhenNoDeveloperRewardsAddr() {
-// 	mintKeeper := suite.app.MintKeeper
-
-// 	params := suite.app.MintKeeper.GetParams(suite.ctx)
-// 	// At this time, there is no distr record, so the asset should be allocated to the community pool.
-// 	mintCoin := sdk.NewCoin("stake", sdk.NewInt(100000))
-// 	mintCoins := sdk.Coins{mintCoin}
-// 	err := mintKeeper.MintCoins(suite.ctx, mintCoins)
-// 	suite.NoError(err)
-// 	err = mintKeeper.DistributeMintedCoin(suite.ctx, mintCoin)
-// 	suite.NoError(err)
-
-// 	distribution.BeginBlocker(suite.ctx, abci.RequestBeginBlock{}, *suite.app.DistrKeeper)
-
-// 	feePool := suite.app.DistrKeeper.GetFeePool(suite.ctx)
-// 	feeCollector := suite.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-// 	// PoolIncentives + DeveloperRewards + CommunityPool => CommunityPool
-// 	proportionToCommunity := params.DistributionProportions.PoolIncentives.
-// 		Add(params.DistributionProportions.DeveloperRewards).
-// 		Add(params.DistributionProportions.CommunityPool)
-// 	suite.Equal(
-// 		mintCoins[0].Amount.ToDec().Mul(params.DistributionProportions.Staking).TruncateInt(),
-// 		suite.app.BankKeeper.GetBalance(suite.ctx, feeCollector, "stake").Amount)
-// 	suite.Equal(
-// 		mintCoins[0].Amount.ToDec().Mul(proportionToCommunity),
-// 		feePool.CommunityPool.AmountOf("stake"))
-
-// 	// Mint more and community pool should be increased
-// 	err = mintKeeper.MintCoins(suite.ctx, mintCoins)
-// 	suite.NoError(err)
-// 	err = mintKeeper.DistributeMintedCoin(suite.ctx, mintCoin)
-// 	suite.NoError(err)
-
-// 	distribution.BeginBlocker(suite.ctx, abci.RequestBeginBlock{}, *suite.app.DistrKeeper)
-
-// 	feePool = suite.app.DistrKeeper.GetFeePool(suite.ctx)
-// 	suite.Equal(
-// 		mintCoins[0].Amount.ToDec().Mul(params.DistributionProportions.Staking).TruncateInt().Mul(sdk.NewInt(2)),
-// 		suite.app.BankKeeper.GetBalance(suite.ctx, feeCollector, "stake").Amount)
-// 	suite.Equal(
-// 		mintCoins[0].Amount.ToDec().Mul(proportionToCommunity).Mul(sdk.NewDec(2)),
-// 		feePool.CommunityPool.AmountOf("stake"))
-// }
+	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
+	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+}

@@ -5,91 +5,57 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/tharsis/evmos/x/inflation/types";
 
-
-// Minter represents the minting state.
-message Minter {
-  // current epoch provisions
-  string epoch_provisions = 1 [
-    (gogoproto.moretags) = "yaml:\"epoch_provisions\"",
+// InflationDistribution defines the distribution in which inflation is
+// allocated through minting on each epoch (staking, incentives, community). It
+// excludes the team vesting distribution, as this is minted once at genesis.
+// The initial InflationDistribution can be calculated from the Evmvos Token
+// Model like this:
+// mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
+// 0.5333333         = 40%           / (1 - 25%)
+message InflationDistribution {
+  // staking_rewards defines the proportion of the minted minted_denom that is
+  // to be allocated as staking rewards
+  string staking_rewards = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-}
-
-message WeightedAddress {
-  string address = 1 [ (gogoproto.moretags) = "yaml:\"address\"" ];
-  string weight = 2 [
-    (gogoproto.moretags) = "yaml:\"weight\"",
+  // usage_incentives defines the proportion of the minted minted_denom that is
+  // to be allocated to the incentives module address
+  string usage_incentives = 3 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-}
-
-message DistributionProportions {
-  // staking defines the proportion of the minted minted_denom that is to be
-  // allocated as staking rewards.
-  string staking = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.moretags) = "yaml:\"staking\"",
-    (gogoproto.nullable) = false
-  ];
-  // pool_incentives defines the proportion of the minted minted_denom that is
-  // to be allocated as pool incentives.
-  string pool_incentives = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.moretags) = "yaml:\"pool_incentives\"",
-    (gogoproto.nullable) = false
-  ];
-  // developer_rewards defines the proportion of the minted minted_denom that is
-  // to be allocated to developer rewards address.
-  string developer_rewards = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.moretags) = "yaml:\"developer_rewards\"",
-    (gogoproto.nullable) = false
-  ];
-  // community_pool defines the proportion of the minted minted_denom that is
-  // to be allocated to the community pool.
+  // community_pool defines the proportion of the minted minted_denom that is to
+  // be allocated to the community pool
   string community_pool = 4 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.moretags) = "yaml:\"community_pool\"",
     (gogoproto.nullable) = false
   ];
 }
 
-// Params holds parameters for the mint module.
-message Params {
-  option (gogoproto.goproto_stringer) = false;
-
-  // type of coin to mint
-  string mint_denom = 1;
-  // epoch provisions from the first epoch
-  string genesis_epoch_provisions = 2 [
-    (gogoproto.moretags) = "yaml:\"genesis_epoch_provisions\"",
+// ExponentialCalculation holds factors to calculate exponential inflation on
+// each period. Calculation reference:
+// periodProvision = exponentialDecay       *  bondingRatio
+// f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
+message ExponentialCalculation {
+  // initial value
+  string a = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // mint epoch identifier
-  string epoch_identifier = 3
-      [ (gogoproto.moretags) = "yaml:\"epoch_identifier\"" ];
-  // number of epochs take to reduce rewards
-  int64 reduction_period_in_epochs = 4
-      [ (gogoproto.moretags) = "yaml:\"reduction_period_in_epochs\"" ];
-  // reduction multiplier to execute on each period
-  string reduction_factor = 5 [
-    (gogoproto.moretags) = "yaml:\"reduction_factor\"",
+  // reduction factor
+  string r = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // distribution_proportions defines the proportion of the minted denom
-  DistributionProportions distribution_proportions = 6
-      [ (gogoproto.nullable) = false ];
-  // address to receive developer rewards
-  repeated WeightedAddress weighted_developer_rewards_receivers = 7 [
-    (gogoproto.moretags) = "yaml:\"developer_rewards_receiver\"",
+  // long term inflation
+  string c = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // start epoch to distribute minting rewards
-  int64 minting_rewards_distribution_start_epoch = 8
-      [ (gogoproto.moretags) =
-            "yaml:\"minting_rewards_distribution_start_epoch\"" ];
+  // bonding factor`
+  string b = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

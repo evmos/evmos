@@ -1,4 +1,4 @@
-package types
+package config
 
 func EnableObservability() error {
 	return nil

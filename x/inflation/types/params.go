@@ -7,96 +7,68 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	evm "github.com/tharsis/ethermint/x/evm/types"
+	"gopkg.in/yaml.v2"
+
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // Parameter store keys
 var (
-	KeyMintDenom                            = []byte("MintDenom")
-	KeyGenesisEpochProvisions               = []byte("GenesisEpochProvisions")
-	KeyEpochIdentifier                      = []byte("EpochIdentifier")
-	KeyReductionPeriodInEpochs              = []byte("ReductionPeriodInEpochs")
-	KeyReductionFactor                      = []byte("ReductionFactor")
-	KeyPoolAllocationRatio                  = []byte("PoolAllocationRatio")
-	KeyDeveloperRewardsReceiver             = []byte("DeveloperRewardsReceiver")
-	KeyMintingRewardsDistributionStartEpoch = []byte("MintingRewardsDistributionStartEpoch")
+	KeyMintDenom              = []byte("KeyMintDenom")
+	KeyEpochIdentifier        = []byte("KeyEpochIdentifier")
+	KeyEpochsPerPeriod        = []byte("KeyEpochsPerPeriod")
+	KeyExponentialCalculation = []byte("KeyExponentialCalculation")
+	KeyInflationDistribution  = []byte("KeyInflationDistribution")
+	KeyTeamAddress            = []byte("KeyTeamAddress")
+	KeyTeamVestingProvision   = []byte("KeyTeamVestingProvision")
 )
 
-// ParamTable for minting module.
+// ParamTable for inflation module
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
 func NewParams(
 	mintDenom string,
-	genesisEpochProvisions sdk.Dec,
 	epochIdentifier string,
-	ReductionFactor sdk.Dec,
-	reductionPeriodInEpochs int64,
-	distrProportions DistributionProportions,
-	weightedDevRewardsReceivers []WeightedAddress,
-	mintingRewardsDistributionStartEpoch int64,
+	epochsPerPeriod int64,
+	exponentialCalculation ExponentialCalculation,
+	inflationDistribution InflationDistribution,
+	teamAddress sdk.AccAddress,
+	teamVestingProvision sdk.Int,
 ) Params {
 	return Params{
-		MintDenom:                            mintDenom,
-		GenesisEpochProvisions:               genesisEpochProvisions,
-		EpochIdentifier:                      epochIdentifier,
-		ReductionPeriodInEpochs:              reductionPeriodInEpochs,
-		ReductionFactor:                      ReductionFactor,
-		DistributionProportions:              distrProportions,
-		WeightedDeveloperRewardsReceivers:    weightedDevRewardsReceivers,
-		MintingRewardsDistributionStartEpoch: mintingRewardsDistributionStartEpoch,
+		MintDenom:              mintDenom,
+		EpochIdentifier:        epochIdentifier,
+		EpochsPerPeriod:        epochsPerPeriod,
+		ExponentialCalculation: exponentialCalculation,
+		InflationDistribution:  inflationDistribution,
+		TeamAddress:            teamAddress.String(),
+		TeamVestingProvision:   teamVestingProvision,
 	}
 }
 
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom:               sdk.DefaultBondDenom,
-		GenesisEpochProvisions:  sdk.NewDec(5000000),
-		EpochIdentifier:         "day",                    // 1 day
-		ReductionPeriodInEpochs: 365,                      // 1 year
-		ReductionFactor:         sdk.NewDecWithPrec(5, 1), // 0.5
-		DistributionProportions: DistributionProportions{
-			Staking:          sdk.NewDecWithPrec(4, 1),  // 0.4
-			PoolIncentives:   sdk.NewDecWithPrec(25, 2), // 0.25
-			DeveloperRewards: sdk.NewDecWithPrec(25, 2), // 0.25
-			CommunityPool:    sdk.NewDecWithPrec(1, 1),  // 0.1
+		MintDenom:       evm.DefaultEVMDenom,
+		EpochIdentifier: "day", // 1 day
+		EpochsPerPeriod: 365,   // 1 year
+		ExponentialCalculation: ExponentialCalculation{
+			A: sdk.NewDec(int64(300_000_000)),
+			R: sdk.NewDecWithPrec(5, 1), // 0.5
+			C: sdk.NewDec(int64(9_375_000)),
+			B: sdk.ZeroDec(),
 		},
-		WeightedDeveloperRewardsReceivers:    []WeightedAddress{},
-		MintingRewardsDistributionStartEpoch: 0,
+		InflationDistribution: InflationDistribution{
+			StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
+			UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
+			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
+		},
+		TeamAddress:          "",
+		TeamVestingProvision: sdk.NewInt(136_986), // 200000000/(4*365)
 	}
-}
-
-// validate params
-func (p Params) Validate() error {
-	if err := validateMintDenom(p.MintDenom); err != nil {
-		return err
-	}
-	if err := validateGenesisEpochProvisions(p.GenesisEpochProvisions); err != nil {
-		return err
-	}
-	if err := epochtypes.ValidateEpochIdentifierInterface(p.EpochIdentifier); err != nil {
-		return err
-	}
-	if err := validateReductionPeriodInEpochs(p.ReductionPeriodInEpochs); err != nil {
-		return err
-	}
-	if err := validateReductionFactor(p.ReductionFactor); err != nil {
-		return err
-	}
-	if err := validateDistributionProportions(p.DistributionProportions); err != nil {
-		return err
-	}
-	if err := validateWeightedDeveloperRewardsReceivers(p.WeightedDeveloperRewardsReceivers); err != nil {
-		return err
-	}
-	if err := validateMintingRewardsDistributionStartEpoch(p.MintingRewardsDistributionStartEpoch); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // String implements the Stringer interface.
@@ -109,13 +81,12 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyGenesisEpochProvisions, &p.GenesisEpochProvisions, validateGenesisEpochProvisions),
 		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
-		paramtypes.NewParamSetPair(KeyReductionPeriodInEpochs, &p.ReductionPeriodInEpochs, validateReductionPeriodInEpochs),
-		paramtypes.NewParamSetPair(KeyReductionFactor, &p.ReductionFactor, validateReductionFactor),
-		paramtypes.NewParamSetPair(KeyPoolAllocationRatio, &p.DistributionProportions, validateDistributionProportions),
-		paramtypes.NewParamSetPair(KeyDeveloperRewardsReceiver, &p.WeightedDeveloperRewardsReceivers, validateWeightedDeveloperRewardsReceivers),
-		paramtypes.NewParamSetPair(KeyMintingRewardsDistributionStartEpoch, &p.MintingRewardsDistributionStartEpoch, validateMintingRewardsDistributionStartEpoch),
+		paramtypes.NewParamSetPair(KeyEpochsPerPeriod, &p.EpochsPerPeriod, validateEpochsPerPeriod),
+		paramtypes.NewParamSetPair(KeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
+		paramtypes.NewParamSetPair(KeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair(KeyTeamAddress, &p.TeamAddress, validateTeamAddress),
+		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
 	}
 }
 
@@ -135,20 +106,7 @@ func validateMintDenom(i interface{}) error {
 	return nil
 }
 
-func validateGenesisEpochProvisions(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.LT(sdk.ZeroDec()) {
-		return fmt.Errorf("genesis epoch provision must be non-negative")
-	}
-
-	return nil
-}
-
-func validateReductionPeriodInEpochs(i interface{}) error {
+func validateEpochsPerPeriod(i interface{}) error {
 	v, ok := i.(int64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -161,49 +119,62 @@ func validateReductionPeriodInEpochs(i interface{}) error {
 	return nil
 }
 
-func validateReductionFactor(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+func validateExponentialCalculation(i interface{}) error {
+	v, ok := i.(ExponentialCalculation)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.GT(sdk.NewDec(1)) {
+	// validate initial value
+	if v.A.IsNegative() {
+		return fmt.Errorf("initial value cannot be negative")
+	}
+
+	// validate reduction factor
+	if v.R.GT(sdk.NewDec(1)) {
 		return fmt.Errorf("reduction factor cannot be greater than 1")
 	}
 
-	if v.IsNegative() {
+	if v.R.IsNegative() {
 		return fmt.Errorf("reduction factor cannot be negative")
+	}
+
+	// validate long term inflation
+	if v.C.IsNegative() {
+		return fmt.Errorf("long term inflation cannot be negative")
+	}
+
+	// validate bonding factor
+	if v.B.GT(sdk.NewDec(1)) {
+		return fmt.Errorf("bonding factor cannot be greater than 1")
+	}
+
+	if v.B.IsNegative() {
+		return fmt.Errorf("bonding factor cannot be negative")
 	}
 
 	return nil
 }
 
-func validateDistributionProportions(i interface{}) error {
-	v, ok := i.(DistributionProportions)
+func validateInflationDistribution(i interface{}) error {
+	v, ok := i.(InflationDistribution)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.Staking.IsNegative() {
-		return errors.New("staking distribution ratio should not be negative")
+	if v.StakingRewards.IsNegative() {
+		return errors.New("staking distribution ratio must not be negative")
 	}
 
-	if v.PoolIncentives.IsNegative() {
-		return errors.New("pool incentives distribution ratio should not be negative")
+	if v.UsageIncentives.IsNegative() {
+		return errors.New("pool incentives distribution ratio must not be negative")
 	}
 
-	if v.DeveloperRewards.IsNegative() {
-		return errors.New("developer rewards distribution ratio should not be negative")
-	}
-
-	// TODO: Maybe we should allow this :joy:, lets you burn osmo from community pool
-	// for new chains
 	if v.CommunityPool.IsNegative() {
-		return errors.New("community pool distribution ratio should not be negative")
+		return errors.New("community pool distribution ratio must not be negative")
 	}
 
-	totalProportions := v.Staking.Add(v.PoolIncentives).Add(v.DeveloperRewards).Add(v.CommunityPool)
-
+	totalProportions := v.StakingRewards.Add(v.UsageIncentives).Add(v.CommunityPool)
 	if !totalProportions.Equal(sdk.NewDec(1)) {
 		return errors.New("total distributions ratio should be 1")
 	}
@@ -211,51 +182,54 @@ func validateDistributionProportions(i interface{}) error {
 	return nil
 }
 
-func validateWeightedDeveloperRewardsReceivers(i interface{}) error {
-	v, ok := i.([]WeightedAddress)
+func validateTeamAddress(i interface{}) error {
+	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	// fund community pool when rewards address is empty
-	if len(v) == 0 {
+	if v == "" {
 		return nil
 	}
 
-	weightSum := sdk.NewDec(0)
-	for i, w := range v {
-		// we allow address to be "" to go to community pool
-		if w.Address != "" {
-			_, err := sdk.AccAddressFromBech32(w.Address)
-			if err != nil {
-				return fmt.Errorf("invalid address at %dth", i)
-			}
-		}
-		if !w.Weight.IsPositive() {
-			return fmt.Errorf("non-positive weight at %dth", i)
-		}
-		if w.Weight.GT(sdk.NewDec(1)) {
-			return fmt.Errorf("more than 1 weight at %dth", i)
-		}
-		weightSum = weightSum.Add(w.Weight)
-	}
-
-	if !weightSum.Equal(sdk.NewDec(1)) {
-		return fmt.Errorf("invalid weight sum: %s", weightSum.String())
+	if _, err := sdk.AccAddressFromBech32(v); err != nil {
+		return fmt.Errorf("invalid address %w", err)
 	}
 
 	return nil
 }
 
-func validateMintingRewardsDistributionStartEpoch(i interface{}) error {
-	v, ok := i.(int64)
+func validateTeamVestingProvision(i interface{}) error {
+	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v < 0 {
-		return fmt.Errorf("start epoch must be non-negative")
+	if v.LT(sdk.ZeroInt()) {
+		return errors.New("team vesting provision must not be negative")
 	}
 
 	return nil
+}
+
+func (p Params) Validate() error {
+	if err := validateMintDenom(p.MintDenom); err != nil {
+		return err
+	}
+	if err := epochtypes.ValidateEpochIdentifierInterface(p.EpochIdentifier); err != nil {
+		return err
+	}
+	if err := validateEpochsPerPeriod(p.EpochsPerPeriod); err != nil {
+		return err
+	}
+	if err := validateExponentialCalculation(p.ExponentialCalculation); err != nil {
+		return err
+	}
+	if err := validateInflationDistribution(p.InflationDistribution); err != nil {
+		return err
+	}
+	if err := validateTeamAddress(p.TeamAddress); err != nil {
+		return err
+	}
+	return validateTeamVestingProvision(p.TeamVestingProvision)
 }
