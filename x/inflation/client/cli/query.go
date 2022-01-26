@@ -11,31 +11,32 @@ import (
 	"github.com/tharsis/evmos/x/inflation/types"
 )
 
-// GetQueryCmd returns the cli query commands for the minting module.
+// GetQueryCmd returns the cli query commands for the inflation module.
 func GetQueryCmd() *cobra.Command {
-	mintingQueryCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the minting module",
+		Short:                      "Querying commands for the inflation module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
 	// TODO CLI
-	mintingQueryCmd.AddCommand(
-		GetCmdQueryEpochMintProvision(),
-		GetCmdQueryParams(),
+	cmd.AddCommand(
+		GetPeriod(),
+		GetEpochMintProvision(),
+		GetParams(),
 	)
 
-	return mintingQueryCmd
+	return cmd
 }
 
-// GetCmdQueryParams implements a command to return the current minting
-// parameters.
-func GetCmdQueryParams() *cobra.Command {
+// GetPeriod implements a command to return the current inflation
+// epoch provisions value.
+func GetPeriod() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "params",
-		Short: "Query the current minting parameters",
+		Use:   "period",
+		Short: "Query the current inflationperiod",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -44,13 +45,13 @@ func GetCmdQueryParams() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryParamsRequest{}
-			res, err := queryClient.Params(context.Background(), params)
+			params := &types.QueryPeriodRequest{}
+			res, err := queryClient.Period(context.Background(), params)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(&res.Params)
+			return clientCtx.PrintString(fmt.Sprintf("%v\n", res.Period))
 		},
 	}
 
@@ -59,12 +60,12 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryEpochMintProvision implements a command to return the current minting
+// GetEpochMintProvision implements a command to return the current inflation
 // epoch provisions value.
-func GetCmdQueryEpochMintProvision() *cobra.Command {
+func GetEpochMintProvision() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "epoch-provisions",
-		Short: "Query the current minting epoch provisions value",
+		Use:   "epoch--mint-provisions",
+		Short: "Query the current inflation epoch provisions value",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -80,6 +81,35 @@ func GetCmdQueryEpochMintProvision() *cobra.Command {
 			}
 
 			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.EpochMintProvision))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetParams implements a command to return the current inflation
+// parameters.
+func GetParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Short: "Query the current inflation parameters",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryParamsRequest{}
+			res, err := queryClient.Params(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(&res.Params)
 		},
 	}
 

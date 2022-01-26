@@ -69,7 +69,6 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			sdk.NewDec(int64(25_685)),
 			true,
 		},
-		// TODO Test with bonding ratio
 		{
 			"pass - with bonding - initial perid",
 			bondingParams,
