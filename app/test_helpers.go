@@ -45,7 +45,6 @@ func init() {
 
 // Setup initializes a new Evmos. A Nop logger is set in Evmos.
 func Setup(
-	ctx sdk.Context,
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
 ) *Evmos {
