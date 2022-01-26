@@ -56,6 +56,14 @@ type KeeperTestSuite struct {
 	mintFeeCollector bool
 }
 
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
+}
+
+func (suite *KeeperTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
+
 // Test helpers
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	checkTx := false
@@ -77,21 +85,15 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	feemarketGenesis.Params.NoBaseFee = false
 	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
-	// setup inflation
+	// setup inflation params
 	inflationGenesis := inflationtypes.DefaultGenesisState()
 	teamAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	inflationGenesis.Params.TeamAddress = teamAddress.String()
 
-	// TODO Set Account?
-	var teamAccount authtypes.AccountI
-	err = teamAccount.SetAddress(teamAddress)
-	if err != nil {
-		panic(err)
-	}
-	suite.app.AccountKeeper.SetAccount(suite.ctx, teamAccount)
-
+	// init app
 	suite.app = app.Setup(suite.ctx, checkTx, feemarketGenesis, inflationGenesis)
 
+	// setup mintFeeCollector
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector
 		coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(int64(params.TxGas)-1)))
@@ -123,6 +125,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		)
 	}
 
+	// setup context
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9000-1",
@@ -148,6 +151,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
 
+	// setup query helpers
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
@@ -156,13 +160,14 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	types.RegisterQueryServer(queryHelper, suite.app.InflationKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
+	// set suite account
 	acc := &ethermint.EthAccount{
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}
-
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
+	// set validator account
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
@@ -174,7 +179,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
-	// ------------------------- Genesis setup ---------------------------------//
+	// ----------------------- test genesis setup ------------------------------//
 
 	// test epochMintProvison
 	epochMintProvision, _ := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
@@ -185,14 +190,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkAddr, inflationGenesis.Params.MintDenom)
 	// expbalance := sdk.NewCoin(denomMint, sdk.NewInt(200_000_000))
 	// require.Equal(t, expbalance, balance)
-}
-
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
 }
 
 func (suite *KeeperTestSuite) Commit() {

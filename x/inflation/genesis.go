@@ -4,6 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/evmos/x/inflation/keeper"
 	"github.com/tharsis/evmos/x/inflation/types"
 )
@@ -33,6 +37,14 @@ func InitGenesis(
 		if err != nil {
 			panic(fmt.Errorf("invalid team bech32 address: %w", err))
 		}
+
+		// TODO is this the right spot to set the account?
+		// set inflation team account
+		teamAccount := &ethermint.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(teamAddr, nil, 0, 0),
+			CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
+		}
+		ak.SetAccount(ctx, teamAccount)
 
 		if acc := ak.GetAccount(ctx, teamAddr); acc == nil {
 			panic(fmt.Errorf("the team account %s has not been set", data.Params.TeamAddress))

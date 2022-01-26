@@ -130,7 +130,7 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	}
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
-		unvestedTeamAccount.String(),
+		types.UnvestedTeamAccount,
 		teamAddress,
 		teamVestingAmt,
 	)
