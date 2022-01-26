@@ -29,16 +29,16 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 
 	escrowedCoins := k.GetModuleAccountBalances(ctx)
 	if escrowedCoins != nil {
-		totalEscrowed = escrowedCoins.AmountOfNoDenomValidation(data.Params.ClaimDenom)
+		totalEscrowed = escrowedCoins.AmountOfNoDenomValidation(data.Params.ClaimsDenom)
 	}
 
-	for _, claimRecord := range data.ClaimRecords {
-		addr, _ := sdk.AccAddressFromBech32(claimRecord.Address)
-		cr := types.ClaimRecord{
-			InitialClaimableAmount: claimRecord.InitialClaimableAmount,
-			ActionsCompleted:       claimRecord.ActionsCompleted,
+	for _, claimsRecord := range data.ClaimsRecords {
+		addr, _ := sdk.AccAddressFromBech32(claimsRecord.Address)
+		cr := types.ClaimsRecord{
+			InitialClaimableAmount: claimsRecord.InitialClaimableAmount,
+			ActionsCompleted:       claimsRecord.ActionsCompleted,
 		}
-		k.SetClaimRecord(ctx, addr, cr)
+		k.SetClaimsRecord(ctx, addr, cr)
 
 		sumClaims = sumClaims.Add(cr.InitialClaimableAmount)
 	}
@@ -56,7 +56,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 // ExportGenesis returns the claim module's exported genesis.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:       k.GetParams(ctx),
-		ClaimRecords: k.GetClaimRecords(ctx),
+		Params:        k.GetParams(ctx),
+		ClaimsRecords: k.GetClaimsRecords(ctx),
 	}
 }

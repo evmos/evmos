@@ -9,25 +9,25 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func TestClaimRecordValidate(t *testing.T) {
+func TestClaimsRecordValidate(t *testing.T) {
 	testCases := []struct {
-		name        string
-		claimRecord ClaimRecord
-		expError    bool
+		name         string
+		claimsRecord ClaimsRecord
+		expError     bool
 	}{
 		{
 			"fail - empty",
-			ClaimRecord{},
+			ClaimsRecord{},
 			true,
 		},
 		{
 			"fail - non positive claimable amount",
-			ClaimRecord{InitialClaimableAmount: sdk.NewInt(-1)},
+			ClaimsRecord{InitialClaimableAmount: sdk.NewInt(-1)},
 			true,
 		},
 		{
 			"fail - empty actions",
-			ClaimRecord{
+			ClaimsRecord{
 				InitialClaimableAmount: sdk.OneInt(),
 				ActionsCompleted:       []bool{},
 			},
@@ -35,7 +35,7 @@ func TestClaimRecordValidate(t *testing.T) {
 		},
 		{
 			"success - valid instance",
-			ClaimRecord{
+			ClaimsRecord{
 				InitialClaimableAmount: sdk.OneInt(),
 				ActionsCompleted:       []bool{true, true, true, true},
 			},
@@ -44,7 +44,7 @@ func TestClaimRecordValidate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := tc.claimRecord.Validate()
+		err := tc.claimsRecord.Validate()
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
@@ -53,22 +53,22 @@ func TestClaimRecordValidate(t *testing.T) {
 	}
 }
 
-func TestClaimRecordHasClaimedAction(t *testing.T) {
+func TestClaimsRecordHasClaimedAction(t *testing.T) {
 	testCases := []struct {
-		name        string
-		claimRecord ClaimRecord
-		action      Action
-		expBool     bool
+		name         string
+		claimsRecord ClaimsRecord
+		action       Action
+		expBool      bool
 	}{
 		{
 			"false - empty",
-			ClaimRecord{},
+			ClaimsRecord{},
 			ActionEVM,
 			false,
 		},
 		{
 			"false - unspecified action",
-			ClaimRecord{
+			ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
 			ActionUnspecified,
@@ -76,7 +76,7 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 		},
 		{
 			"false - invalid action",
-			ClaimRecord{
+			ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
 			Action(10),
@@ -84,7 +84,7 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 		},
 		{
 			"false - not claimed",
-			ClaimRecord{
+			ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
 			ActionEVM,
@@ -92,7 +92,7 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 		},
 		{
 			"true - claimed",
-			ClaimRecord{
+			ClaimsRecord{
 				ActionsCompleted: []bool{true, true, true, true},
 			},
 			ActionEVM,
@@ -101,31 +101,31 @@ func TestClaimRecordHasClaimedAction(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		require.Equal(t, tc.expBool, tc.claimRecord.HasClaimedAction(tc.action), tc.name)
+		require.Equal(t, tc.expBool, tc.claimsRecord.HasClaimedAction(tc.action), tc.name)
 	}
 }
 
-func TestClaimRecordHasClaimedAll(t *testing.T) {
+func TestClaimsRecordHasClaimedAll(t *testing.T) {
 	testCases := []struct {
-		name        string
-		claimRecord ClaimRecord
-		expBool     bool
+		name         string
+		claimsRecord ClaimsRecord
+		expBool      bool
 	}{
 		{
 			"false - empty",
-			ClaimRecord{},
+			ClaimsRecord{},
 			false,
 		},
 		{
 			"false - not claimed",
-			ClaimRecord{
+			ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
 			false,
 		},
 		{
 			"true - all claimed",
-			ClaimRecord{
+			ClaimsRecord{
 				ActionsCompleted: []bool{true, true, true, true},
 			},
 			true,
@@ -133,41 +133,41 @@ func TestClaimRecordHasClaimedAll(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		require.True(t, tc.expBool == tc.claimRecord.HasClaimedAll(), tc.name)
+		require.True(t, tc.expBool == tc.claimsRecord.HasClaimedAll(), tc.name)
 	}
 }
 
-func TestClaimRecordAddressValidate(t *testing.T) {
+func TestClaimsRecordAddressValidate(t *testing.T) {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	testCases := []struct {
-		name        string
-		claimRecord ClaimRecordAddress
-		expError    bool
+		name         string
+		claimsRecord ClaimsRecordAddress
+		expError     bool
 	}{
 		{
 			"fail - empty",
-			ClaimRecordAddress{},
+			ClaimsRecordAddress{},
 			true,
 		},
 		{
 			"fail - invalid address",
-			NewClaimRecordAddress(sdk.AccAddress{}, sdk.NewInt(-1)),
+			NewClaimsRecordAddress(sdk.AccAddress{}, sdk.NewInt(-1)),
 			true,
 		},
 		{
 			"fail - empty int",
-			NewClaimRecordAddress(addr, sdk.Int{}),
+			NewClaimsRecordAddress(addr, sdk.Int{}),
 			true,
 		},
 		{
 			"fail - non positive claimable amount",
-			NewClaimRecordAddress(addr, sdk.NewInt(-1)),
+			NewClaimsRecordAddress(addr, sdk.NewInt(-1)),
 			true,
 		},
 		{
 			"fail - empty actions",
-			ClaimRecordAddress{
+			ClaimsRecordAddress{
 				Address:                addr.String(),
 				InitialClaimableAmount: sdk.OneInt(),
 				ActionsCompleted:       []bool{},
@@ -176,13 +176,13 @@ func TestClaimRecordAddressValidate(t *testing.T) {
 		},
 		{
 			"success - valid instance",
-			NewClaimRecordAddress(addr, sdk.OneInt()),
+			NewClaimsRecordAddress(addr, sdk.OneInt()),
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
-		err := tc.claimRecord.Validate()
+		err := tc.claimsRecord.Validate()
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {

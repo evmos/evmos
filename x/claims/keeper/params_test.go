@@ -9,7 +9,7 @@ func (suite *KeeperTestSuite) TestParams() {
 	expParams := types.DefaultParams()
 	expParams.AirdropStartTime = suite.ctx.BlockTime()
 	suite.Require().Equal(expParams, params)
-	params.EnableClaim = false
+	params.EnableClaims = false
 	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 	newParams := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 	suite.Require().Equal(newParams, params)

@@ -36,7 +36,7 @@ func TestParamsValidate(t *testing.T) {
 			Params{
 				DurationOfDecay:    DefaultDurationOfDecay,
 				DurationUntilDecay: DefaultDurationUntilDecay,
-				ClaimDenom:         "",
+				ClaimsDenom:        "",
 			},
 			true,
 		},
@@ -50,7 +50,7 @@ func TestParamsValidate(t *testing.T) {
 			Params{
 				DurationOfDecay:    DefaultDurationOfDecay,
 				DurationUntilDecay: DefaultDurationUntilDecay,
-				ClaimDenom:         "tevmos",
+				ClaimsDenom:        "tevmos",
 			},
 			false,
 		},

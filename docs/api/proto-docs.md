@@ -6,8 +6,8 @@
 
 - [evmos/claims/v1/claims.proto](#evmos/claims/v1/claims.proto)
     - [Claim](#evmos.claims.v1.Claim)
-    - [ClaimRecord](#evmos.claims.v1.ClaimRecord)
-    - [ClaimRecordAddress](#evmos.claims.v1.ClaimRecordAddress)
+    - [ClaimsRecord](#evmos.claims.v1.ClaimsRecord)
+    - [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress)
   
     - [Action](#evmos.claims.v1.Action)
   
@@ -16,10 +16,10 @@
     - [Params](#evmos.claims.v1.Params)
   
 - [evmos/claims/v1/query.proto](#evmos/claims/v1/query.proto)
-    - [QueryClaimRecordRequest](#evmos.claims.v1.QueryClaimRecordRequest)
-    - [QueryClaimRecordResponse](#evmos.claims.v1.QueryClaimRecordResponse)
-    - [QueryClaimRecordsRequest](#evmos.claims.v1.QueryClaimRecordsRequest)
-    - [QueryClaimRecordsResponse](#evmos.claims.v1.QueryClaimRecordsResponse)
+    - [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest)
+    - [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse)
+    - [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest)
+    - [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse)
     - [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse)
     - [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest)
@@ -112,8 +112,8 @@
 <a name="evmos.claims.v1.Claim"></a>
 
 ### Claim
-Claim marks defines the action, completed flag and the remaining claimable amount
-for a given user. This is only used during client queries.
+Claim marks defines the action, completed flag and the remaining claimable
+amount for a given user. This is only used during client queries.
 
 
 | Field | Type | Label | Description |
@@ -127,10 +127,10 @@ for a given user. This is only used during client queries.
 
 
 
-<a name="evmos.claims.v1.ClaimRecord"></a>
+<a name="evmos.claims.v1.ClaimsRecord"></a>
 
-### ClaimRecord
-ClaimRecord defines the initial claimable airdrop amount and the list of
+### ClaimsRecord
+ClaimsRecord defines the initial claimable airdrop amount and the list of
 completed actions to claim the tokens.
 
 
@@ -144,10 +144,10 @@ completed actions to claim the tokens.
 
 
 
-<a name="evmos.claims.v1.ClaimRecordAddress"></a>
+<a name="evmos.claims.v1.ClaimsRecordAddress"></a>
 
-### ClaimRecordAddress
-ClaimRecordAddress is the metadata of claim data per address
+### ClaimsRecordAddress
+ClaimsRecordAddress is the metadata of claims data per address
 
 
 | Field | Type | Label | Description |
@@ -195,13 +195,13 @@ Action defines the list of available actions to claim the airdrop tokens.
 <a name="evmos.claims.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the claim module's genesis state.
+GenesisState defines the claims module's genesis state.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.claims.v1.Params) |  | params defines all the parameters of the module. |
-| `claim_records` | [ClaimRecordAddress](#evmos.claims.v1.ClaimRecordAddress) | repeated | list of claim records with the corresponding airdrop recipient |
+| `claims_records` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated | list of claim records with the corresponding airdrop recipient |
 
 
 
@@ -211,16 +211,16 @@ GenesisState defines the claim module's genesis state.
 <a name="evmos.claims.v1.Params"></a>
 
 ### Params
-Params defines the claim module's parameters.
+Params defines the claims module's parameters.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `enable_claim` | [bool](#bool) |  | enable claiming process |
+| `enable_claims` | [bool](#bool) |  | enable claiming process |
 | `airdrop_start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp of the airdrop start |
 | `duration_until_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration until decay of claimable tokens begin |
 | `duration_of_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration of the token claim decay period |
-| `claim_denom` | [string](#string) |  | denom of claimable coin |
+| `claims_denom` | [string](#string) |  | denom of claimable coin |
 
 
 
@@ -243,10 +243,11 @@ Params defines the claim module's parameters.
 
 
 
-<a name="evmos.claims.v1.QueryClaimRecordRequest"></a>
+<a name="evmos.claims.v1.QueryClaimsRecordRequest"></a>
 
-### QueryClaimRecordRequest
-QueryClaimRecordRequest is the request type for the Query/ClaimRecord RPC method.
+### QueryClaimsRecordRequest
+QueryClaimsRecordRequest is the request type for the Query/ClaimsRecord RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -258,10 +259,11 @@ QueryClaimRecordRequest is the request type for the Query/ClaimRecord RPC method
 
 
 
-<a name="evmos.claims.v1.QueryClaimRecordResponse"></a>
+<a name="evmos.claims.v1.QueryClaimsRecordResponse"></a>
 
-### QueryClaimRecordResponse
-QueryClaimRecordResponse is the response type for the Query/ClaimRecord RPC method.
+### QueryClaimsRecordResponse
+QueryClaimsRecordResponse is the response type for the Query/ClaimsRecord RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -274,10 +276,11 @@ QueryClaimRecordResponse is the response type for the Query/ClaimRecord RPC meth
 
 
 
-<a name="evmos.claims.v1.QueryClaimRecordsRequest"></a>
+<a name="evmos.claims.v1.QueryClaimsRecordsRequest"></a>
 
-### QueryClaimRecordsRequest
-QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
+### QueryClaimsRecordsRequest
+QueryClaimsRecordsRequest is the request type for the Query/ClaimsRecords RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -289,15 +292,16 @@ QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC meth
 
 
 
-<a name="evmos.claims.v1.QueryClaimRecordsResponse"></a>
+<a name="evmos.claims.v1.QueryClaimsRecordsResponse"></a>
 
-### QueryClaimRecordsResponse
-QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
+### QueryClaimsRecordsResponse
+QueryClaimsRecordsResponse is the response type for the Query/ClaimsRecords
+RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `claims` | [ClaimRecordAddress](#evmos.claims.v1.ClaimRecordAddress) | repeated |  |
+| `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -333,7 +337,8 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 <a name="evmos.claims.v1.QueryTotalUnclaimedRequest"></a>
 
 ### QueryTotalUnclaimedRequest
-QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC method.
+QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed
+RPC method.
 
 
 
@@ -343,7 +348,8 @@ QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC 
 <a name="evmos.claims.v1.QueryTotalUnclaimedResponse"></a>
 
 ### QueryTotalUnclaimedResponse
-QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed RPC method.
+QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -369,9 +375,9 @@ Query defines the gRPC querier service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claims/v1/total_unclaimed|
-| `Params` | [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse) | Params returns the claim module parameters | GET|/evmos/claims/v1/params|
-| `ClaimRecords` | [QueryClaimRecordsRequest](#evmos.claims.v1.QueryClaimRecordsRequest) | [QueryClaimRecordsResponse](#evmos.claims.v1.QueryClaimRecordsResponse) | ClaimRecords returns all the claims record | GET|/evmos/claims/v1/claims_records|
-| `ClaimRecord` | [QueryClaimRecordRequest](#evmos.claims.v1.QueryClaimRecordRequest) | [QueryClaimRecordResponse](#evmos.claims.v1.QueryClaimRecordResponse) | ClaimRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_records/{address}|
+| `Params` | [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse) | Params returns the claims module parameters | GET|/evmos/claims/v1/params|
+| `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all the claims record | GET|/evmos/claims/v1/claims_records|
+| `ClaimsRecord` | [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest) | [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse) | ClaimsRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_record/{address}|
 
  <!-- end services -->
 
@@ -751,7 +757,8 @@ method.
 <a name="evmos.erc20.v1.QueryTokenPairsRequest"></a>
 
 ### QueryTokenPairsRequest
-QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC method.
+QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -927,8 +934,8 @@ GasMeter tracks the cumulative gas spent per participant in one epoch
 <a name="evmos.incentives.v1.Incentive"></a>
 
 ### Incentive
-Incentive defines an instance that organizes distribution conditions for a given
-smart contract
+Incentive defines an instance that organizes distribution conditions for a
+given smart contract
 
 
 | Field | Type | Label | Description |
@@ -1130,7 +1137,8 @@ method.
 <a name="evmos.incentives.v1.QueryGasMetersRequest"></a>
 
 ### QueryGasMetersRequest
-QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
+QueryGasMetersRequest is the request type for the Query/Incentives RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -1194,7 +1202,8 @@ method.
 <a name="evmos.incentives.v1.QueryIncentivesRequest"></a>
 
 ### QueryIncentivesRequest
-QueryIncentivesRequest is the request type for the Query/Incentives RPC method.
+QueryIncentivesRequest is the request type for the Query/Incentives RPC
+method.
 
 
 | Field | Type | Label | Description |
