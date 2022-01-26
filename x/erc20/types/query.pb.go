@@ -30,7 +30,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC method.
+// QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC
+// method.
 type QueryTokenPairsRequest struct {
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`

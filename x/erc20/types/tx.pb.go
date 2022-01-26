@@ -290,9 +290,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping.
+	// ConvertCoin mints a ERC20 representation of the SDK Coin denom that is
+	// registered on the token mapping.
 	ConvertCoin(ctx context.Context, in *MsgConvertCoin, opts ...grpc.CallOption) (*MsgConvertCoinResponse, error)
-	// ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping.
+	// ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract
+	// that is registered on the token mapping.
 	ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts ...grpc.CallOption) (*MsgConvertERC20Response, error)
 }
 
@@ -324,9 +326,11 @@ func (c *msgClient) ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts 
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping.
+	// ConvertCoin mints a ERC20 representation of the SDK Coin denom that is
+	// registered on the token mapping.
 	ConvertCoin(context.Context, *MsgConvertCoin) (*MsgConvertCoinResponse, error)
-	// ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping.
+	// ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract
+	// that is registered on the token mapping.
 	ConvertERC20(context.Context, *MsgConvertERC20) (*MsgConvertERC20Response, error)
 }
 
