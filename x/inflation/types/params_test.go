@@ -45,7 +45,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"default",
 			DefaultParams(),
-			true,
+			false,
 		},
 		{
 			"valid",
@@ -302,7 +302,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			true,
 		},
 		{
-			"invalid - team address",
+			"valid - empty team address",
 			Params{
 				MintDenom:              "aevmos",
 				EpochIdentifier:        "week",
@@ -312,7 +312,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				TeamAddress:            "",
 				TeamVestingProvision:   sdk.NewInt(1_000_000),
 			},
-			true,
+			false,
 		},
 		{
 			"invalid - negative team vesting provision",

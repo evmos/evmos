@@ -62,12 +62,12 @@ func DefaultParams() Params {
 			B: sdk.ZeroDec(),
 		},
 		InflationDistribution: InflationDistribution{
-			StakingRewards:  sdk.NewDecWithPrec(533334, 6), // 0.53 = 40% / (1 - 25%)
-			UsageIncentives: sdk.NewDecWithPrec(333333, 6), // 0.33 = 25% / (1 - 25%)
-			CommunityPool:   sdk.NewDecWithPrec(133333, 6), // 0.13 = 10% / (1 - 25%)
+			StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
+			UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
+			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 		},
 		TeamAddress:          "",
-		TeamVestingProvision: sdk.NewInt(136986), // 200000000/(4*365)
+		TeamVestingProvision: sdk.NewInt(136_986), // 200000000/(4*365)
 	}
 }
 
@@ -186,6 +186,10 @@ func validateTeamAddress(i interface{}) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == "" {
+		return nil
 	}
 
 	if _, err := sdk.AccAddressFromBech32(v); err != nil {

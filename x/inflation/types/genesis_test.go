@@ -39,7 +39,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			"invalid default genesis without address",
 			DefaultGenesisState(),
-			false,
+			true,
 		},
 		{
 			"valid genesis constructor",

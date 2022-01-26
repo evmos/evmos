@@ -15,7 +15,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/cmd/config"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
@@ -37,12 +37,17 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
+func init() {
+	cfg := sdk.GetConfig()
+	config.SetBech32Prefixes(cfg)
+	config.SetBip44CoinType(cfg)
+}
+
 // Setup initializes a new Evmos. A Nop logger is set in Evmos.
 func Setup(
 	ctx sdk.Context,
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
-	inflationGenesis *inflationtypes.GenesisState,
 ) *Evmos {
 	db := dbm.NewMemDB()
 	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
@@ -56,14 +61,6 @@ func Setup(
 				panic(err)
 			}
 			genesisState[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
-		}
-
-		// Verify inflation genesis
-		if inflationGenesis != nil {
-			if err := inflationGenesis.Validate(); err != nil {
-				panic(err)
-			}
-			genesisState[inflationtypes.ModuleName] = app.AppCodec().MustMarshalJSON(inflationGenesis)
 		}
 
 		stateBytes, err := json.MarshalIndent(genesisState, "", " ")

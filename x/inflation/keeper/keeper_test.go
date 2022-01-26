@@ -85,13 +85,13 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	feemarketGenesis.Params.NoBaseFee = false
 	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
+	// init app
+	suite.app = app.Setup(suite.ctx, checkTx, feemarketGenesis)
+
 	// setup inflation params
 	inflationGenesis := inflationtypes.DefaultGenesisState()
 	teamAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	inflationGenesis.Params.TeamAddress = teamAddress.String()
-
-	// init app
-	suite.app = app.Setup(suite.ctx, checkTx, feemarketGenesis, inflationGenesis)
 
 	// setup mintFeeCollector
 	if suite.mintFeeCollector {
