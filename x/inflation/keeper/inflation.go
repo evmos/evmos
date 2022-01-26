@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
 	"github.com/tharsis/evmos/x/inflation/types"
@@ -12,19 +11,19 @@ import (
 func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
 	// Mint coins for distribution
 	if err := k.MintCoins(ctx, coin); err != nil {
-		panic(err)
+		return err
 	}
 
 	// Allocate minted coins according to allocation proportions (staking, usage
 	// incentives, community pool)
-	if err := k.AllocateMintedCoin(ctx, coin); err != nil {
-		panic(err)
+	if err := k.AllocateExponentialInflation(ctx, coin); err != nil {
+		return err
 	}
 
 	// Transfer coins (allocated at genesis) from unvested_team_account to team
 	// address
 	if err := k.AllocateTeamVesting(ctx); err != nil {
-		panic(err)
+		return err
 	}
 
 	return nil
@@ -35,17 +34,20 @@ func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
 func (k Keeper) MintCoins(ctx sdk.Context, newCoin sdk.Coin) error {
 	newCoins := sdk.NewCoins(newCoin)
 
+	// skip as no coins need to be minted
 	if newCoins.Empty() {
-		// skip as no coins need to be minted
 		return nil
 	}
 
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
 }
 
-// AllocateMintedCoins allocates minted coins from the inflation to external
-// modules
-func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
+// AllocateExponentialInflation allocates coins from the inflation to external
+// modules according to allocation proportions:
+//   - staking rewards -> sdk `auth` module fee collector
+//   - usage incentives -> `x/incentives` module
+//   - community pool -> `sdk `distr` module community pool
+func (k Keeper) AllocateExponentialInflation(ctx sdk.Context, mintedCoin sdk.Coin) error {
 	params := k.GetParams(ctx)
 	proportions := params.InflationDistribution
 
@@ -87,17 +89,18 @@ func (k Keeper) AllocateMintedCoin(ctx sdk.Context, mintedCoin sdk.Coin) error {
 // AllocateTeamVesting allocates the team vesting proportion from the team
 // vesting supply
 func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
+	logger := k.Logger(ctx)
 	params := k.GetParams(ctx)
 
-	// TODO log instead of error
 	// Check unvested team account balance
 	unvestedTeamAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTeamAccount)
 	balances := k.bankKeeper.GetAllBalances(ctx, unvestedTeamAccount)
 	if balances.IsZero() {
-		return sdkerrors.Wrapf(
-			sdkerrors.ErrInsufficientFunds, "%s account has no supply",
-			types.UnvestedTeamAccount,
+		logger.Debug(
+			"unvested_team_account account has no supply",
+			"balances", balances,
 		)
+		return nil
 	}
 
 	// Get team vesting provision to allocate from the unvested team account
@@ -112,6 +115,11 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 			// yes, only allocate mintCoin, else allocate remaining balance.
 			if coin.IsGTE(mintCoin) {
 				coin = mintCoin
+			} else {
+				logger.Debug(
+					"unvested_team_account supply is lower than team provision",
+					"insufficient funds", coin, "<", mintCoin,
+				)
 			}
 		}
 		// add coin to teamVestingAmt
@@ -120,6 +128,10 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 
 	// Allocate teamVesting to community pool when rewards address is empty
 	if params.TeamAddress == "" {
+		logger.Debug(
+			"team address not set",
+			"team address", params.TeamAddress,
+		)
 		return k.distrKeeper.FundCommunityPool(ctx, teamVestingAmt, unvestedTeamAccount)
 	}
 
