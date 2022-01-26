@@ -67,7 +67,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = params.GetClaimDenom()
+	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 }
 

@@ -74,47 +74,47 @@ func (k Keeper) GetModuleAccountBalances(ctx sdk.Context) sdk.Coins {
 	return k.bankKeeper.GetAllBalances(ctx, moduleAccAddr)
 }
 
-// GetClaimRecord returns the claim record for a specific address
-func (k Keeper) GetClaimRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimRecord, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+// GetClaimsRecord returns the claim record for a specific address
+func (k Keeper) GetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimsRecord, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 
 	bz := store.Get(addr)
 	if len(bz) == 0 {
-		return types.ClaimRecord{}, false
+		return types.ClaimsRecord{}, false
 	}
 
-	var claimRecord types.ClaimRecord
-	k.cdc.MustUnmarshal(bz, &claimRecord)
+	var claimsRecord types.ClaimsRecord
+	k.cdc.MustUnmarshal(bz, &claimsRecord)
 
-	return claimRecord, true
+	return claimsRecord, true
 }
 
-// SetClaimRecord sets a claim record for an address in store
-func (k Keeper) SetClaimRecord(ctx sdk.Context, addr sdk.AccAddress, claimRecord types.ClaimRecord) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
-	bz := k.cdc.MustMarshal(&claimRecord)
+// SetClaimsRecord sets a claim record for an address in store
+func (k Keeper) SetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress, claimsRecord types.ClaimsRecord) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
+	bz := k.cdc.MustMarshal(&claimsRecord)
 	store.Set(addr, bz)
 }
 
-// DeleteClaimRecord deletes a claim record from the store
-func (k Keeper) DeleteClaimRecord(ctx sdk.Context, addr sdk.AccAddress) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+// DeleteClaimsRecord deletes a claim record from the store
+func (k Keeper) DeleteClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 	store.Delete(addr)
 }
 
-func (k Keeper) IterateClaimRecords(ctx sdk.Context, handlerFn func(addr sdk.AccAddress, cr types.ClaimRecord) (stop bool)) {
+func (k Keeper) IterateClaimsRecords(ctx sdk.Context, handlerFn func(addr sdk.AccAddress, cr types.ClaimsRecord) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixClaimRecords)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixClaimsRecords)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var claimRecord types.ClaimRecord
-		k.cdc.MustUnmarshal(iterator.Value(), &claimRecord)
+		var claimsRecord types.ClaimsRecord
+		k.cdc.MustUnmarshal(iterator.Value(), &claimsRecord)
 
 		addr := sdk.AccAddress(iterator.Key()[1:])
-		cr := types.ClaimRecord{
-			InitialClaimableAmount: claimRecord.InitialClaimableAmount,
-			ActionsCompleted:       claimRecord.ActionsCompleted,
+		cr := types.ClaimsRecord{
+			InitialClaimableAmount: claimsRecord.InitialClaimableAmount,
+			ActionsCompleted:       claimsRecord.ActionsCompleted,
 		}
 
 		if handlerFn(addr, cr) {
@@ -123,19 +123,19 @@ func (k Keeper) IterateClaimRecords(ctx sdk.Context, handlerFn func(addr sdk.Acc
 	}
 }
 
-// GetClaimRecords get claimables for genesis export
-func (k Keeper) GetClaimRecords(ctx sdk.Context) []types.ClaimRecordAddress {
-	claimRecords := []types.ClaimRecordAddress{}
-	k.IterateClaimRecords(ctx, func(addr sdk.AccAddress, cr types.ClaimRecord) (stop bool) {
-		cra := types.ClaimRecordAddress{
+// GetClaimsRecords get claimables for genesis export
+func (k Keeper) GetClaimsRecords(ctx sdk.Context) []types.ClaimsRecordAddress {
+	claimsRecords := []types.ClaimsRecordAddress{}
+	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, cr types.ClaimsRecord) (stop bool) {
+		cra := types.ClaimsRecordAddress{
 			Address:                addr.String(),
 			InitialClaimableAmount: cr.InitialClaimableAmount,
 			ActionsCompleted:       cr.ActionsCompleted,
 		}
 
-		claimRecords = append(claimRecords, cra)
+		claimsRecords = append(claimsRecords, cra)
 		return false
 	})
 
-	return claimRecords
+	return claimsRecords
 }

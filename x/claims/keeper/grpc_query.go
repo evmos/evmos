@@ -34,36 +34,36 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	}, nil
 }
 
-// ClaimRecords returns all the the claimable records
-func (k Keeper) ClaimRecords(
+// ClaimsRecords returns all the the claimable records
+func (k Keeper) ClaimsRecords(
 	goCtx context.Context,
-	req *types.QueryClaimRecordsRequest,
-) (*types.QueryClaimRecordsResponse, error) {
+	req *types.QueryClaimsRecordsRequest,
+) (*types.QueryClaimsRecordsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimRecords)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 
-	claimRecords := []types.ClaimRecordAddress{}
+	claimsRecords := []types.ClaimsRecordAddress{}
 
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
 		func(key, value []byte) error {
-			var cr types.ClaimRecord
+			var cr types.ClaimsRecord
 			if err := k.cdc.Unmarshal(value, &cr); err != nil {
 				return err
 			}
 
-			cra := types.ClaimRecordAddress{
+			cra := types.ClaimsRecordAddress{
 				Address:                sdk.AccAddress(key).String(),
 				InitialClaimableAmount: cr.InitialClaimableAmount,
 				ActionsCompleted:       cr.ActionsCompleted,
 			}
 
-			claimRecords = append(claimRecords, cra)
+			claimsRecords = append(claimsRecords, cra)
 			return nil
 		},
 	)
@@ -71,17 +71,17 @@ func (k Keeper) ClaimRecords(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryClaimRecordsResponse{
-		Claims:     claimRecords,
+	return &types.QueryClaimsRecordsResponse{
+		Claims:     claimsRecords,
 		Pagination: pageRes,
 	}, nil
 }
 
-// ClaimRecord returns initial claimable amount per user and the claims per action
-func (k Keeper) ClaimRecord(
+// ClaimsRecord returns initial claimable amount per user and the claims per action
+func (k Keeper) ClaimsRecord(
 	goCtx context.Context,
-	req *types.QueryClaimRecordRequest,
-) (*types.QueryClaimRecordResponse, error) {
+	req *types.QueryClaimsRecordRequest,
+) (*types.QueryClaimsRecordResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -93,7 +93,7 @@ func (k Keeper) ClaimRecord(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	claimRecord, found := k.GetClaimRecord(ctx, addr)
+	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "claim record for address '%s'", req.Address)
 	}
@@ -105,13 +105,13 @@ func (k Keeper) ClaimRecord(
 	for i, action := range actions {
 		claims[i] = types.Claim{
 			Action:          action,
-			Completed:       claimRecord.HasClaimedAction(action),
-			ClaimableAmount: k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params),
+			Completed:       claimsRecord.HasClaimedAction(action),
+			ClaimableAmount: k.GetClaimableAmountForAction(ctx, addr, claimsRecord, action, params),
 		}
 	}
 
-	return &types.QueryClaimRecordResponse{
-		InitialClaimableAmount: claimRecord.InitialClaimableAmount,
+	return &types.QueryClaimsRecordResponse{
+		InitialClaimableAmount: claimsRecord.InitialClaimableAmount,
 		Claims:                 claims,
 	}, nil
 }

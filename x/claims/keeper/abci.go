@@ -14,7 +14,7 @@ func (k Keeper) EndBlocker(ctx sdk.Context) {
 	params := k.GetParams(ctx)
 
 	// NOTE: ignore end of airdrop period check if claiming is disabled
-	if !params.EnableClaim {
+	if !params.EnableClaims {
 		return
 	}
 
@@ -42,10 +42,10 @@ func (k Keeper) EndAirdrop(ctx sdk.Context, params types.Params) error {
 
 	// transfer unclaimed tokens from accounts to community pool and clean up the
 	// claim record state
-	k.ClawbackEmptyAccounts(ctx, params.ClaimDenom)
+	k.ClawbackEmptyAccounts(ctx, params.ClaimsDenom)
 
-	// set the EnableClaim param to false so that we don't have to compute duration every block
-	params.EnableClaim = false
+	// set the EnableClaims param to false so that we don't have to compute duration every block
+	params.EnableClaims = false
 	k.SetParams(ctx, params)
 	logger.Info("end EndAirdrop logic")
 	return nil
@@ -80,16 +80,16 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 // recipient accounts with a sequence number of 0 (i.e the account hasn't performed a single tx
 // during the claim window).
 // Once the account is clawbacked, the claim record is deleted from state.
-func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimDenom string) {
+func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
 
 	accPruned := int64(0)
 	accClawbacked := int64(0)
 
-	k.IterateClaimRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimRecord) (stop bool) {
+	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
 		// delete claim record once the account balance is clawed back
-		defer k.DeleteClaimRecord(ctx, addr)
+		defer k.DeleteClaimsRecord(ctx, addr)
 
 		acc := k.accountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
@@ -123,7 +123,7 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimDenom string) {
 			return false
 		}
 
-		clawbackCoin := sdk.Coin{Denom: claimDenom, Amount: balances.AmountOfNoDenomValidation(claimDenom)}
+		clawbackCoin := sdk.Coin{Denom: claimsDenom, Amount: balances.AmountOfNoDenomValidation(claimsDenom)}
 		if !clawbackCoin.IsPositive() {
 			return false
 		}

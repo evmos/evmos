@@ -21,7 +21,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 			"claim enabled",
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
-				params.EnableClaim = true
+				params.EnableClaims = true
 				params.AirdropStartTime = time.Time{}
 				params.DurationUntilDecay = time.Hour
 				params.DurationOfDecay = time.Hour
@@ -62,7 +62,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			"no account",
 			0,
 			func() {
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
 		},
 		{
@@ -70,7 +70,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 1))
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
 		},
 		{
@@ -78,7 +78,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
 		},
 		{
@@ -92,7 +92,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
 				suite.Require().NoError(err)
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
 		},
 		{
@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
 				suite.Require().NoError(err)
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, types.ClaimRecord{})
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
 		},
 	}

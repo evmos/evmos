@@ -10,8 +10,8 @@ import (
 // DefaultGenesis returns the default claims module genesis state
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params:       DefaultParams(),
-		ClaimRecords: []ClaimRecordAddress{},
+		Params:        DefaultParams(),
+		ClaimsRecords: []ClaimsRecordAddress{},
 	}
 }
 
@@ -32,14 +32,14 @@ func GetGenesisStateFromAppState(cdc codec.JSONCodec, appState map[string]json.R
 func (gs GenesisState) Validate() error {
 	seenClaims := make(map[string]bool)
 
-	for _, claimRecord := range gs.ClaimRecords {
-		if seenClaims[claimRecord.Address] {
-			return fmt.Errorf("duplicated claim record entry %s", claimRecord.Address)
+	for _, claimsRecord := range gs.ClaimsRecords {
+		if seenClaims[claimsRecord.Address] {
+			return fmt.Errorf("duplicated claim record entry %s", claimsRecord.Address)
 		}
-		if err := claimRecord.Validate(); err != nil {
+		if err := claimsRecord.Validate(); err != nil {
 			return err
 		}
-		seenClaims[claimRecord.Address] = true
+		seenClaims[claimsRecord.Address] = true
 	}
 
 	return gs.Params.Validate()

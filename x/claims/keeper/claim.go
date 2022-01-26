@@ -11,30 +11,30 @@ import (
 func (k Keeper) GetClaimableAmountForAction(
 	ctx sdk.Context,
 	addr sdk.AccAddress,
-	claimRecord types.ClaimRecord,
+	claimsRecord types.ClaimsRecord,
 	action types.Action,
 	params types.Params,
 ) sdk.Int {
 	// return zero if there are no coins to claim
-	if claimRecord.InitialClaimableAmount.IsNil() || claimRecord.InitialClaimableAmount.IsZero() {
+	if claimsRecord.InitialClaimableAmount.IsNil() || claimsRecord.InitialClaimableAmount.IsZero() {
 		return sdk.ZeroInt()
 	}
 
 	airdropEndTime := params.AirdropEndTime()
 
 	// Safety check: the entire airdrop has completed
-	// NOTE: This shouldn't occur since at the end of the airdrop, the EnableClaim
+	// NOTE: This shouldn't occur since at the end of the airdrop, the EnableClaims
 	// param is disabled.
 	if ctx.BlockTime().After(airdropEndTime) {
 		return sdk.ZeroInt()
 	}
 
-	if claimRecord.HasClaimedAction(action) {
+	if claimsRecord.HasClaimedAction(action) {
 		return sdk.ZeroInt()
 	}
 
 	// NOTE: use len(actions)-1 we don't consider the Unspecified Action
-	initialClaimablePerAction := claimRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
+	initialClaimablePerAction := claimsRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
 
 	decayStartTime := params.DecayStartTime()
 	// claim amount is the full amount if the elapsed time is before or equal
@@ -64,7 +64,7 @@ func (k Keeper) GetClaimableAmountForAction(
 func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
 	totalClaimable := sdk.ZeroInt()
 
-	claimRecord, found := k.GetClaimRecord(ctx, addr)
+	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
 	if !found {
 		return sdk.ZeroInt()
 	}
@@ -74,7 +74,7 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.
 	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 
 	for _, action := range actions {
-		claimableForAction := k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params)
+		claimableForAction := k.GetClaimableAmountForAction(ctx, addr, claimsRecord, action, params)
 		totalClaimable = totalClaimable.Add(claimableForAction)
 	}
 
@@ -90,34 +90,34 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 	params := k.GetParams(ctx)
 
 	// If we are before the start time or claims are disabled, do nothing.
-	if !params.EnableClaim || ctx.BlockTime().Before(params.AirdropStartTime) {
+	if !params.EnableClaims || ctx.BlockTime().Before(params.AirdropStartTime) {
 		return sdk.ZeroInt(), nil
 	}
 
-	claimRecord, found := k.GetClaimRecord(ctx, addr)
+	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
 	if !found {
 		// return nil if not claim record found to avoid panics
 		return sdk.ZeroInt(), nil
 	}
 
 	// if action already completed, nothing is claimable
-	if claimRecord.HasClaimedAction(action) {
+	if claimsRecord.HasClaimedAction(action) {
 		return sdk.ZeroInt(), nil
 	}
 
-	claimableAmount := k.GetClaimableAmountForAction(ctx, addr, claimRecord, action, params)
+	claimableAmount := k.GetClaimableAmountForAction(ctx, addr, claimsRecord, action, params)
 
 	if claimableAmount.IsZero() {
 		return sdk.ZeroInt(), nil
 	}
 
-	claimedCoins := sdk.Coins{{Denom: params.ClaimDenom, Amount: claimableAmount}}
+	claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: claimableAmount}}
 
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, claimedCoins); err != nil {
 		return sdk.ZeroInt(), err
 	}
 
-	claimRecord.ClaimAction(action)
+	claimsRecord.ClaimAction(action)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -128,10 +128,10 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 		),
 	})
 
-	if claimRecord.HasClaimedAll() {
-		k.DeleteClaimRecord(ctx, addr)
+	if claimsRecord.HasClaimedAll() {
+		k.DeleteClaimsRecord(ctx, addr)
 	} else {
-		k.SetClaimRecord(ctx, addr, claimRecord)
+		k.SetClaimsRecord(ctx, addr, claimsRecord)
 	}
 
 	return claimableAmount, nil

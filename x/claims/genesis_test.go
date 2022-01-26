@@ -23,9 +23,9 @@ var (
 			AirdropStartTime:   now,
 			DurationUntilDecay: types.DefaultDurationUntilDecay,
 			DurationOfDecay:    types.DefaultDurationOfDecay,
-			ClaimDenom:         types.DefaultClaimDenom, // aevmos
+			ClaimsDenom:        types.DefaultClaimsDenom, // aevmos
 		},
-		ClaimRecords: []types.ClaimRecordAddress{
+		ClaimsRecords: []types.ClaimsRecordAddress{
 			{
 				Address:                acc1.String(),
 				InitialClaimableAmount: sdk.NewInt(10000),
@@ -63,8 +63,8 @@ func TestClaimInitGenesis(t *testing.T) {
 	params := app.ClaimsKeeper.GetParams(ctx)
 	require.Equal(t, params, genesis.Params)
 
-	claimRecords := app.ClaimsKeeper.GetClaimRecords(ctx)
-	require.Equal(t, claimRecords, genesis.ClaimRecords)
+	claimsRecords := app.ClaimsKeeper.GetClaimsRecords(ctx)
+	require.Equal(t, claimsRecords, genesis.ClaimsRecords)
 }
 
 func TestClaimExportGenesis(t *testing.T) {
@@ -87,19 +87,19 @@ func TestClaimExportGenesis(t *testing.T) {
 
 	claims.InitGenesis(ctx, app.ClaimsKeeper, genesis)
 
-	claimRecord, found := app.ClaimsKeeper.GetClaimRecord(ctx, acc2)
+	claimsRecord, found := app.ClaimsKeeper.GetClaimsRecord(ctx, acc2)
 	require.True(t, found)
-	require.Equal(t, claimRecord, types.ClaimRecord{
+	require.Equal(t, claimsRecord, types.ClaimsRecord{
 		InitialClaimableAmount: sdk.NewInt(400),
 		ActionsCompleted:       []bool{false, false, false, false},
 	})
 
-	claimableAmount := app.ClaimsKeeper.GetClaimableAmountForAction(ctx, acc2, claimRecord, types.ActionIBCTransfer, genesis.Params)
+	claimableAmount := app.ClaimsKeeper.GetClaimableAmountForAction(ctx, acc2, claimsRecord, types.ActionIBCTransfer, genesis.Params)
 	require.Equal(t, claimableAmount, sdk.NewInt(100))
 
 	genesisExported := claims.ExportGenesis(ctx, app.ClaimsKeeper)
 	require.Equal(t, genesisExported.Params, genesis.Params)
-	require.Equal(t, genesisExported.ClaimRecords, []types.ClaimRecordAddress{
+	require.Equal(t, genesisExported.ClaimsRecords, []types.ClaimsRecordAddress{
 		{
 			Address:                acc1.String(),
 			InitialClaimableAmount: sdk.NewInt(10000),

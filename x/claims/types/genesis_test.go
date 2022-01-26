@@ -35,8 +35,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name: "valid genesis",
 			genState: &GenesisState{
-				Params:       DefaultParams(),
-				ClaimRecords: []ClaimRecordAddress{},
+				Params:        DefaultParams(),
+				ClaimsRecords: []ClaimsRecordAddress{},
 			},
 			expPass: true,
 		},
@@ -44,7 +44,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis - with claim record",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				ClaimRecords: []ClaimRecordAddress{
+				ClaimsRecords: []ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
@@ -58,7 +58,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - duplicated claim record",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				ClaimRecords: []ClaimRecordAddress{
+				ClaimsRecords: []ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
@@ -78,7 +78,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - invalid address",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				ClaimRecords: []ClaimRecordAddress{
+				ClaimsRecords: []ClaimsRecordAddress{
 					{
 						Address:                "badaddress",
 						InitialClaimableAmount: sdk.NewInt(1),
@@ -92,7 +92,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - invalid claimable amount",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				ClaimRecords: []ClaimRecordAddress{
+				ClaimsRecords: []ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(-100),

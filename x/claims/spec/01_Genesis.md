@@ -12,7 +12,7 @@ All the users' wallets that will have available rewards must be added to the gen
 # For this example we are going to just set the rewards for the first address in the node
 node_address=$(evmosd keys list | grep  "address: " | cut -c12-)
 amount_to_claim=10000
-cat $HOME/.evmosd/config/genesis.json | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claims"]["claim_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
+cat $HOME/.evmosd/config/genesis.json | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claims"]["claims_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 ```
 
 _NOTE: `actions_completed` is a boolean array with length 4, that represents if the mission was already completed or not._
@@ -43,11 +43,11 @@ cat $HOME/.evmosd/config/genesis.json | jq -r --arg total_supply "$total_supply"
 
 There are 4 params that can be set to configure the module:
 
-- EnableClaim: this flag activates/deactivates the claims module. (Bool)
+- EnableClaims: this flag activates/deactivates the claims module. (Bool)
 - AirdropStartTime: time when the airdrop starts (Timestamp format `%Y-%m-%dT%TZ`)
 - DurationUntilDecay: duration until the decay stats (Duration: `1000s`)
 - DurationOfDecay: duration until the rewards are no longer claimable after the decay starts (Duration: `1000s`)
-- ClaimDenom: denomination used for the rewards (String `aevmos`)
+- ClaimsDenom: denomination used for the rewards (String `aevmos`)
 
 ```sh
 current_date=$(date -u +"%Y-%m-%dT%TZ")

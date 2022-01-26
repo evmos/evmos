@@ -7,16 +7,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewClaimRecord creates a new claim record instance
-func NewClaimRecord(initialClaimableAmt sdk.Int) ClaimRecord {
-	return ClaimRecord{
+// NewClaimsRecord creates a new claim record instance
+func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {
+	return ClaimsRecord{
 		InitialClaimableAmount: initialClaimableAmt,
 		ActionsCompleted:       []bool{false, false, false, false},
 	}
 }
 
 // Validate performs a stateless validation of the fields
-func (cr ClaimRecord) Validate() error {
+func (cr ClaimsRecord) Validate() error {
 	if cr.InitialClaimableAmount.IsNil() {
 		return errors.New("initial claimable amount is nil")
 	}
@@ -32,7 +32,7 @@ func (cr ClaimRecord) Validate() error {
 
 // ClaimAction marks the given action as completed. It performs a no-op if the
 // action is invalid or if the ActionsCompleted slice has an invalid length.
-func (cr *ClaimRecord) ClaimAction(action Action) {
+func (cr *ClaimsRecord) ClaimAction(action Action) {
 	switch {
 	case len(cr.ActionsCompleted) != len(Action_value)-1:
 		return
@@ -46,7 +46,7 @@ func (cr *ClaimRecord) ClaimAction(action Action) {
 // HasClaimedAction checks if the user has claimed a given action. It also
 // returns false if the action is invalid or if the ActionsCompleted slice has
 // an invalid length.
-func (cr ClaimRecord) HasClaimedAction(action Action) bool {
+func (cr ClaimsRecord) HasClaimedAction(action Action) bool {
 	switch {
 	case len(cr.ActionsCompleted) != len(Action_value)-1:
 		return false
@@ -59,7 +59,7 @@ func (cr ClaimRecord) HasClaimedAction(action Action) bool {
 
 // HasClaimedAll returns true if the user has claimed all the rewards from the
 // available actions
-func (cr ClaimRecord) HasClaimedAll() bool {
+func (cr ClaimsRecord) HasClaimedAll() bool {
 	if len(cr.ActionsCompleted) == 0 {
 		return false
 	}
@@ -71,9 +71,9 @@ func (cr ClaimRecord) HasClaimedAll() bool {
 	return true
 }
 
-// NewClaimRecordAddress creates a new claim record instance
-func NewClaimRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) ClaimRecordAddress {
-	return ClaimRecordAddress{
+// NewClaimsRecordAddress creates a new claim record instance
+func NewClaimsRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) ClaimsRecordAddress {
+	return ClaimsRecordAddress{
 		Address:                address.String(),
 		InitialClaimableAmount: initialClaimableAmt,
 		ActionsCompleted:       []bool{false, false, false, false},
@@ -81,7 +81,7 @@ func NewClaimRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) 
 }
 
 // Validate performs a stateless validation of the fields
-func (cra ClaimRecordAddress) Validate() error {
+func (cra ClaimsRecordAddress) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(cra.Address); err != nil {
 		return err
 	}

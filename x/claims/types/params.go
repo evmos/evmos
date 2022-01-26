@@ -9,18 +9,18 @@ import (
 )
 
 var (
-	DefaultClaimDenom         = "aevmos"
+	DefaultClaimsDenom        = "aevmos"
 	DefaultDurationUntilDecay = time.Hour
 	DefaultDurationOfDecay    = time.Hour * 5
 )
 
 // Parameter store key
 var (
-	ParamStoreKeyEnableClaim        = []byte("EnableClaim")
+	ParamStoreKeyEnableClaims       = []byte("EnableClaims")
 	ParamStoreKeyAirdropStartTime   = []byte("AirdropStartTime")
 	ParamStoreKeyDurationUntilDecay = []byte("DurationUntilDecay")
 	ParamStoreKeyDurationOfDecay    = []byte("DurationOfDecay")
-	ParamStoreKeyClaimDenom         = []byte("ClaimDenom")
+	ParamStoreKeyClaimsDenom        = []byte("ClaimsDenom")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -31,11 +31,11 @@ func ParamKeyTable() paramtypes.KeyTable {
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableClaim, &p.EnableClaim, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableClaims, &p.EnableClaims, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyAirdropStartTime, &p.AirdropStartTime, validateStartDate),
 		paramtypes.NewParamSetPair(ParamStoreKeyDurationUntilDecay, &p.DurationUntilDecay, validateDuration),
 		paramtypes.NewParamSetPair(ParamStoreKeyDurationOfDecay, &p.DurationOfDecay, validateDuration),
-		paramtypes.NewParamSetPair(ParamStoreKeyClaimDenom, &p.ClaimDenom, validateDenom),
+		paramtypes.NewParamSetPair(ParamStoreKeyClaimsDenom, &p.ClaimsDenom, validateDenom),
 	}
 }
 
@@ -43,26 +43,26 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 func NewParams(
 	enableClaim bool,
 	airdropStartTime time.Time,
-	claimDenom string,
+	claimsDenom string,
 	durationUntilDecay,
 	durationOfDecay time.Duration,
 ) Params {
 	return Params{
-		EnableClaim:        enableClaim,
+		EnableClaims:       enableClaim,
 		AirdropStartTime:   airdropStartTime,
 		DurationUntilDecay: durationUntilDecay,
 		DurationOfDecay:    durationOfDecay,
-		ClaimDenom:         claimDenom,
+		ClaimsDenom:        claimsDenom,
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		EnableClaim:        true,
+		EnableClaims:       true,
 		AirdropStartTime:   time.Time{},
 		DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
 		DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
-		ClaimDenom:         DefaultClaimDenom,         // aevmos
+		ClaimsDenom:        DefaultClaimsDenom,        // aevmos
 	}
 }
 
@@ -112,7 +112,7 @@ func (p Params) Validate() error {
 	if p.DurationUntilDecay <= 0 {
 		return fmt.Errorf("duration until decay must be positive: %d", p.DurationOfDecay)
 	}
-	return sdk.ValidateDenom(p.ClaimDenom)
+	return sdk.ValidateDenom(p.ClaimsDenom)
 }
 
 // DecayStartTime returns the time at which the Decay period starts

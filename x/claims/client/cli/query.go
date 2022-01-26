@@ -26,8 +26,8 @@ func GetQueryCmd() *cobra.Command {
 	claimQueryCmd.AddCommand(
 		GetCmdQueryTotalUnclaimed(),
 		GetCmdQueryParams(),
-		GetCmdQueryClaimRecords(),
-		GetCmdQueryClaimRecord(),
+		GetCmdQueryClaimsRecords(),
+		GetCmdQueryClaimsRecord(),
 	)
 
 	return claimQueryCmd
@@ -93,8 +93,8 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryClaimRecords implements the query claim-records command.
-func GetCmdQueryClaimRecords() *cobra.Command {
+// GetCmdQueryClaimsRecords implements the query claim-records command.
+func GetCmdQueryClaimsRecords() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "claim-records",
 		Args:    cobra.NoArgs,
@@ -114,12 +114,12 @@ func GetCmdQueryClaimRecords() *cobra.Command {
 				return err
 			}
 
-			req := &types.QueryClaimRecordsRequest{
+			req := &types.QueryClaimsRecordsRequest{
 				Pagination: pageReq,
 			}
 
 			// Query store
-			res, err := queryClient.ClaimRecords(context.Background(), req)
+			res, err := queryClient.ClaimsRecords(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -131,8 +131,8 @@ func GetCmdQueryClaimRecords() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryClaimRecord implements the query claim-record command.
-func GetCmdQueryClaimRecord() *cobra.Command {
+// GetCmdQueryClaimsRecord implements the query claim-record command.
+func GetCmdQueryClaimsRecord() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "claim-record [address]",
 		Args:    cobra.ExactArgs(1),
@@ -148,7 +148,7 @@ func GetCmdQueryClaimRecord() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			// Query store
-			res, err := queryClient.ClaimRecord(context.Background(), &types.QueryClaimRecordRequest{Address: args[0]})
+			res, err := queryClient.ClaimsRecord(context.Background(), &types.QueryClaimsRecordRequest{Address: args[0]})
 			if err != nil {
 				return err
 			}

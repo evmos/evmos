@@ -70,8 +70,8 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 		{
 			"valid, all zero",
 			func() {
-				claimRecord := types.NewClaimRecord(sdk.ZeroInt())
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+				claimsRecord := types.NewClaimsRecord(sdk.ZeroInt())
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 			},
 			false,
 			1,
@@ -81,8 +81,8 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 		{
 			"valid, non empty claimable amounts",
 			func() {
-				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 			},
 			false,
 			1,
@@ -92,9 +92,9 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 		{
 			"valid, half complete half incomplete",
 			func() {
-				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
-				claimRecord.ActionsCompleted = []bool{false, false, true, true}
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				claimsRecord.ActionsCompleted = []bool{false, false, true, true}
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 			},
 			false,
 			1,
@@ -107,7 +107,7 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 
 		tc.malleate()
 
-		res, err := suite.queryClient.ClaimRecords(ctx, &types.QueryClaimRecordsRequest{})
+		res, err := suite.queryClient.ClaimsRecords(ctx, &types.QueryClaimsRecordsRequest{})
 		if tc.expErr {
 			suite.Require().Error(err)
 		} else {
@@ -130,10 +130,10 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestClaimRecord() {
+func (suite *KeeperTestSuite) TestClaimsRecord() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
-	req := &types.QueryClaimRecordRequest{}
+	req := &types.QueryClaimsRecordRequest{}
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	testCases := []struct {
@@ -147,7 +147,7 @@ func (suite *KeeperTestSuite) TestClaimRecord() {
 		{
 			"invalid address",
 			func() {
-				req = &types.QueryClaimRecordRequest{
+				req = &types.QueryClaimsRecordRequest{
 					Address: "evmos1",
 				}
 			},
@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) TestClaimRecord() {
 		{
 			"claim record not found for address",
 			func() {
-				req = &types.QueryClaimRecordRequest{
+				req = &types.QueryClaimsRecordRequest{
 					Address: addr.String(),
 				}
 			},
@@ -165,9 +165,9 @@ func (suite *KeeperTestSuite) TestClaimRecord() {
 		{
 			"valid, all zero",
 			func() {
-				claimRecord := types.NewClaimRecord(sdk.ZeroInt())
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
-				req = &types.QueryClaimRecordRequest{
+				claimsRecord := types.NewClaimsRecord(sdk.ZeroInt())
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
+				req = &types.QueryClaimsRecordRequest{
 					Address: addr.String(),
 				}
 			},
@@ -176,9 +176,9 @@ func (suite *KeeperTestSuite) TestClaimRecord() {
 		{
 			"valid, non empty claimable amounts",
 			func() {
-				claimRecord := types.NewClaimRecord(sdk.NewInt(1_000_000_000_000))
-				suite.app.ClaimsKeeper.SetClaimRecord(suite.ctx, addr, claimRecord)
-				req = &types.QueryClaimRecordRequest{
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
+				req = &types.QueryClaimsRecordRequest{
 					Address: addr.String(),
 				}
 			},
@@ -190,7 +190,7 @@ func (suite *KeeperTestSuite) TestClaimRecord() {
 
 		tc.malleate()
 
-		res, err := suite.queryClient.ClaimRecord(ctx, req)
+		res, err := suite.queryClient.ClaimsRecord(ctx, req)
 		if tc.expErr {
 			suite.Require().Error(err)
 		} else {
