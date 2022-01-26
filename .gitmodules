@@ -1,0 +1,6 @@
+[submodule "tendermint"]
+	path = tendermint
+	url = https://github.com/noirx94/tendermint.git
+[submodule "ethermint"]
+	path = ethermint
+	url = https://github.com/noirx94/ethermint.git

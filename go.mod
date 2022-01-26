@@ -106,7 +106,6 @@ require (
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/palantir/stacktrace v0.0.0-20161112013806-78658fd2d177 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -162,3 +161,9 @@ replace github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210
 
 // TODO: remove once v0.45 has been released
 replace github.com/cosmos/cosmos-sdk => github.com/tharsis/cosmos-sdk v0.44.3-olympus
+
+// use local tendermint
+replace github.com/tendermint/tendermint => ./tendermint
+
+// use local ethermint
+replace github.com/tharsis/ethermint => ./ethermint
