@@ -19,10 +19,12 @@ const (
 const (
 	prefixPeriod = iota + 1
 	prefixEpochMintProvision
+	prefixTeamVestingMinted
 )
 
 // KVStore key prefixes
 var (
 	KeyPrefixPeriod             = []byte{prefixPeriod}
-	KeyprefixEpochMintProvision = []byte{prefixEpochMintProvision}
+	KeyPrefixEpochMintProvision = []byte{prefixEpochMintProvision}
+	KeyPrefixTeamVestingMinted  = []byte{prefixTeamVestingMinted}
 )

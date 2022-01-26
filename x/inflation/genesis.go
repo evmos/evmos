@@ -48,10 +48,13 @@ func InitGenesis(
 	k.SetEpochMintProvision(ctx, epochMintProvision)
 
 	// Mint genesis coins for unvested team account
-	amount := sdk.NewInt(200_000_000)
-	coins := sdk.NewCoins(sdk.NewCoin(data.Params.MintDenom, amount))
-	if err := k.MintGenesisTeamVestingCoins(ctx, coins); err != nil {
-		panic(err)
+	if !k.IsTeamVestingMinted(ctx) {
+		amount := sdk.NewInt(200_000_000)
+		coins := sdk.NewCoins(sdk.NewCoin(data.Params.MintDenom, amount))
+		if err := k.MintGenesisTeamVestingCoins(ctx, coins); err != nil {
+			panic(err)
+		}
+		k.SetTeamVestingMinted(ctx, true)
 	}
 }
 

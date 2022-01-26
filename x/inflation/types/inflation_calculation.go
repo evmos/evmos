@@ -24,7 +24,7 @@ func CalculateEpochMintProvision(params Params, period uint64) sdk.Dec {
 	periodProvision := exponentialDecay.Mul(bondingRatio)
 
 	// epochProvision = periodProvision / epochsPerPeriod
-	decEpochProvision := sdk.OneDec().BigInt().Div(periodProvision.BigInt(), epochsPerPeriod.BigInt())
-	epochProvision := sdk.NewDecFromBigInt(decEpochProvision).TruncateDec()
+	decEpochProvision := sdk.OneDec().BigInt().Quo(periodProvision.BigInt(), epochsPerPeriod.BigInt())
+	epochProvision := sdk.NewDecFromBigInt(decEpochProvision)
 	return epochProvision
 }

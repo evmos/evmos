@@ -87,12 +87,12 @@ func (k Keeper) AllocateExponentialInflation(ctx sdk.Context, mintedCoin sdk.Coi
 }
 
 // AllocateTeamVesting allocates the team vesting proportion from the team
-// vesting supply
+// vesting supply.
 func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 	params := k.GetParams(ctx)
 
-	// Check unvested team account balance
+	// Check unvested team account balances
 	unvestedTeamAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTeamAccount)
 	balances := k.bankKeeper.GetAllBalances(ctx, unvestedTeamAccount)
 	if balances.IsZero() {
@@ -104,54 +104,58 @@ func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
 	}
 
 	// Get team vesting provision to allocate from the unvested team account
-	// balance.
-	mintCoin := sdk.NewCoin(params.MintDenom, params.TeamVestingProvision)
+	mintProvision := sdk.NewCoin(params.MintDenom, params.TeamVestingProvision)
 
-	// Create teamVesitingAmt from balances
-	var teamVestingAmt sdk.Coins
-	for _, coin := range balances {
-		if coin.Denom == mintCoin.Denom {
-			// Check if unvested team account has sufficient balance to allocate. If
-			// yes, only allocate mintCoin, else allocate remaining balance.
-			if coin.IsGTE(mintCoin) {
-				coin = mintCoin
-			} else {
-				logger.Debug(
-					"unvested_team_account supply is lower than team provision",
-					"insufficient funds", coin, "<", mintCoin,
-				)
-			}
-		}
-		// add coin to teamVestingAmt
-		teamVestingAmt = append(teamVestingAmt, coin)
+	// Create team vesting amount from balances. Any non-mint balances are fully
+	// allocated, whereas the mint balance is limited to the mintProvision.
+	teamVestingAmt := balances
+	mintBalance := balances.AmountOfNoDenomValidation(params.MintDenom)
+
+	// Check if unvested team account has sufficient balance to allocate.
+	if mintBalance.GTE(mintProvision.Amount) {
+		// Limit allocation to mintProvision
+		teamVestingAmt = teamVestingAmt.Sub(sdk.NewCoins(sdk.NewCoin(params.MintDenom, mintBalance)))
+		teamVestingAmt = teamVestingAmt.Add(mintProvision)
+	} else {
+		// Log that only the remaining balance will be allocated
+		logger.Debug(
+			"insufficient funds",
+			"unvested_team_account balance is lower than team provision",
+			"balance", mintBalance, "<", "provision", mintProvision,
+		)
 	}
 
-	// Allocate teamVesting to community pool when rewards address is empty
+	// Allocate teamVestingAmt to community pool when rewards address is empty
 	if params.TeamAddress == "" {
 		logger.Debug(
-			"team address not set",
-			"team address", params.TeamAddress,
+			"team address not set, transfer allocation to community pool",
+			"address", params.TeamAddress,
 		)
 		return k.distrKeeper.FundCommunityPool(ctx, teamVestingAmt, unvestedTeamAccount)
 	}
 
-	// Send coins to team address
+	// Allocate teamVestingAmt to team address
 	teamAddress, err := sdk.AccAddressFromBech32(params.TeamAddress)
 	if err != nil {
 		return err
 	}
-	err = k.bankKeeper.SendCoinsFromModuleToAccount(
+	return k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		types.UnvestedTeamAccount,
 		teamAddress,
 		teamVestingAmt,
 	)
-
-	return err
 }
 
-// GetProportions gets the balance of the `MintedDenom` from minted coins and
-// returns coins according to the `InflationDistribution`.
-func (k Keeper) GetProportions(ctx sdk.Context, mintedCoin sdk.Coin, ratio sdk.Dec) sdk.Coin {
-	return sdk.NewCoin(mintedCoin.Denom, mintedCoin.Amount.ToDec().Mul(ratio).TruncateInt())
+// GetAllocationProportion calculates the proportion of coins that is to be
+// allocated during inflation for a given distribution.
+func (k Keeper) GetProportions(
+	ctx sdk.Context,
+	coin sdk.Coin,
+	distribution sdk.Dec,
+) sdk.Coin {
+	return sdk.NewCoin(
+		coin.Denom,
+		coin.Amount.ToDec().Mul(distribution).TruncateInt(),
+	)
 }

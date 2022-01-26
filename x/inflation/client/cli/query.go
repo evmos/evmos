@@ -32,11 +32,11 @@ func GetQueryCmd() *cobra.Command {
 }
 
 // GetPeriod implements a command to return the current inflation
-// epoch provisions value.
+// period
 func GetPeriod() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "period",
-		Short: "Query the current inflationperiod",
+		Short: "Query the current inflation period",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

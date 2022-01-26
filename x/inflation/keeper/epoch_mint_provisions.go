@@ -10,7 +10,7 @@ import (
 // GetEpochMintProvision gets the current EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) (sdk.Dec, bool) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.KeyprefixEpochMintProvision)
+	bz := store.Get(types.KeyPrefixEpochMintProvision)
 	if len(bz) == 0 {
 		return sdk.ZeroDec(), false
 	}
@@ -18,7 +18,7 @@ func (k Keeper) GetEpochMintProvision(ctx sdk.Context) (sdk.Dec, bool) {
 	var epochMintProvision sdk.Dec
 	err := epochMintProvision.Unmarshal(bz)
 	if err != nil {
-		panic(fmt.Errorf("unable to unmarshal epochMintProvision value %w", err))
+		panic(fmt.Errorf("unable to unmarshal epochMintProvision value: %w", err))
 	}
 
 	return epochMintProvision, true
@@ -32,5 +32,5 @@ func (k Keeper) SetEpochMintProvision(ctx sdk.Context, epochProvisions sdk.Dec) 
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.KeyprefixEpochMintProvision, bz)
+	store.Set(types.KeyPrefixEpochMintProvision, bz)
 }

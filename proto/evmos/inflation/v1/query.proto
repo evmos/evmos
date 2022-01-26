@@ -11,7 +11,7 @@ option go_package = "github.com/tharsis/evmos/x/inflation/types";
 service Query {
   // Period retrieves current period.
   rpc Period(QueryPeriodRequest) returns (QueryPeriodResponse) {
-    option (google.api.http).get = "/evmos/inflation/v1/epoch_mint_provision";
+    option (google.api.http).get = "/evmos/inflation/v1/period";
   }
 
   // EpochMintProvision retrieves current minting epoch provision value.

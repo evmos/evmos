@@ -1,21 +1,16 @@
 package keeper
 
 import (
-	"fmt"
-
-	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
-	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 }
 
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
-	params := k.GetParams(ctx)
 	// TODO daily epoch logic
-	return
+	// return
 	// // check if epochIdentifier signal equals the identifier in the params
 	// if epochIdentifier != params.EpochIdentifier {
 	// 	return
@@ -43,29 +38,29 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// }
 
 	// mint coins, update supply
-	epochMintProvision, found := k.GetEpochMintProvision(ctx)
-	if found {
-		panic("the epochMintProvision has was not found")
-	}
+	// epochMintProvision, found := k.GetEpochMintProvision(ctx)
+	// if found {
+	// 	panic("the epochMintProvision has was not found")
+	// }
 
-	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
-	// We over-allocate by the developer vesting portion, and burn this later
-	if err := k.MintAndAllocateInflation(ctx, mintedCoin); err != nil {
-		panic(err)
-	}
+	// mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
+	// // We over-allocate by the developer vesting portion, and burn this later
+	// if err := k.MintAndAllocateInflation(ctx, mintedCoin); err != nil {
+	// 	panic(err)
+	// }
 
-	if mintedCoin.Amount.IsInt64() {
-		defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
-	}
+	// if mintedCoin.Amount.IsInt64() {
+	// 	defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
+	// }
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeMint,
-			sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
-			// sdk.NewAttribute(types.AttributeKeyEpochProvisions, minter.EpochProvisions.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
-		),
-	)
+	// ctx.EventManager().EmitEvent(
+	// 	sdk.NewEvent(
+	// 		types.EventTypeMint,
+	// 		sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
+	// 		// sdk.NewAttribute(types.AttributeKeyEpochProvisions, minter.EpochProvisions.String()),
+	// 		sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
+	// 	),
+	// )
 }
 
 // ___________________________________________________________________________________________________
