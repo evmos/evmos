@@ -470,13 +470,13 @@ func NewEvmos(
 	// we use the ChannelKeeper as the ICS4 wrapper
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimKeeper.Hooks(), // claims IBC middleware
+		app.ClaimsKeeper.Hooks(), // claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
-	transferStack := claim.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
+	transferStack := claims.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

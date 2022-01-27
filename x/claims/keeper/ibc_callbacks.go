@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
@@ -30,19 +32,31 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
-	// TODO: verify since sender will be from other chain?
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
-	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+	bech32Prefix := strings.Split(data.Sender, "1")[0]
+	if bech32Prefix == data.Sender {
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender: %s", data.Sender).Error(),
+		)
 	}
+
+	senderBz, err := sdk.GetFromBech32(data.Sender, bech32Prefix)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender %s, %s", data.Sender, err.Error()).Error(),
+		)
+	}
+
+	sender := sdk.AccAddress(senderBz)
 
 	recipient, err := sdk.AccAddressFromBech32(data.Receiver)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address %s", err.Error()).Error(),
+		)
 	}
 
-	senderClaimRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
-	recipientClaimRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
+	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
+	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 
 	switch {
 	case senderRecordFound && recipientRecordFound:
@@ -57,14 +71,14 @@ func (k Keeper) OnRecvPacket(
 		// add the initial balance to the
 	case senderRecordFound && !recipientRecordFound:
 		// migrate sender record to recipient
-		k.SetClaimsRecord(ctx, recipient, senderClaimRecord)
+		k.SetClaimsRecord(ctx, recipient, *senderClaimsRecord)
 		k.DeleteClaimsRecord(ctx, sender)
 
 		// claim IBC action
-		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimRecord, types.ActionIBCTransfer, params)
+		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
 	case !senderRecordFound && recipientRecordFound:
 		// claim IBC transfer action
-		_, err = k.ClaimCoinsForAction(ctx, recipient, recipientClaimRecord, types.ActionIBCTransfer, params)
+		_, err = k.ClaimCoinsForAction(ctx, recipient, recipientClaimsRecord, types.ActionIBCTransfer, params)
 	case !senderRecordFound && !recipientRecordFound:
 		// return original success acknowledgement
 		return ack

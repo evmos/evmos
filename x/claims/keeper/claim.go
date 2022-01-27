@@ -74,7 +74,7 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.
 	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 
 	for _, action := range actions {
-		claimableForAction := k.GetClaimableAmountForAction(ctx, addr, claimsRecord, action, params)
+		claimableForAction := k.GetClaimableAmountForAction(ctx, addr, *claimsRecord, action, params)
 		totalClaimable = totalClaimable.Add(claimableForAction)
 	}
 
@@ -82,21 +82,19 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.
 }
 
 // ClaimCoinsForAction remove claimable amount entry and transfer it to user's account
-func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action types.Action) (sdk.Int, error) {
+func (k Keeper) ClaimCoinsForAction(
+	ctx sdk.Context,
+	addr sdk.AccAddress,
+	claimsRecord *types.ClaimsRecord,
+	action types.Action,
+	params types.Params,
+) (sdk.Int, error) {
 	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
 
-	params := k.GetParams(ctx)
-
 	// If we are before the start time or claims are disabled, do nothing.
 	if !params.EnableClaims || ctx.BlockTime().Before(params.AirdropStartTime) {
-		return sdk.ZeroInt(), nil
-	}
-
-	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
-	if !found {
-		// return nil if not claim record found to avoid panics
 		return sdk.ZeroInt(), nil
 	}
 
@@ -105,7 +103,7 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 		return sdk.ZeroInt(), nil
 	}
 
-	claimableAmount := k.GetClaimableAmountForAction(ctx, addr, claimsRecord, action, params)
+	claimableAmount := k.GetClaimableAmountForAction(ctx, addr, *claimsRecord, action, params)
 
 	if claimableAmount.IsZero() {
 		return sdk.ZeroInt(), nil
@@ -131,7 +129,7 @@ func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, action
 	if claimsRecord.HasClaimedAll() {
 		k.DeleteClaimsRecord(ctx, addr)
 	} else {
-		k.SetClaimsRecord(ctx, addr, claimsRecord)
+		k.SetClaimsRecord(ctx, addr, *claimsRecord)
 	}
 
 	return claimableAmount, nil

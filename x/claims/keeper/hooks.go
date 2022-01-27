@@ -34,25 +34,47 @@ func (k Keeper) Hooks() Hooks {
 }
 
 func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
-	_, err := k.ClaimCoinsForAction(ctx, voterAddr, types.ActionVote)
+	params := k.GetParams(ctx)
+
+	claimsRecord, found := k.GetClaimsRecord(ctx, voterAddr)
+	if !found {
+		return
+	}
+
+	_, err := k.ClaimCoinsForAction(ctx, voterAddr, claimsRecord, types.ActionVote, params)
 	if err != nil {
 		panic(err.Error())
 	}
 }
 
 func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	_, err := k.ClaimCoinsForAction(ctx, delAddr, types.ActionDelegate)
+	params := k.GetParams(ctx)
+
+	claimsRecord, found := k.GetClaimsRecord(ctx, delAddr)
+	if !found {
+		return
+	}
+
+	_, err := k.ClaimCoinsForAction(ctx, delAddr, claimsRecord, types.ActionDelegate, params)
 	if err != nil {
 		panic(err.Error())
 	}
 }
 
 func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
+	params := k.GetParams(ctx)
 	fromAddr := sdk.AccAddress(from.Bytes())
-	_, err := k.ClaimCoinsForAction(ctx, fromAddr, types.ActionEVM)
+
+	claimsRecord, found := k.GetClaimsRecord(ctx, fromAddr)
+	if !found {
+		return nil
+	}
+
+	_, err := k.ClaimCoinsForAction(ctx, fromAddr, claimsRecord, types.ActionEVM, params)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

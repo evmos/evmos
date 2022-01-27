@@ -17,7 +17,7 @@ import (
 	"github.com/tharsis/evmos/x/claims/types"
 )
 
-type CallbackTestSuite struct {
+type IBCTestingSuite struct {
 	suite.Suite
 	coordinator *ibctesting.Coordinator
 
@@ -28,13 +28,13 @@ type CallbackTestSuite struct {
 	path *ibctesting.Path
 }
 
-func (suite *CallbackTestSuite) SetupTest() {
+func (suite *IBCTestingSuite) SetupTest() {
 	ibctesting.DefaultTestingAppInit = app.SetupTestingApp
 
 	ibctesting.ChainIDPrefix = "evmos_9000-"
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(0)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
+	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
+	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), minttypes.ModuleName, coins)
@@ -49,9 +49,9 @@ func (suite *CallbackTestSuite) SetupTest() {
 
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.chainA.GetContext().BlockTime()
-	params.EnableClaim = true
-	suite.chainA.App.(*app.Evmos).ClaimKeeper.SetParams(suite.chainA.GetContext(), params)
-	suite.chainB.App.(*app.Evmos).ClaimKeeper.SetParams(suite.chainB.GetContext(), params)
+	params.EnableClaims = true
+	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 
 	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
 	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
@@ -60,8 +60,8 @@ func (suite *CallbackTestSuite) SetupTest() {
 	suite.Require().Equal("channel-0", suite.path.EndpointA.ChannelID)
 }
 
-func TestCallbackTestSuite(t *testing.T) {
-	suite.Run(t, new(CallbackTestSuite))
+func TestIBCTestingSuite(t *testing.T) {
+	suite.Run(t, new(IBCTestingSuite))
 }
 
 var (
@@ -82,7 +82,7 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	return path
 }
 
-func (suite *CallbackTestSuite) TestOnReceiveClaim() {
+func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
 	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
 	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
@@ -98,7 +98,7 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimKeeper.SetClaimRecord(suite.chainB.GetContext(), senderaddr, types.ClaimRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -107,7 +107,7 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimKeeper.SetClaimRecord(suite.chainB.GetContext(), senderaddr, types.ClaimRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
@@ -116,7 +116,7 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Recipient Claimable transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimKeeper.SetClaimRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -125,7 +125,7 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Recipient Claimed transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimKeeper.SetClaimRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
@@ -135,8 +135,8 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 			"Disabled by params",
 			func(claimableAmount int64) {
 				params := types.DefaultParams()
-				suite.chainA.App.(*app.Evmos).ClaimKeeper.SetParams(suite.chainA.GetContext(), params)
-				suite.chainB.App.(*app.Evmos).ClaimKeeper.SetParams(suite.chainB.GetContext(), params)
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 			},
 			0,
 			0,
@@ -172,13 +172,13 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 			if tc.expPass {
 				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				claim, found := suite.chainB.App.(*app.Evmos).ClaimKeeper.GetClaimRecord(suite.chainB.GetContext(), receiveraddr)
+				claim, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
 				suite.Require().True(found)
 				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
 				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				_, found := suite.chainB.App.(*app.Evmos).ClaimKeeper.GetClaimRecord(suite.chainB.GetContext(), receiveraddr)
+				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
 				suite.Require().True(!found)
 
 			}
@@ -186,7 +186,7 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 	}
 }
 
-func (suite *CallbackTestSuite) TestOnAckClaim() {
+func (suite *IBCTestingSuite) TestOnAckClaim() {
 	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
 	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
 	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
@@ -201,7 +201,7 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
-				suite.chainA.App.(*app.Evmos).ClaimKeeper.SetClaimRecord(suite.chainA.GetContext(), senderaddr, types.ClaimRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -210,7 +210,7 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 		{
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
-				suite.chainA.App.(*app.Evmos).ClaimKeeper.SetClaimRecord(suite.chainA.GetContext(), senderaddr, types.ClaimRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
@@ -218,10 +218,10 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 		},
 		{
 			"Disabled by params",
-			func(claimableAmount int64) {
+			func(_ int64) {
 				params := types.DefaultParams()
-				suite.chainA.App.(*app.Evmos).ClaimKeeper.SetParams(suite.chainA.GetContext(), params)
-				suite.chainB.App.(*app.Evmos).ClaimKeeper.SetParams(suite.chainB.GetContext(), params)
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 			},
 			0,
 			0,
@@ -255,21 +255,20 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 			suite.Require().NoError(err)
 
 			// TODO: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
-			err = suite.chainA.App.(*app.Evmos).ClaimKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
+			err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
 			suite.Require().NoError(err)
 
 			if tc.expPass {
 				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderaddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				claim, found := suite.chainA.App.(*app.Evmos).ClaimKeeper.GetClaimRecord(suite.chainA.GetContext(), senderaddr)
+				claim, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderaddr)
 				suite.Require().True(found)
 				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
 				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderaddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				_, found := suite.chainA.App.(*app.Evmos).ClaimKeeper.GetClaimRecord(suite.chainA.GetContext(), senderaddr)
+				_, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderaddr)
 				suite.Require().True(!found)
-
 			}
 		})
 	}
