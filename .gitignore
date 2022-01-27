@@ -73,4 +73,4 @@ dependency-graph.png
 # Node.js
 tests/**/node_modules/*
 tests-solidity/**/node_modules/*
-node_modules/*
+x/erc20/types/contracts/@openzeppelin/*

@@ -599,3 +599,71 @@ release:
 		release --rm-dist --skip-validate
 
 .PHONY: release-dry-run release
+
+
+###############################################################################
+###                        Compile Solidity Contracts                       ###
+###############################################################################
+
+# prereq:
+# 	install node modules
+# 	install solc with docker
+
+# For each .sol in `evmos/x/erc20/types/contracts`
+#   - create .json with same name (change)
+#   - compile contract with solc
+# 			solc --combined-json abi,bin contracts/erc20DirectBalanceManipulation.sol >> ERC20DirectBalanceManipulation.json
+#		- filter out correct contract
+#   - format into and write to .json
+# 		{
+# 		  "contractName": 			# filename without .sol
+# 		  "abi": "[{\"inpu 			# convert JSON object into JSON string
+# 		  "bin": "60806040
+# 		}
+
+CONTRACTS_DIR := x/erc20/types/contracts
+COMPILED_DIR := x/erc20/types/contracts/compiled_contracts
+CONTRACT := ERC20MinterBurnerDecimals
+TMP := tmp
+TMP_COMPILED := $(TMP)/compiled.json
+TMP_JSON := $(TMP)/tmp.json
+
+contracts-compile: contracts-clean openzeppelin
+	@mkdir -p $(COMPILED_DIR)
+	@touch $(COMPILED_DIR)/$(CONTRACT).json
+
+	@mkdir -p tmp
+
+	@echo "Compiling solidity contracts..."
+	@solc --combined-json abi,bin $(CONTRACTS_DIR)/$(CONTRACT).sol >> $(TMP_COMPILED)
+
+	@echo "Formatting JSON..."
+	@jq '.contracts["$(CONTRACTS_DIR)/$(CONTRACT).sol:$(CONTRACT)"]' $(TMP_COMPILED) > $(TMP_JSON)
+	@cp -f $(TMP_JSON) $(TMP_COMPILED)
+
+# Add contract name
+	@jq '. + { "contractName": "$(CONTRACT)" }' $(TMP_COMPILED) > $(TMP_JSON)
+	@cp -f $(TMP_JSON) $(TMP_COMPILED)
+
+# Conert ABI format:JSON object -> JSON string
+# Write formatted abi to file
+	@jq -r '.abi | @json' $(TMP_COMPILED) > $(TMP_ABI)
+
+# Add formatted abi to compiled contract
+	$(shell echo '{"hello":{ "greetings":"to you"}}' | jq .hello.greetings) > $(TMP_JSON)
+
+# C
+openzeppelin:
+	@echo "Importing openzeppelin contracts..."
+	@cd $(CONTRACTS_DIR)
+	@npm install
+	@cd ../../../../
+	@mv node_modules $(TMP)
+	@mv package-lock.json $(TMP)
+	@mv $(TMP)/@openzeppelin $(CONTRACTS_DIR)
+
+contracts-clean:
+	@rm -rf tmp
+	@rm -rf node_modules
+	@rm -rf $(COMPILED_DIR)
+	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
