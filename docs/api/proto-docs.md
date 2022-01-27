@@ -4,6 +4,29 @@
 
 ## Table of Contents
 
+- [evmos/claims/v1/claims.proto](#evmos/claims/v1/claims.proto)
+    - [Claim](#evmos.claims.v1.Claim)
+    - [ClaimsRecord](#evmos.claims.v1.ClaimsRecord)
+    - [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress)
+  
+    - [Action](#evmos.claims.v1.Action)
+  
+- [evmos/claims/v1/genesis.proto](#evmos/claims/v1/genesis.proto)
+    - [GenesisState](#evmos.claims.v1.GenesisState)
+    - [Params](#evmos.claims.v1.Params)
+  
+- [evmos/claims/v1/query.proto](#evmos/claims/v1/query.proto)
+    - [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest)
+    - [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse)
+    - [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest)
+    - [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse)
+    - [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse)
+    - [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest)
+    - [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse)
+  
+    - [Query](#evmos.claims.v1.Query)
+  
 - [evmos/epochs/v1/genesis.proto](#evmos/epochs/v1/genesis.proto)
     - [EpochInfo](#evmos.epochs.v1.EpochInfo)
     - [GenesisState](#evmos.epochs.v1.GenesisState)
@@ -76,6 +99,287 @@
     - [Query](#evmos.incentives.v1.Query)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="evmos/claims/v1/claims.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claims/v1/claims.proto
+
+
+
+<a name="evmos.claims.v1.Claim"></a>
+
+### Claim
+Claim marks defines the action, completed flag and the remaining claimable
+amount for a given user. This is only used during client queries.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `action` | [Action](#evmos.claims.v1.Action) |  | action enum |
+| `completed` | [bool](#bool) |  | true if the action has been completed |
+| `claimable_amount` | [string](#string) |  | claimable token amount for the action. Zero if completed |
+
+
+
+
+
+
+<a name="evmos.claims.v1.ClaimsRecord"></a>
+
+### ClaimsRecord
+ClaimsRecord defines the initial claimable airdrop amount and the list of
+completed actions to claim the tokens.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
+
+
+
+
+
+
+<a name="evmos.claims.v1.ClaimsRecordAddress"></a>
+
+### ClaimsRecordAddress
+ClaimsRecordAddress is the metadata of claims data per address
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | bech32 or hex address of claim user |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
+
+
+
+
+
+ <!-- end messages -->
+
+
+<a name="evmos.claims.v1.Action"></a>
+
+### Action
+Action defines the list of available actions to claim the airdrop tokens.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| ACTION_UNSPECIFIED | 0 | UNSPECIFIED defines an invalid action. |
+| ACTION_VOTE | 1 | VOTE defines a proposal vote. |
+| ACTION_DELEGATE | 2 | DELEGATE defines an staking delegation. |
+| ACTION_EVM | 3 | EVM defines an EVM transaction. |
+| ACTION_IBC_TRANSFER | 4 | IBC Transfer defines a fungible token transfer transaction via IBC. |
+
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/claims/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claims/v1/genesis.proto
+
+
+
+<a name="evmos.claims.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the claims module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.claims.v1.Params) |  | params defines all the parameters of the module. |
+| `claims_records` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated | list of claim records with the corresponding airdrop recipient |
+
+
+
+
+
+
+<a name="evmos.claims.v1.Params"></a>
+
+### Params
+Params defines the claims module's parameters.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_claims` | [bool](#bool) |  | enable claiming process |
+| `airdrop_start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | timestamp of the airdrop start |
+| `duration_until_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration until decay of claimable tokens begin |
+| `duration_of_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration of the token claim decay period |
+| `claims_denom` | [string](#string) |  | denom of claimable coin |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/claims/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/claims/v1/query.proto
+
+
+
+<a name="evmos.claims.v1.QueryClaimsRecordRequest"></a>
+
+### QueryClaimsRecordRequest
+QueryClaimsRecordRequest is the request type for the Query/ClaimsRecord RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryClaimsRecordResponse"></a>
+
+### QueryClaimsRecordResponse
+QueryClaimsRecordResponse is the response type for the Query/ClaimsRecord RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
+| `claims` | [Claim](#evmos.claims.v1.Claim) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryClaimsRecordsRequest"></a>
+
+### QueryClaimsRecordsRequest
+QueryClaimsRecordsRequest is the request type for the Query/ClaimsRecords RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryClaimsRecordsResponse"></a>
+
+### QueryClaimsRecordsResponse
+QueryClaimsRecordsResponse is the response type for the Query/ClaimsRecords
+RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.claims.v1.Params) |  | params defines the parameters of the module. |
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryTotalUnclaimedRequest"></a>
+
+### QueryTotalUnclaimedRequest
+QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed
+RPC method.
+
+
+
+
+
+
+<a name="evmos.claims.v1.QueryTotalUnclaimedResponse"></a>
+
+### QueryTotalUnclaimedResponse
+QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
+RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins define the unclaimed coins |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.claims.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claims/v1/total_unclaimed|
+| `Params` | [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse) | Params returns the claims module parameters | GET|/evmos/claims/v1/params|
+| `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all the claims record | GET|/evmos/claims/v1/claims_records|
+| `ClaimsRecord` | [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest) | [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse) | ClaimsRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_record/{address}|
+
+ <!-- end services -->
 
 
 
@@ -453,7 +757,8 @@ method.
 <a name="evmos.erc20.v1.QueryTokenPairsRequest"></a>
 
 ### QueryTokenPairsRequest
-QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC method.
+QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -629,8 +934,8 @@ GasMeter tracks the cumulative gas spent per participant in one epoch
 <a name="evmos.incentives.v1.Incentive"></a>
 
 ### Incentive
-Incentive defines an instance that organizes distribution conditions for a given
-smart contract
+Incentive defines an instance that organizes distribution conditions for a
+given smart contract
 
 
 | Field | Type | Label | Description |
@@ -741,7 +1046,7 @@ RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `denom` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+| `denom` | [string](#string) |  | denom is the coin denom to query an allocation meter for. |
 
 
 
@@ -832,7 +1137,8 @@ method.
 <a name="evmos.incentives.v1.QueryGasMetersRequest"></a>
 
 ### QueryGasMetersRequest
-QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
+QueryGasMetersRequest is the request type for the Query/Incentives RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -896,7 +1202,8 @@ method.
 <a name="evmos.incentives.v1.QueryIncentivesRequest"></a>
 
 ### QueryIncentivesRequest
-QueryIncentivesRequest is the request type for the Query/Incentives RPC method.
+QueryIncentivesRequest is the request type for the Query/Incentives RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -967,9 +1274,9 @@ Query defines the gRPC querier service.
 | `Incentives` | [QueryIncentivesRequest](#evmos.incentives.v1.QueryIncentivesRequest) | [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse) | Incentives retrieves registered incentives | GET|/evmos/incentives/v1/incentives|
 | `Incentive` | [QueryIncentiveRequest](#evmos.incentives.v1.QueryIncentiveRequest) | [QueryIncentiveResponse](#evmos.incentives.v1.QueryIncentiveResponse) | Incentive retrieves a registered incentive | GET|/evmos/incentives/v1/incentives/{contract}|
 | `GasMeters` | [QueryGasMetersRequest](#evmos.incentives.v1.QueryGasMetersRequest) | [QueryGasMetersResponse](#evmos.incentives.v1.QueryGasMetersResponse) | GasMeters retrieves active gas meters for a given contract | GET|/evmos/incentives/v1/gas_meters/{contract}|
-| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
+| `GasMeter` | [QueryGasMeterRequest](#evmos.incentives.v1.QueryGasMeterRequest) | [QueryGasMeterResponse](#evmos.incentives.v1.QueryGasMeterResponse) | GasMeter Retrieves a active gas meter | GET|/evmos/incentives/v1/gas_meters/{contract}/{participant}|
 | `AllocationMeters` | [QueryAllocationMetersRequest](#evmos.incentives.v1.QueryAllocationMetersRequest) | [QueryAllocationMetersResponse](#evmos.incentives.v1.QueryAllocationMetersResponse) | AllocationMeters retrieves active allocation meters for a given denomination | GET|/evmos/incentives/v1/allocation_meters|
-| `AllocationMeter` | [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest) | [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse) | AllocationMeter Rretrieves a active gas meter | GET|/evmos/incentives/v1/alocation_meters/{denom}|
+| `AllocationMeter` | [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest) | [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse) | AllocationMeter Retrieves a active gas meter | GET|/evmos/incentives/v1/allocation_meters/{denom}|
 | `Params` | [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse) | Params retrieves the incentives module params | GET|/evmos/incentives/v1/params|
 
  <!-- end services -->

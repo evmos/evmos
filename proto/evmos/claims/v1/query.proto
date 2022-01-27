@@ -1,0 +1,87 @@
+syntax = "proto3";
+package evmos.claims.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "evmos/claims/v1/claims.proto";
+import "evmos/claims/v1/genesis.proto";
+
+option go_package = "github.com/tharsis/evmos/x/claims/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // TotalUnclaimed queries the total unclaimed tokens from the airdrop
+  rpc TotalUnclaimed(QueryTotalUnclaimedRequest)
+      returns (QueryTotalUnclaimedResponse) {
+    option (google.api.http).get = "/evmos/claims/v1/total_unclaimed";
+  }
+  // Params returns the claims module parameters
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/claims/v1/params";
+  }
+  // ClaimsRecords returns all the claims record
+  rpc ClaimsRecords(QueryClaimsRecordsRequest)
+      returns (QueryClaimsRecordsResponse) {
+    option (google.api.http).get = "/evmos/claims/v1/claims_records";
+  }
+  // ClaimsRecord returns the claims record for a given address
+  rpc ClaimsRecord(QueryClaimsRecordRequest)
+      returns (QueryClaimsRecordResponse) {
+    option (google.api.http).get = "/evmos/claims/v1/claims_record/{address}";
+  }
+}
+
+// QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed
+// RPC method.
+message QueryTotalUnclaimedRequest {}
+
+// QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
+// RPC method.
+message QueryTotalUnclaimedResponse {
+  // coins define the unclaimed coins
+  repeated cosmos.base.v1beta1.Coin coins = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryClaimsRecordsRequest is the request type for the Query/ClaimsRecords RPC
+// method.
+message QueryClaimsRecordsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryClaimsRecordsResponse is the response type for the Query/ClaimsRecords
+// RPC method.
+message QueryClaimsRecordsResponse {
+  repeated ClaimsRecordAddress claims = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryClaimsRecordRequest is the request type for the Query/ClaimsRecord RPC
+// method.
+message QueryClaimsRecordRequest { string address = 1; }
+
+// QueryClaimsRecordResponse is the response type for the Query/ClaimsRecord RPC
+// method.
+message QueryClaimsRecordResponse {
+  // total initial claimable amount for the user
+  string initial_claimable_amount = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated Claim claims = 2 [ (gogoproto.nullable) = false ];
+}
