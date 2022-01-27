@@ -14,24 +14,25 @@ service Query {
   // TotalUnclaimed queries the total unclaimed tokens from the airdrop
   rpc TotalUnclaimed(QueryTotalUnclaimedRequest)
       returns (QueryTotalUnclaimedResponse) {
-    option (google.api.http).get =
-        "/evmos/claim/v1/total_unclaimed";
+    option (google.api.http).get = "/evmos/claim/v1/total_unclaimed";
   }
   // Params returns the claim module parameters
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/claim/v1/params";
   }
   // ClaimRecords returns the claims records for a given address
-  rpc ClaimRecords(QueryClaimRecordsRequest) returns (QueryClaimRecordsResponse) {
-    option (google.api.http).get =
-        "/evmos/claim/v1/claim_records/{address}";
+  rpc ClaimRecords(QueryClaimRecordsRequest)
+      returns (QueryClaimRecordsResponse) {
+    option (google.api.http).get = "/evmos/claim/v1/claim_records/{address}";
   }
 }
 
-// QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC method.
+// QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed
+// RPC method.
 message QueryTotalUnclaimedRequest {}
 
-// QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed RPC method.
+// QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
+// RPC method.
 message QueryTotalUnclaimedResponse {
   // coins define the unclaimed coins
   repeated cosmos.base.v1beta1.Coin coins = 1 [
@@ -49,17 +50,17 @@ message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
-message QueryClaimRecordsRequest {
-  string address = 1;
-}
+// QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC
+// method.
+message QueryClaimRecordsRequest { string address = 1; }
 
-// QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
+// QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC
+// method.
 message QueryClaimRecordsResponse {
   // total initial claimable amount for the user
   string initial_claimable_amount = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
-  repeated Claim claims = 2 [(gogoproto.nullable) = false];
+  repeated Claim claims = 2 [ (gogoproto.nullable) = false ];
 }

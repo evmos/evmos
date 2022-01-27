@@ -22,7 +22,7 @@ type Keeper struct {
 	mintKeeper    types.MintKeeper
 
 	// Currently not used, but added to prevent breaking change s in case we want
-	// to alloccate incentives to staking instead of transferring the deferred
+	// to allocate incentives to staking instead of transferring the deferred
 	// rewards to the user's wallet
 	stakeKeeper types.StakeKeeper
 }

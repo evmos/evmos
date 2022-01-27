@@ -1013,7 +1013,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -3448,7 +3450,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -4082,7 +4086,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -4146,7 +4152,7 @@ paths:
         - Query
   /cosmos/bank/v1beta1/denoms_metadata:
     get:
-      summary: >-
+      summary: |-
         DenomsMetadata queries the client metadata for all registered coin
         denominations.
       operationId: DenomsMetadata
@@ -4248,9 +4254,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryDenomsMetadataResponse is the response type for the
-              Query/DenomsMetadata RPC
+              Query/DenomsMetadata
 
-              method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -4323,7 +4329,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -4342,7 +4350,9 @@ paths:
               metadata:
                 description: >-
                   metadata describes and provides all the client information for
-                  the requested token.
+                  the
+
+                  requested token.
                 type: object
                 properties:
                   description:
@@ -4408,9 +4418,9 @@ paths:
                       be the same as the display.
             description: >-
               QueryDenomMetadataResponse is the response type for the
-              Query/DenomMetadata RPC
+              Query/DenomMetadata
 
-              method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -4621,7 +4631,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -5323,7 +5335,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -6313,7 +6327,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -7091,7 +7107,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -7902,7 +7920,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -8509,7 +8529,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -8542,12 +8564,16 @@ paths:
                           type: string
                           description: >-
                             validator_src_address is the validator redelegation
-                            source operator address.
+                            source operator
+
+                            address.
                         validator_dst_address:
                           type: string
                           description: >-
                             validator_dst_address is the validator redelegation
-                            destination operator address.
+                            destination operator
+
+                            address.
                         entries:
                           type: array
                           items:
@@ -8575,6 +8601,7 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
+
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -8616,6 +8643,7 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
+
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -8915,7 +8943,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -8971,7 +9001,9 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at completion.
+                              scheduled to receive at
+
+                              completion.
                           balance:
                             type: string
                             description: >-
@@ -9253,7 +9285,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -9280,11 +9314,15 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech encoded in JSON.
+                        operator; bech
+
+                        encoded in JSON.
                     consensus_pubkey:
                       description: >-
                         consensus_pubkey is the consensus public key of the
-                        validator, as a Protobuf Any.
+                        validator, as a
+
+                        Protobuf Any.
                       type: object
                       properties:
                         type_url:
@@ -9355,7 +9393,9 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or not.
+                        from bonded status or
+
+                        not.
                     status:
                       description: >-
                         status is the validator status
@@ -9409,13 +9449,17 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator has begun unbonding.
+                        which this validator
+
+                        has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to complete unbonding.
+                        the validator to
+
+                        complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -9423,7 +9467,9 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for creating a validator.
+                            rates to be used for
+
+                            creating a validator.
                           type: object
                           properties:
                             rate:
@@ -9435,13 +9481,16 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever charge, as a fraction.
+                                which validator can ever
+
+                                charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator commission, as a
-                                fraction.
+                                increase of the validator
+
+                                commission, as a fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -9452,7 +9501,9 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self delegation.
+                        minimum self
+
+                        delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -9742,7 +9793,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -9768,11 +9821,15 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech encoded in JSON.
+                      operator; bech
+
+                      encoded in JSON.
                   consensus_pubkey:
                     description: >-
                       consensus_pubkey is the consensus public key of the
-                      validator, as a Protobuf Any.
+                      validator, as a
+
+                      Protobuf Any.
                     type: object
                     properties:
                       type_url:
@@ -9843,7 +9900,9 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or not.
+                      bonded status or
+
+                      not.
                   status:
                     description: >-
                       status is the validator status
@@ -9897,13 +9956,17 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator has begun unbonding.
+                      which this validator
+
+                      has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to complete unbonding.
+                      validator to
+
+                      complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -9911,7 +9974,9 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for creating a validator.
+                          to be used for
+
+                          creating a validator.
                         type: object
                         properties:
                           rate:
@@ -9923,12 +9988,16 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever charge, as a fraction.
+                              validator can ever
+
+                              charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator commission, as a fraction.
+                              of the validator
+
+                              commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -9939,7 +10008,9 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self delegation.
+                      minimum self
+
+                      delegation.
             description: |-
               QueryDelegatorValidatorResponse response type for the
               Query/DelegatorValidator RPC method.
@@ -10174,12 +10245,12 @@ paths:
                             format: uint64
                         description: >-
                           Consensus captures the consensus rules for processing
-                          a block in the blockchain,
+                          a block in the
 
-                          including all blockchain data structures and the rules
-                          of the application's
+                          blockchain, including all blockchain data structures
+                          and the rules of the
 
-                          state transition machine.
+                          application's state transition machine.
                       chain_id:
                         type: string
                       height:
@@ -10245,11 +10316,15 @@ paths:
                           type: string
                           description: >-
                             operator_address defines the address of the
-                            validator's operator; bech encoded in JSON.
+                            validator's operator; bech
+
+                            encoded in JSON.
                         consensus_pubkey:
                           description: >-
                             consensus_pubkey is the consensus public key of the
-                            validator, as a Protobuf Any.
+                            validator, as a
+
+                            Protobuf Any.
                           type: object
                           properties:
                             type_url:
@@ -10320,7 +10395,9 @@ paths:
                           type: boolean
                           description: >-
                             jailed defined whether the validator has been jailed
-                            from bonded status or not.
+                            from bonded status or
+
+                            not.
                         status:
                           description: >-
                             status is the validator status
@@ -10374,13 +10451,17 @@ paths:
                           format: int64
                           description: >-
                             unbonding_height defines, if unbonding, the height
-                            at which this validator has begun unbonding.
+                            at which this validator
+
+                            has begun unbonding.
                         unbonding_time:
                           type: string
                           format: date-time
                           description: >-
                             unbonding_time defines, if unbonding, the min time
-                            for the validator to complete unbonding.
+                            for the validator to
+
+                            complete unbonding.
                         commission:
                           description: commission defines the commission parameters.
                           type: object
@@ -10388,7 +10469,9 @@ paths:
                             commission_rates:
                               description: >-
                                 commission_rates defines the initial commission
-                                rates to be used for creating a validator.
+                                rates to be used for
+
+                                creating a validator.
                               type: object
                               properties:
                                 rate:
@@ -10400,14 +10483,16 @@ paths:
                                   type: string
                                   description: >-
                                     max_rate defines the maximum commission rate
-                                    which validator can ever charge, as a
-                                    fraction.
+                                    which validator can ever
+
+                                    charge, as a fraction.
                                 max_change_rate:
                                   type: string
                                   description: >-
                                     max_change_rate defines the maximum daily
-                                    increase of the validator commission, as a
-                                    fraction.
+                                    increase of the validator
+
+                                    commission, as a fraction.
                             update_time:
                               type: string
                               format: date-time
@@ -10418,7 +10503,9 @@ paths:
                           type: string
                           description: >-
                             min_self_delegation is the validator's self declared
-                            minimum self delegation.
+                            minimum self
+
+                            delegation.
                       description: >-
                         Validator defines a validator, together with the total
                         amount of the
@@ -10671,7 +10758,9 @@ paths:
                     format: int64
                     description: >-
                       max_entries is the max entries for either unbonding
-                      delegation or redelegation (per pair/trio).
+                      delegation or
+
+                      redelegation (per pair/trio).
                   historical_entries:
                     type: integer
                     format: int64
@@ -11104,11 +11193,15 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech encoded in JSON.
+                        operator; bech
+
+                        encoded in JSON.
                     consensus_pubkey:
                       description: >-
                         consensus_pubkey is the consensus public key of the
-                        validator, as a Protobuf Any.
+                        validator, as a
+
+                        Protobuf Any.
                       type: object
                       properties:
                         type_url:
@@ -11179,7 +11272,9 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or not.
+                        from bonded status or
+
+                        not.
                     status:
                       description: >-
                         status is the validator status
@@ -11233,13 +11328,17 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator has begun unbonding.
+                        which this validator
+
+                        has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to complete unbonding.
+                        the validator to
+
+                        complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -11247,7 +11346,9 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for creating a validator.
+                            rates to be used for
+
+                            creating a validator.
                           type: object
                           properties:
                             rate:
@@ -11259,13 +11360,16 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever charge, as a fraction.
+                                which validator can ever
+
+                                charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator commission, as a
-                                fraction.
+                                increase of the validator
+
+                                commission, as a fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -11276,7 +11380,9 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self delegation.
+                        minimum self
+
+                        delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -11566,7 +11672,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -11590,11 +11698,15 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech encoded in JSON.
+                      operator; bech
+
+                      encoded in JSON.
                   consensus_pubkey:
                     description: >-
                       consensus_pubkey is the consensus public key of the
-                      validator, as a Protobuf Any.
+                      validator, as a
+
+                      Protobuf Any.
                     type: object
                     properties:
                       type_url:
@@ -11665,7 +11777,9 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or not.
+                      bonded status or
+
+                      not.
                   status:
                     description: >-
                       status is the validator status
@@ -11719,13 +11833,17 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator has begun unbonding.
+                      which this validator
+
+                      has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to complete unbonding.
+                      validator to
+
+                      complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -11733,7 +11851,9 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for creating a validator.
+                          to be used for
+
+                          creating a validator.
                         type: object
                         properties:
                           rate:
@@ -11745,12 +11865,16 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever charge, as a fraction.
+                              validator can ever
+
+                              charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator commission, as a fraction.
+                              of the validator
+
+                              commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -11761,7 +11885,9 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self delegation.
+                      minimum self
+
+                      delegation.
             title: >-
               QueryValidatorResponse is response type for the Query/Validator
               RPC method
@@ -12287,7 +12413,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -12600,7 +12728,9 @@ paths:
                           type: string
                           description: >-
                             initial_balance defines the tokens initially
-                            scheduled to receive at completion.
+                            scheduled to receive at
+
+                            completion.
                         balance:
                           type: string
                           description: balance defines the tokens to receive at completion.
@@ -12863,7 +12993,9 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at completion.
+                              scheduled to receive at
+
+                              completion.
                           balance:
                             type: string
                             description: >-
@@ -13145,7 +13277,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -13191,7 +13325,7 @@ definitions:
           is set.
       reverse:
         type: boolean
-        description: >-
+        description: |-
           reverse is set to true if results are to be returned in the descending
           order.
     description: |-
@@ -14710,7 +14844,7 @@ definitions:
     type: object
     properties:
       metadata:
-        description: >-
+        description: |-
           metadata describes and provides all the client information for the
           requested token.
         type: object
@@ -14773,9 +14907,9 @@ definitions:
               be the same as the display.
     description: >-
       QueryDenomMetadataResponse is the response type for the
-      Query/DenomMetadata RPC
+      Query/DenomMetadata
 
-      method.
+      RPC method.
   cosmos.bank.v1beta1.QueryDenomsMetadataResponse:
     type: object
     properties:
@@ -14866,9 +15000,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryDenomsMetadataResponse is the response type for the
-      Query/DenomsMetadata RPC
+      Query/DenomsMetadata
 
-      method.
+      RPC method.
   cosmos.bank.v1beta1.QueryParamsResponse:
     type: object
     properties:
@@ -16643,7 +16777,7 @@ definitions:
     type: object
     properties:
       commission_rates:
-        description: >-
+        description: |-
           commission_rates defines the initial commission rates to be used for
           creating a validator.
         type: object
@@ -16655,12 +16789,16 @@ definitions:
             type: string
             description: >-
               max_rate defines the maximum commission rate which validator can
-              ever charge, as a fraction.
+              ever
+
+              charge, as a fraction.
           max_change_rate:
             type: string
             description: >-
               max_change_rate defines the maximum daily increase of the
-              validator commission, as a fraction.
+              validator
+
+              commission, as a fraction.
       update_time:
         type: string
         format: date-time
@@ -16674,12 +16812,12 @@ definitions:
         description: 'rate is the commission rate charged to delegators, as a fraction.'
       max_rate:
         type: string
-        description: >-
+        description: |-
           max_rate defines the maximum commission rate which validator can ever
           charge, as a fraction.
       max_change_rate:
         type: string
-        description: >-
+        description: |-
           max_change_rate defines the maximum daily increase of the validator
           commission, as a fraction.
     description: >-
@@ -16776,12 +16914,12 @@ definitions:
                 format: uint64
             description: >-
               Consensus captures the consensus rules for processing a block in
-              the blockchain,
+              the
 
-              including all blockchain data structures and the rules of the
-              application's
+              blockchain, including all blockchain data structures and the rules
+              of the
 
-              state transition machine.
+              application's state transition machine.
           chain_id:
             type: string
           height:
@@ -16847,11 +16985,15 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a Protobuf Any.
+                as a
+
+                Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -16921,7 +17063,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -16967,13 +17111,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -16981,7 +17129,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -16993,12 +17143,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -17009,7 +17163,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -17054,7 +17210,7 @@ definitions:
       max_entries:
         type: integer
         format: int64
-        description: >-
+        description: |-
           max_entries is the max entries for either unbonding delegation or
           redelegation (per pair/trio).
       historical_entries:
@@ -17236,7 +17392,9 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at completion.
+                      receive at
+
+                      completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -17281,11 +17439,15 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech encoded in JSON.
+              bech
+
+              encoded in JSON.
           consensus_pubkey:
             description: >-
               consensus_pubkey is the consensus public key of the validator, as
-              a Protobuf Any.
+              a
+
+              Protobuf Any.
             type: object
             properties:
               type_url:
@@ -17353,7 +17515,9 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or not.
+              status or
+
+              not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -17399,13 +17563,17 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator has begun unbonding.
+              validator
+
+              has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to complete unbonding.
+              validator to
+
+              complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -17413,7 +17581,9 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for creating a validator.
+                  used for
+
+                  creating a validator.
                 type: object
                 properties:
                   rate:
@@ -17425,19 +17595,23 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever charge, as a fraction.
+                      validator can ever
+
+                      charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator commission, as a fraction.
+                      validator
+
+                      commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: >-
+            description: |-
               min_self_delegation is the validator's self declared minimum self
               delegation.
     description: |-
@@ -17455,11 +17629,15 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a Protobuf Any.
+                as a
+
+                Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -17529,7 +17707,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -17575,13 +17755,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -17589,7 +17773,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -17601,12 +17787,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -17617,7 +17807,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -17683,12 +17875,12 @@ definitions:
                     format: uint64
                 description: >-
                   Consensus captures the consensus rules for processing a block
-                  in the blockchain,
+                  in the
 
-                  including all blockchain data structures and the rules of the
-                  application's
+                  blockchain, including all blockchain data structures and the
+                  rules of the
 
-                  state transition machine.
+                  application's state transition machine.
               chain_id:
                 type: string
               height:
@@ -17754,11 +17946,15 @@ definitions:
                   type: string
                   description: >-
                     operator_address defines the address of the validator's
-                    operator; bech encoded in JSON.
+                    operator; bech
+
+                    encoded in JSON.
                 consensus_pubkey:
                   description: >-
                     consensus_pubkey is the consensus public key of the
-                    validator, as a Protobuf Any.
+                    validator, as a
+
+                    Protobuf Any.
                   type: object
                   properties:
                     type_url:
@@ -17829,7 +18025,9 @@ definitions:
                   type: boolean
                   description: >-
                     jailed defined whether the validator has been jailed from
-                    bonded status or not.
+                    bonded status or
+
+                    not.
                 status:
                   description: status is the validator status (bonded/unbonding/unbonded).
                   type: string
@@ -17875,13 +18073,17 @@ definitions:
                   format: int64
                   description: >-
                     unbonding_height defines, if unbonding, the height at which
-                    this validator has begun unbonding.
+                    this validator
+
+                    has begun unbonding.
                 unbonding_time:
                   type: string
                   format: date-time
                   description: >-
                     unbonding_time defines, if unbonding, the min time for the
-                    validator to complete unbonding.
+                    validator to
+
+                    complete unbonding.
                 commission:
                   description: commission defines the commission parameters.
                   type: object
@@ -17889,7 +18091,9 @@ definitions:
                     commission_rates:
                       description: >-
                         commission_rates defines the initial commission rates to
-                        be used for creating a validator.
+                        be used for
+
+                        creating a validator.
                       type: object
                       properties:
                         rate:
@@ -17901,12 +18105,16 @@ definitions:
                           type: string
                           description: >-
                             max_rate defines the maximum commission rate which
-                            validator can ever charge, as a fraction.
+                            validator can ever
+
+                            charge, as a fraction.
                         max_change_rate:
                           type: string
                           description: >-
                             max_change_rate defines the maximum daily increase
-                            of the validator commission, as a fraction.
+                            of the validator
+
+                            commission, as a fraction.
                     update_time:
                       type: string
                       format: date-time
@@ -17917,7 +18125,9 @@ definitions:
                   type: string
                   description: >-
                     min_self_delegation is the validator's self declared minimum
-                    self delegation.
+                    self
+
+                    delegation.
               description: >-
                 Validator defines a validator, together with the total amount of
                 the
@@ -17963,7 +18173,7 @@ definitions:
           max_entries:
             type: integer
             format: int64
-            description: >-
+            description: |-
               max_entries is the max entries for either unbonding delegation or
               redelegation (per pair/trio).
           historical_entries:
@@ -18006,12 +18216,16 @@ definitions:
                   type: string
                   description: >-
                     validator_src_address is the validator redelegation source
-                    operator address.
+                    operator
+
+                    address.
                 validator_dst_address:
                   type: string
                   description: >-
                     validator_dst_address is the validator redelegation
-                    destination operator address.
+                    destination operator
+
+                    address.
                 entries:
                   type: array
                   items:
@@ -18038,7 +18252,9 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by redelegation.
+                          shares created by
+
+                          redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -18078,7 +18294,9 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by redelegation.
+                          shares created by
+
+                          redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -18155,7 +18373,9 @@ definitions:
                   type: string
                   description: >-
                     initial_balance defines the tokens initially scheduled to
-                    receive at completion.
+                    receive at
+
+                    completion.
                 balance:
                   type: string
                   description: balance defines the tokens to receive at completion.
@@ -18251,11 +18471,15 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech encoded in JSON.
+              bech
+
+              encoded in JSON.
           consensus_pubkey:
             description: >-
               consensus_pubkey is the consensus public key of the validator, as
-              a Protobuf Any.
+              a
+
+              Protobuf Any.
             type: object
             properties:
               type_url:
@@ -18323,7 +18547,9 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or not.
+              status or
+
+              not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -18369,13 +18595,17 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator has begun unbonding.
+              validator
+
+              has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to complete unbonding.
+              validator to
+
+              complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -18383,7 +18613,9 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for creating a validator.
+                  used for
+
+                  creating a validator.
                 type: object
                 properties:
                   rate:
@@ -18395,19 +18627,23 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever charge, as a fraction.
+                      validator can ever
+
+                      charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator commission, as a fraction.
+                      validator
+
+                      commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: >-
+            description: |-
               min_self_delegation is the validator's self declared minimum self
               delegation.
     title: QueryValidatorResponse is response type for the Query/Validator RPC method
@@ -18448,7 +18684,9 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at completion.
+                      receive at
+
+                      completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -18494,11 +18732,15 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a Protobuf Any.
+                as a
+
+                Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -18568,7 +18810,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -18614,13 +18858,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -18628,7 +18876,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -18640,12 +18890,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -18656,7 +18910,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -18708,14 +18964,16 @@ definitions:
         description: delegator_address is the bech32-encoded address of the delegator.
       validator_src_address:
         type: string
-        description: >-
+        description: |-
           validator_src_address is the validator redelegation source operator
           address.
       validator_dst_address:
         type: string
         description: >-
           validator_dst_address is the validator redelegation destination
-          operator address.
+          operator
+
+          address.
       entries:
         type: array
         items:
@@ -18742,7 +19000,9 @@ definitions:
               type: string
               description: >-
                 shares_dst is the amount of destination-validator shares created
-                by redelegation.
+                by
+
+                redelegation.
           description: >-
             RedelegationEntry defines a redelegation object with relevant
             metadata.
@@ -18768,7 +19028,7 @@ definitions:
         description: initial_balance defines the initial balance when redelegation started.
       shares_dst:
         type: string
-        description: >-
+        description: |-
           shares_dst is the amount of destination-validator shares created by
           redelegation.
     description: RedelegationEntry defines a redelegation object with relevant metadata.
@@ -18797,7 +19057,9 @@ definitions:
             type: string
             description: >-
               shares_dst is the amount of destination-validator shares created
-              by redelegation.
+              by
+
+              redelegation.
         description: >-
           RedelegationEntry defines a redelegation object with relevant
           metadata.
@@ -18823,12 +19085,16 @@ definitions:
             type: string
             description: >-
               validator_src_address is the validator redelegation source
-              operator address.
+              operator
+
+              address.
           validator_dst_address:
             type: string
             description: >-
               validator_dst_address is the validator redelegation destination
-              operator address.
+              operator
+
+              address.
           entries:
             type: array
             items:
@@ -18855,7 +19121,9 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by redelegation.
+                    created by
+
+                    redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -18895,7 +19163,9 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by redelegation.
+                    created by
+
+                    redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -18942,7 +19212,9 @@ definitions:
               type: string
               description: >-
                 initial_balance defines the tokens initially scheduled to
-                receive at completion.
+                receive at
+
+                completion.
             balance:
               type: string
               description: balance defines the tokens to receive at completion.
@@ -18966,7 +19238,7 @@ definitions:
         description: completion_time is the unix time for unbonding completion.
       initial_balance:
         type: string
-        description: >-
+        description: |-
           initial_balance defines the tokens initially scheduled to receive at
           completion.
       balance:
@@ -18980,11 +19252,11 @@ definitions:
     properties:
       operator_address:
         type: string
-        description: >-
+        description: |-
           operator_address defines the address of the validator's operator; bech
           encoded in JSON.
       consensus_pubkey:
-        description: >-
+        description: |-
           consensus_pubkey is the consensus public key of the validator, as a
           Protobuf Any.
         type: object
@@ -19051,7 +19323,9 @@ definitions:
         type: boolean
         description: >-
           jailed defined whether the validator has been jailed from bonded
-          status or not.
+          status or
+
+          not.
       status:
         description: status is the validator status (bonded/unbonding/unbonded).
         type: string
@@ -19095,13 +19369,17 @@ definitions:
         format: int64
         description: >-
           unbonding_height defines, if unbonding, the height at which this
-          validator has begun unbonding.
+          validator
+
+          has begun unbonding.
       unbonding_time:
         type: string
         format: date-time
         description: >-
           unbonding_time defines, if unbonding, the min time for the validator
-          to complete unbonding.
+          to
+
+          complete unbonding.
       commission:
         description: commission defines the commission parameters.
         type: object
@@ -19109,7 +19387,9 @@ definitions:
           commission_rates:
             description: >-
               commission_rates defines the initial commission rates to be used
-              for creating a validator.
+              for
+
+              creating a validator.
             type: object
             properties:
               rate:
@@ -19121,19 +19401,23 @@ definitions:
                 type: string
                 description: >-
                   max_rate defines the maximum commission rate which validator
-                  can ever charge, as a fraction.
+                  can ever
+
+                  charge, as a fraction.
               max_change_rate:
                 type: string
                 description: >-
                   max_change_rate defines the maximum daily increase of the
-                  validator commission, as a fraction.
+                  validator
+
+                  commission, as a fraction.
           update_time:
             type: string
             format: date-time
             description: update_time is the last time the commission rate was changed.
       min_self_delegation:
         type: string
-        description: >-
+        description: |-
           min_self_delegation is the validator's self declared minimum self
           delegation.
     description: >-
@@ -19188,12 +19472,11 @@ definitions:
             format: uint64
         description: >-
           Consensus captures the consensus rules for processing a block in the
-          blockchain,
 
-          including all blockchain data structures and the rules of the
-          application's
+          blockchain, including all blockchain data structures and the rules of
+          the
 
-          state transition machine.
+          application's state transition machine.
       chain_id:
         type: string
       height:
@@ -19269,11 +19552,7 @@ definitions:
       app:
         type: string
         format: uint64
-    description: >-
+    description: |-
       Consensus captures the consensus rules for processing a block in the
-      blockchain,
-
-      including all blockchain data structures and the rules of the
-      application's
-
-      state transition machine.
+      blockchain, including all blockchain data structures and the rules of the
+      application's state transition machine.

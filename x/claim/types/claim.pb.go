@@ -64,8 +64,8 @@ func (Action) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_873e678807803576, []int{0}
 }
 
-// Claim marks defines the action, completed flag and the remaining claimable amount
-// for a given user. This is only used during client queries.
+// Claim marks defines the action, completed flag and the remaining claimable
+// amount for a given user. This is only used during client queries.
 type Claim struct {
 	// action enum
 	Action Action `protobuf:"varint,1,opt,name=action,proto3,enum=evmos.claim.v1.Action" json:"action,omitempty"`

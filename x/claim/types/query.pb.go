@@ -31,7 +31,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed RPC method.
+// QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed
+// RPC method.
 type QueryTotalUnclaimedRequest struct {
 }
 
@@ -68,7 +69,8 @@ func (m *QueryTotalUnclaimedRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryTotalUnclaimedRequest proto.InternalMessageInfo
 
-// QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed RPC method.
+// QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
+// RPC method.
 type QueryTotalUnclaimedResponse struct {
 	// coins define the unclaimed coins
 	Coins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=coins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"coins"`
@@ -197,7 +199,8 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC method.
+// QueryClaimRecordsRequest is the request type for the Query/ClaimRecords RPC
+// method.
 type QueryClaimRecordsRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
@@ -242,7 +245,8 @@ func (m *QueryClaimRecordsRequest) GetAddress() string {
 	return ""
 }
 
-// QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC method.
+// QueryClaimRecordsResponse is the response type for the Query/ClaimRecords RPC
+// method.
 type QueryClaimRecordsResponse struct {
 	// total initial claimable amount for the user
 	InitialClaimableAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,1,opt,name=initial_claimable_amount,json=initialClaimableAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"initial_claimable_amount"`

@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
 	evm "github.com/tharsis/ethermint/x/evm/types"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -30,6 +31,15 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 
 		expPass bool
 	}{
+		{
+			"incentives are disabled globally",
+			func(contractAddr common.Address) {
+				params := types.DefaultParams()
+				params.EnableIncentives = false
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+			},
+			false,
+		},
 		{
 			"correct execution - one tx",
 			func(contractAddr common.Address) {

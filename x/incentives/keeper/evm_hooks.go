@@ -5,6 +5,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -14,6 +15,12 @@ var _ evmtypes.EvmHooks = Hooks{}
 // interaction with an incentivized contract, the participants's GasUsed is
 // added to its gasMeter.
 func (h Hooks) PostTxProcessing(ctx sdk.Context, participant common.Address, contract *common.Address, receipt *ethtypes.Receipt) error {
+	// check if the Incentives are globally enabled
+	params := h.k.GetParams(ctx)
+	if !params.EnableIncentives {
+		return nil
+	}
+
 	// If theres no incentive registered for the contract, do nothing
 	if contract == nil || !h.k.IsIncentiveRegistered(ctx, *contract) {
 		return nil

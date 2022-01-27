@@ -100,7 +100,7 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
-A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
+A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
 PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
@@ -114,7 +114,7 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmos
 
 ## Run a Testnet Validator
 
-Claim your testnet {{ $themeConfig.project.testnet_denom }}s on the [faucet](./faucet.md) using your validator account address and submit your validator account address:
+Claim your testnet {{ $themeConfig.project.testnet_denom }} on the [faucet](./faucet.md) using your validator account address and submit your validator account address:
 
 ::: tip
 For more details on how to configure your validator, follow the validator [setup](./../guides/validators/setup.md) instructions.
@@ -178,7 +178,7 @@ evmosd start
 
 ## Share your Peer
 
-You can share your peer to posting it in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/trje9XuAmy).
+You can share your peer to posting it in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos).
 
 ::: tip
 To get your Node ID use

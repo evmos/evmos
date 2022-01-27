@@ -1,4 +1,13 @@
 # CODEOWNERS: https://help.github.com/articles/about-codeowners/
 
-# Primary repo maintainers
+# Primary (global) repo maintainers
 *       @fedekunze @khoslaventures @jolube 
+
+# Documentation
+docs/ @danburck
+
+# Evmos Modules
+x/epochs/ @ramacarlucho
+x/erc20/ @danburck @hanchon
+x/incentives/ @danburck
+x/claims/ @danburck @prajjwol

@@ -39,13 +39,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (app) [\#224](https://github.com/tharsis/evmos/pull/224) Fix power reduction my setting the correct value on app initialization.
+- (keys) [\#189](https://github.com/tharsis/evmos/pull/189) Remove support for Tendermint's `secp256k1` keys.
 - [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
 - [\#190](https://github.com/tharsis/evmos/pull/190) Remove governance hook from `erc20` module
 
 ### Features
 
+- [\#184](https://github.com/tharsis/evmos/pull/184) Add claims module for claiming the airdrop tokens.
 - [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
-- [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom InitCmd function.
+- [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom `InitCmd` function.
 - [\#176](https://github.com/tharsis/evmos/pull/176) Add `x/incentives` module.
 
 ### Improvements
