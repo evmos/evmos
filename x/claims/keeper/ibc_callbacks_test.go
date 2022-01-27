@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
-	"github.com/stretchr/testify/suite"
+
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claim/types"
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 type CallbackTestSuite struct {
@@ -27,7 +29,6 @@ type CallbackTestSuite struct {
 }
 
 func (suite *CallbackTestSuite) SetupTest() {
-
 	ibctesting.DefaultTestingAppInit = app.SetupTestingApp
 
 	ibctesting.ChainIDPrefix = "evmos_9000-"
@@ -82,7 +83,6 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 }
 
 func (suite *CallbackTestSuite) TestOnReceiveClaim() {
-
 	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
 	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
 	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
@@ -153,7 +153,6 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-
 			suite.SetupTest()
 			path := suite.path
 
@@ -185,11 +184,9 @@ func (suite *CallbackTestSuite) TestOnReceiveClaim() {
 			}
 		})
 	}
-
 }
 
 func (suite *CallbackTestSuite) TestOnAckClaim() {
-
 	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
 	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
 	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
@@ -241,7 +238,6 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-
 			suite.SetupTest()
 			path := suite.path
 
@@ -258,7 +254,7 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 			err := path.EndpointB.RecvPacket(packet)
 			suite.Require().NoError(err)
 
-			//TODO: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
+			// TODO: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
 			err = suite.chainA.App.(*app.Evmos).ClaimKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
 			suite.Require().NoError(err)
 
@@ -277,5 +273,4 @@ func (suite *CallbackTestSuite) TestOnAckClaim() {
 			}
 		})
 	}
-
 }

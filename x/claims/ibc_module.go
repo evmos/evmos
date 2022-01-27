@@ -1,13 +1,13 @@
-package claim
+package claims
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	"github.com/tharsis/evmos/x/claim/keeper"
-
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+
+	"github.com/tharsis/evmos/x/claims/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCModule{}

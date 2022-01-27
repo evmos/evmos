@@ -3,11 +3,11 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/tharsis/evmos/x/claim/types"
-
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+
+	"github.com/tharsis/evmos/x/claims/types"
 )
 
 // OnRecvPacket performs an IBC callback.
@@ -20,7 +20,7 @@ func (k Keeper) OnRecvPacket(
 
 	// short circuit in case claim is not active (no-op) or if the
 	// acknowledgement is an error ACK
-	if !ack.Success() || !params.IsClaimActive(ctx.BlockTime()) {
+	if !ack.Success() || !params.IsClaimsActive(ctx.BlockTime()) {
 		return ack
 	}
 
@@ -41,8 +41,8 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
-	senderClaimRecord, senderRecordFound := k.GetClaimRecord(ctx, sender)
-	recipientClaimRecord, recipientRecordFound := k.GetClaimRecord(ctx, recipient)
+	senderClaimRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
+	recipientClaimRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 
 	switch {
 	case senderRecordFound && recipientRecordFound:
@@ -57,8 +57,8 @@ func (k Keeper) OnRecvPacket(
 		// add the initial balance to the
 	case senderRecordFound && !recipientRecordFound:
 		// migrate sender record to recipient
-		k.SetClaimRecord(ctx, recipient, senderClaimRecord)
-		k.DeleteClaimRecord(ctx, sender)
+		k.SetClaimsRecord(ctx, recipient, senderClaimRecord)
+		k.DeleteClaimsRecord(ctx, sender)
 
 		// claim IBC action
 		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimRecord, types.ActionIBCTransfer, params)
@@ -86,7 +86,7 @@ func (k Keeper) OnAcknowledgementPacket(
 	params := k.GetParams(ctx)
 
 	// short circuit in case claim is not active (no-op)
-	if !params.IsClaimActive(ctx.BlockTime()) {
+	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return nil
 	}
 
@@ -110,7 +110,7 @@ func (k Keeper) OnAcknowledgementPacket(
 		return err
 	}
 
-	claimRecord, found := k.GetClaimRecord(ctx, sender)
+	claimRecord, found := k.GetClaimsRecord(ctx, sender)
 	if !found {
 		// user doesn't have a claim record so we don't need to perform any claim
 		return nil
