@@ -192,14 +192,14 @@ var (
 		authtypes.FeeCollectorName:         nil,
 		distrtypes.ModuleName:              nil,
 		stakingtypes.BondedPoolName:        {authtypes.Burner, authtypes.Staking},
-		sttakingtypes.NoBondedPoolName:     {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:     {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:                {authtypes.Burner},
 		ibctransfertypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 		evmtypes.ModuleName:                {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:          {authtypes.Minter},
 		inflationtypes.UnvestedTeamAccount: nil,
 		erc20types.ModuleName:              {authtypes.Minter, authtypes.Burner},
-		claimstypes.ModuleName:        			nil,
+		claimstypes.ModuleName:             nil,
 		incentivestypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
 	}
 
@@ -259,7 +259,7 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	InflationKeeper inflationkeeper.Keeper
+	InflationKeeper  inflationkeeper.Keeper
 	ClaimsKeeper     claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
@@ -418,6 +418,7 @@ func NewEvmos(
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		keys[inflationtypes.StoreKey], appCodec, app.GetSubspace(inflationtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, authtypes.FeeCollectorName,
+	)
 	app.ClaimsKeeper = *claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
@@ -588,7 +589,6 @@ func NewEvmos(
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
-		// minttypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		authz.ModuleName,
@@ -617,7 +617,6 @@ func NewEvmos(
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
-		// minttypes.ModuleName,
 		ibchost.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -930,7 +929,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(authtypes.ModuleName)
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
-	// paramsKeeper.Subspace(minttypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
