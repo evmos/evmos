@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.15
 	github.com/tendermint/tm-db v0.6.7-0.20211203155021-4fa83b55a0b5
-	github.com/tharsis/ethermint v0.10.0-alpha1
+	github.com/tharsis/ethermint v0.10.0-alpha2
 	go.opencensus.io v0.23.0
 	google.golang.org/genproto v0.0.0-20220126215142-9970aeb2e350
 	google.golang.org/grpc v1.43.0
