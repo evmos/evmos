@@ -5,13 +5,13 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	simapp "github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/claims"
 	"github.com/tharsis/evmos/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 var (
@@ -53,9 +53,9 @@ func TestClaimInitGenesis(t *testing.T) {
 	genesis := testGenesis
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
+	err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins)
 	require.NoError(t, err)
-	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, types.ModuleName, coins)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 	require.NoError(t, err)
 
 	claims.InitGenesis(ctx, app.ClaimsKeeper, genesis)
@@ -80,9 +80,9 @@ func TestClaimExportGenesis(t *testing.T) {
 	genesis := testGenesis
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
+	err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins)
 	require.NoError(t, err)
-	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, types.ModuleName, coins)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 	require.NoError(t, err)
 
 	claims.InitGenesis(ctx, app.ClaimsKeeper, genesis)

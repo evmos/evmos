@@ -3,11 +3,9 @@ package keeper_test
 import (
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,6 +13,8 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
+	"github.com/tharsis/evmos/testutil"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 
 	"github.com/tharsis/evmos/x/claims/types"
 )
@@ -25,9 +25,9 @@ func (suite *KeeperTestSuite) SetupClaimTest() {
 
 	coins := sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), sdk.NewInt(10000000)))
 
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, minttypes.ModuleName, types.ModuleName, coins)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 	suite.Require().NoError(err)
 }
 
@@ -241,7 +241,8 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 
 	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, sdk.DefaultPowerReduction))
 	delAmount := sdk.TokensFromConsensusPower(1, sdk.DefaultPowerReduction)
-	err = simapp.FundAccount(suite.app.BankKeeper, suite.ctx, addrs[1], sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), delAmount)))
+	err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addrs[1], sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), delAmount)))
+
 	suite.Require().NoError(err)
 
 	_, err = suite.app.StakingKeeper.Delegate(suite.ctx, addrs[1], delAmount, stakingtypes.Unbonded, validator, true)
@@ -551,7 +552,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, tc.claimsRecord)
 		coins := sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), 100))
-		simapp.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+		testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
 	}
 
 	err := suite.app.ClaimsKeeper.EndAirdrop(suite.ctx, params)
