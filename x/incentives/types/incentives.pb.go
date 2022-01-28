@@ -29,8 +29,8 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Incentive defines an instance that organizes distribution conditions for a given
-// smart contract
+// Incentive defines an instance that organizes distribution conditions for a
+// given smart contract
 type Incentive struct {
 	// contract address
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`

@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
+
 	"github.com/tharsis/ethermint/encoding"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +19,12 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"github.com/tharsis/evmos/cmd/config"
 )
+
+func init() {
+	cfg := sdk.GetConfig()
+	config.SetBech32Prefixes(cfg)
+	config.SetBip44CoinType(cfg)
+}
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
 // Evmos testing.
