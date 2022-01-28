@@ -448,6 +448,7 @@ func NewEvmos(
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochstypes.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
+			// TODO activate Inflation hook
 			app.IncentivesKeeper.Hooks(),
 			app.InflationKeeper.Hooks(),
 		),
@@ -526,6 +527,7 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
+		// TODO is inflation vesting account and AccountKeeper needed ?
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
