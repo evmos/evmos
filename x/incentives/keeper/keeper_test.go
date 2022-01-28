@@ -36,7 +36,6 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
@@ -100,11 +99,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// init app
 	suite.app = app.Setup(checkTx, feemarketGenesis)
-
-	// setup inflation params
-	inflationGenesis := inflationtypes.DefaultGenesisState()
-	teamAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	inflationGenesis.Params.TeamAddress = teamAddress.String()
 
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector

@@ -20,8 +20,6 @@ var (
 	KeyEpochsPerPeriod        = []byte("KeyEpochsPerPeriod")
 	KeyExponentialCalculation = []byte("KeyExponentialCalculation")
 	KeyInflationDistribution  = []byte("KeyInflationDistribution")
-	KeyTeamAddress            = []byte("KeyTeamAddress")
-	KeyTeamVestingProvision   = []byte("KeyTeamVestingProvision")
 )
 
 // ParamTable for inflation module
@@ -35,8 +33,6 @@ func NewParams(
 	epochsPerPeriod int64,
 	exponentialCalculation ExponentialCalculation,
 	inflationDistribution InflationDistribution,
-	teamAddress sdk.AccAddress,
-	teamVestingProvision sdk.Int,
 ) Params {
 	return Params{
 		MintDenom:              mintDenom,
@@ -44,8 +40,6 @@ func NewParams(
 		EpochsPerPeriod:        epochsPerPeriod,
 		ExponentialCalculation: exponentialCalculation,
 		InflationDistribution:  inflationDistribution,
-		TeamAddress:            teamAddress.String(),
-		TeamVestingProvision:   teamVestingProvision,
 	}
 }
 
@@ -66,8 +60,6 @@ func DefaultParams() Params {
 			UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
 			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 		},
-		TeamAddress:          "",
-		TeamVestingProvision: sdk.NewInt(136_986), // 200000000/(4*365)
 	}
 }
 
@@ -85,8 +77,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyEpochsPerPeriod, &p.EpochsPerPeriod, validateEpochsPerPeriod),
 		paramtypes.NewParamSetPair(KeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
 		paramtypes.NewParamSetPair(KeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
-		paramtypes.NewParamSetPair(KeyTeamAddress, &p.TeamAddress, validateTeamAddress),
-		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
 	}
 }
 
@@ -182,36 +172,6 @@ func validateInflationDistribution(i interface{}) error {
 	return nil
 }
 
-func validateTeamAddress(i interface{}) error {
-	v, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == "" {
-		return nil
-	}
-
-	if _, err := sdk.AccAddressFromBech32(v); err != nil {
-		return fmt.Errorf("invalid address %w", err)
-	}
-
-	return nil
-}
-
-func validateTeamVestingProvision(i interface{}) error {
-	v, ok := i.(sdk.Int)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.LT(sdk.ZeroInt()) {
-		return errors.New("team vesting provision must not be negative")
-	}
-
-	return nil
-}
-
 func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
@@ -225,11 +185,5 @@ func (p Params) Validate() error {
 	if err := validateExponentialCalculation(p.ExponentialCalculation); err != nil {
 		return err
 	}
-	if err := validateInflationDistribution(p.InflationDistribution); err != nil {
-		return err
-	}
-	if err := validateTeamAddress(p.TeamAddress); err != nil {
-		return err
-	}
-	return validateTeamVestingProvision(p.TeamVestingProvision)
+	return validateInflationDistribution(p.InflationDistribution)
 }
