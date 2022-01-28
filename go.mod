@@ -3,7 +3,7 @@ module github.com/tharsis/evmos
 go 1.17
 
 require (
-	github.com/cosmos/cosmos-sdk v0.44.5
+	github.com/cosmos/cosmos-sdk v0.45.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v3 v3.0.0-alpha2
 	github.com/ethereum/go-ethereum v1.10.11
@@ -151,8 +151,6 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	// TODO: remove once v0.45 is released
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.44.6-0.20220104141845-0be9863cfed1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )

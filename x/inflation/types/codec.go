@@ -3,7 +3,6 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // ModuleCdc references the global incentives module codec. Note, the codec
@@ -14,8 +13,4 @@ import (
 var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 
 // RegisterInterfaces register implementations
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations(
-		(*govtypes.Content)(nil),
-	)
-}
+func RegisterInterfaces(registry codectypes.InterfaceRegistry) {}
