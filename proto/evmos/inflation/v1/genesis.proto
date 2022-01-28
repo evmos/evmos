@@ -32,11 +32,4 @@ message Params {
   InflationDistribution inflation_distribution = 5 [
     (gogoproto.nullable) = false
   ];
-  // aaddress to receive the team allocation from the inflation distribution
-  string team_address = 6;
-  // coin to allocate from team vesting supply
-  string team_vesting_provision = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
 }

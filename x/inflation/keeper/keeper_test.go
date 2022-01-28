@@ -14,9 +14,7 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/tharsis/ethermint/tests"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/inflation/types"
@@ -50,11 +48,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// init app
 	suite.app = app.Setup(checkTx, nil)
-
-	// setup inflation params
-	inflationGenesis := inflationtypes.DefaultGenesisState()
-	teamAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	inflationGenesis.Params.TeamAddress = teamAddress.String()
 
 	// setup context
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{

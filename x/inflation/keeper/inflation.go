@@ -16,17 +16,7 @@ func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
 
 	// Allocate minted coins according to allocation proportions (staking, usage
 	// incentives, community pool)
-	if err := k.AllocateExponentialInflation(ctx, coin); err != nil {
-		return err
-	}
-
-	// Transfer coins (allocated at genesis) from unvested_team_account to team
-	// address
-	if err := k.AllocateTeamVesting(ctx); err != nil {
-		return err
-	}
-
-	return nil
+	return k.AllocateExponentialInflation(ctx, coin)
 }
 
 // MintCoins implements an alias call to the underlying supply keeper's
@@ -83,67 +73,6 @@ func (k Keeper) AllocateExponentialInflation(ctx sdk.Context, mintedCoin sdk.Coi
 		ctx,
 		communityPoolAmt,
 		moduleAddr,
-	)
-}
-
-// AllocateTeamVesting allocates the team vesting proportion from the team
-// vesting supply.
-func (k Keeper) AllocateTeamVesting(ctx sdk.Context) error {
-	logger := k.Logger(ctx)
-	params := k.GetParams(ctx)
-
-	// Check unvested team account balances
-	unvestedTeamAccount := k.accountKeeper.GetModuleAddress(types.UnvestedTeamAccount)
-	balances := k.bankKeeper.GetAllBalances(ctx, unvestedTeamAccount)
-	if balances.IsZero() {
-		logger.Debug(
-			"unvested_team_account account has no supply",
-			"balances", balances,
-		)
-		return nil
-	}
-
-	// Get team vesting provision to allocate from the unvested team account
-	mintProvision := sdk.NewCoin(params.MintDenom, params.TeamVestingProvision)
-
-	// Create team vesting amount from balances. Any non-mint balances are fully
-	// allocated, whereas the mint balance is limited to the mintProvision.
-	teamVestingAmt := balances
-	mintBalance := balances.AmountOfNoDenomValidation(params.MintDenom)
-
-	// Check if unvested team account has sufficient balance to allocate.
-	if mintBalance.GTE(mintProvision.Amount) {
-		// Limit allocation to mintProvision
-		teamVestingAmt = teamVestingAmt.Sub(sdk.NewCoins(sdk.NewCoin(params.MintDenom, mintBalance)))
-		teamVestingAmt = teamVestingAmt.Add(mintProvision)
-	} else {
-		// Log that only the remaining balance will be allocated
-		logger.Debug(
-			"insufficient funds",
-			"unvested_team_account balance is lower than team provision",
-			"balance", mintBalance, "<", "provision", mintProvision,
-		)
-	}
-
-	// Allocate teamVestingAmt to community pool when rewards address is empty
-	if params.TeamAddress == "" {
-		logger.Debug(
-			"team address not set, transfer allocation to community pool",
-			"address", params.TeamAddress,
-		)
-		return k.distrKeeper.FundCommunityPool(ctx, teamVestingAmt, unvestedTeamAccount)
-	}
-
-	// Allocate teamVestingAmt to team address
-	teamAddress, err := sdk.AccAddressFromBech32(params.TeamAddress)
-	if err != nil {
-		return err
-	}
-	return k.bankKeeper.SendCoinsFromModuleToAccount(
-		ctx,
-		types.UnvestedTeamAccount,
-		teamAddress,
-		teamVestingAmt,
 	)
 }
 

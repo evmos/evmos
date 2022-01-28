@@ -3,9 +3,7 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
-	"github.com/tharsis/ethermint/tests"
 )
 
 type GenesisTestSuite struct {
@@ -22,7 +20,6 @@ func TestGenesisTestSuite(t *testing.T) {
 func (suite *GenesisTestSuite) TestValidateGenesis() {
 	// Team Address needs to be set manually at Genesis
 	validParams := DefaultParams()
-	validParams.TeamAddress = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 
 	newGen := NewGenesisState(validParams, uint64(0))
 
