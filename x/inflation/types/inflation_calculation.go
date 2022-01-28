@@ -5,13 +5,12 @@ import (
 )
 
 // CalculateEpochProvisions returns mint provision per epoch
-func CalculateEpochMintProvision(params Params, period uint64) sdk.Dec {
-	x := period                                           // period
-	a := params.ExponentialCalculation.A                  // initial value
-	r := params.ExponentialCalculation.R                  // reduction factor
-	c := params.ExponentialCalculation.C                  // long term inflation
-	b := params.ExponentialCalculation.B                  // bonding factor
-	epochsPerPeriod := sdk.NewDec(params.EpochsPerPeriod) //
+func CalculateEpochMintProvision(params Params, period uint64, epochsPerPeriod int64) sdk.Dec {
+	x := period                          // period
+	a := params.ExponentialCalculation.A // initial value
+	r := params.ExponentialCalculation.R // reduction factor
+	c := params.ExponentialCalculation.C // long term inflation
+	b := params.ExponentialCalculation.B // bonding factor
 
 	// exponentialDecay := a * (1 - r) ^ x + c
 	decay := sdk.OneDec().Sub(r)
@@ -24,7 +23,10 @@ func CalculateEpochMintProvision(params Params, period uint64) sdk.Dec {
 	periodProvision := exponentialDecay.Mul(bondingRatio)
 
 	// epochProvision = periodProvision / epochsPerPeriod
-	decEpochProvision := sdk.OneDec().BigInt().Quo(periodProvision.BigInt(), epochsPerPeriod.BigInt())
+	decEpochProvision := sdk.OneDec().BigInt().Quo(
+		periodProvision.BigInt(),
+		sdk.NewDec(epochsPerPeriod).BigInt(),
+	)
 	epochProvision := sdk.NewDecFromBigInt(decEpochProvision)
 	return epochProvision
 }

@@ -21,7 +21,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 	// Team Address needs to be set manually at Genesis
 	validParams := DefaultParams()
 
-	newGen := NewGenesisState(validParams, uint64(0))
+	newGen := NewGenesisState(validParams, uint64(0), "day", 365)
 
 	testCases := []struct {
 		name     string
@@ -34,7 +34,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			false,
 		},
 		{
-			"invalid default genesis without address",
+			"invalid default genesis",
 			DefaultGenesisState(),
 			true,
 		},
@@ -51,10 +51,12 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			true,
 		},
 		{
-			"valid genesis - with period",
+			"valid genesis - with all",
 			&GenesisState{
-				Params: validParams,
-				Period: uint64(5),
+				Params:          validParams,
+				Period:          uint64(5),
+				EpochIdentifier: "day",
+				EpochsPerPeriod: 365,
 			},
 			true,
 		},

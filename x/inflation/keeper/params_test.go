@@ -10,7 +10,7 @@ func (suite *KeeperTestSuite) TestParams() {
 
 	suite.Require().Equal(expParams, params)
 
-	params.EpochsPerPeriod = 700
+	params.MintDenom = "aphoton"
 	suite.app.InflationKeeper.SetParams(suite.ctx, params)
 	newParams := suite.app.InflationKeeper.GetParams(suite.ctx)
 	suite.Require().Equal(newParams, params)

@@ -48,8 +48,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"valid",
 			NewParams(
 				"aevmos",
-				"week",
-				365,
 				validExponentialCalculation,
 				validInflationDistribution,
 			),
@@ -59,8 +57,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"valid param literal",
 			Params{
 				MintDenom:              "aevmos",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        365,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution:  validInflationDistribution,
 			},
@@ -70,8 +66,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - denom",
 			NewParams(
 				"/aevmos",
-				"week",
-				365,
 				validExponentialCalculation,
 				validInflationDistribution,
 			),
@@ -81,30 +75,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - denom",
 			Params{
 				MintDenom:              "",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        365,
-				ExponentialCalculation: validExponentialCalculation,
-				InflationDistribution:  validInflationDistribution,
-			},
-			true,
-		},
-		{
-			"invalid - wrong epochIdentifier",
-			Params{
-				MintDenom:              "aevmos",
-				EpochIdentifier:        "",
-				EpochsPerPeriod:        365,
-				ExponentialCalculation: validExponentialCalculation,
-				InflationDistribution:  validInflationDistribution,
-			},
-			true,
-		},
-		{
-			"invalid - zero epochs per period ",
-			Params{
-				MintDenom:              "aevmos",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        0,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution:  validInflationDistribution,
 			},
@@ -113,9 +83,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative A",
 			Params{
-				MintDenom:       "aevmos",
-				EpochIdentifier: "week",
-				EpochsPerPeriod: 365,
+				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
 					A: sdk.NewDec(int64(-1)),
 					R: sdk.NewDecWithPrec(5, 1),
@@ -129,9 +97,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - R greater than 1",
 			Params{
-				MintDenom:       "aevmos",
-				EpochIdentifier: "week",
-				EpochsPerPeriod: 365,
+				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
 					A: sdk.NewDec(int64(300_000_000)),
 					R: sdk.NewDecWithPrec(5, 0),
@@ -145,9 +111,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative R",
 			Params{
-				MintDenom:       "aevmos",
-				EpochIdentifier: "week",
-				EpochsPerPeriod: 365,
+				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
 					A: sdk.NewDec(int64(300_000_000)),
 					R: sdk.NewDecWithPrec(-5, 1),
@@ -161,9 +125,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative C",
 			Params{
-				MintDenom:       "aevmos",
-				EpochIdentifier: "week",
-				EpochsPerPeriod: 365,
+				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
 					A: sdk.NewDec(int64(300_000_000)),
 					R: sdk.NewDecWithPrec(5, 1),
@@ -177,9 +139,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - R greater than 1",
 			Params{
-				MintDenom:       "aevmos",
-				EpochIdentifier: "week",
-				EpochsPerPeriod: 365,
+				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
 					A: sdk.NewDec(int64(300_000_000)),
 					R: sdk.NewDecWithPrec(5, 0),
@@ -193,9 +153,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative B",
 			Params{
-				MintDenom:       "aevmos",
-				EpochIdentifier: "week",
-				EpochsPerPeriod: 365,
+				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
 					A: sdk.NewDec(int64(300_000_000)),
 					R: sdk.NewDecWithPrec(5, 1),
@@ -210,8 +168,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - inflation distribution - negative staking rewards",
 			Params{
 				MintDenom:              "aevmos",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        365,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  sdk.OneDec().Neg(),
@@ -225,8 +181,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - inflation distribution - negative usage incentives",
 			Params{
 				MintDenom:              "aevmos",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        365,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  sdk.NewDecWithPrec(533334, 6),
@@ -240,8 +194,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - inflation distribution - negative community pool rewards",
 			Params{
 				MintDenom:              "aevmos",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        365,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  sdk.NewDecWithPrec(533334, 6),
@@ -255,8 +207,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"invalid - inflation distribution - total distribution ratio unequal 1",
 			Params{
 				MintDenom:              "aevmos",
-				EpochIdentifier:        "week",
-				EpochsPerPeriod:        365,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  sdk.NewDecWithPrec(533333, 6),

@@ -1,7 +1,12 @@
 package types
 
 // NewGenesisState creates a new GenesisState object
-func NewGenesisState(params Params, period uint64) GenesisState {
+func NewGenesisState(
+	params Params,
+	period uint64,
+	epochIdentifier string,
+	epochsPerPeriod int64,
+) GenesisState {
 	return GenesisState{
 		Params: params,
 		Period: period,
@@ -11,8 +16,10 @@ func NewGenesisState(params Params, period uint64) GenesisState {
 // DefaultGenesisState creates a default GenesisState object
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params: DefaultParams(),
-		Period: uint64(0),
+		Params:          DefaultParams(),
+		Period:          uint64(0),
+		EpochIdentifier: "day",
+		EpochsPerPeriod: 365,
 	}
 }
 

@@ -20,6 +20,8 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 	bondingParams := DefaultParams()
 	bondingParams.ExponentialCalculation.B = sdk.NewDecWithPrec(5, 1)
 
+	epochsPerPeriod := int64(365)
+
 	testCases := []struct {
 		name              string
 		params            Params
@@ -114,7 +116,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			epochMintProvisions := CalculateEpochMintProvision(tc.params, tc.period)
+			epochMintProvisions := CalculateEpochMintProvision(tc.params, tc.period, epochsPerPeriod)
 			suite.Require().Equal(tc.expEpochProvision, epochMintProvisions)
 		})
 	}
