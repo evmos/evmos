@@ -32,7 +32,7 @@ func InitGenesis(
 	k.SetEpochsPerPeriod(ctx, epochsPerPeriod)
 
 	// Calculate epoch mint provision
-	epochMintProvision := types.CalculateEpochMintProvision(params, period, data.EpochsPerPeriod)
+	epochMintProvision := types.CalculateEpochMintProvision(params, period, epochsPerPeriod)
 	k.SetEpochMintProvision(ctx, epochMintProvision)
 }
 
