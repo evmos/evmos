@@ -76,6 +76,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 				defaultEpochMintProvision := types.CalculateEpochMintProvision(
 					params,
 					uint64(0),
+					365,
 				)
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
