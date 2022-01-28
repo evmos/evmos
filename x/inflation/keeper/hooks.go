@@ -8,6 +8,7 @@ import (
 	"github.com/tharsis/evmos/x/inflation/types"
 )
 
+// BeforeEpochStart: noop, We don't need to do anything here
 func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 }
 
@@ -37,6 +38,12 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
 
 	newProvision := epochMintProvision
+
+	// current epoch number needs to be within range for the period
+	// Given, epochNumber = 1, period = 0, epochPerPeriod = 365
+	// 1 - 365 * 0 < 365 --- nothing to do here
+	// Given, epochNumber = 731, period = 1, epochPerPeriod = 365
+	// 731 - 1 * 365 > 365 --- a period has passed! we change the epochMintProvision and set a new period
 	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
