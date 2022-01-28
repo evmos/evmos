@@ -15,8 +15,10 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
 
-	if epochIdentifier != k.GetEpochIdentifier(ctx) {
-		panic(fmt.Errorf("unexpected EpochIdentifier provided: %s expected: %s", epochIdentifier, k.GetEpochIdentifier(ctx)))
+	expEpochID := k.GetEpochIdentifier(ctx)
+
+	if epochIdentifier != expEpochID {
+		panic(fmt.Errorf("unexpected EpochIdentifier provided: %s, expected: %s", epochIdentifier, expEpochID))
 	}
 
 	// mint coins, update supply
