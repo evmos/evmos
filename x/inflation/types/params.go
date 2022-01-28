@@ -113,7 +113,7 @@ func validateEpochsPerPeriod(i interface{}) error {
 	}
 
 	if v <= 0 {
-		return fmt.Errorf("max validators must be positive: %d", v)
+		return fmt.Errorf("epochs per period must be positive: %d", v)
 	}
 
 	return nil
