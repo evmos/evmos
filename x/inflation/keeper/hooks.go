@@ -28,11 +28,11 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 	// check if a period is over
 	period := k.GetPeriod(ctx)
-
-	if epochNumber-params.EpochsPerPeriod*int64(period) > params.EpochsPerPeriod {
+	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
+	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
-		newProvision := types.CalculateEpochMintProvision(params, k.GetPeriod(ctx))
+		newProvision := types.CalculateEpochMintProvision(params, k.GetPeriod(ctx), epochsPerPeriod)
 		k.SetEpochMintProvision(ctx, newProvision)
 	}
 
