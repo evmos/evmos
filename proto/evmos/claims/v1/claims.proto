@@ -1,0 +1,63 @@
+syntax = "proto3";
+package evmos.claims.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/claims/types";
+
+// Action defines the list of available actions to claim the airdrop tokens.
+enum Action {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // UNSPECIFIED defines an invalid action.
+  ACTION_UNSPECIFIED = 0
+      [ (gogoproto.enumvalue_customname) = "ActionUnspecified" ];
+  // VOTE defines a proposal vote.
+  ACTION_VOTE = 1 [ (gogoproto.enumvalue_customname) = "ActionVote" ];
+  // DELEGATE defines an staking delegation.
+  ACTION_DELEGATE = 2 [ (gogoproto.enumvalue_customname) = "ActionDelegate" ];
+  // EVM defines an EVM transaction.
+  ACTION_EVM = 3 [ (gogoproto.enumvalue_customname) = "ActionEVM" ];
+  // IBC Transfer defines a fungible token transfer transaction via IBC.
+  ACTION_IBC_TRANSFER = 4
+      [ (gogoproto.enumvalue_customname) = "ActionIBCTransfer" ];
+}
+
+// Claim marks defines the action, completed flag and the remaining claimable
+// amount for a given user. This is only used during client queries.
+message Claim {
+  // action enum
+  Action action = 1;
+  // true if the action has been completed
+  bool completed = 2;
+  // claimable token amount for the action. Zero if completed
+  string claimable_amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// ClaimsRecordAddress is the metadata of claims data per address
+message ClaimsRecordAddress {
+  // bech32 or hex address of claim user
+  string address = 1;
+  // total initial claimable amount for the user
+  string initial_claimable_amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // slice of the available actions completed
+  repeated bool actions_completed = 3;
+}
+
+// ClaimsRecord defines the initial claimable airdrop amount and the list of
+// completed actions to claim the tokens.
+message ClaimsRecord {
+  // total initial claimable amount for the user
+  string initial_claimable_amount = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // slice of the available actions completed
+  repeated bool actions_completed = 2;
+}

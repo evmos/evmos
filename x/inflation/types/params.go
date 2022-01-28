@@ -9,8 +9,6 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	"gopkg.in/yaml.v2"
-
-	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
 // Parameter store keys
@@ -20,8 +18,6 @@ var (
 	KeyEpochsPerPeriod        = []byte("KeyEpochsPerPeriod")
 	KeyExponentialCalculation = []byte("KeyExponentialCalculation")
 	KeyInflationDistribution  = []byte("KeyInflationDistribution")
-	KeyTeamAddress            = []byte("KeyTeamAddress")
-	KeyTeamVestingProvision   = []byte("KeyTeamVestingProvision")
 )
 
 // ParamTable for inflation module
@@ -31,30 +27,20 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 func NewParams(
 	mintDenom string,
-	epochIdentifier string,
-	epochsPerPeriod int64,
 	exponentialCalculation ExponentialCalculation,
 	inflationDistribution InflationDistribution,
-	teamAddress sdk.AccAddress,
-	teamVestingProvision sdk.Int,
 ) Params {
 	return Params{
 		MintDenom:              mintDenom,
-		EpochIdentifier:        epochIdentifier,
-		EpochsPerPeriod:        epochsPerPeriod,
 		ExponentialCalculation: exponentialCalculation,
 		InflationDistribution:  inflationDistribution,
-		TeamAddress:            teamAddress.String(),
-		TeamVestingProvision:   teamVestingProvision,
 	}
 }
 
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom:       evm.DefaultEVMDenom,
-		EpochIdentifier: "day", // 1 day
-		EpochsPerPeriod: 365,   // 1 year
+		MintDenom: evm.DefaultEVMDenom,
 		ExponentialCalculation: ExponentialCalculation{
 			A: sdk.NewDec(int64(300_000_000)),
 			R: sdk.NewDecWithPrec(5, 1), // 0.5
@@ -66,8 +52,6 @@ func DefaultParams() Params {
 			UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
 			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 		},
-		TeamAddress:          "",
-		TeamVestingProvision: sdk.NewInt(136_986), // 200000000/(4*365)
 	}
 }
 
@@ -81,12 +65,8 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyEpochIdentifier, &p.EpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
-		paramtypes.NewParamSetPair(KeyEpochsPerPeriod, &p.EpochsPerPeriod, validateEpochsPerPeriod),
 		paramtypes.NewParamSetPair(KeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
 		paramtypes.NewParamSetPair(KeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
-		paramtypes.NewParamSetPair(KeyTeamAddress, &p.TeamAddress, validateTeamAddress),
-		paramtypes.NewParamSetPair(KeyTeamVestingProvision, &p.TeamVestingProvision, validateTeamVestingProvision),
 	}
 }
 
@@ -101,19 +81,6 @@ func validateMintDenom(i interface{}) error {
 	}
 	if err := sdk.ValidateDenom(v); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func validateEpochsPerPeriod(i interface{}) error {
-	v, ok := i.(int64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v <= 0 {
-		return fmt.Errorf("max validators must be positive: %d", v)
 	}
 
 	return nil
@@ -182,54 +149,12 @@ func validateInflationDistribution(i interface{}) error {
 	return nil
 }
 
-func validateTeamAddress(i interface{}) error {
-	v, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == "" {
-		return nil
-	}
-
-	if _, err := sdk.AccAddressFromBech32(v); err != nil {
-		return fmt.Errorf("invalid address %w", err)
-	}
-
-	return nil
-}
-
-func validateTeamVestingProvision(i interface{}) error {
-	v, ok := i.(sdk.Int)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.LT(sdk.ZeroInt()) {
-		return errors.New("team vesting provision must not be negative")
-	}
-
-	return nil
-}
-
 func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
-		return err
-	}
-	if err := epochtypes.ValidateEpochIdentifierInterface(p.EpochIdentifier); err != nil {
-		return err
-	}
-	if err := validateEpochsPerPeriod(p.EpochsPerPeriod); err != nil {
 		return err
 	}
 	if err := validateExponentialCalculation(p.ExponentialCalculation); err != nil {
 		return err
 	}
-	if err := validateInflationDistribution(p.InflationDistribution); err != nil {
-		return err
-	}
-	if err := validateTeamAddress(p.TeamAddress); err != nil {
-		return err
-	}
-	return validateTeamVestingProvision(p.TeamVestingProvision)
+	return validateInflationDistribution(p.InflationDistribution)
 }

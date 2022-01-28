@@ -32,7 +32,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryIncentivesRequest is the request type for the Query/Incentives RPC method.
+// QueryIncentivesRequest is the request type for the Query/Incentives RPC
+// method.
 type QueryIncentivesRequest struct {
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -225,7 +226,8 @@ func (m *QueryIncentiveResponse) GetIncentive() Incentive {
 	return Incentive{}
 }
 
-// QueryGasMetersRequest is the request type for the Query/Incentives RPC method.
+// QueryGasMetersRequest is the request type for the Query/Incentives RPC
+// method.
 type QueryGasMetersRequest struct {
 	// contract is the hex contract address of a incentivized smart contract
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
@@ -810,7 +812,8 @@ type QueryClient interface {
 	GasMeters(ctx context.Context, in *QueryGasMetersRequest, opts ...grpc.CallOption) (*QueryGasMetersResponse, error)
 	// GasMeter Retrieves a active gas meter
 	GasMeter(ctx context.Context, in *QueryGasMeterRequest, opts ...grpc.CallOption) (*QueryGasMeterResponse, error)
-	// AllocationMeters retrieves active allocation meters for a given denomination
+	// AllocationMeters retrieves active allocation meters for a given
+	// denomination
 	AllocationMeters(ctx context.Context, in *QueryAllocationMetersRequest, opts ...grpc.CallOption) (*QueryAllocationMetersResponse, error)
 	// AllocationMeter Retrieves a active gas meter
 	AllocationMeter(ctx context.Context, in *QueryAllocationMeterRequest, opts ...grpc.CallOption) (*QueryAllocationMeterResponse, error)
@@ -899,7 +902,8 @@ type QueryServer interface {
 	GasMeters(context.Context, *QueryGasMetersRequest) (*QueryGasMetersResponse, error)
 	// GasMeter Retrieves a active gas meter
 	GasMeter(context.Context, *QueryGasMeterRequest) (*QueryGasMeterResponse, error)
-	// AllocationMeters retrieves active allocation meters for a given denomination
+	// AllocationMeters retrieves active allocation meters for a given
+	// denomination
 	AllocationMeters(context.Context, *QueryAllocationMetersRequest) (*QueryAllocationMetersResponse, error)
 	// AllocationMeter Retrieves a active gas meter
 	AllocationMeter(context.Context, *QueryAllocationMeterRequest) (*QueryAllocationMeterResponse, error)

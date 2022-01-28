@@ -1,9 +1,1490 @@
 swagger: '2.0'
 info:
-  title: Evmos Chain - Legacy REST and gRPC Gateway docs
-  description: 'A REST interface for state queries, legacy transactions'
+  title: Evmos Chain - gRPC Gateway docs
+  description: A REST interface for state queries and transactions
   version: 1.0.0
 paths:
+  '/evmos/claims/v1/claims_record/{address}':
+    get:
+      summary: ClaimsRecord returns the claims record for a given address
+      operationId: ClaimsRecord
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              initial_claimable_amount:
+                type: string
+                title: total initial claimable amount for the user
+              claims:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    action:
+                      title: action enum
+                      type: string
+                      enum:
+                        - ACTION_UNSPECIFIED
+                        - ACTION_VOTE
+                        - ACTION_DELEGATE
+                        - ACTION_EVM
+                        - ACTION_IBC_TRANSFER
+                      default: ACTION_UNSPECIFIED
+                      description: >-
+                        Action defines the list of available actions to claim
+                        the airdrop tokens.
+
+                         - ACTION_UNSPECIFIED: UNSPECIFIED defines an invalid action.
+                         - ACTION_VOTE: VOTE defines a proposal vote.
+                         - ACTION_DELEGATE: DELEGATE defines an staking delegation.
+                         - ACTION_EVM: EVM defines an EVM transaction.
+                         - ACTION_IBC_TRANSFER: IBC Transfer defines a fungible token transfer transaction via IBC.
+                    completed:
+                      type: boolean
+                      title: true if the action has been completed
+                    claimable_amount:
+                      type: string
+                      title: claimable token amount for the action. Zero if completed
+                  description: >-
+                    Claim marks defines the action, completed flag and the
+                    remaining claimable
+
+                    amount for a given user. This is only used during client
+                    queries.
+            description: >-
+              QueryClaimsRecordResponse is the response type for the
+              Query/ClaimsRecord RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /evmos/claims/v1/claims_records:
+    get:
+      summary: ClaimsRecords returns all the claims record
+      operationId: ClaimsRecords
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              claims:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                      title: bech32 or hex address of claim user
+                    initial_claimable_amount:
+                      type: string
+                      title: total initial claimable amount for the user
+                    actions_completed:
+                      type: array
+                      items:
+                        type: boolean
+                      title: slice of the available actions completed
+                  title: >-
+                    ClaimsRecordAddress is the metadata of claims data per
+                    address
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: >-
+              QueryClaimsRecordsResponse is the response type for the
+              Query/ClaimsRecords
+
+              RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending
+
+            order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /evmos/claims/v1/params:
+    get:
+      summary: Params returns the claims module parameters
+      operationId: ClaimsParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  enable_claims:
+                    type: boolean
+                    title: enable claiming process
+                  airdrop_start_time:
+                    type: string
+                    format: date-time
+                    title: timestamp of the airdrop start
+                  duration_until_decay:
+                    type: string
+                    title: duration until decay of claimable tokens begin
+                  duration_of_decay:
+                    type: string
+                    title: duration of the token claim decay period
+                  claims_denom:
+                    type: string
+                    title: denom of claimable coin
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /evmos/claims/v1/total_unclaimed:
+    get:
+      summary: TotalUnclaimed queries the total unclaimed tokens from the airdrop
+      operationId: TotalUnclaimed
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              coins:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                title: coins define the unclaimed coins
+            description: >-
+              QueryTotalUnclaimedResponse is the response type for the
+              Query/TotalUnclaimed
+
+              RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /evmos/epochs/v1/current_epoch:
+    get:
+      summary: CurrentEpoch provide current epoch of specified identifier
+      operationId: CurrentEpoch
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              current_epoch:
+                type: string
+                format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: identifier
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /evmos/epochs/v1/epochs:
+    get:
+      summary: EpochInfos provide running epochInfos
+      operationId: EpochInfos
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              epochs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    identifier:
+                      type: string
+                    start_time:
+                      type: string
+                      format: date-time
+                    duration:
+                      type: string
+                    current_epoch:
+                      type: string
+                      format: int64
+                    current_epoch_start_time:
+                      type: string
+                      format: date-time
+                    epoch_counting_started:
+                      type: boolean
+                    current_epoch_start_height:
+                      type: string
+                      format: int64
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending
+
+            order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /evmos/erc20/v1/params:
+    get:
+      summary: Params retrieves the erc20 module params
+      operationId: ERC20Params
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                type: object
+                properties:
+                  enable_erc20:
+                    type: boolean
+                    description: >-
+                      parameter to enable the intrarelaying of Cosmos coins <-->
+                      ERC20 tokens.
+                  enable_evm_hook:
+                    type: boolean
+                    description: >-
+                      parameter to enable the EVM hook to convert an ERC20 token
+                      to a Cosmos
+
+                      Coin by transferring the Tokens through a MsgEthereumTx to
+                      the
+
+                      ModuleAddress Ethereum address.
+                title: Params defines the erc20 module params
+            description: |-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /evmos/erc20/v1/token_pairs:
+    get:
+      summary: Retrieves registered token pairs
+      operationId: TokenPairs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              token_pairs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    erc20_address:
+                      type: string
+                      title: address of ERC20 contract token
+                    denom:
+                      type: string
+                      title: cosmos base denomination to be mapped to
+                    enabled:
+                      type: boolean
+                      title: shows token mapping enable status
+                    contract_owner:
+                      title: >-
+                        ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2
+                        external address)
+                      type: string
+                      enum:
+                        - OWNER_UNSPECIFIED
+                        - OWNER_MODULE
+                        - OWNER_EXTERNAL
+                      default: OWNER_UNSPECIFIED
+                      description: |-
+                        Owner enumerates the ownership of a ERC20 contract.
+
+                         - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+                         - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+                         - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+                  description: >-
+                    TokenPair defines an instance that records pairing
+                    consisting of a Cosmos
+
+                    native Coin and an ERC20 token address.
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: >-
+              QueryTokenPairsResponse is the response type for the
+              Query/TokenPairs RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending
+
+            order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/evmos/erc20/v1/token_pairs/{token}':
+    get:
+      summary: Retrieves a registered token pair
+      operationId: TokenPair
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              token_pair:
+                type: object
+                properties:
+                  erc20_address:
+                    type: string
+                    title: address of ERC20 contract token
+                  denom:
+                    type: string
+                    title: cosmos base denomination to be mapped to
+                  enabled:
+                    type: boolean
+                    title: shows token mapping enable status
+                  contract_owner:
+                    title: >-
+                      ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2
+                      external address)
+                    type: string
+                    enum:
+                      - OWNER_UNSPECIFIED
+                      - OWNER_MODULE
+                      - OWNER_EXTERNAL
+                    default: OWNER_UNSPECIFIED
+                    description: |-
+                      Owner enumerates the ownership of a ERC20 contract.
+
+                       - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+                       - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+                       - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+                description: >-
+                  TokenPair defines an instance that records pairing consisting
+                  of a Cosmos
+
+                  native Coin and an ERC20 token address.
+            description: >-
+              QueryTokenPairResponse is the response type for the
+              Query/TokenPair RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: token
+          description: >-
+            token identifier can be either the hex contract address of the ERC20
+            or the
+
+            Cosmos base denomination
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /evmos/incentives/v1/allocation_meters:
+    get:
+      summary: |-
+        AllocationMeters retrieves active allocation meters for a given
+        denomination
+      operationId: AllocationMeters
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              allocation_meters:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: |-
+              QueryAllocationMetersResponse is the response type for the
+              Query/AllocationMeters RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending
+
+            order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/evmos/incentives/v1/allocation_meters/{denom}':
+    get:
+      summary: AllocationMeter Retrieves a active gas meter
+      operationId: AllocationMeter
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              allocation_meter:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: |-
+              QueryAllocationMeterResponse is the response type for the
+              Query/AllocationMeter RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom
+          description: denom is the coin denom to query an allocation meter for.
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  '/evmos/incentives/v1/gas_meters/{contract}':
+    get:
+      summary: GasMeters retrieves active gas meters for a given contract
+      operationId: GasMeters
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              gas_meters:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    contract:
+                      type: string
+                      title: hex address of the incentivized contract
+                    participant:
+                      type: string
+                      title: participant address that interacts with the incentive
+                    cumulative_gas:
+                      type: string
+                      format: uint64
+                      title: cumulative gas spent during the epoch
+                  title: >-
+                    GasMeter tracks the cumulative gas spent per participant in
+                    one epoch
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: >-
+              QueryGasMetersResponse is the response type for the
+              Query/Incentives RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: contract
+          description: >-
+            contract is the hex contract address of a incentivized smart
+            contract
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending
+
+            order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/evmos/incentives/v1/gas_meters/{contract}/{participant}':
+    get:
+      summary: GasMeter Retrieves a active gas meter
+      operationId: GasMeter
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              gas_meter:
+                type: string
+                format: uint64
+            description: >-
+              QueryGasMeterResponse is the response type for the Query/Incentive
+              RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: contract
+          description: contract identifier is the hex contract address of a contract
+          in: path
+          required: true
+          type: string
+        - name: participant
+          description: participant identifier is the hex address of a user
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /evmos/incentives/v1/incentives:
+    get:
+      summary: Incentives retrieves registered incentives
+      operationId: Incentives
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              incentives:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    contract:
+                      type: string
+                      title: contract address
+                    allocations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          DecCoin defines a token with a denomination and a
+                          decimal amount.
+
+
+                          NOTE: The amount field is an Dec which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                      title: denoms and percentage of rewards to be allocated
+                    epochs:
+                      type: integer
+                      format: int64
+                      title: number of remaining epochs
+                    start_time:
+                      type: string
+                      format: date-time
+                      title: distribution start time
+                    total_gas:
+                      type: string
+                      format: uint64
+                      title: >-
+                        cumulative gas spent by all gasmeters of the incentive
+                        during the epoch
+                  title: >-
+                    Incentive defines an instance that organizes distribution
+                    conditions for a
+
+                    given smart contract
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            description: >-
+              QueryIncentivesResponse is the response type for the
+              Query/Incentives RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending
+
+            order.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/evmos/incentives/v1/incentives/{contract}':
+    get:
+      summary: Incentive retrieves a registered incentive
+      operationId: Incentive
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              incentive:
+                type: object
+                properties:
+                  contract:
+                    type: string
+                    title: contract address
+                  allocations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        DecCoin defines a token with a denomination and a
+                        decimal amount.
+
+
+                        NOTE: The amount field is an Dec which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    title: denoms and percentage of rewards to be allocated
+                  epochs:
+                    type: integer
+                    format: int64
+                    title: number of remaining epochs
+                  start_time:
+                    type: string
+                    format: date-time
+                    title: distribution start time
+                  total_gas:
+                    type: string
+                    format: uint64
+                    title: >-
+                      cumulative gas spent by all gasmeters of the incentive
+                      during the epoch
+                title: >-
+                  Incentive defines an instance that organizes distribution
+                  conditions for a
+
+                  given smart contract
+            description: >-
+              QueryIncentiveResponse is the response type for the
+              Query/Incentive RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: contract
+          description: contract identifier is the hex contract address of a contract
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /evmos/incentives/v1/params:
+    get:
+      summary: Params retrieves the incentives module params
+      operationId: IncentivesParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                type: object
+                properties:
+                  enable_incentives:
+                    type: boolean
+                    title: parameter to enable incentives
+                  allocation_limit:
+                    type: string
+                    title: >-
+                      maximum percentage an incentive can allocate per
+                      denomination
+                  incentives_epoch_identifier:
+                    type: string
+                    title: identifier for the epochs module hooks
+                  reward_scaler:
+                    type: string
+                    title: scaling factor for capping rewards
+                title: Params defines the incentives module params
+            description: |-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   '/ethermint/evm/v1/account/{address}':
     get:
       summary: Account queries an Ethereum account.
@@ -1013,7 +2494,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -3448,7 +4931,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -4186,7 +5671,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -4257,7 +5744,7 @@ paths:
         - Query
   /cosmos/bank/v1beta1/denoms_metadata:
     get:
-      summary: >-
+      summary: |-
         DenomsMetadata queries the client metadata for all registered coin
         denominations.
       operationId: DenomsMetadata
@@ -4359,9 +5846,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryDenomsMetadataResponse is the response type for the
-              Query/DenomsMetadata RPC
+              Query/DenomsMetadata
 
-              method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -4434,7 +5921,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -4519,9 +6008,9 @@ paths:
                   a basic token.
             description: >-
               QueryDenomMetadataResponse is the response type for the
-              Query/DenomMetadata RPC
+              Query/DenomMetadata
 
-              method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -4732,7 +6221,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -5441,7 +6932,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -6431,7 +7924,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -7209,7 +8704,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -8026,7 +9523,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -8637,7 +10136,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -8670,12 +10171,16 @@ paths:
                           type: string
                           description: >-
                             validator_src_address is the validator redelegation
-                            source operator address.
+                            source operator
+
+                            address.
                         validator_dst_address:
                           type: string
                           description: >-
                             validator_dst_address is the validator redelegation
-                            destination operator address.
+                            destination operator
+
+                            address.
                         entries:
                           type: array
                           items:
@@ -8703,6 +10208,7 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
+
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -8744,6 +10250,7 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
+
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -9043,7 +10550,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -9099,7 +10608,9 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at completion.
+                              scheduled to receive at
+
+                              completion.
                           balance:
                             type: string
                             description: >-
@@ -9381,7 +10892,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -9408,7 +10921,9 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech encoded in JSON.
+                        operator; bech
+
+                        encoded in JSON.
                     consensus_pubkey:
                       type: object
                       properties:
@@ -9590,7 +11105,9 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or not.
+                        from bonded status or
+
+                        not.
                     status:
                       description: >-
                         status is the validator status
@@ -9644,13 +11161,17 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator has begun unbonding.
+                        which this validator
+
+                        has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to complete unbonding.
+                        the validator to
+
+                        complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -9658,7 +11179,9 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for creating a validator.
+                            rates to be used for
+
+                            creating a validator.
                           type: object
                           properties:
                             rate:
@@ -9670,13 +11193,16 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever charge, as a fraction.
+                                which validator can ever
+
+                                charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator commission, as a
-                                fraction.
+                                increase of the validator
+
+                                commission, as a fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -9687,7 +11213,9 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self delegation.
+                        minimum self
+
+                        delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -9977,7 +11505,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -10002,7 +11532,9 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech encoded in JSON.
+                      operator; bech
+
+                      encoded in JSON.
                   consensus_pubkey:
                     type: object
                     properties:
@@ -10182,7 +11714,9 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or not.
+                      bonded status or
+
+                      not.
                   status:
                     description: >-
                       status is the validator status
@@ -10236,13 +11770,17 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator has begun unbonding.
+                      which this validator
+
+                      has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to complete unbonding.
+                      validator to
+
+                      complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -10250,7 +11788,9 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for creating a validator.
+                          to be used for
+
+                          creating a validator.
                         type: object
                         properties:
                           rate:
@@ -10262,12 +11802,16 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever charge, as a fraction.
+                              validator can ever
+
+                              charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator commission, as a fraction.
+                              of the validator
+
+                              commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -10278,7 +11822,9 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self delegation.
+                      minimum self
+
+                      delegation.
                 description: >-
                   Validator defines a validator, together with the total amount
                   of the
@@ -10536,12 +12082,12 @@ paths:
                             format: uint64
                         description: >-
                           Consensus captures the consensus rules for processing
-                          a block in the blockchain,
+                          a block in the
 
-                          including all blockchain data structures and the rules
-                          of the application's
+                          blockchain, including all blockchain data structures
+                          and the rules of the
 
-                          state transition machine.
+                          application's state transition machine.
                       chain_id:
                         type: string
                       height:
@@ -10607,7 +12153,9 @@ paths:
                           type: string
                           description: >-
                             operator_address defines the address of the
-                            validator's operator; bech encoded in JSON.
+                            validator's operator; bech
+
+                            encoded in JSON.
                         consensus_pubkey:
                           type: object
                           properties:
@@ -10790,7 +12338,9 @@ paths:
                           type: boolean
                           description: >-
                             jailed defined whether the validator has been jailed
-                            from bonded status or not.
+                            from bonded status or
+
+                            not.
                         status:
                           description: >-
                             status is the validator status
@@ -10844,13 +12394,17 @@ paths:
                           format: int64
                           description: >-
                             unbonding_height defines, if unbonding, the height
-                            at which this validator has begun unbonding.
+                            at which this validator
+
+                            has begun unbonding.
                         unbonding_time:
                           type: string
                           format: date-time
                           description: >-
                             unbonding_time defines, if unbonding, the min time
-                            for the validator to complete unbonding.
+                            for the validator to
+
+                            complete unbonding.
                         commission:
                           description: commission defines the commission parameters.
                           type: object
@@ -10858,7 +12412,9 @@ paths:
                             commission_rates:
                               description: >-
                                 commission_rates defines the initial commission
-                                rates to be used for creating a validator.
+                                rates to be used for
+
+                                creating a validator.
                               type: object
                               properties:
                                 rate:
@@ -10870,14 +12426,16 @@ paths:
                                   type: string
                                   description: >-
                                     max_rate defines the maximum commission rate
-                                    which validator can ever charge, as a
-                                    fraction.
+                                    which validator can ever
+
+                                    charge, as a fraction.
                                 max_change_rate:
                                   type: string
                                   description: >-
                                     max_change_rate defines the maximum daily
-                                    increase of the validator commission, as a
-                                    fraction.
+                                    increase of the validator
+
+                                    commission, as a fraction.
                             update_time:
                               type: string
                               format: date-time
@@ -10888,7 +12446,9 @@ paths:
                           type: string
                           description: >-
                             min_self_delegation is the validator's self declared
-                            minimum self delegation.
+                            minimum self
+
+                            delegation.
                       description: >-
                         Validator defines a validator, together with the total
                         amount of the
@@ -11141,7 +12701,9 @@ paths:
                     format: int64
                     description: >-
                       max_entries is the max entries for either unbonding
-                      delegation or redelegation (per pair/trio).
+                      delegation or
+
+                      redelegation (per pair/trio).
                   historical_entries:
                     type: integer
                     format: int64
@@ -11574,7 +13136,9 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech encoded in JSON.
+                        operator; bech
+
+                        encoded in JSON.
                     consensus_pubkey:
                       type: object
                       properties:
@@ -11756,7 +13320,9 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or not.
+                        from bonded status or
+
+                        not.
                     status:
                       description: >-
                         status is the validator status
@@ -11810,13 +13376,17 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator has begun unbonding.
+                        which this validator
+
+                        has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to complete unbonding.
+                        the validator to
+
+                        complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -11824,7 +13394,9 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for creating a validator.
+                            rates to be used for
+
+                            creating a validator.
                           type: object
                           properties:
                             rate:
@@ -11836,13 +13408,16 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever charge, as a fraction.
+                                which validator can ever
+
+                                charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator commission, as a
-                                fraction.
+                                increase of the validator
+
+                                commission, as a fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -11853,7 +13428,9 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self delegation.
+                        minimum self
+
+                        delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -12143,7 +13720,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -12166,7 +13745,9 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech encoded in JSON.
+                      operator; bech
+
+                      encoded in JSON.
                   consensus_pubkey:
                     type: object
                     properties:
@@ -12346,7 +13927,9 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or not.
+                      bonded status or
+
+                      not.
                   status:
                     description: >-
                       status is the validator status
@@ -12400,13 +13983,17 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator has begun unbonding.
+                      which this validator
+
+                      has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to complete unbonding.
+                      validator to
+
+                      complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -12414,7 +14001,9 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for creating a validator.
+                          to be used for
+
+                          creating a validator.
                         type: object
                         properties:
                           rate:
@@ -12426,12 +14015,16 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever charge, as a fraction.
+                              validator can ever
+
+                              charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator commission, as a fraction.
+                              of the validator
+
+                              commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -12442,7 +14035,9 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self delegation.
+                      minimum self
+
+                      delegation.
                 description: >-
                   Validator defines a validator, together with the total amount
                   of the
@@ -12991,7 +14586,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -13306,7 +14903,9 @@ paths:
                           type: string
                           description: >-
                             initial_balance defines the tokens initially
-                            scheduled to receive at completion.
+                            scheduled to receive at
+
+                            completion.
                         balance:
                           type: string
                           description: balance defines the tokens to receive at completion.
@@ -13574,7 +15173,9 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at completion.
+                              scheduled to receive at
+
+                              completion.
                           balance:
                             type: string
                             description: >-
@@ -13856,7 +15457,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
           in: query
           required: false
           type: boolean
@@ -13902,7 +15505,7 @@ definitions:
           is set.
       reverse:
         type: boolean
-        description: >-
+        description: |-
           reverse is set to true if results are to be returned in the descending
           order.
     description: |-
@@ -13936,6 +15539,1154 @@ definitions:
                repeated Bar results = 1;
                PageResponse page = 2;
        }
+  cosmos.base.v1beta1.Coin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      Coin defines a token with a denomination and an amount.
+
+      NOTE: The amount field is an Int which implements the custom method
+      signatures required by gogoproto.
+  evmos.claims.v1.Action:
+    type: string
+    enum:
+      - ACTION_UNSPECIFIED
+      - ACTION_VOTE
+      - ACTION_DELEGATE
+      - ACTION_EVM
+      - ACTION_IBC_TRANSFER
+    default: ACTION_UNSPECIFIED
+    description: |-
+      Action defines the list of available actions to claim the airdrop tokens.
+
+       - ACTION_UNSPECIFIED: UNSPECIFIED defines an invalid action.
+       - ACTION_VOTE: VOTE defines a proposal vote.
+       - ACTION_DELEGATE: DELEGATE defines an staking delegation.
+       - ACTION_EVM: EVM defines an EVM transaction.
+       - ACTION_IBC_TRANSFER: IBC Transfer defines a fungible token transfer transaction via IBC.
+  evmos.claims.v1.Claim:
+    type: object
+    properties:
+      action:
+        title: action enum
+        type: string
+        enum:
+          - ACTION_UNSPECIFIED
+          - ACTION_VOTE
+          - ACTION_DELEGATE
+          - ACTION_EVM
+          - ACTION_IBC_TRANSFER
+        default: ACTION_UNSPECIFIED
+        description: >-
+          Action defines the list of available actions to claim the airdrop
+          tokens.
+
+           - ACTION_UNSPECIFIED: UNSPECIFIED defines an invalid action.
+           - ACTION_VOTE: VOTE defines a proposal vote.
+           - ACTION_DELEGATE: DELEGATE defines an staking delegation.
+           - ACTION_EVM: EVM defines an EVM transaction.
+           - ACTION_IBC_TRANSFER: IBC Transfer defines a fungible token transfer transaction via IBC.
+      completed:
+        type: boolean
+        title: true if the action has been completed
+      claimable_amount:
+        type: string
+        title: claimable token amount for the action. Zero if completed
+    description: |-
+      Claim marks defines the action, completed flag and the remaining claimable
+      amount for a given user. This is only used during client queries.
+  evmos.claims.v1.ClaimsRecordAddress:
+    type: object
+    properties:
+      address:
+        type: string
+        title: bech32 or hex address of claim user
+      initial_claimable_amount:
+        type: string
+        title: total initial claimable amount for the user
+      actions_completed:
+        type: array
+        items:
+          type: boolean
+        title: slice of the available actions completed
+    title: ClaimsRecordAddress is the metadata of claims data per address
+  evmos.claims.v1.Params:
+    type: object
+    properties:
+      enable_claims:
+        type: boolean
+        title: enable claiming process
+      airdrop_start_time:
+        type: string
+        format: date-time
+        title: timestamp of the airdrop start
+      duration_until_decay:
+        type: string
+        title: duration until decay of claimable tokens begin
+      duration_of_decay:
+        type: string
+        title: duration of the token claim decay period
+      claims_denom:
+        type: string
+        title: denom of claimable coin
+    description: Params defines the claims module's parameters.
+  evmos.claims.v1.QueryClaimsRecordResponse:
+    type: object
+    properties:
+      initial_claimable_amount:
+        type: string
+        title: total initial claimable amount for the user
+      claims:
+        type: array
+        items:
+          type: object
+          properties:
+            action:
+              title: action enum
+              type: string
+              enum:
+                - ACTION_UNSPECIFIED
+                - ACTION_VOTE
+                - ACTION_DELEGATE
+                - ACTION_EVM
+                - ACTION_IBC_TRANSFER
+              default: ACTION_UNSPECIFIED
+              description: >-
+                Action defines the list of available actions to claim the
+                airdrop tokens.
+
+                 - ACTION_UNSPECIFIED: UNSPECIFIED defines an invalid action.
+                 - ACTION_VOTE: VOTE defines a proposal vote.
+                 - ACTION_DELEGATE: DELEGATE defines an staking delegation.
+                 - ACTION_EVM: EVM defines an EVM transaction.
+                 - ACTION_IBC_TRANSFER: IBC Transfer defines a fungible token transfer transaction via IBC.
+            completed:
+              type: boolean
+              title: true if the action has been completed
+            claimable_amount:
+              type: string
+              title: claimable token amount for the action. Zero if completed
+          description: >-
+            Claim marks defines the action, completed flag and the remaining
+            claimable
+
+            amount for a given user. This is only used during client queries.
+    description: >-
+      QueryClaimsRecordResponse is the response type for the Query/ClaimsRecord
+      RPC
+
+      method.
+  evmos.claims.v1.QueryClaimsRecordsResponse:
+    type: object
+    properties:
+      claims:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+              title: bech32 or hex address of claim user
+            initial_claimable_amount:
+              type: string
+              title: total initial claimable amount for the user
+            actions_completed:
+              type: array
+              items:
+                type: boolean
+              title: slice of the available actions completed
+          title: ClaimsRecordAddress is the metadata of claims data per address
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    description: >-
+      QueryClaimsRecordsResponse is the response type for the
+      Query/ClaimsRecords
+
+      RPC method.
+  evmos.claims.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          enable_claims:
+            type: boolean
+            title: enable claiming process
+          airdrop_start_time:
+            type: string
+            format: date-time
+            title: timestamp of the airdrop start
+          duration_until_decay:
+            type: string
+            title: duration until decay of claimable tokens begin
+          duration_of_decay:
+            type: string
+            title: duration of the token claim decay period
+          claims_denom:
+            type: string
+            title: denom of claimable coin
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  evmos.claims.v1.QueryTotalUnclaimedResponse:
+    type: object
+    properties:
+      coins:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a token with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+        title: coins define the unclaimed coins
+    description: >-
+      QueryTotalUnclaimedResponse is the response type for the
+      Query/TotalUnclaimed
+
+      RPC method.
+  google.protobuf.Any:
+    type: object
+    properties:
+      type_url:
+        type: string
+        description: >-
+          A URL/resource name that uniquely identifies the type of the
+          serialized
+
+          protocol buffer message. This string must contain at least
+
+          one "/" character. The last segment of the URL's path must represent
+
+          the fully qualified name of the type (as in
+
+          `path/google.protobuf.Duration`). The name should be in a canonical
+          form
+
+          (e.g., leading "." is not accepted).
+
+
+          In practice, teams usually precompile into the binary all types that
+          they
+
+          expect it to use in the context of Any. However, for URLs which use
+          the
+
+          scheme `http`, `https`, or no scheme, one can optionally set up a type
+
+          server that maps type URLs to message definitions as follows:
+
+
+          * If no scheme is provided, `https` is assumed.
+
+          * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+            value in binary format, or produce an error.
+          * Applications are allowed to cache lookup results based on the
+            URL, or have them precompiled into a binary to avoid any
+            lookup. Therefore, binary compatibility needs to be preserved
+            on changes to types. (Use versioned type names to manage
+            breaking changes.)
+
+          Note: this functionality is not currently available in the official
+
+          protobuf release, and it is not used for type URLs beginning with
+
+          type.googleapis.com.
+
+
+          Schemes other than `http`, `https` (or the empty scheme) might be
+
+          used with implementation specific semantics.
+      value:
+        type: string
+        format: byte
+        description: >-
+          Must be a valid serialized protocol buffer of the above specified
+          type.
+    description: >-
+      `Any` contains an arbitrary serialized protocol buffer message along with
+      a
+
+      URL that describes the type of the serialized message.
+
+
+      Protobuf library provides support to pack/unpack Any values in the form
+
+      of utility functions or additional generated methods of the Any type.
+
+
+      Example 1: Pack and unpack a message in C++.
+
+          Foo foo = ...;
+          Any any;
+          any.PackFrom(foo);
+          ...
+          if (any.UnpackTo(&foo)) {
+            ...
+          }
+
+      Example 2: Pack and unpack a message in Java.
+
+          Foo foo = ...;
+          Any any = Any.pack(foo);
+          ...
+          if (any.is(Foo.class)) {
+            foo = any.unpack(Foo.class);
+          }
+
+       Example 3: Pack and unpack a message in Python.
+
+          foo = Foo(...)
+          any = Any()
+          any.Pack(foo)
+          ...
+          if any.Is(Foo.DESCRIPTOR):
+            any.Unpack(foo)
+            ...
+
+       Example 4: Pack and unpack a message in Go
+
+           foo := &pb.Foo{...}
+           any, err := ptypes.MarshalAny(foo)
+           ...
+           foo := &pb.Foo{}
+           if err := ptypes.UnmarshalAny(any, foo); err != nil {
+             ...
+           }
+
+      The pack methods provided by protobuf library will by default use
+
+      'type.googleapis.com/full.type.name' as the type URL and the unpack
+
+      methods only use the fully qualified type name after the last '/'
+
+      in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+      name "y.z".
+
+
+
+      JSON
+
+      ====
+
+      The JSON representation of an `Any` value uses the regular
+
+      representation of the deserialized, embedded message, with an
+
+      additional field `@type` which contains the type URL. Example:
+
+          package google.profile;
+          message Person {
+            string first_name = 1;
+            string last_name = 2;
+          }
+
+          {
+            "@type": "type.googleapis.com/google.profile.Person",
+            "firstName": <string>,
+            "lastName": <string>
+          }
+
+      If the embedded message type is well-known and has a custom JSON
+
+      representation, that representation will be embedded adding a field
+
+      `value` which holds the custom JSON in addition to the `@type`
+
+      field. Example (for message [google.protobuf.Duration][]):
+
+          {
+            "@type": "type.googleapis.com/google.protobuf.Duration",
+            "value": "1.212s"
+          }
+  grpc.gateway.runtime.Error:
+    type: object
+    properties:
+      error:
+        type: string
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          properties:
+            type_url:
+              type: string
+              description: >-
+                A URL/resource name that uniquely identifies the type of the
+                serialized
+
+                protocol buffer message. This string must contain at least
+
+                one "/" character. The last segment of the URL's path must
+                represent
+
+                the fully qualified name of the type (as in
+
+                `path/google.protobuf.Duration`). The name should be in a
+                canonical form
+
+                (e.g., leading "." is not accepted).
+
+
+                In practice, teams usually precompile into the binary all types
+                that they
+
+                expect it to use in the context of Any. However, for URLs which
+                use the
+
+                scheme `http`, `https`, or no scheme, one can optionally set up
+                a type
+
+                server that maps type URLs to message definitions as follows:
+
+
+                * If no scheme is provided, `https` is assumed.
+
+                * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+                  value in binary format, or produce an error.
+                * Applications are allowed to cache lookup results based on the
+                  URL, or have them precompiled into a binary to avoid any
+                  lookup. Therefore, binary compatibility needs to be preserved
+                  on changes to types. (Use versioned type names to manage
+                  breaking changes.)
+
+                Note: this functionality is not currently available in the
+                official
+
+                protobuf release, and it is not used for type URLs beginning
+                with
+
+                type.googleapis.com.
+
+
+                Schemes other than `http`, `https` (or the empty scheme) might
+                be
+
+                used with implementation specific semantics.
+            value:
+              type: string
+              format: byte
+              description: >-
+                Must be a valid serialized protocol buffer of the above
+                specified type.
+          description: >-
+            `Any` contains an arbitrary serialized protocol buffer message along
+            with a
+
+            URL that describes the type of the serialized message.
+
+
+            Protobuf library provides support to pack/unpack Any values in the
+            form
+
+            of utility functions or additional generated methods of the Any
+            type.
+
+
+            Example 1: Pack and unpack a message in C++.
+
+                Foo foo = ...;
+                Any any;
+                any.PackFrom(foo);
+                ...
+                if (any.UnpackTo(&foo)) {
+                  ...
+                }
+
+            Example 2: Pack and unpack a message in Java.
+
+                Foo foo = ...;
+                Any any = Any.pack(foo);
+                ...
+                if (any.is(Foo.class)) {
+                  foo = any.unpack(Foo.class);
+                }
+
+             Example 3: Pack and unpack a message in Python.
+
+                foo = Foo(...)
+                any = Any()
+                any.Pack(foo)
+                ...
+                if any.Is(Foo.DESCRIPTOR):
+                  any.Unpack(foo)
+                  ...
+
+             Example 4: Pack and unpack a message in Go
+
+                 foo := &pb.Foo{...}
+                 any, err := ptypes.MarshalAny(foo)
+                 ...
+                 foo := &pb.Foo{}
+                 if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                   ...
+                 }
+
+            The pack methods provided by protobuf library will by default use
+
+            'type.googleapis.com/full.type.name' as the type URL and the unpack
+
+            methods only use the fully qualified type name after the last '/'
+
+            in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+            name "y.z".
+
+
+
+            JSON
+
+            ====
+
+            The JSON representation of an `Any` value uses the regular
+
+            representation of the deserialized, embedded message, with an
+
+            additional field `@type` which contains the type URL. Example:
+
+                package google.profile;
+                message Person {
+                  string first_name = 1;
+                  string last_name = 2;
+                }
+
+                {
+                  "@type": "type.googleapis.com/google.profile.Person",
+                  "firstName": <string>,
+                  "lastName": <string>
+                }
+
+            If the embedded message type is well-known and has a custom JSON
+
+            representation, that representation will be embedded adding a field
+
+            `value` which holds the custom JSON in addition to the `@type`
+
+            field. Example (for message [google.protobuf.Duration][]):
+
+                {
+                  "@type": "type.googleapis.com/google.protobuf.Duration",
+                  "value": "1.212s"
+                }
+  evmos.epochs.v1.EpochInfo:
+    type: object
+    properties:
+      identifier:
+        type: string
+      start_time:
+        type: string
+        format: date-time
+      duration:
+        type: string
+      current_epoch:
+        type: string
+        format: int64
+      current_epoch_start_time:
+        type: string
+        format: date-time
+      epoch_counting_started:
+        type: boolean
+      current_epoch_start_height:
+        type: string
+        format: int64
+  evmos.epochs.v1.QueryCurrentEpochResponse:
+    type: object
+    properties:
+      current_epoch:
+        type: string
+        format: int64
+  evmos.epochs.v1.QueryEpochsInfoResponse:
+    type: object
+    properties:
+      epochs:
+        type: array
+        items:
+          type: object
+          properties:
+            identifier:
+              type: string
+            start_time:
+              type: string
+              format: date-time
+            duration:
+              type: string
+            current_epoch:
+              type: string
+              format: int64
+            current_epoch_start_time:
+              type: string
+              format: date-time
+            epoch_counting_started:
+              type: boolean
+            current_epoch_start_height:
+              type: string
+              format: int64
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  evmos.erc20.v1.Owner:
+    type: string
+    enum:
+      - OWNER_UNSPECIFIED
+      - OWNER_MODULE
+      - OWNER_EXTERNAL
+    default: OWNER_UNSPECIFIED
+    description: |-
+      Owner enumerates the ownership of a ERC20 contract.
+
+       - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+       - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+       - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+  evmos.erc20.v1.Params:
+    type: object
+    properties:
+      enable_erc20:
+        type: boolean
+        description: >-
+          parameter to enable the intrarelaying of Cosmos coins <--> ERC20
+          tokens.
+      enable_evm_hook:
+        type: boolean
+        description: |-
+          parameter to enable the EVM hook to convert an ERC20 token to a Cosmos
+          Coin by transferring the Tokens through a MsgEthereumTx to the
+          ModuleAddress Ethereum address.
+    title: Params defines the erc20 module params
+  evmos.erc20.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        type: object
+        properties:
+          enable_erc20:
+            type: boolean
+            description: >-
+              parameter to enable the intrarelaying of Cosmos coins <--> ERC20
+              tokens.
+          enable_evm_hook:
+            type: boolean
+            description: >-
+              parameter to enable the EVM hook to convert an ERC20 token to a
+              Cosmos
+
+              Coin by transferring the Tokens through a MsgEthereumTx to the
+
+              ModuleAddress Ethereum address.
+        title: Params defines the erc20 module params
+    description: |-
+      QueryParamsResponse is the response type for the Query/Params RPC
+      method.
+  evmos.erc20.v1.QueryTokenPairResponse:
+    type: object
+    properties:
+      token_pair:
+        type: object
+        properties:
+          erc20_address:
+            type: string
+            title: address of ERC20 contract token
+          denom:
+            type: string
+            title: cosmos base denomination to be mapped to
+          enabled:
+            type: boolean
+            title: shows token mapping enable status
+          contract_owner:
+            title: >-
+              ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external
+              address)
+            type: string
+            enum:
+              - OWNER_UNSPECIFIED
+              - OWNER_MODULE
+              - OWNER_EXTERNAL
+            default: OWNER_UNSPECIFIED
+            description: |-
+              Owner enumerates the ownership of a ERC20 contract.
+
+               - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+               - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+               - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+        description: >-
+          TokenPair defines an instance that records pairing consisting of a
+          Cosmos
+
+          native Coin and an ERC20 token address.
+    description: |-
+      QueryTokenPairResponse is the response type for the Query/TokenPair RPC
+      method.
+  evmos.erc20.v1.QueryTokenPairsResponse:
+    type: object
+    properties:
+      token_pairs:
+        type: array
+        items:
+          type: object
+          properties:
+            erc20_address:
+              type: string
+              title: address of ERC20 contract token
+            denom:
+              type: string
+              title: cosmos base denomination to be mapped to
+            enabled:
+              type: boolean
+              title: shows token mapping enable status
+            contract_owner:
+              title: >-
+                ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external
+                address)
+              type: string
+              enum:
+                - OWNER_UNSPECIFIED
+                - OWNER_MODULE
+                - OWNER_EXTERNAL
+              default: OWNER_UNSPECIFIED
+              description: |-
+                Owner enumerates the ownership of a ERC20 contract.
+
+                 - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+                 - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+                 - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+          description: >-
+            TokenPair defines an instance that records pairing consisting of a
+            Cosmos
+
+            native Coin and an ERC20 token address.
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    description: |-
+      QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
+      method.
+  evmos.erc20.v1.TokenPair:
+    type: object
+    properties:
+      erc20_address:
+        type: string
+        title: address of ERC20 contract token
+      denom:
+        type: string
+        title: cosmos base denomination to be mapped to
+      enabled:
+        type: boolean
+        title: shows token mapping enable status
+      contract_owner:
+        title: >-
+          ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external
+          address)
+        type: string
+        enum:
+          - OWNER_UNSPECIFIED
+          - OWNER_MODULE
+          - OWNER_EXTERNAL
+        default: OWNER_UNSPECIFIED
+        description: |-
+          Owner enumerates the ownership of a ERC20 contract.
+
+           - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
+           - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
+           - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
+    description: |-
+      TokenPair defines an instance that records pairing consisting of a Cosmos
+      native Coin and an ERC20 token address.
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a token with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
+      signatures required by gogoproto.
+  evmos.incentives.v1.GasMeter:
+    type: object
+    properties:
+      contract:
+        type: string
+        title: hex address of the incentivized contract
+      participant:
+        type: string
+        title: participant address that interacts with the incentive
+      cumulative_gas:
+        type: string
+        format: uint64
+        title: cumulative gas spent during the epoch
+    title: GasMeter tracks the cumulative gas spent per participant in one epoch
+  evmos.incentives.v1.Incentive:
+    type: object
+    properties:
+      contract:
+        type: string
+        title: contract address
+      allocations:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+        title: denoms and percentage of rewards to be allocated
+      epochs:
+        type: integer
+        format: int64
+        title: number of remaining epochs
+      start_time:
+        type: string
+        format: date-time
+        title: distribution start time
+      total_gas:
+        type: string
+        format: uint64
+        title: >-
+          cumulative gas spent by all gasmeters of the incentive during the
+          epoch
+    title: |-
+      Incentive defines an instance that organizes distribution conditions for a
+      given smart contract
+  evmos.incentives.v1.Params:
+    type: object
+    properties:
+      enable_incentives:
+        type: boolean
+        title: parameter to enable incentives
+      allocation_limit:
+        type: string
+        title: maximum percentage an incentive can allocate per denomination
+      incentives_epoch_identifier:
+        type: string
+        title: identifier for the epochs module hooks
+      reward_scaler:
+        type: string
+        title: scaling factor for capping rewards
+    title: Params defines the incentives module params
+  evmos.incentives.v1.QueryAllocationMeterResponse:
+    type: object
+    properties:
+      allocation_meter:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          DecCoin defines a token with a denomination and a decimal amount.
+
+          NOTE: The amount field is an Dec which implements the custom method
+          signatures required by gogoproto.
+    description: |-
+      QueryAllocationMeterResponse is the response type for the
+      Query/AllocationMeter RPC method.
+  evmos.incentives.v1.QueryAllocationMetersResponse:
+    type: object
+    properties:
+      allocation_meters:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    description: |-
+      QueryAllocationMetersResponse is the response type for the
+      Query/AllocationMeters RPC method.
+  evmos.incentives.v1.QueryGasMeterResponse:
+    type: object
+    properties:
+      gas_meter:
+        type: string
+        format: uint64
+    description: |-
+      QueryGasMeterResponse is the response type for the Query/Incentive RPC
+      method.
+  evmos.incentives.v1.QueryGasMetersResponse:
+    type: object
+    properties:
+      gas_meters:
+        type: array
+        items:
+          type: object
+          properties:
+            contract:
+              type: string
+              title: hex address of the incentivized contract
+            participant:
+              type: string
+              title: participant address that interacts with the incentive
+            cumulative_gas:
+              type: string
+              format: uint64
+              title: cumulative gas spent during the epoch
+          title: >-
+            GasMeter tracks the cumulative gas spent per participant in one
+            epoch
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    description: |-
+      QueryGasMetersResponse is the response type for the Query/Incentives RPC
+      method.
+  evmos.incentives.v1.QueryIncentiveResponse:
+    type: object
+    properties:
+      incentive:
+        type: object
+        properties:
+          contract:
+            type: string
+            title: contract address
+          allocations:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                DecCoin defines a token with a denomination and a decimal
+                amount.
+
+
+                NOTE: The amount field is an Dec which implements the custom
+                method
+
+                signatures required by gogoproto.
+            title: denoms and percentage of rewards to be allocated
+          epochs:
+            type: integer
+            format: int64
+            title: number of remaining epochs
+          start_time:
+            type: string
+            format: date-time
+            title: distribution start time
+          total_gas:
+            type: string
+            format: uint64
+            title: >-
+              cumulative gas spent by all gasmeters of the incentive during the
+              epoch
+        title: >-
+          Incentive defines an instance that organizes distribution conditions
+          for a
+
+          given smart contract
+    description: |-
+      QueryIncentiveResponse is the response type for the Query/Incentive RPC
+      method.
+  evmos.incentives.v1.QueryIncentivesResponse:
+    type: object
+    properties:
+      incentives:
+        type: array
+        items:
+          type: object
+          properties:
+            contract:
+              type: string
+              title: contract address
+            allocations:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+              title: denoms and percentage of rewards to be allocated
+            epochs:
+              type: integer
+              format: int64
+              title: number of remaining epochs
+            start_time:
+              type: string
+              format: date-time
+              title: distribution start time
+            total_gas:
+              type: string
+              format: uint64
+              title: >-
+                cumulative gas spent by all gasmeters of the incentive during
+                the epoch
+          title: >-
+            Incentive defines an instance that organizes distribution conditions
+            for a
+
+            given smart contract
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    description: |-
+      QueryIncentivesResponse is the response type for the Query/Incentives RPC
+      method.
+  evmos.incentives.v1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        type: object
+        properties:
+          enable_incentives:
+            type: boolean
+            title: parameter to enable incentives
+          allocation_limit:
+            type: string
+            title: maximum percentage an incentive can allocate per denomination
+          incentives_epoch_identifier:
+            type: string
+            title: identifier for the epochs module hooks
+          reward_scaler:
+            type: string
+            title: scaling factor for capping rewards
+        title: Params defines the incentives module params
+    description: |-
+      QueryParamsResponse is the response type for the Query/Params RPC
+      method.
   ethermint.evm.v1.ChainConfig:
     type: object
     properties:
@@ -14624,335 +17375,6 @@ definitions:
       not
 
       persisted on blockchain state after an upgrade.
-  google.protobuf.Any:
-    type: object
-    properties:
-      type_url:
-        type: string
-        description: >-
-          A URL/resource name that uniquely identifies the type of the
-          serialized
-
-          protocol buffer message. This string must contain at least
-
-          one "/" character. The last segment of the URL's path must represent
-
-          the fully qualified name of the type (as in
-
-          `path/google.protobuf.Duration`). The name should be in a canonical
-          form
-
-          (e.g., leading "." is not accepted).
-
-
-          In practice, teams usually precompile into the binary all types that
-          they
-
-          expect it to use in the context of Any. However, for URLs which use
-          the
-
-          scheme `http`, `https`, or no scheme, one can optionally set up a type
-
-          server that maps type URLs to message definitions as follows:
-
-
-          * If no scheme is provided, `https` is assumed.
-
-          * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-            value in binary format, or produce an error.
-          * Applications are allowed to cache lookup results based on the
-            URL, or have them precompiled into a binary to avoid any
-            lookup. Therefore, binary compatibility needs to be preserved
-            on changes to types. (Use versioned type names to manage
-            breaking changes.)
-
-          Note: this functionality is not currently available in the official
-
-          protobuf release, and it is not used for type URLs beginning with
-
-          type.googleapis.com.
-
-
-          Schemes other than `http`, `https` (or the empty scheme) might be
-
-          used with implementation specific semantics.
-      value:
-        type: string
-        format: byte
-        description: >-
-          Must be a valid serialized protocol buffer of the above specified
-          type.
-    description: >-
-      `Any` contains an arbitrary serialized protocol buffer message along with
-      a
-
-      URL that describes the type of the serialized message.
-
-
-      Protobuf library provides support to pack/unpack Any values in the form
-
-      of utility functions or additional generated methods of the Any type.
-
-
-      Example 1: Pack and unpack a message in C++.
-
-          Foo foo = ...;
-          Any any;
-          any.PackFrom(foo);
-          ...
-          if (any.UnpackTo(&foo)) {
-            ...
-          }
-
-      Example 2: Pack and unpack a message in Java.
-
-          Foo foo = ...;
-          Any any = Any.pack(foo);
-          ...
-          if (any.is(Foo.class)) {
-            foo = any.unpack(Foo.class);
-          }
-
-       Example 3: Pack and unpack a message in Python.
-
-          foo = Foo(...)
-          any = Any()
-          any.Pack(foo)
-          ...
-          if any.Is(Foo.DESCRIPTOR):
-            any.Unpack(foo)
-            ...
-
-       Example 4: Pack and unpack a message in Go
-
-           foo := &pb.Foo{...}
-           any, err := ptypes.MarshalAny(foo)
-           ...
-           foo := &pb.Foo{}
-           if err := ptypes.UnmarshalAny(any, foo); err != nil {
-             ...
-           }
-
-      The pack methods provided by protobuf library will by default use
-
-      'type.googleapis.com/full.type.name' as the type URL and the unpack
-
-      methods only use the fully qualified type name after the last '/'
-
-      in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-      name "y.z".
-
-
-
-      JSON
-
-      ====
-
-      The JSON representation of an `Any` value uses the regular
-
-      representation of the deserialized, embedded message, with an
-
-      additional field `@type` which contains the type URL. Example:
-
-          package google.profile;
-          message Person {
-            string first_name = 1;
-            string last_name = 2;
-          }
-
-          {
-            "@type": "type.googleapis.com/google.profile.Person",
-            "firstName": <string>,
-            "lastName": <string>
-          }
-
-      If the embedded message type is well-known and has a custom JSON
-
-      representation, that representation will be embedded adding a field
-
-      `value` which holds the custom JSON in addition to the `@type`
-
-      field. Example (for message [google.protobuf.Duration][]):
-
-          {
-            "@type": "type.googleapis.com/google.protobuf.Duration",
-            "value": "1.212s"
-          }
-  grpc.gateway.runtime.Error:
-    type: object
-    properties:
-      error:
-        type: string
-      code:
-        type: integer
-        format: int32
-      message:
-        type: string
-      details:
-        type: array
-        items:
-          type: object
-          properties:
-            type_url:
-              type: string
-              description: >-
-                A URL/resource name that uniquely identifies the type of the
-                serialized
-
-                protocol buffer message. This string must contain at least
-
-                one "/" character. The last segment of the URL's path must
-                represent
-
-                the fully qualified name of the type (as in
-
-                `path/google.protobuf.Duration`). The name should be in a
-                canonical form
-
-                (e.g., leading "." is not accepted).
-
-
-                In practice, teams usually precompile into the binary all types
-                that they
-
-                expect it to use in the context of Any. However, for URLs which
-                use the
-
-                scheme `http`, `https`, or no scheme, one can optionally set up
-                a type
-
-                server that maps type URLs to message definitions as follows:
-
-
-                * If no scheme is provided, `https` is assumed.
-
-                * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-                  value in binary format, or produce an error.
-                * Applications are allowed to cache lookup results based on the
-                  URL, or have them precompiled into a binary to avoid any
-                  lookup. Therefore, binary compatibility needs to be preserved
-                  on changes to types. (Use versioned type names to manage
-                  breaking changes.)
-
-                Note: this functionality is not currently available in the
-                official
-
-                protobuf release, and it is not used for type URLs beginning
-                with
-
-                type.googleapis.com.
-
-
-                Schemes other than `http`, `https` (or the empty scheme) might
-                be
-
-                used with implementation specific semantics.
-            value:
-              type: string
-              format: byte
-              description: >-
-                Must be a valid serialized protocol buffer of the above
-                specified type.
-          description: >-
-            `Any` contains an arbitrary serialized protocol buffer message along
-            with a
-
-            URL that describes the type of the serialized message.
-
-
-            Protobuf library provides support to pack/unpack Any values in the
-            form
-
-            of utility functions or additional generated methods of the Any
-            type.
-
-
-            Example 1: Pack and unpack a message in C++.
-
-                Foo foo = ...;
-                Any any;
-                any.PackFrom(foo);
-                ...
-                if (any.UnpackTo(&foo)) {
-                  ...
-                }
-
-            Example 2: Pack and unpack a message in Java.
-
-                Foo foo = ...;
-                Any any = Any.pack(foo);
-                ...
-                if (any.is(Foo.class)) {
-                  foo = any.unpack(Foo.class);
-                }
-
-             Example 3: Pack and unpack a message in Python.
-
-                foo = Foo(...)
-                any = Any()
-                any.Pack(foo)
-                ...
-                if any.Is(Foo.DESCRIPTOR):
-                  any.Unpack(foo)
-                  ...
-
-             Example 4: Pack and unpack a message in Go
-
-                 foo := &pb.Foo{...}
-                 any, err := ptypes.MarshalAny(foo)
-                 ...
-                 foo := &pb.Foo{}
-                 if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                   ...
-                 }
-
-            The pack methods provided by protobuf library will by default use
-
-            'type.googleapis.com/full.type.name' as the type URL and the unpack
-
-            methods only use the fully qualified type name after the last '/'
-
-            in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-            name "y.z".
-
-
-
-            JSON
-
-            ====
-
-            The JSON representation of an `Any` value uses the regular
-
-            representation of the deserialized, embedded message, with an
-
-            additional field `@type` which contains the type URL. Example:
-
-                package google.profile;
-                message Person {
-                  string first_name = 1;
-                  string last_name = 2;
-                }
-
-                {
-                  "@type": "type.googleapis.com/google.profile.Person",
-                  "firstName": <string>,
-                  "lastName": <string>
-                }
-
-            If the embedded message type is well-known and has a custom JSON
-
-            representation, that representation will be embedded adding a field
-
-            `value` which holds the custom JSON in addition to the `@type`
-
-            field. Example (for message [google.protobuf.Duration][]):
-
-                {
-                  "@type": "type.googleapis.com/google.protobuf.Duration",
-                  "value": "1.212s"
-                }
   cosmos.auth.v1beta1.Params:
     type: object
     properties:
@@ -15585,9 +18007,9 @@ definitions:
           a basic token.
     description: >-
       QueryDenomMetadataResponse is the response type for the
-      Query/DenomMetadata RPC
+      Query/DenomMetadata
 
-      method.
+      RPC method.
   cosmos.bank.v1beta1.QueryDenomsMetadataResponse:
     type: object
     properties:
@@ -15678,9 +18100,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryDenomsMetadataResponse is the response type for the
-      Query/DenomsMetadata RPC
+      Query/DenomsMetadata
 
-      method.
+      RPC method.
   cosmos.bank.v1beta1.QueryParamsResponse:
     type: object
     properties:
@@ -15776,30 +18198,6 @@ definitions:
     description: |-
       SendEnabled maps coin denom to a send_enabled status (whether a denom is
       sendable).
-  cosmos.base.v1beta1.Coin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      Coin defines a token with a denomination and an amount.
-
-      NOTE: The amount field is an Int which implements the custom method
-      signatures required by gogoproto.
-  cosmos.base.v1beta1.DecCoin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      DecCoin defines a token with a denomination and a decimal amount.
-
-      NOTE: The amount field is an Dec which implements the custom method
-      signatures required by gogoproto.
   cosmos.distribution.v1beta1.DelegationDelegatorReward:
     type: object
     properties:
@@ -17463,7 +19861,7 @@ definitions:
     type: object
     properties:
       commission_rates:
-        description: >-
+        description: |-
           commission_rates defines the initial commission rates to be used for
           creating a validator.
         type: object
@@ -17475,12 +19873,16 @@ definitions:
             type: string
             description: >-
               max_rate defines the maximum commission rate which validator can
-              ever charge, as a fraction.
+              ever
+
+              charge, as a fraction.
           max_change_rate:
             type: string
             description: >-
               max_change_rate defines the maximum daily increase of the
-              validator commission, as a fraction.
+              validator
+
+              commission, as a fraction.
       update_time:
         type: string
         format: date-time
@@ -17494,12 +19896,12 @@ definitions:
         description: 'rate is the commission rate charged to delegators, as a fraction.'
       max_rate:
         type: string
-        description: >-
+        description: |-
           max_rate defines the maximum commission rate which validator can ever
           charge, as a fraction.
       max_change_rate:
         type: string
-        description: >-
+        description: |-
           max_change_rate defines the maximum daily increase of the validator
           commission, as a fraction.
     description: >-
@@ -17596,12 +19998,12 @@ definitions:
                 format: uint64
             description: >-
               Consensus captures the consensus rules for processing a block in
-              the blockchain,
+              the
 
-              including all blockchain data structures and the rules of the
-              application's
+              blockchain, including all blockchain data structures and the rules
+              of the
 
-              state transition machine.
+              application's state transition machine.
           chain_id:
             type: string
           height:
@@ -17667,7 +20069,9 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               type: object
               properties:
@@ -17841,7 +20245,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -17887,13 +20293,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -17901,7 +20311,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -17913,12 +20325,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -17929,7 +20345,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -17974,7 +20392,7 @@ definitions:
       max_entries:
         type: integer
         format: int64
-        description: >-
+        description: |-
           max_entries is the max entries for either unbonding delegation or
           redelegation (per pair/trio).
       historical_entries:
@@ -18161,7 +20579,9 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at completion.
+                      receive at
+
+                      completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -18205,7 +20625,9 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech encoded in JSON.
+              bech
+
+              encoded in JSON.
           consensus_pubkey:
             type: object
             properties:
@@ -18375,7 +20797,9 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or not.
+              status or
+
+              not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -18421,13 +20845,17 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator has begun unbonding.
+              validator
+
+              has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to complete unbonding.
+              validator to
+
+              complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -18435,7 +20863,9 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for creating a validator.
+                  used for
+
+                  creating a validator.
                 type: object
                 properties:
                   rate:
@@ -18447,19 +20877,23 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever charge, as a fraction.
+                      validator can ever
+
+                      charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator commission, as a fraction.
+                      validator
+
+                      commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: >-
+            description: |-
               min_self_delegation is the validator's self declared minimum self
               delegation.
         description: >-
@@ -18498,7 +20932,9 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               type: object
               properties:
@@ -18672,7 +21108,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -18718,13 +21156,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -18732,7 +21174,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -18744,12 +21188,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -18760,7 +21208,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -18826,12 +21276,12 @@ definitions:
                     format: uint64
                 description: >-
                   Consensus captures the consensus rules for processing a block
-                  in the blockchain,
+                  in the
 
-                  including all blockchain data structures and the rules of the
-                  application's
+                  blockchain, including all blockchain data structures and the
+                  rules of the
 
-                  state transition machine.
+                  application's state transition machine.
               chain_id:
                 type: string
               height:
@@ -18897,7 +21347,9 @@ definitions:
                   type: string
                   description: >-
                     operator_address defines the address of the validator's
-                    operator; bech encoded in JSON.
+                    operator; bech
+
+                    encoded in JSON.
                 consensus_pubkey:
                   type: object
                   properties:
@@ -19077,7 +21529,9 @@ definitions:
                   type: boolean
                   description: >-
                     jailed defined whether the validator has been jailed from
-                    bonded status or not.
+                    bonded status or
+
+                    not.
                 status:
                   description: status is the validator status (bonded/unbonding/unbonded).
                   type: string
@@ -19123,13 +21577,17 @@ definitions:
                   format: int64
                   description: >-
                     unbonding_height defines, if unbonding, the height at which
-                    this validator has begun unbonding.
+                    this validator
+
+                    has begun unbonding.
                 unbonding_time:
                   type: string
                   format: date-time
                   description: >-
                     unbonding_time defines, if unbonding, the min time for the
-                    validator to complete unbonding.
+                    validator to
+
+                    complete unbonding.
                 commission:
                   description: commission defines the commission parameters.
                   type: object
@@ -19137,7 +21595,9 @@ definitions:
                     commission_rates:
                       description: >-
                         commission_rates defines the initial commission rates to
-                        be used for creating a validator.
+                        be used for
+
+                        creating a validator.
                       type: object
                       properties:
                         rate:
@@ -19149,12 +21609,16 @@ definitions:
                           type: string
                           description: >-
                             max_rate defines the maximum commission rate which
-                            validator can ever charge, as a fraction.
+                            validator can ever
+
+                            charge, as a fraction.
                         max_change_rate:
                           type: string
                           description: >-
                             max_change_rate defines the maximum daily increase
-                            of the validator commission, as a fraction.
+                            of the validator
+
+                            commission, as a fraction.
                     update_time:
                       type: string
                       format: date-time
@@ -19165,7 +21629,9 @@ definitions:
                   type: string
                   description: >-
                     min_self_delegation is the validator's self declared minimum
-                    self delegation.
+                    self
+
+                    delegation.
               description: >-
                 Validator defines a validator, together with the total amount of
                 the
@@ -19211,7 +21677,7 @@ definitions:
           max_entries:
             type: integer
             format: int64
-            description: >-
+            description: |-
               max_entries is the max entries for either unbonding delegation or
               redelegation (per pair/trio).
           historical_entries:
@@ -19254,12 +21720,16 @@ definitions:
                   type: string
                   description: >-
                     validator_src_address is the validator redelegation source
-                    operator address.
+                    operator
+
+                    address.
                 validator_dst_address:
                   type: string
                   description: >-
                     validator_dst_address is the validator redelegation
-                    destination operator address.
+                    destination operator
+
+                    address.
                 entries:
                   type: array
                   items:
@@ -19286,7 +21756,9 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by redelegation.
+                          shares created by
+
+                          redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -19326,7 +21798,9 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by redelegation.
+                          shares created by
+
+                          redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -19402,7 +21876,9 @@ definitions:
                   type: string
                   description: >-
                     initial_balance defines the tokens initially scheduled to
-                    receive at completion.
+                    receive at
+
+                    completion.
                 balance:
                   type: string
                   description: balance defines the tokens to receive at completion.
@@ -19500,7 +21976,9 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech encoded in JSON.
+              bech
+
+              encoded in JSON.
           consensus_pubkey:
             type: object
             properties:
@@ -19670,7 +22148,9 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or not.
+              status or
+
+              not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -19716,13 +22196,17 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator has begun unbonding.
+              validator
+
+              has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to complete unbonding.
+              validator to
+
+              complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -19730,7 +22214,9 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for creating a validator.
+                  used for
+
+                  creating a validator.
                 type: object
                 properties:
                   rate:
@@ -19742,19 +22228,23 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever charge, as a fraction.
+                      validator can ever
+
+                      charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator commission, as a fraction.
+                      validator
+
+                      commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: >-
+            description: |-
               min_self_delegation is the validator's self declared minimum self
               delegation.
         description: >-
@@ -19816,7 +22306,9 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at completion.
+                      receive at
+
+                      completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -19862,7 +22354,9 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               type: object
               properties:
@@ -20036,7 +22530,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -20082,13 +22578,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -20096,7 +22596,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -20108,12 +22610,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -20124,7 +22630,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -20176,14 +22684,16 @@ definitions:
         description: delegator_address is the bech32-encoded address of the delegator.
       validator_src_address:
         type: string
-        description: >-
+        description: |-
           validator_src_address is the validator redelegation source operator
           address.
       validator_dst_address:
         type: string
         description: >-
           validator_dst_address is the validator redelegation destination
-          operator address.
+          operator
+
+          address.
       entries:
         type: array
         items:
@@ -20210,7 +22720,9 @@ definitions:
               type: string
               description: >-
                 shares_dst is the amount of destination-validator shares created
-                by redelegation.
+                by
+
+                redelegation.
           description: >-
             RedelegationEntry defines a redelegation object with relevant
             metadata.
@@ -20236,7 +22748,7 @@ definitions:
         description: initial_balance defines the initial balance when redelegation started.
       shares_dst:
         type: string
-        description: >-
+        description: |-
           shares_dst is the amount of destination-validator shares created by
           redelegation.
     description: RedelegationEntry defines a redelegation object with relevant metadata.
@@ -20265,7 +22777,9 @@ definitions:
             type: string
             description: >-
               shares_dst is the amount of destination-validator shares created
-              by redelegation.
+              by
+
+              redelegation.
         description: >-
           RedelegationEntry defines a redelegation object with relevant
           metadata.
@@ -20291,12 +22805,16 @@ definitions:
             type: string
             description: >-
               validator_src_address is the validator redelegation source
-              operator address.
+              operator
+
+              address.
           validator_dst_address:
             type: string
             description: >-
               validator_dst_address is the validator redelegation destination
-              operator address.
+              operator
+
+              address.
           entries:
             type: array
             items:
@@ -20323,7 +22841,9 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by redelegation.
+                    created by
+
+                    redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -20363,7 +22883,9 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by redelegation.
+                    created by
+
+                    redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -20410,7 +22932,9 @@ definitions:
               type: string
               description: >-
                 initial_balance defines the tokens initially scheduled to
-                receive at completion.
+                receive at
+
+                completion.
             balance:
               type: string
               description: balance defines the tokens to receive at completion.
@@ -20434,7 +22958,7 @@ definitions:
         description: completion_time is the unix time for unbonding completion.
       initial_balance:
         type: string
-        description: >-
+        description: |-
           initial_balance defines the tokens initially scheduled to receive at
           completion.
       balance:
@@ -20448,7 +22972,7 @@ definitions:
     properties:
       operator_address:
         type: string
-        description: >-
+        description: |-
           operator_address defines the address of the validator's operator; bech
           encoded in JSON.
       consensus_pubkey:
@@ -20614,7 +23138,9 @@ definitions:
         type: boolean
         description: >-
           jailed defined whether the validator has been jailed from bonded
-          status or not.
+          status or
+
+          not.
       status:
         description: status is the validator status (bonded/unbonding/unbonded).
         type: string
@@ -20658,13 +23184,17 @@ definitions:
         format: int64
         description: >-
           unbonding_height defines, if unbonding, the height at which this
-          validator has begun unbonding.
+          validator
+
+          has begun unbonding.
       unbonding_time:
         type: string
         format: date-time
         description: >-
           unbonding_time defines, if unbonding, the min time for the validator
-          to complete unbonding.
+          to
+
+          complete unbonding.
       commission:
         description: commission defines the commission parameters.
         type: object
@@ -20672,7 +23202,9 @@ definitions:
           commission_rates:
             description: >-
               commission_rates defines the initial commission rates to be used
-              for creating a validator.
+              for
+
+              creating a validator.
             type: object
             properties:
               rate:
@@ -20684,19 +23216,23 @@ definitions:
                 type: string
                 description: >-
                   max_rate defines the maximum commission rate which validator
-                  can ever charge, as a fraction.
+                  can ever
+
+                  charge, as a fraction.
               max_change_rate:
                 type: string
                 description: >-
                   max_change_rate defines the maximum daily increase of the
-                  validator commission, as a fraction.
+                  validator
+
+                  commission, as a fraction.
           update_time:
             type: string
             format: date-time
             description: update_time is the last time the commission rate was changed.
       min_self_delegation:
         type: string
-        description: >-
+        description: |-
           min_self_delegation is the validator's self declared minimum self
           delegation.
     description: >-
@@ -20751,12 +23287,11 @@ definitions:
             format: uint64
         description: >-
           Consensus captures the consensus rules for processing a block in the
-          blockchain,
 
-          including all blockchain data structures and the rules of the
-          application's
+          blockchain, including all blockchain data structures and the rules of
+          the
 
-          state transition machine.
+          application's state transition machine.
       chain_id:
         type: string
       height:
@@ -20832,11 +23367,7 @@ definitions:
       app:
         type: string
         format: uint64
-    description: >-
+    description: |-
       Consensus captures the consensus rules for processing a block in the
-      blockchain,
-
-      including all blockchain data structures and the rules of the
-      application's
-
-      state transition machine.
+      blockchain, including all blockchain data structures and the rules of the
+      application's state transition machine.

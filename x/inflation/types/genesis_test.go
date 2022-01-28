@@ -3,9 +3,7 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
-	"github.com/tharsis/ethermint/tests"
 )
 
 type GenesisTestSuite struct {
@@ -22,9 +20,8 @@ func TestGenesisTestSuite(t *testing.T) {
 func (suite *GenesisTestSuite) TestValidateGenesis() {
 	// Team Address needs to be set manually at Genesis
 	validParams := DefaultParams()
-	validParams.TeamAddress = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 
-	newGen := NewGenesisState(validParams, uint64(0))
+	newGen := NewGenesisState(validParams, uint64(0), "day", 365)
 
 	testCases := []struct {
 		name     string
@@ -37,7 +34,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			false,
 		},
 		{
-			"invalid default genesis without address",
+			"invalid default genesis",
 			DefaultGenesisState(),
 			true,
 		},
@@ -49,17 +46,37 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			"valid genesis",
 			&GenesisState{
-				Params: validParams,
+				Params:          validParams,
+				Period:          uint64(5),
+				EpochIdentifier: "day",
+				EpochsPerPeriod: 365,
 			},
 			true,
 		},
 		{
-			"valid genesis - with period",
+			"invalid genesis",
 			&GenesisState{
 				Params: validParams,
-				Period: uint64(5),
 			},
-			true,
+			false,
+		},
+		{
+			"invalid genesis - empty eporchIdentifier",
+			&GenesisState{
+				Params:          validParams,
+				Period:          uint64(5),
+				EpochIdentifier: "",
+				EpochsPerPeriod: 365},
+			false,
+		},
+		{
+			"invalid genesis - zero epochsperPerid",
+			&GenesisState{
+				Params:          validParams,
+				Period:          uint64(5),
+				EpochIdentifier: "day",
+				EpochsPerPeriod: 0},
+			false,
 		},
 	}
 

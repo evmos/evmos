@@ -10,21 +10,20 @@ const (
 
 	// RouterKey to be used for message routing
 	RouterKey = ModuleName
-
-	// module account name for team vesting
-	UnvestedTeamAccount = "unvested_team_account"
 )
 
 // prefix bytes for the inflation persistent store
 const (
 	prefixPeriod = iota + 1
 	prefixEpochMintProvision
-	prefixTeamVestingMinted
+	prefixEpochIdentifier
+	prefixEpochsPerPeriod
 )
 
 // KVStore key prefixes
 var (
 	KeyPrefixPeriod             = []byte{prefixPeriod}
 	KeyPrefixEpochMintProvision = []byte{prefixEpochMintProvision}
-	KeyPrefixTeamVestingMinted  = []byte{prefixTeamVestingMinted}
+	KeyPrefixEpochIdentifier    = []byte{prefixEpochIdentifier}
+	KeyPrefixEpochsPerPeriod    = []byte{prefixEpochsPerPeriod}
 )

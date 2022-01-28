@@ -21,7 +21,6 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	// TODO CLI
 	cmd.AddCommand(
 		GetPeriod(),
 		GetEpochMintProvision(),

@@ -5,7 +5,6 @@ package types
 
 import (
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
@@ -30,6 +29,10 @@ type GenesisState struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// amount of past periods, based on the epochs per period param
 	Period uint64 `protobuf:"varint,2,opt,name=period,proto3" json:"period,omitempty"`
+	// inflation epoch identifier
+	EpochIdentifier string `protobuf:"bytes,3,opt,name=epoch_identifier,json=epochIdentifier,proto3" json:"epoch_identifier,omitempty"`
+	// number of epochs after which inflation is recalculated
+	EpochsPerPeriod int64 `protobuf:"varint,4,opt,name=epochs_per_period,json=epochsPerPeriod,proto3" json:"epochs_per_period,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -79,22 +82,28 @@ func (m *GenesisState) GetPeriod() uint64 {
 	return 0
 }
 
+func (m *GenesisState) GetEpochIdentifier() string {
+	if m != nil {
+		return m.EpochIdentifier
+	}
+	return ""
+}
+
+func (m *GenesisState) GetEpochsPerPeriod() int64 {
+	if m != nil {
+		return m.EpochsPerPeriod
+	}
+	return 0
+}
+
 // Params holds parameters for the inflation module.
 type Params struct {
 	// type of coin to mint
 	MintDenom string `protobuf:"bytes,1,opt,name=mint_denom,json=mintDenom,proto3" json:"mint_denom,omitempty"`
-	// inflation epoch identifier
-	EpochIdentifier string `protobuf:"bytes,2,opt,name=epoch_identifier,json=epochIdentifier,proto3" json:"epoch_identifier,omitempty"`
-	// number of epochs after which inflation is recalculated
-	EpochsPerPeriod int64 `protobuf:"varint,3,opt,name=epochs_per_period,json=epochsPerPeriod,proto3" json:"epochs_per_period,omitempty"`
 	// variables to calculate exponential inflation
-	ExponentialCalculation ExponentialCalculation `protobuf:"bytes,4,opt,name=exponential_calculation,json=exponentialCalculation,proto3" json:"exponential_calculation"`
-	// inflation_distribution defines the distribution of the minted denom
-	InflationDistribution InflationDistribution `protobuf:"bytes,5,opt,name=inflation_distribution,json=inflationDistribution,proto3" json:"inflation_distribution"`
-	// aaddress to receive the team allocation from the inflation distribution
-	TeamAddress string `protobuf:"bytes,6,opt,name=team_address,json=teamAddress,proto3" json:"team_address,omitempty"`
-	// coin to allocate from team vesting supply
-	TeamVestingProvision github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,7,opt,name=team_vesting_provision,json=teamVestingProvision,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"team_vesting_provision"`
+	ExponentialCalculation ExponentialCalculation `protobuf:"bytes,2,opt,name=exponential_calculation,json=exponentialCalculation,proto3" json:"exponential_calculation"`
+	// inflation distribution of the minted denom
+	InflationDistribution InflationDistribution `protobuf:"bytes,3,opt,name=inflation_distribution,json=inflationDistribution,proto3" json:"inflation_distribution"`
 }
 
 func (m *Params) Reset()      { *m = Params{} }
@@ -136,20 +145,6 @@ func (m *Params) GetMintDenom() string {
 	return ""
 }
 
-func (m *Params) GetEpochIdentifier() string {
-	if m != nil {
-		return m.EpochIdentifier
-	}
-	return ""
-}
-
-func (m *Params) GetEpochsPerPeriod() int64 {
-	if m != nil {
-		return m.EpochsPerPeriod
-	}
-	return 0
-}
-
 func (m *Params) GetExponentialCalculation() ExponentialCalculation {
 	if m != nil {
 		return m.ExponentialCalculation
@@ -164,13 +159,6 @@ func (m *Params) GetInflationDistribution() InflationDistribution {
 	return InflationDistribution{}
 }
 
-func (m *Params) GetTeamAddress() string {
-	if m != nil {
-		return m.TeamAddress
-	}
-	return ""
-}
-
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "evmos.inflation.v1.GenesisState")
 	proto.RegisterType((*Params)(nil), "evmos.inflation.v1.Params")
@@ -179,36 +167,32 @@ func init() {
 func init() { proto.RegisterFile("evmos/inflation/v1/genesis.proto", fileDescriptor_1cb8eee530db1235) }
 
 var fileDescriptor_1cb8eee530db1235 = []byte{
-	// 456 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x92, 0x41, 0x8b, 0xd3, 0x40,
-	0x1c, 0xc5, 0x13, 0x5b, 0x23, 0x9d, 0x5d, 0x50, 0x87, 0xb5, 0x96, 0x82, 0x69, 0xed, 0x41, 0xba,
-	0x05, 0x13, 0x56, 0x2f, 0xe2, 0xcd, 0x5a, 0x91, 0xde, 0x42, 0x04, 0x0f, 0x5e, 0xe2, 0x34, 0xf9,
-	0x37, 0x1d, 0x6c, 0x66, 0xc2, 0xcc, 0x34, 0xac, 0xdf, 0xc2, 0xa3, 0x47, 0x3f, 0xce, 0x1e, 0xf7,
-	0x28, 0x1e, 0x96, 0xa5, 0xfd, 0x22, 0x32, 0x33, 0xd9, 0xb6, 0xb0, 0x39, 0x25, 0xf3, 0xe6, 0xbd,
-	0xdf, 0xcb, 0x3f, 0xfc, 0xd1, 0x10, 0xaa, 0x82, 0xcb, 0x90, 0xb2, 0xe5, 0x9a, 0x28, 0xca, 0x59,
-	0x58, 0x5d, 0x84, 0x39, 0x30, 0x90, 0x54, 0x06, 0xa5, 0xe0, 0x8a, 0x63, 0x6c, 0x1c, 0xc1, 0xde,
-	0x11, 0x54, 0x17, 0xfd, 0xb3, 0x9c, 0xe7, 0xdc, 0x5c, 0x87, 0xfa, 0xcd, 0x3a, 0xfb, 0xa3, 0x06,
-	0xd6, 0x21, 0x66, 0x3c, 0xa3, 0xef, 0xe8, 0xf4, 0xb3, 0xc5, 0x7f, 0x51, 0x44, 0x01, 0x7e, 0x87,
-	0xbc, 0x92, 0x08, 0x52, 0xc8, 0x9e, 0x3b, 0x74, 0xc7, 0x27, 0x6f, 0xfa, 0xc1, 0xfd, 0xba, 0x20,
-	0x32, 0x8e, 0x69, 0xfb, 0xea, 0x66, 0xe0, 0xc4, 0xb5, 0x1f, 0x77, 0x91, 0x57, 0x82, 0xa0, 0x3c,
-	0xeb, 0x3d, 0x18, 0xba, 0xe3, 0x76, 0x5c, 0x9f, 0x46, 0xb7, 0x2d, 0xe4, 0xd9, 0x00, 0x7e, 0x81,
-	0x50, 0x41, 0x99, 0x4a, 0x32, 0x60, 0xbc, 0x30, 0x05, 0x9d, 0xb8, 0xa3, 0x95, 0x99, 0x16, 0xf0,
-	0x39, 0x7a, 0x02, 0x25, 0x4f, 0x57, 0x09, 0xcd, 0x80, 0x29, 0xba, 0xa4, 0x20, 0x0c, 0xab, 0x13,
-	0x3f, 0x36, 0xfa, 0x7c, 0x2f, 0xe3, 0x09, 0x7a, 0x6a, 0x24, 0x99, 0x94, 0x20, 0x92, 0xba, 0xb7,
-	0x35, 0x74, 0xc7, 0xad, 0xda, 0x2b, 0x23, 0x10, 0x91, 0x91, 0x31, 0x45, 0xcf, 0xe1, 0xb2, 0xe4,
-	0x4c, 0x87, 0xc9, 0x3a, 0x49, 0xc9, 0x3a, 0xdd, 0xd8, 0x59, 0x7a, 0x6d, 0x33, 0xe3, 0xa4, 0x69,
-	0xc6, 0x4f, 0x87, 0xc8, 0xc7, 0x43, 0xa2, 0x9e, 0xb9, 0x0b, 0x8d, 0xb7, 0x78, 0x89, 0xba, 0x7b,
-	0x48, 0x92, 0x51, 0xa9, 0x04, 0x5d, 0x6c, 0x4c, 0xd3, 0x43, 0xd3, 0x74, 0xde, 0xd4, 0x34, 0xbf,
-	0x3b, 0xcc, 0x8e, 0x02, 0x75, 0xd1, 0x33, 0xda, 0x74, 0x89, 0x5f, 0xa2, 0x53, 0x05, 0xa4, 0x48,
-	0x48, 0x96, 0x09, 0x90, 0xb2, 0xe7, 0x99, 0xbf, 0x74, 0xa2, 0xb5, 0x0f, 0x56, 0xc2, 0x19, 0xea,
-	0x1a, 0x4b, 0x05, 0x52, 0x51, 0x96, 0x27, 0xa5, 0xe0, 0x15, 0x95, 0xfa, 0x53, 0x1e, 0x69, 0xf3,
-	0x34, 0xd0, 0xfc, 0x7f, 0x37, 0x83, 0x57, 0x39, 0x55, 0xab, 0xcd, 0x22, 0x48, 0x79, 0x11, 0xa6,
-	0x5c, 0xea, 0x85, 0xb1, 0x8f, 0xd7, 0x32, 0xfb, 0x11, 0xaa, 0x9f, 0x25, 0xc8, 0x60, 0xce, 0x54,
-	0x7c, 0xa6, 0x69, 0x5f, 0x2d, 0x2c, 0xba, 0x63, 0xbd, 0x6f, 0xff, 0xfe, 0x33, 0x70, 0xa6, 0xb3,
-	0xab, 0xad, 0xef, 0x5e, 0x6f, 0x7d, 0xf7, 0x76, 0xeb, 0xbb, 0xbf, 0x76, 0xbe, 0x73, 0xbd, 0xf3,
-	0x9d, 0xbf, 0x3b, 0xdf, 0xf9, 0x36, 0x39, 0xa2, 0xab, 0x15, 0x11, 0x92, 0xca, 0xd0, 0x6e, 0xe5,
-	0xe5, 0xd1, 0x5e, 0x9a, 0x96, 0x85, 0x67, 0x36, 0xf2, 0xed, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0x0c, 0x18, 0x6b, 0xb1, 0x03, 0x03, 0x00, 0x00,
+	// 385 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x92, 0xc1, 0x6a, 0xea, 0x40,
+	0x14, 0x86, 0x33, 0x1a, 0x02, 0x8e, 0x17, 0xee, 0xbd, 0x43, 0x6b, 0x45, 0x68, 0x0c, 0xae, 0xa2,
+	0x8b, 0x04, 0xed, 0xa6, 0x74, 0x69, 0x2d, 0xc5, 0x9d, 0xa4, 0xbb, 0x6e, 0x42, 0x4c, 0xc6, 0x38,
+	0x60, 0x32, 0xc3, 0xcc, 0x28, 0x76, 0xd7, 0x47, 0xe8, 0xb2, 0xcb, 0xbe, 0x45, 0x5f, 0xc1, 0xa5,
+	0xcb, 0xae, 0x4a, 0xd1, 0x17, 0x29, 0x99, 0xa4, 0x2a, 0x34, 0xbb, 0x99, 0xff, 0x7c, 0xe7, 0xff,
+	0xcf, 0x81, 0x03, 0x2d, 0xbc, 0x4a, 0xa8, 0x70, 0x49, 0x3a, 0x5b, 0x04, 0x92, 0xd0, 0xd4, 0x5d,
+	0xf5, 0xdd, 0x18, 0xa7, 0x58, 0x10, 0xe1, 0x30, 0x4e, 0x25, 0x45, 0x48, 0x11, 0xce, 0x81, 0x70,
+	0x56, 0xfd, 0xd6, 0x59, 0x4c, 0x63, 0xaa, 0xca, 0x6e, 0xf6, 0xca, 0xc9, 0x56, 0xa7, 0xc4, 0xeb,
+	0xd8, 0xa6, 0x98, 0xce, 0x3b, 0x80, 0x7f, 0xee, 0x73, 0xff, 0x07, 0x19, 0x48, 0x8c, 0xae, 0xa1,
+	0xc1, 0x02, 0x1e, 0x24, 0xa2, 0x09, 0x2c, 0x60, 0xd7, 0x07, 0x2d, 0xe7, 0x77, 0x9e, 0x33, 0x51,
+	0xc4, 0x50, 0xdf, 0x7c, 0xb6, 0x35, 0xaf, 0xe0, 0x51, 0x03, 0x1a, 0x0c, 0x73, 0x42, 0xa3, 0x66,
+	0xc5, 0x02, 0xb6, 0xee, 0x15, 0x3f, 0xd4, 0x85, 0xff, 0x30, 0xa3, 0xe1, 0xdc, 0x27, 0x11, 0x4e,
+	0x25, 0x99, 0x11, 0xcc, 0x9b, 0x55, 0x0b, 0xd8, 0x35, 0xef, 0xaf, 0xd2, 0xc7, 0x07, 0x19, 0xf5,
+	0xe0, 0x7f, 0x25, 0x09, 0x9f, 0x61, 0xee, 0x17, 0x6e, 0xba, 0x05, 0xec, 0x6a, 0xc1, 0x8a, 0x09,
+	0xe6, 0x13, 0x25, 0x77, 0x9e, 0x2b, 0xd0, 0xc8, 0xe7, 0x40, 0x97, 0x10, 0x26, 0x24, 0x95, 0x7e,
+	0x84, 0x53, 0x9a, 0xa8, 0xb9, 0x6b, 0x5e, 0x2d, 0x53, 0x46, 0x99, 0x80, 0x08, 0xbc, 0xc0, 0x6b,
+	0x46, 0xd3, 0x2c, 0x26, 0x58, 0xf8, 0x61, 0xb0, 0x08, 0x97, 0xf9, 0x2e, 0x6a, 0xd2, 0xfa, 0xa0,
+	0x57, 0xb6, 0xe3, 0xdd, 0xb1, 0xe5, 0xf6, 0xd8, 0x51, 0xec, 0xdc, 0xc0, 0xa5, 0x55, 0x34, 0x83,
+	0x8d, 0x83, 0x89, 0x1f, 0x11, 0x21, 0x39, 0x99, 0x2e, 0x55, 0x52, 0x55, 0x25, 0x75, 0xcb, 0x92,
+	0xc6, 0x3f, 0x9f, 0xd1, 0x49, 0x43, 0x11, 0x74, 0x4e, 0xca, 0x8a, 0x37, 0xfa, 0xeb, 0x5b, 0x5b,
+	0x1b, 0x8e, 0x36, 0x3b, 0x13, 0x6c, 0x77, 0x26, 0xf8, 0xda, 0x99, 0xe0, 0x65, 0x6f, 0x6a, 0xdb,
+	0xbd, 0xa9, 0x7d, 0xec, 0x4d, 0xed, 0xb1, 0x17, 0x13, 0x39, 0x5f, 0x4e, 0x9d, 0x90, 0x26, 0xae,
+	0x9c, 0x07, 0x5c, 0x10, 0xe1, 0xe6, 0xd7, 0xb0, 0x3e, 0xb9, 0x07, 0xf9, 0xc4, 0xb0, 0x98, 0x1a,
+	0xea, 0x12, 0xae, 0xbe, 0x03, 0x00, 0x00, 0xff, 0xff, 0x44, 0x25, 0x55, 0x1e, 0x7b, 0x02, 0x00,
+	0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -231,6 +215,18 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.EpochsPerPeriod != 0 {
+		i = encodeVarintGenesis(dAtA, i, uint64(m.EpochsPerPeriod))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.EpochIdentifier) > 0 {
+		i -= len(m.EpochIdentifier)
+		copy(dAtA[i:], m.EpochIdentifier)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.EpochIdentifier)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if m.Period != 0 {
 		i = encodeVarintGenesis(dAtA, i, uint64(m.Period))
 		i--
@@ -270,23 +266,6 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
-		size := m.TeamVestingProvision.Size()
-		i -= size
-		if _, err := m.TeamVestingProvision.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintGenesis(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x3a
-	if len(m.TeamAddress) > 0 {
-		i -= len(m.TeamAddress)
-		copy(dAtA[i:], m.TeamAddress)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.TeamAddress)))
-		i--
-		dAtA[i] = 0x32
-	}
-	{
 		size, err := m.InflationDistribution.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
@@ -295,7 +274,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintGenesis(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x2a
+	dAtA[i] = 0x1a
 	{
 		size, err := m.ExponentialCalculation.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -305,19 +284,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintGenesis(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x22
-	if m.EpochsPerPeriod != 0 {
-		i = encodeVarintGenesis(dAtA, i, uint64(m.EpochsPerPeriod))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.EpochIdentifier) > 0 {
-		i -= len(m.EpochIdentifier)
-		copy(dAtA[i:], m.EpochIdentifier)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.EpochIdentifier)))
-		i--
-		dAtA[i] = 0x12
-	}
+	dAtA[i] = 0x12
 	if len(m.MintDenom) > 0 {
 		i -= len(m.MintDenom)
 		copy(dAtA[i:], m.MintDenom)
@@ -350,6 +317,13 @@ func (m *GenesisState) Size() (n int) {
 	if m.Period != 0 {
 		n += 1 + sovGenesis(uint64(m.Period))
 	}
+	l = len(m.EpochIdentifier)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	if m.EpochsPerPeriod != 0 {
+		n += 1 + sovGenesis(uint64(m.EpochsPerPeriod))
+	}
 	return n
 }
 
@@ -363,22 +337,9 @@ func (m *Params) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovGenesis(uint64(l))
 	}
-	l = len(m.EpochIdentifier)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
-	}
-	if m.EpochsPerPeriod != 0 {
-		n += 1 + sovGenesis(uint64(m.EpochsPerPeriod))
-	}
 	l = m.ExponentialCalculation.Size()
 	n += 1 + l + sovGenesis(uint64(l))
 	l = m.InflationDistribution.Size()
-	n += 1 + l + sovGenesis(uint64(l))
-	l = len(m.TeamAddress)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
-	}
-	l = m.TeamVestingProvision.Size()
 	n += 1 + l + sovGenesis(uint64(l))
 	return n
 }
@@ -470,6 +431,57 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EpochIdentifier", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EpochIdentifier = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EpochsPerPeriod", wireType)
+			}
+			m.EpochsPerPeriod = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EpochsPerPeriod |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipGenesis(dAtA[iNdEx:])
@@ -554,57 +566,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EpochIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.EpochIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EpochsPerPeriod", wireType)
-			}
-			m.EpochsPerPeriod = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.EpochsPerPeriod |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ExponentialCalculation", wireType)
 			}
 			var msglen int
@@ -636,7 +597,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 5:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field InflationDistribution", wireType)
 			}
@@ -666,72 +627,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.InflationDistribution.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TeamAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.TeamAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TeamVestingProvision", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.TeamVestingProvision.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
