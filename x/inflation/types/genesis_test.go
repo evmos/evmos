@@ -46,19 +46,37 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			"valid genesis",
 			&GenesisState{
-				Params: validParams,
-			},
-			true,
-		},
-		{
-			"valid genesis - with all",
-			&GenesisState{
 				Params:          validParams,
 				Period:          uint64(5),
 				EpochIdentifier: "day",
 				EpochsPerPeriod: 365,
 			},
 			true,
+		},
+		{
+			"invalid genesis",
+			&GenesisState{
+				Params: validParams,
+			},
+			false,
+		},
+		{
+			"invalid genesis - empty eporchIdentifier",
+			&GenesisState{
+				Params:          validParams,
+				Period:          uint64(5),
+				EpochIdentifier: "",
+				EpochsPerPeriod: 365},
+			false,
+		},
+		{
+			"invalid genesis - zero epochsperPerid",
+			&GenesisState{
+				Params:          validParams,
+				Period:          uint64(5),
+				EpochIdentifier: "day",
+				EpochsPerPeriod: 0},
+			false,
 		},
 	}
 
