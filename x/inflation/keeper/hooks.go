@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
 	"github.com/tharsis/evmos/x/inflation/types"
@@ -12,8 +11,13 @@ import (
 func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 }
 
+// AfterEpochEnd mints and distributes coins at the end of each epoch end
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
+
+	if epochIdentifier != k.GetEpochIdentifier(ctx) {
+		panic(fmt.Errorf("unexpected EpochIdentifier provided: %s expected: %s", epochIdentifier, k.GetEpochIdentifier(ctx)))
+	}
 
 	// mint coins, update supply
 	epochMintProvision, found := k.GetEpochMintProvision(ctx)
@@ -26,25 +30,23 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		panic(err)
 	}
 
-	// check if a period is over
+	// check if a period is over. If it's completed, update period, and epochMintProvision
 	period := k.GetPeriod(ctx)
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
+
+	newProvision := epochMintProvision
 	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
-		newProvision := types.CalculateEpochMintProvision(params, k.GetPeriod(ctx), epochsPerPeriod)
+		newProvision = types.CalculateEpochMintProvision(params, k.GetPeriod(ctx), epochsPerPeriod)
 		k.SetEpochMintProvision(ctx, newProvision)
-	}
-
-	if mintedCoin.Amount.IsInt64() {
-		defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
 	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeMint,
 			sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
-			// sdk.NewAttribute(types.AttributeKeyEpochProvisions, minter.EpochProvisions.String()),
+			sdk.NewAttribute(types.AttributeKeyEpochProvisions, newProvision.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
 		),
 	)
