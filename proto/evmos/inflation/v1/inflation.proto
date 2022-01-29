@@ -1,0 +1,61 @@
+syntax = "proto3";
+package evmos.inflation.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/inflation/types";
+
+// InflationDistribution defines the distribution in which inflation is
+// allocated through minting on each epoch (staking, incentives, community). It
+// excludes the team vesting distribution, as this is minted once at genesis.
+// The initial InflationDistribution can be calculated from the Evmvos Token
+// Model like this:
+// mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
+// 0.5333333         = 40%           / (1 - 25%)
+message InflationDistribution {
+  // staking_rewards defines the proportion of the minted minted_denom that is
+  // to be allocated as staking rewards
+  string staking_rewards = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // usage_incentives defines the proportion of the minted minted_denom that is
+  // to be allocated to the incentives module address
+  string usage_incentives = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // community_pool defines the proportion of the minted minted_denom that is to
+  // be allocated to the community pool
+  string community_pool = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// ExponentialCalculation holds factors to calculate exponential inflation on
+// each period. Calculation reference:
+// periodProvision = exponentialDecay       *  bondingRatio
+// f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
+message ExponentialCalculation {
+  // initial value
+  string a = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // reduction factor
+  string r = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // long term inflation
+  string c = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // bonding factor`
+  string b = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}

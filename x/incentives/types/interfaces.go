@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
@@ -41,6 +42,11 @@ type GovKeeper interface {
 // MintKeeper defines the expected mint keeper interface used on incentives
 type MintKeeper interface {
 	GetParams(ctx sdk.Context) (params minttypes.Params)
+}
+
+// InflationKeeper defines the expected mint keeper interface used on incentives
+type InflationKeeper interface {
+	GetParams(ctx sdk.Context) (params inflationtypes.Params)
 }
 
 // Stakekeeper defines the expected staking keeper interface used on incentives

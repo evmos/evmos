@@ -6,10 +6,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/evmos/x/erc20/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
@@ -450,7 +451,7 @@ func (suite *KeeperTestSuite) TestConvertNativeIBC() {
 		Display: base,
 	}
 
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(base, 1)})
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(base, 1)})
 	suite.Require().NoError(err)
 
 	_, err = suite.app.Erc20Keeper.RegisterCoin(suite.ctx, validMetadata)

@@ -7,9 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {
@@ -88,9 +88,9 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
 				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -102,9 +102,9 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
 				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, minttypes.ModuleName, addr, coins)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -144,9 +144,9 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			amount,
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
 				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, minttypes.ModuleName, types.ModuleName, coins)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 		},

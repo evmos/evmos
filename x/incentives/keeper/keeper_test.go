@@ -47,7 +47,7 @@ var (
 	participant2    = tests.GenerateAddress()
 	contract        = tests.GenerateAddress()
 	contract2       = tests.GenerateAddress()
-	denomMint       = "stake"
+	denomMint       = evm.DefaultEVMDenom
 	denomCoin       = "acoin"
 	allocationRate  = int64(5)
 	mintAllocations = sdk.DecCoins{
@@ -96,6 +96,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	feemarketGenesis.Params.EnableHeight = 1
 	feemarketGenesis.Params.NoBaseFee = false
 	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
+
+	// init app
 	suite.app = app.Setup(checkTx, feemarketGenesis)
 
 	if suite.mintFeeCollector {
