@@ -1,66 +1,63 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
+	"github.com/tharsis/evmos/x/inflation/types"
 )
 
+// BeforeEpochStart: noop, We don't need to do anything here
 func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 }
 
+// AfterEpochEnd mints and distributes coins at the end of each epoch end
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
-	// TODO daily epoch logic
-	// return
-	// // check if epochIdentifier signal equals the identifier in the params
-	// if epochIdentifier != params.EpochIdentifier {
-	// 	return
-	// }
-
-	// // not distribute rewards if it's not time yet for rewards allocation
-	// if epochNumber < params.MintingRewardsAllocationStartEpoch {
-	// 	return
-	// } else if epochNumber == params.MintingRewardsAllocationStartEpoch {
-	// 	k.SetLastHalvenEpochNum(ctx, epochNumber)
-	// }
-	// // fetch stored minter & params
-	// minter := k.GetMinter(ctx)
-	// // params := k.GetParams(ctx)
-
-	// // Check if we have hit an epoch where we update the inflation parameter.
-	// // Since epochs only update based on BFT time data, it is safe to store the
-	// // "halvening period time" in terms of the number of epochs that have
-	// // transpired.
-	// if epochNumber >= k.GetParams(ctx).ReductionPeriodInEpochs+k.GetLastHalvenEpochNum(ctx) {
-	// 	// Halven the reward per halven period
-	// 	minter.EpochProvisions = minter.NextEpochProvisions(params)
-	// 	k.SetMinter(ctx, minter)
-	// 	k.SetLastHalvenEpochNum(ctx, epochNumber)
-	// }
+	params := k.GetParams(ctx)
+	expEpochID := k.GetEpochIdentifier(ctx)
+	if epochIdentifier != expEpochID {
+		fmt.Printf("unexpected EpochIdentifier provided: %s, expected: %s", epochIdentifier, expEpochID)
+		return
+	}
 
 	// mint coins, update supply
-	// epochMintProvision, found := k.GetEpochMintProvision(ctx)
-	// if found {
-	// 	panic("the epochMintProvision has was not found")
-	// }
+	epochMintProvision, found := k.GetEpochMintProvision(ctx)
+	if !found {
+		panic("the epochMintProvision was not found")
+	}
 
-	// mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
-	// // We over-allocate by the developer vesting portion, and burn this later
-	// if err := k.MintAndAllocateInflation(ctx, mintedCoin); err != nil {
-	// 	panic(err)
-	// }
+	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
+	if err := k.MintAndAllocateInflation(ctx, mintedCoin); err != nil {
+		panic(err)
+	}
 
-	// if mintedCoin.Amount.IsInt64() {
-	// 	defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
-	// }
+	// check if a period is over. If it's completed, update period, and epochMintProvision
+	period := k.GetPeriod(ctx)
+	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
 
-	// ctx.EventManager().EmitEvent(
-	// 	sdk.NewEvent(
-	// 		types.EventTypeMint,
-	// 		sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
-	// 		// sdk.NewAttribute(types.AttributeKeyEpochProvisions, minter.EpochProvisions.String()),
-	// 		sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
-	// 	),
-	// )
+	newProvision := epochMintProvision
+
+	// current epoch number needs to be within range for the period
+	// Given, epochNumber = 1, period = 0, epochPerPeriod = 365
+	// 1 - 365 * 0 < 365 --- nothing to do here
+	// Given, epochNumber = 731, period = 1, epochPerPeriod = 365
+	// 731 - 1 * 365 > 365 --- a period has passed! we change the epochMintProvision and set a new period
+	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
+		period++
+		k.SetPeriod(ctx, period)
+		newProvision = types.CalculateEpochMintProvision(params, k.GetPeriod(ctx), epochsPerPeriod)
+		k.SetEpochMintProvision(ctx, newProvision)
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeMint,
+			sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
+			sdk.NewAttribute(types.AttributeKeyEpochProvisions, newProvision.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
+		),
+	)
 }
 
 // ___________________________________________________________________________________________________
