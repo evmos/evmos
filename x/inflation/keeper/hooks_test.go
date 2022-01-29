@@ -11,17 +11,17 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 	testCases := []struct {
 		name            string
 		epochIdentifier string
-		expPanic        bool
+		expDistribution bool
 	}{
 		{
 			"correct epoch identifier",
 			"day",
-			false,
+			true,
 		},
 		{
 			"incorrect epoch identifier",
 			"week",
-			true,
+			false,
 		},
 	}
 
@@ -34,20 +34,18 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 
 			feePoolOrigin := suite.app.DistrKeeper.GetFeePool(suite.ctx)
 			suite.app.EpochsKeeper.BeforeEpochStart(futureCtx, tc.epochIdentifier, newHeight)
-			if tc.expPanic {
-				panicF := func() {
-					suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
-				}
-				suite.Require().Panics(panicF)
-			} else {
-				suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
+			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
 
-				// check the distribution happened as well
-				feePoolNew := suite.app.DistrKeeper.GetFeePool(suite.ctx)
+			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, newHeight)
 
+			// check the distribution happened as well
+			feePoolNew := suite.app.DistrKeeper.GetFeePool(suite.ctx)
+			if tc.expDistribution {
 				// Actual distribution portions are tested elsewhere; we just want to verify the value of the pool is greater here
 				suite.Require().Greater(feePoolNew.CommunityPool.AmountOf(denomMint).BigInt().Uint64(),
 					feePoolOrigin.CommunityPool.AmountOf(denomMint).BigInt().Uint64())
+			} else {
+				suite.Require().Equal(feePoolNew.CommunityPool.AmountOf(denomMint), feePoolOrigin.CommunityPool.AmountOf(denomMint))
 			}
 		})
 	}

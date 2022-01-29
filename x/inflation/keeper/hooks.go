@@ -15,11 +15,10 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 // AfterEpochEnd mints and distributes coins at the end of each epoch end
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
-
 	expEpochID := k.GetEpochIdentifier(ctx)
-
 	if epochIdentifier != expEpochID {
-		panic(fmt.Errorf("unexpected EpochIdentifier provided: %s, expected: %s", epochIdentifier, expEpochID))
+		fmt.Printf("unexpected EpochIdentifier provided: %s, expected: %s", epochIdentifier, expEpochID)
+		return
 	}
 
 	// mint coins, update supply
