@@ -16,7 +16,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-
 	"github.com/tharsis/evmos/cmd/config"
 )
 
@@ -45,8 +44,17 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
+func init() {
+	cfg := sdk.GetConfig()
+	config.SetBech32Prefixes(cfg)
+	config.SetBip44CoinType(cfg)
+}
+
 // Setup initializes a new Evmos. A Nop logger is set in Evmos.
-func Setup(isCheckTx bool, feemarketGenesis *feemarkettypes.GenesisState) *Evmos {
+func Setup(
+	isCheckTx bool,
+	feemarketGenesis *feemarkettypes.GenesisState,
+) *Evmos {
 	db := dbm.NewMemDB()
 	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
 	if !isCheckTx {
@@ -58,7 +66,6 @@ func Setup(isCheckTx bool, feemarketGenesis *feemarkettypes.GenesisState) *Evmos
 			if err := feemarketGenesis.Validate(); err != nil {
 				panic(err)
 			}
-
 			genesisState[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
 		}
 

@@ -1,0 +1,35 @@
+syntax = "proto3";
+package evmos.inflation.v1;
+
+import "gogoproto/gogo.proto";
+
+import "evmos/inflation/v1/inflation.proto";
+
+option go_package = "github.com/tharsis/evmos/x/inflation/types";
+
+// GenesisState defines the inflation module's genesis state.
+message GenesisState {
+  // params defines all the paramaters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  // amount of past periods, based on the epochs per period param
+  uint64 period = 2;
+  // inflation epoch identifier
+  string epoch_identifier = 3;
+  // number of epochs after which inflation is recalculated
+  int64 epochs_per_period = 4;
+}
+
+// Params holds parameters for the inflation module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  // type of coin to mint
+  string mint_denom = 1;
+  // variables to calculate exponential inflation
+  ExponentialCalculation exponential_calculation = 2 [
+    (gogoproto.nullable) = false
+  ];
+  // inflation distribution of the minted denom
+  InflationDistribution inflation_distribution = 3 [
+    (gogoproto.nullable) = false
+  ];
+}

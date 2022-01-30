@@ -1,0 +1,58 @@
+syntax = "proto3";
+package evmos.inflation.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "evmos/inflation/v1/genesis.proto";
+
+option go_package = "github.com/tharsis/evmos/x/inflation/types";
+
+// Query provides defines the gRPC querier service.
+service Query {
+  // Period retrieves current period.
+  rpc Period(QueryPeriodRequest) returns (QueryPeriodResponse) {
+    option (google.api.http).get = "/evmos/inflation/v1/period";
+  }
+
+  // EpochMintProvision retrieves current minting epoch provision value.
+  rpc EpochMintProvision(QueryEpochMintProvisionRequest) returns (QueryEpochMintProvisionResponse) {
+    option (google.api.http).get = "/evmos/inflation/v1/epoch_mint_provision";
+  }
+
+    // Params retrieves the total set of minting parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/inflation/v1/params";
+  }
+}
+
+// QueryPeriodRequest is the request type for the Query/Period RPC method.
+message QueryPeriodRequest {}
+
+// QueryPeriodResponse is the response type for the Query/Period RPC method.
+message QueryPeriodResponse {
+  // period is the current minting per epoch provision value.
+  uint64 period = 1;
+}
+
+// QueryEpochMintProvisionRequest is the request type for the
+// Query/EpochMintProvision RPC method.
+message QueryEpochMintProvisionRequest {}
+
+// QueryEpochMintProvisionResponse is the response type for the
+// Query/EpochMintProvision RPC method.
+message QueryEpochMintProvisionResponse {
+  // epoch_mint_provision is the current minting per epoch provision value.
+  bytes epoch_mint_provision = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
