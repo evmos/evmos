@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 type IBCTestingSuite struct {
@@ -37,14 +37,14 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
-	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), minttypes.ModuleName, coins)
+	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), minttypes.ModuleName, types.ModuleName, coins)
+	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), minttypes.ModuleName, coins)
+	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), minttypes.ModuleName, types.ModuleName, coins)
+	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
 	params := types.DefaultParams()
@@ -83,10 +83,12 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 }
 
 func (suite *IBCTestingSuite) TestOnReceiveClaim() {
-	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
-	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
-	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
-	receiveraddr, _ := sdk.AccAddressFromBech32(receiverstr)
+	senderstr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	receiverstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
+	suite.Require().NoError(err)
+	receiveraddr, err := sdk.AccAddressFromBech32(receiverstr)
+	suite.Require().NoError(err)
 
 	testCases := []struct {
 		name            string
@@ -187,9 +189,10 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 }
 
 func (suite *IBCTestingSuite) TestOnAckClaim() {
-	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
+	senderstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
 	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
-	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
+	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
+	suite.Require().NoError(err)
 
 	testCases := []struct {
 		name            string
