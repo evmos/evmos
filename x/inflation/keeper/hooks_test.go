@@ -54,6 +54,7 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 	suite.SetupTest()
 
 	currentEpochPeriod := suite.app.InflationKeeper.GetEpochsPerPeriod(suite.ctx)
+	// bondingRatio is zero in tests
 	bondedRatio := suite.app.StakingKeeper.BondedRatio(suite.ctx)
 
 	testCases := []struct {
@@ -104,15 +105,16 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 					currentEpochPeriod,
 					bondedRatio,
 				)
-				suite.Require().Equal(newProvision, expectedProvision)
+				suite.Require().Equal(expectedProvision, newProvision)
 				// mint provisions will change
 				suite.Require().NotEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
-				suite.Require().Equal(newPeriod, currentPeriod+1)
+				suite.Require().Equal(currentPeriod+1, newPeriod)
+				// bonding Ratio is updated
+				gs := types.DefaultGenesisState()
+				suite.Require().NotEqual(gs.BondedRatio, bondedRatio)
 			} else {
 				suite.Require().Equal(newPeriod, currentPeriod)
 			}
 		})
 	}
 }
-
-// TODO Test setting bonding ratio according to staked supply
