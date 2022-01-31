@@ -77,6 +77,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 					params,
 					uint64(0),
 					365,
+					sdk.OneDec(),
 				)
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{

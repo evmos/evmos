@@ -17,6 +17,11 @@ message GenesisState {
   string epoch_identifier = 3;
   // number of epochs after which inflation is recalculated
   int64 epochs_per_period = 4;
+  // fraction of the staking tokens which are currently bonded
+  string bonded_ratio = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // Params holds parameters for the inflation module.

@@ -46,7 +46,17 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
-		newProvision = types.CalculateEpochMintProvision(params, k.GetPeriod(ctx), epochsPerPeriod)
+		period = k.GetPeriod(ctx)
+
+		bondedRatio := k.stakingKeeper.BondedRatio(ctx)
+		k.SetBondedRatio(ctx, bondedRatio)
+
+		newProvision = types.CalculateEpochMintProvision(
+			params,
+			period,
+			epochsPerPeriod,
+			bondedRatio,
+		)
 		k.SetEpochMintProvision(ctx, newProvision)
 	}
 

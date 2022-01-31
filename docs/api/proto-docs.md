@@ -1313,8 +1313,8 @@ Query defines the gRPC querier service.
 ### ExponentialCalculation
 ExponentialCalculation holds factors to calculate exponential inflation on
 each period. Calculation reference:
-periodProvision = exponentialDecay       *  bondingRatio
-f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
+periodProvision = exponentialDecay       *  bondingIncentive
+f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio * (max_variance / b_target))
 
 
 | Field | Type | Label | Description |
@@ -1322,7 +1322,8 @@ f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
 | `a` | [string](#string) |  | initial value |
 | `r` | [string](#string) |  | reduction factor |
 | `c` | [string](#string) |  | long term inflation |
-| `b` | [string](#string) |  | bonding factor` |
+| `b_target` | [string](#string) |  | bonding target |
+| `max_variance` | [string](#string) |  | max variance |
 
 
 
@@ -1380,6 +1381,7 @@ GenesisState defines the inflation module's genesis state.
 | `period` | [uint64](#uint64) |  | amount of past periods, based on the epochs per period param |
 | `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
 | `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
+| `bonded_ratio` | [string](#string) |  | fraction of the staking tokens which are currently bonded |
 
 
 

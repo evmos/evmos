@@ -25,8 +25,8 @@ func (k Keeper) GetEpochMintProvision(ctx sdk.Context) (sdk.Dec, bool) {
 }
 
 // SetEpochMintProvision sets the current EpochMintProvision
-func (k Keeper) SetEpochMintProvision(ctx sdk.Context, epochProvisions sdk.Dec) {
-	bz, err := epochProvisions.Marshal()
+func (k Keeper) SetEpochMintProvision(ctx sdk.Context, epochMintProvision sdk.Dec) {
+	bz, err := epochMintProvision.Marshal()
 	if err != nil {
 		panic(fmt.Errorf("unable to marshal amount value: %w", err))
 	}

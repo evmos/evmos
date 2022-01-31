@@ -409,14 +409,15 @@ func NewEvmos(
 		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
 
 	govKeeper := govkeeper.NewKeeper(
-		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, govRouter,
+		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, &stakingKeeper, govRouter,
 	)
 
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		keys[inflationtypes.StoreKey], appCodec, app.GetSubspace(inflationtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, authtypes.FeeCollectorName,
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
+		authtypes.FeeCollectorName,
 	)
 	app.ClaimsKeeper = *claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),

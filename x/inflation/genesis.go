@@ -31,17 +31,27 @@ func InitGenesis(
 	epochsPerPeriod := data.EpochsPerPeriod
 	k.SetEpochsPerPeriod(ctx, epochsPerPeriod)
 
+	bondedRatio := data.BondedRatio
+	k.SetBondedRatio(ctx, bondedRatio)
+
 	// Calculate epoch mint provision
-	epochMintProvision := types.CalculateEpochMintProvision(params, period, epochsPerPeriod)
+	epochMintProvision := types.CalculateEpochMintProvision(
+		params,
+		period,
+		epochsPerPeriod,
+		bondedRatio,
+	)
 	k.SetEpochMintProvision(ctx, epochMintProvision)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	bondingRatio, _ := k.GetBondedRatio(ctx)
 	return &types.GenesisState{
 		Params:          k.GetParams(ctx),
 		Period:          k.GetPeriod(ctx),
 		EpochIdentifier: k.GetEpochIdentifier(ctx),
 		EpochsPerPeriod: k.GetEpochsPerPeriod(ctx),
+		BondedRatio:     bondingRatio,
 	}
 }
