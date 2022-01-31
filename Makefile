@@ -646,7 +646,10 @@ contracts-clean:
 	@rm -rf $(COMPILED_DIR)
 	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
 
-create-contracts-json: 
+create-contracts-json:
+	command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
+	command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
+
 	mkdir -p $(COMPILED_DIR) ;\
 	touch $(COMPILED_DIR)/$(CONTRACT).json ;\
 	mkdir -p $(TMP) ;\
