@@ -96,7 +96,7 @@ func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 
 	claim, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr1)
 	suite.Require().False(found)
-	suite.Require().Equal(types.ClaimsRecord{}, claim)
+	suite.Require().Equal(types.ClaimsRecord{}, *claim)
 
 	_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claim, types.ActionEVM, params)
 	suite.Require().NoError(err)
@@ -372,10 +372,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	params.DurationOfDecay = durationOfDecay
 	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
-	claimsRecord := &types.ClaimsRecord{
-		InitialClaimableAmount: sdk.NewInt(100),
-		ActionsCompleted:       []bool{false, false, false, false},
-	}
+	var claimsRecord *types.ClaimsRecord
 
 	t := []struct {
 		fn func()
@@ -438,6 +435,11 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 
 	for _, test := range t {
 		suite.SetupClaimTest()
+
+		claimsRecord = &types.ClaimsRecord{
+			InitialClaimableAmount: sdk.NewInt(100),
+			ActionsCompleted:       []bool{false, false, false, false},
+		}
 
 		suite.app.ClaimsKeeper.SetParams(suite.ctx, types.Params{
 			AirdropStartTime:   airdropStartTime,
