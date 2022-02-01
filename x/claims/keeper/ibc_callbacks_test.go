@@ -35,6 +35,8 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
+	suite.coordinator.CommitNBlocks(suite.chainA, 2)
+	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
@@ -190,7 +192,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 
 func (suite *IBCTestingSuite) TestOnAckClaim() {
 	senderstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
-	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
+	receiverstr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
 	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
 	suite.Require().NoError(err)
 
@@ -258,6 +260,8 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			suite.Require().NoError(err)
 
 			// TODO: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
+			//ack := ibctesting.MockAcknowledgement
+			//path.EndpointA.AcknowledgePacket(packet, ack)
 			err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
 			suite.Require().NoError(err)
 
