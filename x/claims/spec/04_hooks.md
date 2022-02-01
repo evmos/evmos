@@ -49,7 +49,7 @@ The user deploys or interacts with a smart contract using their Evmos account or
     - user hasn't already claimed the action
     - claimable amount is grater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
-4 Update the claim record or delete it if all the actions have been claimed.
+4. Update the claim record or delete it if all the actions have been claimed.
 
 ## IBC Middleware - IBC Transfer Action
 

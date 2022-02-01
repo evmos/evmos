@@ -49,13 +49,23 @@ A Claim Records is the metadata of claim data per address. It keeps track of all
 
 ## Claiming Process
 
-
+As described in the [Action](#action) section, a user must submit transactions to receive the allocated tokens from the airdrop. However, since Evmos only supports `eth_secp256k1` keys, this process differs for Ethereum and Cosmos users eligible users.
 
 ### Ethereum Users
 
+Evmos shares the coin type (`60`) and key derivation (Ethereum `secp256k1`) with Ethereum. This allows users (EOA account) that have been allocated EVMOS tokens are able to directly claim their tokens using their preferred web3 wallet.
+
 ### Cosmos Hub and Osmosis Users
 
+For Cosmos Hub and Osmosis users that use the default Tendermint `secp256k1` keys, they'd need to perform an "cross-chain attestation" of their Evmos address.
 
+This can be done by submitting and IBC Transfer from Cosmos Hub and Osmosis signed by the addresses they have been allocated the tokens.
+
+The recipient Evmos address of this IBC transfer will be the one to which the tokens will be
+
+::: warning **IMPORTANT**
+Only submit an IBC transfer to to the Evmos address that you posses. Otherwise you will lose your airdrop allocation.
+:::
 
 ## Decay Period
 
@@ -71,4 +81,4 @@ By default, users have two months (`DurationUntilDecay`) to claim their full air
 
 ## Airdrop Clawback
 
-After the claim period ends (defined by the module parameters), the tokens that were not claimed will be transferred to the community pool treasury. In the same way, users with tokens allocated.
+After the claim period ends, the tokens that were not claimed by users will be transferred to the community pool treasury. In the same way, users with tokens allocated but no transactions (i.e nonce = 0)
