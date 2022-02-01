@@ -13,7 +13,7 @@ import (
 // This is an evil token. Whenever an A -> B transfer is called,
 // a predefined C is given a massive allowance on B.
 var (
-	//go:embed ERC20DirectBalanceManipulation.json
+	//go:embed compiled_contracts/ERC20DirectBalanceManipulation.json
 	ERC20DirectBalanceManipulationJSON []byte // nolint: golint
 
 	// ERC20DirectBalanceManipulationContract is the compiled erc20 contract

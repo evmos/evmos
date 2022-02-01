@@ -605,32 +605,19 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-# prereq:
-# 	install node modules
-# 	install solc with docker
-
-# For each .sol in `evmos/x/erc20/types/contracts`
-#   - create .json with same name (change)
-#   - compile contract with solc
-# 			solc --combined-json abi,bin contracts/erc20DirectBalanceManipulation.sol >> ERC20DirectBalanceManipulation.json
-#		- filter out correct contract
-#   - format into and write to .json
-# 		{
-# 		  "contractName": 			# filename without .sol
-# 		  "abi": "[{\"inpu 			# convert JSON object into JSON string
-# 		  "bin": "60806040
-# 		}
-
 CONTRACTS_DIR := x/erc20/types/contracts
 COMPILED_DIR := x/erc20/types/contracts/compiled_contracts
 CONTRACT := ERC20MinterBurnerDecimals
 TMP := $(CURDIR)/tmp
+TMP_CONTRACTS := $(TMP).contracts
 TMP_COMPILED := $(TMP)/compiled.json
 TMP_JSON := $(TMP)/tmp.json
 
-
+# Compile and format solidity contracts for the erc20 module. Also install
+# openzeppeling as the contracts are build on top of openzeppelin templates.
 contracts-compile: contracts-clean openzeppelin create-contracts-json
 
+# Install openzeppelin solidity contracts
 openzeppelin:
 	@echo "Importing openzeppelin contracts..."
 	@cd $(CONTRACTS_DIR)
@@ -640,25 +627,32 @@ openzeppelin:
 	@mv package-lock.json $(TMP)
 	@mv $(TMP)/@openzeppelin $(CONTRACTS_DIR)
 
+# Clean tmp files
 contracts-clean:
 	@rm -rf tmp
 	@rm -rf node_modules
 	@rm -rf $(COMPILED_DIR)
 	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
 
+# Compile, filter out and format contracts into the following format.
+# {
+# 	"abi": "[{\"inpu 			# JSON string
+# 	"bin": "60806040
+# 	"contractName": 			# filename without .sol
+# }
 create-contracts-json:
-	command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
-	command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
-	mkdir -p $(COMPILED_DIR) ;\
-	touch $(COMPILED_DIR)/$(CONTRACT).json ;\
-	mkdir -p $(TMP) ;\
-
-	echo "Compiling solidity contracts..." ;\
-	solc --combined-json abi,bin $(CONTRACTS_DIR)/$(CONTRACT).sol >> $(TMP_COMPILED) ;\
-
-	echo "Formatting JSON..." ;\
-	get_formatted=$$(jq '.contracts["$(CONTRACTS_DIR)/$(CONTRACT).sol:$(CONTRACT)"]' $(TMP_COMPILED)) ;\
-	add_contract_name=$$(echo $$get_formatted | jq '. + { "contractName": "$(CONTRACT)" }') ;\
-	echo $$add_contract_name | jq > $(TMP_JSON) ;\
-	abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
-	echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
+	@for contract_name in $(shell ls $(CONTRACTS_DIR) | grep '\.sol'); do \
+		command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
+		command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
+		mkdir -p $(COMPILED_DIR) ;\
+		mkdir -p $(TMP) ;\
+		echo "Compiling solidity contracts..." ;\
+		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${contract_name}.sol > $(TMP_COMPILED) ;\
+		echo "Formatting JSON..." ;\
+		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/$${contract_name}.sol:$${contract_name}"]' $(TMP_COMPILED)) ;\
+		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "$${contract_name}" }') ;\
+		echo $$add_contract_name | jq > $(TMP_JSON) ;\
+		abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
+		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
+		mv $(TMP_JSON) $(COMPILED_DIR)/$${contract_name}.json ;\
+	done
