@@ -624,35 +624,13 @@ release:
 CONTRACTS_DIR := x/erc20/types/contracts
 COMPILED_DIR := x/erc20/types/contracts/compiled_contracts
 CONTRACT := ERC20MinterBurnerDecimals
-TMP := tmp
+TMP := $(CURDIR)/tmp
 TMP_COMPILED := $(TMP)/compiled.json
 TMP_JSON := $(TMP)/tmp.json
 
-contracts-compile: contracts-clean openzeppelin
-	@mkdir -p $(COMPILED_DIR)
-	@touch $(COMPILED_DIR)/$(CONTRACT).json
 
-	@mkdir -p tmp
+contracts-compile: contracts-clean openzeppelin create-contracts-json
 
-	@echo "Compiling solidity contracts..."
-	@solc --combined-json abi,bin $(CONTRACTS_DIR)/$(CONTRACT).sol >> $(TMP_COMPILED)
-
-	@echo "Formatting JSON..."
-	@jq '.contracts["$(CONTRACTS_DIR)/$(CONTRACT).sol:$(CONTRACT)"]' $(TMP_COMPILED) > $(TMP_JSON)
-	@cp -f $(TMP_JSON) $(TMP_COMPILED)
-
-# Add contract name
-	@jq '. + { "contractName": "$(CONTRACT)" }' $(TMP_COMPILED) > $(TMP_JSON)
-	@cp -f $(TMP_JSON) $(TMP_COMPILED)
-
-# Conert ABI format:JSON object -> JSON string
-# Write formatted abi to file
-	@jq -r '.abi | @json' $(TMP_COMPILED) > $(TMP_ABI)
-
-# Add formatted abi to compiled contract
-	$(shell echo '{"hello":{ "greetings":"to you"}}' | jq .hello.greetings) > $(TMP_JSON)
-
-# C
 openzeppelin:
 	@echo "Importing openzeppelin contracts..."
 	@cd $(CONTRACTS_DIR)
@@ -667,3 +645,20 @@ contracts-clean:
 	@rm -rf node_modules
 	@rm -rf $(COMPILED_DIR)
 	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
+
+create-contracts-json:
+	command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
+	command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
+	mkdir -p $(COMPILED_DIR) ;\
+	touch $(COMPILED_DIR)/$(CONTRACT).json ;\
+	mkdir -p $(TMP) ;\
+
+	echo "Compiling solidity contracts..." ;\
+	solc --combined-json abi,bin $(CONTRACTS_DIR)/$(CONTRACT).sol >> $(TMP_COMPILED) ;\
+
+	echo "Formatting JSON..." ;\
+	get_formatted=$$(jq '.contracts["$(CONTRACTS_DIR)/$(CONTRACT).sol:$(CONTRACT)"]' $(TMP_COMPILED)) ;\
+	add_contract_name=$$(echo $$get_formatted | jq '. + { "contractName": "$(CONTRACT)" }') ;\
+	echo $$add_contract_name | jq > $(TMP_JSON) ;\
+	abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
+	echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
