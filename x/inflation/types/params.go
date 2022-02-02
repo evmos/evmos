@@ -46,7 +46,7 @@ func DefaultParams() Params {
 			R:             sdk.NewDecWithPrec(50, 2), // 50%
 			C:             sdk.NewDec(int64(9_375_000)),
 			BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
-			MaxVariance:   sdk.NewDecWithPrec(40, 2), // 40%
+			MaxVariance:   sdk.ZeroDec(),             // 0%
 		},
 		InflationDistribution: InflationDistribution{
 			StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)

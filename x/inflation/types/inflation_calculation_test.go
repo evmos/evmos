@@ -18,6 +18,7 @@ func TestInflationSuite(t *testing.T) {
 
 func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 	bondingParams := DefaultParams()
+	bondingParams.ExponentialCalculation.MaxVariance = sdk.NewDecWithPrec(40, 2)
 	epochsPerPeriod := int64(365)
 
 	testCases := []struct {

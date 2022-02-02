@@ -11,12 +11,12 @@ func CalculateEpochMintProvision(
 	epochsPerPeriod int64,
 	bondedRatio sdk.Dec,
 ) sdk.Dec {
-	x := period                                            // period
-	a := params.ExponentialCalculation.A                   // initial value
-	r := params.ExponentialCalculation.R                   // reduction factor
-	c := params.ExponentialCalculation.C                   // long term inflation
-	bTarget := params.ExponentialCalculation.BondingTarget // bonding target
-	maxVariance := params.ExponentialCalculation.MaxVariance
+	x := period                                              // period
+	a := params.ExponentialCalculation.A                     // initial value
+	r := params.ExponentialCalculation.R                     // reduction factor
+	c := params.ExponentialCalculation.C                     // long term inflation
+	bTarget := params.ExponentialCalculation.BondingTarget   // bonding target
+	maxVariance := params.ExponentialCalculation.MaxVariance // max percentage that inflation can be increased by
 
 	// exponentialDecay := a * (1 - r) ^ x + c
 	decay := sdk.OneDec().Sub(r)
