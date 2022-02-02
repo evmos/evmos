@@ -641,18 +641,19 @@ contracts-clean:
 # 	"contractName": 			# filename without .sol
 # }
 create-contracts-json:
-	@for contract_name in $(shell ls $(CONTRACTS_DIR) | grep '\.sol'); do \
+	@for c in $(shell ls $(CONTRACTS_DIR) | grep '\.sol' | sed 's/.sol//g'); do \
 		command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
 		command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
 		mkdir -p $(COMPILED_DIR) ;\
 		mkdir -p $(TMP) ;\
-		echo "Compiling solidity contracts..." ;\
-		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${contract_name}.sol > $(TMP_COMPILED) ;\
+		echo "\nCompiling solidity contract $${c}..." ;\
+		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${c}.sol > $(TMP_COMPILED) ;\
 		echo "Formatting JSON..." ;\
-		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/$${contract_name}.sol:$${contract_name}"]' $(TMP_COMPILED)) ;\
-		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "$${contract_name}" }') ;\
+		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/'$$c'.sol:'$$c'"]' $(TMP_COMPILED)) ;\
+		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "'$$c'" }') ;\
 		echo $$add_contract_name | jq > $(TMP_JSON) ;\
 		abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
 		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
-		mv $(TMP_JSON) $(COMPILED_DIR)/$${contract_name}.json ;\
+		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
 	done
+	@rm -rf tmp
