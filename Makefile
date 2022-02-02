@@ -604,10 +604,9 @@ release:
 ###                        Compile Solidity Contracts                       ###
 ###############################################################################
 
-CONTRACTS_DIR := x/erc20/types/contracts
-COMPILED_DIR := x/erc20/types/contracts/compiled_contracts
-CONTRACT := ERC20MinterBurnerDecimals
-TMP := $(CURDIR)/tmp
+CONTRACTS_DIR := contracts
+COMPILED_DIR := contracts/compiled_contracts
+TMP := tmp
 TMP_CONTRACTS := $(TMP).contracts
 TMP_COMPILED := $(TMP)/compiled.json
 TMP_JSON := $(TMP)/tmp.json
