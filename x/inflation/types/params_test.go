@@ -22,11 +22,11 @@ func (suite *ParamsTestSuite) TestParamKeyTable() {
 
 func (suite *ParamsTestSuite) TestParamsValidate() {
 	validExponentialCalculation := ExponentialCalculation{
-		A:           sdk.NewDec(int64(300_000_000)),
-		R:           sdk.NewDecWithPrec(5, 1),
-		C:           sdk.NewDec(int64(9_375_000)),
-		BTarget:     sdk.NewDecWithPrec(50, 2),
-		MaxVariance: sdk.NewDecWithPrec(20, 2),
+		A:             sdk.NewDec(int64(300_000_000)),
+		R:             sdk.NewDecWithPrec(5, 1),
+		C:             sdk.NewDec(int64(9_375_000)),
+		BondingTarget: sdk.NewDecWithPrec(50, 2),
+		MaxVariance:   sdk.NewDecWithPrec(20, 2),
 	}
 
 	validInflationDistribution := InflationDistribution{
@@ -86,11 +86,11 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(-1)),
-					R:           sdk.NewDecWithPrec(5, 1),
-					C:           sdk.NewDec(int64(9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 2),
-					MaxVariance: sdk.NewDecWithPrec(20, 2),
+					A:             sdk.NewDec(int64(-1)),
+					R:             sdk.NewDecWithPrec(5, 1),
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 2),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
@@ -101,11 +101,11 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(300_000_000)),
-					R:           sdk.NewDecWithPrec(5, 0),
-					C:           sdk.NewDec(int64(9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 2),
-					MaxVariance: sdk.NewDecWithPrec(20, 2),
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(5, 0),
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 2),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
@@ -116,11 +116,11 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(300_000_000)),
-					R:           sdk.NewDecWithPrec(-5, 1),
-					C:           sdk.NewDec(int64(9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 2),
-					MaxVariance: sdk.NewDecWithPrec(20, 2),
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(-5, 1),
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 2),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
@@ -131,41 +131,41 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(300_000_000)),
-					R:           sdk.NewDecWithPrec(5, 1),
-					C:           sdk.NewDec(int64(-9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 2),
-					MaxVariance: sdk.NewDecWithPrec(20, 2),
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(5, 1),
+					C:             sdk.NewDec(int64(-9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 2),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
 			true,
 		},
 		{
-			"invalid - exponential calculation - BTarget greater than 1",
+			"invalid - exponential calculation - BondingTarget greater than 1",
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(300_000_000)),
-					R:           sdk.NewDecWithPrec(5, 1),
-					C:           sdk.NewDec(int64(9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 1),
-					MaxVariance: sdk.NewDecWithPrec(20, 2),
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(5, 1),
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 1),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
 			true,
 		},
 		{
-			"invalid - exponential calculation - negative BTarget",
+			"invalid - exponential calculation - negative BondingTarget",
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(300_000_000)),
-					R:           sdk.NewDecWithPrec(5, 1),
-					C:           sdk.NewDec(int64(9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 2).Neg(),
-					MaxVariance: sdk.NewDecWithPrec(20, 2),
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(5, 1),
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 2).Neg(),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
@@ -176,11 +176,11 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				MintDenom: "aevmos",
 				ExponentialCalculation: ExponentialCalculation{
-					A:           sdk.NewDec(int64(300_000_000)),
-					R:           sdk.NewDecWithPrec(5, 1),
-					C:           sdk.NewDec(int64(9_375_000)),
-					BTarget:     sdk.NewDecWithPrec(50, 2),
-					MaxVariance: sdk.NewDecWithPrec(20, 2).Neg(),
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(5, 1),
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(50, 2),
+					MaxVariance:   sdk.NewDecWithPrec(20, 2).Neg(),
 				},
 				InflationDistribution: validInflationDistribution,
 			},
