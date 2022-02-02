@@ -35,7 +35,7 @@ func (suite *KeeperTestSuite) TestSetGetBondedRatio() {
 
 			bondedRatio, found := suite.app.InflationKeeper.GetBondedRatio(suite.ctx)
 			suite.Require().True(found)
-			genesisbondedRatio := sdk.ZeroDec()
+			genesisbondedRatio := sdk.OneDec()
 			if tc.genesis {
 				suite.Require().Equal(genesisbondedRatio, bondedRatio, tc.name)
 			} else {
