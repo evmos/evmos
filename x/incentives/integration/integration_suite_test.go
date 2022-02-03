@@ -15,6 +15,8 @@ import (
 	"github.com/tharsis/ethermint/server/config"
 	"github.com/tharsis/ethermint/testutil/network"
 
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	evmosnetwork "github.com/tharsis/evmos/testutil/network"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -22,10 +24,12 @@ import (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	ctx             context.Context
-	cfg             network.Config
-	network         *network.Network
-	grpcQueryClient types.QueryClient
+	ctx                context.Context
+	cfg                network.Config
+	network            *network.Network
+	grpcQueryClient    types.QueryClient
+	grpcQueryClientGov govtypes.QueryClient
+	grpcTxClientGov    govtypes.MsgClient
 	// grpcTxClient    types.MsgClient
 }
 
@@ -78,6 +82,16 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.Require().NoError(err)
 
 	s.grpcQueryClient = types.NewQueryClient(grpcConn)
+
+	// Create a connection to the gRPC server.
+	grpcConnGov, err := grpc.Dial(
+		s.network.Validators[0].AppConfig.GRPC.Address, // gRPC server address.
+		grpc.WithInsecure(),                            // nosemgrep
+	)
+	s.Require().NoError(err)
+
+	s.grpcQueryClientGov = govtypes.NewQueryClient(grpcConnGov)
+	s.grpcTxClientGov = govtypes.NewMsgClient(grpcConn)
 
 	// FIXME: "unknown service evmos.erc20.v1.Msg"
 	// s.grpcTxClient = types.NewMsgClient(grpcConn)
