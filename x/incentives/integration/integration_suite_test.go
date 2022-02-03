@@ -5,19 +5,18 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 
-	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/tharsis/ethermint/server/config"
 	"github.com/tharsis/ethermint/testutil/network"
 
 	evmosnetwork "github.com/tharsis/evmos/testutil/network"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 type IntegrationTestSuite struct {
@@ -27,23 +26,26 @@ type IntegrationTestSuite struct {
 	cfg             network.Config
 	network         *network.Network
 	grpcQueryClient types.QueryClient
-	grpcTxClient    types.MsgClient
+	// grpcTxClient    types.MsgClient
 }
+
+var s *IntegrationTestSuite
 
 func TestIntegration(t *testing.T) {
-	// TODO fix on ethermint
-	// t.Skip()
-	// suite.Run(t, new(IntegrationTestSuite))
+	s = new(IntegrationTestSuite)
+	suite.Run(t, s)
 
-	s := new(IntegrationTestSuite)
-	s.SetupTest() // reset
-
-	// Run Ginkgo Testing Suite
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Integration Suite")
-
-	s.TearDownSuite()
 }
+
+var _ = BeforeSuite(func() {
+	s.SetupTest()
+})
+
+var _ = AfterSuite(func() {
+	s.TearDownSuite()
+})
 
 func (s *IntegrationTestSuite) SetupTest() {
 	s.T().Log("setting up integration test suite")
@@ -78,25 +80,10 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.grpcQueryClient = types.NewQueryClient(grpcConn)
 
 	// FIXME: "unknown service evmos.erc20.v1.Msg"
-	s.grpcTxClient = types.NewMsgClient(grpcConn)
+	// s.grpcTxClient = types.NewMsgClient(grpcConn)
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {
 	s.T().Log("tearing down integration test suite")
-
-	// This is important and must be called to ensure other tests can create
-	// a network!
 	s.network.Cleanup()
-}
-
-func (s *IntegrationTestSuite) TestLiveness() {
-	// test the gRPC query client to check if everything's ok
-	resParams, err := s.grpcQueryClient.Params(s.ctx, &types.QueryParamsRequest{})
-	s.Require().NoError(err)
-	s.Require().NotNil(resParams)
-
-	// FIXME: enable
-	// res, err := s.grpcTxClient.ConvertCoin(s.ctx, &types.MsgConvertCoin{})
-	// s.Require().NoError(err)
-	// s.Require().NotNil(res)
 }
