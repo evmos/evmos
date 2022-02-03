@@ -5,7 +5,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v3/testing"
+	"github.com/tharsis/evmos/ibctesting"
 
 	"github.com/tharsis/ethermint/encoding"
 
