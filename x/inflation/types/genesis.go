@@ -20,7 +20,6 @@ func NewGenesisState(
 		Period:          period,
 		EpochIdentifier: epochIdentifier,
 		EpochsPerPeriod: epochsPerPeriod,
-		BondedRatio:     bondedRatio,
 	}
 }
 
@@ -31,7 +30,6 @@ func DefaultGenesisState() *GenesisState {
 		Period:          uint64(0),
 		EpochIdentifier: "day",
 		EpochsPerPeriod: 365,
-		BondedRatio:     sdk.OneDec(),
 	}
 }
 
@@ -42,10 +40,6 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 	if err := validateEpochsPerPeriod(gs.EpochsPerPeriod); err != nil {
-		return err
-	}
-
-	if err := validateBondedRatio(gs.BondedRatio); err != nil {
 		return err
 	}
 
@@ -62,22 +56,5 @@ func validateEpochsPerPeriod(i interface{}) error {
 		return fmt.Errorf("epochs per period must be positive: %d", v)
 	}
 
-	return nil
-}
-
-func validateBondedRatio(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	// validate bonding factor
-	if v.GT(sdk.NewDec(1)) {
-		return fmt.Errorf("bonding factor cannot be greater than 1")
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("bonding factor cannot be negative")
-	}
 	return nil
 }

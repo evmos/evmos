@@ -17,7 +17,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	params := k.GetParams(ctx)
 	expEpochID := k.GetEpochIdentifier(ctx)
 	if epochIdentifier != expEpochID {
-		fmt.Printf("unexpected EpochIdentifier provided: %s, expected: %s", epochIdentifier, expEpochID)
 		return
 	}
 
@@ -47,10 +46,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		period++
 		k.SetPeriod(ctx, period)
 		period = k.GetPeriod(ctx)
-
 		bondedRatio := k.stakingKeeper.BondedRatio(ctx)
-		k.SetBondedRatio(ctx, bondedRatio)
-
 		newProvision = types.CalculateEpochMintProvision(
 			params,
 			period,

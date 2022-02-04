@@ -1381,7 +1381,6 @@ GenesisState defines the inflation module's genesis state.
 | `period` | [uint64](#uint64) |  | amount of past periods, based on the epochs per period param |
 | `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
 | `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
-| `bonded_ratio` | [string](#string) |  | fraction of the staking tokens which are currently bonded |
 
 
 
