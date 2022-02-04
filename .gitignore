@@ -73,4 +73,6 @@ dependency-graph.png
 # Node.js
 tests/**/node_modules/*
 tests-solidity/**/node_modules/*
-node_modules/*
+
+# OpenZeppelin contracts
+contracts/@openzeppelin/*
