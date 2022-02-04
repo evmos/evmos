@@ -109,9 +109,6 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 				// mint provisions will change
 				suite.Require().NotEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
 				suite.Require().Equal(currentPeriod+1, newPeriod)
-				// bonding Ratio is updated
-				gs := types.DefaultGenesisState()
-				suite.Require().NotEqual(gs.BondedRatio, bondedRatio)
 			} else {
 				suite.Require().Equal(newPeriod, currentPeriod)
 			}
