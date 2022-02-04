@@ -37,8 +37,11 @@ type KeeperTestSuite struct {
 	consAddress    sdk.ConsAddress
 }
 
+var s *KeeperTestSuite
+
 func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
+	s = new(KeeperTestSuite)
+	suite.Run(t, s)
 
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
@@ -86,12 +89,28 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.InflationKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	// Set epoch start time and height for all epoch identifiers
+	identifiers := []string{"week", "day"}
+	for _, identifier := range identifiers {
+		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
+		suite.Require().True(found)
+		epoch.StartTime = suite.ctx.BlockTime()
+		epoch.CurrentEpochStartHeight = suite.ctx.BlockHeight()
+		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epoch)
+	}
+
 }
 
 func (suite *KeeperTestSuite) Commit() {
+	suite.CommitAfter(time.Nanosecond)
+}
+
+func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()
 	header.Height += 1
+	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
