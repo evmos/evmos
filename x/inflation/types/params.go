@@ -117,8 +117,8 @@ func validateExponentialCalculation(i interface{}) error {
 		return fmt.Errorf("bonded target cannot be greater than 1")
 	}
 
-	if v.BondingTarget.IsNegative() {
-		return fmt.Errorf("bonded target cannot be negative")
+	if !v.BondingTarget.IsPositive() {
+		return fmt.Errorf("bonded target cannot be zero or negative")
 	}
 
 	// validate max variance
