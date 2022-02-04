@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	//go:embed ERC20MinterBurnerDecimals.json
+	//go:embed compiled_contracts/ERC20MinterBurnerDecimals.json
 	ERC20MinterBurnerDecimalsJSON []byte // nolint: golint
 
 	// ERC20MinterBurnerDecimalsContract is the compiled erc20 contract
