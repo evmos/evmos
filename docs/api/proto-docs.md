@@ -1313,8 +1313,8 @@ Query defines the gRPC querier service.
 ### ExponentialCalculation
 ExponentialCalculation holds factors to calculate exponential inflation on
 each period. Calculation reference:
-periodProvision = exponentialDecay       *  bondingRatio
-f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
+periodProvision = exponentialDecay       *  bondingIncentive
+f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio * (max_variance / bonding_target))
 
 
 | Field | Type | Label | Description |
@@ -1322,7 +1322,8 @@ f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
 | `a` | [string](#string) |  | initial value |
 | `r` | [string](#string) |  | reduction factor |
 | `c` | [string](#string) |  | long term inflation |
-| `b` | [string](#string) |  | bonding factor` |
+| `bonding_target` | [string](#string) |  | bonding target |
+| `max_variance` | [string](#string) |  | max variance |
 
 
 
