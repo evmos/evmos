@@ -599,3 +599,59 @@ release:
 		release --rm-dist --skip-validate
 
 .PHONY: release-dry-run release
+
+###############################################################################
+###                        Compile Solidity Contracts                       ###
+###############################################################################
+
+CONTRACTS_DIR := contracts
+COMPILED_DIR := contracts/compiled_contracts
+TMP := tmp
+TMP_CONTRACTS := $(TMP).contracts
+TMP_COMPILED := $(TMP)/compiled.json
+TMP_JSON := $(TMP)/tmp.json
+
+# Compile and format solidity contracts for the erc20 module. Also install
+# openzeppeling as the contracts are build on top of openzeppelin templates.
+contracts-compile: contracts-clean openzeppelin create-contracts-json
+
+# Install openzeppelin solidity contracts
+openzeppelin:
+	@echo "Importing openzeppelin contracts..."
+	@cd $(CONTRACTS_DIR)
+	@npm install
+	@cd ../../../../
+	@mv node_modules $(TMP)
+	@mv package-lock.json $(TMP)
+	@mv $(TMP)/@openzeppelin $(CONTRACTS_DIR)
+
+# Clean tmp files
+contracts-clean:
+	@rm -rf tmp
+	@rm -rf node_modules
+	@rm -rf $(COMPILED_DIR)
+	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
+
+# Compile, filter out and format contracts into the following format.
+# {
+# 	"abi": "[{\"inpu 			# JSON string
+# 	"bin": "60806040
+# 	"contractName": 			# filename without .sol
+# }
+create-contracts-json:
+	@for c in $(shell ls $(CONTRACTS_DIR) | grep '\.sol' | sed 's/.sol//g'); do \
+		command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
+		command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
+		mkdir -p $(COMPILED_DIR) ;\
+		mkdir -p $(TMP) ;\
+		echo "\nCompiling solidity contract $${c}..." ;\
+		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${c}.sol > $(TMP_COMPILED) ;\
+		echo "Formatting JSON..." ;\
+		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/'$$c'.sol:'$$c'"]' $(TMP_COMPILED)) ;\
+		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "'$$c'" }') ;\
+		echo $$add_contract_name | jq > $(TMP_JSON) ;\
+		abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
+		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
+		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
+	done
+	@rm -rf tmp
