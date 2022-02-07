@@ -39,8 +39,8 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/contracts"
 	"github.com/tharsis/evmos/x/erc20/types"
-	"github.com/tharsis/evmos/x/erc20/types/contracts"
 )
 
 type KeeperTestSuite struct {

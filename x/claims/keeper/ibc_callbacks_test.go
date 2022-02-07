@@ -108,6 +108,16 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			true,
 		},
 		{
+			"correct execution - Claimable Transfer",
+			func(claimableAmount int64) {
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, false, true, false}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, true, false, false}})
+			},
+			4,
+			4,
+			true,
+		},
+		{
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
@@ -136,7 +146,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		},
 		{
 			"Disabled by params",
-			func(claimableAmount int64) {
+			func(_ int64) {
 				params := types.DefaultParams()
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
@@ -212,6 +222,15 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			true,
 		},
 		{
+			"correct execution - Claimable Transfer",
+			func(claimableAmount int64) {
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+			},
+			4,
+			1,
+			true,
+		},
+		{
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
@@ -260,12 +279,12 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 
 			// FIXME: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
 			// ERR: failed to execute message; message index: 0: acknowledge packet verification failed: failed packet acknowledgement verification for client (07-tendermint-0): chained membership proof failed to verify membership of value: 8C9178E2AD2AFC8D7CCFD8488D1772BF5608CD6B9BE915FF2BE4E7464260E188 in subroot BD1A2930E107481716A200E1D6A315AB9C898A25DFCE4BD5FCECA448EECBF624 at index 0. Please ensure the path and value are both correct.: invalid proof
-			ack := ibctesting.MockAcknowledgement
-			path.EndpointA.AcknowledgePacket(packet, ack)
+			// ack := ibctesting.MockAcknowledgement
+			// path.EndpointA.AcknowledgePacket(packet, ack)
 
 			// TODO: delete this when above option works
-			// err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
-			// suite.Require().NoError(err)
+			err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
+			suite.Require().NoError(err)
 
 			if tc.expPass {
 				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderaddr, "aevmos")

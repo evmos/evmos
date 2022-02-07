@@ -61,17 +61,21 @@ func (k Keeper) OnRecvPacket(
 	switch {
 	case senderRecordFound && recipientRecordFound:
 		// claim already claimed actions (recipient) for sender
-		// MERGE sender's record with the recipient's record
 
-		// 2.1.1. if an action been claimed by recipient
-		//   -> TODO: no-op? calculation gets messy since the airdrop is divided from the actions not claimed
-		// 		-> TODO: we could also claim all the actions already claimed by the recipient
-		// 2.1.2  if no action has been claimed -> add to total
-		// if the recipient already has a claim record,
-		// add the initial balance to the
+		// MERGE sender's record with the recipient's record and
+		// claim actions that have been completed by one or the other
+		recipientClaimsRecord, err = k.MergeClaimsRecords(ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err.Error())
+		}
+
+		// update the recipient's record with the new merged one, while deleting the
+		// sender's record
+		k.SetClaimsRecord(ctx, recipient, recipientClaimsRecord)
+		k.DeleteClaimsRecord(ctx, sender)
 	case senderRecordFound && !recipientRecordFound:
 		// migrate sender record to recipient
-		k.SetClaimsRecord(ctx, recipient, *senderClaimsRecord)
+		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
 		k.DeleteClaimsRecord(ctx, sender)
 
 		// claim IBC action
