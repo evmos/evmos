@@ -11,6 +11,7 @@ func InitGenesis(
 	ctx sdk.Context,
 	k keeper.Keeper,
 	ak types.AccountKeeper,
+	sk types.StakingKeeper,
 	data types.GenesisState,
 ) {
 	// Ensure inflation module account is set on genesis
@@ -31,8 +32,16 @@ func InitGenesis(
 	epochsPerPeriod := data.EpochsPerPeriod
 	k.SetEpochsPerPeriod(ctx, epochsPerPeriod)
 
+	// Get bondedRatio
+	bondedRatio := sk.BondedRatio(ctx)
+
 	// Calculate epoch mint provision
-	epochMintProvision := types.CalculateEpochMintProvision(params, period, epochsPerPeriod)
+	epochMintProvision := types.CalculateEpochMintProvision(
+		params,
+		period,
+		epochsPerPeriod,
+		bondedRatio,
+	)
 	k.SetEpochMintProvision(ctx, epochMintProvision)
 }
 

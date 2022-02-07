@@ -3,6 +3,7 @@ package types
 import (
 	fmt "fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
@@ -12,6 +13,7 @@ func NewGenesisState(
 	period uint64,
 	epochIdentifier string,
 	epochsPerPeriod int64,
+	bondedRatio sdk.Dec,
 ) GenesisState {
 	return GenesisState{
 		Params:          params,
