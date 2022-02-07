@@ -13,14 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -29,16 +27,13 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/server/config"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/erc20/types/contracts"
@@ -112,45 +107,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	// setup feemarketGenesis params
-	feemarketGenesis := feemarkettypes.DefaultGenesisState()
-	feemarketGenesis.Params.EnableHeight = 1
-	feemarketGenesis.Params.NoBaseFee = false
-	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
-
 	// Init app
-	suite.app = app.Setup(checkTx, feemarketGenesis)
-
-	if suite.mintFeeCollector {
-		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(int64(params.TxGas)-1)))
-		genesisState := app.ModuleBasics.DefaultGenesis(suite.app.AppCodec())
-		balances := []banktypes.Balance{
-			{
-				Address: suite.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName).String(),
-				Coins:   coins,
-			},
-		}
-		// update total supply
-		bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt((int64(params.TxGas)-1)))), []banktypes.Metadata{})
-		bz := suite.app.AppCodec().MustMarshalJSON(bankGenesis)
-		require.NotNil(t, bz)
-		genesisState[banktypes.ModuleName] = suite.app.AppCodec().MustMarshalJSON(bankGenesis)
-
-		// we marshal the genesisState of all module to a byte array
-		stateBytes, err := tmjson.MarshalIndent(genesisState, "", " ")
-		require.NoError(t, err)
-
-		// Initialize the chain
-		suite.app.InitChain(
-			abci.RequestInitChain{
-				ChainId:         "evmos_9000-1",
-				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: simapp.DefaultConsensusParams,
-				AppStateBytes:   stateBytes,
-			},
-		)
-	}
+	suite.app = app.Setup(checkTx, nil)
 
 	// Set Context
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
