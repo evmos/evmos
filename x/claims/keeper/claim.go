@@ -161,17 +161,17 @@ func (k Keeper) MergeClaimsRecords(
 		switch {
 		case senderCompleted && recipientCompleted:
 			// both sender and recipient completed the action. No-op
-			mergedRecord.ActionsCompleted[i] = true
+			mergedRecord.ActionsCompleted[i-1] = true
 		case recipientCompleted && !senderCompleted:
 			// claim action for sender since the recipient completed it
 			amt := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amt)
-			mergedRecord.ActionsCompleted[i] = true
+			mergedRecord.ActionsCompleted[i-1] = true
 		case !recipientCompleted && senderCompleted:
 			// claim action for recipient since the sender completed it
 			amt := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amt)
-			mergedRecord.ActionsCompleted[i] = true
+			mergedRecord.ActionsCompleted[i-1] = true
 		case !senderCompleted && !recipientCompleted:
 			// Neither sender or recipient completed the action.
 			if action != types.ActionIBCTransfer {
@@ -183,8 +183,7 @@ func (k Keeper) MergeClaimsRecords(
 			amtIBCRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			amtIBCSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amtIBCRecipient).Add(amtIBCSender)
-			mergedRecord.ActionsCompleted[i] = true
-
+			mergedRecord.ActionsCompleted[i-1] = true
 		}
 	}
 
