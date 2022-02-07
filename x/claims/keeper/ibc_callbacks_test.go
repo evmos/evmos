@@ -133,7 +133,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		},
 		{
 			"Disabled by params",
-			func(claimableAmount int64) {
+			func(_ int64) {
 				params := types.DefaultParams()
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)

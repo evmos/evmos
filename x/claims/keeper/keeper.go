@@ -79,18 +79,18 @@ func (k Keeper) GetModuleAccountBalances(ctx sdk.Context) sdk.Coins {
 }
 
 // GetClaimsRecord returns the claim record for a specific address
-func (k Keeper) GetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) (*types.ClaimsRecord, bool) {
+func (k Keeper) GetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimsRecord, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 
 	bz := store.Get(addr)
 	if len(bz) == 0 {
-		return &types.ClaimsRecord{}, false
+		return types.ClaimsRecord{}, false
 	}
 
 	var claimsRecord types.ClaimsRecord
 	k.cdc.MustUnmarshal(bz, &claimsRecord)
 
-	return &claimsRecord, true
+	return claimsRecord, true
 }
 
 // SetClaimsRecord sets a claim record for an address in store
