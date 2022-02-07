@@ -15,7 +15,7 @@ func (k Keeper) RegisterIncentive(
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) (*types.Incentive, error) {
-	// check if the Incentives are globally enabled
+	// Check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
 		return nil, sdkerrors.Wrap(
@@ -24,7 +24,16 @@ func (k Keeper) RegisterIncentive(
 		)
 	}
 
-	// check if the incentive is already registered
+	// Check if contract exists
+	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
+	if acc == nil || !acc.IsContract() {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInternalIncentive,
+			"contract doesn't exist: %s", contract,
+		)
+	}
+
+	// Check if the incentive is already registered
 	if k.IsIncentiveRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrInternalIncentive,
@@ -32,7 +41,7 @@ func (k Keeper) RegisterIncentive(
 		)
 	}
 
-	// check if the balance is > 0 for coins other than the mint denomination
+	// Check if the balance is > 0 for coins other than the mint denomination
 	mintDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	for _, al := range allocations {
@@ -43,7 +52,7 @@ func (k Keeper) RegisterIncentive(
 			)
 		}
 
-		// check if each allocation is below the allocation limit
+		// Check if each allocation is below the allocation limit
 		if al.Amount.GT(params.AllocationLimit) {
 			return nil, sdkerrors.Wrapf(
 				types.ErrInternalIncentive,
@@ -56,7 +65,7 @@ func (k Keeper) RegisterIncentive(
 	allocationMeters := []sdk.DecCoin{}
 	for _, al := range allocations {
 		allocationMeter, _ := k.GetAllocationMeter(ctx, al.Denom)
-		// check if the sum of all allocations (current + proposed) exceeds 100%
+		// Check if the sum of all allocations (current + proposed) exceeds 100%
 		allocationSum := allocationMeter.Amount.Add(al.Amount)
 		if allocationSum.GT(sdk.OneDec()) {
 			return nil, sdkerrors.Wrapf(
@@ -92,7 +101,7 @@ func (k Keeper) CancelIncentive(
 	ctx sdk.Context,
 	contract common.Address,
 ) error {
-	// check if the Incentives are globally enabled
+	// Check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
 		return sdkerrors.Wrap(
