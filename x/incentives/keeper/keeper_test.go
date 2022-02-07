@@ -46,6 +46,7 @@ import (
 )
 
 var (
+	// TODO replace participant with suite.address
 	participant     = tests.GenerateAddress()
 	participant2    = tests.GenerateAddress()
 	contract        = tests.GenerateAddress()
@@ -61,6 +62,8 @@ var (
 		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(allocationRate, 2)),
 	}
 	epochs        = uint32(10)
+	erc20Name     = "Coin Token"
+	erc20Symbol   = "CTKN"
 	erc20Decimals = uint8(18)
 )
 
@@ -247,7 +250,10 @@ func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 }
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimals uint8) common.Address {
+func (suite *KeeperTestSuite) DeployContract(
+	name, symbol string,
+	decimals uint8,
+) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
@@ -291,21 +297,33 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimal
 }
 
 // MintERC20Token mints ERC20MinterBurnerDecimalsContract tokens..
-func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) MintERC20Token(
+	contractAddr,
+	from, to common.Address,
+	amount *big.Int,
+) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
 // BurnERC20Token burns ERC20MinterBurnerDecimalsContract tokens.
-func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) BurnERC20Token(
+	contractAddr,
+	from common.Address,
+	amount *big.Int,
+) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", types.ModuleAddress, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
 // GrantERC20Token grants ERC20MinterBurnerDecimalsContract tokens.
-func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, role_string string) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) GrantERC20Token(
+	contractAddr,
+	from, to common.Address,
+	role_string string,
+) *evm.MsgEthereumTx {
 	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
 	role := crypto.Keccak256([]byte(role_string))
 	// needs to be an array not a slice
@@ -317,8 +335,23 @@ func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Addr
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
-// sendTx creates, sings and sends a evm transaction.
-func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTx {
+// TransferERC20Token transfers tokens from one account to another to another
+func (suite *KeeperTestSuite) TransferERC20Token(
+	contractAddr,
+	from, to common.Address,
+	amount *big.Int,
+) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
+	suite.Require().NoError(err)
+	return suite.sendTx(contractAddr, from, transferData)
+}
+
+// sendTx creates, sings and sends a evm transaction from suite.address account.
+func (suite *KeeperTestSuite) sendTx(
+	contractAddr,
+	from common.Address,
+	transferData []byte,
+) *evm.MsgEthereumTx {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
@@ -376,7 +409,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.I
 	return unpacked[0].(*big.Int)
 }
 
-// NameOF gets the name of a given ERC20MinterBurnerDecimalsContract contract.
+// NameOf gets the name of a given ERC20MinterBurnerDecimalsContract contract.
 func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
@@ -389,11 +422,4 @@ func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	suite.Require().NotEmpty(unpacked)
 
 	return fmt.Sprintf("%v", unpacked[0])
-}
-
-// TransferERC20Token transfers tokens from the suite.address to a given address
-func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
-	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
-	suite.Require().NoError(err)
-	return suite.sendTx(contractAddr, suite.address, transferData)
 }

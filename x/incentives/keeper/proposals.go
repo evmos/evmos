@@ -15,6 +15,8 @@ func (k Keeper) RegisterIncentive(
 	allocations sdk.DecCoins,
 	epochs uint32,
 ) (*types.Incentive, error) {
+	// TODO check if contract exists?
+
 	// check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
