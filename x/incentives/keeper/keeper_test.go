@@ -7,6 +7,9 @@ import (
 	"testing"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -76,6 +79,21 @@ type KeeperTestSuite struct {
 	mintFeeCollector bool
 }
 
+var s *KeeperTestSuite
+
+func TestKeeperTestSuite(t *testing.T) {
+	s = new(KeeperTestSuite)
+	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper Suite")
+}
+
+func (suite *KeeperTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
+
 // Test helpers
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	checkTx := false
@@ -97,7 +115,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	feemarketGenesis.Params.NoBaseFee = false
 	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
-	// init app
+	// Init app
 	suite.app = app.Setup(checkTx, feemarketGenesis)
 
 	if suite.mintFeeCollector {
@@ -131,6 +149,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		)
 	}
 
+	// Set Context
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9000-1",
@@ -156,6 +175,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
 
+	// Setup query helpers
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
@@ -163,6 +183,17 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.IncentivesKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	// Set epoch start time and height for all epoch identifiers from the epoch
+	// module
+	identifiers := []string{"week", "day"}
+	for _, identifier := range identifiers {
+		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
+		suite.Require().True(found)
+		epoch.StartTime = suite.ctx.BlockTime()
+		epoch.CurrentEpochStartHeight = suite.ctx.BlockHeight()
+		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epoch)
+	}
 
 	acc := &ethermint.EthAccount{
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
@@ -183,18 +214,17 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 }
 
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
-}
-
+// Commit commits and starts a new block with an updated context.
 func (suite *KeeperTestSuite) Commit() {
+	suite.CommitAfter(time.Second * 0)
+}
+
+// Commit commits a block at a given time.
+func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()
 	header.Height += 1
+	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
@@ -207,6 +237,8 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
 }
 
+// MintFeeCollector mints coins with the bank modules and sends them to the fee
+// collector.
 func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -214,6 +246,7 @@ func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 	suite.Require().NoError(err)
 }
 
+// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
 func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimals uint8) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
@@ -257,18 +290,21 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimal
 	return crypto.CreateAddress(suite.address, nonce)
 }
 
+// MintERC20Token mints ERC20MinterBurnerDecimalsContract tokens..
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
+// BurnERC20Token burns ERC20MinterBurnerDecimalsContract tokens.
 func (suite *KeeperTestSuite) BurnERC20Token(contractAddr, from common.Address, amount *big.Int) *evm.MsgEthereumTx {
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", types.ModuleAddress, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
+// GrantERC20Token grants ERC20MinterBurnerDecimalsContract tokens.
 func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, role_string string) *evm.MsgEthereumTx {
 	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
 	role := crypto.Keccak256([]byte(role_string))
@@ -281,6 +317,7 @@ func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Addr
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
+// sendTx creates, sings and sends a evm transaction.
 func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTx {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
@@ -322,6 +359,8 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	return ercTransferTx
 }
 
+// BalanceOf gets the ERC20MinterBurnerDecimalsContract token balance at a given
+// addr.
 func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.Int {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
@@ -337,6 +376,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.I
 	return unpacked[0].(*big.Int)
 }
 
+// NameOF gets the name of a given ERC20MinterBurnerDecimalsContract contract.
 func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
