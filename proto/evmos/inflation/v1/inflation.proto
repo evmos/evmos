@@ -35,8 +35,8 @@ message InflationDistribution {
 
 // ExponentialCalculation holds factors to calculate exponential inflation on
 // each period. Calculation reference:
-// periodProvision = exponentialDecay       *  bondingRatio
-// f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
+// periodProvision = exponentialDecay       *  bondingIncentive
+// f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio * (max_variance / bonding_target))
 message ExponentialCalculation {
   // initial value
   string a = 1 [
@@ -53,8 +53,13 @@ message ExponentialCalculation {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // bonding factor`
-  string b = 4 [
+  // bonding target
+  string bonding_target = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // max variance
+  string max_variance = 5 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];

@@ -42,10 +42,11 @@ func DefaultParams() Params {
 	return Params{
 		MintDenom: evm.DefaultEVMDenom,
 		ExponentialCalculation: ExponentialCalculation{
-			A: sdk.NewDec(int64(300_000_000)),
-			R: sdk.NewDecWithPrec(5, 1), // 0.5
-			C: sdk.NewDec(int64(9_375_000)),
-			B: sdk.ZeroDec(),
+			A:             sdk.NewDec(int64(300_000_000)),
+			R:             sdk.NewDecWithPrec(50, 2), // 50%
+			C:             sdk.NewDec(int64(9_375_000)),
+			BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
+			MaxVariance:   sdk.ZeroDec(),             // 0%
 		},
 		InflationDistribution: InflationDistribution{
 			StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
@@ -111,13 +112,18 @@ func validateExponentialCalculation(i interface{}) error {
 		return fmt.Errorf("long term inflation cannot be negative")
 	}
 
-	// validate bonding factor
-	if v.B.GT(sdk.NewDec(1)) {
-		return fmt.Errorf("bonding factor cannot be greater than 1")
+	// validate bonded target
+	if v.BondingTarget.GT(sdk.NewDec(1)) {
+		return fmt.Errorf("bonded target cannot be greater than 1")
 	}
 
-	if v.B.IsNegative() {
-		return fmt.Errorf("bonding factor cannot be negative")
+	if !v.BondingTarget.IsPositive() {
+		return fmt.Errorf("bonded target cannot be zero or negative")
+	}
+
+	// validate max variance
+	if v.MaxVariance.IsNegative() {
+		return fmt.Errorf("max variance cannot be negative")
 	}
 
 	return nil

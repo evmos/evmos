@@ -24,7 +24,6 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 			false,
 		},
 	}
-
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
@@ -55,6 +54,8 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 	suite.SetupTest()
 
 	currentEpochPeriod := suite.app.InflationKeeper.GetEpochsPerPeriod(suite.ctx)
+	// bondingRatio is zero in tests
+	bondedRatio := suite.app.StakingKeeper.BondedRatio(suite.ctx)
 
 	testCases := []struct {
 		name    string
@@ -82,7 +83,6 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 			true,
 		},
 	}
-
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			currentPeriod := suite.app.InflationKeeper.GetPeriod(suite.ctx)
@@ -103,11 +103,12 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 					suite.app.InflationKeeper.GetParams(suite.ctx),
 					newPeriod,
 					currentEpochPeriod,
+					bondedRatio,
 				)
-				suite.Require().Equal(newProvision, expectedProvision)
-				// mint provisions will flat out at certain point, thus equal rather than just less
-				suite.Require().LessOrEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
-				suite.Require().Equal(newPeriod, currentPeriod+1)
+				suite.Require().Equal(expectedProvision, newProvision)
+				// mint provisions will change
+				suite.Require().NotEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
+				suite.Require().Equal(currentPeriod+1, newPeriod)
 			} else {
 				suite.Require().Equal(newPeriod, currentPeriod)
 			}
