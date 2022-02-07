@@ -41,11 +41,13 @@ import (
 )
 
 var (
-	// TODO replace participant with suite.address
+	contract  common.Address
+	contract2 common.Address
+)
+
+var (
 	participant     = tests.GenerateAddress()
 	participant2    = tests.GenerateAddress()
-	contract        = tests.GenerateAddress()
-	contract2       = tests.GenerateAddress()
 	denomMint       = evm.DefaultEVMDenom
 	denomCoin       = "acoin"
 	allocationRate  = int64(5)
@@ -59,6 +61,8 @@ var (
 	epochs        = uint32(10)
 	erc20Name     = "Coin Token"
 	erc20Symbol   = "CTKN"
+	erc20Name2    = "Coin Token 2"
+	erc20Symbol2  = "CTKN2"
 	erc20Decimals = uint8(18)
 )
 
@@ -173,6 +177,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+
+	// Deploy contracts
+	contract = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+	contract2 = suite.DeployContract(erc20Name2, erc20Symbol2, erc20Decimals)
 }
 
 // Commit commits and starts a new block with an updated context.
