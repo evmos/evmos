@@ -173,7 +173,18 @@ func (k Keeper) MergeClaimsRecords(
 			claimableAmt = claimableAmt.Add(amt)
 			mergedRecord.ActionsCompleted[i] = true
 		case !senderCompleted && !recipientCompleted:
-			// Neither sender or recipient completed the action. No-op
+			// Neither sender or recipient completed the action.
+			if action != types.ActionIBCTransfer {
+				// No-op if the action is not IBC transfer
+				continue
+			}
+
+			// claim IBC action for both sender and recipient
+			amtIBCRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
+			amtIBCSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
+			claimableAmt = claimableAmt.Add(amtIBCRecipient).Add(amtIBCSender)
+			mergedRecord.ActionsCompleted[i] = true
+
 		}
 	}
 
