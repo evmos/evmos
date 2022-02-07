@@ -108,7 +108,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			true,
 		},
 		{
-			"correct execution - Claimable Transfer",
+			"correct execution - Merge Transfer",
 			func(claimableAmount int64) {
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, false, true, false}})
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, true, false, false}})
@@ -185,9 +185,8 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			if tc.expPass {
 				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				claim, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
+				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
 				suite.Require().True(found)
-				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
 				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
