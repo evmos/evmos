@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 	types "github.com/tharsis/evmos/x/incentives/types"
 )
 
-var _ = Describe("Integration", Ordered, func() {
+var _ = Describe("Distribution", Ordered, func() {
 	var (
 		balanceBefore  sdk.Coin
 		contractAddr   common.Address
@@ -38,8 +37,7 @@ var _ = Describe("Integration", Ordered, func() {
 		)
 		s.Require().NoError(err)
 
-		// Interact with incentivized contract by funding participant account with
-		// contract tokens
+		// Interact with contract and fund participant account
 		amount := big.NewInt(100)
 		s.MintERC20Token(contractAddr, s.address, s.address, amount)
 
@@ -70,9 +68,6 @@ var _ = Describe("Integration", Ordered, func() {
 			})
 			It("should not distribute usage incentives to the participant", func() {
 				actual := s.app.BankKeeper.GetBalance(s.ctx, participantAcc, denomMint)
-
-				fmt.Print("\n actual: %w", actual)
-				fmt.Printf("\nbalanceBefore: %v", balanceBefore)
 				Expect(actual).To(Equal(balanceBefore))
 			})
 		})
