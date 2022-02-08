@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -18,7 +17,6 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 
 	testCases := []struct {
 		name        string
-		contract    common.Address
 		allocations sdk.DecCoins
 		epochs      uint32
 		denom       string
@@ -27,7 +25,6 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 	}{
 		{
 			"pass - with capped reward",
-			contract2,
 			mintAllocations,
 			epochs,
 			denomMint,
@@ -36,7 +33,6 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		},
 		{
 			"pass - with non-mint denom and no remaining epochs",
-			contract2,
 			allocations,
 			1,
 			denomCoin,
@@ -45,7 +41,6 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		},
 		{
 			"pass - with non-mint denom and remaining epochs",
-			contract2,
 			allocations,
 			epochs,
 			denomCoin,
@@ -54,7 +49,6 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		},
 		{
 			"pass - with mint denom and ramaining epochs",
-			contract,
 			mintAllocations,
 			epochs,
 			denomMint,
@@ -77,13 +71,13 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			// create incentive
 			_, err = suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
-				tc.contract,
+				contract,
 				tc.allocations,
 				tc.epochs,
 			)
 			suite.Require().NoError(err)
 
-			regIn, found := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, tc.contract)
+			regIn, found := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
 			suite.Require().True(found)
 
 			// check module balance
@@ -92,7 +86,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			suite.Require().True(balance.IsPositive())
 
 			// create Gas Meter
-			gm := types.NewGasMeter(tc.contract, participant, gasUsed)
+			gm := types.NewGasMeter(contract, participant, gasUsed)
 			suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
 
 			// Set total gas meter
@@ -121,12 +115,12 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				suite.Require().Equal(expBalance.TruncateInt(), balance.Amount, tc.name)
 
 				// deletes all gas meters
-				_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, tc.contract, participant)
+				_, found := suite.app.IncentivesKeeper.GetGasMeter(suite.ctx, contract, participant)
 				suite.Require().False(found)
 
 				// updates the remaining epochs of each incentive and sets the cumulative
 				// totalGas to zero OR deletes incentive
-				regIn, found = suite.app.IncentivesKeeper.GetIncentive(suite.ctx, tc.contract)
+				regIn, found = suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
 				if regIn.IsActive() {
 					suite.Require().True(found)
 					suite.Require().Equal(tc.epochs-1, regIn.Epochs)

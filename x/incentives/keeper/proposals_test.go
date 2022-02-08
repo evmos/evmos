@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 
@@ -21,6 +22,14 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				params := types.DefaultParams()
 				params.EnableIncentives = false
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+			},
+			[]sdk.DecCoin{},
+			false,
+		},
+		{
+			"contract doesn't exist",
+			func() {
+				contract = tests.GenerateAddress()
 			},
 			[]sdk.DecCoin{},
 			false,

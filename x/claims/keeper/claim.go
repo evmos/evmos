@@ -184,7 +184,6 @@ func (k Keeper) MergeClaimsRecords(
 			amtIBCSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amtIBCRecipient).Add(amtIBCSender)
 			mergedRecord.ActionsCompleted[i-1] = true
-
 		}
 	}
 

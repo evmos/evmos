@@ -12,7 +12,8 @@ import (
 	"github.com/tharsis/evmos/x/claims/types"
 )
 
-// OnRecvPacket performs an IBC callback.
+// OnRecvPacket performs an IBC receive callback. It performs a no-op if
+// claims are inactive
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -20,18 +21,19 @@ func (k Keeper) OnRecvPacket(
 ) exported.Acknowledgement {
 	params := k.GetParams(ctx)
 
-	// short circuit in case claim is not active (no-op) or if the
-	// acknowledgement is an error ACK
-	if !ack.Success() || !params.IsClaimsActive(ctx.BlockTime()) {
+	// short circuit in case claim is not active (no-op)
+	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return ack
 	}
 
+	// unmarshal packet data to obtain the sender and recipient
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
+	// validate the sender bech32 address from the counterparty chain
 	bech32Prefix := strings.Split(data.Sender, "1")[0]
 	if bech32Prefix == data.Sender {
 		return channeltypes.NewErrorAcknowledgement(
@@ -46,8 +48,10 @@ func (k Keeper) OnRecvPacket(
 		)
 	}
 
+	// change the bech32 human readable prefix (HRP) of the sender to `evmos1`
 	sender := sdk.AccAddress(senderBz)
 
+	// obtain the evmos recipient address
 	recipient, err := sdk.AccAddressFromBech32(data.Receiver)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(
@@ -58,11 +62,12 @@ func (k Keeper) OnRecvPacket(
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 
+	// handle the 4 cases for the recipient and sender claim records
+
 	switch {
 	case senderRecordFound && recipientRecordFound:
-		// claim already claimed actions (recipient) for sender
-
-		// MERGE sender's record with the recipient's record and
+		// 1. Both sender and recipient have a claims record
+		// Merge sender's record with the recipient's record and
 		// claim actions that have been completed by one or the other
 		recipientClaimsRecord, err = k.MergeClaimsRecords(ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
 		if err != nil {
@@ -74,17 +79,20 @@ func (k Keeper) OnRecvPacket(
 		k.SetClaimsRecord(ctx, recipient, recipientClaimsRecord)
 		k.DeleteClaimsRecord(ctx, sender)
 	case senderRecordFound && !recipientRecordFound:
-		// migrate sender record to recipient
+		// 2. Only the sender has a claims record.
+		// Migrate the sender record to the recipient address
 		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
 		k.DeleteClaimsRecord(ctx, sender)
 
 		// claim IBC action
 		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
 	case !senderRecordFound && recipientRecordFound:
-		// claim IBC transfer action
+		// 3. Only the recipient has a claims record.
+		// Only claim IBC transfer action
 		_, err = k.ClaimCoinsForAction(ctx, recipient, recipientClaimsRecord, types.ActionIBCTransfer, params)
 	case !senderRecordFound && !recipientRecordFound:
-		// return original success acknowledgement
+		// 4. Neither the sender or recipient have a claims record.
+		// Perform a no-op by returning the  original success acknowledgement
 		return ack
 	}
 
@@ -96,6 +104,10 @@ func (k Keeper) OnRecvPacket(
 	return ack
 }
 
+// OnAcknowledgementPacket claims the amount from the `ActionIBCTransfer` for
+// the sender of the IBC transfer.
+// The function performs a no-op if claims are disabled globally,
+// acknowledgment failed, or if sender the sender has no claims record.
 func (k Keeper) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -130,11 +142,12 @@ func (k Keeper) OnAcknowledgementPacket(
 
 	claimRecord, found := k.GetClaimsRecord(ctx, sender)
 	if !found {
-		// user doesn't have a claim record so we don't need to perform any claim
+		// no-op. The user doesn't have a claim record so we don't need to perform
+		// any claim
 		return nil
 	}
 
-	// claim IBC action
+	// claim IBC transfer action
 	_, err = k.ClaimCoinsForAction(ctx, sender, claimRecord, types.ActionIBCTransfer, params)
 	if err != nil {
 		return err

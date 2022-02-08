@@ -105,6 +105,12 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) exported.Acknowledgement {
 	ack := im.app.OnRecvPacket(ctx, packet, relayer)
+
+	// return if the acknowledgement is an error ACK
+	if !ack.Success() {
+		return ack
+	}
+
 	return im.keeper.OnRecvPacket(ctx, packet, ack)
 }
 
