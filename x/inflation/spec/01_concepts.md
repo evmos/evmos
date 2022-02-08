@@ -82,8 +82,8 @@ bondingTarget = 0.66      = our optimal bonded ratio
 Example with bondedRatio = bondingTarget:
 
 period  periodProvision  cumulated      epochProvision
-f(0)    309 375 000      309 375 000		847 602
-f(1)    159 375 000      468 750 000		436 643
-f(2)     84 375 000      553 125 000		231 164
-f(3)     46 875 000      600 000 000		128 424
+f(0)    309 375 000      309 375 000	 847 602
+f(1)    159 375 000      468 750 000	 436 643
+f(2)     84 375 000      553 125 000	 231 164
+f(3)     46 875 000      600 000 000	 128 424
 ```

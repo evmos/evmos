@@ -8,13 +8,12 @@ order: 2
 
 The `x/inflation` module keeps the following objects in state:
 
-[Key and Values](https://www.notion.so/b7074ed715a84b649082ec70f70bcdd2)
-| State Object    | Description                                   | Key                                                    | Value               | Store |
-| --------------- | --------------------------------------------- | ------------------------------------------------------ | ------------------- | ----- |
-| Incentive       | Incentive bytecode                            | `[]byte{1} + []byte(contract)`                         | `[]byte{incentive}` | KV    |
-| GasMeter        | Incentive id bytecode by erc20 contract bytes | `[]byte{2} + []byte(contract) + []byte(participant)  ` | `[]byte{gasMeter}`  | KV    |
-| AllocationMeter | Total allocation bytes by denom bytes         | `[]byte{3} + []byte(denom)`                            | `[]byte{sdk.Dec}`   | KV    |
-
+| State Object       | Description                | Key         | Value                        | Store |
+| ------------------ | -------------------------- | ----------- | ---------------------------- | ----- |
+| Period             | Period Counter             | `[]byte{1}` | `[]byte{period}`             | KV    |
+| EpochMintProvision | Epoch mint provision bytes | `[]byte{2}` | `[]byte{epochMintProvision}` | KV    |
+| EpochIdentifier    | Epoch identifier bytes     | `[]byte{3}` | `[]byte{epochIdentifier}`    | KV    |
+| EpochsPerPeriod    | Epochs per period bytes    | `[]byte{3}` | `[]byte{epochsPerPeriod}`    | KV    |
 
 ### Period
 

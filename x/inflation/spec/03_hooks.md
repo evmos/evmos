@@ -9,9 +9,9 @@ The `x/inflation` module implements the `AfterEpochEnd`  hook from the
 
 ## Epoch Hook: Inflation
 
-The epoch hook updates handles the inflation logic at the end of each epoch. It
-is responsible for minting and allocation the epoch mint provision as well as
-updating the epoch mint provision:
+The epoch hook handles the inflation logic which is run at the end of each
+epoch. It is responsible for minting and allocating the epoch mint provision as
+well as updating it:
 
 1. A block is commited, that signalizes that an `epoch` has ended (block
    `header.Time` has surpassed `epoch_start` + `epochIdentifier`).

@@ -7,14 +7,18 @@ order: 7
 The `x/inflation` module contains the parameters described below. All parameters
 can be modified via governance.
 
-[Untitled](https://www.notion.so/8a33df381c0242e089c105c6d8afdf74)
+| Key                      | Type                   | Default Value                                                                 |
+| ------------------------ | ---------------------- | ----------------------------------------------------------------------------- |
+| `MintDenom`              | string                 | `evm.DefaultEVMDenom` // “aphoton”                                            |
+| `ExponentialCalculation` | ExponentialCalculation | `A: sdk.NewDec(int64(300_000_000))`                                           |
+|                          |                        | `R: sdk.NewDecWithPrec(50, 2)`                                                |
+|                          |                        | `C: sdk.NewDec(int64(9_375_000))`                                             |
+|                          |                        | `BondingTarget: sdk.NewDecWithPrec(66, 2)`                                    |
+|                          |                        | `MaxVariance: sdk.ZeroDec()`                                                  |
+| `InflationDistribution`  | InflationDistribution  | `StakingRewards: sdk.NewDecWithPrec(533333334, 9)`  // 0.53 = 40% / (1 - 25%) |
+|                          |                        | `UsageIncentives: sdk.NewDecWithPrec(333333333, 9)` // 0.33 = 25% / (1 - 25%) |
+|                          |                        | `CommunityPool: sdk.NewDecWithPrec(133333333, 9)`  // 0.13 = 10% / (1 - 25%)  |
 
-| Key                         | Type    | Default Value                      |
-| --------------------------- | ------- | ---------------------------------- |
-| `EnableIncentives`          | bool    | `true`                             |
-| `AllocationLimit`           | sdk.Dec | `sdk.NewDecWithPrec(5,2)` // 5%    |
-| `IncentivesEpochIdentifier` | string  | `week`                             |
-| `rewardScaler`              | sdk.Dec | `sdk.NewDecWithPrec(12,1)` // 120% |
 
 
 ## Mint Denom
