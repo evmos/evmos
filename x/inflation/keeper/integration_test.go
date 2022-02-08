@@ -33,8 +33,8 @@ var _ = Describe("Integration", Ordered, func() {
 
 		Context("after an epoch ends", func() {
 			BeforeEach(func() {
-				s.CommitAfter(time.Minute)    // Start Epoch
-				s.CommitAfter(time.Hour * 24) // End Epoch
+				s.CommitAfter(time.Minute)   // Start Epoch
+				s.CommitAfter(time.Hour * 4) // End Epoch
 			})
 
 			It("should allocate funds to usage incentives", func() {
