@@ -14,11 +14,17 @@ Find below a list of `evmosd` commands added with the `x/claims` module. You can
 
 The `query` commands allow users to query `claims` state.
 
+**`total-unclaimed`**
+
+Allows users to query total amount of unclaimed tokens from the airdrop.
+
+```bash
+evmosd query claims total-unclaimed [flags]
 ```
 
 **`claims-records`**
 
-Allows users to query all the claim records available.
+Allows users to query all the claims records available.
 
 ```bash
 evmosd query claims claims-records [flags]
@@ -28,7 +34,7 @@ evmosd query claims claims-records [flags]
 
 Allows users to query a claims record for a given user.
 
-```go
+```bash
 evmosd query claims claims-record [address] [flags]
 ```
 
@@ -44,19 +50,13 @@ evmosd query claims params [flags]
 
 ### Queries
 
-| Verb   | Method                                                     | Description                                   |
-| ------ | ---------------------------------------------------------- | --------------------------------------------- |
-| `gRPC` | `evmos.claims.v1.Query/Incentives`                     | Gets all registered claims                |
-| `gRPC` | `evmos.claims.v1.Query/Incentive`                      | Gets incentive for a given contract           |
-| `gRPC` | `evmos.claims.v1.Query/GasMeters`                      | Gets gas meters for a given incentive         |
-| `gRPC` | `evmos.claims.v1.Query/GasMeter`                       | Gets gas meter for a given incentive and user |
-| `gRPC` | `evmos.claims.v1.Query/AllocationMeters`               | Gets all allocation meters                    |
-| `gRPC` | `evmos.claims.v1.Query/AllocationMeter`                | Gets allocation meter for a denom             |
-| `gRPC` | `evmos.claims.v1.Query/Params`                         | Gets claims params                        |
-| `GET`  | `/evmos/claims/v1/claims`                          | Gets all registered claims                |
-| `GET`  | `/evmos/claims/v1/claims/{contract}`               | Gets incentive for a given contract           |
-| `GET`  | `/evmos/claims/v1/gas_meters`                          | Gets gas meters for a given incentive         |
-| `GET`  | `/evmos/claims/v1/gas_meters/{contract}/{participant}` | Gets gas meter for a given incentive and user |
-| `GET`  | `/evmos/claims/v1/allocation_meters`                   | Gets all allocation meters                    |
-| `GET`  | `/evmos/claims/v1/allocation_meters/{denom}`           | Gets allocation meter for a denom             |
-| `GET`  | `/evmos/claims/v1/params`                              | Gets claims params                        |
+| Verb   | Method                                     | Description                                      |
+|--------|--------------------------------------------|--------------------------------------------------|
+| `gRPC` | `evmos.claims.v1.Query/TotalUnclaimed`     | Gets the total unclaimed tokens from the airdrop |
+| `gRPC` | `evmos.claims.v1.Query/ClaimsRecords`      | Gets all registered claims records               |
+| `gRPC` | `evmos.claims.v1.Query/ClaimsRecord`       | Get the claim record for a given user            |
+| `gRPC` | `evmos.claims.v1.Query/Params`             | Gets claims params                               |
+| `GET`  | `/evmos/claims/v1/total_unclaimed`         | Gets the total unclaimed tokens from the airdrop |
+| `GET`  | `/evmos/claims/v1/claims_records`          | Gets all registered claims records               |
+| `GET`  | `/evmos/claims/v1/claims_record/{address}` | Gets a claims record for a given user            |
+| `GET`  | `/evmos/claims/v1/params`                  | Gets claims params                               |
