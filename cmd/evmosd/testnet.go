@@ -40,13 +40,14 @@ import (
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/server/config"
 	srvflags "github.com/tharsis/ethermint/server/flags"
-	"github.com/tharsis/ethermint/testutil/network"
+
+	//"github.com/tharsis/ethermint/testutil/network"
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	cmdcfg "github.com/tharsis/evmos/cmd/config"
 	evmoskr "github.com/tharsis/evmos/crypto/keyring"
-	evmosnetwork "github.com/tharsis/evmos/testutil/network"
+	"github.com/tharsis/evmos/testutil/network"
 )
 
 var (
@@ -523,7 +524,7 @@ func calculateIP(ip string, i int) (string, error) {
 
 // startTestnet starts an in-process testnet
 func startTestnet(cmd *cobra.Command, args startArgs) error {
-	networkConfig := evmosnetwork.DefaultConfig()
+	networkConfig := network.DefaultConfig()
 
 	// Default networkConfig.ChainID is random, and we should only override it if chainID provided
 	// is non-empty
