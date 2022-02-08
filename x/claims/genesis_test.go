@@ -89,7 +89,7 @@ func TestClaimExportGenesis(t *testing.T) {
 
 	claimsRecord, found := app.ClaimsKeeper.GetClaimsRecord(ctx, acc2)
 	require.True(t, found)
-	require.Equal(t, claimsRecord, &types.ClaimsRecord{
+	require.Equal(t, claimsRecord, types.ClaimsRecord{
 		InitialClaimableAmount: sdk.NewInt(400),
 		ActionsCompleted:       []bool{false, false, false, false},
 	})
