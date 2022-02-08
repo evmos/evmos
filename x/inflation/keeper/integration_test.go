@@ -6,7 +6,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
 )
 
