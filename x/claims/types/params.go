@@ -10,8 +10,8 @@ import (
 
 var (
 	DefaultClaimsDenom        = "aevmos"
-	DefaultDurationUntilDecay = time.Hour
-	DefaultDurationOfDecay    = time.Hour * 5
+	DefaultDurationUntilDecay = 2629800 * time.Second         // 1 month = 30.4375 days
+	DefaultDurationOfDecay    = 2 * DefaultDurationUntilDecay // 2 months
 )
 
 // Parameter store key
@@ -56,13 +56,15 @@ func NewParams(
 	}
 }
 
+// DefaultParams creates a parameter instance with default values
+// for the claims module.
 func DefaultParams() Params {
 	return Params{
 		EnableClaims:       true,
 		AirdropStartTime:   time.Time{},
-		DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
-		DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
-		ClaimsDenom:        DefaultClaimsDenom,        // aevmos
+		DurationUntilDecay: DefaultDurationUntilDecay,
+		DurationOfDecay:    DefaultDurationOfDecay,
+		ClaimsDenom:        DefaultClaimsDenom,
 	}
 }
 

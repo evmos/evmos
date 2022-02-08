@@ -6,13 +6,13 @@ order: 6
 
 The `x/claims` module contains the parameters described below. All parameters can be modified via governance.
 
-| Key                  | Type            | Default Value          |
-|----------------------|-----------------|------------------------|
-| `EnableClaim`        | `bool`          | `true`                 |
-| `AirdropStartTime`   | `time.Time`     | `time.Time{}` // empty |
-| `DurationUntilDecay` | `time.Duration` | `1` // 1 month         |
-| `DurationOfDecay`    | `time.Duration` | `2` // 2 months        |
-| `ClaimDenom`         | `string`        | `"aevmos"`             |
+| Key                  | Type            | Default Value                  |
+|----------------------|-----------------|--------------------------------|
+| `EnableClaim`        | `bool`          | `true`                         |
+| `AirdropStartTime`   | `time.Time`     | `time.Time{}` // empty         |
+| `DurationUntilDecay` | `time.Duration` | `2629800000000000` // 1 month  |
+| `DurationOfDecay`    | `time.Duration` | `5259600000000000` // 2 months |
+| `ClaimDenom`         | `string`        | `"aevmos"`                     |
 
 ## Enable claim
 
