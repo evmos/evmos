@@ -29,8 +29,8 @@ import (
 
 	ibcclientcli "github.com/cosmos/ibc-go/v3/modules/core/02-client/client/cli"
 
-	"github.com/tharsis/evmos/ibctesting/simapp"
-	"github.com/tharsis/evmos/ibctesting/simapp/params"
+	"github.com/cosmos/ibc-go/v3/testing/simapp"
+	"github.com/cosmos/ibc-go/v3/testing/simapp/params"
 	"github.com/tharsis/evmos/testutil/network"
 )
 
