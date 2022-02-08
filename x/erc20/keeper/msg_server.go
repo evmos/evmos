@@ -25,6 +25,13 @@ func (k Keeper) ConvertCoin(
 	msg *types.MsgConvertCoin,
 ) (*types.MsgConvertCoinResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	return k.HandleConvertCoin(ctx, msg)
+}
+
+func (k Keeper) HandleConvertCoin(
+	ctx sdk.Context,
+	msg *types.MsgConvertCoin,
+) (*types.MsgConvertCoinResponse, error) {
 
 	// Error checked during msg validation
 	receiver := common.HexToAddress(msg.Receiver)
