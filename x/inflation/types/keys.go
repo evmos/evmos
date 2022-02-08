@@ -18,7 +18,6 @@ const (
 	prefixEpochMintProvision
 	prefixEpochIdentifier
 	prefixEpochsPerPeriod
-	prefixBondedRatio
 )
 
 // KVStore key prefixes
