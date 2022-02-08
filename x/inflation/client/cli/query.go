@@ -63,7 +63,7 @@ func GetPeriod() *cobra.Command {
 // epoch provisions value.
 func GetEpochMintProvision() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "epoch--mint-provisions",
+		Use:   "epoch-mint-provisions",
 		Short: "Query the current inflation epoch provisions value",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
