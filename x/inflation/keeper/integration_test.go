@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -19,7 +18,6 @@ var _ = Describe("Integration", Ordered, func() {
 
 	Describe("Commiting a block", func() {
 		addr := s.app.AccountKeeper.GetModuleAddress(incentivestypes.ModuleName)
-		// before := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
 
 		Context("before an epoch ends", func() {
 			BeforeEach(func() {
@@ -33,11 +31,6 @@ var _ = Describe("Integration", Ordered, func() {
 			})
 			It("should not allocate funds to the community pool", func() {
 				balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
-				Expect(balance.IsZero()).To(BeTrue())
-			})
-			It("should not allocate funds to staking rewards", func() {
-				feeCollector := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-				balance := s.app.BankKeeper.GetBalance(s.ctx, feeCollector, denomMint)
 				Expect(balance.IsZero()).To(BeTrue())
 			})
 		})
@@ -69,20 +62,6 @@ var _ = Describe("Integration", Ordered, func() {
 
 				Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
 				Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
-			})
-			It("should allocate funds to staking rewards", func() {
-				feeAddr := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-				balanceStakingRewards := s.app.BankKeeper.GetBalance(s.ctx, feeAddr, denomMint)
-
-				provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-				params := s.app.InflationKeeper.GetParams(s.ctx)
-				distribution := params.InflationDistribution.StakingRewards
-				expected := provision.Mul(distribution).TruncateInt()
-				fmt.Printf("\nexpected: %v", expected)                                  // 452054
-				fmt.Printf("\nbalanceStakingRewards: %v", balanceStakingRewards.Amount) //
-
-				Expect(balanceStakingRewards.IsZero()).ToNot(BeTrue())
-				Expect(balanceStakingRewards.Amount.GT(expected)).To(BeTrue())
 			})
 		})
 	})
