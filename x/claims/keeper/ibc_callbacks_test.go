@@ -269,20 +269,11 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-			// send on endpointA
-			suite.path.EndpointA.SendPacket(packet)
-
-			// receive on endpointB
-			err := path.EndpointB.RecvPacket(packet)
+			// // send on endpointA
+			err := suite.path.EndpointA.SendPacket(packet)
 			suite.Require().NoError(err)
 
-			// FIXME: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
-			// ERR: failed to execute message; message index: 0: acknowledge packet verification failed: failed packet acknowledgement verification for client (07-tendermint-0): chained membership proof failed to verify membership of value: 8C9178E2AD2AFC8D7CCFD8488D1772BF5608CD6B9BE915FF2BE4E7464260E188 in subroot BD1A2930E107481716A200E1D6A315AB9C898A25DFCE4BD5FCECA448EECBF624 at index 0. Please ensure the path and value are both correct.: invalid proof
-			// ack := ibctesting.MockAcknowledgement
-			// path.EndpointA.AcknowledgePacket(packet, ack)
-
-			// TODO: delete this when above option works
-			err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
+			err = suite.path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
 			if tc.expPass {
