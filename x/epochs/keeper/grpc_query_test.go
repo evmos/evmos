@@ -174,18 +174,6 @@ func (suite *KeeperTestSuite) TestCurrentEpoch() {
 			},
 			true,
 		},
-		// {
-		// 	"set epochMintProvision",
-		// 	func() {
-		// 		epochMintProvision := sdk.NewDec(1_000_000)
-		// 		suite.app.InflationKeeper.SetCurrentEpoch(suite.ctx, epochMintProvision)
-		// 		suite.Commit()
-
-		// 		req = &types.QueryCurrentEpochRequest{}
-		// 		expRes = &types.QueryCurrentEpochResponse{CurrentEpoch: epochMintProvision}
-		// 	},
-		// 	true,
-		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
