@@ -18,6 +18,22 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 		malleate func()
 	}{
 		{
+			"claim disabled",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = false
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+			},
+		},
+		{
+			"not claim time",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = true
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+			},
+		},
+		{
 			"claim enabled",
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
