@@ -31,8 +31,10 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 	"github.com/cosmos/ibc-go/v3/modules/core/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
+	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 	"github.com/cosmos/ibc-go/v3/testing/mock"
 	"github.com/cosmos/ibc-go/v3/testing/simapp"
+
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 )
 
@@ -45,7 +47,7 @@ type TestChain struct {
 	t *testing.T
 
 	Coordinator   *Coordinator
-	App           TestingApp
+	App           ibctesting.TestingApp
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
@@ -94,7 +96,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, amount)),
 	}
 
-	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
+	app := ibctesting.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
 
 	// create current header and call begin block
 	header := tmproto.Header{
@@ -241,7 +243,6 @@ func (chain *TestChain) sendMsgs(msgs ...sdk.Msg) error {
 // number and updates the TestChain's headers. It returns the result and error if one
 // occurred.
 func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
-
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
@@ -264,7 +265,9 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 	chain.NextBlock()
 
 	// increment sequence for successful transaction execution
-	chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+	if err := chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1); err != nil {
+		return nil, err
+	}
 
 	chain.Coordinator.IncrementTime()
 
@@ -361,7 +364,6 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterpa
 	header.TrustedValidators = trustedVals
 
 	return header, nil
-
 }
 
 // ExpireClient fast forwards the chain's block time by the provided amount of time which will

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 )
 
 // Path contains two endpoints representing two chains connected over IBC
@@ -43,14 +44,16 @@ func (path *Path) RelayPacket(packet channeltypes.Packet) error {
 	if bytes.Equal(pc, channeltypes.CommitPacket(path.EndpointA.Chain.App.AppCodec(), packet)) {
 
 		// packet found, relay from A to B
-		path.EndpointB.UpdateClient()
+		if err := path.EndpointB.UpdateClient(); err != nil {
+			return err
+		}
 
 		res, err := path.EndpointB.RecvPacketWithResult(packet)
 		if err != nil {
 			return err
 		}
 
-		ack, err := ParseAckFromEvents(res.GetEvents())
+		ack, err := ibctesting.ParseAckFromEvents(res.GetEvents())
 		if err != nil {
 			return err
 		}
@@ -66,14 +69,16 @@ func (path *Path) RelayPacket(packet channeltypes.Packet) error {
 	if bytes.Equal(pc, channeltypes.CommitPacket(path.EndpointB.Chain.App.AppCodec(), packet)) {
 
 		// packet found, relay B to A
-		path.EndpointA.UpdateClient()
+		if err := path.EndpointA.UpdateClient(); err != nil {
+			return err
+		}
 
 		res, err := path.EndpointA.RecvPacketWithResult(packet)
 		if err != nil {
 			return err
 		}
 
-		ack, err := ParseAckFromEvents(res.GetEvents())
+		ack, err := ibctesting.ParseAckFromEvents(res.GetEvents())
 		if err != nil {
 			return err
 		}

@@ -13,6 +13,7 @@ import (
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 	ibctmtypes "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
+	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 )
 
 // Endpoint is a which represents a channel endpoint and its associated
@@ -26,16 +27,16 @@ type Endpoint struct {
 	ConnectionID string
 	ChannelID    string
 
-	ClientConfig     ClientConfig
-	ConnectionConfig *ConnectionConfig
-	ChannelConfig    *ChannelConfig
+	ClientConfig     ibctesting.ClientConfig
+	ConnectionConfig *ibctesting.ConnectionConfig
+	ChannelConfig    *ibctesting.ChannelConfig
 }
 
 // NewEndpoint constructs a new endpoint without the counterparty.
 // CONTRACT: the counterparty endpoint must be set by the caller.
 func NewEndpoint(
-	chain *TestChain, clientConfig ClientConfig,
-	connectionConfig *ConnectionConfig, channelConfig *ChannelConfig,
+	chain *TestChain, clientConfig ibctesting.ClientConfig,
+	connectionConfig *ibctesting.ConnectionConfig, channelConfig *ibctesting.ChannelConfig,
 ) *Endpoint {
 	return &Endpoint{
 		Chain:            chain,
@@ -50,9 +51,9 @@ func NewEndpoint(
 func NewDefaultEndpoint(chain *TestChain) *Endpoint {
 	return &Endpoint{
 		Chain:            chain,
-		ClientConfig:     NewTendermintConfig(),
-		ConnectionConfig: NewConnectionConfig(),
-		ChannelConfig:    NewChannelConfig(),
+		ClientConfig:     ibctesting.NewTendermintConfig(),
+		ConnectionConfig: ibctesting.NewConnectionConfig(),
+		ChannelConfig:    ibctesting.NewChannelConfig(),
 	}
 }
 
@@ -87,13 +88,13 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 
 	switch endpoint.ClientConfig.GetClientType() {
 	case exported.Tendermint:
-		tmConfig, ok := endpoint.ClientConfig.(*TendermintConfig)
+		tmConfig, ok := endpoint.ClientConfig.(*ibctesting.TendermintConfig)
 		require.True(endpoint.Chain.t, ok)
 
 		height := endpoint.Counterparty.Chain.LastHeader.GetHeight().(clienttypes.Height)
 		clientState = ibctmtypes.NewClientState(
 			endpoint.Counterparty.Chain.ChainID, tmConfig.TrustLevel, tmConfig.TrustingPeriod, tmConfig.UnbondingPeriod, tmConfig.MaxClockDrift,
-			height, commitmenttypes.GetSDKSpecs(), UpgradePath, tmConfig.AllowUpdateAfterExpiry, tmConfig.AllowUpdateAfterMisbehaviour,
+			height, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath, tmConfig.AllowUpdateAfterExpiry, tmConfig.AllowUpdateAfterMisbehaviour,
 		)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
 	case exported.Solomachine:
@@ -120,7 +121,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		return err
 	}
 
-	endpoint.ClientID, err = ParseClientIDFromEvents(res.GetEvents())
+	endpoint.ClientID, err = ibctesting.ParseClientIDFromEvents(res.GetEvents())
 	require.NoError(endpoint.Chain.t, err)
 
 	return nil
@@ -131,9 +132,7 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	// ensure counterparty has committed state
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
-	var (
-		header exported.Header
-	)
+	var header exported.Header
 
 	switch endpoint.ClientConfig.GetClientType() {
 	case exported.Tendermint:
@@ -154,7 +153,6 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	require.NoError(endpoint.Chain.t, err)
 
 	return endpoint.Chain.sendMsgs(msg)
-
 }
 
 // ConnOpenInit will construct and execute a MsgConnectionOpenInit on the associated endpoint.
@@ -162,7 +160,7 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 	msg := connectiontypes.NewMsgConnectionOpenInit(
 		endpoint.ClientID,
 		endpoint.Counterparty.ClientID,
-		endpoint.Counterparty.Chain.GetPrefix(), DefaultOpenInitVersion, endpoint.ConnectionConfig.DelayPeriod,
+		endpoint.Counterparty.Chain.GetPrefix(), ibctesting.DefaultOpenInitVersion, endpoint.ConnectionConfig.DelayPeriod,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	res, err := endpoint.Chain.SendMsgs(msg)
@@ -170,7 +168,7 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 		return err
 	}
 
-	endpoint.ConnectionID, err = ParseConnectionIDFromEvents(res.GetEvents())
+	endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.GetEvents())
 	require.NoError(endpoint.Chain.t, err)
 
 	return nil
@@ -185,7 +183,7 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 	msg := connectiontypes.NewMsgConnectionOpenTry(
 		"", endpoint.ClientID, // does not support handshake continuation
 		endpoint.Counterparty.ConnectionID, endpoint.Counterparty.ClientID,
-		counterpartyClient, endpoint.Counterparty.Chain.GetPrefix(), []*connectiontypes.Version{ConnectionVersion}, endpoint.ConnectionConfig.DelayPeriod,
+		counterpartyClient, endpoint.Counterparty.Chain.GetPrefix(), []*connectiontypes.Version{ibctesting.ConnectionVersion}, endpoint.ConnectionConfig.DelayPeriod,
 		proofInit, proofClient, proofConsensus,
 		proofHeight, consensusHeight,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
@@ -196,7 +194,7 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 	}
 
 	if endpoint.ConnectionID == "" {
-		endpoint.ConnectionID, err = ParseConnectionIDFromEvents(res.GetEvents())
+		endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.GetEvents())
 		require.NoError(endpoint.Chain.t, err)
 	}
 
@@ -213,7 +211,7 @@ func (endpoint *Endpoint) ConnOpenAck() error {
 		endpoint.ConnectionID, endpoint.Counterparty.ConnectionID, counterpartyClient, // testing doesn't use flexible selection
 		proofTry, proofClient, proofConsensus,
 		proofHeight, consensusHeight,
-		ConnectionVersion,
+		ibctesting.ConnectionVersion,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	return endpoint.Chain.sendMsgs(msg)
@@ -276,7 +274,7 @@ func (endpoint *Endpoint) ChanOpenInit() error {
 		return err
 	}
 
-	endpoint.ChannelID, err = ParseChannelIDFromEvents(res.GetEvents())
+	endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.GetEvents())
 	require.NoError(endpoint.Chain.t, err)
 
 	return nil
@@ -302,7 +300,7 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 	}
 
 	if endpoint.ChannelID == "" {
-		endpoint.ChannelID, err = ParseChannelIDFromEvents(res.GetEvents())
+		endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.GetEvents())
 		require.NoError(endpoint.Chain.t, err)
 	}
 

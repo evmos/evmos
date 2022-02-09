@@ -8,13 +8,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 )
 
-var (
-	ChainIDPrefix   = "testchain"
-	globalStartTime = time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)
-	TimeIncrement   = time.Second * 5
-)
+var globalStartTime = time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)
 
 // Coordinator is a testing struct which contains N TestChain's. It handles keeping all chains
 // in sync with regards to time.
@@ -47,7 +45,7 @@ func NewCoordinator(t *testing.T, n int) *Coordinator {
 //
 // CONTRACT: this function must be called after every Commit on any TestChain.
 func (coord *Coordinator) IncrementTime() {
-	coord.IncrementTimeBy(TimeIncrement)
+	coord.IncrementTimeBy(ibctesting.TimeIncrement)
 }
 
 // IncrementTimeBy iterates through all the TestChain's and increments their current header time
@@ -55,7 +53,6 @@ func (coord *Coordinator) IncrementTime() {
 func (coord *Coordinator) IncrementTimeBy(increment time.Duration) {
 	coord.CurrentTime = coord.CurrentTime.Add(increment).UTC()
 	coord.UpdateTime()
-
 }
 
 // UpdateTime updates all clocks for the TestChains to the current global time.
@@ -105,7 +102,6 @@ func (coord *Coordinator) SetupConnections(path *Path) {
 // are returned within a TestConnection struct. The function expects the connections to be
 // successfully opened otherwise testing will fail.
 func (coord *Coordinator) CreateConnections(path *Path) {
-
 	err := path.EndpointA.ConnOpenInit()
 	require.NoError(coord.t, err)
 
@@ -127,8 +123,8 @@ func (coord *Coordinator) CreateConnections(path *Path) {
 // function is expects the channels to be successfully opened otherwise testing will
 // fail.
 func (coord *Coordinator) CreateMockChannels(path *Path) {
-	path.EndpointA.ChannelConfig.PortID = MockPort
-	path.EndpointB.ChannelConfig.PortID = MockPort
+	path.EndpointA.ChannelConfig.PortID = ibctesting.MockPort
+	path.EndpointB.ChannelConfig.PortID = ibctesting.MockPort
 
 	coord.CreateChannels(path)
 }
@@ -137,8 +133,8 @@ func (coord *Coordinator) CreateMockChannels(path *Path) {
 // ibc-transfer channels on chainA and chainB. The function expects the channels to be
 // successfully opened otherwise testing will fail.
 func (coord *Coordinator) CreateTransferChannels(path *Path) {
-	path.EndpointA.ChannelConfig.PortID = TransferPort
-	path.EndpointB.ChannelConfig.PortID = TransferPort
+	path.EndpointA.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
 
 	coord.CreateChannels(path)
 }
@@ -173,7 +169,7 @@ func (coord *Coordinator) GetChain(chainID string) *TestChain {
 
 // GetChainID returns the chainID used for the provided index.
 func GetChainID(index int) string {
-	return ChainIDPrefix + strconv.Itoa(index)
+	return ibctesting.ChainIDPrefix + strconv.Itoa(index)
 }
 
 // CommitBlock commits a block on the provided indexes and then increments the global time.
