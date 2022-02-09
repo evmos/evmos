@@ -29,7 +29,7 @@ service Query {
   // ClaimsRecord returns the claims record for a given address
   rpc ClaimsRecord(QueryClaimsRecordRequest)
       returns (QueryClaimsRecordResponse) {
-    option (google.api.http).get = "/evmos/claims/v1/claims_record/{address}";
+    option (google.api.http).get = "/evmos/claims/v1/claims_records/{address}";
   }
 }
 

@@ -8,35 +8,35 @@ The `x/erc20` module emits the following events:
 
 ## Register Coin Proposal
 
-| Type            | Attibute Key    | Attibute Value    |
+| Type            | Attribute Key    | Attribute Value    |
 | --------------- | --------------- | ----------------- |
 | `register_coin` | `"cosmos_coin"` | `{denom}`         |
 | `register_coin` | `"erc20_token"` | `{erc20_address}` |
 
 ## Register ERC20 Proposal
 
-| Type             | Attibute Key    | Attibute Value    |
+| Type             | Attribute Key    | Attribute Value    |
 | ---------------- | --------------- | ----------------- |
 | `register_erc20` | `"cosmos_coin"` | `{denom}`         |
 | `register_erc20` | `"erc20_token"` | `{erc20_address}` |
 
 ## Toggle Token Relay
 
-| Type                 | Attibute Key    | Attibute Value    |
+| Type                 | Attribute Key    | Attribute Value    |
 | -------------------- | --------------- | ----------------- |
 | `toggle_token_relay` | `"erc20_token"` | `{erc20_address}` |
 | `toggle_token_relay` | `"cosmos_coin"` | `{denom}`         |
 
 ## Update Token Pair ERC20
 
-| Type                      | Attibute Key    | Attibute Value    |
+| Type                      | Attribute Key    | Attribute Value    |
 | ------------------------- | --------------- | ----------------- |
 | `update_token_pair_erc20` | `"erc20_token"` | `{erc20_address}` |
 | `update_token_pair_erc20` | `"cosmos_coin"` | `{denom}`         |
 
 ## Convert Coin
 
-| Type           | Attibute Key    | Attibute Value              |
+| Type           | Attribute Key    | Attribute Value              |
 | -------------- | --------------- | --------------------------- |
 | `convert_coin` | `"sender"`      | `{msg.Sender}`              |
 | `convert_coin` | `"receiver"`    | `{msg.Receiver}`            |
@@ -46,7 +46,7 @@ The `x/erc20` module emits the following events:
 
 ## Convert ERC20
 
-| Type            | Attibute Key    | Attibute Value              |
+| Type            | Attribute Key    | Attribute Value              |
 | --------------- | --------------- | --------------------------- |
 | `convert_erc20` | `"sender"`      | `{msg.Sender}`              |
 | `convert_erc20` | `"receiver"`    | `{msg.Receiver}`            |
