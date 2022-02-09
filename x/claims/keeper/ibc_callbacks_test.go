@@ -10,6 +10,8 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
+
 	"github.com/tharsis/evmos/ibctesting"
 
 	"github.com/tharsis/evmos/app"
@@ -29,9 +31,9 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibctesting.DefaultTestingAppInit = app.SetupTestingApp
+	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
 
-	ibctesting.ChainIDPrefix = "evmos_9000-"
+	ibcgotesting.ChainIDPrefix = "evmos_9000-"
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
@@ -66,14 +68,12 @@ func TestIBCTestingSuite(t *testing.T) {
 	suite.Run(t, new(IBCTestingSuite))
 }
 
-var (
-	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-)
+var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = ibctesting.TransferPort
-	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
+	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
 
 	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
 	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
