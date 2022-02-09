@@ -78,7 +78,9 @@ This can be done by submitting an IBC transfer from Cosmos Hub and Osmosis, whic
 
 The recipient Evmos address of this IBC transfer is the address, that the tokens will be airdropped to.
 
-::: warning **IMPORTANT**
+::: warning
+**IMPORTANT**
+
 Only submit an IBC transfer to an Evmos address that you own. Otherwise, you will lose your airdrop allocation.
 :::
 
