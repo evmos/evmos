@@ -447,7 +447,7 @@ func NewEvmos(
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
-		epochstypes.NewMultiEpochHooks(
+		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			// TODO activate Inflation hook
 			app.IncentivesKeeper.Hooks(),
