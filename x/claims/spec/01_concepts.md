@@ -84,12 +84,13 @@ Only submit an IBC transfer to an Evmos address that you own. Otherwise, you wil
 
 ## Decay Period
 
-A decay period is defined by the module parameters in order to incentivize users to claim their tokens and interact with the blockchain early. Once this period starts, it decreases the amount of claimable tokens by the user linearly over time. The start is of this period is defined by the by the addition of the `` and `DurationUntilDecay` parameter and the duration of the linear decay is defined by `DurationOfDecay`, as described below:
+A decay period defines the duration of the period during which the amount of claimable tokens by the user decays decrease linearly over time. It's goal is to incentivize users to claim their tokens and interact with the blockchain early.
 
-```python
-decay_start = claim_start + duration_until_decay
+The start is of this period is defined by the by the addition of the `AirdropStartTime` and `DurationUntilDecay` parameter and the duration of the linear decay is defined by `DurationOfDecay`, as described below:
 
-decay_end = decay_start + duration_of_decay
+```go
+decayStartTime = AirdropStartTime + DurationUntilDecay
+decayEndTime = decayStartTime + DurationOfDecay
 ```
 
 By default, users have two months (`DurationUntilDecay`) to claim their full airdrop amount. After two months, the reward amount available will decline over 1 month (`DurationOfDecay`) in real time, until it hits `0%` at 3 months from launch (end).
