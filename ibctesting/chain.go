@@ -31,7 +31,7 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 	"github.com/cosmos/ibc-go/v3/modules/core/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
-	ibctesting "github.com/cosmos/ibc-go/v3/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 	"github.com/cosmos/ibc-go/v3/testing/mock"
 	"github.com/cosmos/ibc-go/v3/testing/simapp"
 
@@ -47,7 +47,7 @@ type TestChain struct {
 	t *testing.T
 
 	Coordinator   *Coordinator
-	App           ibctesting.TestingApp
+	App           ibcgotesting.TestingApp
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
@@ -96,7 +96,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, amount)),
 	}
 
-	app := ibctesting.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
+	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
 
 	// create current header and call begin block
 	header := tmproto.Header{
@@ -387,7 +387,6 @@ func (chain *TestChain) CreateTMClientHeader(chainID string, blockHeight int64, 
 	)
 
 	require.NotNil(chain.t, tmValSet)
-	require.NotNil(chain.t, tmTrustedVals)
 
 	vsetHash := tmValSet.Hash()
 
@@ -405,7 +404,7 @@ func (chain *TestChain) CreateTMClientHeader(chainID string, blockHeight int64, 
 		AppHash:            chain.CurrentHeader.AppHash,
 		LastResultsHash:    tmhash.Sum([]byte("last_results_hash")),
 		EvidenceHash:       tmhash.Sum([]byte("evidence_hash")),
-		ProposerAddress:    tmValSet.Proposer.Address, 
+		ProposerAddress:    tmValSet.Proposer.Address,
 	}
 	hhash := tmHeader.Hash()
 	blockID := MakeBlockID(hhash, 3, tmhash.Sum([]byte("part_set")))
