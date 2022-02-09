@@ -4,6 +4,21 @@ order: 1
 
 # Concepts
 
+## Rektdrop
+
+The Evmos [Rektdrop](https://evmos.blog/the-evmos-rektdrop-abbe931ba823) is the genesis airdrop for the EVMOS token to Cosmos Hub, Osmosis and Ethereum users.
+
+> The end goal of Evmos is to bring together the Cosmos and Ethereum community and thus the Rektdrop has been designed to reward past participation in both networks under this theme of “getting rekt”.
+
+The Rektdrop is the first airdrop that:
+
+- Implements the [gasdrop](https://www.sunnya97.com/blog/gasdrop) mechanism by Sunny Aggarwal
+- Covers the most number of chains and applications involved in an airdrop
+- Airdrops to bridge users
+- Includes reparations for users in exploits and negative market externalities (i.e. MEV)
+
+The snapshot of the airdrop was on **November 25th, 2021 at 19:00 UTC**
+
 ## Actions
 
 An `Action` corresponds to a given transaction that the user must perform to receive the allocated tokens from the airdrop.
@@ -45,26 +60,26 @@ If the user deploys or interacts with a smart contract (via an application or wa
 
 ## Claim Records
 
-A Claim Records is the metadata of claim data per address. It keeps track of all the actions performed by the the user as well as the total amount of tokens allocated to them. All users that have an address with a corresponding `ClaimRecord` are eligible to claim the airdrop.
+A Claims Records is the metadata of claim data per address. It keeps track of all the actions performed by the the user as well as the total amount of tokens allocated to them. All users that have an address with a corresponding `ClaimRecord` are eligible to claim the airdrop.
 
 ## Claiming Process
 
-As described in the [Action](#action) section, a user must submit transactions to receive the allocated tokens from the airdrop. However, since Evmos only supports `eth_secp256k1` keys, this process differs for Ethereum and Cosmos users eligible users.
+As described in the [Action](#action) section, a user must submit transactions to receive the allocated tokens from the airdrop. However, since Evmos only supports Ethereum keys and not de default Tendermint keys, this process differs for Ethereum and Cosmos eligible users.
 
 ### Ethereum Users
 
-Evmos shares the coin type (`60`) and key derivation (Ethereum `secp256k1`) with Ethereum. This allows users (EOA account) that have been allocated EVMOS tokens are able to directly claim their tokens using their preferred web3 wallet.
+Evmos shares the coin type (`60`) and key derivation (Ethereum `secp256k1`) with Ethereum. This allows users (EOA accounts) that have been allocated EVMOS tokens to directly claim their tokens using their preferred web3 wallet.
 
 ### Cosmos Hub and Osmosis Users
 
-For Cosmos Hub and Osmosis users that use the default Tendermint `secp256k1` keys, they'd need to perform an "cross-chain attestation" of their Evmos address.
+Cosmos Hub and Osmosis users who use the default Tendermint `secp256k1` keys, need to perform a "cross-chain attestation" of their Evmos address.
 
-This can be done by submitting and IBC Transfer from Cosmos Hub and Osmosis signed by the addresses they have been allocated the tokens.
+This can be done by submitting an IBC transfer from Cosmos Hub and Osmosis, which is signed by the addresses, that have been allocated the tokens.
 
-The recipient Evmos address of this IBC transfer will be the one to which the tokens will be
+The recipient Evmos address of this IBC transfer is the address, that the tokens will be airdropped to.
 
 ::: warning **IMPORTANT**
-Only submit an IBC transfer to to the Evmos address that you posses. Otherwise you will lose your airdrop allocation.
+Only submit an IBC transfer to an Evmos address that you own. Otherwise, you will lose your airdrop allocation.
 :::
 
 ## Decay Period
@@ -81,4 +96,4 @@ By default, users have two months (`DurationUntilDecay`) to claim their full air
 
 ## Airdrop Clawback
 
-After the claim period ends, the tokens that were not claimed by users will be transferred to the community pool treasury. In the same way, users with tokens allocated but no transactions (i.e nonce = 0)
+After the claim period ends, the tokens that were not claimed by users will be transferred to the community pool treasury. In the same way, users with tokens allocated but no transactions (i.e nonce = 0), will have their balance clawbacked to the community pool.

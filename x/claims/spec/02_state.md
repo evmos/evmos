@@ -17,7 +17,7 @@ The `x/claims` module keeps the following objects in state:
 A `ClaimRecord` defines the initial claimable airdrop amount and the list of completed actions to claim the tokens.
 
 ```protobuf
-message ClaimRecord {
+message ClaimsRecord {
   // total initial claimable amount for the user
   string initial_claimable_amount = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
