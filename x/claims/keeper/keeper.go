@@ -38,7 +38,6 @@ func NewKeeper(
 	dk types.DistrKeeper,
 	ics4Wrapper transfertypes.ICS4Wrapper,
 ) *Keeper {
-
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
