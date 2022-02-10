@@ -114,3 +114,49 @@ func TestParamsValidateDenom(t *testing.T) {
 	err = validateDenom("")
 	require.Error(t, err)
 }
+
+func TestParamsDecayStartTime(t *testing.T) {
+	startTime := time.Now()
+	params := Params{
+		AirdropStartTime:   startTime,
+		DurationOfDecay:    time.Hour,
+		DurationUntilDecay: time.Hour,
+	}
+
+	decayStartTime := params.DecayStartTime()
+	require.Equal(t, startTime.Add(time.Hour), decayStartTime)
+}
+
+func TestIsClaimsActive(t *testing.T) {
+	startTime := time.Now()
+	params := Params{
+		EnableClaims:       false,
+		AirdropStartTime:   startTime,
+		DurationOfDecay:    time.Hour,
+		DurationUntilDecay: time.Hour,
+	}
+
+	res := params.IsClaimsActive(time.Now())
+	require.False(t, res)
+
+	params.EnableClaims = true
+	blockTime := startTime.Add(-time.Hour)
+	res = params.IsClaimsActive(blockTime)
+	require.False(t, res)
+
+	blockTime = startTime.Add(time.Hour)
+	res = params.IsClaimsActive(blockTime)
+	require.True(t, res)
+}
+
+func TestParamsAirdropEndTime(t *testing.T) {
+	startTime := time.Now()
+	params := Params{
+		AirdropStartTime:   startTime,
+		DurationOfDecay:    time.Hour,
+		DurationUntilDecay: time.Hour,
+	}
+
+	endTime := params.AirdropEndTime()
+	require.Equal(t, startTime.Add(time.Hour).Add(time.Hour), endTime)
+}
