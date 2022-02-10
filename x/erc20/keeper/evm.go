@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 
@@ -8,6 +9,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/tharsis/ethermint/server/config"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -59,8 +61,14 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	return types.NewERC20Data(nameRes.Value, symbolRes.Value, decimalRes.Value), nil
 }
 
-// CallEVM performs a smart contract method call using  given args
-func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
+// CallEVM performs a smart contract method call using given args
+func (k Keeper) CallEVM(
+	ctx sdk.Context,
+	abi abi.ABI,
+	from, contract common.Address,
+	method string,
+	args ...interface{},
+) (*evmtypes.MsgEthereumTxResponse, error) {
 	payload, err := abi.Pack(method, args...)
 	if err != nil {
 		return nil, sdkerrors.Wrap(
@@ -77,8 +85,29 @@ func (k Keeper) CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Addr
 }
 
 // CallEVMWithPayload performs a smart contract method call using contract data
-func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contract *common.Address, transferData []byte) (*evmtypes.MsgEthereumTxResponse, error) {
+func (k Keeper) CallEVMWithPayload(
+	ctx sdk.Context,
+	from common.Address,
+	contract *common.Address,
+	payload []byte,
+) (*evmtypes.MsgEthereumTxResponse, error) {
 	nonce, err := k.accountKeeper.GetSequence(ctx, from.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	args, err := json.Marshal(evmtypes.TransactionArgs{
+		From: &from,
+		Data: (*hexutil.Bytes)(&payload),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	gasRes, err := k.evmKeeper.EstimateGas(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
+		Args:   args,
+		GasCap: config.DefaultGasCap,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -87,12 +116,12 @@ func (k Keeper) CallEVMWithPayload(ctx sdk.Context, from common.Address, contrac
 		from,
 		contract,
 		nonce,
-		big.NewInt(0),        // amount
-		config.DefaultGasCap, // gasLimit
-		big.NewInt(0),        // gasFeeCap
-		big.NewInt(0),        // gasTipCap
-		big.NewInt(0),        // gasPrice
-		transferData,
+		big.NewInt(0), // amount
+		gasRes.Gas,    // gasLimit
+		big.NewInt(0), // gasFeeCap
+		big.NewInt(0), // gasTipCap
+		big.NewInt(0), // gasPrice
+		payload,
 		ethtypes.AccessList{}, // AccessList
 		true,                  // checkNonce
 	)
