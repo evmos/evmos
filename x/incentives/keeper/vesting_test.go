@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -38,17 +37,16 @@ var _ = Describe("Vesting", Ordered, func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
-		// Create periodic vesting account
+		// Create and fund periodic vesting account
 		vestingStart := s.ctx.BlockTime().Unix()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 		periodicAccount = authvesting.NewPeriodicVestingAccount(baseAccount, vestingTotal, vestingStart, periods)
-		// TODO Check if funding is the correct way to test?
 		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingTotal)
 		s.Require().NoError(err)
-
+		s.app.AccountKeeper.SetAccount(s.ctx, periodicAccount)
 		// Check if all tokens are locked at vestingStart
-		locked = periodicAccount.LockedCoins(s.ctx.BlockTime())
-		vested := periodicAccount.GetVestedCoins(s.ctx.BlockTime())
+		locked = s.app.BankKeeper.LockedCoins(s.ctx, addr)
+		vested := s.app.BankKeeper.SpendableCoins(s.ctx, addr)
 		s.Require().Equal(vestingTotal, locked)
 		s.Require().True(vested.IsZero())
 
@@ -63,7 +61,7 @@ var _ = Describe("Vesting", Ordered, func() {
 				// Stake locked tokens
 				_, err := s.app.StakingKeeper.Delegate(
 					s.ctx,
-					periodicAccount.GetAddress(),
+					addr,
 					locked.AmountOf(stakeDenom),
 					stakingtypes.Unbonded,
 					validator,
@@ -83,8 +81,8 @@ var _ = Describe("Vesting", Ordered, func() {
 			})
 			It("should be possible", func() {
 				// Check if some tokens are vested and unlocked
-				locked = periodicAccount.LockedCoins(s.ctx.BlockTime())
-				vested := periodicAccount.GetVestedCoins(s.ctx.BlockTime())
+				locked = s.app.BankKeeper.LockedCoins(s.ctx, addr)
+				vested := s.app.BankKeeper.SpendableCoins(s.ctx, addr)
 				expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(passedPeriods))))
 				s.Require().Equal(vestingTotal.Sub(expVested), locked)
 				s.Require().Equal(expVested, vested)
@@ -112,7 +110,6 @@ var _ = Describe("Vesting", Ordered, func() {
 		})
 		Context("with unvested tokens", func() {
 			It("must not be possible", func() {
-				fmt.Printf("\n locked: %v", locked)
 				// Transfer locked tokens
 				err := s.app.BankKeeper.SendCoins(
 					s.ctx,
@@ -121,9 +118,7 @@ var _ = Describe("Vesting", Ordered, func() {
 					locked,
 				)
 
-				// TODO Transfer should fail. Does standard Cosmos SDK allows transferring locked tokens?
-				// Expect(err).ToNot(BeNil())
-				Expect(err).To(BeNil())
+				Expect(err).ToNot(BeNil())
 			})
 		})
 		Context("with vested and unlocked tokens", func() {
@@ -134,8 +129,8 @@ var _ = Describe("Vesting", Ordered, func() {
 			})
 			It("should be possible", func() {
 				// Check if some tokens are vested and unlocked
-				locked = periodicAccount.LockedCoins(s.ctx.BlockTime())
-				vested := periodicAccount.GetVestedCoins(s.ctx.BlockTime())
+				locked = s.app.BankKeeper.LockedCoins(s.ctx, addr)
+				vested := s.app.BankKeeper.SpendableCoins(s.ctx, addr)
 				expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(passedPeriods))))
 				s.Require().Equal(vestingTotal.Sub(expVested), locked)
 				s.Require().Equal(expVested, vested)
@@ -152,14 +147,15 @@ var _ = Describe("Vesting", Ordered, func() {
 		})
 	})
 
-	// Describe("Ethereum Txs", func() {
-	// 	Context("before the lock period concludes", func() {
-	// 		It("must not be possible", func() {
-	// 		})
-	// 	})
-	// 	Context("with vested and unlocked tokens", func() {
-	// 		It("should be possible", func() {
-	// 		})
-	// 	})
-	// })
+	Describe("Ethereum Txs", func() {
+		Context("before the lock period concludes", func() {
+			It("must not be possible", func() {
+
+			})
+		})
+		Context("with vested and unlocked tokens", func() {
+			It("should be possible", func() {
+			})
+		})
+	})
 })
