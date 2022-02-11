@@ -1,5 +1,6 @@
 package types
 
+// epochs events
 const (
 	EventTypeEpochEnd   = "epoch_end"
 	EventTypeEpochStart = "epoch_start"
