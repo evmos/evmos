@@ -116,7 +116,7 @@ func TestParamsValidateDenom(t *testing.T) {
 }
 
 func TestParamsDecayStartTime(t *testing.T) {
-	startTime := time.Now()
+	startTime := time.Now().UTC()
 	params := Params{
 		AirdropStartTime:   startTime,
 		DurationOfDecay:    time.Hour,
@@ -128,7 +128,7 @@ func TestParamsDecayStartTime(t *testing.T) {
 }
 
 func TestIsClaimsActive(t *testing.T) {
-	startTime := time.Now()
+	startTime := time.Now().UTC()
 	params := Params{
 		EnableClaims:       false,
 		AirdropStartTime:   startTime,
@@ -136,7 +136,7 @@ func TestIsClaimsActive(t *testing.T) {
 		DurationUntilDecay: time.Hour,
 	}
 
-	res := params.IsClaimsActive(time.Now())
+	res := params.IsClaimsActive(time.Now().UTC())
 	require.False(t, res)
 
 	params.EnableClaims = true
@@ -150,7 +150,7 @@ func TestIsClaimsActive(t *testing.T) {
 }
 
 func TestParamsAirdropEndTime(t *testing.T) {
-	startTime := time.Now()
+	startTime := time.Now().UTC()
 	params := Params{
 		AirdropStartTime:   startTime,
 		DurationOfDecay:    time.Hour,

@@ -61,7 +61,7 @@ func TestEpochsInitGenesis(t *testing.T) {
 		app.EpochsKeeper.DeleteEpochInfo(ctx, epochInfo.Identifier)
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	ctx = ctx.WithBlockHeight(1)
 	ctx = ctx.WithBlockTime(now)
 

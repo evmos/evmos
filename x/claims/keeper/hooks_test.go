@@ -12,7 +12,6 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestAfterProposalVote() {
-
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	claimRecord := types.ClaimsRecord{
 		InitialClaimableAmount: sdk.NewInt(1000),
@@ -58,15 +57,14 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 		{
 			"claim enabled - claim",
 			func() {
-
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = true
-				params.AirdropStartTime = time.Now()
+				params.AirdropStartTime = time.Now().UTC()
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.ctx = suite.ctx.WithBlockTime(time.Now().Add(time.Hour))
+				suite.ctx = suite.ctx.WithBlockTime(time.Now().UTC().Add(time.Hour))
 				suite.app.ClaimsKeeper.AfterProposalVote(suite.ctx, 1, addr)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
@@ -80,7 +78,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
 				claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: sdk.NewInt(250)}}
-				suite.Equal(claimedCoins, balances)
+				suite.Require().Equal(claimedCoins, balances)
 			},
 		},
 	}
@@ -90,13 +88,11 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 
 			suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 			tc.test()
-
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestAfterDelegation() {
-
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	addr2 := sdk.ValAddress(tests.GenerateAddress().Bytes())
 	claimRecord := types.ClaimsRecord{
@@ -145,15 +141,14 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 		{
 			"claim enabled - claim",
 			func() {
-
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = true
-				params.AirdropStartTime = time.Now()
+				params.AirdropStartTime = time.Now().UTC()
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.ctx = suite.ctx.WithBlockTime(time.Now().Add(time.Hour))
+				suite.ctx = suite.ctx.WithBlockTime(time.Now().UTC().Add(time.Hour))
 				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
@@ -167,7 +162,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
 				claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: sdk.NewInt(250)}}
-				suite.Equal(claimedCoins, balances)
+				suite.Require().Equal(claimedCoins, balances)
 			},
 		},
 	}
@@ -177,13 +172,11 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 
 			suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 			tc.test()
-
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
-
 	from := tests.GenerateAddress()
 	to := tests.GenerateAddress()
 	receipt := ethtypes.Receipt{}
@@ -202,7 +195,6 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 			func() {
 				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
 				suite.Require().NoError(err)
-
 			},
 		},
 		{
@@ -234,7 +226,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = true
-				params.AirdropStartTime = time.Now()
+				params.AirdropStartTime = time.Now().UTC()
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				claimedRecord := types.ClaimsRecord{
 					InitialClaimableAmount: sdk.NewInt(1000),
@@ -249,17 +241,16 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 		{
 			"claim enabled - claim",
 			func() {
-
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = true
-				params.AirdropStartTime = time.Now()
+				params.AirdropStartTime = time.Now().UTC().UTC()
 				params.DurationUntilDecay = time.Hour
 				params.DurationOfDecay = time.Hour
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.ctx = suite.ctx.WithBlockTime(time.Now().Add(time.Hour))
+				suite.ctx = suite.ctx.WithBlockTime(time.Now().UTC().Add(time.Hour))
 				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
 				suite.Require().NoError(err)
 
@@ -274,7 +265,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr)
 				claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: sdk.NewInt(250)}}
-				suite.Equal(claimedCoins, balances)
+				suite.Require().Equal(claimedCoins, balances)
 			},
 		},
 	}
@@ -284,7 +275,6 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 
 			suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 			tc.test()
-
 		})
 	}
 }

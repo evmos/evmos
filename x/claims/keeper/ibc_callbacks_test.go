@@ -86,11 +86,12 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 }
 
 func (suite *IBCTestingSuite) TestOnReceiveClaim() {
-	senderstr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
-	receiverstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
-	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
+	sender := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	receiver := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+
+	senderAddr, err := sdk.AccAddressFromBech32(sender)
 	suite.Require().NoError(err)
-	receiveraddr, err := sdk.AccAddressFromBech32(receiverstr)
+	receiverAddr, err := sdk.AccAddressFromBech32(receiver)
 	suite.Require().NoError(err)
 
 	testCases := []struct {
@@ -103,7 +104,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -112,8 +113,8 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Merge Transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, false, true, false}})
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, true, false, false}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, false, true, false}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, true, false, false}})
 			},
 			4,
 			4,
@@ -122,7 +123,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
@@ -131,7 +132,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Recipient Claimable transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -140,7 +141,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		{
 			"correct execution - Recipient Claimed transfer",
 			func(claimableAmount int64) {
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
@@ -173,7 +174,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderstr, receiverstr)
+			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
@@ -185,25 +186,25 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
+				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiverAddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
+				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiverAddr)
 				suite.Require().True(found)
 			} else {
-				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
+				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiverAddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
-				suite.Require().True(!found)
-
+				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiverAddr)
+				suite.Require().False(found)
 			}
 		})
 	}
 }
 
 func (suite *IBCTestingSuite) TestOnAckClaim() {
-	senderstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
-	receiverstr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
-	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
+	sender := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	receiver := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+
+	senderAddr, err := sdk.AccAddressFromBech32(sender)
 	suite.Require().NoError(err)
 
 	testCases := []struct {
@@ -216,7 +217,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -225,7 +226,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
 			},
 			4,
 			1,
@@ -234,7 +235,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 		{
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
@@ -267,7 +268,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderstr, receiverstr)
+			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
@@ -279,22 +280,25 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderaddr, "aevmos")
+				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				claim, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderaddr)
+				claim, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderAddr)
 				suite.Require().True(found)
 				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
-				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderaddr, "aevmos")
+				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				_, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderaddr)
-				suite.Require().True(!found)
+				_, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderAddr)
+				suite.Require().False(found)
 			}
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestReceive() {
+	sender := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	receiver := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+
 	disabledTimeoutTimestamp := uint64(0)
 	timeoutHeight = clienttypes.NewHeight(0, 100)
 	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, "port", "channel", "port2", "channel2", timeoutHeight, disabledTimeoutTimestamp)
@@ -327,7 +331,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"invalid sender",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos", receiver)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
@@ -338,22 +342,18 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"invalid sender",
 			func() {
-
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", receiver)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
-
-				resAck.Acknowledgement()
 			},
 		},
 		{
 			"invalid recipient",
 			func() {
-
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625", "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", receiver, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
@@ -364,13 +364,12 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"correct",
 			func() {
-
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				resAck.Success()
+				suite.Require().True(resAck.Success())
 			},
 		},
 	}
@@ -379,7 +378,6 @@ func (suite *KeeperTestSuite) TestReceive() {
 			suite.SetupClaimTest() // reset
 
 			tc.test()
-
 		})
 	}
 }
@@ -413,7 +411,7 @@ func (suite *KeeperTestSuite) TestAck() {
 			},
 		},
 		{
-			"Error Ack",
+			"error Ack",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 				ack := transfertypes.NewErrorAcknowledgement(err)
@@ -427,7 +425,6 @@ func (suite *KeeperTestSuite) TestAck() {
 			suite.SetupClaimTest() // reset
 
 			tc.test()
-
 		})
 	}
 }
