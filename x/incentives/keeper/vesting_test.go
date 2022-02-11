@@ -42,7 +42,7 @@ var _ = Describe("Vesting", Ordered, func() {
 		vestingStart := s.ctx.BlockTime().Unix()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 		periodicAccount = authvesting.NewPeriodicVestingAccount(baseAccount, vestingTotal, vestingStart, periods)
-		// TODO Check of funding is the correct way to test?
+		// TODO Check if funding is the correct way to test?
 		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingTotal)
 		s.Require().NoError(err)
 
