@@ -5,7 +5,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/testutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,7 +20,7 @@ var _ = Describe("Vesting", Ordered, func() {
 		validator       stakingtypes.Validator
 	)
 
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(s.address.Bytes())
 	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	periodDuration := int64(60 * 60 * 24 * 30) // month
 	periodsTotal := int64(48)                  // 4 years
@@ -150,11 +149,30 @@ var _ = Describe("Vesting", Ordered, func() {
 	Describe("Ethereum Txs", func() {
 		Context("before the lock period concludes", func() {
 			It("must not be possible", func() {
+				// Send Ethererum Tx
+				_, err := s.DeployContract("vestcoin", "VCOIN", erc20Decimals)
 
+				Expect(err).ToNot(BeNil())
 			})
 		})
 		Context("with vested and unlocked tokens", func() {
+			passedPeriods := int64(12)
+
+			BeforeAll(func() {
+				s.CommitAfter(time.Duration(time.Hour * 24 * 30 * time.Duration(passedPeriods)))
+			})
 			It("should be possible", func() {
+				// Check if some tokens are vested and unlocked
+				locked = s.app.BankKeeper.LockedCoins(s.ctx, addr)
+				vested := s.app.BankKeeper.SpendableCoins(s.ctx, addr)
+				expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(passedPeriods))))
+				s.Require().Equal(vestingTotal.Sub(expVested), locked)
+				s.Require().Equal(expVested, vested)
+
+				// Send Ethererum Tx
+				_, err := s.DeployContract("vestcoin", "VCOIN", erc20Decimals)
+
+				Expect(err).To(BeNil())
 			})
 		})
 	})
