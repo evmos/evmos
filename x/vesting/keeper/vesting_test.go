@@ -65,7 +65,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 		s.Require().True(vested.IsZero())
 	})
 
-	// TODO vesting period not supported with standard Cosmos SDK
+	// TODO vesting cliff not supported with standard Cosmos SDK
 	Context("before vesting cliff", func() {
 		It("cannot delegate tokens", func() {
 		})
