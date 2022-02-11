@@ -75,6 +75,7 @@ type KeeperTestSuite struct {
 	queryClient      types.QueryClient
 	address          common.Address
 	consAddress      sdk.ConsAddress
+	validator        stakingtypes.Validator
 	clientCtx        client.Context
 	ethSigner        ethtypes.Signer
 	signer           keyring.Signer
@@ -175,6 +176,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
+	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	suite.validator = validators[0]
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
