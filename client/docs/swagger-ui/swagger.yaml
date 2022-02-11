@@ -4,89 +4,6 @@ info:
   description: A REST interface for state queries and transactions
   version: 1.0.0
 paths:
-  '/evmos/claims/v1/claims_record/{address}':
-    get:
-      summary: ClaimsRecord returns the claims record for a given address
-      operationId: ClaimsRecord
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              initial_claimable_amount:
-                type: string
-                title: total initial claimable amount for the user
-              claims:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    action:
-                      title: action enum
-                      type: string
-                      enum:
-                        - ACTION_UNSPECIFIED
-                        - ACTION_VOTE
-                        - ACTION_DELEGATE
-                        - ACTION_EVM
-                        - ACTION_IBC_TRANSFER
-                      default: ACTION_UNSPECIFIED
-                      description: >-
-                        Action defines the list of available actions to claim
-                        the airdrop tokens.
-
-                         - ACTION_UNSPECIFIED: UNSPECIFIED defines an invalid action.
-                         - ACTION_VOTE: VOTE defines a proposal vote.
-                         - ACTION_DELEGATE: DELEGATE defines an staking delegation.
-                         - ACTION_EVM: EVM defines an EVM transaction.
-                         - ACTION_IBC_TRANSFER: IBC Transfer defines a fungible token transfer transaction via IBC.
-                    completed:
-                      type: boolean
-                      title: true if the action has been completed
-                    claimable_amount:
-                      type: string
-                      title: claimable token amount for the action. Zero if completed
-                  description: >-
-                    Claim marks defines the action, completed flag and the
-                    remaining claimable
-
-                    amount for a given user. This is only used during client
-                    queries.
-            description: >-
-              QueryClaimsRecordResponse is the response type for the
-              Query/ClaimsRecord RPC
-
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: address
-          in: path
-          required: true
-          type: string
-      tags:
-        - Query
   /evmos/claims/v1/claims_records:
     get:
       summary: ClaimsRecords returns all the claims record
@@ -217,6 +134,89 @@ paths:
           in: query
           required: false
           type: boolean
+      tags:
+        - Query
+  '/evmos/claims/v1/claims_records/{address}':
+    get:
+      summary: ClaimsRecord returns the claims record for a given address
+      operationId: ClaimsRecord
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              initial_claimable_amount:
+                type: string
+                title: total initial claimable amount for the user
+              claims:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    action:
+                      title: action enum
+                      type: string
+                      enum:
+                        - ACTION_UNSPECIFIED
+                        - ACTION_VOTE
+                        - ACTION_DELEGATE
+                        - ACTION_EVM
+                        - ACTION_IBC_TRANSFER
+                      default: ACTION_UNSPECIFIED
+                      description: >-
+                        Action defines the list of available actions to claim
+                        the airdrop tokens.
+
+                         - ACTION_UNSPECIFIED: UNSPECIFIED defines an invalid action.
+                         - ACTION_VOTE: VOTE defines a proposal vote.
+                         - ACTION_DELEGATE: DELEGATE defines an staking delegation.
+                         - ACTION_EVM: EVM defines an EVM transaction.
+                         - ACTION_IBC_TRANSFER: IBC Transfer defines a fungible token transfer transaction via IBC.
+                    completed:
+                      type: boolean
+                      title: true if the action has been completed
+                    claimable_amount:
+                      type: string
+                      title: claimable token amount for the action. Zero if completed
+                  description: >-
+                    Claim marks defines the action, completed flag and the
+                    remaining claimable
+
+                    amount for a given user. This is only used during client
+                    queries.
+            description: >-
+              QueryClaimsRecordResponse is the response type for the
+              Query/ClaimsRecord RPC
+
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
       tags:
         - Query
   /evmos/claims/v1/params:

@@ -374,7 +374,7 @@ var (
 
 	pattern_Query_ClaimsRecords_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "claims", "v1", "claims_records"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_ClaimsRecord_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "claims", "v1", "claims_record", "address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_ClaimsRecord_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "claims", "v1", "claims_records", "address"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

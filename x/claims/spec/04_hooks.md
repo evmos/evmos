@@ -17,7 +17,7 @@ The user votes on a Governance proposal using their Evmos account. Once the vote
     - current block time is before the end of the claims period
     - user has a claim record (i.e allocation) for the airdrop
     - user hasn't already claimed the action
-    - claimable amount is grater than zero
+    - claimable amount is greater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
 4. Mark the `ActionVote` as completed on the claim record.
 5. Update the claim record or delete it if all the actions have been claimed.
@@ -33,7 +33,7 @@ The user delegates their EVMOS tokens to a validator. Once the tokens are staked
     - current block time is before the end of the claims period
     - user has a claim record (i.e allocation) for the airdrop
     - user hasn't already claimed the action
-    - claimable amount is grater than zero
+    - claimable amount is greater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
 4. Mark the `ActionDelegate` as completed on the claim record.
 5. Update the claim record or delete it if all the actions have been claimed.
@@ -49,7 +49,7 @@ The user deploys or interacts with a smart contract using their Evmos account or
     - current block time is before the end of the claims period
     - user has a claim record (i.e allocation) for the airdrop
     - user hasn't already claimed the action
-    - claimable amount is grater than zero
+    - claimable amount is greater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
 4. Mark the `ActionEVM` as completed on the claim record.
 5. Update the claim record or delete it if all the actions have been claimed.

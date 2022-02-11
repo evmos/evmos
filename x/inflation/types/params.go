@@ -14,8 +14,6 @@ import (
 // Parameter store keys
 var (
 	KeyMintDenom              = []byte("KeyMintDenom")
-	KeyEpochIdentifier        = []byte("KeyEpochIdentifier")
-	KeyEpochsPerPeriod        = []byte("KeyEpochsPerPeriod")
 	KeyExponentialCalculation = []byte("KeyExponentialCalculation")
 	KeyInflationDistribution  = []byte("KeyInflationDistribution")
 )
