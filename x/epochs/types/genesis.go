@@ -9,8 +9,8 @@ func NewGenesisState(epochs []EpochInfo) *GenesisState {
 	return &GenesisState{Epochs: epochs}
 }
 
-// DefaultGenesis returns the default Capability genesis state
-func DefaultGenesis() *GenesisState {
+// DefaultGenesisState returns the default Capability genesis state
+func DefaultGenesisState() *GenesisState {
 	epochs := []EpochInfo{
 		{
 			Identifier:              "week",
