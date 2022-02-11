@@ -7,11 +7,15 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	ibctesting "github.com/cosmos/ibc-go/v3/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
+	"github.com/tharsis/evmos/ibctesting"
+
+	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/claims/types"
 	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
@@ -29,12 +33,14 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibctesting.DefaultTestingAppInit = app.SetupTestingApp
+	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
 
-	ibctesting.ChainIDPrefix = "evmos_9000-"
+	ibcgotesting.ChainIDPrefix = "evmos_9000-"
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
+	suite.coordinator.CommitNBlocks(suite.chainA, 2)
+	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
@@ -64,15 +70,12 @@ func TestIBCTestingSuite(t *testing.T) {
 	suite.Run(t, new(IBCTestingSuite))
 }
 
-var (
-	timeoutHeight = clienttypes.NewHeight(2, 10000)
-	maxSequence   = uint64(10)
-)
+var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = ibctesting.TransferPort
-	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
+	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
 
 	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
 	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
@@ -83,10 +86,12 @@ func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 }
 
 func (suite *IBCTestingSuite) TestOnReceiveClaim() {
-	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
-	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
-	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
-	receiveraddr, _ := sdk.AccAddressFromBech32(receiverstr)
+	senderstr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	receiverstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
+	suite.Require().NoError(err)
+	receiveraddr, err := sdk.AccAddressFromBech32(receiverstr)
+	suite.Require().NoError(err)
 
 	testCases := []struct {
 		name            string
@@ -102,6 +107,16 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			},
 			4,
 			1,
+			true,
+		},
+		{
+			"correct execution - Merge Transfer",
+			func(claimableAmount int64) {
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, false, true, false}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiveraddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{false, true, false, false}})
+			},
+			4,
+			4,
 			true,
 		},
 		{
@@ -172,9 +187,8 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			if tc.expPass {
 				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
-				claim, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
+				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiveraddr)
 				suite.Require().True(found)
-				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
 				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiveraddr, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
@@ -187,9 +201,10 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 }
 
 func (suite *IBCTestingSuite) TestOnAckClaim() {
-	senderstr := "cosmos1adjs2y3gchg28k7zup8wwmyjv3rrnylc0hufk3"
-	receiverstr := "cosmos1s06n8al83537v5nrlxf6v94v4jaug50cd42xlx"
-	senderaddr, _ := sdk.AccAddressFromBech32(senderstr)
+	senderstr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	receiverstr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	senderaddr, err := sdk.AccAddressFromBech32(senderstr)
+	suite.Require().NoError(err)
 
 	testCases := []struct {
 		name            string
@@ -198,6 +213,15 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 		expectedBalance int64
 		expPass         bool
 	}{
+		{
+			"correct execution - Claimable Transfer",
+			func(claimableAmount int64) {
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderaddr, types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(claimableAmount), ActionsCompleted: []bool{}})
+			},
+			4,
+			1,
+			true,
+		},
 		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
@@ -247,15 +271,11 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-			// send on endpointA
-			suite.path.EndpointA.SendPacket(packet)
-
-			// receive on endpointB
-			err := path.EndpointB.RecvPacket(packet)
+			// // send on endpointA
+			err := suite.path.EndpointA.SendPacket(packet)
 			suite.Require().NoError(err)
 
-			// TODO: should use testing method path.EndpointA.AcknowledgePacket(packet, ack)
-			err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.OnAcknowledgementPacket(suite.chainA.GetContext(), packet, ibctesting.MockAcknowledgement)
+			err = suite.path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
 			if tc.expPass {
@@ -270,6 +290,144 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 				_, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderaddr)
 				suite.Require().True(!found)
 			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestReceive() {
+	disabledTimeoutTimestamp := uint64(0)
+	timeoutHeight = clienttypes.NewHeight(0, 100)
+	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, "port", "channel", "port2", "channel2", timeoutHeight, disabledTimeoutTimestamp)
+	ack := ibcmock.MockAcknowledgement
+
+	testCases := []struct {
+		name string
+		test func()
+	}{
+		{
+			"params disabled",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = false
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, mockpacket, ack)
+				suite.Require().Equal(ack, resAck)
+			},
+		},
+		{
+			"non ics20 packet",
+			func() {
+				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+				expectedAck := channeltypes.NewErrorAcknowledgement(err.Error())
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, mockpacket, ack)
+				suite.Require().Equal(expectedAck, resAck)
+			},
+		},
+		{
+			"invalid sender",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+			},
+		},
+		{
+			"invalid sender",
+			func() {
+
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+
+				resAck.Acknowledgement()
+			},
+		},
+		{
+			"invalid recipient",
+			func() {
+
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625", "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+			},
+		},
+		{
+			"correct",
+			func() {
+
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				resAck.Success()
+			},
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupClaimTest() // reset
+
+			tc.test()
+
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestAck() {
+	disabledTimeoutTimestamp := uint64(0)
+	timeoutHeight = clienttypes.NewHeight(0, 100)
+	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, "port", "channel", "port2", "channel2", timeoutHeight, disabledTimeoutTimestamp)
+	ack := ibcmock.MockAcknowledgement
+
+	testCases := []struct {
+		name string
+		test func()
+	}{
+		{
+			"params disabled",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = false
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
+				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"non ics20 packet",
+			func() {
+				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, []byte{3})
+				suite.Require().Error(err)
+			},
+		},
+		{
+			"Error Ack",
+			func() {
+				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+				ack := transfertypes.NewErrorAcknowledgement(err)
+				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				suite.Require().NoError(err)
+			},
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupClaimTest() // reset
+
+			tc.test()
+
 		})
 	}
 }
