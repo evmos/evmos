@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/testutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,20 +15,13 @@ import (
 )
 
 var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
-	// Vesting variables
-	var (
-		periodicAccount *authvesting.PeriodicVestingAccount
-		vesting         sdk.Coins
-		vested          sdk.Coins
-	)
-
 	addr := sdk.AccAddress(s.address.Bytes())
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
 
 	periodDuration := int64(60 * 60 * 24 * 30) // 1 month in seconds
-	periodsUntilLock := int64(12)              // 1 year
+	periodsCliff := int64(12)                  // 1 year
 	periodsTotal := int64(48)                  // 4 years
 	amt := sdk.NewInt(1)
+	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	vestingProvision := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
 	vestingTotal := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsTotal))))
 
@@ -36,6 +30,12 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 		period := authvesting.Period{Length: periodDuration, Amount: vestingProvision}
 		periods = append(periods, period)
 	}
+
+	var (
+		periodicAccount *authvesting.PeriodicVestingAccount
+		vesting         sdk.Coins
+		vested          sdk.Coins
+	)
 
 	BeforeEach(func() {
 		s.SetupTest()
@@ -56,7 +56,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 	})
 
 	// TODO lock period not supported with standard Cosmos SDK
-	Context("before the lock period concludes", func() {
+	Context("before cliff", func() {
 		It("cannot transfer tokens", func() {
 		})
 
@@ -64,15 +64,15 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 		})
 	})
 
-	Context("after the lock period concludes and before total periods pass", func() {
+	Context("after cliff and before total periods pass", func() {
 		BeforeEach(func() {
 			// Surpass locking duration
-			lockingDuration := time.Duration(periodDuration * periodsUntilLock)
+			lockingDuration := time.Duration(periodDuration * periodsCliff)
 			s.CommitAfter(lockingDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
 			vested = s.app.BankKeeper.SpendableCoins(s.ctx, addr)
-			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsUntilLock))))
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsCliff))))
 			s.Require().NotEqual(vestingTotal, vested)
 			s.Require().Equal(expVested, vested)
 		})
@@ -86,7 +86,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 				s.validator,
 				true,
 			)
-			// TODO Delegation should fail, but standard Cosmos SDK allows staking locked tokens
+			// TODO Delegation should fail, but standard Cosmos SDK allows staking vesting tokens
 			// Expect(err).ToNot(BeNil())
 			Expect(err).To(BeNil())
 		})
@@ -95,7 +95,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				addr,
-				sdk.AccAddress(s.address.Bytes()),
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				vestingTotal,
 			)
 			Expect(err).ToNot(BeNil())
@@ -117,15 +117,14 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				addr,
-				sdk.AccAddress(s.address.Bytes()),
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				vested,
 			)
 			Expect(err).To(BeNil())
 		})
 
 		It("can perform ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VCOIN", erc20Decimals)
-
+			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
 			Expect(err).To(BeNil())
 		})
 	})
