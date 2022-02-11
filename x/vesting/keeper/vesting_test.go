@@ -17,9 +17,19 @@ import (
 var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 	addr := sdk.AccAddress(s.address.Bytes())
 
+	// Periodic vesting case In this case the cliff is reached before the locked
+	// period is reached to represent the scenario in which an employee starts
+	// before mainnet launch (periodsCliff < periodslock)
+	//
+	// Example:
+	// 21/10 Employee joins Evmos and vesting starts
+	// 22/03 Mainnet launch
+	// 22/09 Cliff ends
+	// 23/02 Lock ends
 	periodDuration := int64(60 * 60 * 24 * 30) // 1 month in seconds
-	periodsCliff := int64(12)                  // 1 year
-	periodsTotal := int64(48)                  // 4 years
+	// periodsCliff := int64(6)                   // 6 months
+	periodsLock := int64(12)  // 12 year
+	periodsTotal := int64(48) // 4 years
 	amt := sdk.NewInt(1)
 	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	vestingProvision := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
@@ -55,24 +65,35 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 		s.Require().True(vested.IsZero())
 	})
 
-	// TODO lock period not supported with standard Cosmos SDK
-	Context("before cliff", func() {
+	// TODO vesting period not supported with standard Cosmos SDK
+	Context("before vesting cliff", func() {
+		It("cannot delegate tokens", func() {
+		})
 		It("cannot transfer tokens", func() {
 		})
-
 		It("cannot perform Ethereum tx", func() {
 		})
 	})
 
-	Context("after cliff and before total periods pass", func() {
+	// TODO lock period not supported with standard Cosmos SDK
+	Context("before locking period", func() {
+		It("can delegate vested tokens", func() {
+		})
+		It("cannot transfer tokens", func() {
+		})
+		It("cannot perform Ethereum tx", func() {
+		})
+	})
+
+	Context("after vesting cliff and locking period", func() {
 		BeforeEach(func() {
 			// Surpass locking duration
-			lockingDuration := time.Duration(periodDuration * periodsCliff)
+			lockingDuration := time.Duration(periodDuration * periodsLock)
 			s.CommitAfter(lockingDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
 			vested = s.app.BankKeeper.SpendableCoins(s.ctx, addr)
-			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsCliff))))
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsLock))))
 			s.Require().NotEqual(vestingTotal, vested)
 			s.Require().Equal(expVested, vested)
 		})
