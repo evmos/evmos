@@ -121,7 +121,7 @@ var _ = Describe("Vesting", Ordered, func() {
 					locked,
 				)
 
-				// TODO Transfer should fail, but standard Cosmos SDK allows staking locked tokens
+				// TODO Transfer should fail. Does standard Cosmos SDK allows transferring locked tokens?
 				// Expect(err).ToNot(BeNil())
 				Expect(err).To(BeNil())
 			})
