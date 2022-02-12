@@ -23,9 +23,7 @@ The snapshot of the airdrop was on **November 25th, 2021 at 19:00 UTC**
 
 An `Action` corresponds to a given transaction that the user must perform to receive the allocated tokens from the airdrop.
 
-All accounts start out with 1% of their entire airdrop allocation.
-
-There are 4 types of actions, each of which release 20% of their remaining corresponding airdrop allocation. The 4 actions are as follows:
+There are 4 types of actions, each of which release 25% of their remaining corresponding airdrop allocation. The 4 actions are as follows (`ActionUnspecified` is not considered for claiming):
 
 ```go
 // UNSPECIFIED defines an invalid action. NOT claimable

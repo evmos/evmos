@@ -36,7 +36,8 @@ message InflationDistribution {
 // ExponentialCalculation holds factors to calculate exponential inflation on
 // each period. Calculation reference:
 // periodProvision = exponentialDecay       *  bondingIncentive
-// f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio * (max_variance / bonding_target))
+// f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
+// (max_variance / bonding_target))
 message ExponentialCalculation {
   // initial value
   string a = 1 [
