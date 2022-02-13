@@ -1,8 +1,8 @@
 <!--
 order: 0
-title: "Incentives Overview"
+title: "Inflation Overview"
 parent:
-  title: "incentives"
+  title: "inflation"
 -->
 
 # `inflation`

@@ -53,7 +53,7 @@ aside: false
 
 - **[Module Directory](../x/)**: Module implementations and their respective documentation.
 - **[Ethermint API Reference](https://godoc.org/github.com/tharsis/ethermint)**: Godocs of Ethermint.
-- **[REST API spec](https://cosmos.network/rpc/)**: List of REST endpoints to interact with an full-node through REST.
+- **[gRPC Gateway API Reference](https://api.evmos.org/)**: List of gRPC Gateway endpoints to interact with an full-node through REST.
 
 ## Contribute
 

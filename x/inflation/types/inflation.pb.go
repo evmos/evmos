@@ -79,7 +79,8 @@ var xxx_messageInfo_InflationDistribution proto.InternalMessageInfo
 // ExponentialCalculation holds factors to calculate exponential inflation on
 // each period. Calculation reference:
 // periodProvision = exponentialDecay       *  bondingIncentive
-// f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio * (max_variance / bonding_target))
+// f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
+// (max_variance / bonding_target))
 type ExponentialCalculation struct {
 	// initial value
 	A github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=a,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"a"`

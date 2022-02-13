@@ -422,6 +422,7 @@ func NewEvmos(
 	app.ClaimsKeeper = *claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// register the staking hooks
@@ -447,7 +448,7 @@ func NewEvmos(
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
-		epochstypes.NewMultiEpochHooks(
+		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
 			// TODO activate Inflation hook
 			app.IncentivesKeeper.Hooks(),
@@ -470,20 +471,23 @@ func NewEvmos(
 	)
 
 	// Create Transfer Keepers
+
+	// NOTE: since the transfer keeper is the last layer of the stack,
+	// we use the ChannelKeeper as the ICS4 wrapper
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, // FIXME: implement middleware
+		app.ClaimsKeeper.Hooks(), // claims IBC middleware
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
+	transferStack := claims.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
 	app.IBCKeeper.SetRouter(ibcRouter)
-
-	// TODO: add IBC transfer hooks
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
