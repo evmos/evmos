@@ -69,27 +69,27 @@ func (k Keeper) CallEVM(
 	method string,
 	args ...interface{},
 ) (*evmtypes.MsgEthereumTxResponse, error) {
-	payload, err := abi.Pack(method, args...)
+	data, err := abi.Pack(method, args...)
 	if err != nil {
 		return nil, sdkerrors.Wrap(
-			types.ErrWritingEthTxPayload,
-			sdkerrors.Wrap(err, "failed to create transaction payload").Error(),
+			types.ErrWritingEthTxData,
+			sdkerrors.Wrap(err, "failed to create transaction data").Error(),
 		)
 	}
 
-	resp, err := k.CallEVMWithPayload(ctx, from, &contract, payload)
+	resp, err := k.CallEVMWithData(ctx, from, &contract, data)
 	if err != nil {
 		return nil, fmt.Errorf("contract call failed: method '%s' %s, %s", method, contract, err)
 	}
 	return resp, nil
 }
 
-// CallEVMWithPayload performs a smart contract method call using contract data
-func (k Keeper) CallEVMWithPayload(
+// CallEVMWithData performs a smart contract method call using contract data
+func (k Keeper) CallEVMWithData(
 	ctx sdk.Context,
 	from common.Address,
 	contract *common.Address,
-	payload []byte,
+	data []byte,
 ) (*evmtypes.MsgEthereumTxResponse, error) {
 	nonce, err := k.accountKeeper.GetSequence(ctx, from.Bytes())
 	if err != nil {
@@ -99,7 +99,7 @@ func (k Keeper) CallEVMWithPayload(
 	args, err := json.Marshal(evmtypes.TransactionArgs{
 		From: &from,
 		To:   contract,
-		Data: (*hexutil.Bytes)(&payload),
+		Data: (*hexutil.Bytes)(&data),
 	})
 	if err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ func (k Keeper) CallEVMWithPayload(
 		big.NewInt(0), // gasFeeCap
 		big.NewInt(0), // gasTipCap
 		big.NewInt(0), // gasPrice
-		payload,
+		data,
 		ethtypes.AccessList{}, // AccessList
 		true,                  // checkNonce
 	)
