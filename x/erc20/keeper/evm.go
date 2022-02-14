@@ -98,6 +98,7 @@ func (k Keeper) CallEVMWithPayload(
 
 	args, err := json.Marshal(evmtypes.TransactionArgs{
 		From: &from,
+		To:   contract,
 		Data: (*hexutil.Bytes)(&payload),
 	})
 	if err != nil {
