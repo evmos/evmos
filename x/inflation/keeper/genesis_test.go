@@ -5,7 +5,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
-	// check calculated epochMintProvison at genesis
+	// check calculated epochMintProvision at genesis
 	epochMintProvision, _ := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
 	suite.Require().Equal(sdk.NewDec(847602), epochMintProvision)
 }

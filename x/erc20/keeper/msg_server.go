@@ -12,8 +12,8 @@ import (
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	"github.com/tharsis/evmos/contracts"
 	"github.com/tharsis/evmos/x/erc20/types"
-	"github.com/tharsis/evmos/x/erc20/types/contracts"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -253,7 +253,7 @@ func (k Keeper) convertERC20NativeToken(
 	if err != nil {
 		return nil, err
 	}
-	res, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
+	res, err := k.CallEVMWithData(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
 	}

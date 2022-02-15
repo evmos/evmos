@@ -25,11 +25,9 @@ message Params {
   // type of coin to mint
   string mint_denom = 1;
   // variables to calculate exponential inflation
-  ExponentialCalculation exponential_calculation = 2 [
-    (gogoproto.nullable) = false
-  ];
+  ExponentialCalculation exponential_calculation = 2
+      [ (gogoproto.nullable) = false ];
   // inflation distribution of the minted denom
-  InflationDistribution inflation_distribution = 3 [
-    (gogoproto.nullable) = false
-  ];
+  InflationDistribution inflation_distribution = 3
+      [ (gogoproto.nullable) = false ];
 }

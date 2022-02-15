@@ -395,7 +395,7 @@ Query defines the gRPC querier service.
 | `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claims/v1/total_unclaimed|
 | `Params` | [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse) | Params returns the claims module parameters | GET|/evmos/claims/v1/params|
 | `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all the claims record | GET|/evmos/claims/v1/claims_records|
-| `ClaimsRecord` | [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest) | [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse) | ClaimsRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_record/{address}|
+| `ClaimsRecord` | [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest) | [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse) | ClaimsRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_records/{address}|
 
  <!-- end services -->
 
@@ -1313,8 +1313,9 @@ Query defines the gRPC querier service.
 ### ExponentialCalculation
 ExponentialCalculation holds factors to calculate exponential inflation on
 each period. Calculation reference:
-periodProvision = exponentialDecay       *  bondingRatio
-f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
+periodProvision = exponentialDecay       *  bondingIncentive
+f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
+(max_variance / bonding_target))
 
 
 | Field | Type | Label | Description |
@@ -1322,7 +1323,8 @@ f(x)            = (a * (1 - r) ^ x + c)  *  (2 - b) / 2
 | `a` | [string](#string) |  | initial value |
 | `r` | [string](#string) |  | reduction factor |
 | `c` | [string](#string) |  | long term inflation |
-| `b` | [string](#string) |  | bonding factor` |
+| `bonding_target` | [string](#string) |  | bonding target |
+| `max_variance` | [string](#string) |  | max variance |
 
 
 

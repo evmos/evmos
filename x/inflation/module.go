@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -33,12 +34,12 @@ var (
 // app module Basics object
 type AppModuleBasic struct{}
 
-// Name returns the mint module's name.
+// Name returns the inflation module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
+// RegisterLegacyAminoCodec registers the inflation module's types on the given LegacyAmino codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
@@ -89,31 +90,34 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // ___________________________________________________________________________
 
-// AppModule implements an application module for the mint module.
+// AppModule implements an application module for the inflation module.
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
+	sk     stakingkeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
+	sk stakingkeeper.Keeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
+		sk:             sk,
 	}
 }
 
-// Name returns the mint module's name.
+// Name returns the inflation module's name.
 func (AppModule) Name() string {
 	return types.ModuleName
 }
 
-// RegisterInvariants registers the mint module invariants.
+// RegisterInvariants registers the inflation module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 // NewHandler returns nil inflation module doesn't expose tx gRPC endpoints
@@ -131,7 +135,7 @@ func (am AppModule) QuerierRoute() string {
 	return types.RouterKey
 }
 
-// LegacyQuerierHandler returns the mint module sdk.Querier.
+// LegacyQuerierHandler returns the inflation module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 	return nil
 }
@@ -160,11 +164,11 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, am.ak, genesisState)
+	InitGenesis(ctx, am.keeper, am.ak, am.sk, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the mint
+// ExportGenesis returns the exported genesis state as raw bytes for the inflation
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
@@ -175,7 +179,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 
 // AppModuleSimulation functions
 
-// GenerateGenesisState creates a randomized GenState of the mint module.
+// GenerateGenesisState creates a randomized GenState of the inflation module.
 func (am AppModule) GenerateGenesisState(input *module.SimulationState) {
 }
 
@@ -184,16 +188,16 @@ func (am AppModule) ProposalContents(simState module.SimulationState) []simtypes
 	return []simtypes.WeightedProposalContent{}
 }
 
-// RandomizedParams creates randomized mint param changes for the simulator.
+// RandomizedParams creates randomized inflation param changes for the simulator.
 func (am AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{}
 }
 
-// RegisterStoreDecoder registers a decoder for mint module's types.
+// RegisterStoreDecoder registers a decoder for inflation module's types.
 func (am AppModule) RegisterStoreDecoder(decoderRegistry sdk.StoreDecoderRegistry) {
 }
 
-// WeightedOperations doesn't return any mint module operation.
+// WeightedOperations doesn't return any inflation module operation.
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
 	return []simtypes.WeightedOperation{}
 }

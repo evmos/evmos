@@ -206,15 +206,19 @@ module.exports = {
           title: 'Resources',
           children: [
             {
-              title: 'Evmos API Reference',
+              title: 'Evmos Go API',
               path: 'https://pkg.go.dev/github.com/tharsis/evmos'
             },
             {
-              title: 'Ethermint Library API Reference',
+              title: 'Ethermint Library Go API',
               path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
             },
             {
-              title: 'JSON-RPC API Reference',
+              title: 'Evmos gRPC Gateway API',
+              path: 'https://api.evmos.org/'
+            },
+            {
+              title: 'JSON-RPC API',
               path: '/api/json-rpc/endpoints'
             }
           ]

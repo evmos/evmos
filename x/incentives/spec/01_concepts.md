@@ -19,7 +19,7 @@ The inflation pool holds `rewards` that can be allocated to incentives. On every
 
 ## Epoch
 
-Rewarding users for smart contract interaction is organized in epochs. An `epoch` is a fixed duration in which rewards are added to the inflation pool and smart contract interaction is logged. At the end of an epoch, rewards are allocated and distributed to all paricipants. This creates a user experience, where users check their balance for new rewards regularly (e.g. every day at the same time).
+Rewarding users for smart contract interaction is organized in epochs. An `epoch` is a fixed duration in which rewards are added to the inflation pool and smart contract interaction is logged. At the end of an epoch, rewards are allocated and distributed to all participants. This creates a user experience, where users check their balance for new rewards regularly (e.g. every day at the same time).
 
 ## Allocation
 
@@ -32,7 +32,7 @@ Users can be rewarded in several coin denominations. These are organized in `all
 
 ## Distribution
 
-The allocated rewards for an incentive are distributed according to how much gas participants spent on interaction with the contract during an epoch. The gas used per address is recorded using transaction hooks and stored on the KV store.  At the end of an epoch, the allocated rewards in the incentive are distributed by transferring them to the paricipants accounts.
+The allocated rewards for an incentive are distributed according to how much gas participants spent on interaction with the contract during an epoch. The gas used per address is recorded using transaction hooks and stored on the KV store.  At the end of an epoch, the allocated rewards in the incentive are distributed by transferring them to the participants accounts.
 
 ::: tip
 💡 We use hooks instead of the transaction hash to measure the gas spent because the hook has access to the actual gas spent and the hash only includes the gas limit.

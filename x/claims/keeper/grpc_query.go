@@ -106,7 +106,7 @@ func (k Keeper) ClaimsRecord(
 		claims[i] = types.Claim{
 			Action:          action,
 			Completed:       claimsRecord.HasClaimedAction(action),
-			ClaimableAmount: k.GetClaimableAmountForAction(ctx, addr, claimsRecord, action, params),
+			ClaimableAmount: k.GetClaimableAmountForAction(ctx, claimsRecord, action, params),
 		}
 	}
 

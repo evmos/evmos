@@ -12,9 +12,6 @@ type GenesisTestSuite struct {
 	suite.Suite
 }
 
-func (suite *GenesisTestSuite) SetupTest() {
-}
-
 func TestGenesisTestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisTestSuite))
 }
