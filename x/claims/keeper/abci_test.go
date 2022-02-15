@@ -102,7 +102,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
+				coins := sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(amount)))
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
@@ -131,10 +131,10 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 
 			tc.malleate()
 
-			suite.app.ClaimsKeeper.ClawbackEmptyAccounts(suite.ctx, "aevmos")
+			suite.app.ClaimsKeeper.ClawbackEmptyAccounts(suite.ctx, "abera")
 
 			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
-			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "abera")
 			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
 		})
 	}
@@ -158,7 +158,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			"balance on module account",
 			amount,
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
+				coins := sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(amount)))
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
@@ -176,7 +176,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			suite.Require().NoError(err)
 
 			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
-			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "abera")
 			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
 		})
 	}

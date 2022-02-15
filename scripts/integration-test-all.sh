@@ -17,10 +17,10 @@ RPC_PORT="854"
 IP_ADDR="0.0.0.0"
 
 KEY="mykey"
-CHAINID="evmos_9000-1"
+CHAINID="bera_9000-1"
 MONIKER="mymoniker"
 
-## default port prefixes for evmosd
+## default port prefixes for berachaind
 NODE_P2P_PORT="2660"
 NODE_PORT="2663"
 NODE_RPC_PORT="2666"
@@ -67,14 +67,14 @@ make build
 arr=()
 
 init_func() {
-    "$PWD"/build/evmosd keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
-    "$PWD"/build/evmosd init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd add-genesis-account \
-    "$("$PWD"/build/evmosd keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aevmos,1000000000000000000stake \
+    "$PWD"/build/berachaind keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
+    "$PWD"/build/berachaind init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
+    "$PWD"/build/berachaind add-genesis-account \
+    "$("$PWD"/build/berachaind keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000abera,1000000000000000000stake \
     --keyring-backend test --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd collect-gentxs --home "$DATA_DIR$i"
-    "$PWD"/build/evmosd validate-genesis --home "$DATA_DIR$i"
+    "$PWD"/build/berachaind gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
+    "$PWD"/build/berachaind collect-gentxs --home "$DATA_DIR$i"
+    "$PWD"/build/berachaind validate-genesis --home "$DATA_DIR$i"
 
     if [[ $MODE == "pending" ]]; then
       ls $DATA_DIR$i
@@ -104,7 +104,7 @@ init_func() {
 
 start_func() {
     echo "starting evmos node $i in background ..."
-    "$PWD"/build/evmosd start --pruning=nothing --rpc.unsafe \
+    "$PWD"/build/berachaind start --pruning=nothing --rpc.unsafe \
     --p2p.laddr tcp://$IP_ADDR:$NODE_P2P_PORT"$i" --address tcp://$IP_ADDR:$NODE_PORT"$i" --rpc.laddr tcp://$IP_ADDR:$NODE_RPC_PORT"$i" \
     --json-rpc.address=$IP_ADDR:$RPC_PORT"$i" \
     --keyring-backend test --home "$DATA_DIR$i" \

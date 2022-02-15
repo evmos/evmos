@@ -1,4 +1,4 @@
-module github.com/tharsis/evmos
+module github.com/berachain/core
 
 go 1.17
 

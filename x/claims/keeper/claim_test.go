@@ -623,7 +623,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 				// Only claim merged ibc. Since nothing was claimed.
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2)}, balances)
+				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("abera", 2)}, balances)
 			},
 		},
 		{
@@ -648,7 +648,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 				// Claim merged ibc. Claim 1 for recipient
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2+1)}, balances)
+				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("abera", 2+1)}, balances)
 			},
 		},
 		{
@@ -673,7 +673,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 				// Claim merged ibc. Claim the 3 unclaimed from sender
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2+3)}, balances)
+				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("abera", 2+3)}, balances)
 			},
 		},
 		{
@@ -698,7 +698,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
 				// Only claim merged ibc. Everything else was already claimed.
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2)}, balances)
+				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("abera", 2)}, balances)
 			},
 		},
 	}

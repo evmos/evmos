@@ -12,7 +12,7 @@ The `x/claims` module contains the parameters described below. All parameters ca
 | `AirdropStartTime`   | `time.Time`     | `time.Time{}` // empty         |
 | `DurationUntilDecay` | `time.Duration` | `2629800000000000` // 1 month  |
 | `DurationOfDecay`    | `time.Duration` | `5259600000000000` // 2 months |
-| `ClaimDenom`         | `string`        | `"aevmos"`                     |
+| `ClaimDenom`         | `string`        | `"abera"`                     |
 
 ## Enable claim
 

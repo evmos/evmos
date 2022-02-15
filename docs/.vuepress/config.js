@@ -54,7 +54,7 @@ module.exports = {
       name: 'Evmos',
       denom: 'Evmos',
       ticker: 'EVMOS',
-      binary: 'evmosd',
+      binary: 'berachaind',
       testnet_denom: 'tEvmos',
       testnet_ticker: 'tEVMOS',
       rpc_url: 'http://localhost:8545/',

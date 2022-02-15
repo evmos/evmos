@@ -22,7 +22,7 @@ go version
 ```
 
 :::tip
-If the `evmosd: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
+If the `berachaind: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
 
 ```bash
 export PATH=$PATH:$(go env GOPATH)/bin
@@ -49,7 +49,7 @@ make install
 Check that the `{{ $themeConfig.project.binary }}` binaries have been successfully installed:
 
 ```bash
-evmosd version
+berachaind version
 ```
 
 ### Docker
@@ -60,16 +60,16 @@ You can build {{ $themeConfig.project.name }} using Docker by running:
 make build-docker
 ```
 
-The command above will create a docker container: `tharsishq/evmos:latest`. Now you can run `evmosd` in the container.
+The command above will create a docker container: `tharsishq/evmos:latest`. Now you can run `berachaind` in the container.
 
 ```bash
-docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd version
+docker run -it -p 26657:26657 -p 26656:26656 -v ~/.berachaind/:/root/.berachaind tharsishq/evmos:latest berachaind version
 
 # To initialize
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd init test-chain --chain-id test_9000-2
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.berachaind/:/root/.berachaind tharsishq/evmos:latest berachaind init test-chain --chain-id test_9000-2
 
 # To run
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd start
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.berachaind/:/root/.berachaind tharsishq/evmos:latest berachaind start
 ```
 
 ### Releases

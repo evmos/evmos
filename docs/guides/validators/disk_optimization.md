@@ -55,7 +55,7 @@ pruning-interval = "10"
 ```
 
 Configuring `pruning-keep-recent = "0"` might sound tempting, but this
-will risk database corruption if the `evmosd` is killed for any reason.
+will risk database corruption if the `berachaind` is killed for any reason.
 Thus, it is recommended to keep the few latest states.
 
 ## Logging

@@ -6,10 +6,10 @@ order: 8
 
 ## CLI
 
-Find below a list of  `evmosd` commands added with the  `x/erc20` module. You can obtain the full list by using the `evmosd -h` command. A CLI command can look like this:
+Find below a list of  `berachaind` commands added with the  `x/erc20` module. You can obtain the full list by using the `berachaind -h` command. A CLI command can look like this:
 
 ```bash
-evmosd query erc20 params
+berachaind query erc20 params
 ```
 
 ### Queries

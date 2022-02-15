@@ -179,7 +179,7 @@ func (k Keeper) rewardParticipants(
 					continue
 				}
 
-				// Cap rewards in mint denom (i.e. aevmos) to receive only up to 100% of
+				// Cap rewards in mint denom (i.e. abera) to receive only up to 100% of
 				// the participant's gas spent and prevent gaming
 				if mintDenom == allocation.Denom {
 					rewardCap := cumulativeGas.Mul(rewardScaler)

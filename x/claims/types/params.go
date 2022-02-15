@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	DefaultClaimsDenom        = "aevmos"
+	DefaultClaimsDenom        = "abera"
 	DefaultDurationUntilDecay = 2629800 * time.Second         // 1 month = 30.4375 days
 	DefaultDurationOfDecay    = 2 * DefaultDurationUntilDecay // 2 months
 )

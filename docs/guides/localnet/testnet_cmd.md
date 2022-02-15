@@ -18,7 +18,7 @@ This is similar to the `init` command when initializing a single node, but in th
 In order to initialize the files for a test network, run the following command:
 
 ```bash
-evmosd testnet init-files
+berachaind testnet init-files
 ```
 
 You should see the following output in your terminal:
@@ -44,7 +44,7 @@ The `start` subcommand both initializes and starts an in-process test network. T
 You can start the local test network by running the following command:
 
 ```bash
-evmosd testnet start
+berachaind testnet start
 ```
 
 You should see something similar to the following:
@@ -74,19 +74,19 @@ The first validator node is now running in-process, which means the test network
 Check the status of the first validator node:
 
 ```bash
-evmosd status
+berachaind status
 ```
 
 Import the key from the provided mnemonic:
 
 ```bash
-evmosd keys add test --recover --keyring-backend test
+berachaind keys add test --recover --keyring-backend test
 ```
 
 Check the balance of the account address:
 
 ```bash
-evmosd q bank balances [address]
+berachaind q bank balances [address]
 ```
 
 Use this test account to manually test against the test network.

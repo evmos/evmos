@@ -42,7 +42,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
+	coins := sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
 	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
@@ -174,7 +174,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData("abera", "100", sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
@@ -186,13 +186,13 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiverAddr, "aevmos")
-				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
+				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiverAddr, "abera")
+				suite.Require().Equal(coin, sdk.NewCoin("abera", sdk.NewInt(tc.expectedBalance)))
 				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiverAddr)
 				suite.Require().True(found)
 			} else {
-				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiverAddr, "aevmos")
-				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
+				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), receiverAddr, "abera")
+				suite.Require().Equal(coin, sdk.NewCoin("abera", sdk.NewInt(tc.expectedBalance)))
 				_, found := suite.chainB.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainB.GetContext(), receiverAddr)
 				suite.Require().False(found)
 			}
@@ -268,7 +268,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData("abera", "100", sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
@@ -280,14 +280,14 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
-				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
+				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "abera")
+				suite.Require().Equal(coin, sdk.NewCoin("abera", sdk.NewInt(tc.expectedBalance)))
 				claim, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderAddr)
 				suite.Require().True(found)
 				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
-				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
-				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)))
+				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "abera")
+				suite.Require().Equal(coin, sdk.NewCoin("abera", sdk.NewInt(tc.expectedBalance)))
 				_, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderAddr)
 				suite.Require().False(found)
 			}
@@ -331,7 +331,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"invalid sender",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos", receiver)
+				transfer := transfertypes.NewFungibleTokenPacketData("abera", "100", "evmos", receiver)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
@@ -342,7 +342,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"invalid sender",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", receiver)
+				transfer := transfertypes.NewFungibleTokenPacketData("abera", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", receiver)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
@@ -353,7 +353,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"invalid recipient",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", receiver, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				transfer := transfertypes.NewFungibleTokenPacketData("abera", "100", receiver, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 
@@ -364,7 +364,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"correct",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
+				transfer := transfertypes.NewFungibleTokenPacketData("abera", "100", sender, receiver)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
 

@@ -10,15 +10,15 @@ The keyring holds the private/public keypairs used to interact with the node. Fo
 
 ## Add keys
 
-You can use `evmosd keys` for help with the keys command and `evmosd keys [command] --help` for more information about a particular subcommand.
+You can use `berachaind keys` for help with the keys command and `berachaind keys [command] --help` for more information about a particular subcommand.
 
 To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. For the purpose of this tutorial, we will solely use the `test` backend, and call our new key `mykey`. This key will be used in the next section.
 
 ```bash
-evmosd keys add mykey --keyring-backend test
+berachaind keys add mykey --keyring-backend test
 
 # Put the generated address in a variable for later use.
-MY_VALIDATOR_ADDRESS=$(evmosd keys show mykey -a --keyring-backend test)
+MY_VALIDATOR_ADDRESS=$(berachaind keys show mykey -a --keyring-backend test)
 ```
 
 This command generates a new 24-word mnemonic phrase, persists it to the relevant backend, and outputs information about the keypair. If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!
@@ -62,10 +62,10 @@ for multiple prompts:
 
 ```bash
 # assuming that KEYPASSWD is set in the environment
-yes $KEYPASSWD | evmosd keys add me
-yes $KEYPASSWD | evmosd keys show me
-# start evmosd with keyring-backend flag
-evmosd --keyring-backend=file start
+yes $KEYPASSWD | berachaind keys add me
+yes $KEYPASSWD | berachaind keys show me
+# start berachaind with keyring-backend flag
+berachaind --keyring-backend=file start
 ```
 
 ::: tip

@@ -23,7 +23,7 @@ var (
 			AirdropStartTime:   now,
 			DurationUntilDecay: types.DefaultDurationUntilDecay,
 			DurationOfDecay:    types.DefaultDurationOfDecay,
-			ClaimsDenom:        types.DefaultClaimsDenom, // aevmos
+			ClaimsDenom:        types.DefaultClaimsDenom, // abera
 		},
 		ClaimsRecords: []types.ClaimsRecordAddress{
 			{
@@ -52,7 +52,7 @@ func TestClaimInitGenesis(t *testing.T) {
 	ctx = ctx.WithBlockTime(now.Add(time.Second))
 	genesis := testGenesis
 
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
+	coins := sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(10400)))
 	err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins)
 	require.NoError(t, err)
 	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, inflationtypes.ModuleName, types.ModuleName, coins)
@@ -79,7 +79,7 @@ func TestClaimExportGenesis(t *testing.T) {
 	ctx = ctx.WithBlockTime(now.Add(time.Second))
 	genesis := testGenesis
 
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10400)))
+	coins := sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(10400)))
 	err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins)
 	require.NoError(t, err)
 	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, inflationtypes.ModuleName, types.ModuleName, coins)

@@ -9,8 +9,8 @@ REST.
 
 ## CLI
 
-Find below a list of `evmosd` commands added with the `x/inflation` module. You
-can obtain the full list by using the `evmosd -h` command.
+Find below a list of `berachaind` commands added with the `x/inflation` module. You
+can obtain the full list by using the `berachaind -h` command.
 
 ### Queries
 
@@ -22,7 +22,7 @@ The `query` commands allow users to query `inflation` state.
 Allows users to query the current inflation period.
 
 ```go
-evmosd query inflation period [flags]
+berachaind query inflation period [flags]
 ```
 
 **`epoch-mint-provisions`**
@@ -30,7 +30,7 @@ evmosd query inflation period [flags]
 Allows users to query the current inflation epoch provisions value.
 
 ```go
-evmosd query inflation epoch-mint-provisions [flags]
+berachaind query inflation epoch-mint-provisions [flags]
 ```
 
 **`params`**
@@ -38,7 +38,7 @@ evmosd query inflation epoch-mint-provisions [flags]
 Allows users to query the current inflation parameters.
 
 ```go
-evmosd query inflation params [flags]
+berachaind query inflation params [flags]
 ```
 
 ### Proposals
@@ -51,7 +51,7 @@ using the governance module CLI:
 Allows users to submit a `RegisterIncentiveProposal`.
 
 ```bash
-evmosd tx gov submit-proposal register-incentive [contract-address] [allocation] [epochs] [flags]
+berachaind tx gov submit-proposal register-incentive [contract-address] [allocation] [epochs] [flags]
 ```
 
 **`cancel-incentive`**
@@ -59,7 +59,7 @@ evmosd tx gov submit-proposal register-incentive [contract-address] [allocation]
 Allows users to submit a `CanelIncentiveProposal`.
 
 ```bash
-evmosd tx gov submit-proposal cancel-incentive [contract-address] [flags]
+berachaind tx gov submit-proposal cancel-incentive [contract-address] [flags]
 ```
 
 **`param-change`**
@@ -67,7 +67,7 @@ evmosd tx gov submit-proposal cancel-incentive [contract-address] [flags]
 Allows users to submit a `ParameterChangeProposal`.
 
 ```bash
-evmosd tx gov submit-proposal param-change [proposal-file] [flags]
+berachaind tx gov submit-proposal param-change [proposal-file] [flags]
 ```
 
 ## gRPC
