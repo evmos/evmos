@@ -10,7 +10,7 @@ import (
 
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/berachain/core/x/erc20/types"
 )
 
 // Keeper of this module maintains collections of erc20.

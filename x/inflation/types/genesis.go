@@ -3,8 +3,8 @@ package types
 import (
 	fmt "fmt"
 
+	epochtypes "github.com/berachain/core/x/epochs/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochtypes "github.com/tharsis/evmos/x/epochs/types"
 )
 
 // NewGenesisState creates a new GenesisState object

@@ -3,10 +3,10 @@ package keeper_test
 import (
 	"fmt"
 
+	incentivestypes "github.com/berachain/core/x/incentives/types"
+	"github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
-	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {

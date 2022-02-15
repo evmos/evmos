@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/berachain/core/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {

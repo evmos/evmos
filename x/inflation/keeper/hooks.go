@@ -3,9 +3,9 @@ package keeper
 import (
 	"fmt"
 
+	epochstypes "github.com/berachain/core/x/epochs/types"
+	"github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochstypes "github.com/tharsis/evmos/x/epochs/types"
-	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here

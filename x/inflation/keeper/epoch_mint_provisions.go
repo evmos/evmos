@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // GetEpochMintProvision gets the current EpochMintProvision

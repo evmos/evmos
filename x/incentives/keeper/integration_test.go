@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	types "github.com/tharsis/evmos/x/incentives/types"
+	types "github.com/berachain/core/x/incentives/types"
 )
 
 var _ = Describe("Distribution", Ordered, func() {

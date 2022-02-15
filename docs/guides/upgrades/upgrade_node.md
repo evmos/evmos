@@ -26,7 +26,7 @@ make install
 If you have issues at this step, please check that you have the latest stable version of GO installed.
 :::
 
-You will need to ensure that the version installed matches the one needed for th testnet. Check the Evmos [release page](https://github.com/tharsis/evmos/releases) for details on each release.
+You will need to ensure that the version installed matches the one needed for th testnet. Check the Evmos [release page](https://github.com/berachain/core/releases) for details on each release.
 
 Verify that everything is OK. If you get something like the following, you've successfully installed Evmos on your system.
 

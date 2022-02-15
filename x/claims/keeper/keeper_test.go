@@ -15,8 +15,8 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/berachain/core/app"
+	"github.com/berachain/core/x/claims/types"
 )
 
 type KeeperTestSuite struct {

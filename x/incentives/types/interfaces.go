@@ -5,10 +5,10 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
+	inflationtypes "github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.

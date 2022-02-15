@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 
-	"github.com/tharsis/evmos/x/incentives/types"
+	"github.com/berachain/core/x/incentives/types"
 )
 
 // Keeper of this module maintains collections of incentives.

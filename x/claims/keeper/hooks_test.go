@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/berachain/core/x/claims/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestAfterProposalVote() {

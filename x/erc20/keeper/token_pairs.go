@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/berachain/core/x/erc20/types"
 )
 
 // GetAllTokenPairs - get all registered token tokenPairs

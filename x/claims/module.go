@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/tharsis/evmos/x/claims/client/cli"
-	"github.com/tharsis/evmos/x/claims/keeper"
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/berachain/core/x/claims/client/cli"
+	"github.com/berachain/core/x/claims/keeper"
+	"github.com/berachain/core/x/claims/types"
 )
 
 var (

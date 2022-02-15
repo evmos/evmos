@@ -16,7 +16,7 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/cmd/config"
+	"github.com/berachain/core/cmd/config"
 )
 
 func init() {

@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tharsis/evmos/x/claims/keeper"
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/berachain/core/x/claims/keeper"
+	"github.com/berachain/core/x/claims/types"
 )
 
 // NewHandler returns claim module messages

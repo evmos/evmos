@@ -4,14 +4,14 @@ import (
 	"testing"
 	"time"
 
+	simapp "github.com/berachain/core/app"
+	"github.com/berachain/core/x/claims"
+	"github.com/berachain/core/x/claims/types"
+	inflationtypes "github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	simapp "github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claims"
-	"github.com/tharsis/evmos/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
 var (

@@ -35,9 +35,9 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/x/incentives/types"
+	"github.com/berachain/core/app"
+	"github.com/berachain/core/contracts"
+	"github.com/berachain/core/x/incentives/types"
 )
 
 var (

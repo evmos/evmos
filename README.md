@@ -11,10 +11,10 @@ parent:
 <!-- ![banner](docs/ethermint.jpg) -->
 
 <div align="center">
-  <a href="https://github.com/tharsis/evmos/releases/latest">
+  <a href="https://github.com/berachain/core/releases/latest">
     <img alt="Version" src="https://img.shields.io/github/tag/tharsis/evmos.svg" />
   </a>
-  <a href="https://github.com/tharsis/evmos/blob/main/LICENSE">
+  <a href="https://github.com/berachain/core/blob/main/LICENSE">
     <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/tharsis/evmos.svg" />
   </a>
   <a href="https://pkg.go.dev/github.com/tharsis/evmos">
@@ -31,11 +31,11 @@ parent:
   <a href="https://discord.gg/evmos">
     <img alt="Discord" src="https://img.shields.io/discord/809048090249134080.svg" />
   </a>
-  <a href="https://github.com/tharsis/evmos/actions?query=branch%3Amain+workflow%3ALint">
-    <img alt="Lint Status" src="https://github.com/tharsis/evmos/actions/workflows/lint.yml/badge.svg?branch=main" />
+  <a href="https://github.com/berachain/core/actions?query=branch%3Amain+workflow%3ALint">
+    <img alt="Lint Status" src="https://github.com/berachain/core/actions/workflows/lint.yml/badge.svg?branch=main" />
   </a>
   <a href="https://codecov.io/gh/tharsis/evmos">
-    <img alt="Code Coverage" src="https://codecov.io/gh/tharsis/evmos/branch/main/graph/badge.svg" />
+    <img alt="Code Coverage" src="https://codecov.io/gh/berachain/core/branch/main/graph/badge.svg" />
   </a>
   <a href="https://twitter.com/EvmosOrg">
     <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
@@ -55,7 +55,7 @@ For prerequisites and detailed build instructions please read the [Installation]
 make install
 ```
 
-Or check out the latest [release](https://github.com/tharsis/evmos/releases).
+Or check out the latest [release](https://github.com/berachain/core/releases).
 
 ## Quick Start
 
@@ -72,7 +72,7 @@ The following chat channels and forums are a great spot to ask questions about E
 
 ## Contributing
 
-Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/tharsis/evmos/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/berachain/core/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
 For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
 

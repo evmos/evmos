@@ -1,9 +1,9 @@
 package inflation
 
 import (
+	"github.com/berachain/core/x/inflation/keeper"
+	"github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/inflation/keeper"
-	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // InitGenesis import module genesis

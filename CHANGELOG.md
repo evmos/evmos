@@ -39,121 +39,121 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (app) [\#224](https://github.com/tharsis/evmos/pull/224) Fix power reduction my setting the correct value on app initialization.
-- (keys) [\#189](https://github.com/tharsis/evmos/pull/189) Remove support for Tendermint's `secp256k1` keys.
-- [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
-- [\#190](https://github.com/tharsis/evmos/pull/190) Remove governance hook from `erc20` module
+- (app) [\#224](https://github.com/berachain/core/pull/224) Fix power reduction my setting the correct value on app initialization.
+- (keys) [\#189](https://github.com/berachain/core/pull/189) Remove support for Tendermint's `secp256k1` keys.
+- [\#173](https://github.com/berachain/core/pull/173) Rename `intrarelayer` module to `erc20`
+- [\#190](https://github.com/berachain/core/pull/190) Remove governance hook from `erc20` module
 
 ### Features
 
-- [\#184](https://github.com/tharsis/evmos/pull/184) Add claims module for claiming the airdrop tokens.
-- [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
-- [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom `InitCmd` function.
-- [\#176](https://github.com/tharsis/evmos/pull/176) Add `x/incentives` module.
+- [\#184](https://github.com/berachain/core/pull/184) Add claims module for claiming the airdrop tokens.
+- [\#183](https://github.com/berachain/core/pull/183) Add epoch module for incentives.
+- [\#202](https://github.com/berachain/core/pull/202) Add custom configuration for statesync snapshots and tendermint p2p peers. This introduces a custom `InitCmd` function.
+- [\#176](https://github.com/berachain/core/pull/176) Add `x/incentives` module.
 
 ### Improvements
 
 - (deps) bumped Tendermint to `v0.34.15` and tm-db to `v0.6.6`.
-- [\#180](https://github.com/tharsis/evmos/pull/180) Delete `TokenPair` if ERC20 contract has been selfdestructed.
+- [\#180](https://github.com/berachain/core/pull/180) Delete `TokenPair` if ERC20 contract has been selfdestructed.
 
 ### Bug Fixes
 
-- (erc20) [\#169](https://github.com/tharsis/evmos/pull/169) Fixes several testnet bugs:
+- (erc20) [\#169](https://github.com/berachain/core/pull/169) Fixes several testnet bugs:
   - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
   - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
   - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
-- (erc20) [\#191](https://github.com/tharsis/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
-- (erc20) [\#192](https://github.com/tharsis/evmos/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
-- (erc20) [\#200](https://github.com/tharsis/evmos/pull/200) Match coin and token decimals for erc20 deployment during registerCoin
-- (erc20) [\#201](https://github.com/tharsis/evmos/pull/201) bug(erc-20): Compile built-in contracts in the build process (IF-ETHERMINT-02).
+- (erc20) [\#191](https://github.com/berachain/core/pull/191) Add direct balance protection (IF-ETHERMINT-06).
+- (erc20) [\#192](https://github.com/berachain/core/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
+- (erc20) [\#200](https://github.com/berachain/core/pull/200) Match coin and token decimals for erc20 deployment during registerCoin
+- (erc20) [\#201](https://github.com/berachain/core/pull/201) bug(erc-20): Compile built-in contracts in the build process (IF-ETHERMINT-02).
 
 ## [v0.4.2] - 2021-12-11
 
 ### Bug Fixes
 
-- (app) [\#166](https://github.com/tharsis/evmos/pull/166) Fix `UpgradeHandler`.
+- (app) [\#166](https://github.com/berachain/core/pull/166) Fix `UpgradeHandler`.
 
 ## [v0.4.1] - 2021-12-07
 
 ### Improvements
 
-- (build) [\#143](https://github.com/tharsis/evmos/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
+- (build) [\#143](https://github.com/berachain/core/pull/143) Added `build-reproducible` rule in `Makefile` to build docker containers
 
 ### Bug Fixes
 
-- (build) [\#151](https://github.com/tharsis/evmos/pull/151) Fixes `version` command by picking the latest tag in the current branch instead of across all branches as the current version
+- (build) [\#151](https://github.com/berachain/core/pull/151) Fixes `version` command by picking the latest tag in the current branch instead of across all branches as the current version
 
 ## [v0.4.0] - 2021-12-02
 
 ### State Machine Breaking
 
-- (erc20) [\#119](https://github.com/tharsis/evmos/issues/119) Register `x/erc20` proposal types on governance module.
+- (erc20) [\#119](https://github.com/berachain/core/issues/119) Register `x/erc20` proposal types on governance module.
 
 ### Improvements
 
-- (app) [\#128](https://github.com/tharsis/evmos/pull/128) Add ibc-go `TestingApp` interface.
-- (ci) [\#117](https://github.com/tharsis/evmos/pull/117) Enable automatic backport of PRs.
-- (deps) [\#135](https://github.com/tharsis/evmos/pull/135) Bump Ethermint version to [`v0.9.0`](https://github.com/tharsis/ethermint/releases/tag/v0.9.0)
-- (ci) [\#136](https://github.com/tharsis/evmos/pull/136) Deploy `evmos` docker container to [docker hub](https://hub.docker.com/u/tharsishq) for every versioned releases
+- (app) [\#128](https://github.com/berachain/core/pull/128) Add ibc-go `TestingApp` interface.
+- (ci) [\#117](https://github.com/berachain/core/pull/117) Enable automatic backport of PRs.
+- (deps) [\#135](https://github.com/berachain/core/pull/135) Bump Ethermint version to [`v0.9.0`](https://github.com/tharsis/ethermint/releases/tag/v0.9.0)
+- (ci) [\#136](https://github.com/berachain/core/pull/136) Deploy `evmos` docker container to [docker hub](https://hub.docker.com/u/tharsishq) for every versioned releases
 
 ### Bug Fixes
 
-- (build) [\#116](https://github.com/tharsis/evmos/pull/116) Fix `build-docker` command
+- (build) [\#116](https://github.com/berachain/core/pull/116) Fix `build-docker` command
 
 ## [v0.3.0] - 2021-11-24
 
 ### API Breaking
 
-- (erc20) [\#99](https://github.com/tharsis/evmos/pull/99) Rename `enable_e_v_m_hook` json parameter to `enable_evm_hook`.
+- (erc20) [\#99](https://github.com/berachain/core/pull/99) Rename `enable_e_v_m_hook` json parameter to `enable_evm_hook`.
 
 ### Improvements
 
-- (deps) [\#110](https://github.com/tharsis/evmos/pull/110) Bump Ethermint version to [`v0.8.1`](https://github.com/tharsis/ethermint/releases/tag/v0.8.1)
-- (erc20) [\#107](https://github.com/tharsis/evmos/pull/107) Add IBC validation
-- (cmd) [\#105](https://github.com/tharsis/evmos/pull/105) Improve testnet command to include JSON-RPC client.
+- (deps) [\#110](https://github.com/berachain/core/pull/110) Bump Ethermint version to [`v0.8.1`](https://github.com/tharsis/ethermint/releases/tag/v0.8.1)
+- (erc20) [\#107](https://github.com/berachain/core/pull/107) Add IBC validation
+- (cmd) [\#105](https://github.com/berachain/core/pull/105) Improve testnet command to include JSON-RPC client.
 
 ## Bug Fixes
 
-- (erc20) [\#109](https://github.com/tharsis/evmos/pull/109) Fix hardcoded erc20 nonce and `UpdateTokenPairERC20` proposal to support ERC20s with 0 decimals.
-- (erc20) [\#102](https://github.com/tharsis/evmos/pull/102) Add `convert-erc20` cmd
+- (erc20) [\#109](https://github.com/berachain/core/pull/109) Fix hardcoded erc20 nonce and `UpdateTokenPairERC20` proposal to support ERC20s with 0 decimals.
+- (erc20) [\#102](https://github.com/berachain/core/pull/102) Add `convert-erc20` cmd
 
 ## [v0.2.0] - 2021-11-17
 
 ### Features
 
-- (erc20) [\#82](https://github.com/tharsis/evmos/pull/82) ERC20 module
-- (cmd) [\#32](https://github.com/tharsis/evmos/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
+- (erc20) [\#82](https://github.com/berachain/core/pull/82) ERC20 module
+- (cmd) [\#32](https://github.com/berachain/core/pull/32) Create `testnet` command that spins up a new local testnet with N nodes.
 
 ### Improvements
 
-- (deps) [\#94](https://github.com/tharsis/evmos/pull/94) Bump Ethermint version to [`v0.8.0`](https://github.com/tharsis/ethermint/releases/tag/v0.8.0)
-- (deps) [\#80](https://github.com/tharsis/evmos/pull/80) Bump ibc-go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0)
+- (deps) [\#94](https://github.com/berachain/core/pull/94) Bump Ethermint version to [`v0.8.0`](https://github.com/tharsis/ethermint/releases/tag/v0.8.0)
+- (deps) [\#80](https://github.com/berachain/core/pull/80) Bump ibc-go to [`v2.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v2.0.0)
 
 ## [v0.1.3] - 2021-10-24
 
 ### Improvements
 
-- (deps) [\#64](https://github.com/tharsis/evmos/pull/64) Bump Ethermint version to `v0.7.2`
+- (deps) [\#64](https://github.com/berachain/core/pull/64) Bump Ethermint version to `v0.7.2`
 
 ### Bug Fixes
 
-- (cmd) [\#41](https://github.com/tharsis/evmos/pull/41) Fix `debug` command.
+- (cmd) [\#41](https://github.com/berachain/core/pull/41) Fix `debug` command.
 
 ## [v0.1.2] - 2021-10-08
 
 ### Improvements
 
-- (deps) [\#34](https://github.com/tharsis/evmos/pull/34) Bump Ethermint version to `v0.7.1`
+- (deps) [\#34](https://github.com/berachain/core/pull/34) Bump Ethermint version to `v0.7.1`
 
 ## [v0.1.1] - 2021-10-07
 
 ### Bug Fixes
 
-- (build) [\#30](https://github.com/tharsis/evmos/pull/30) Fix `version` command.
+- (build) [\#30](https://github.com/berachain/core/pull/30) Fix `version` command.
 
 ## [v0.1.0] - 2021-10-07
 
 ### Improvements
 
-- (cmd) [\#26](https://github.com/tharsis/evmos/pull/26) Use config on genesis accounts.
-- (deps) [\#28](https://github.com/tharsis/evmos/pull/28) Bump Ethermint version to `v0.7.0`
+- (cmd) [\#26](https://github.com/berachain/core/pull/26) Use config on genesis accounts.
+- (deps) [\#28](https://github.com/berachain/core/pull/28) Bump Ethermint version to `v0.7.0`

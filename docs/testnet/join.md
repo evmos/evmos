@@ -12,8 +12,8 @@ You specify the network you want to join by setting the **genesis file** and **s
 
 | Network Chain ID | Description                       | Site                                                                     | Version                                               |
 |------------------|-----------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------|
-| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases) |
-| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)   | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
+| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`v0.3.x`](https://github.com/berachain/core/releases) |
+| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)   | [`v0.1.x`](https://github.com/berachain/core/releases) |
 
 ## Install `evmosd`
 

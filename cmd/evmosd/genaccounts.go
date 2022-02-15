@@ -23,7 +23,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	evmoskr "github.com/tharsis/evmos/crypto/keyring"
+	evmoskr "github.com/berachain/core/crypto/keyring"
 )
 
 const (

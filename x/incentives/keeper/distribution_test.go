@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/x/incentives/types"
+	"github.com/berachain/core/x/incentives/types"
 )
 
 func (suite *KeeperTestSuite) TestDistributeIncentives() {

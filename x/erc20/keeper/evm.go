@@ -14,8 +14,8 @@ import (
 	"github.com/tharsis/ethermint/server/config"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/berachain/core/contracts"
+	"github.com/berachain/core/x/erc20/types"
 )
 
 // QueryERC20 returns the data of a deployed ERC20 contract

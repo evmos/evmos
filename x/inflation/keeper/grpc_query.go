@@ -3,8 +3,8 @@ package keeper
 import (
 	"context"
 
+	"github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/inflation/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

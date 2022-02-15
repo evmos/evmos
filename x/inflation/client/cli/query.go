@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/berachain/core/x/inflation/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/tharsis/evmos/x/inflation/types"
 )
 
 // GetQueryCmd returns the cli query commands for the inflation module.

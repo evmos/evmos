@@ -19,8 +19,8 @@ import (
 
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/epochs/types"
+	"github.com/berachain/core/app"
+	"github.com/berachain/core/x/epochs/types"
 )
 
 var (

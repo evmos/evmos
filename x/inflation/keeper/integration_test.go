@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
+	incentivestypes "github.com/berachain/core/x/incentives/types"
 )
 
 var _ = Describe("Integration", Ordered, func() {

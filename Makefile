@@ -286,7 +286,7 @@ update-swagger-docs: statik
 .PHONY: update-swagger-docs
 
 godocs:
-	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/tharsis/evmos/types"
+	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/berachain/core/types"
 	godoc -http=:6060
 
 # Start docs site at localhost:8080

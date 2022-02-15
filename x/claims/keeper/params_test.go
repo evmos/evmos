@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/berachain/core/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {

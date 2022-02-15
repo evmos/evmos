@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"time"
 
+	"github.com/berachain/core/testutil"
+	inflationtypes "github.com/berachain/core/x/inflation/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -13,10 +15,8 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
-	"github.com/tharsis/evmos/testutil"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/berachain/core/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) SetupClaimTest() {

@@ -33,7 +33,7 @@ export PATH=$PATH:$(go env GOPATH)/bin
 ## Install Binaries
 
 ::: tip
-The latest {{ $themeConfig.project.name }} [version](https://github.com/tharsis/evmos/releases) is `{{ $themeConfig.project.binary }} {{ $themeConfig.project.latest_version }}`
+The latest {{ $themeConfig.project.name }} [version](https://github.com/berachain/core/releases) is `{{ $themeConfig.project.binary }} {{ $themeConfig.project.latest_version }}`
 :::
 
 ### GitHub
@@ -74,7 +74,7 @@ docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsis
 
 ### Releases
 
-You can also download a specific release available on the {{ $themeConfig.project.name }} [repository](https://github.com/tharsis/evmos/releases) or via command line:
+You can also download a specific release available on the {{ $themeConfig.project.name }} [repository](https://github.com/berachain/core/releases) or via command line:
 
 ```bash
 go install github.com/tharsis/evmos@latest
