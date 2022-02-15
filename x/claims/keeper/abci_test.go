@@ -7,7 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+	"github.com/tharsis/ethermint/tests"
+
 	"github.com/tharsis/evmos/x/claims/types"
 	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
@@ -17,6 +18,22 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 		name     string
 		malleate func()
 	}{
+		{
+			"claim disabled",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = false
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+			},
+		},
+		{
+			"not claim time",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = true
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+			},
+		},
 		{
 			"claim enabled",
 			func() {
@@ -41,9 +58,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
-	priv, err := ethsecp256k1.GenerateKey()
-	suite.Require().NoError(err)
-	addr := sdk.AccAddress(priv.PubKey().Address())
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	var amount int64 = 10000
 
@@ -157,7 +172,9 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 
 			tc.malleate()
 
-			suite.app.ClaimsKeeper.ClawbackEscrowedTokens(suite.ctx)
+			err := suite.app.ClaimsKeeper.ClawbackEscrowedTokens(suite.ctx)
+			suite.Require().NoError(err)
+
 			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), "aevmos")
 			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))

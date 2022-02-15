@@ -253,7 +253,7 @@ func (k Keeper) convertERC20NativeToken(
 	if err != nil {
 		return nil, err
 	}
-	res, err := k.CallEVMWithPayload(ctx, sender, &contract, transferData)
+	res, err := k.CallEVMWithData(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
 	}

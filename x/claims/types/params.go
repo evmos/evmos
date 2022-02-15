@@ -126,3 +126,12 @@ func (p Params) DecayStartTime() time.Time {
 func (p Params) AirdropEndTime() time.Time {
 	return p.AirdropStartTime.Add(p.DurationUntilDecay).Add(p.DurationOfDecay)
 }
+
+// IsClaimsActive returns true if the claiming process is active, i.e block time
+// is after the airdrop start time and claims are enabled.
+func (p Params) IsClaimsActive(blockTime time.Time) bool {
+	if !p.EnableClaims || blockTime.Before(p.AirdropStartTime) {
+		return false
+	}
+	return true
+}

@@ -15,11 +15,12 @@ service Query {
   }
 
   // EpochMintProvision retrieves current minting epoch provision value.
-  rpc EpochMintProvision(QueryEpochMintProvisionRequest) returns (QueryEpochMintProvisionResponse) {
+  rpc EpochMintProvision(QueryEpochMintProvisionRequest)
+      returns (QueryEpochMintProvisionResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/epoch_mint_provision";
   }
 
-    // Params retrieves the total set of minting parameters.
+  // Params retrieves the total set of minting parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/params";
   }
