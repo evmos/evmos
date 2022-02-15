@@ -223,10 +223,10 @@ func (suite *KeeperTestSuite) DeployContract(
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
+	contractCallArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
 	suite.Require().NoError(err)
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, contractCallArgs...)
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
