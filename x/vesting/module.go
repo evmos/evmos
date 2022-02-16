@@ -13,9 +13,12 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	"github.com/tharsis/evmos/x/vesting/keeper"
+	"github.com/tharsis/evmos/x/vesting/types"
 )
 
 var (
@@ -63,7 +66,7 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.S
 
 // GetTxCmd returns the root tx command for the auth module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd()
+	return nil
 }
 
 // GetQueryCmd returns the module's root query command. Currently, this is a no-op.
@@ -75,28 +78,38 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule interface.
 type AppModule struct {
 	AppModuleBasic
-
-	accountKeeper keeper.AccountKeeper
-	bankKeeper    types.BankKeeper
-	stakingKeeper types.StakingKeeper
+	keeper keeper.Keeper
+	ak     authkeeper.AccountKeeper
+	bk     bankkeeper.Keeper
+	sk     stakingkeeper.Keeper
 }
 
 // NewAppModule returns a new vesting AppModule.
-func NewAppModule(ak keeper.AccountKeeper, bk types.BankKeeper, sk types.StakingKeeper) AppModule {
+func NewAppModule(
+	k keeper.Keeper,
+	ak authkeeper.AccountKeeper,
+	bk bankkeeper.Keeper,
+	sk stakingkeeper.Keeper,
+) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
-		accountKeeper:  ak,
-		bankKeeper:     bk,
-		stakingKeeper:  sk,
+		keeper:         k,
+		ak:             ak,
+		bk:             bk,
+		sk:             sk,
 	}
 }
 
 // RegisterInvariants performs a no-op; there are no invariants to enforce.
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
+func (am AppModule) NewHandler() sdk.Handler {
+	return NewHandler(am.keeper)
+}
+
 // Route returns the module's message router and handler.
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.accountKeeper, am.bankKeeper, am.stakingKeeper))
+	return sdk.NewRoute(types.RouterKey, am.NewHandler())
 }
 
 // QuerierRoute returns an empty string as the module contains no query
@@ -105,7 +118,10 @@ func (AppModule) QuerierRoute() string { return "" }
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), NewMsgServerImpl(am.accountKeeper, am.bankKeeper, am.stakingKeeper))
+	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
+	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	// _ = keeper.NewMigrator(am.keeper)
 }
 
 // LegacyQuerierHandler performs a no-op.

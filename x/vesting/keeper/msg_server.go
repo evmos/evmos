@@ -1,4 +1,4 @@
-package vesting
+package keeper
 
 import (
 	"context"
@@ -10,30 +10,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/tharsis/evmos/x/vesting/types"
 )
 
-// msgServer holds the state to serve vesting messages.
-type msgServer struct {
-	keeper.AccountKeeper
-	types.BankKeeper
-	types.StakingKeeper
-}
-
-// NewMsgServerImpl returns an implementation of the vesting MsgServer interface,
-// wrapping the corresponding keepers.
-func NewMsgServerImpl(k keeper.AccountKeeper, bk types.BankKeeper, sk types.StakingKeeper) types.MsgServer {
-	return &msgServer{AccountKeeper: k, BankKeeper: bk, StakingKeeper: sk}
-}
-
-var _ types.MsgServer = msgServer{}
+var _ types.MsgServer = &Keeper{}
 
 // CreateVestingAccount creates a new delayed or continuous vesting account.
-func (s msgServer) CreateVestingAccount(goCtx context.Context, msg *types.MsgCreateVestingAccount) (*types.MsgCreateVestingAccountResponse, error) {
+func (k Keeper) CreateVestingAccount(
+	goCtx context.Context,
+	msg *types.MsgCreateVestingAccount,
+) (*types.MsgCreateVestingAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	ak := s.AccountKeeper
-	bk := s.BankKeeper
+	ak := k.accountKeeper
+	bk := k.bankKeeper
 
 	if err := bk.IsSendEnabledCoins(ctx, msg.Amount...); err != nil {
 		return nil, err
@@ -95,7 +84,7 @@ func (s msgServer) CreateVestingAccount(goCtx context.Context, msg *types.MsgCre
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.StoreKey),
 		),
 	)
 
@@ -103,11 +92,14 @@ func (s msgServer) CreateVestingAccount(goCtx context.Context, msg *types.MsgCre
 }
 
 // CreatePeriodicVestingAccount creates a new periodic vesting account, or merges a grant into an existing one.
-func (s msgServer) CreatePeriodicVestingAccount(goCtx context.Context, msg *types.MsgCreatePeriodicVestingAccount) (*types.MsgCreatePeriodicVestingAccountResponse, error) {
+func (k Keeper) CreatePeriodicVestingAccount(
+	goCtx context.Context,
+	msg *types.MsgCreatePeriodicVestingAccount,
+) (*types.MsgCreatePeriodicVestingAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	ak := s.AccountKeeper
-	bk := s.BankKeeper
+	ak := k.accountKeeper
+	bk := k.bankKeeper
 
 	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
 	if err != nil {
@@ -141,7 +133,7 @@ func (s msgServer) CreatePeriodicVestingAccount(goCtx context.Context, msg *type
 		case msg.Merge && !isPeriodic:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "account %s must be a periodic vesting account", msg.ToAddress)
 		}
-		pva.AddGrant(ctx, s.StakingKeeper, msg.GetStartTime(), msg.GetVestingPeriods(), totalCoins)
+		k.AddGrantToPeriodicVestingAccount(ctx, pva, msg.GetStartTime(), msg.GetVestingPeriods(), totalCoins)
 	} else {
 		baseAccount := ak.NewAccountWithAddress(ctx, to)
 		acc = types.NewPeriodicVestingAccount(baseAccount.(*authtypes.BaseAccount), totalCoins, msg.StartTime, msg.VestingPeriods)
@@ -174,17 +166,20 @@ func (s msgServer) CreatePeriodicVestingAccount(goCtx context.Context, msg *type
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.StoreKey),
 		),
 	)
 	return &types.MsgCreatePeriodicVestingAccountResponse{}, nil
 }
 
 // CreateClawbackVestingAccount creates a new ClawbackVestingAccount, or merges a grant into an existing one.
-func (s msgServer) CreateClawbackVestingAccount(goCtx context.Context, msg *types.MsgCreateClawbackVestingAccount) (*types.MsgCreateClawbackVestingAccountResponse, error) {
+func (k Keeper) CreateClawbackVestingAccount(
+	goCtx context.Context,
+	msg *types.MsgCreateClawbackVestingAccount,
+) (*types.MsgCreateClawbackVestingAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	ak := s.AccountKeeper
-	bk := s.BankKeeper
+	ak := k.accountKeeper
+	bk := k.bankKeeper
 
 	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
 	if err != nil {
@@ -248,7 +243,7 @@ func (s msgServer) CreateClawbackVestingAccount(goCtx context.Context, msg *type
 		case msg.FromAddress != va.FunderAddress:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, va.FunderAddress)
 		}
-		va.AddGrant(ctx, s.StakingKeeper, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		k.AddGrantToClawbackVestingAccount(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
 		baseAccount := ak.NewAccountWithAddress(ctx, to)
 		va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
@@ -281,7 +276,7 @@ func (s msgServer) CreateClawbackVestingAccount(goCtx context.Context, msg *type
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.StoreKey),
 		),
 	)
 
@@ -290,11 +285,14 @@ func (s msgServer) CreateClawbackVestingAccount(goCtx context.Context, msg *type
 
 // Clawback removes the unvested amount from a ClawbackVestingAccount.
 // The destination defaults to the funder address, but can be overridden.
-func (s msgServer) Clawback(goCtx context.Context, msg *types.MsgClawback) (*types.MsgClawbackResponse, error) {
+func (k Keeper) Clawback(
+	goCtx context.Context,
+	msg *types.MsgClawback,
+) (*types.MsgClawbackResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	ak := s.AccountKeeper
-	bk := s.BankKeeper
+	ak := k.accountKeeper
+	bk := k.bankKeeper
 
 	funder, err := sdk.AccAddressFromBech32(msg.GetFunderAddress())
 	if err != nil {
@@ -329,7 +327,7 @@ func (s msgServer) Clawback(goCtx context.Context, msg *types.MsgClawback) (*typ
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
 	}
 
-	err = va.Clawback(ctx, dest, ak, bk, s.StakingKeeper)
+	err = k.ClawbackFromClawbackVestingAccount(ctx, *va, dest)
 	if err != nil {
 		return nil, err
 	}

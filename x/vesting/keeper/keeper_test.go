@@ -37,6 +37,8 @@ import (
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/contracts"
+
+	// TODO replace with vesting types
 	"github.com/tharsis/evmos/x/incentives/types"
 )
 

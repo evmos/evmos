@@ -59,15 +59,15 @@ func ReadSchedule(startTime, endTime int64, periods []Period, totalCoins sdk.Coi
 }
 
 // max64 returns the maximum of its inputs.
-func max64(i, j int64) int64 {
+func Max64(i, j int64) int64 {
 	if i > j {
 		return i
 	}
 	return j
 }
 
-// min64 returns the minimum of its inputs.
-func min64(i, j int64) int64 {
+// Min64 returns the minimum of its inputs.
+func Min64(i, j int64) int64 {
 	if i < j {
 		return i
 	}
@@ -75,7 +75,7 @@ func min64(i, j int64) int64 {
 }
 
 // coinsMin returns the minimum of its inputs for all denominations.
-func coinsMin(a, b sdk.Coins) sdk.Coins {
+func CoinsMin(a, b sdk.Coins) sdk.Coins {
 	min := sdk.NewCoins()
 	for _, coinA := range a {
 		denom := coinA.Denom
@@ -104,7 +104,7 @@ func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (int64, 
 	iQ := 0         // q indexes before this have been merged
 	lenP := len(periodsP)
 	lenQ := len(periodsQ)
-	startTime := min64(startP, startQ) // we pick the earlier time
+	startTime := Min64(startP, startQ) // we pick the earlier time
 	time := startTime                  // time of last merged event, or the start time
 	merged := []Period{}
 
@@ -174,7 +174,7 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 	iQ := 0
 	lenP := len(periodsP)
 	lenQ := len(periodsQ)
-	startTime = min64(startP, startQ)
+	startTime = Min64(startP, startQ)
 	time := startTime
 	merged = []Period{}
 	amount := sdk.NewCoins()
@@ -196,7 +196,7 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 	// if the minimum of P and Q changes
 	consumeP := func(nextTime int64) {
 		amountP = amountP.Add(periodsP[iP].Amount...)
-		min := coinsMin(amountP, amountQ)
+		min := CoinsMin(amountP, amountQ)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
 			if !diff.IsZero() {
@@ -211,7 +211,7 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 	// if the minimum of P and Q changes
 	consumeQ := func(nextTime int64) {
 		amountQ = amountQ.Add(periodsQ[iQ].Amount...)
-		min := coinsMin(amountP, amountQ)
+		min := CoinsMin(amountP, amountQ)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
 			if !diff.IsZero() {
@@ -227,7 +227,7 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 	consumeBoth := func(nextTime int64) {
 		amountP = amountP.Add(periodsP[iP].Amount...)
 		amountQ = amountQ.Add(periodsQ[iQ].Amount...)
-		min := coinsMin(amountP, amountQ)
+		min := CoinsMin(amountP, amountQ)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
 			if !diff.IsZero() {
@@ -271,7 +271,7 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 
 // AlignSchedules rewrites the first period length to align the two arguments to the same start time.
 func AlignSchedules(startP, startQ int64, p, q []Period) (startTime, endTime int64) {
-	startTime = min64(startP, startQ)
+	startTime = Min64(startP, startQ)
 
 	if len(p) > 0 {
 		p[0].Length += startP - startTime
@@ -288,6 +288,6 @@ func AlignSchedules(startP, startQ int64, p, q []Period) (startTime, endTime int
 	for _, period := range q {
 		endQ += period.Length
 	}
-	endTime = max64(endP, endQ)
+	endTime = Max64(endP, endQ)
 	return
 }
