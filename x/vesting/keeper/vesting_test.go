@@ -69,6 +69,8 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 	Context("before vesting cliff", func() {
 		It("cannot delegate tokens", func() {
 		})
+		It("cannot vote on governance proposals", func() {
+		})
 		It("cannot transfer tokens", func() {
 		})
 		It("cannot perform Ethereum tx", func() {
@@ -78,6 +80,8 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 	// TODO lock period not supported with standard Cosmos SDK
 	Context("before locking period", func() {
 		It("can delegate vested tokens", func() {
+		})
+		It("can vote on governance proposals", func() {
 		})
 		It("cannot transfer tokens", func() {
 		})
@@ -148,5 +152,8 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
 			Expect(err).To(BeNil())
 		})
+		// TODO Rewards Tests
+		// TODO Clawback Tests
+		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})
 })
