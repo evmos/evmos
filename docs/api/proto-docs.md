@@ -116,6 +116,27 @@
   
     - [Query](#evmos.inflation.v1.Query)
   
+- [evmos/vesting/v1/vesting.proto](#evmos/vesting/v1/vesting.proto)
+    - [BaseVestingAccount](#evmos.vesting.v1.BaseVestingAccount)
+    - [ClawbackVestingAccount](#evmos.vesting.v1.ClawbackVestingAccount)
+    - [ContinuousVestingAccount](#evmos.vesting.v1.ContinuousVestingAccount)
+    - [DelayedVestingAccount](#evmos.vesting.v1.DelayedVestingAccount)
+    - [Period](#evmos.vesting.v1.Period)
+    - [PeriodicVestingAccount](#evmos.vesting.v1.PeriodicVestingAccount)
+    - [PermanentLockedAccount](#evmos.vesting.v1.PermanentLockedAccount)
+  
+- [evmos/vesting/v1/tx.proto](#evmos/vesting/v1/tx.proto)
+    - [MsgClawback](#evmos.vesting.v1.MsgClawback)
+    - [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse)
+    - [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount)
+    - [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse)
+    - [MsgCreatePeriodicVestingAccount](#evmos.vesting.v1.MsgCreatePeriodicVestingAccount)
+    - [MsgCreatePeriodicVestingAccountResponse](#evmos.vesting.v1.MsgCreatePeriodicVestingAccountResponse)
+    - [MsgCreateVestingAccount](#evmos.vesting.v1.MsgCreateVestingAccount)
+    - [MsgCreateVestingAccountResponse](#evmos.vesting.v1.MsgCreateVestingAccountResponse)
+  
+    - [Msg](#evmos.vesting.v1.Msg)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -1514,6 +1535,301 @@ Query provides defines the gRPC querier service.
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/vesting/v1/vesting.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/vesting.proto
+
+
+
+<a name="evmos.vesting.v1.BaseVestingAccount"></a>
+
+### BaseVestingAccount
+BaseVestingAccount implements the VestingAccount interface. It contains all
+the necessary fields needed for any vesting account implementation.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_account` | [cosmos.auth.v1beta1.BaseAccount](#cosmos.auth.v1beta1.BaseAccount) |  |  |
+| `original_vesting` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `delegated_free` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `delegated_vesting` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+| `end_time` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.ClawbackVestingAccount"></a>
+
+### ClawbackVestingAccount
+ClawbackVestingAccount implements the VestingAccount interface. It provides
+an account that can hold contributions subject to "lockup" (like a
+PeriodicVestingAccount), or vesting which is subject to clawback
+of unvested tokens, or a combination (tokens vest, but are still locked).
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_vesting_account` | [BaseVestingAccount](#evmos.vesting.v1.BaseVestingAccount) |  |  |
+| `funder_address` | [string](#string) |  | funder_address specifies the account which can perform clawback. |
+| `start_time` | [int64](#int64) |  |  |
+| `lockup_periods` | [Period](#evmos.vesting.v1.Period) | repeated | unlocking schedule relative to the BaseVestingAccount start_time. |
+| `vesting_periods` | [Period](#evmos.vesting.v1.Period) | repeated | vesting (i.e. immunity from clawback) schedule relative to the BaseVestingAccount start_time. |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.ContinuousVestingAccount"></a>
+
+### ContinuousVestingAccount
+ContinuousVestingAccount implements the VestingAccount interface. It
+continuously vests by unlocking coins linearly with respect to time.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_vesting_account` | [BaseVestingAccount](#evmos.vesting.v1.BaseVestingAccount) |  |  |
+| `start_time` | [int64](#int64) |  |  |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.DelayedVestingAccount"></a>
+
+### DelayedVestingAccount
+DelayedVestingAccount implements the VestingAccount interface. It vests all
+coins after a specific time, but non prior. In other words, it keeps them
+locked until a specified time.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_vesting_account` | [BaseVestingAccount](#evmos.vesting.v1.BaseVestingAccount) |  |  |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.Period"></a>
+
+### Period
+Period defines a length of time and amount of coins that will vest.
+A sequence of periods defines a sequence of vesting events, with the
+first period relative to an externally-provided start time,
+and subsequent periods relatie to their predecessor.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `length` | [int64](#int64) |  |  |
+| `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.PeriodicVestingAccount"></a>
+
+### PeriodicVestingAccount
+PeriodicVestingAccount implements the VestingAccount interface. It
+periodically vests by unlocking coins during each specified period.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_vesting_account` | [BaseVestingAccount](#evmos.vesting.v1.BaseVestingAccount) |  |  |
+| `start_time` | [int64](#int64) |  |  |
+| `vesting_periods` | [Period](#evmos.vesting.v1.Period) | repeated | unlocking schedule relative to the BaseVestingAccount start_time. |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.PermanentLockedAccount"></a>
+
+### PermanentLockedAccount
+PermanentLockedAccount implements the VestingAccount interface. It does
+not ever release coins, locking them indefinitely. Coins in this account can
+still be used for delegating and for governance votes even while locked.
+
+Since: cosmos-sdk 0.43
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_vesting_account` | [BaseVestingAccount](#evmos.vesting.v1.BaseVestingAccount) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/vesting/v1/tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/tx.proto
+
+
+
+<a name="evmos.vesting.v1.MsgClawback"></a>
+
+### MsgClawback
+MsgClawback defines a message that removes unvested tokens from a ClawbackVestingAccount.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `funder_address` | [string](#string) |  | funder_address is the address which funded the account |
+| `address` | [string](#string) |  | address is the address of the ClawbackVestingAccount to claw back from. |
+| `dest_address` | [string](#string) |  | dest_address specifies where the clawed-back tokens should be transferred. If empty, the tokens will be transferred back to the original funder of the account. |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgClawbackResponse"></a>
+
+### MsgClawbackResponse
+MsgClawbackResponse defines the MsgClawback response type.
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreateClawbackVestingAccount"></a>
+
+### MsgCreateClawbackVestingAccount
+MsgCreateClawbackVestingAccount defines a message that enables creating a ClawbackVestingAccount.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `from_address` | [string](#string) |  | Address of the account providing the funds, which must also sign the request. |
+| `to_address` | [string](#string) |  | Address of the account to receive the funds. |
+| `start_time` | [int64](#int64) |  | Start time of the vesting. Periods start relative to this time. |
+| `lockup_periods` | [Period](#evmos.vesting.v1.Period) | repeated | Unlocking events as a sequence of durations and amounts, starting relative to start_time. |
+| `vesting_periods` | [Period](#evmos.vesting.v1.Period) | repeated | Vesting events as a sequence of durations and amounts, starting relative to start_time. |
+| `merge` | [bool](#bool) |  | If true, merge this new grant into an existing ClawbackVestingAccount, or create it if it does not exist. If false, creates a new account. New grants to an existing account must be from the same from_address. |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse"></a>
+
+### MsgCreateClawbackVestingAccountResponse
+MsgCreateClawbackVestingAccountResponse defines the MsgCreateClawbackVestingAccount response type.
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreatePeriodicVestingAccount"></a>
+
+### MsgCreatePeriodicVestingAccount
+MsgCreatePeriodicVestingAccount defines a message that enables creating a vesting
+account.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `from_address` | [string](#string) |  | Address of the account providing the funds, which must also sign the request. |
+| `to_address` | [string](#string) |  | Address of the account to receive the funds. |
+| `start_time` | [int64](#int64) |  | Start time of the vesting. Periods start relative to this time. |
+| `vesting_periods` | [Period](#evmos.vesting.v1.Period) | repeated | Vesting events as a sequence of durations and amounts, starting relative to start_time. |
+| `merge` | [bool](#bool) |  | If true, merge this new grant into an existing PeriodicVestingAccount, or create it if it does not exist. If false, creates a new account, or fails if an account already exists |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreatePeriodicVestingAccountResponse"></a>
+
+### MsgCreatePeriodicVestingAccountResponse
+MsgCreatePeriodicVestingAccountResponse defines the MsgCreatePeriodicVestingAccount
+response type.
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreateVestingAccount"></a>
+
+### MsgCreateVestingAccount
+MsgCreateVestingAccount defines a message that enables creating a vesting
+account.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `from_address` | [string](#string) |  | Address of the account providing the funds, which must also sign the request. |
+| `to_address` | [string](#string) |  | Address of the vesting account to create. |
+| `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Amount to transfer to the new account. |
+| `end_time` | [int64](#int64) |  | End time of the vesting duration. |
+| `delayed` | [bool](#bool) |  | If true, creates a DelayedVestingAccount, otherwise creates a ContinuousVestingAccount. |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreateVestingAccountResponse"></a>
+
+### MsgCreateVestingAccountResponse
+MsgCreateVestingAccountResponse defines the MsgCreateVestingAccount response type.
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.vesting.v1.Msg"></a>
+
+### Msg
+Msg defines the bank Msg service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `CreateVestingAccount` | [MsgCreateVestingAccount](#evmos.vesting.v1.MsgCreateVestingAccount) | [MsgCreateVestingAccountResponse](#evmos.vesting.v1.MsgCreateVestingAccountResponse) | CreateVestingAccount defines a method that enables creating a vesting account. | GET|/evmos/vesting/v1/tx/create_vesting_account|
+| `CreatePeriodicVestingAccount` | [MsgCreatePeriodicVestingAccount](#evmos.vesting.v1.MsgCreatePeriodicVestingAccount) | [MsgCreatePeriodicVestingAccountResponse](#evmos.vesting.v1.MsgCreatePeriodicVestingAccountResponse) | CreatePeriodicVestingAccount defines a method that enables creating a periodic vesting account. | GET|/evmos/vesting/v1/tx/create_periodic_vesting_account|
+| `CreateClawbackVestingAccount` | [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount) | [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse) | CreateClawbackVestingAccount defines a method that enables creating a vesting account that is subject to clawback. | GET|/evmos/vesting/v1/tx/create_clawback_vesting_account|
+| `Clawback` | [MsgClawback](#evmos.vesting.v1.MsgClawback) | [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse) | Clawback removes the unvested tokens from a ClawbackVestingAccount. | GET|/evmos/vesting/v1/tx/clawback|
 
  <!-- end services -->
 
