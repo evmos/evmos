@@ -5,6 +5,13 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+var (
+	_ sdk.Msg = &MsgCreateVestingAccount{}
+	_ sdk.Msg = &MsgCreatePeriodicVestingAccount{}
+	_ sdk.Msg = &MsgCreateClawbackVestingAccount{}
+	_ sdk.Msg = &MsgClawback{}
+)
+
 const (
 	// TypeMsgCreateVestingAccount defines the type value for a MsgCreateVestingAccount.
 	TypeMsgCreateVestingAccount = "msg_create_vesting_account"
@@ -17,13 +24,6 @@ const (
 
 	// TypeMsgClawback defines the type value for a MsgClawback.
 	TypeMsgClawback = "msg_clawback"
-)
-
-var (
-	_ sdk.Msg = &MsgCreateVestingAccount{}
-	_ sdk.Msg = &MsgCreatePeriodicVestingAccount{}
-	_ sdk.Msg = &MsgCreateClawbackVestingAccount{}
-	_ sdk.Msg = &MsgClawback{}
 )
 
 // NewMsgCreateVestingAccount returns a reference to a new MsgCreateVestingAccount.
