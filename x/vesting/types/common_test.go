@@ -12,7 +12,7 @@ import (
 )
 
 // createValidator creates a validator in the given SimApp.
-func createValidator(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers int64) (sdk.ValAddress, stakingtypes.Validator) {
+func CreateValidator(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers int64) (sdk.ValAddress, stakingtypes.Validator) {
 	valTokens := sdk.TokensFromConsensusPower(powers, sdk.DefaultPowerReduction)
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 1, valTokens)
 	valAddrs := simapp.ConvertAddrsToValAddrs(addrs)

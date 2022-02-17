@@ -14,7 +14,7 @@ import (
 // provided LegacyAmino codec. These types are used for Amino JSON serialization
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterInterface((*exported.VestingAccount)(nil), nil)
-	cdc.RegisterConcrete(&ClawbackVestingAccount{}, "cosmos-sdk/ClawbackVestingAccount", nil)
+	cdc.RegisterConcrete(&sdkvesting.PeriodicVestingAccount{}, "cosmos-sdk/PeriodicVestingAccount", nil)
 }
 
 // RegisterInterface associates protoName with AccountI and VestingAccount
