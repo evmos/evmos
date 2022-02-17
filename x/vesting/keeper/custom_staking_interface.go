@@ -162,13 +162,12 @@ func (k Keeper) TransferDelegation(
 	if !found {
 		delTo = types.NewDelegation(toAddr, validator.GetOperator(), sdk.ZeroDec())
 	}
-	if found {
-		// TODO implement hooks
-		// k.BeforeDelegationSharesModified(ctx, toAddr, validator.GetOperator())
-	} else {
-		// TODO implement hooks
-		// k.BeforeDelegationCreated(ctx, toAddr, validator.GetOperator())
-	}
+	// TODO implement hooks
+	// if found {
+	// 	k.BeforeDelegationSharesModified(ctx, toAddr, validator.GetOperator())
+	// } else {
+	// 	k.BeforeDelegationCreated(ctx, toAddr, validator.GetOperator())
+	// }
 	delTo.Shares = delTo.Shares.Add(transferred)
 	k.stakingKeeper.SetDelegation(ctx, delTo)
 	// TODO implement hooks
@@ -197,7 +196,7 @@ func (k Keeper) TransferDelegation(
 	// Of course, the redelegations themselves can have multiple entries for
 	// different timestamps, so we're actually working at a finer granularity.
 	redelegations := k.stakingKeeper.GetRedelegations(ctx, fromAddr, math.MaxUint16)
-	for _, redelegation := range redelegations {
+	for j, redelegation := range redelegations {
 		// There's no redelegation index by delegator and dstVal or vice-versa.
 		// The minimum cardinality is to look up by delegator, so scan and skip.
 		if redelegation.ValidatorDstAddress != valAddr.String() {
@@ -230,7 +229,7 @@ func (k Keeper) TransferDelegation(
 					entry.CreationHeight, entry.CompletionTime, entry.InitialBalance, sdk.ZeroDec(), sharesToSend,
 				)
 				k.stakingKeeper.InsertRedelegationQueue(ctx, toRed, entry.CompletionTime)
-				(&redelegation).RemoveEntry(int64(i))
+				(&redelegations[j]).RemoveEntry(int64(i))
 				i--
 				// okay to leave an obsolete entry in the queue for the removed entry
 				redelegationModified = true

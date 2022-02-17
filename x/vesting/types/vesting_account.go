@@ -15,8 +15,10 @@ import (
 )
 
 // Clawback Vesting Account
-var _ vestexported.VestingAccount = (*ClawbackVestingAccount)(nil)
-var _ authtypes.GenesisAccount = (*ClawbackVestingAccount)(nil)
+var (
+	_ vestexported.VestingAccount = (*ClawbackVestingAccount)(nil)
+	_ authtypes.GenesisAccount    = (*ClawbackVestingAccount)(nil)
+)
 
 // NewClawbackVestingAccount returns a new ClawbackVestingAccount
 func NewClawbackVestingAccount(baseAcc *authtypes.BaseAccount, funder sdk.AccAddress, originalVesting sdk.Coins, startTime int64, lockupPeriods, vestingPeriods Periods) *ClawbackVestingAccount {
@@ -275,7 +277,7 @@ func ScaleCoins(coins sdk.Coins, scale sdk.Dec) sdk.Coins {
 	return scaledCoins
 }
 
-// minInt returns the minumum of its arguments.
+// minInt returns the minimum of its arguments.
 func MinInt(a, b sdk.Int) sdk.Int {
 	if a.GT(b) {
 		return b
