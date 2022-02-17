@@ -36,8 +36,6 @@ import (
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -111,6 +109,7 @@ import (
 	"github.com/tharsis/evmos/x/claims"
 	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/x/claims/types"
+
 	"github.com/tharsis/evmos/x/epochs"
 	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
@@ -125,6 +124,9 @@ import (
 	"github.com/tharsis/evmos/x/inflation"
 	inflationkeeper "github.com/tharsis/evmos/x/inflation/keeper"
 	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
 )
 
 func init() {
@@ -263,6 +265,7 @@ type Evmos struct {
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
+	VestingKeeper    vestingkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -317,11 +320,8 @@ func NewEvmos(
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
-		inflationtypes.StoreKey,
-		erc20types.StoreKey,
-		incentivestypes.StoreKey,
-		epochstypes.StoreKey,
-		claimstypes.StoreKey,
+		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
+		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -433,7 +433,13 @@ func NewEvmos(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
+			app.VestingKeeper.Hooks(),
 		),
+	)
+
+	app.VestingKeeper = vestingkeeper.NewKeeper(
+		keys[vestingtypes.StoreKey], appCodec,
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -450,7 +456,6 @@ func NewEvmos(
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
-			// TODO activate Inflation hook
 			app.IncentivesKeeper.Hooks(),
 			app.InflationKeeper.Hooks(),
 		),
@@ -511,7 +516,6 @@ func NewEvmos(
 			encodingConfig.TxConfig,
 		),
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
-		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
@@ -532,12 +536,12 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
-		// TODO is inflation vesting account and AccountKeeper needed ?
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, app.ClaimsKeeper),
+		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -599,6 +603,7 @@ func NewEvmos(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
+		// Evmos modules
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
@@ -629,10 +634,10 @@ func NewEvmos(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		vestingtypes.ModuleName,
 		// Ethermint modules
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 		// Evmos modules
+		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
