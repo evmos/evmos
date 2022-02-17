@@ -16,19 +16,16 @@ import (
 	"github.com/tharsis/evmos/x/vesting/types"
 )
 
+// Clawback vesting with Cliff and Lock. In this case the cliff is reached
+// before the lockup period is reached to represent the scenario in which an
+// employee starts before mainnet launch (periodsCliff < lockupPeriod)
+
+// Example:
+// 21/10 Employee joins Evmos and vesting starts
+// 22/03 Mainnet launch
+// 22/09 Cliff ends
+// 23/02 Lock ends
 var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
-	addr := sdk.AccAddress(s.address.Bytes())
-
-	// Periodic vesting case In this case the cliff is reached before the locked
-	// period is reached to represent the scenario in which an employee starts
-	// before mainnet launch (periodsCliff < lockupPeriod)
-	//
-	// Example:
-	// 21/10 Employee joins Evmos and vesting starts
-	// 22/03 Mainnet launch
-	// 22/09 Cliff ends
-	// 23/02 Lock ends
-
 	// Monthly vesting period
 	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	amt := sdk.NewInt(1)
@@ -58,9 +55,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		vestingPeriods = append(vestingPeriods, vestingPeriod)
 	}
 
+	// Vesting account address
+	addr := sdk.AccAddress(s.address.Bytes())
+
 	var (
 		clawbackAccount *types.ClawbackVestingAccount
-		vesting         sdk.Coins
+		unvested        sdk.Coins
 		vested          sdk.Coins
 	)
 
@@ -83,75 +83,111 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.Require().NoError(err)
 		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
 
-		// Check if all tokens are vesting at vestingStart
-		vesting = s.app.BankKeeper.LockedCoins(s.ctx, addr)
-		vested = s.app.BankKeeper.SpendableCoins(s.ctx, addr)
-		s.Require().Equal(vestingAmtTotal, vesting)
+		// Check if all tokens are unvested at vestingStart
+		unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+		vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+		s.Require().Equal(vestingAmtTotal, unvested)
 		s.Require().True(vested.IsZero())
 	})
 
-	// TODO vesting cliff not supported with standard Cosmos SDK
-	Context("before vesting cliff", func() {
+	Context("before cliff", func() {
+
 		It("cannot delegate tokens", func() {
+			_, err := s.app.StakingKeeper.Delegate(
+				s.ctx,
+				addr,
+				unvested.AmountOf(stakeDenom),
+				stakingtypes.Unbonded,
+				s.validator,
+				true,
+			)
+			// TODO Antehandler
+			// Expect(err).ToNot(BeNil())
+			Expect(err).To(BeNil())
 		})
+
 		It("cannot vote on governance proposals", func() {
 		})
+
 		It("cannot transfer tokens", func() {
+			err := s.app.BankKeeper.SendCoins(
+				s.ctx,
+				addr,
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				unvested,
+			)
+			Expect(err).ToNot(BeNil())
 		})
+
 		It("cannot perform Ethereum tx", func() {
+			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
+			// TODO EVM Hook?
+			// Expect(err).ToNot(BeNil())
+			Expect(err).To(BeNil())
 		})
 	})
 
-	// TODO lock period not supported with standard Cosmos SDK
-	Context("before locking period", func() {
-		It("can delegate vested tokens", func() {
-		})
-		It("can vote on governance proposals", func() {
-		})
-		It("cannot transfer tokens", func() {
-		})
-		It("cannot perform Ethereum tx", func() {
-		})
-	})
-
-	Context("after vesting cliff and locking period", func() {
+	Context("after cliff and before lockup", func() {
 		BeforeEach(func() {
-			// Surpass locking duration
-			lockingDuration := time.Duration(lockupLength)
-			s.CommitAfter(lockingDuration * time.Second)
+			// Surpass cliff but not lockup duration
+			cliffDuration := time.Duration(cliffLength)
+			s.CommitAfter(cliffDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
-			vested = s.app.BankKeeper.SpendableCoins(s.ctx, addr)
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(cliff))))
+			s.Require().NotEqual(vestingAmtTotal, vested)
+			s.Require().Equal(expVested, vested)
+		})
+
+		It("can delegate vested tokens", func() {
+			_, err := s.app.StakingKeeper.Delegate(
+				s.ctx,
+				addr,
+				vested.AmountOf(stakeDenom),
+				stakingtypes.Unbonded,
+				s.validator,
+				true,
+			)
+			Expect(err).To(BeNil())
+		})
+
+		It("can vote on governance proposals", func() {
+		})
+
+		It("cannot transfer vested tokens", func() {
+			err := s.app.BankKeeper.SendCoins(
+				s.ctx,
+				addr,
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				vested,
+			)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("cannot perform Ethereum tx", func() {
+			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
+			// TODO EVM Hook?
+			// Expect(err).ToNot(BeNil())
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Context("after cliff and lockup", func() {
+		BeforeEach(func() {
+			// Surpass lockup duration
+			lockupDuration := time.Duration(lockupLength)
+			s.CommitAfter(lockupDuration * time.Second)
+
+			// Check if some, but not all tokens are vested
+			unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
 			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
 			s.Require().NotEqual(vestingAmtTotal, vested)
 			s.Require().Equal(expVested, vested)
 		})
 
-		It("cannot delegate vesting tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				vestingAmtTotal.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			// TODO Delegation should fail, but standard Cosmos SDK allows staking vesting tokens
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
-		})
-
-		It("cannot transfer vesting tokens", func() {
-			err := s.app.BankKeeper.SendCoins(
-				s.ctx,
-				addr,
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
-				vestingAmtTotal,
-			)
-			Expect(err).ToNot(BeNil())
-		})
-
-		It("can stake vested tokens", func() {
+		It("can delegate vested tokens", func() {
 			_, err := s.app.StakingKeeper.Delegate(
 				s.ctx,
 				clawbackAccount.GetAddress(),
@@ -160,6 +196,20 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				s.validator,
 				true,
 			)
+			Expect(err).To(BeNil())
+		})
+
+		It("cannot delegate unvested tokens", func() {
+			_, err := s.app.StakingKeeper.Delegate(
+				s.ctx,
+				addr,
+				unvested.AmountOf(stakeDenom),
+				stakingtypes.Unbonded,
+				s.validator,
+				true,
+			)
+			// TODO Delegation should fail, but standard Cosmos SDK allows staking unvested tokens
+			// Expect(err).ToNot(BeNil())
 			Expect(err).To(BeNil())
 		})
 
@@ -173,10 +223,21 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 		})
 
+		It("cannot transfer unvested tokens", func() {
+			err := s.app.BankKeeper.SendCoins(
+				s.ctx,
+				addr,
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				unvested,
+			)
+			Expect(err).ToNot(BeNil())
+		})
+
 		It("can perform ethereum tx", func() {
 			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
 			Expect(err).To(BeNil())
 		})
+
 		// TODO Rewards Tests
 		// TODO Clawback Tests
 		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis

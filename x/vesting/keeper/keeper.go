@@ -46,46 +46,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // -------------------------------------------------------------------------- //
-// MOVED FROM ALGORIC TYPES BECAUSE THEY ACCESS KEEPERS
-
-// AddGrant merges a new periodic vesting grant into an existing PeriodicVestingAccount.
-func (k Keeper) AddGrantToPeriodicVestingAccount(ctx sdk.Context, pva *sdkvesting.PeriodicVestingAccount, grantStartTime int64, grantVestingPeriods []sdkvesting.Period, grantCoins sdk.Coins) {
-	// how much is really delegated?
-	bondedAmt := k.GetDelegatorBonded(ctx, pva.GetAddress())
-	unbondingAmt := k.GetDelegatorUnbonding(ctx, pva.GetAddress())
-	delegatedAmt := bondedAmt.Add(unbondingAmt)
-	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
-
-	// discover what has been slashed
-	oldDelegated := pva.DelegatedVesting.Add(pva.DelegatedFree...)
-	slashed := oldDelegated.Sub(types.CoinsMin(oldDelegated, delegated))
-
-	// We need to remember the unvested funds eaten by slashing.
-	// We do this by removing these funds from the last vesting.
-	unvestedSlashed := types.CoinsMin(slashed, pva.OriginalVesting)
-	if !unvestedSlashed.IsZero() {
-		newOrigVesting := pva.OriginalVesting.Sub(unvestedSlashed)
-		newStart, newEnd, newPeriods := types.ConjunctPeriods(pva.GetStartTime(), pva.GetStartTime(), pva.GetVestingPeriods(),
-			[]sdkvesting.Period{{Length: 1, Amount: newOrigVesting}})
-		pva.OriginalVesting = newOrigVesting
-		pva.StartTime = newStart
-		pva.EndTime = newEnd
-		pva.VestingPeriods = newPeriods
-	}
-
-	// modify vesting schedule for the new grant
-	newStart, newEnd, newPeriods := types.DisjunctPeriods(pva.StartTime, grantStartTime,
-		pva.GetVestingPeriods(), grantVestingPeriods)
-	pva.StartTime = newStart
-	pva.EndTime = newEnd
-	pva.VestingPeriods = newPeriods
-	pva.OriginalVesting = pva.OriginalVesting.Add(grantCoins...)
-
-	// cap DV at the current unvested amount, DF rounds out to current delegated
-	unvested := pva.GetVestingCoins(ctx.BlockTime())
-	pva.DelegatedVesting = types.CoinsMin(delegated, unvested)
-	pva.DelegatedFree = delegated.Sub(pva.DelegatedVesting)
-}
+// MOVED FROM AGORIC TYPES BECAUSE THEY ACCESS KEEPERS
 
 // AddGrant merges a new clawback vesting grant into an existing ClawbackVestingAccount.
 func (k Keeper) AddGrantToClawbackVestingAccount(ctx sdk.Context, va *types.ClawbackVestingAccount, grantStartTime int64, grantLockupPeriods, grantVestingPeriods []sdkvesting.Period, grantCoins sdk.Coins) {
