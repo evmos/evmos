@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/tharsis/evmos/x/vesting/types"
@@ -48,7 +49,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // MOVED FROM ALGORIC TYPES BECAUSE THEY ACCESS KEEPERS
 
 // AddGrant merges a new periodic vesting grant into an existing PeriodicVestingAccount.
-func (k Keeper) AddGrantToPeriodicVestingAccount(ctx sdk.Context, pva *types.PeriodicVestingAccount, grantStartTime int64, grantVestingPeriods []types.Period, grantCoins sdk.Coins) {
+func (k Keeper) AddGrantToPeriodicVestingAccount(ctx sdk.Context, pva *sdkvesting.PeriodicVestingAccount, grantStartTime int64, grantVestingPeriods []sdkvesting.Period, grantCoins sdk.Coins) {
 	// how much is really delegated?
 	bondedAmt := k.GetDelegatorBonded(ctx, pva.GetAddress())
 	unbondingAmt := k.GetDelegatorUnbonding(ctx, pva.GetAddress())
@@ -65,7 +66,7 @@ func (k Keeper) AddGrantToPeriodicVestingAccount(ctx sdk.Context, pva *types.Per
 	if !unvestedSlashed.IsZero() {
 		newOrigVesting := pva.OriginalVesting.Sub(unvestedSlashed)
 		newStart, newEnd, newPeriods := types.ConjunctPeriods(pva.GetStartTime(), pva.GetStartTime(), pva.GetVestingPeriods(),
-			[]types.Period{{Length: 1, Amount: newOrigVesting}})
+			[]sdkvesting.Period{{Length: 1, Amount: newOrigVesting}})
 		pva.OriginalVesting = newOrigVesting
 		pva.StartTime = newStart
 		pva.EndTime = newEnd
@@ -87,7 +88,7 @@ func (k Keeper) AddGrantToPeriodicVestingAccount(ctx sdk.Context, pva *types.Per
 }
 
 // AddGrant merges a new clawback vesting grant into an existing ClawbackVestingAccount.
-func (k Keeper) AddGrantToClawbackVestingAccount(ctx sdk.Context, va *types.ClawbackVestingAccount, grantStartTime int64, grantLockupPeriods, grantVestingPeriods []types.Period, grantCoins sdk.Coins) {
+func (k Keeper) AddGrantToClawbackVestingAccount(ctx sdk.Context, va *types.ClawbackVestingAccount, grantStartTime int64, grantLockupPeriods, grantVestingPeriods []sdkvesting.Period, grantCoins sdk.Coins) {
 	// how much is really delegated?
 	bondedAmt := k.GetDelegatorBonded(ctx, va.GetAddress())
 	unbondingAmt := k.GetDelegatorUnbonding(ctx, va.GetAddress())
@@ -102,7 +103,7 @@ func (k Keeper) AddGrantToClawbackVestingAccount(ctx sdk.Context, va *types.Claw
 	unvestedSlashed := types.CoinsMin(slashed, va.OriginalVesting)
 	if !unvestedSlashed.IsZero() {
 		newOrigVesting := va.OriginalVesting.Sub(unvestedSlashed)
-		cutoffPeriods := []types.Period{{Length: 1, Amount: newOrigVesting}}
+		cutoffPeriods := []sdkvesting.Period{{Length: 1, Amount: newOrigVesting}}
 		start := va.GetStartTime()
 		_, newLockupEnd, newLockupPeriods := types.ConjunctPeriods(start, start, va.LockupPeriods, cutoffPeriods)
 		_, newVestingEnd, newVestingPeriods := types.ConjunctPeriods(start, start, va.VestingPeriods, cutoffPeriods)

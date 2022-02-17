@@ -1,41 +1,21 @@
 package types
 
 import (
-	"fmt"
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	yaml "gopkg.in/yaml.v2"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-// Periods stores all vesting periods passed as part of a PeriodicVestingAccount
-type Periods []Period
-
-// String Period implements stringer interface
-func (p Period) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
-}
-
-// String Periods implements stringer interface
-func (vp Periods) String() string {
-	periodsListString := make([]string, len(vp))
-	for _, period := range vp {
-		periodsListString = append(periodsListString, period.String())
-	}
-
-	return strings.TrimSpace(fmt.Sprintf(`Vesting Periods:
-		%s`, strings.Join(periodsListString, ", ")))
-}
+// Periods stores all vesting periods passed as part of a ClawbackVestingAccount
+type Periods []sdkvesting.Period
 
 // A "schedule" is an increasing step function of Coins over time.
 // It's specified as an absolute start time and a sequence of relative
 // periods, with each step at the end of a period. A schedule may also
 // give the time and total value at the last step, which can speed
 // evaluation of the step function after the last step.
-
+//
 // ReadSchedule returns the value of a schedule at readTime.
-func ReadSchedule(startTime, endTime int64, periods []Period, totalCoins sdk.Coins, readTime int64) sdk.Coins {
+func ReadSchedule(startTime, endTime int64, periods []sdkvesting.Period, totalCoins sdk.Coins, readTime int64) sdk.Coins {
 	if readTime <= startTime {
 		return sdk.NewCoins()
 	}
@@ -97,7 +77,7 @@ func CoinsMin(a, b sdk.Coins) sdk.Coins {
 // Input schedules P and Q are defined by their start times and periods.
 // Returns new start time, new end time, and merged vesting events, relative to
 // the new start time.
-func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (int64, int64, []Period) {
+func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Period) (int64, int64, []sdkvesting.Period) {
 	timeP := startP // time of last merged p event, next p event is relative to this time
 	timeQ := startQ // time of last merged q event, next q event is relative to this time
 	iP := 0         // p indexes before this have been merged
@@ -106,11 +86,11 @@ func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (int64, 
 	lenQ := len(periodsQ)
 	startTime := Min64(startP, startQ) // we pick the earlier time
 	time := startTime                  // time of last merged event, or the start time
-	merged := []Period{}
+	merged := []sdkvesting.Period{}
 
 	// emit adds an output period and updates the last event time
 	emit := func(nextTime int64, amount sdk.Coins) {
-		period := Period{
+		period := sdkvesting.Period{
 			Length: nextTime - time,
 			Amount: amount,
 		}
@@ -167,7 +147,7 @@ func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (int64, 
 }
 
 // ConjunctPeriods returns the combination of two period schedules where the result is the minimum of the two schedules.
-func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTime int64, endTime int64, merged []Period) {
+func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Period) (startTime int64, endTime int64, merged []sdkvesting.Period) {
 	timeP := startP
 	timeQ := startQ
 	iP := 0
@@ -176,14 +156,14 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 	lenQ := len(periodsQ)
 	startTime = Min64(startP, startQ)
 	time := startTime
-	merged = []Period{}
+	merged = []sdkvesting.Period{}
 	amount := sdk.NewCoins()
 	amountP := amount
 	amountQ := amount
 
 	// emit adds an output period and updates the last event time
 	emit := func(nextTime int64, coins sdk.Coins) {
-		period := Period{
+		period := sdkvesting.Period{
 			Length: nextTime - time,
 			Amount: coins,
 		}
@@ -270,7 +250,7 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []Period) (startTi
 }
 
 // AlignSchedules rewrites the first period length to align the two arguments to the same start time.
-func AlignSchedules(startP, startQ int64, p, q []Period) (startTime, endTime int64) {
+func AlignSchedules(startP, startQ int64, p, q []sdkvesting.Period) (startTime, endTime int64) {
 	startTime = Min64(startP, startQ)
 
 	if len(p) > 0 {

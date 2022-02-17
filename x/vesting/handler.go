@@ -13,12 +13,6 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		case *types.MsgCreateVestingAccount:
-			res, err := server.CreateVestingAccount(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgCreatePeriodicVestingAccount:
-			res, err := server.CreatePeriodicVestingAccount(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgCreateClawbackVestingAccount:
 			res, err := server.CreateClawbackVestingAccount(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)

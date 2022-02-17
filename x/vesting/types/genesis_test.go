@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
 var (
@@ -22,7 +23,7 @@ func TestValidateGenesisInvalidAccounts(t *testing.T) {
 	acc1 := authtypes.NewBaseAccountWithAddress(sdk.AccAddress(addr1))
 	acc1Balance := sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 150))
 	endTime := int64(1548775410)
-	baseVestingAcc := NewBaseVestingAccount(acc1, acc1Balance, endTime)
+	baseVestingAcc := sdkvesting.NewBaseVestingAccount(acc1, acc1Balance, endTime)
 
 	// invalid delegated vesting
 	baseVestingAcc.DelegatedVesting = acc1Balance.Add(acc1Balance...)
@@ -39,21 +40,22 @@ func TestValidateGenesisInvalidAccounts(t *testing.T) {
 	genAccs[0] = baseVestingAcc
 	require.NoError(t, authtypes.ValidateGenAccounts(genAccs))
 	// invalid start time
-	genAccs[0] = NewContinuousVestingAccountRaw(baseVestingAcc, 1548888000)
+	genAccs[0] = sdkvesting.NewContinuousVestingAccountRaw(baseVestingAcc, 1548888000)
 	require.Error(t, authtypes.ValidateGenAccounts(genAccs))
 	// invalid period: duration
-	genAccs[0] = NewPeriodicVestingAccountRaw(baseVestingAcc, endTime-100000, []Period{
+	genAccs[0] = sdkvesting.NewPeriodicVestingAccountRaw(baseVestingAcc, endTime-100000, []sdkvesting.Period{
 		{Length: 100000 + 20, Amount: acc1Balance},
 	})
 	require.Error(t, authtypes.ValidateGenAccounts(genAccs))
 	// invalid period: amount
-	genAccs[0] = NewPeriodicVestingAccountRaw(baseVestingAcc, endTime-100000, []Period{
+	genAccs[0] = sdkvesting.NewPeriodicVestingAccountRaw(baseVestingAcc, endTime-100000, []sdkvesting.Period{
 		{Length: 100000, Amount: acc1Balance.Add(acc1Balance...)},
 	})
 	require.Error(t, authtypes.ValidateGenAccounts(genAccs))
 	// Passing case
-	genAccs[0] = NewPeriodicVestingAccountRaw(baseVestingAcc, endTime-100000, []Period{
+	genAccs[0] = sdkvesting.NewPeriodicVestingAccountRaw(baseVestingAcc, endTime-100000, []sdkvesting.Period{
 		{Length: 100000, Amount: acc1Balance},
 	})
 	require.NoError(t, authtypes.ValidateGenAccounts(genAccs))
+	// TODO test Clawbackvestingaccount
 }

@@ -4,17 +4,18 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-func mkper(length int64, amount int64) Period {
-	return Period{
+func mkper(length int64, amount int64) sdkvesting.Period {
+	return sdkvesting.Period{
 		Length: length,
 		Amount: sdk.NewCoins(sdk.NewInt64Coin("test", amount)),
 	}
 }
 
 func TestReadSchedule(t *testing.T) {
-	periods := []Period{
+	periods := []sdkvesting.Period{
 		mkper(10, 10), mkper(20, 20), mkper(40, 40),
 	}
 	total := sdk.NewCoins(sdk.NewInt64Coin("test", 70))
@@ -37,71 +38,71 @@ func TestDisjunctPeriods(t *testing.T) {
 	for _, tt := range []struct {
 		name      string
 		startP    int64
-		p         []Period
+		p         []sdkvesting.Period
 		startQ    int64
-		q         []Period
+		q         []sdkvesting.Period
 		wantStart int64
 		wantEnd   int64
-		want      []Period
+		want      []sdkvesting.Period
 	}{
 		{
 			name:      "empty_empty",
 			startP:    0,
-			p:         []Period{},
+			p:         []sdkvesting.Period{},
 			startQ:    0,
-			q:         []Period{},
+			q:         []sdkvesting.Period{},
 			wantStart: 0,
-			want:      []Period{},
+			want:      []sdkvesting.Period{},
 		},
 		{
 			name:      "some_empty",
 			startP:    -123,
-			p:         []Period{mkper(45, 8), mkper(67, 13)},
+			p:         []sdkvesting.Period{mkper(45, 8), mkper(67, 13)},
 			startQ:    -124,
-			q:         []Period{},
+			q:         []sdkvesting.Period{},
 			wantStart: -124,
 			wantEnd:   -11,
-			want:      []Period{mkper(46, 8), mkper(67, 13)},
+			want:      []sdkvesting.Period{mkper(46, 8), mkper(67, 13)},
 		},
 		{
 			name:      "one_one",
 			startP:    0,
-			p:         []Period{mkper(12, 34)},
+			p:         []sdkvesting.Period{mkper(12, 34)},
 			startQ:    0,
-			q:         []Period{mkper(25, 68)},
+			q:         []sdkvesting.Period{mkper(25, 68)},
 			wantStart: 0,
 			wantEnd:   25,
-			want:      []Period{mkper(12, 34), mkper(13, 68)},
+			want:      []sdkvesting.Period{mkper(12, 34), mkper(13, 68)},
 		},
 		{
 			name:      "tied",
 			startP:    12,
-			p:         []Period{mkper(24, 3)},
+			p:         []sdkvesting.Period{mkper(24, 3)},
 			startQ:    0,
-			q:         []Period{mkper(36, 7)},
+			q:         []sdkvesting.Period{mkper(36, 7)},
 			wantStart: 0,
 			wantEnd:   36,
-			want:      []Period{mkper(36, 10)},
+			want:      []sdkvesting.Period{mkper(36, 10)},
 		},
 		{
 			name:      "residual",
 			startP:    105,
-			p:         []Period{mkper(45, 309), mkper(80, 243), mkper(30, 401)},
+			p:         []sdkvesting.Period{mkper(45, 309), mkper(80, 243), mkper(30, 401)},
 			startQ:    120,
-			q:         []Period{mkper(40, 823)},
+			q:         []sdkvesting.Period{mkper(40, 823)},
 			wantStart: 105,
 			wantEnd:   260,
-			want:      []Period{mkper(45, 309), mkper(10, 823), mkper(70, 243), mkper(30, 401)},
+			want:      []sdkvesting.Period{mkper(45, 309), mkper(10, 823), mkper(70, 243), mkper(30, 401)},
 		},
 		{
 			name:      "typical",
 			startP:    1000,
-			p:         []Period{mkper(100, 25), mkper(100, 25), mkper(100, 25), mkper(100, 25)},
+			p:         []sdkvesting.Period{mkper(100, 25), mkper(100, 25), mkper(100, 25), mkper(100, 25)},
 			startQ:    1200,
-			q:         []Period{mkper(100, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
+			q:         []sdkvesting.Period{mkper(100, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
 			wantStart: 1000,
 			wantEnd:   1600,
-			want:      []Period{mkper(100, 25), mkper(100, 25), mkper(100, 35), mkper(100, 35), mkper(100, 10), mkper(100, 10)},
+			want:      []sdkvesting.Period{mkper(100, 25), mkper(100, 25), mkper(100, 35), mkper(100, 35), mkper(100, 10), mkper(100, 10)},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -109,7 +110,7 @@ func TestDisjunctPeriods(t *testing.T) {
 			// for the price of one.  TODO: sub-t.Run() for distinct names.
 			for i := 0; i < 2; i++ {
 				var gotStart, gotEnd int64
-				var got []Period
+				var got []sdkvesting.Period
 				if i == 0 {
 					gotStart, gotEnd, got = DisjunctPeriods(tt.startP, tt.startQ, tt.p, tt.q)
 				} else {
@@ -142,82 +143,82 @@ func TestConjunctPeriods(t *testing.T) {
 	for _, tt := range []struct {
 		name      string
 		startP    int64
-		p         []Period
+		p         []sdkvesting.Period
 		startQ    int64
-		q         []Period
+		q         []sdkvesting.Period
 		wantStart int64
 		wantEnd   int64
-		want      []Period
+		want      []sdkvesting.Period
 	}{
 		{
 			name:      "empty_empty",
 			startP:    0,
-			p:         []Period{},
+			p:         []sdkvesting.Period{},
 			startQ:    0,
-			q:         []Period{},
+			q:         []sdkvesting.Period{},
 			wantStart: 0,
 			wantEnd:   0,
-			want:      []Period{},
+			want:      []sdkvesting.Period{},
 		},
 		{
 			name:      "some_empty",
 			startP:    -123,
-			p:         []Period{mkper(45, 8), mkper(67, 13)},
+			p:         []sdkvesting.Period{mkper(45, 8), mkper(67, 13)},
 			startQ:    -124,
-			q:         []Period{},
+			q:         []sdkvesting.Period{},
 			wantStart: -124,
 			wantEnd:   -124,
-			want:      []Period{},
+			want:      []sdkvesting.Period{},
 		},
 		{
 			name:      "one_one",
 			startP:    0,
-			p:         []Period{mkper(12, 34)},
+			p:         []sdkvesting.Period{mkper(12, 34)},
 			startQ:    0,
-			q:         []Period{mkper(25, 68)},
+			q:         []sdkvesting.Period{mkper(25, 68)},
 			wantStart: 0,
 			wantEnd:   25,
-			want:      []Period{mkper(25, 34)},
+			want:      []sdkvesting.Period{mkper(25, 34)},
 		},
 		{
 			name:      "tied",
 			startP:    12,
-			p:         []Period{mkper(24, 3)},
+			p:         []sdkvesting.Period{mkper(24, 3)},
 			startQ:    0,
-			q:         []Period{mkper(36, 7)},
+			q:         []sdkvesting.Period{mkper(36, 7)},
 			wantStart: 0,
 			wantEnd:   36,
-			want:      []Period{mkper(36, 3)},
+			want:      []sdkvesting.Period{mkper(36, 3)},
 		},
 		{
 			name:      "residual",
 			startP:    105,
-			p:         []Period{mkper(45, 309), mkper(80, 243), mkper(30, 401)},
+			p:         []sdkvesting.Period{mkper(45, 309), mkper(80, 243), mkper(30, 401)},
 			startQ:    120,
-			q:         []Period{mkper(40, 823)},
+			q:         []sdkvesting.Period{mkper(40, 823)},
 			wantStart: 105,
 			wantEnd:   260,
-			want:      []Period{mkper(55, 309), mkper(70, 243), mkper(30, 271)},
+			want:      []sdkvesting.Period{mkper(55, 309), mkper(70, 243), mkper(30, 271)},
 		},
 		{
 			name:      "overlap",
 			startP:    1000,
-			p:         []Period{mkper(100, 25), mkper(100, 25), mkper(100, 25), mkper(100, 25)},
+			p:         []sdkvesting.Period{mkper(100, 25), mkper(100, 25), mkper(100, 25), mkper(100, 25)},
 			startQ:    1200,
-			q:         []Period{mkper(100, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
+			q:         []sdkvesting.Period{mkper(100, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
 			wantStart: 1000,
 			wantEnd:   1600,
-			want:      []Period{mkper(300, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
+			want:      []sdkvesting.Period{mkper(300, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
 		},
 		{
 			name:      "clip",
 			startP:    100,
-			p:         []Period{mkper(10, 1), mkper(10, 1), mkper(10, 1), mkper(10, 1), mkper(10, 1)},
+			p:         []sdkvesting.Period{mkper(10, 1), mkper(10, 1), mkper(10, 1), mkper(10, 1), mkper(10, 1)},
 			startQ:    100,
-			q:         []Period{mkper(1, 3)},
+			q:         []sdkvesting.Period{mkper(1, 3)},
 			wantStart: 100,
 			wantEnd:   130,
-			want:      []Period{mkper(10, 1), mkper(10, 1), mkper(10, 1)},
+			want:      []sdkvesting.Period{mkper(10, 1), mkper(10, 1), mkper(10, 1)},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -225,7 +226,7 @@ func TestConjunctPeriods(t *testing.T) {
 			// for the price of one.  TODO: sub-t.Run() for distinct names.
 			for i := 0; i < 2; i++ {
 				var gotStart, gotEnd int64
-				var got []Period
+				var got []sdkvesting.Period
 				if i == 0 {
 					gotStart, gotEnd, got = ConjunctPeriods(tt.startP, tt.startQ, tt.p, tt.q)
 				} else {
@@ -255,8 +256,8 @@ func TestConjunctPeriods(t *testing.T) {
 }
 
 func TestAlignSchedules(t *testing.T) {
-	p := []Period{mkper(10, 50), mkper(30, 7)}
-	q := []Period{mkper(40, 6), mkper(10, 8), mkper(5, 3)}
+	p := []sdkvesting.Period{mkper(10, 50), mkper(30, 7)}
+	q := []sdkvesting.Period{mkper(40, 6), mkper(10, 8), mkper(5, 3)}
 	start, end := AlignSchedules(100, 200, p, q)
 	if start != 100 {
 		t.Errorf("want start 100, got %d", start)
