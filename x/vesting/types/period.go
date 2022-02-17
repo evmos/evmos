@@ -6,7 +6,7 @@ import (
 )
 
 // Periods stores all vesting periods passed as part of a ClawbackVestingAccount
-type Periods []sdkvesting.Period
+// type Periods []sdkvesting.Period
 
 // A "schedule" is an increasing step function of Coins over time.
 // It's specified as an absolute start time and a sequence of relative

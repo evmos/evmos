@@ -21,7 +21,7 @@ var (
 )
 
 // NewClawbackVestingAccount returns a new ClawbackVestingAccount
-func NewClawbackVestingAccount(baseAcc *authtypes.BaseAccount, funder sdk.AccAddress, originalVesting sdk.Coins, startTime int64, lockupPeriods, vestingPeriods Periods) *ClawbackVestingAccount {
+func NewClawbackVestingAccount(baseAcc *authtypes.BaseAccount, funder sdk.AccAddress, originalVesting sdk.Coins, startTime int64, lockupPeriods, vestingPeriods sdkvesting.Periods) *ClawbackVestingAccount {
 	// copy and align schedules to avoid mutating inputs
 	lp := make(sdkvesting.Periods, len(lockupPeriods))
 	copy(lp, lockupPeriods)

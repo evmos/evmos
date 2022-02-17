@@ -10,39 +10,56 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/tharsis/evmos/x/vesting/types"
 )
 
-var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
+var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	addr := sdk.AccAddress(s.address.Bytes())
 
 	// Periodic vesting case In this case the cliff is reached before the locked
 	// period is reached to represent the scenario in which an employee starts
-	// before mainnet launch (periodsCliff < periodslock)
+	// before mainnet launch (periodsCliff < lockupPeriod)
 	//
 	// Example:
 	// 21/10 Employee joins Evmos and vesting starts
 	// 22/03 Mainnet launch
 	// 22/09 Cliff ends
 	// 23/02 Lock ends
-	periodDuration := int64(60 * 60 * 24 * 30) // 1 month in seconds
-	// periodsCliff := int64(6)                   // 6 months
-	periodsLock := int64(12)  // 12 year
-	periodsTotal := int64(48) // 4 years
-	amt := sdk.NewInt(1)
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
-	vestingProvision := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
-	vestingTotal := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsTotal))))
 
-	periods := authvesting.Periods{}
-	for p := int64(1); p <= periodsTotal; p++ {
-		period := authvesting.Period{Length: periodDuration, Amount: vestingProvision}
-		periods = append(periods, period)
+	// Monthly vesting period
+	stakeDenom := stakingtypes.DefaultParams().BondDenom
+	amt := sdk.NewInt(1)
+	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
+	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
+	vestingPeriod := sdkvesting.Period{Length: vestingLength, Amount: vestingAmt}
+
+	// 4 years vesting total
+	periodsTotal := int64(48)
+	vestingAmtTotal := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsTotal))))
+
+	// 6 month cliff
+	cliff := int64(6)
+	cliffLength := vestingLength * cliff
+	cliffAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(cliff))))
+	cliffPeriod := sdkvesting.Period{Length: cliffLength, Amount: cliffAmt}
+
+	// 12 month lockup
+	lockup := int64(12) // 12 year
+	lockupLength := vestingLength * lockup
+	lockupPeriod := sdkvesting.Period{Length: lockupLength, Amount: vestingAmtTotal}
+	lockupPeriods := sdkvesting.Periods{lockupPeriod}
+
+	// Create vesting periods with initial cliff
+	vestingPeriods := sdkvesting.Periods{cliffPeriod}
+	for p := int64(1); p <= periodsTotal-cliff; p++ {
+		vestingPeriods = append(vestingPeriods, vestingPeriod)
 	}
 
 	var (
-		periodicAccount *authvesting.PeriodicVestingAccount
+		clawbackAccount *types.ClawbackVestingAccount
 		vesting         sdk.Coins
 		vested          sdk.Coins
 	)
@@ -53,15 +70,23 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 		// Create and fund periodic vesting account
 		vestingStart := s.ctx.BlockTime().Unix()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
-		periodicAccount = authvesting.NewPeriodicVestingAccount(baseAccount, vestingTotal, vestingStart, periods)
-		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingTotal)
+		funder := sdk.AccAddress(types.ModuleName)
+		clawbackAccount = types.NewClawbackVestingAccount(
+			baseAccount,
+			funder,
+			vestingAmtTotal,
+			vestingStart,
+			lockupPeriods,
+			vestingPeriods,
+		)
+		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingAmtTotal)
 		s.Require().NoError(err)
-		s.app.AccountKeeper.SetAccount(s.ctx, periodicAccount)
+		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
 
 		// Check if all tokens are vesting at vestingStart
 		vesting = s.app.BankKeeper.LockedCoins(s.ctx, addr)
 		vested = s.app.BankKeeper.SpendableCoins(s.ctx, addr)
-		s.Require().Equal(vestingTotal, vesting)
+		s.Require().Equal(vestingAmtTotal, vesting)
 		s.Require().True(vested.IsZero())
 	})
 
@@ -92,13 +117,13 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 	Context("after vesting cliff and locking period", func() {
 		BeforeEach(func() {
 			// Surpass locking duration
-			lockingDuration := time.Duration(periodDuration * periodsLock)
+			lockingDuration := time.Duration(lockupLength)
 			s.CommitAfter(lockingDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
 			vested = s.app.BankKeeper.SpendableCoins(s.ctx, addr)
-			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsLock))))
-			s.Require().NotEqual(vestingTotal, vested)
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
+			s.Require().NotEqual(vestingAmtTotal, vested)
 			s.Require().Equal(expVested, vested)
 		})
 
@@ -106,7 +131,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 			_, err := s.app.StakingKeeper.Delegate(
 				s.ctx,
 				addr,
-				vestingTotal.AmountOf(stakeDenom),
+				vestingAmtTotal.AmountOf(stakeDenom),
 				stakingtypes.Unbonded,
 				s.validator,
 				true,
@@ -121,7 +146,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 				s.ctx,
 				addr,
 				sdk.AccAddress(tests.GenerateAddress().Bytes()),
-				vestingTotal,
+				vestingAmtTotal,
 			)
 			Expect(err).ToNot(BeNil())
 		})
@@ -129,7 +154,7 @@ var _ = Describe("Periodic Vesting Accounts", Ordered, func() {
 		It("can stake vested tokens", func() {
 			_, err := s.app.StakingKeeper.Delegate(
 				s.ctx,
-				periodicAccount.GetAddress(),
+				clawbackAccount.GetAddress(),
 				vested.AmountOf(stakeDenom),
 				stakingtypes.Unbonded,
 				s.validator,
