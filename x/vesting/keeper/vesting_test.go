@@ -11,6 +11,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/tharsis/evmos/x/vesting/types"
@@ -107,6 +109,29 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot vote on governance proposals", func() {
+			// Submit governance porposal
+			TestProposal := govtypes.NewTextProposal("Test", "description")
+			depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
+			proposalCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
+			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
+			s.Require().NoError(err)
+
+			proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
+			s.Require().NoError(err)
+
+			_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
+			s.Require().NoError(err)
+
+			// Vote
+			err = s.app.GovKeeper.AddVote(
+				s.ctx,
+				proposal.ProposalId,
+				addr,
+				govtypes.NewNonSplitVoteOption(govtypes.OptionYes),
+			)
+			// TODO voting shouldn't be possible
+			// Expect(err).ToNot(BeNil())
+			Expect(err).To(BeNil())
 		})
 
 		It("cannot transfer tokens", func() {
@@ -153,6 +178,27 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can vote on governance proposals", func() {
+			// Submit governance porposal
+			TestProposal := govtypes.NewTextProposal("Test", "description")
+			depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
+			proposalCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
+			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
+			s.Require().NoError(err)
+
+			proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
+			s.Require().NoError(err)
+
+			_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
+			s.Require().NoError(err)
+
+			// Vote
+			err = s.app.GovKeeper.AddVote(
+				s.ctx,
+				proposal.ProposalId,
+				addr,
+				govtypes.NewNonSplitVoteOption(govtypes.OptionYes),
+			)
+			Expect(err).To(BeNil())
 		})
 
 		It("cannot transfer vested tokens", func() {
@@ -208,7 +254,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				s.validator,
 				true,
 			)
-			// TODO Delegation should fail, but standard Cosmos SDK allows staking unvested tokens
+			// TODO Antehandler
 			// Expect(err).ToNot(BeNil())
 			Expect(err).To(BeNil())
 		})
