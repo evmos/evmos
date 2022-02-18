@@ -12,16 +12,18 @@ var (
 )
 
 const (
-	// TypeMsgCreateClawbackVestingAccount defines the type value for a MsgCreateClawbackVestingAcount.
-	TypeMsgCreateClawbackVestingAccount = "msg_create_clawback_vesting_account"
-
-	// TypeMsgClawback defines the type value for a MsgClawback.
-	TypeMsgClawback = "msg_clawback"
+	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
+	TypeMsgClawback                     = "clawback"
 )
 
-// NewMsgCreateClawbackVestingAccount returns a reference to a new MsgCreateClawbackVestingAccount.
-//nolint:interfacer
-func NewMsgCreateClawbackVestingAccount(fromAddr, toAddr sdk.AccAddress, startTime int64, lockupPeriods, vestingPeriods []sdkvesting.Period, merge bool) *MsgCreateClawbackVestingAccount {
+// NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
+func NewMsgCreateClawbackVestingAccount(
+	fromAddr, toAddr sdk.AccAddress,
+	startTime int64,
+	lockupPeriods,
+	vestingPeriods []sdkvesting.Period,
+	merge bool,
+) *MsgCreateClawbackVestingAccount {
 	return &MsgCreateClawbackVestingAccount{
 		FromAddress:    fromAddr.String(),
 		ToAddress:      toAddr.String(),
@@ -32,43 +34,22 @@ func NewMsgCreateClawbackVestingAccount(fromAddr, toAddr sdk.AccAddress, startTi
 	}
 }
 
-// Route returns the message route for a MsgCreateClawbackVestingAccount.
+// Route returns the name of the module
 func (msg MsgCreateClawbackVestingAccount) Route() string { return RouterKey }
 
-// Type returns the message type for a MsgCreateClawbackVestingAccount.
+// Type returns the the action
 func (msg MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateClawbackVestingAccount }
 
-// GetSigners returns the expected signers for a MsgCreateClawbackVestingAccount.
-func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{from}
-}
-
-// GetSignBytes returns the bytes all expected signers must sign over for a
-// MsgCreateClawbackVestingAccount.
-func (msg MsgCreateClawbackVestingAccount) GetSignBytes() []byte {
-	return sdk.MustSortJSON(amino.MustMarshalJSON(&msg))
-}
-
-// ValidateBasic Implements Msg.
+// ValidateBasic runs stateless checks on the message
 func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
 	if err != nil {
-		return err
-	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
-	if err != nil {
-		return err
-	}
-	if err := sdk.VerifyAddressFormat(from); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address: %s", err)
+		return sdkerrors.Wrapf(err, "invalid from address %s", from)
 	}
 
-	if err := sdk.VerifyAddressFormat(to); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid recipient address: %s", err)
+	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	if err != nil {
+		return sdkerrors.Wrapf(err, "invalid to address %s", to)
 	}
 
 	lockupCoins := sdk.NewCoins()
@@ -97,9 +78,22 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgClawback returns a reference to a new MsgClawback.
-// The dest address may be nil - defaulting to the funder.
-//nolint:interfacer
+// GetSignBytes encodes the message for signing
+func (msg MsgCreateClawbackVestingAccount) GetSignBytes() []byte {
+	return sdk.MustSortJSON(amino.MustMarshalJSON(&msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
+	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{from}
+}
+
+// NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
+// nil - defaulting to the funder.
 func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 	destString := ""
 	if dest != nil {
@@ -118,48 +112,38 @@ func (msg MsgClawback) Route() string { return RouterKey }
 // Type returns the message type for a MsgClawback.
 func (msg MsgClawback) Type() string { return TypeMsgClawback }
 
-// GetSigners returns the expected signers for a MsgClawback.
-func (msg MsgClawback) GetSigners() []sdk.AccAddress {
-	funder, err := sdk.AccAddressFromBech32(msg.FunderAddress)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{funder}
-}
-
-// GetSignBytes returns the bytes all expected signers must sign over for a
-// MsgClawback.
-func (msg MsgClawback) GetSignBytes() []byte {
-	return sdk.MustSortJSON(amino.MustMarshalJSON(&msg))
-}
-
-// ValidateBasic Implements Msg.
+// ValidateBasic runs stateless checks on the message
 func (msg MsgClawback) ValidateBasic() error {
 	funder, err := sdk.AccAddressFromBech32(msg.GetFunderAddress())
 	if err != nil {
-		return err
-	}
-	if err := sdk.VerifyAddressFormat(funder); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid funder address: %s", err)
+		return sdkerrors.Wrapf(err, "invalid funder address %s", funder)
 	}
 
 	addr, err := sdk.AccAddressFromBech32(msg.GetAddress())
 	if err != nil {
-		return err
-	}
-	if err := sdk.VerifyAddressFormat(addr); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address: %s", err)
+		return sdkerrors.Wrapf(err, "invalid addr address %s", addr)
 	}
 
 	if msg.GetDestAddress() != "" {
 		dest, err := sdk.AccAddressFromBech32(msg.GetDestAddress())
 		if err != nil {
-			return err
-		}
-		if err := sdk.VerifyAddressFormat(dest); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid destination address: %s", err)
+			return sdkerrors.Wrapf(err, "invalid dest address %s", dest)
 		}
 	}
 
 	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg MsgClawback) GetSignBytes() []byte {
+	return sdk.MustSortJSON(amino.MustMarshalJSON(&msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgClawback) GetSigners() []sdk.AccAddress {
+	funder, err := sdk.AccAddressFromBech32(msg.FunderAddress)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{funder}
 }

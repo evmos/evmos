@@ -23,20 +23,17 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"cosmos.vesting.v1beta1.VestingAccount",
 		(*exported.VestingAccount)(nil),
-		&sdkvesting.PeriodicVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.AccountI)(nil),
 		&ClawbackVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
 		&ClawbackVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
 	)
 
 	registry.RegisterImplementations(

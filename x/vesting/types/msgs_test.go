@@ -3,113 +3,287 @@ package types
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/testutil"
 )
 
-func TestClawbackVestingAccountMsg(t *testing.T) {
-	_, _, fromAddr := KeyTestPubAddr()
-	_, _, toAddr := KeyTestPubAddr()
-	amount := NewTestCoins()
-	startTime := int64(100200300)
-	lockupPeriods := []sdkvesting.Period{
-		{Length: 200000, Amount: amount},
-	}
-	vestingPeriods := []sdkvesting.Period{
-		{Length: 300000, Amount: amount},
-	}
-	msg := NewMsgCreateClawbackVestingAccount(fromAddr, toAddr, startTime, lockupPeriods, vestingPeriods, false)
-	route := msg.Route()
-	require.Equal(t, RouterKey, route)
-	tp := msg.Type()
-	require.Equal(t, TypeMsgCreateClawbackVestingAccount, tp)
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-
-	badFromMsg := MsgCreateClawbackVestingAccount{
-		FromAddress:    "foo",
-		ToAddress:      toAddr.String(),
-		StartTime:      startTime,
-		LockupPeriods:  lockupPeriods,
-		VestingPeriods: vestingPeriods,
-	}
-	err = badFromMsg.ValidateBasic()
-	require.Error(t, err)
-
-	badToMsg := MsgCreateClawbackVestingAccount{
-		FromAddress:    fromAddr.String(),
-		ToAddress:      "foo",
-		StartTime:      startTime,
-		LockupPeriods:  lockupPeriods,
-		VestingPeriods: vestingPeriods,
-	}
-	err = badToMsg.ValidateBasic()
-	require.Error(t, err)
-
-	badPeriods := []sdkvesting.Period{{Length: 0, Amount: amount}}
-	badLockup := NewMsgCreateClawbackVestingAccount(fromAddr, toAddr, startTime, badPeriods, vestingPeriods, false)
-	err = badLockup.ValidateBasic()
-	require.Error(t, err)
-
-	badVesting := NewMsgCreateClawbackVestingAccount(fromAddr, toAddr, startTime, lockupPeriods, badPeriods, false)
-	err = badVesting.ValidateBasic()
-	require.Error(t, err)
-
-	badAmounts := NewMsgCreateClawbackVestingAccount(fromAddr, toAddr, startTime, lockupPeriods, []sdkvesting.Period{
-		{Length: 17, Amount: amount.Add(amount...)},
-	}, false)
-	err = badAmounts.ValidateBasic()
-	require.Error(t, err)
-
-	emptyPeriods := []sdkvesting.Period{}
-	noLockupOk := NewMsgCreateClawbackVestingAccount(fromAddr, toAddr, startTime, emptyPeriods, vestingPeriods, false)
-	err = noLockupOk.ValidateBasic()
-	require.NoError(t, err)
-
-	noVestingOk := NewMsgCreateClawbackVestingAccount(fromAddr, toAddr, startTime, lockupPeriods, emptyPeriods, false)
-	err = noVestingOk.ValidateBasic()
-	require.NoError(t, err)
+type MsgsTestSuite struct {
+	suite.Suite
 }
 
-func TestClawbackMsg(t *testing.T) {
-	_, _, funderAddr := KeyTestPubAddr()
-	_, _, addr := KeyTestPubAddr()
-	_, _, destAddr := KeyTestPubAddr()
+func TestMsgsTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgsTestSuite))
+}
 
-	okMsg := NewMsgClawback(funderAddr, addr, destAddr)
-	route := okMsg.Route()
-	require.Equal(t, RouterKey, route)
-	tp := okMsg.Type()
-	require.Equal(t, TypeMsgClawback, tp)
-	err := okMsg.ValidateBasic()
-	require.NoError(t, err)
+func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
+	msgInvalid := MsgCreateClawbackVestingAccount{}
+	msg := NewMsgCreateClawbackVestingAccount(
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		int64(100200300),
+		[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+		[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+		true,
+	)
+	suite.Require().Equal(RouterKey, msg.Route())
+	suite.Require().Equal(TypeMsgCreateClawbackVestingAccount, msg.Type())
+	suite.Require().NotNil(msgInvalid.GetSignBytes())
+	suite.Require().Nil(msgInvalid.GetSigners())
+	suite.Require().NotNil(msg.GetSigners())
+}
 
-	noDest := NewMsgClawback(funderAddr, addr, nil)
-	require.Equal(t, noDest.DestAddress, "")
-	err = noDest.ValidateBasic()
-	require.NoError(t, err)
-
-	badFunder := MsgClawback{
-		FunderAddress: "foo",
-		Address:       addr.String(),
-		DestAddress:   destAddr.String(),
+func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
+	testCases := []struct {
+		msg            string
+		from           sdk.AccAddress
+		to             sdk.AccAddress
+		startTime      int64
+		lockupPeriods  []sdkvesting.Period
+		vestingPeriods []sdkvesting.Period
+		merge          bool
+		expectPass     bool
+	}{
+		{
+			"msg create clawback vesting account - pass",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			true,
+			true,
+		},
 	}
-	err = badFunder.ValidateBasic()
-	require.Error(t, err)
 
-	badAddr := MsgClawback{
-		FunderAddress: funderAddr.String(),
-		Address:       "foo",
-		DestAddress:   destAddr.String(),
-	}
-	err = badAddr.ValidateBasic()
-	require.Error(t, err)
+	for i, tc := range testCases {
+		tx := NewMsgCreateClawbackVestingAccount(
+			tc.from,
+			tc.to,
+			tc.startTime,
+			tc.lockupPeriods,
+			tc.vestingPeriods,
+			tc.merge,
+		)
+		err := tx.ValidateBasic()
 
-	badDest := MsgClawback{
-		FunderAddress: funderAddr.String(),
-		Address:       addr.String(),
-		DestAddress:   "foo",
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+		}
 	}
-	err = badDest.ValidateBasic()
-	require.Error(t, err)
+}
+
+func (suite *MsgsTestSuite) TestMsgConvertCoin() {
+	testCases := []struct {
+		msg            string
+		from           string
+		to             string
+		startTime      int64
+		lockupPeriods  []sdkvesting.Period
+		vestingPeriods []sdkvesting.Period
+		merge          bool
+		expectPass     bool
+	}{
+		{
+			"msg create clawback vesting account - invalid from address",
+			"foo",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			true,
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid to address",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			"foo",
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			true,
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid lockup period length",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 0, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			true,
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid lockup period amount",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
+			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			true,
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid vesting period length",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 0, Amount: testutil.NewTestCoins()}},
+			true,
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid vesting period amount",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
+			true,
+			false,
+		},
+		{
+			"msg create clawback vesting account - pass",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			int64(100200300),
+			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			true,
+			true,
+		},
+	}
+
+	for i, tc := range testCases {
+		tx := MsgCreateClawbackVestingAccount{
+			tc.from,
+			tc.to,
+			tc.startTime,
+			tc.lockupPeriods,
+			tc.vestingPeriods,
+			tc.merge,
+		}
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+		}
+	}
+}
+
+func (suite *MsgsTestSuite) TestMsgClawbackGetters() {
+	msgInvalid := MsgClawback{}
+	msg := NewMsgClawback(
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+	)
+	suite.Require().Equal(RouterKey, msg.Route())
+	suite.Require().Equal(TypeMsgClawback, msg.Type())
+	suite.Require().NotNil(msgInvalid.GetSignBytes())
+	suite.Require().Nil(msgInvalid.GetSigners())
+	suite.Require().NotNil(msg.GetSigners())
+}
+
+func (suite *MsgsTestSuite) TestMsgClawbackNew() {
+	testCases := []struct {
+		msg        string
+		funder     sdk.AccAddress
+		addr       sdk.AccAddress
+		dest       sdk.AccAddress
+		expectPass bool
+	}{
+		{
+			"msg clawback - pass",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			true,
+		},
+	}
+
+	for i, tc := range testCases {
+		tx := NewMsgClawback(
+			tc.funder,
+			tc.addr,
+			tc.dest,
+		)
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+		}
+	}
+}
+
+func (suite *MsgsTestSuite) TestMsgClawback() {
+	testCases := []struct {
+		msg        string
+		funder     string
+		addr       string
+		dest       string
+		expectPass bool
+	}{
+		{
+			"msg create clawback vesting account - invalid fund address",
+			"foo",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid addr address",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			"foo",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			false,
+		},
+		{
+			"msg create clawback vesting account - invalid dest address",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			"foo",
+			false,
+		},
+		{
+			"msg create clawback vesting account - pass empty dest address",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			"",
+			true,
+		},
+		{
+			"msg create clawback vesting account - pass",
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
+			true,
+		},
+	}
+
+	for i, tc := range testCases {
+		tx := MsgClawback{
+			tc.funder,
+			tc.addr,
+			tc.dest,
+		}
+		err := tx.ValidateBasic()
+
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+		}
+	}
 }
