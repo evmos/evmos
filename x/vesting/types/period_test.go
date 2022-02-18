@@ -5,37 +5,43 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/stretchr/testify/suite"
 )
 
-func mkper(length int64, amount int64) sdkvesting.Period {
+type PeriodTestSuite struct {
+	suite.Suite
+}
+
+func TestPeriodSuite(t *testing.T) {
+	suite.Run(t, new(MsgsTestSuite))
+}
+
+func period(length int64, amount int64) sdkvesting.Period {
 	return sdkvesting.Period{
 		Length: length,
 		Amount: sdk.NewCoins(sdk.NewInt64Coin("test", amount)),
 	}
 }
 
-func TestReadSchedule(t *testing.T) {
-	periods := []sdkvesting.Period{
-		mkper(10, 10), mkper(20, 20), mkper(40, 40),
-	}
+func (suite *PeriodTestSuite) TestReadSchedule() {
+	periods := []sdkvesting.Period{period(10, 10), period(20, 20), period(40, 40)}
 	total := sdk.NewCoins(sdk.NewInt64Coin("test", 70))
-	for _, tt := range []struct {
+	testCases := []struct {
 		time int64
 		want int64
 	}{
 		{0, 0}, {100, 0}, {105, 0}, {110, 10}, {120, 10}, {130, 30},
 		{150, 30}, {170, 70}, {180, 70},
-	} {
-		gotCoins := ReadSchedule(100, 170, periods, total, tt.time)
+	}
+	for _, tc := range testCases {
+		gotCoins := ReadSchedule(100, 170, periods, total, tc.time)
 		got := gotCoins.AmountOf("test").Int64()
-		if got != tt.want {
-			t.Errorf("ReadSchedule at %d want %d, got %d", tt.time, tt.want, got)
-		}
+		suite.Require().Equal(tc.want, got, "ReadSchedule at %d want %d, got %d", tc.time, tc.want, got)
 	}
 }
 
-func TestDisjunctPeriods(t *testing.T) {
-	for _, tt := range []struct {
+func (suite *PeriodTestSuite) TestDisjunctPeriods() {
+	testCases := []struct {
 		name      string
 		startP    int64
 		p         []sdkvesting.Period
@@ -57,90 +63,82 @@ func TestDisjunctPeriods(t *testing.T) {
 		{
 			name:      "some_empty",
 			startP:    -123,
-			p:         []sdkvesting.Period{mkper(45, 8), mkper(67, 13)},
+			p:         []sdkvesting.Period{period(45, 8), period(67, 13)},
 			startQ:    -124,
 			q:         []sdkvesting.Period{},
 			wantStart: -124,
 			wantEnd:   -11,
-			want:      []sdkvesting.Period{mkper(46, 8), mkper(67, 13)},
+			want:      []sdkvesting.Period{period(46, 8), period(67, 13)},
 		},
 		{
 			name:      "one_one",
 			startP:    0,
-			p:         []sdkvesting.Period{mkper(12, 34)},
+			p:         []sdkvesting.Period{period(12, 34)},
 			startQ:    0,
-			q:         []sdkvesting.Period{mkper(25, 68)},
+			q:         []sdkvesting.Period{period(25, 68)},
 			wantStart: 0,
 			wantEnd:   25,
-			want:      []sdkvesting.Period{mkper(12, 34), mkper(13, 68)},
+			want:      []sdkvesting.Period{period(12, 34), period(13, 68)},
 		},
 		{
 			name:      "tied",
 			startP:    12,
-			p:         []sdkvesting.Period{mkper(24, 3)},
+			p:         []sdkvesting.Period{period(24, 3)},
 			startQ:    0,
-			q:         []sdkvesting.Period{mkper(36, 7)},
+			q:         []sdkvesting.Period{period(36, 7)},
 			wantStart: 0,
 			wantEnd:   36,
-			want:      []sdkvesting.Period{mkper(36, 10)},
+			want:      []sdkvesting.Period{period(36, 10)},
 		},
 		{
 			name:      "residual",
 			startP:    105,
-			p:         []sdkvesting.Period{mkper(45, 309), mkper(80, 243), mkper(30, 401)},
+			p:         []sdkvesting.Period{period(45, 309), period(80, 243), period(30, 401)},
 			startQ:    120,
-			q:         []sdkvesting.Period{mkper(40, 823)},
+			q:         []sdkvesting.Period{period(40, 823)},
 			wantStart: 105,
 			wantEnd:   260,
-			want:      []sdkvesting.Period{mkper(45, 309), mkper(10, 823), mkper(70, 243), mkper(30, 401)},
+			want:      []sdkvesting.Period{period(45, 309), period(10, 823), period(70, 243), period(30, 401)},
 		},
 		{
 			name:      "typical",
 			startP:    1000,
-			p:         []sdkvesting.Period{mkper(100, 25), mkper(100, 25), mkper(100, 25), mkper(100, 25)},
+			p:         []sdkvesting.Period{period(100, 25), period(100, 25), period(100, 25), period(100, 25)},
 			startQ:    1200,
-			q:         []sdkvesting.Period{mkper(100, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
+			q:         []sdkvesting.Period{period(100, 10), period(100, 10), period(100, 10), period(100, 10)},
 			wantStart: 1000,
 			wantEnd:   1600,
-			want:      []sdkvesting.Period{mkper(100, 25), mkper(100, 25), mkper(100, 35), mkper(100, 35), mkper(100, 10), mkper(100, 10)},
+			want:      []sdkvesting.Period{period(100, 25), period(100, 25), period(100, 35), period(100, 35), period(100, 10), period(100, 10)},
 		},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
+	}
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
 			// Function is commutative in its arguments, so get two tests
 			// for the price of one.  TODO: sub-t.Run() for distinct names.
 			for i := 0; i < 2; i++ {
 				var gotStart, gotEnd int64
 				var got []sdkvesting.Period
 				if i == 0 {
-					gotStart, gotEnd, got = DisjunctPeriods(tt.startP, tt.startQ, tt.p, tt.q)
+					gotStart, gotEnd, got = DisjunctPeriods(tc.startP, tc.startQ, tc.p, tc.q)
 				} else {
-					gotStart, gotEnd, got = DisjunctPeriods(tt.startQ, tt.startP, tt.q, tt.p)
+					gotStart, gotEnd, got = DisjunctPeriods(tc.startQ, tc.startP, tc.q, tc.p)
 				}
-				if gotStart != tt.wantStart {
-					t.Errorf("wrong start time: got %d, want %d", gotStart, tt.wantStart)
-				}
-				if gotEnd != tt.wantEnd {
-					t.Errorf("wrong end time: got %d, want %d", gotEnd, tt.wantEnd)
-				}
-				if len(got) != len(tt.want) {
-					t.Fatalf("wrong number of periods: got %v, want %v", got, tt.want)
-				}
+				suite.Require().Equal(tc.wantStart, gotStart, "wrong start time: got %d, want %d", gotStart, tc.wantStart)
+				suite.Require().Equal(tc.wantEnd, gotEnd, "wrong end time: got %d, want %d", gotEnd, tc.wantEnd)
+				suite.Require().Equal(len(tc.want), len(got), "wrong number of periods: got %v, want %v", got, tc.want)
+
 				for i, gotPeriod := range got {
-					wantPeriod := tt.want[i]
-					if gotPeriod.Length != wantPeriod.Length {
-						t.Errorf("period %d length: got %d, want %d", i, gotPeriod.Length, wantPeriod.Length)
-					}
-					if !gotPeriod.Amount.IsEqual(wantPeriod.Amount) {
-						t.Errorf("period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount)
-					}
+					wantPeriod := tc.want[i]
+					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length, "period %d length: got %d, want %d", i, gotPeriod.Length, wantPeriod.Length)
+					suite.Require().False(gotPeriod.Amount.IsEqual(wantPeriod.Amount), "period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount)
 				}
 			}
 		})
 	}
 }
 
-func TestConjunctPeriods(t *testing.T) {
-	for _, tt := range []struct {
+func (suite *PeriodTestSuite) TestConjunctPeriods() {
+	testCases := []struct {
 		name      string
 		startP    int64
 		p         []sdkvesting.Period
@@ -163,7 +161,7 @@ func TestConjunctPeriods(t *testing.T) {
 		{
 			name:      "some_empty",
 			startP:    -123,
-			p:         []sdkvesting.Period{mkper(45, 8), mkper(67, 13)},
+			p:         []sdkvesting.Period{period(45, 8), period(67, 13)},
 			startQ:    -124,
 			q:         []sdkvesting.Period{},
 			wantStart: -124,
@@ -173,102 +171,87 @@ func TestConjunctPeriods(t *testing.T) {
 		{
 			name:      "one_one",
 			startP:    0,
-			p:         []sdkvesting.Period{mkper(12, 34)},
+			p:         []sdkvesting.Period{period(12, 34)},
 			startQ:    0,
-			q:         []sdkvesting.Period{mkper(25, 68)},
+			q:         []sdkvesting.Period{period(25, 68)},
 			wantStart: 0,
 			wantEnd:   25,
-			want:      []sdkvesting.Period{mkper(25, 34)},
+			want:      []sdkvesting.Period{period(25, 34)},
 		},
 		{
 			name:      "tied",
 			startP:    12,
-			p:         []sdkvesting.Period{mkper(24, 3)},
+			p:         []sdkvesting.Period{period(24, 3)},
 			startQ:    0,
-			q:         []sdkvesting.Period{mkper(36, 7)},
+			q:         []sdkvesting.Period{period(36, 7)},
 			wantStart: 0,
 			wantEnd:   36,
-			want:      []sdkvesting.Period{mkper(36, 3)},
+			want:      []sdkvesting.Period{period(36, 3)},
 		},
 		{
 			name:      "residual",
 			startP:    105,
-			p:         []sdkvesting.Period{mkper(45, 309), mkper(80, 243), mkper(30, 401)},
+			p:         []sdkvesting.Period{period(45, 309), period(80, 243), period(30, 401)},
 			startQ:    120,
-			q:         []sdkvesting.Period{mkper(40, 823)},
+			q:         []sdkvesting.Period{period(40, 823)},
 			wantStart: 105,
 			wantEnd:   260,
-			want:      []sdkvesting.Period{mkper(55, 309), mkper(70, 243), mkper(30, 271)},
+			want:      []sdkvesting.Period{period(55, 309), period(70, 243), period(30, 271)},
 		},
 		{
 			name:      "overlap",
 			startP:    1000,
-			p:         []sdkvesting.Period{mkper(100, 25), mkper(100, 25), mkper(100, 25), mkper(100, 25)},
+			p:         []sdkvesting.Period{period(100, 25), period(100, 25), period(100, 25), period(100, 25)},
 			startQ:    1200,
-			q:         []sdkvesting.Period{mkper(100, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
+			q:         []sdkvesting.Period{period(100, 10), period(100, 10), period(100, 10), period(100, 10)},
 			wantStart: 1000,
 			wantEnd:   1600,
-			want:      []sdkvesting.Period{mkper(300, 10), mkper(100, 10), mkper(100, 10), mkper(100, 10)},
+			want:      []sdkvesting.Period{period(300, 10), period(100, 10), period(100, 10), period(100, 10)},
 		},
 		{
 			name:      "clip",
 			startP:    100,
-			p:         []sdkvesting.Period{mkper(10, 1), mkper(10, 1), mkper(10, 1), mkper(10, 1), mkper(10, 1)},
+			p:         []sdkvesting.Period{period(10, 1), period(10, 1), period(10, 1), period(10, 1), period(10, 1)},
 			startQ:    100,
-			q:         []sdkvesting.Period{mkper(1, 3)},
+			q:         []sdkvesting.Period{period(1, 3)},
 			wantStart: 100,
 			wantEnd:   130,
-			want:      []sdkvesting.Period{mkper(10, 1), mkper(10, 1), mkper(10, 1)},
+			want:      []sdkvesting.Period{period(10, 1), period(10, 1), period(10, 1)},
 		},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
+	}
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
 			// Function is commutative in its arguments, so get two tests
 			// for the price of one.  TODO: sub-t.Run() for distinct names.
 			for i := 0; i < 2; i++ {
 				var gotStart, gotEnd int64
 				var got []sdkvesting.Period
 				if i == 0 {
-					gotStart, gotEnd, got = ConjunctPeriods(tt.startP, tt.startQ, tt.p, tt.q)
+					gotStart, gotEnd, got = ConjunctPeriods(tc.startP, tc.startQ, tc.p, tc.q)
 				} else {
-					gotStart, gotEnd, got = ConjunctPeriods(tt.startQ, tt.startP, tt.q, tt.p)
+					gotStart, gotEnd, got = ConjunctPeriods(tc.startQ, tc.startP, tc.q, tc.p)
 				}
-				if gotStart != tt.wantStart {
-					t.Errorf("wrong start time: got %d, want %d", gotStart, tt.wantStart)
-				}
-				if gotEnd != tt.wantEnd {
-					t.Errorf("wrong end time: got %d, want %d", gotEnd, tt.wantEnd)
-				}
-				if len(got) != len(tt.want) {
-					t.Fatalf("wrong number of periods: got %v, want %v", got, tt.want)
-				}
+				suite.Require().Equal(tc.wantStart, gotStart, "wrong start time: got %d, want %d", gotStart, tc.wantStart)
+				suite.Require().Equal(tc.wantEnd, gotEnd, "wrong end time: got %d, want %d", gotEnd, tc.wantEnd)
+				suite.Require().Equal(len(tc.want), len(got), "wrong number of periods: got %v, want %v", got, tc.want)
+
 				for i, gotPeriod := range got {
-					wantPeriod := tt.want[i]
-					if gotPeriod.Length != wantPeriod.Length {
-						t.Errorf("period %d length: got %d, want %d", i, gotPeriod.Length, wantPeriod.Length)
-					}
-					if !gotPeriod.Amount.IsEqual(wantPeriod.Amount) {
-						t.Errorf("period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount)
-					}
+					wantPeriod := tc.want[i]
+					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length, "period %d length: got %d, want %d", i, gotPeriod.Length, wantPeriod.Length)
+					suite.Require().False(gotPeriod.Amount.IsEqual(wantPeriod.Amount), "period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount)
 				}
 			}
 		})
 	}
 }
 
-func TestAlignSchedules(t *testing.T) {
-	p := []sdkvesting.Period{mkper(10, 50), mkper(30, 7)}
-	q := []sdkvesting.Period{mkper(40, 6), mkper(10, 8), mkper(5, 3)}
+func (suite *PeriodTestSuite) TestAlignSchedules() {
+	p := []sdkvesting.Period{period(10, 50), period(30, 7)}
+	q := []sdkvesting.Period{period(40, 6), period(10, 8), period(5, 3)}
 	start, end := AlignSchedules(100, 200, p, q)
-	if start != 100 {
-		t.Errorf("want start 100, got %d", start)
-	}
-	if end != 255 {
-		t.Errorf("want end 255, got %d", end)
-	}
-	if p[0].Length != 10 {
-		t.Errorf("want p first length unchanged, got %d", p[0].Length)
-	}
-	if q[0].Length != 140 {
-		t.Errorf("want q first length 140, got %d", q[0].Length)
-	}
+
+	suite.Require().Equal(100, start, "want start 100, got %d", start)
+	suite.Require().Equal(255, end, "want end 255, got %d", end)
+	suite.Require().Equal(10, p[0].Length, "want p first length unchanged, got %d", p[0].Length)
+	suite.Require().Equal(140, q[0].Length, "want q first length 140, got %d", q[0].Length)
 }
