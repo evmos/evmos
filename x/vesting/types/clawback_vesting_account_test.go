@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -142,7 +141,8 @@ func (suite *VestingAccountTestSuite) TestClawbackAccountNew() {
 func (suite *VestingAccountTestSuite) TestGetVestedVestingLockedCoins() {
 	now := tmtime.Now()
 	endTime := now.Add(24 * time.Hour)
-	bacc, origCoins := initBaseAccount()
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	bacc := authtypes.NewBaseAccountWithAddress(addr)
 	va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now.Unix(), lockupPeriods, vestingPeriods)
 
 	testCases := []struct {
@@ -394,7 +394,8 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 		{Length: int64(1 * 3600), Amount: c(fee(200))},            // 6pm
 	}
 
-	bacc, origCoins := initBaseAccount()
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	bacc := authtypes.NewBaseAccountWithAddress(addr)
 	va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now.Unix(), lockupPeriods, vestingPeriods)
 
 	va2, amt := va.ComputeClawback(now.Unix())
@@ -454,11 +455,3 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 // 	suite.Require().IsType(&types.ClawbackVestingAccount{}, acc2)
 // 	suite.Require().Equal(acc.String(), acc2.String())
 // }
-
-func initBaseAccount() (*authtypes.BaseAccount, sdk.Coins) {
-	_, _, addr := testdata.KeyTestPubAddr()
-	origCoins := sdk.Coins{sdk.NewInt64Coin(feeDenom, 1000), sdk.NewInt64Coin(stakeDenom, 100)}
-	bacc := authtypes.NewBaseAccountWithAddress(addr)
-
-	return bacc, origCoins
-}
