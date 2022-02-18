@@ -144,16 +144,6 @@ func (chain *TestChain) GetContext() sdk.Context {
 	return chain.App.GetBaseApp().NewContext(false, chain.CurrentHeader)
 }
 
-// GetSimApp returns the SimApp to allow usage ofnon-interface fields.
-// CONTRACT: This function should not be called by third parties implementing
-// their own SimApp.
-func (chain *TestChain) GetSimApp() *simapp.SimApp {
-	app, ok := chain.App.(*simapp.SimApp)
-	require.True(chain.t, ok)
-
-	return app
-}
-
 // QueryProof performs an abci query with the given key and returns the proto encoded merkle proof
 // for the query and the height at which the proof will succeed on a tendermint verifier.
 func (chain *TestChain) QueryProof(key []byte) ([]byte, clienttypes.Height) {
@@ -213,7 +203,7 @@ func (chain *TestChain) QueryUpgradeProof(key []byte, height uint64) ([]byte, cl
 func (chain *TestChain) QueryConsensusStateProof(clientID string) ([]byte, clienttypes.Height) {
 	clientState := chain.GetClientState(clientID)
 
-	consensusHeight := clientState.GetLatestHeight().(clienttypes.Height)
+	consensusHeight, _ := clientState.GetLatestHeight().(clienttypes.Height)
 	consensusKey := host.FullConsensusStateKey(clientID, consensusHeight)
 	proofConsensus, _ := chain.QueryProof(consensusKey)
 
@@ -343,7 +333,7 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterpa
 	header := counterparty.LastHeader
 	// Relayer must query for LatestHeight on client to get TrustedHeight if the trusted height is not set
 	if trustedHeight.IsZero() {
-		trustedHeight = chain.GetClientState(clientID).GetLatestHeight().(clienttypes.Height)
+		trustedHeight, _ = chain.GetClientState(clientID).GetLatestHeight().(clienttypes.Height)
 	}
 	var (
 		tmTrustedVals *tmtypes.ValidatorSet
