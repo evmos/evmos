@@ -255,36 +255,3 @@ func AlignSchedules(
 	endTime = Max64(endP, endQ)
 	return
 }
-
-// CoinsMin returns the minimum of its inputs for all denominations.
-func CoinsMin(a, b sdk.Coins) sdk.Coins {
-	min := sdk.NewCoins()
-	for _, coinA := range a {
-		denom := coinA.Denom
-		bAmt := b.AmountOfNoDenomValidation(denom)
-		minAmt := coinA.Amount
-		if minAmt.GT(bAmt) {
-			minAmt = bAmt
-		}
-		if minAmt.IsPositive() {
-			min = min.Add(sdk.NewCoin(denom, minAmt))
-		}
-	}
-	return min
-}
-
-// max64 returns the maximum of its inputs.
-func Max64(i, j int64) int64 {
-	if i > j {
-		return i
-	}
-	return j
-}
-
-// Min64 returns the minimum of its inputs.
-func Min64(i, j int64) int64 {
-	if i < j {
-		return i
-	}
-	return j
-}

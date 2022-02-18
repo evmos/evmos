@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type PeriodTestSuite struct {
+type ScheduleTestSuite struct {
 	suite.Suite
 }
 
-func TestPeriodSuite(t *testing.T) {
-	suite.Run(t, new(MsgsTestSuite))
+func TestScheduleSuite(t *testing.T) {
+	suite.Run(t, new(ScheduleTestSuite))
 }
 
 func period(length int64, amount int64) sdkvesting.Period {
@@ -23,7 +23,7 @@ func period(length int64, amount int64) sdkvesting.Period {
 	}
 }
 
-func (suite *PeriodTestSuite) TestReadSchedule() {
+func (suite *ScheduleTestSuite) TestReadSchedule() {
 	periods := []sdkvesting.Period{period(10, 10), period(20, 20), period(40, 40)}
 	total := sdk.NewCoins(sdk.NewInt64Coin("test", 70))
 	testCases := []struct {
@@ -36,11 +36,11 @@ func (suite *PeriodTestSuite) TestReadSchedule() {
 	for _, tc := range testCases {
 		gotCoins := ReadSchedule(100, 170, periods, total, tc.time)
 		got := gotCoins.AmountOf("test").Int64()
-		suite.Require().Equal(tc.want, got, "ReadSchedule at %d want %d, got %d", tc.time, tc.want, got)
+		suite.Require().Equal(tc.want, got)
 	}
 }
 
-func (suite *PeriodTestSuite) TestDisjunctPeriods() {
+func (suite *ScheduleTestSuite) TestDisjunctPeriods() {
 	testCases := []struct {
 		name      string
 		startP    int64
@@ -123,21 +123,23 @@ func (suite *PeriodTestSuite) TestDisjunctPeriods() {
 				} else {
 					gotStart, gotEnd, got = DisjunctPeriods(tc.startQ, tc.startP, tc.q, tc.p)
 				}
-				suite.Require().Equal(tc.wantStart, gotStart, "wrong start time: got %d, want %d", gotStart, tc.wantStart)
-				suite.Require().Equal(tc.wantEnd, gotEnd, "wrong end time: got %d, want %d", gotEnd, tc.wantEnd)
-				suite.Require().Equal(len(tc.want), len(got), "wrong number of periods: got %v, want %v", got, tc.want)
+				suite.Require().Equal(tc.wantStart, gotStart)
+				suite.Require().Equal(tc.wantEnd, gotEnd)
+				suite.Require().Equal(len(tc.want), len(got))
 
 				for i, gotPeriod := range got {
 					wantPeriod := tc.want[i]
-					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length, "period %d length: got %d, want %d", i, gotPeriod.Length, wantPeriod.Length)
-					suite.Require().False(gotPeriod.Amount.IsEqual(wantPeriod.Amount), "period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount)
+					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length)
+					suite.Require().True(gotPeriod.Amount.IsEqual(wantPeriod.Amount),
+						"period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount,
+					)
 				}
 			}
 		})
 	}
 }
 
-func (suite *PeriodTestSuite) TestConjunctPeriods() {
+func (suite *ScheduleTestSuite) TestConjunctPeriods() {
 	testCases := []struct {
 		name      string
 		startP    int64
@@ -231,27 +233,29 @@ func (suite *PeriodTestSuite) TestConjunctPeriods() {
 				} else {
 					gotStart, gotEnd, got = ConjunctPeriods(tc.startQ, tc.startP, tc.q, tc.p)
 				}
-				suite.Require().Equal(tc.wantStart, gotStart, "wrong start time: got %d, want %d", gotStart, tc.wantStart)
-				suite.Require().Equal(tc.wantEnd, gotEnd, "wrong end time: got %d, want %d", gotEnd, tc.wantEnd)
-				suite.Require().Equal(len(tc.want), len(got), "wrong number of periods: got %v, want %v", got, tc.want)
+				suite.Require().Equal(tc.wantStart, gotStart)
+				suite.Require().Equal(tc.wantEnd, gotEnd)
+				suite.Require().Equal(len(tc.want), len(got))
 
 				for i, gotPeriod := range got {
 					wantPeriod := tc.want[i]
-					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length, "period %d length: got %d, want %d", i, gotPeriod.Length, wantPeriod.Length)
-					suite.Require().False(gotPeriod.Amount.IsEqual(wantPeriod.Amount), "period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount)
+					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length)
+					suite.Require().True(gotPeriod.Amount.IsEqual(wantPeriod.Amount),
+						"period %d amount: got %v, want %v", i, gotPeriod.Amount, wantPeriod.Amount,
+					)
 				}
 			}
 		})
 	}
 }
 
-func (suite *PeriodTestSuite) TestAlignSchedules() {
+func (suite *ScheduleTestSuite) TestAlignSchedules() {
 	p := []sdkvesting.Period{period(10, 50), period(30, 7)}
 	q := []sdkvesting.Period{period(40, 6), period(10, 8), period(5, 3)}
 	start, end := AlignSchedules(100, 200, p, q)
 
-	suite.Require().Equal(100, start, "want start 100, got %d", start)
-	suite.Require().Equal(255, end, "want end 255, got %d", end)
-	suite.Require().Equal(10, p[0].Length, "want p first length unchanged, got %d", p[0].Length)
-	suite.Require().Equal(140, q[0].Length, "want q first length 140, got %d", q[0].Length)
+	suite.Require().Equal(int64(100), start)
+	suite.Require().Equal(int64(255), end)
+	suite.Require().Equal(int64(10), p[0].Length)
+	suite.Require().Equal(int64(140), q[0].Length)
 }
