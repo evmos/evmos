@@ -2,8 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -28,17 +26,14 @@ func (k Keeper) CreateClawbackVestingAccount(
 	ak := k.accountKeeper
 	bk := k.bankKeeper
 
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
-	if err != nil {
-		return nil, err
-	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
-	if err != nil {
-		return nil, err
-	}
+	// Error checked during msg validation
+	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	to, _ := sdk.AccAddressFromBech32(msg.ToAddress)
 
 	if bk.BlockedAddr(to) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", msg.ToAddress)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,
+			"%s is not allowed to receive funds", msg.ToAddress,
+		)
 	}
 
 	vestingCoins := sdk.NewCoins()
@@ -51,16 +46,16 @@ func (k Keeper) CreateClawbackVestingAccount(
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
 
+	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
-		// If lockup absent, default to an instant unlock schedule
 		msg.LockupPeriods = []sdkvesting.Period{
 			{Length: 0, Amount: vestingCoins},
 		}
 		lockupCoins = vestingCoins
 	}
 
+	// If vesting absent, default to an instant vesting schedule
 	if !lockupCoins.IsZero() && len(msg.VestingPeriods) == 0 {
-		// If vesting absent, default to an instant vesting schedule
 		msg.VestingPeriods = []sdkvesting.Period{
 			{Length: 0, Amount: lockupCoins},
 		}
@@ -70,9 +65,13 @@ func (k Keeper) CreateClawbackVestingAccount(
 	// The vesting and lockup schedules must describe the same total amount.
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if !(vestingCoins.IsAllLTE(lockupCoins) && lockupCoins.IsAllLTE(vestingCoins)) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "lockup and vesting amounts must be equal")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest,
+			"lockup and vesting amounts must be equal",
+		)
 	}
 
+	// Add Grant if vesting account exists, "merge" is true and funder is correct.
+	// Otherwise create a new Clawback Vesting Account
 	madeNewAcc := false
 	acc := ak.GetAccount(ctx, to)
 	var va *types.ClawbackVestingAccount
@@ -92,12 +91,14 @@ func (k Keeper) CreateClawbackVestingAccount(
 		}
 		k.AddGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
-		baseAccount := ak.NewAccountWithAddress(ctx, to)
-
-		fmt.Println(reflect.TypeOf(baseAccount))
-
-		va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
+		baseAccount := authtypes.NewBaseAccountWithAddress(to)
+		va = types.NewClawbackVestingAccount(baseAccount, from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
 		madeNewAcc = true
+
+		// TODO check if NewAccountWithAddress can be replaced with NewBaseAccountWithAddress
+		// baseAccount := ak.NewAccountWithAddress(ctx, to)
+		// va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
+		// madeNewAcc = true
 	}
 
 	ak.SetAccount(ctx, va)
@@ -118,8 +119,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 		}()
 	}
 
-	err = bk.SendCoins(ctx, from, to, vestingCoins)
-	if err != nil {
+	// Send coins from the funder to vesting account
+	if err := bk.SendCoins(ctx, from, to, vestingCoins); err != nil {
 		return nil, err
 	}
 
@@ -140,45 +141,43 @@ func (k Keeper) Clawback(
 	msg *types.MsgClawback,
 ) (*types.MsgClawbackResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	ak := k.accountKeeper
 	bk := k.bankKeeper
 
-	funder, err := sdk.AccAddressFromBech32(msg.GetFunderAddress())
-	if err != nil {
-		return nil, err
-	}
-	addr, err := sdk.AccAddressFromBech32(msg.GetAddress())
-	if err != nil {
-		return nil, err
-	}
-	dest := funder
-	if msg.GetDestAddress() != "" {
-		dest, err = sdk.AccAddressFromBech32(msg.GetDestAddress())
-		if err != nil {
-			return nil, err
-		}
+	// Errors checked during msg validation
+	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
+	addr, _ := sdk.AccAddressFromBech32(msg.Address)
+
+	// Default destination to funder address
+	if msg.DestAddress == "" {
+		dest, _ = sdk.AccAddressFromBech32(msg.FunderAddress)
 	}
 
 	if bk.BlockedAddr(dest) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", msg.DestAddress)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,
+			"%s is not allowed to receive funds", msg.DestAddress,
+		)
 	}
 
+	// Chech if account ecists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.Address)
 	}
+
+	// Check if account has a clawback account
 	va, ok := acc.(*types.ClawbackVestingAccount)
 	if !ok {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account not subject to clawback: %s", msg.Address)
 	}
 
-	if va.FunderAddress != msg.GetFunderAddress() {
+	// Check if account funder is same as in msg
+	if va.FunderAddress != msg.FunderAddress {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
 	}
 
-	err = k.TransferClawback(ctx, *va, dest)
-	if err != nil {
+	// Perform clawback transfer
+	if err := k.TransferClawback(ctx, *va, dest); err != nil {
 		return nil, err
 	}
 

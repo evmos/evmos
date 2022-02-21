@@ -14,7 +14,11 @@ import (
 // provided LegacyAmino codec. These types are used for Amino JSON serialization
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterInterface((*exported.VestingAccount)(nil), nil)
+	cdc.RegisterConcrete(&sdkvesting.BaseVestingAccount{}, "cosmos-sdk/BaseVestingAccount", nil)
+	cdc.RegisterConcrete(&sdkvesting.ContinuousVestingAccount{}, "cosmos-sdk/ContinuousVestingAccount", nil)
+	cdc.RegisterConcrete(&sdkvesting.DelayedVestingAccount{}, "cosmos-sdk/DelayedVestingAccount", nil)
 	cdc.RegisterConcrete(&sdkvesting.PeriodicVestingAccount{}, "cosmos-sdk/PeriodicVestingAccount", nil)
+	cdc.RegisterConcrete(&sdkvesting.PermanentLockedAccount{}, "cosmos-sdk/PermanentLockedAccount", nil)
 }
 
 // RegisterInterface associates protoName with AccountI and VestingAccount
@@ -23,16 +27,28 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"cosmos.vesting.v1beta1.VestingAccount",
 		(*exported.VestingAccount)(nil),
+		&sdkvesting.ContinuousVestingAccount{},
+		&sdkvesting.DelayedVestingAccount{},
+		&sdkvesting.PeriodicVestingAccount{},
+		&sdkvesting.PermanentLockedAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.AccountI)(nil),
+		&sdkvesting.ContinuousVestingAccount{},
+		&sdkvesting.DelayedVestingAccount{},
+		&sdkvesting.PeriodicVestingAccount{},
+		&sdkvesting.PermanentLockedAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
+		&sdkvesting.ContinuousVestingAccount{},
+		&sdkvesting.DelayedVestingAccount{},
+		&sdkvesting.PeriodicVestingAccount{},
+		&sdkvesting.PermanentLockedAccount{},
 		&ClawbackVestingAccount{},
 	)
 
