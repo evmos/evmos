@@ -100,9 +100,9 @@ func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 		destString = dest.String()
 	}
 	return &MsgClawback{
-		FunderAddress: funder.String(),
-		Address:       addr.String(),
-		DestAddress:   destString,
+		FunderAddress:  funder.String(),
+		AccountAddress: addr.String(),
+		DestAddress:    destString,
 	}
 }
 
@@ -119,7 +119,7 @@ func (msg MsgClawback) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid funder address %s", funder)
 	}
 
-	addr, err := sdk.AccAddressFromBech32(msg.GetAddress())
+	addr, err := sdk.AccAddressFromBech32(msg.GetAccountAddress())
 	if err != nil {
 		return sdkerrors.Wrapf(err, "invalid addr address %s", addr)
 	}

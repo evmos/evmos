@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"math"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -89,7 +90,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 		case msg.FromAddress != va.FunderAddress:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, va.FunderAddress)
 		}
-		k.AddGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		k.addGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
 		baseAccount := authtypes.NewBaseAccountWithAddress(to)
 		va = types.NewClawbackVestingAccount(baseAccount, from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
@@ -146,7 +147,7 @@ func (k Keeper) Clawback(
 
 	// Errors checked during msg validation
 	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
-	addr, _ := sdk.AccAddressFromBech32(msg.Address)
+	addr, _ := sdk.AccAddressFromBech32(msg.AccountAddress)
 
 	// Default destination to funder address
 	if msg.DestAddress == "" {
@@ -162,13 +163,13 @@ func (k Keeper) Clawback(
 	// Chech if account ecists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.Address)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)
 	}
 
 	// Check if account has a clawback account
 	va, ok := acc.(*types.ClawbackVestingAccount)
 	if !ok {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account not subject to clawback: %s", msg.Address)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
 	}
 
 	// Check if account funder is same as in msg
@@ -177,9 +178,157 @@ func (k Keeper) Clawback(
 	}
 
 	// Perform clawback transfer
-	if err := k.TransferClawback(ctx, *va, dest); err != nil {
+	if err := k.transferClawback(ctx, *va, dest); err != nil {
 		return nil, err
 	}
 
 	return &types.MsgClawbackResponse{}, nil
+}
+
+// addGrant merges a new clawback vesting grant into an existing
+// ClawbackVestingAccount.
+func (k Keeper) addGrant(
+	ctx sdk.Context,
+	va *types.ClawbackVestingAccount,
+	grantStartTime int64,
+	grantLockupPeriods, grantVestingPeriods []sdkvesting.Period,
+	grantCoins sdk.Coins,
+) {
+	// how much is really delegated?
+	bondedAmt := k.GetDelegatorBonded(ctx, va.GetAddress())
+	unbondingAmt := k.GetDelegatorUnbonding(ctx, va.GetAddress())
+	delegatedAmt := bondedAmt.Add(unbondingAmt)
+	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
+
+	// discover what has been slashed
+	oldDelegated := va.DelegatedVesting.Add(va.DelegatedFree...)
+	slashed := oldDelegated.Sub(types.CoinsMin(oldDelegated, delegated))
+
+	// Absorb the slashed amount by eliminating the tail of the vesting and lockup schedules
+	unvestedSlashed := types.CoinsMin(slashed, va.OriginalVesting)
+	if !unvestedSlashed.IsZero() {
+		newOrigVesting := va.OriginalVesting.Sub(unvestedSlashed)
+		cutoffPeriods := []sdkvesting.Period{{Length: 1, Amount: newOrigVesting}}
+		start := va.GetStartTime()
+		_, newLockupEnd, newLockupPeriods := types.ConjunctPeriods(start, start, va.LockupPeriods, cutoffPeriods)
+		_, newVestingEnd, newVestingPeriods := types.ConjunctPeriods(start, start, va.VestingPeriods, cutoffPeriods)
+		va.OriginalVesting = newOrigVesting
+		va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
+		va.LockupPeriods = newLockupPeriods
+		va.VestingPeriods = newVestingPeriods
+	}
+
+	// modify schedules for the new grant
+	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.StartTime, grantStartTime, va.LockupPeriods, grantLockupPeriods)
+	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.StartTime, grantStartTime,
+		va.GetVestingPeriods(), grantVestingPeriods)
+	if newLockupStart != newVestingStart {
+		panic("bad start time calculation")
+	}
+	va.StartTime = newLockupStart
+	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
+	va.LockupPeriods = newLockupPeriods
+	va.VestingPeriods = newVestingPeriods
+	va.OriginalVesting = va.OriginalVesting.Add(grantCoins...)
+
+	// cap DV at the current unvested amount, DF rounds out to current delegated
+	unvested := va.GetVestingCoins(ctx.BlockTime())
+	va.DelegatedVesting = types.CoinsMin(delegated, unvested)
+	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
+}
+
+// transferClawback transfers unvested tokens in a ClawbackVestingAccount to
+// dest. Future vesting events are removed. Unstaked tokens are simply sent.
+// Unbonding and staked tokens are transferred with their staking state intact.
+// Account state is updated to reflect the removals.
+func (k Keeper) transferClawback(
+	ctx sdk.Context,
+	va types.ClawbackVestingAccount,
+	dest sdk.AccAddress,
+) error {
+	// Compute the clawback based on the account state only, and update account
+	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
+	if toClawBack.IsZero() {
+		return nil
+	}
+	addr := updatedAcc.GetAddress()
+	bondDenom := k.stakingKeeper.BondDenom(ctx)
+
+	// Compute the clawback based on bank balance and delegation, and update account
+	encumbered := updatedAcc.GetVestingCoins(ctx.BlockTime())
+	bondedAmt := k.GetDelegatorBonded(ctx, addr)
+	unbondingAmt := k.GetDelegatorUnbonding(ctx, addr)
+	bonded := sdk.NewCoins(sdk.NewCoin(bondDenom, bondedAmt))
+	unbonding := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondingAmt))
+	unbonded := k.bankKeeper.GetAllBalances(ctx, addr)
+	updatedAcc, toClawBack = updatedAcc.UpdateDelegation(encumbered, toClawBack, bonded, unbonding, unbonded)
+
+	// Write now now so that the bank module sees unvested tokens are unlocked.
+	// Note that all store writes are aborted if there is a panic, so there is
+	// no danger in writing incomplete results.
+	k.accountKeeper.SetAccount(ctx, &updatedAcc)
+
+	// Now that future vesting events (and associated lockup) are removed,
+	// the balance of the account is unlocked and can be freely transferred.
+	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
+	toXfer := types.CoinsMin(toClawBack, spendable)
+	err := k.bankKeeper.SendCoins(ctx, addr, dest, toXfer)
+	if err != nil {
+		return err // shouldn't happen, given spendable check
+	}
+	toClawBack = toClawBack.Sub(toXfer)
+
+	// We need to traverse the staking data structures to update the vesting
+	// account bookkeeping, and to recover more funds if necessary. Staking is the
+	// only way unvested tokens should be missing from the bank balance.
+
+	// If we need more, transfer UnbondingDelegations.
+	want := toClawBack.AmountOf(bondDenom)
+	unbondings := k.stakingKeeper.GetUnbondingDelegations(ctx, addr, math.MaxUint16)
+	for _, unbonding := range unbondings {
+		valAddr, err := sdk.ValAddressFromBech32(unbonding.ValidatorAddress)
+		if err != nil {
+			panic(err)
+		}
+		transferred := k.TransferUnbonding(ctx, addr, dest, valAddr, want)
+		want = want.Sub(transferred)
+		if !want.IsPositive() {
+			break
+		}
+	}
+
+	// If we need more, transfer Delegations.
+	if want.IsPositive() {
+		delegations := k.stakingKeeper.GetDelegatorDelegations(ctx, addr, math.MaxUint16)
+		for _, delegation := range delegations {
+			validatorAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
+			if err != nil {
+				panic(err) // shouldn't happen
+			}
+			validator, found := k.stakingKeeper.GetValidator(ctx, validatorAddr)
+			if !found {
+				// validator has been removed
+				continue
+			}
+			wantShares, err := validator.SharesFromTokensTruncated(want)
+			if err != nil {
+				// validator has no tokens
+				continue
+			}
+			transferredShares := k.TransferDelegation(ctx, addr, dest, delegation.GetValidatorAddr(), wantShares)
+			// to be conservative in what we're clawing back, round transferred shares up
+			transferred := validator.TokensFromSharesRoundUp(transferredShares).RoundInt()
+			want = want.Sub(transferred)
+			if !want.IsPositive() {
+				// Could be slightly negative, due to rounding?
+				// Don't think so, due to the precautions above.
+				break
+			}
+		}
+	}
+
+	// If we've transferred everything and still haven't transferred the desired
+	// clawback amount, then the account must have most some unvested tokens from
+	// slashing.
+	return nil
 }

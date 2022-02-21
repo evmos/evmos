@@ -236,7 +236,6 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			func() {
 				baseAccount := authtypes.NewBaseAccountWithAddress(addr4)
 				acc := sdkvesting.NewDelayedVestingAccount(baseAccount, balances, 500000)
-				fmt.Println(acc)
 				s.app.AccountKeeper.SetAccount(suite.ctx, acc)
 			},
 			addr,
