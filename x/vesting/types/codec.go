@@ -10,16 +10,12 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-// RegisterLegacyAminoCodec registers the vesting interfaces and concrete types on the
-// provided LegacyAmino codec. These types are used for Amino JSON serialization
-func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterInterface((*exported.VestingAccount)(nil), nil)
-	cdc.RegisterConcrete(&sdkvesting.BaseVestingAccount{}, "cosmos-sdk/BaseVestingAccount", nil)
-	cdc.RegisterConcrete(&sdkvesting.ContinuousVestingAccount{}, "cosmos-sdk/ContinuousVestingAccount", nil)
-	cdc.RegisterConcrete(&sdkvesting.DelayedVestingAccount{}, "cosmos-sdk/DelayedVestingAccount", nil)
-	cdc.RegisterConcrete(&sdkvesting.PeriodicVestingAccount{}, "cosmos-sdk/PeriodicVestingAccount", nil)
-	cdc.RegisterConcrete(&sdkvesting.PermanentLockedAccount{}, "cosmos-sdk/PermanentLockedAccount", nil)
-}
+// ModuleCdc references the global erc20 module codec. Note, the codec should
+// ONLY be used in certain instances of tests and for JSON encoding.
+//
+// The actual codec used for serialization should be provided to modules/erc20 and
+// defined at the application level.
+var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 
 // RegisterInterface associates protoName with AccountI and VestingAccount
 // Interfaces and creates a registry of it's concrete implementations
@@ -59,11 +55,4 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
-}
-
-var amino = codec.NewLegacyAmino()
-
-func init() {
-	RegisterLegacyAminoCodec(amino)
-	amino.Seal()
 }
