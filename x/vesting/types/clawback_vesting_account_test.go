@@ -394,36 +394,65 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 		{Length: int64(1 * 3600), Amount: c(fee(200))},            // 6pm
 	}
 
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	bacc := authtypes.NewBaseAccountWithAddress(addr)
-	va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now.Unix(), lockupPeriods, vestingPeriods)
+	testCases := []struct {
+		name               string
+		time               int64
+		expCoins           sdk.Coins
+		expOriginalVesting sdk.Coins
+		expLockupPeriods   []sdkvesting.Period
+		expVestingPeriods  []sdkvesting.Period
+	}{
+		{
+			"clawback everything before any period passes",
+			now.Unix(),
+			c(fee(1000), stake(100)),
+			c(),
+			[]sdkvesting.Period{},
+			[]sdkvesting.Period{},
+		},
+		{
+			"clawback after two periods",
+			now.Add(11 * time.Hour).Unix(),
+			c(fee(600), stake(50)),
+			c(fee(400), stake(50)),
+			[]sdkvesting.Period{{Length: int64(12 * 3600), Amount: c(fee(400), stake(50))}},
+			[]sdkvesting.Period{
+				{Length: int64(8 * 3600), Amount: c(fee(200))},            // 8am
+				{Length: int64(1 * 3600), Amount: c(fee(200), stake(50))}, // 9am
+			},
+		},
+		{
+			"clawback after all periods",
+			now.Add(23 * time.Hour).Unix(),
+			c(),
+			c(fee(1000), stake(100)),
+			lockupPeriods,
+			vestingPeriods,
+		},
+	}
 
-	va2, amt := va.ComputeClawback(now.Unix())
-	suite.Require().Equal(c(fee(1000), stake(100)), amt)
-	suite.Require().Equal(c(), va2.OriginalVesting)
-	suite.Require().Equal(0, len(va2.LockupPeriods))
-	suite.Require().Equal(0, len(va2.VestingPeriods))
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+			bacc := authtypes.NewBaseAccountWithAddress(addr)
+			va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now.Unix(), lockupPeriods, vestingPeriods)
 
-	va2, amt = va.ComputeClawback(now.Add(11 * time.Hour).Unix())
-	suite.Require().Equal(c(fee(600), stake(50)), amt)
-	suite.Require().Equal(c(fee(400), stake(50)), va2.OriginalVesting)
-	suite.Require().Equal([]sdkvesting.Period{{Length: int64(12 * 3600), Amount: c(fee(400), stake(50))}}, va2.LockupPeriods)
-	suite.Require().Equal([]sdkvesting.Period{
-		{Length: int64(8 * 3600), Amount: c(fee(200))},            // 8am
-		{Length: int64(1 * 3600), Amount: c(fee(200), stake(50))}, // 9am
-	}, va2.VestingPeriods)
+			va2, amt := va.ComputeClawback(tc.time)
 
-	va2, amt = va.ComputeClawback(now.Add(23 * time.Hour).Unix())
-	suite.Require().Equal(c(), amt)
-	suite.Require().Equal(*va, va2)
+			suite.Require().Equal(tc.expCoins, amt)
+			suite.Require().Equal(tc.expOriginalVesting, va2.OriginalVesting)
+			suite.Require().Equal(tc.expLockupPeriods, va2.LockupPeriods)
+			suite.Require().Equal(tc.expVestingPeriods, va2.VestingPeriods)
+		})
+	}
 }
 
 // TODO fix register interface error
-// func TestClawbackVestingAccountMarshal(t *testing.T) {
-// 	baseAcc, coins := initBaseAccount()
-// 	addr := sdk.AccAddress([]byte("the funder"))
-// 	acc := types.NewClawbackVestingAccount(baseAcc, addr, coins, time.Now().Unix(),
-// 		sdkvesting.Periods{sdkvesting.Period{Length: 3600, Amount: coins}}, sdkvesting.Periods{sdkvesting.Period{Length: 3600, Amount: coins}})
+// func (suite *VestingAccountTestSuite) TestClawbackVestingAccountMarshal() {
+// 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+// 	bacc := authtypes.NewBaseAccountWithAddress(addr)
+// 	acc := types.NewClawbackVestingAccount(bacc, addr, origCoins, time.Now().Unix(),
+// 		sdkvesting.Periods{sdkvesting.Period{Length: 3600, Amount: origCoins}}, sdkvesting.Periods{sdkvesting.Period{Length: 3600, Amount: origCoins}})
 
 // 	app := simapp.Setup(false)
 
@@ -441,9 +470,10 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 // }
 
 // func TestClawbackVestingAccountStore(t *testing.T) {
-// 	baseAcc, coins := initBaseAccount()
-// 	addr := sdk.AccAddress([]byte("the funder"))
-// 	acc := types.NewClawbackVestingAccount(baseAcc, addr, coins, time.Now().Unix(),
+// 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+// 	bacc := authtypes.NewBaseAccountWithAddress(addr)
+
+// 	acc := types.NewClawbackVestingAccount(bacc, addr, coins, time.Now().Unix(),
 // 		sdkvesting.Periods{sdkvesting.Period{Length: 3600, Amount: coins}}, sdkvesting.Periods{sdkvesting.Period{Length: 3600, Amount: coins}})
 
 // 	app := simapp.Setup(false)
