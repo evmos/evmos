@@ -12,8 +12,15 @@ import (
 // -------------------------------------------------------------------------- //
 // MOVED FROM AGORIC TYPES BECAUSE THEY ACCESS KEEPERS
 
-// AddGrant merges a new clawback vesting grant into an existing ClawbackVestingAccount.
-func (k Keeper) AddGrantToClawbackVestingAccount(ctx sdk.Context, va *types.ClawbackVestingAccount, grantStartTime int64, grantLockupPeriods, grantVestingPeriods []sdkvesting.Period, grantCoins sdk.Coins) {
+// AddGrant merges a new clawback vesting grant into an existing
+// ClawbackVestingAccount.
+func (k Keeper) AddGrant(
+	ctx sdk.Context,
+	va *types.ClawbackVestingAccount,
+	grantStartTime int64,
+	grantLockupPeriods, grantVestingPeriods []sdkvesting.Period,
+	grantCoins sdk.Coins,
+) {
 	// how much is really delegated?
 	bondedAmt := k.GetDelegatorBonded(ctx, va.GetAddress())
 	unbondingAmt := k.GetDelegatorUnbonding(ctx, va.GetAddress())
@@ -57,11 +64,15 @@ func (k Keeper) AddGrantToClawbackVestingAccount(ctx sdk.Context, va *types.Claw
 	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
 }
 
-// Clawback transfers unvested tokens in a ClawbackVestingAccount to dest.
-// Future vesting events are removed. Unstaked tokens are simply sent.
-// Unbonding and staked tokens are transferred with their staking state
-// intact.  Account state is updated to reflect the removals.
-func (k Keeper) ClawbackFromClawbackVestingAccount(ctx sdk.Context, va types.ClawbackVestingAccount, dest sdk.AccAddress) error {
+// TransferClawback transfers unvested tokens in a ClawbackVestingAccount to
+// dest. Future vesting events are removed. Unstaked tokens are simply sent.
+// Unbonding and staked tokens are transferred with their staking state intact.
+// Account state is updated to reflect the removals.
+func (k Keeper) TransferClawback(
+	ctx sdk.Context,
+	va types.ClawbackVestingAccount,
+	dest sdk.AccAddress,
+) error {
 	// Compute the clawback based on the account state only, and update account
 	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
 	if toClawBack.IsZero() {
@@ -94,9 +105,9 @@ func (k Keeper) ClawbackFromClawbackVestingAccount(ctx sdk.Context, va types.Cla
 	}
 	toClawBack = toClawBack.Sub(toXfer)
 
-	// We need to traverse the staking data structures to update the
-	// vesting account bookkeeping, and to recover more funds if necessary.
-	// Staking is the only way unvested tokens should be missing from the bank balance.
+	// We need to traverse the staking data structures to update the vesting
+	// account bookkeeping, and to recover more funds if necessary. Staking is the
+	// only way unvested tokens should be missing from the bank balance.
 
 	// If we need more, transfer UnbondingDelegations.
 	want := toClawBack.AmountOf(bondDenom)
@@ -143,14 +154,20 @@ func (k Keeper) ClawbackFromClawbackVestingAccount(ctx sdk.Context, va types.Cla
 		}
 	}
 
-	// If we've transferred everything and still haven't transferred the desired clawback amount,
-	// then the account must have most some unvested tokens from slashing.
+	// If we've transferred everything and still haven't transferred the desired
+	// clawback amount, then the account must have most some unvested tokens from
+	// slashing.
 	return nil
 }
 
-// PostReward encumbers a previously-deposited reward according to the current vesting apportionment of staking.
-// Note that rewards might be unvested, but are unlocked.
-func (k Keeper) PostReward(ctx sdk.Context, va types.ClawbackVestingAccount, reward sdk.Coins) {
+// PostReward encumbers a previously-deposited reward according to the current
+// vesting apportionment of staking. Note that rewards might be unvested, but
+// are unlocked.
+func (k Keeper) PostReward(
+	ctx sdk.Context,
+	va types.ClawbackVestingAccount,
+	reward sdk.Coins,
+) {
 	// Find the scheduled amount of vested and unvested staking tokens
 	bondDenom := k.stakingKeeper.BondDenom(ctx)
 	vested := types.ReadSchedule(va.StartTime, va.EndTime, va.VestingPeriods, va.OriginalVesting, ctx.BlockTime().Unix()).AmountOf(bondDenom)
@@ -196,9 +213,14 @@ func (k Keeper) PostReward(ctx sdk.Context, va types.ClawbackVestingAccount, rew
 	k.DistributeReward(ctx, va, bondDenom, unvestedReward)
 }
 
-// distributeReward adds the reward to the future vesting schedule in proportion to the future vesting
-// staking tokens.
-func (k Keeper) DistributeReward(ctx sdk.Context, va types.ClawbackVestingAccount, bondDenom string, reward sdk.Coins) {
+// DistributeReward adds the reward to the future vesting schedule in proportion
+// to the future vesting staking tokens.
+func (k Keeper) DistributeReward(
+	ctx sdk.Context,
+	va types.ClawbackVestingAccount,
+	bondDenom string,
+	reward sdk.Coins,
+) {
 	now := ctx.BlockTime().Unix()
 	t := va.StartTime
 	firstUnvestedPeriod := 0

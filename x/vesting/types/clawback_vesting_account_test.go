@@ -49,9 +49,14 @@ func (suite *VestingAccountTestSuite) TestClawbackAccountNew() {
 	}{
 		{
 			"Clawback vesting account - pass",
-			types.NewClawbackVestingAccount(baseAcc, sdk.AccAddress([]byte("the funder")), initialVesting, 0,
+			types.NewClawbackVestingAccount(
+				baseAcc,
+				sdk.AccAddress([]byte("the funder")),
+				initialVesting,
+				0,
 				sdkvesting.Periods{sdkvesting.Period{Length: 101, Amount: initialVesting}},
-				sdkvesting.Periods{sdkvesting.Period{Length: 201, Amount: initialVesting}}),
+				sdkvesting.Periods{sdkvesting.Period{Length: 201, Amount: initialVesting}},
+			),
 			false,
 		},
 		{

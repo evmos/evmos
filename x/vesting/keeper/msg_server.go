@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -16,7 +18,8 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-// CreateClawbackVestingAccount creates a new ClawbackVestingAccount, or merges a grant into an existing one.
+// CreateClawbackVestingAccount creates a new ClawbackVestingAccount, or merges
+// a grant into an existing one.
 func (k Keeper) CreateClawbackVestingAccount(
 	goCtx context.Context,
 	msg *types.MsgCreateClawbackVestingAccount,
@@ -87,9 +90,12 @@ func (k Keeper) CreateClawbackVestingAccount(
 		case msg.FromAddress != va.FunderAddress:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, va.FunderAddress)
 		}
-		k.AddGrantToClawbackVestingAccount(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		k.AddGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
 		baseAccount := ak.NewAccountWithAddress(ctx, to)
+
+		fmt.Println(reflect.TypeOf(baseAccount))
+
 		va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
 		madeNewAcc = true
 	}
@@ -171,7 +177,7 @@ func (k Keeper) Clawback(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
 	}
 
-	err = k.ClawbackFromClawbackVestingAccount(ctx, *va, dest)
+	err = k.TransferClawback(ctx, *va, dest)
 	if err != nil {
 		return nil, err
 	}
