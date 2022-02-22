@@ -283,8 +283,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
 			Expect(err).To(BeNil())
 		})
-
-		// TODO Rewards Tests
 		// TODO Clawback Tests
 		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})

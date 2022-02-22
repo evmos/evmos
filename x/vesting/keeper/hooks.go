@@ -29,16 +29,6 @@ func (k Keeper) AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool 
 	return !isClawback
 }
 
-// AfterDelegationReward is called after the reward has been transferred the
-// address.
-func (k Keeper) AfterDelegationReward(ctx sdk.Context, delAddr, withdrawAddr sdk.AccAddress, reward sdk.Coins) {
-	acc := k.accountKeeper.GetAccount(ctx, delAddr)
-	cva, isClawback := acc.(*types.ClawbackVestingAccount)
-	if isClawback {
-		k.PostReward(ctx, *cva, reward)
-	}
-}
-
 // ___________________________________________________________________________//
 
 // staking hooks
@@ -47,9 +37,7 @@ func (h Hooks) AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool {
 }
 
 func (h Hooks) AfterDelegationReward(ctx sdk.Context, delAddr, withdrawAddr sdk.AccAddress, reward sdk.Coins) {
-	h.k.AfterDelegationReward(ctx, delAddr, withdrawAddr, reward)
 }
-
 func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress)   {}
 func (h Hooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {}
 func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
