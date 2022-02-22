@@ -3,8 +3,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
-	"github.com/tharsis/evmos/x/vesting/types"
 )
 
 var _ distrtypes.StakingHooks = Hooks{}
@@ -17,21 +15,6 @@ type Hooks struct {
 // Return the wrapper struct
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
-}
-
-// AllowWithdrawAddr prevents the use of a different withdrawAddr when dealing
-// with a vesting account with clawback
-func (k Keeper) AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool {
-	acc := k.accountKeeper.GetAccount(ctx, delAddr)
-	_, isClawback := acc.(*types.ClawbackVestingAccount)
-	return !isClawback
-}
-
-// ___________________________________________________________________________//
-
-// Custom Agoric Staking hook
-func (h Hooks) AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool {
-	return h.k.AllowWithdrawAddr(ctx, delAddr)
 }
 
 // SDK Staking hooks
