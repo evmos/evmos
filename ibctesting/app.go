@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/ibc-go/v3/testing/simapp"
 
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
+	ethermint "github.com/tharsis/ethermint/types"
 	evmosapp "github.com/tharsis/evmos/app"
 )
 
@@ -37,7 +38,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.DefaultPowerReduction
+	bondAmt := sdk.TokensFromConsensusPower(1, ethermint.PowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
