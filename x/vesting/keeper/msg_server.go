@@ -164,7 +164,7 @@ func (k Keeper) Clawback(
 		)
 	}
 
-	// Chech if account ecists
+	// Chech if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)

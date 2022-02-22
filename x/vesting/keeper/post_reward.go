@@ -6,10 +6,10 @@ import (
 	"github.com/tharsis/evmos/x/vesting/types"
 )
 
-// TODO Can we remove, if staking unvested coins is not possible?
+// TODO Can we remove, if delegating unvested coins is perhibited?
 // PostReward encumbers a previously-deposited reward according to the current
 // vesting apportionment of staking. Note that rewards might be unvested, but
-// are unlocked.
+// still locked.
 func (k Keeper) PostReward(
 	ctx sdk.Context,
 	va types.ClawbackVestingAccount,
@@ -20,37 +20,40 @@ func (k Keeper) PostReward(
 	vested := types.ReadSchedule(va.StartTime, va.EndTime, va.VestingPeriods, va.OriginalVesting, ctx.BlockTime().Unix()).AmountOf(bondDenom)
 	unvested := va.OriginalVesting.AmountOf(bondDenom).Sub(vested)
 
+	// ! CODE ANALYSIS
 	if unvested.IsZero() {
 		// no need to adjust the vesting schedule
 		return
 	}
 
-	if vested.IsZero() {
+	if vested.IsZero() { // ! never reached
 		// all staked tokens must be unvested
 		k.distributeReward(ctx, va, bondDenom, reward)
 		return
 	}
 
-	// Find current split of account balance on staking axis
+	// Determine pre-reward total
 	bonded := k.GetDelegatorBonded(ctx, va.GetAddress())
 	unbonding := k.GetDelegatorUnbonding(ctx, va.GetAddress())
 	unbonded := k.bankKeeper.GetBalance(ctx, va.GetAddress(), bondDenom).Amount
 	total := bonded.Add(unbonding).Add(unbonded)
-	total = total.Sub(types.MinInt(total, reward.AmountOf(bondDenom))) // look at pre-reward total
+	total = total.Sub(types.MinInt(total, reward.AmountOf(bondDenom)))
 
-	// Adjust vested/unvested for the actual amount in the account (transfers, slashing)
-	// preferring them to be unvested
-	unvested = types.MinInt(unvested, total) // may have been reduced by slashing
+	// Adjust vested/unvested for the actual amount in the account, preferring
+	// them to be unvested. Amount may have been reduced by slashing/transfers
+	unvested = types.MinInt(unvested, total)
 	vested = total.Sub(unvested)
 
-	// Now restrict to just the bonded tokens, preferring them to be vested
-	vested = types.MinInt(vested, bonded)
-	unvested = bonded.Sub(vested)
+	// ! In Evmos case vested >= bonded because unvested coins can't be bonded
+	// Restrict logic to just the bonded tokens, preferring them to be vested
+	vested = types.MinInt(vested, bonded) // ! => vested == bonded
+	unvested = bonded.Sub(vested)         // ! => unvested == 0
 
 	// Compute the unvested amount of reward and add to vesting schedule
-	if unvested.IsZero() {
+	if unvested.IsZero() { // ! always returns
 		return
 	}
+	// ! Unreached code
 	if vested.IsZero() {
 		k.distributeReward(ctx, va, bondDenom, reward)
 		return

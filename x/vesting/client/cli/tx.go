@@ -67,7 +67,7 @@ func readScheduleFile(path string) (int64, []sdkvesting.Period, error) {
 		return 0, nil, err
 	}
 	startTime := data.StartTime
-	var periods []sdkvesting.Period
+	periods := make([]sdkvesting.Period, 0, len(data.Periods))
 	for i, p := range data.Periods {
 		amount, err := sdk.ParseCoinsNormalized(p.Coins)
 		if err != nil {
