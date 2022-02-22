@@ -19,12 +19,18 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
+// AllowWithdrawAddr tells whether to honor the delegation withdraw address
+// associated with the address (if any). The distribution keeper will call
+// this before each reward withdrawal. If multiple distribution hooks are set,
+// then any of them may disallow the withdraw address.
 func (k Keeper) AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool {
 	acc := k.accountKeeper.GetAccount(ctx, delAddr)
 	_, isClawback := acc.(*types.ClawbackVestingAccount)
 	return !isClawback
 }
 
+// AfterDelegationReward is called after the reward has been transferred the
+// address.
 func (k Keeper) AfterDelegationReward(ctx sdk.Context, delAddr, withdrawAddr sdk.AccAddress, reward sdk.Coins) {
 	acc := k.accountKeeper.GetAccount(ctx, delAddr)
 	cva, isClawback := acc.(*types.ClawbackVestingAccount)

@@ -4,14 +4,14 @@ import (
 	"context"
 	"math"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/armon/go-metrics"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	etherminttypes "github.com/tharsis/ethermint/types"
+
 	"github.com/tharsis/evmos/x/vesting/types"
 )
 
@@ -92,14 +92,18 @@ func (k Keeper) CreateClawbackVestingAccount(
 		}
 		k.addGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
-		baseAccount := authtypes.NewBaseAccountWithAddress(to)
-		va = types.NewClawbackVestingAccount(baseAccount, from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
+		acc := ak.NewAccountWithAddress(ctx, to)
+		ethAccount := acc.(*etherminttypes.EthAccount)
+		baseAccount := ethAccount.BaseAccount
+		va = types.NewClawbackVestingAccount(
+			baseAccount,
+			from,
+			vestingCoins,
+			msg.StartTime,
+			msg.LockupPeriods,
+			msg.VestingPeriods,
+		)
 		madeNewAcc = true
-
-		// TODO check if NewAccountWithAddress can be replaced with NewBaseAccountWithAddress
-		// baseAccount := ak.NewAccountWithAddress(ctx, to)
-		// va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
-		// madeNewAcc = true
 	}
 
 	ak.SetAccount(ctx, va)

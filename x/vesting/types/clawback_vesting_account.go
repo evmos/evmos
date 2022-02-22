@@ -11,7 +11,6 @@ import (
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 )
 
-// Clawback Vesting Account
 var (
 	_ vestexported.VestingAccount = (*ClawbackVestingAccount)(nil)
 	_ authtypes.GenesisAccount    = (*ClawbackVestingAccount)(nil)
@@ -142,7 +141,9 @@ func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
 // (But future unlocking events might be preserved if they unlock currently vested coins.)
 // If the amount returned is zero, then the returned account should be unchanged.
 // Does not adjust DelegatedVesting
-func (va ClawbackVestingAccount) ComputeClawback(clawbackTime int64) (ClawbackVestingAccount, sdk.Coins) {
+func (va ClawbackVestingAccount) ComputeClawback(
+	clawbackTime int64,
+) (ClawbackVestingAccount, sdk.Coins) {
 	// Compute the truncated vesting schedule and amounts.
 	// Work with the schedule as the primary data and recompute derived fields, e.g. OriginalVesting.
 	t := va.StartTime
@@ -192,7 +193,9 @@ func (va ClawbackVestingAccount) ComputeClawback(clawbackTime int64) (ClawbackVe
 // - to the remaining delegated amount, add what's slashed;
 // - the "encumbered" (locked up and/or vesting) amount of this goes in DV;
 // - the remainder of the new delegated amount goes in DF.
-func (va ClawbackVestingAccount) UpdateDelegation(encumbered, toClawBack, bonded, unbonding, unbonded sdk.Coins) (ClawbackVestingAccount, sdk.Coins) {
+func (va ClawbackVestingAccount) UpdateDelegation(
+	encumbered, toClawBack, bonded, unbonding, unbonded sdk.Coins,
+) (ClawbackVestingAccount, sdk.Coins) {
 	delegated := bonded.Add(unbonding...)
 	oldDelegated := va.DelegatedVesting.Add(va.DelegatedFree...)
 	slashed := oldDelegated.Sub(CoinsMin(delegated, oldDelegated))

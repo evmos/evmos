@@ -99,6 +99,10 @@ func NewAppModule(
 	}
 }
 
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
 // RegisterInvariants performs a no-op; there are no invariants to enforce.
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
@@ -113,14 +117,14 @@ func (am AppModule) Route() sdk.Route {
 
 // QuerierRoute returns an empty string as the module contains no query
 // functionality.
-func (AppModule) QuerierRoute() string { return "" }
+func (AppModule) QuerierRoute() string {
+	return types.RouterKey
+}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
-
-	// _ = keeper.NewMigrator(am.keeper)
 }
 
 // LegacyQuerierHandler performs a no-op.

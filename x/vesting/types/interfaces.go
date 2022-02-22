@@ -53,16 +53,3 @@ type StakingKeeper interface {
 	SetRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 }
-
-// DistributionHooks is the expected interface for distribution module hooks.
-type DistributionHooks interface {
-	// AllowWithdrawAddr tells whether to honor the delegation withdraw address
-	// associated with the address (if any). The distribution keeper will call
-	// this before each reward withdrawal. If multiple distribution hooks are set,
-	// then any of them may disallow the withdraw address.
-	AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool
-
-	// AfterDelegationReward is called after the reward has been transferred the
-	// address.
-	AfterDelegationReward(ctx sdk.Context, delAddr, withdrawAddr sdk.AccAddress, reward sdk.Coins)
-}

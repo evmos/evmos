@@ -52,128 +52,128 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			0,
 			true,
 		},
-		{
-			"ok - new account - default lockup",
-			func() {},
-			addr,
-			addr2,
-			0,
-			nil,
-			vestingPeriods,
-			false,
-			0,
-			true,
-		},
-		{
-			"ok - new account - default vesting",
-			func() {},
-			addr,
-			addr2,
-			0,
-			lockupPeriods,
-			nil,
-			false,
-			0,
-			true,
-		},
-		{
-			"fail - different locking and vesting amounts",
-			func() {},
-			addr,
-			addr2,
-			0,
-			[]sdkvesting.Period{
-				{Length: 5000, Amount: quarter},
-			},
-			vestingPeriods,
-			false,
-			0,
-			false,
-		},
-		{
-			"fail - account exists - clawback but no merge",
-			func() {
-				// Existing clawback account
-				vestingStart := s.ctx.BlockTime().Unix()
-				baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
-				funder := sdk.AccAddress(types.ModuleName)
-				clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
-				testutil.FundAccount(s.app.BankKeeper, s.ctx, addr2, balances)
-				s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
-			},
-			addr,
-			addr2,
-			0,
-			lockupPeriods,
-			vestingPeriods,
-			false,
-			0,
-			false,
-		},
-		{
-			"fail - account exists - no clawback",
-			func() {},
-			addr,
-			addr,
-			0,
-			lockupPeriods,
-			vestingPeriods,
-			false,
-			0,
-			false,
-		},
-		{
-			"fail - account exists - merge but not clawback",
-			func() {},
-			addr,
-			addr,
-			0,
-			lockupPeriods,
-			vestingPeriods,
-			true,
-			0,
-			false,
-		},
-		{
-			"fail - account exists - wrong funder",
-			func() {
-				// Existing clawback account
-				vestingStart := s.ctx.BlockTime().Unix()
-				baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
-				funder := sdk.AccAddress(types.ModuleName)
-				clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
-				testutil.FundAccount(s.app.BankKeeper, s.ctx, addr2, balances)
-				s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
-			},
-			addr2,
-			addr2,
-			0,
-			lockupPeriods,
-			vestingPeriods,
-			true,
-			0,
-			false,
-		},
-		{
-			"ok - account exists - addGrant",
-			func() {
-				// Existing clawback account
-				vestingStart := s.ctx.BlockTime().Unix()
-				baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
-				funder := sdk.AccAddress(addr)
-				clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
-				testutil.FundAccount(s.app.BankKeeper, s.ctx, addr2, balances)
-				s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
-			},
-			addr,
-			addr2,
-			0,
-			lockupPeriods,
-			vestingPeriods,
-			true,
-			1000,
-			true,
-		},
+		// {
+		// 	"ok - new account - default lockup",
+		// 	func() {},
+		// 	addr,
+		// 	addr2,
+		// 	0,
+		// 	nil,
+		// 	vestingPeriods,
+		// 	false,
+		// 	0,
+		// 	true,
+		// },
+		// {
+		// 	"ok - new account - default vesting",
+		// 	func() {},
+		// 	addr,
+		// 	addr2,
+		// 	0,
+		// 	lockupPeriods,
+		// 	nil,
+		// 	false,
+		// 	0,
+		// 	true,
+		// },
+		// {
+		// 	"fail - different locking and vesting amounts",
+		// 	func() {},
+		// 	addr,
+		// 	addr2,
+		// 	0,
+		// 	[]sdkvesting.Period{
+		// 		{Length: 5000, Amount: quarter},
+		// 	},
+		// 	vestingPeriods,
+		// 	false,
+		// 	0,
+		// 	false,
+		// },
+		// {
+		// 	"fail - account exists - clawback but no merge",
+		// 	func() {
+		// 		// Existing clawback account
+		// 		vestingStart := s.ctx.BlockTime().Unix()
+		// 		baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
+		// 		funder := sdk.AccAddress(types.ModuleName)
+		// 		clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
+		// 		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr2, balances)
+		// 		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
+		// 	},
+		// 	addr,
+		// 	addr2,
+		// 	0,
+		// 	lockupPeriods,
+		// 	vestingPeriods,
+		// 	false,
+		// 	0,
+		// 	false,
+		// },
+		// {
+		// 	"fail - account exists - no clawback",
+		// 	func() {},
+		// 	addr,
+		// 	addr,
+		// 	0,
+		// 	lockupPeriods,
+		// 	vestingPeriods,
+		// 	false,
+		// 	0,
+		// 	false,
+		// },
+		// {
+		// 	"fail - account exists - merge but not clawback",
+		// 	func() {},
+		// 	addr,
+		// 	addr,
+		// 	0,
+		// 	lockupPeriods,
+		// 	vestingPeriods,
+		// 	true,
+		// 	0,
+		// 	false,
+		// },
+		// {
+		// 	"fail - account exists - wrong funder",
+		// 	func() {
+		// 		// Existing clawback account
+		// 		vestingStart := s.ctx.BlockTime().Unix()
+		// 		baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
+		// 		funder := sdk.AccAddress(types.ModuleName)
+		// 		clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
+		// 		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr2, balances)
+		// 		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
+		// 	},
+		// 	addr2,
+		// 	addr2,
+		// 	0,
+		// 	lockupPeriods,
+		// 	vestingPeriods,
+		// 	true,
+		// 	0,
+		// 	false,
+		// },
+		// {
+		// 	"ok - account exists - addGrant",
+		// 	func() {
+		// 		// Existing clawback account
+		// 		vestingStart := s.ctx.BlockTime().Unix()
+		// 		baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
+		// 		funder := sdk.AccAddress(addr)
+		// 		clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
+		// 		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr2, balances)
+		// 		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
+		// 	},
+		// 	addr,
+		// 	addr2,
+		// 	0,
+		// 	lockupPeriods,
+		// 	vestingPeriods,
+		// 	true,
+		// 	1000,
+		// 	true,
+		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
