@@ -93,7 +93,10 @@ func (k Keeper) CreateClawbackVestingAccount(
 		k.addGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
 		acc := ak.NewAccountWithAddress(ctx, to)
-		ethAccount := acc.(*etherminttypes.EthAccount)
+		ethAccount, ok := acc.(*etherminttypes.EthAccount)
+		if !ok {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "invalid account type: %T", ethAccount)
+		}
 		baseAccount := ethAccount.BaseAccount
 		va = types.NewClawbackVestingAccount(
 			baseAccount,
