@@ -53,14 +53,5 @@ type StakingKeeper interface {
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 
 	// Hooks
-	AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress)
-	BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress)
-	AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress)
-	AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress)
-	AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress)
-	BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)
-	BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)
-	BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)
-	AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)
-	BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec)
+	stakingtypes.StakingHooks
 }
