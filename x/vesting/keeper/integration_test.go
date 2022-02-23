@@ -1,19 +1,30 @@
 package keeper_test
 
 import (
+	"encoding/json"
+	"math/big"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/tharsis/ethermint/encoding"
+	"github.com/tharsis/ethermint/server/config"
 	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/app/ante"
+	"github.com/tharsis/evmos/contracts"
 	"github.com/tharsis/evmos/testutil"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/x/vesting/types"
 )
@@ -70,7 +81,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.SetupTest()
 
 		// Create and fund periodic vesting account
-		vestingStart := s.ctx.BlockTime()
+		vestingStart := s.ctx.BlockTime().Unix()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 		funder := sdk.AccAddress(types.ModuleName)
 		clawbackAccount = types.NewClawbackVestingAccount(
@@ -83,7 +94,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		)
 		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingAmtTotal)
 		s.Require().NoError(err)
-		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
+		acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
+		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
 		// Check if all tokens are unvested at vestingStart
 		unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
@@ -145,10 +157,58 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
-			// TODO EVM Hook?
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			// Create mint msgEthereumTx
+			contractAddr, err := s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+			s.Require().NoError(err)
+			amount := big.NewInt(100)
+			transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", s.address, amount)
+			s.Require().NoError(err)
+
+			ctx := sdk.WrapSDKContext(s.ctx)
+			chainID := s.app.EvmKeeper.ChainID()
+
+			args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &s.address, Data: (*hexutil.Bytes)(&transferData)})
+			s.Require().NoError(err)
+
+			res, err := s.queryClientEvm.EstimateGas(ctx, &evmtypes.EthCallRequest{
+				Args:   args,
+				GasCap: uint64(config.DefaultGasCap),
+			})
+			s.Require().NoError(err)
+
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, s.address)
+
+			// Mint the max gas to the FeeCollector to ensure balance in case of refund
+			s.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(s.app.FeeMarketKeeper.GetBaseFee(s.ctx).Int64()*int64(res.Gas)))))
+
+			msgEthereumTx := evmtypes.NewTx(
+				chainID,
+				nonce,
+				&contractAddr,
+				nil,
+				res.Gas,
+				nil,
+				s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
+				big.NewInt(1),
+				transferData,
+				&ethtypes.AccessList{}, // accesses
+			)
+
+			msgEthereumTx.From = s.address.Hex()
+
+			// err = msgEthereumTx.Sign(ethtypes.LatestSignerForChainID(chainID), s.signer)
+			// s.Require().NoError(err)
+
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+			txBuilder.SetMsgs(msgEthereumTx)
+			tx := txBuilder.GetTx()
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err = dec.AnteHandle(s.ctx, tx, false, nil)
+
+			// TODO Eth Antehandler
+			Expect(err).ToNot(BeNil())
+			// Expect(err).To(BeNil())
 		})
 	})
 
@@ -283,5 +343,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
 			Expect(err).To(BeNil())
 		})
+
+		// TODO Rewards Tests
+		// TODO Clawback Tests
+		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})
 })
