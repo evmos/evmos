@@ -196,8 +196,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			msgEthereumTx.From = s.address.Hex()
 
-			// err = msgEthereumTx.Sign(ethtypes.LatestSignerForChainID(chainID), s.signer)
-			// s.Require().NoError(err)
+			err = msgEthereumTx.Sign(ethtypes.LatestSignerForChainID(chainID), s.signer)
+			s.Require().NoError(err)
 
 			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
