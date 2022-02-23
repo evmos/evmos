@@ -2,8 +2,8 @@ syntax = "proto3";
 package evmos.vesting.v1;
 
 import "gogoproto/gogo.proto";
-
 import "cosmos/vesting/v1beta1/vesting.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/tharsis/evmos/x/vesting/types";
 
@@ -15,24 +15,24 @@ message ClawbackVestingAccount {
   option (gogoproto.goproto_getters)  = false;
   option (gogoproto.goproto_stringer) = false;
 
+  // base_vesting_account implements the VestingAccount interface. It contains
+  // all the necessary fields needed for any vesting account implementation
   cosmos.vesting.v1beta1.BaseVestingAccount base_vesting_account = 1 [
     (gogoproto.embed) = true
   ];
-  // funder_address specifies the account which can perform clawback.
-  string funder_address = 2 [
-    (gogoproto.moretags) = "yaml:\"funder_address\""
-  ];
-  int64 start_time = 3 [
-    (gogoproto.moretags) = "yaml:\"start_time\""
-  ];
-  // unlocking schedule relative to the BaseVestingAccount start_time.
-  repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
-    (gogoproto.moretags) = "yaml:\"lockup_periods\"",
+  // funder_address specifies the account which can perform clawback
+  string funder_address = 2;
+  // start_time defines the time at which the vesting period begins
+  google.protobuf.Timestamp start_time = 3 [
+    (gogoproto.stdtime) = true,
     (gogoproto.nullable) = false
   ];
-  // vesting (i.e. immunity from clawback) schedule relative to the BaseVestingAccount start_time.
+  // lockup_periods defines the unlocking schedule relative to the start_time
+  repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
+    (gogoproto.nullable) = false
+  ];
+  // vesting_periods defines the vesting schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
-    (gogoproto.moretags) = "yaml:\"vesting_periods\"",
     (gogoproto.nullable) = false
   ];
 }

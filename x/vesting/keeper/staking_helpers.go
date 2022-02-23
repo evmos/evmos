@@ -7,7 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// Copied from https://github.com/agoric-labs/cosmos-sdk/blob/4085-true-vesting/x/staking/keeper/delegation.go
+// TODO replace methods once available in the sdk `x/stake` module
+// Taken from https://github.com/agoric-labs/cosmos-sdk/blob/4085-true-vesting/x/staking/keeper/delegation.go
 
 // GetDelegatorUnbonding returns the total amount a delegator has unbonding
 func (k Keeper) GetDelegatorUnbonding(
@@ -261,7 +262,11 @@ func (k Keeper) TransferDelegation(
 }
 
 // iterate through a delegator's unbonding delegations
-func (k Keeper) IterateDelegatorUnbondingDelegations(ctx sdk.Context, delegator sdk.AccAddress, cb func(ubd types.UnbondingDelegation) (stop bool)) {
+func (k Keeper) IterateDelegatorUnbondingDelegations(
+	ctx sdk.Context,
+	delegator sdk.AccAddress,
+	cb func(ubd types.UnbondingDelegation) (stop bool),
+) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.GetUBDsKey(delegator))
 	defer iterator.Close()
@@ -275,8 +280,11 @@ func (k Keeper) IterateDelegatorUnbondingDelegations(ctx sdk.Context, delegator 
 }
 
 // IterateDelegatorDelegations iterates through one delegator's delegations
-func (k Keeper) IterateDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress,
-	cb func(delegation types.Delegation) (stop bool)) {
+func (k Keeper) IterateDelegatorDelegations(
+	ctx sdk.Context,
+	delegator sdk.AccAddress,
+	cb func(delegation types.Delegation) (stop bool),
+) {
 	store := ctx.KVStore(k.storeKey)
 	delegatorPrefixKey := types.GetDelegationsKey(delegator)
 	iterator := sdk.KVStorePrefixIterator(store, delegatorPrefixKey)
@@ -291,7 +299,11 @@ func (k Keeper) IterateDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAd
 }
 
 // iterate through one delegator's redelegations
-func (k Keeper) IterateDelegatorRedelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(red types.Redelegation) (stop bool)) {
+func (k Keeper) IterateDelegatorRedelegations(
+	ctx sdk.Context,
+	delegator sdk.AccAddress,
+	fn func(red types.Redelegation) (stop bool),
+) {
 	store := ctx.KVStore(k.storeKey)
 	delegatorPrefixKey := types.GetREDsKey(delegator)
 

@@ -13,6 +13,7 @@ import (
 type AccountKeeper interface {
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 	SetAccount(sdk.Context, authtypes.AccountI)
+	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 }
 
@@ -20,8 +21,6 @@ type AccountKeeper interface {
 // for creating vesting accounts with funds.
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
-	IsSendEnabledCoins(ctx sdk.Context, coins ...sdk.Coin) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	BlockedAddr(addr sdk.AccAddress) bool
@@ -35,11 +34,7 @@ type StakingKeeper interface {
 	GetUnbondingDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.UnbondingDelegation
 	GetValidator(ctx sdk.Context, valAddr sdk.ValAddress) (stakingtypes.Validator, bool)
 
-	// Created custom Agoric stakingkeeper functions on vestingkeeper (commented out below)
-	// GetDelegatorUnbonding(ctx sdk.Context, delegator sdk.AccAddress) sdk.Int
-	// GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) sdk.Int
-	// TransferUnbonding(ctx sdk.Context, fromAddr, toAddr sdk.AccAddress, valAddr sdk.ValAddress, wantAmt sdk.Int) sdk.Int
-	// TransferDelegation(ctx sdk.Context, fromAddr, toAddr sdk.AccAddress, valAddr sdk.ValAddress, wantShares sdk.Dec) sdk.Dec
+	// Support functions for Agoric's custom stakingkeeper logic on vestingkeeper
 	GetUnbondingDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (stakingtypes.UnbondingDelegation, bool)
 	HasMaxUnbondingDelegationEntries(ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress) bool
 	SetUnbondingDelegationEntry(ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress, creationHeight int64, minTime time.Time, balance sdk.Int) stakingtypes.UnbondingDelegation
@@ -57,23 +52,3 @@ type StakingKeeper interface {
 	SetRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 }
-
-// DistributionHooks is the expected interface for distribution module hooks.
-type DistributionHooks interface {
-	// AllowWithdrawAddr tells whether to honor the delegation withdraw
-	// address associated with the address (if any). The distribution
-	// keeper will call this before each reward withdrawal.
-	// If multiple distribution hooks are set, then any of them may
-	// disallow the withdraw address.
-	AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool
-
-	// AfterDelegationReward is called after the reward has been transferred the address.
-	AfterDelegationReward(ctx sdk.Context, delAddr, withdrawAddr sdk.AccAddress, reward sdk.Coins)
-}
-
-// type StakingHooks interface {
-// 	BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)        // Must be called when a delegation is created
-// 	BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) // Must be called when a delegation's shares are modified
-// 	BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)        // Must be called when a delegation is removed
-// 	AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)
-// }

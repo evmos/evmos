@@ -70,7 +70,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.SetupTest()
 
 		// Create and fund periodic vesting account
-		vestingStart := s.ctx.BlockTime().Unix()
+		vestingStart := s.ctx.BlockTime()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 		funder := sdk.AccAddress(types.ModuleName)
 		clawbackAccount = types.NewClawbackVestingAccount(
@@ -283,9 +283,5 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
 			Expect(err).To(BeNil())
 		})
-
-		// TODO Rewards Tests
-		// TODO Clawback Tests
-		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})
 })

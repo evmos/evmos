@@ -5,17 +5,19 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-// Periods stores all vesting periods passed as part of a ClawbackVestingAccount
-// type Periods []sdkvesting.Period
-
-// A "schedule" is an increasing step function of Coins over time.
-// It's specified as an absolute start time and a sequence of relative
-// periods, with each step at the end of a period. A schedule may also
-// give the time and total value at the last step, which can speed
-// evaluation of the step function after the last step.
+// A "schedule" is an increasing step function of Coins over time. It's
+// specified as an absolute start time and a sequence of relative periods, with
+// each step at the end of a period. A schedule may also give the time and total
+// value at the last step, which can speed evaluation of the step function after
+// the last step.
 //
 // ReadSchedule returns the value of a schedule at readTime.
-func ReadSchedule(startTime, endTime int64, periods []sdkvesting.Period, totalCoins sdk.Coins, readTime int64) sdk.Coins {
+func ReadSchedule(
+	startTime, endTime int64,
+	periods []sdkvesting.Period,
+	totalCoins sdk.Coins,
+	readTime int64,
+) sdk.Coins {
 	if readTime <= startTime {
 		return sdk.NewCoins()
 	}
@@ -38,46 +40,15 @@ func ReadSchedule(startTime, endTime int64, periods []sdkvesting.Period, totalCo
 	return coins
 }
 
-// max64 returns the maximum of its inputs.
-func Max64(i, j int64) int64 {
-	if i > j {
-		return i
-	}
-	return j
-}
-
-// Min64 returns the minimum of its inputs.
-func Min64(i, j int64) int64 {
-	if i < j {
-		return i
-	}
-	return j
-}
-
-// coinsMin returns the minimum of its inputs for all denominations.
-func CoinsMin(a, b sdk.Coins) sdk.Coins {
-	min := sdk.NewCoins()
-	for _, coinA := range a {
-		denom := coinA.Denom
-		bAmt := b.AmountOfNoDenomValidation(denom)
-		minAmt := coinA.Amount
-		if minAmt.GT(bAmt) {
-			minAmt = bAmt
-		}
-		if minAmt.IsPositive() {
-			min = min.Add(sdk.NewCoin(denom, minAmt))
-		}
-	}
-	return min
-}
-
-// DisjunctPeriods returns the union of two vesting period schedules.
-// The returned schedule is the union of the vesting events, with simultaneous
-// events combined into a single event.
-// Input schedules P and Q are defined by their start times and periods.
-// Returns new start time, new end time, and merged vesting events, relative to
-// the new start time.
-func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Period) (int64, int64, []sdkvesting.Period) {
+// DisjunctPeriods returns the union of two vesting period schedules. The
+// returned schedule is the union of the vesting events, with simultaneous
+// events combined into a single event. Input schedules P and Q are defined by
+// their start times and periods. Returns new start time, new end time, and
+// merged vesting events, relative to the new start time.
+func DisjunctPeriods(
+	startP, startQ int64,
+	periodsP, periodsQ []sdkvesting.Period,
+) (int64, int64, []sdkvesting.Period) {
 	timeP := startP // time of last merged p event, next p event is relative to this time
 	timeQ := startQ // time of last merged q event, next q event is relative to this time
 	iP := 0         // p indexes before this have been merged
@@ -121,7 +92,8 @@ func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Perio
 		iQ++
 	}
 
-	// while there are more events in both schedules, handle the next one, merge if concurrent
+	// while there are more events in both schedules, handle the next one, merge
+	// if concurrent
 	for iP < lenP && iQ < lenQ {
 		nextP := timeP + periodsP[iP].Length // next p event in absolute time
 		nextQ := timeQ + periodsQ[iQ].Length // next q event in absolute time
@@ -147,8 +119,13 @@ func DisjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Perio
 	return startTime, time, merged
 }
 
-// ConjunctPeriods returns the combination of two period schedules where the result is the minimum of the two schedules.
-func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Period) (startTime int64, endTime int64, merged []sdkvesting.Period) {
+// ConjunctPeriods returns the combination of two period schedules where the
+// result is the minimum of the two schedules.
+func ConjunctPeriods(
+	startP, startQ int64,
+	periodsP,
+	periodsQ []sdkvesting.Period,
+) (startTime int64, endTime int64, merged []sdkvesting.Period) {
 	timeP := startP
 	timeQ := startQ
 	iP := 0
@@ -251,8 +228,13 @@ func ConjunctPeriods(startP, startQ int64, periodsP, periodsQ []sdkvesting.Perio
 	return startTime, endTime, merged
 }
 
-// AlignSchedules rewrites the first period length to align the two arguments to the same start time.
-func AlignSchedules(startP, startQ int64, p, q []sdkvesting.Period) (startTime, endTime int64) {
+// AlignSchedules rewrites the first period length to align the two arguments to
+// the same start time.
+func AlignSchedules(
+	startP,
+	startQ int64,
+	p, q []sdkvesting.Period,
+) (startTime, endTime int64) {
 	startTime = Min64(startP, startQ)
 
 	if len(p) > 0 {

@@ -17,6 +17,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/tharsis/evmos/x/vesting/client/cli"
 	"github.com/tharsis/evmos/x/vesting/keeper"
 	"github.com/tharsis/evmos/x/vesting/types"
 )
@@ -37,9 +38,7 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterCodec registers the module's types with the given codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
-}
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // RegisterInterfaces registers the module's interfaces and implementations with
 // the given interface registry.
@@ -66,7 +65,7 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.S
 
 // GetTxCmd returns the root tx command for the auth module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.NewTxCmd()
 }
 
 // GetQueryCmd returns the module's root query command. Currently, this is a no-op.
@@ -100,6 +99,10 @@ func NewAppModule(
 	}
 }
 
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
 // RegisterInvariants performs a no-op; there are no invariants to enforce.
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
@@ -114,14 +117,14 @@ func (am AppModule) Route() sdk.Route {
 
 // QuerierRoute returns an empty string as the module contains no query
 // functionality.
-func (AppModule) QuerierRoute() string { return "" }
+func (AppModule) QuerierRoute() string {
+	return types.RouterKey
+}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
-
-	// _ = keeper.NewMigrator(am.keeper)
 }
 
 // LegacyQuerierHandler performs a no-op.
