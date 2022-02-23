@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -82,6 +83,9 @@ timestamp.`,
 			delayed, _ := cmd.Flags().GetBool(FlagDelayed)
 
 			msg := sdkvesting.NewMsgCreateVestingAccount(clientCtx.GetFromAddress(), toAddr, amount, endTime, delayed)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -106,28 +110,34 @@ type InputPeriod struct {
 // readScheduleFile reads the file at path and unmarshals it to get the schedule.
 // Returns start time, periods, and error.
 func readScheduleFile(path string) (int64, []sdkvesting.Period, error) {
-	contents, err := ioutil.ReadFile(path)
+	contents, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return 0, nil, err
 	}
+
 	var data VestingData
-	err = json.Unmarshal(contents, &data)
-	if err != nil {
+
+	if err = json.Unmarshal(contents, &data); err != nil {
 		return 0, nil, err
 	}
+
 	startTime := data.StartTime
 	periods := make([]sdkvesting.Period, 0, len(data.Periods))
+
 	for i, p := range data.Periods {
+		if p.Length < 1 {
+			return 0, nil, fmt.Errorf("invalid period length of %d in period %d, length must be greater than 0", p.Length, i)
+		}
+
 		amount, err := sdk.ParseCoinsNormalized(p.Coins)
 		if err != nil {
 			return 0, nil, err
 		}
-		if p.Length < 1 {
-			return 0, nil, fmt.Errorf("invalid period length of %d in period %d, length must be greater than 0", p.Length, i)
-		}
+
 		period := sdkvesting.Period{Length: p.Length, Amount: amount}
 		periods = append(periods, period)
 	}
+
 	return startTime, periods, nil
 }
 
@@ -162,6 +172,11 @@ with a start time and an array of coins strings and durations relative to the st
 	    `,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var (
+				lockupStart, vestingStart     int64
+				lockupPeriods, vestingPeriods []sdkvesting.Period
+			)
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -177,14 +192,14 @@ with a start time and an array of coins strings and durations relative to the st
 			if lockupFile == "" && vestingFile == "" {
 				return fmt.Errorf("must specify at least one of %s or %s", FlagLockup, FlagVesting)
 			}
-			var lockupStart, vestingStart int64
-			var lockupPeriods, vestingPeriods []sdkvesting.Period
+
 			if lockupFile != "" {
 				lockupStart, lockupPeriods, err = readScheduleFile(lockupFile)
 				if err != nil {
 					return err
 				}
 			}
+
 			if vestingFile != "" {
 				vestingStart, vestingPeriods, err = readScheduleFile(vestingFile)
 				if err != nil {
