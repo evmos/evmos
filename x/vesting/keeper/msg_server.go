@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"math"
+	"time"
 
 	"github.com/armon/go-metrics"
 
@@ -90,7 +91,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 		case msg.FromAddress != va.FunderAddress:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, va.FunderAddress)
 		}
-		k.addGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		k.addGrant(ctx, va, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	} else {
 		acc := ak.NewAccountWithAddress(ctx, to)
 		ethAccount, ok := acc.(*etherminttypes.EthAccount)
@@ -226,13 +227,13 @@ func (k Keeper) addGrant(
 	}
 
 	// modify schedules for the new grant
-	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.StartTime, grantStartTime, va.LockupPeriods, grantLockupPeriods)
-	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.StartTime, grantStartTime,
+	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime, va.LockupPeriods, grantLockupPeriods)
+	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime,
 		va.GetVestingPeriods(), grantVestingPeriods)
 	if newLockupStart != newVestingStart {
 		panic("bad start time calculation")
 	}
-	va.StartTime = newLockupStart
+	va.StartTime = time.Unix(newLockupStart, 0)
 	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
 	va.LockupPeriods = newLockupPeriods
 	va.VestingPeriods = newVestingPeriods

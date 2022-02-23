@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -147,7 +148,7 @@ with a start time and an array of coins strings and durations relative to the st
 
 			merge, _ := cmd.Flags().GetBool(FlagMerge)
 
-			msg := types.NewMsgCreateClawbackVestingAccount(clientCtx.GetFromAddress(), toAddr, commonStart, lockupPeriods, vestingPeriods, merge)
+			msg := types.NewMsgCreateClawbackVestingAccount(clientCtx.GetFromAddress(), toAddr, time.Unix(commonStart, 0), lockupPeriods, vestingPeriods, merge)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

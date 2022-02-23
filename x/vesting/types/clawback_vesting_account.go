@@ -21,7 +21,7 @@ func NewClawbackVestingAccount(
 	baseAcc *authtypes.BaseAccount,
 	funder sdk.AccAddress,
 	originalVesting sdk.Coins,
-	startTime int64,
+	startTime time.Time,
 	lockupPeriods,
 	vestingPeriods sdkvesting.Periods,
 ) *ClawbackVestingAccount {
@@ -30,7 +30,7 @@ func NewClawbackVestingAccount(
 	copy(lp, lockupPeriods)
 	vp := make(sdkvesting.Periods, len(vestingPeriods))
 	copy(vp, vestingPeriods)
-	_, endTime := AlignSchedules(startTime, startTime, lp, vp)
+	_, endTime := AlignSchedules(startTime.Unix(), startTime.Unix(), lp, vp)
 	baseVestingAcc := &sdkvesting.BaseVestingAccount{
 		BaseAccount:     baseAcc,
 		OriginalVesting: originalVesting,
@@ -80,7 +80,7 @@ func (va *ClawbackVestingAccount) TrackDelegation(blockTime time.Time, balance, 
 // GetStartTime returns the time when vesting starts for a periodic vesting
 // account.
 func (va ClawbackVestingAccount) GetStartTime() int64 {
-	return va.StartTime
+	return va.StartTime.Unix()
 }
 
 // GetVestingPeriods returns vesting periods associated with periodic vesting account.
@@ -94,7 +94,7 @@ func (va ClawbackVestingAccount) Validate() error {
 		return errors.New("vesting start-time must be before end-time")
 	}
 
-	lockupEnd := va.StartTime
+	lockupEnd := va.GetStartTime()
 	lockupCoins := sdk.NewCoins()
 	for _, p := range va.LockupPeriods {
 		lockupEnd += p.Length
@@ -107,7 +107,7 @@ func (va ClawbackVestingAccount) Validate() error {
 		return errors.New("original vesting coins does not match the sum of all coins in lockup periods")
 	}
 
-	vestingEnd := va.StartTime
+	vestingEnd := va.GetStartTime()
 	vestingCoins := sdk.NewCoins()
 	for _, p := range va.VestingPeriods {
 		vestingEnd += p.Length
@@ -126,13 +126,13 @@ func (va ClawbackVestingAccount) Validate() error {
 // GetUnlockedOnly returns the unlocking schedule at blockTIme.
 // Like GetVestedCoins, but only for the lockup component.
 func (va ClawbackVestingAccount) GetUnlockedOnly(blockTime time.Time) sdk.Coins {
-	return ReadSchedule(va.StartTime, va.EndTime, va.LockupPeriods, va.OriginalVesting, blockTime.Unix())
+	return ReadSchedule(va.GetStartTime(), va.EndTime, va.LockupPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
 // GetVestedOnly returns the vesting schedule and blockTime.
 // Like GetVestedCoins, but only for the vesting (in the clawback sense) component.
 func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
-	return ReadSchedule(va.StartTime, va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
+	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
 // ComputeClawback returns an account with all future vesting events removed,
@@ -146,7 +146,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 ) (ClawbackVestingAccount, sdk.Coins) {
 	// Compute the truncated vesting schedule and amounts.
 	// Work with the schedule as the primary data and recompute derived fields, e.g. OriginalVesting.
-	t := va.StartTime
+	t := va.GetStartTime()
 	totalVested := sdk.NewCoins()
 	totalUnvested := sdk.NewCoins()
 	unvestedIdx := 0
@@ -169,7 +169,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 			Amount: totalVested,
 		},
 	}
-	_, _, newLockupPeriods := ConjunctPeriods(va.StartTime, va.StartTime, va.LockupPeriods, capPeriods)
+	_, _, newLockupPeriods := ConjunctPeriods(va.GetStartTime(), va.GetStartTime(), va.LockupPeriods, capPeriods)
 
 	// Now construct the new account state
 	va.OriginalVesting = totalVested

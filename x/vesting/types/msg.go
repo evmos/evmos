@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -19,7 +21,7 @@ const (
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
 func NewMsgCreateClawbackVestingAccount(
 	fromAddr, toAddr sdk.AccAddress,
-	startTime int64,
+	startTime time.Time,
 	lockupPeriods,
 	vestingPeriods []sdkvesting.Period,
 	merge bool,
