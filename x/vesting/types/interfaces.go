@@ -51,4 +51,7 @@ type StakingKeeper interface {
 	InsertRedelegationQueue(ctx sdk.Context, red stakingtypes.Redelegation, completionTime time.Time)
 	SetRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
+
+	// Hooks
+	stakingtypes.StakingHooks
 }

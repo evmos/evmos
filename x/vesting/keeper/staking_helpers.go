@@ -165,23 +165,23 @@ func (k Keeper) TransferDelegation(
 	}
 
 	if found {
-		k.Hooks().BeforeDelegationSharesModified(ctx, toAddr, validator.GetOperator())
+		k.stakingKeeper.BeforeDelegationSharesModified(ctx, toAddr, validator.GetOperator())
 	} else {
-		k.Hooks().BeforeDelegationCreated(ctx, toAddr, validator.GetOperator())
+		k.stakingKeeper.BeforeDelegationCreated(ctx, toAddr, validator.GetOperator())
 	}
 	delTo.Shares = delTo.Shares.Add(transferred)
 	k.stakingKeeper.SetDelegation(ctx, delTo)
-	k.Hooks().AfterDelegationModified(ctx, toAddr, valAddr)
+	k.stakingKeeper.AfterDelegationModified(ctx, toAddr, valAddr)
 
 	// Update source delegation
 	if remaining.IsZero() {
-		k.Hooks().BeforeDelegationRemoved(ctx, fromAddr, valAddr)
+		k.stakingKeeper.BeforeDelegationRemoved(ctx, fromAddr, valAddr)
 		k.stakingKeeper.RemoveDelegation(ctx, delFrom)
 	} else {
-		k.Hooks().BeforeDelegationSharesModified(ctx, fromAddr, valAddr)
+		k.stakingKeeper.BeforeDelegationSharesModified(ctx, fromAddr, valAddr)
 		delFrom.Shares = remaining
 		k.stakingKeeper.SetDelegation(ctx, delFrom)
-		k.Hooks().AfterDelegationModified(ctx, fromAddr, valAddr)
+		k.stakingKeeper.AfterDelegationModified(ctx, fromAddr, valAddr)
 	}
 
 	// If there are not enough remaining shares to be responsible for
