@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -21,6 +20,10 @@ import (
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/vesting/types"
 )
+
+func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+	return ctx, nil
+}
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
 // before the lockup period is reached to represent the scenario in which an
@@ -89,7 +92,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.Require().NoError(err)
 		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
 
-		fmt.Println(clawbackAccount.GetAddress().String())
 		acc := s.app.AccountKeeper.GetAccount(s.ctx, clawbackAccount.GetAddress())
 		s.Require().NotNil(acc)
 
@@ -112,11 +114,10 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			s.Require().NoError(err)
 			delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakeDenom, sdk.NewInt(100)))
 			txBuilder.SetMsgs(delegateMsg)
-
 			tx := txBuilder.GetTx()
 
 			dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper)
-			_, err = dec.AnteHandle(s.ctx, tx, false, nil)
+			_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 			Expect(err).ToNot(BeNil())
 		})
 
@@ -178,14 +179,20 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				vested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+			addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+			s.Require().NoError(err)
+			//
+			val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
+			s.Require().NoError(err)
+			delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakeDenom, sdk.NewInt(1)))
+			txBuilder.SetMsgs(delegateMsg)
+			tx := txBuilder.GetTx()
+
+			dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper)
+			_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 			Expect(err).To(BeNil())
 		})
 

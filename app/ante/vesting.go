@@ -44,13 +44,12 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 			}
 
 			// error if bond amount is > vested tokens
-			coins := clawbackAccount.GetVestedCoins(ctx.BlockHeader().Time)
+			coins := clawbackAccount.GetVestedOnly(ctx.BlockHeader().Time)
 			vested := coins.AmountOf(delegateMsg.Amount.Denom)
 			if vested.LT(delegateMsg.Amount.Amount) {
 				// TODO Define error message
 				return ctx, fmt.Errorf("coins are locked")
 			}
-
 		}
 
 	}
