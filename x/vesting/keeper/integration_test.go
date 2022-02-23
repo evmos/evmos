@@ -1,11 +1,14 @@
 package keeper_test
 
 import (
+	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/app/ante"
 	"github.com/tharsis/evmos/testutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +18,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/vesting/types"
 )
 
@@ -85,6 +89,10 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.Require().NoError(err)
 		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
 
+		fmt.Println(clawbackAccount.GetAddress().String())
+		acc := s.app.AccountKeeper.GetAccount(s.ctx, clawbackAccount.GetAddress())
+		s.Require().NotNil(acc)
+
 		// Check if all tokens are unvested at vestingStart
 		unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
 		vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
@@ -93,19 +101,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	})
 
 	Context("before cliff", func() {
-
 		It("cannot delegate tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				unvested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			// TODO Antehandler
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+			addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+			s.Require().NoError(err)
+			//
+			val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
+			s.Require().NoError(err)
+			delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakeDenom, sdk.NewInt(100)))
+			txBuilder.SetMsgs(delegateMsg)
+
+			tx := txBuilder.GetTx()
+
+			dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper)
+			_, err = dec.AnteHandle(s.ctx, tx, false, nil)
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot vote on governance proposals", func() {

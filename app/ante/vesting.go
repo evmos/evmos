@@ -25,20 +25,22 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 	// check if the tx contains a staking delegation and error if the tokens are still locked or the bond amount is greater than the tokens already vested
 	for _, msg := range tx.GetMsgs() {
 		for _, addr := range msg.GetSigners() {
+
+			delegateMsg, isDelegation := msg.(*stakingtypes.MsgDelegate)
+			if !isDelegation {
+				continue
+			}
+
 			acc := vdd.ak.GetAccount(ctx, addr)
 			if acc == nil {
-				return ctx, err
+				// TODO error msg
+				return ctx, fmt.Errorf("account doesnt exists")
 			}
 
 			clawbackAccount, isPeriodicVesting := acc.(*vestingtypes.ClawbackVestingAccount)
 			if !isPeriodicVesting {
 				// continue to next decorator as this logic only applies to vesting
 				return next(ctx, tx, simulate)
-			}
-
-			delegateMsg, isDelegation := msg.(*stakingtypes.MsgDelegate)
-			if !isDelegation {
-				continue
 			}
 
 			// error if bond amount is > vested tokens
