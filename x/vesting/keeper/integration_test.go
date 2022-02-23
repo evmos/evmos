@@ -81,7 +81,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.SetupTest()
 
 		// Create and fund periodic vesting account
-		vestingStart := s.ctx.BlockTime().Unix()
+		vestingStart := s.ctx.BlockTime()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 		funder := sdk.AccAddress(types.ModuleName)
 		clawbackAccount = types.NewClawbackVestingAccount(
