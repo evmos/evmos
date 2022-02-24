@@ -155,40 +155,22 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("cannot perform Ethereum tx", func() {
 			chainID := s.app.EvmKeeper.ChainID()
-			acc, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
-			s.Require().NoError(err)
-			from := common.BytesToAddress(acc.Bytes())
-
+			from := common.BytesToAddress(addr.Bytes())
 			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-			// Mint the max gas to the FeeCollector to ensure balance in case of refund
-			s.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(s.app.FeeMarketKeeper.GetBaseFee(s.ctx).Int64()*int64(100000)))))
-
-			msgEthereumTx := evmtypes.NewTx(
-				chainID,
-				nonce,
-				&from,
-				nil,
-				100000,
-				nil,
-				s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-				big.NewInt(1),
-				nil,
-				&ethtypes.AccessList{}, // accesses
-			)
-
+			msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
 			msgEthereumTx.From = from.String()
 
 			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 			txBuilder.SetMsgs(msgEthereumTx)
 			tx := txBuilder.GetTx()
-			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
-			_, err = dec.AnteHandle(s.ctx, tx, false, nil)
 
-			// TODO Eth Antehandler
+			// Call Ante decorator
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err := dec.AnteHandle(s.ctx, tx, false, nextFn)
+
 			Expect(err).ToNot(BeNil())
-			// Expect(err).To(BeNil())
 		})
 	})
 
@@ -252,10 +234,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
-			// TODO EVM Hook?
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			chainID := s.app.EvmKeeper.ChainID()
+			from := common.BytesToAddress(addr.Bytes())
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+			msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+			msgEthereumTx.From = from.String()
+
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+			txBuilder.SetMsgs(msgEthereumTx)
+			tx := txBuilder.GetTx()
+
+			// Call Ante decorator
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err := dec.AnteHandle(s.ctx, tx, false, nextFn)
+
+			Expect(err).ToNot(BeNil())
 		})
 	})
 
@@ -320,12 +315,30 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can perform ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
+			chainID := s.app.EvmKeeper.ChainID()
+			from := common.BytesToAddress(addr.Bytes())
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+			msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+			msgEthereumTx.From = from.String()
+
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+			txBuilder.SetMsgs(msgEthereumTx)
+			tx := txBuilder.GetTx()
+
+			// Call Ante decorator
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err := dec.AnteHandle(s.ctx, tx, false, nextFn)
+
 			Expect(err).To(BeNil())
 		})
 
-		// TODO Rewards Tests
 		// TODO Clawback Tests
 		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})
 })
+
+func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+	return ctx, nil
+}

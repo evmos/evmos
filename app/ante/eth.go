@@ -564,7 +564,6 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				"cannot perform Ethereum tx with clawback vesting account, that has locked coins: %x", vested,
 			)
 		}
-
 	}
 
 	return next(ctx, tx, simulate)
