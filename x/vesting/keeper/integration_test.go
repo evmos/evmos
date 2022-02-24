@@ -18,7 +18,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
@@ -104,11 +103,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).ToNot(BeNil())
 		})
 
-		It("cannot vote on governance proposals", func() {
-			err := proposeAndVote(clawbackAccount)
-			Expect(err).ToNot(BeNil())
-		})
-
 		It("cannot transfer tokens", func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
@@ -140,11 +134,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("can delegate vested tokens", func() {
 			err := delegate(clawbackAccount, 1)
-			Expect(err).To(BeNil())
-		})
-
-		It("can vote on governance proposals", func() {
-			err := proposeAndVote(clawbackAccount)
 			Expect(err).To(BeNil())
 		})
 
@@ -233,35 +222,6 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	tx := txBuilder.GetTx()
 
 	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper)
-	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
-	return err
-}
-
-func proposeAndVote(clawbackAccount *types.ClawbackVestingAccount) error {
-	// Submit governance porposal
-	TestProposal := govtypes.NewTextProposal("Test", "description")
-	depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	proposalCoins := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
-	err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
-	s.Require().NoError(err)
-
-	proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
-	s.Require().NoError(err)
-
-	_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
-	s.Require().NoError(err)
-
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
-	s.Require().NoError(err)
-
-	voteMsg := govtypes.NewMsgVote(addr, proposal.ProposalId, govtypes.OptionNo)
-	txBuilder.SetMsgs(voteMsg)
-	tx := txBuilder.GetTx()
-
-	dec := ante.NewVestingGovernanceDecorator(s.app.AccountKeeper)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
