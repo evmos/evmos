@@ -10,10 +10,12 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
 
-| Network Chain ID | Description                       | Site                                                                     | Version                                               |
+| Network Chain ID | Description                       | Site                                                                     | Version                                                |
 |------------------|-----------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------|
-| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases) |
-| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)   | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
+| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3)  | [`v1.x.x`](https://github.com/tharsis/evmos/releases) |
+| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons)  | [`v0.3.x`](https://github.com/tharsis/evmos/releases) | 
+| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)      | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
+
 
 ## Install `evmosd`
 
@@ -25,14 +27,14 @@ Make sure you have the right version of `{{ $themeConfig.project.binary }}` inst
 
 ### Save Chain ID
 
-We recommend saving the mainnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
+We recommend saving the testnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
 
 ::: tip
 See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for reference.
 :::
 
 ```bash
-evmosd config chain-id evmos_9000-2
+evmosd config chain-id evmos_9000-3
 ```
 
 ## Initialize Node
@@ -40,7 +42,7 @@ evmosd config chain-id evmos_9000-2
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-evmosd init <your_custom_moniker> --chain-id evmos_9000-2
+evmosd init <your_custom_moniker> --chain-id evmos_9000-3
 ```
 
 ::: danger
@@ -57,7 +59,10 @@ In the `config` directory, the most important files for configuration are `app.t
 Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
-curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/genesis.json > ~/.evmosd/config/genesis.json
+curl https://raw.githubusercontent.com/tharsis/testnets/main/evmos_9000-3/genesis.zip > ~/.evmosd/config/genesis.zip
+sudo apt install -y unzip
+unzip genesis.zip
+rm genesis.zip
 ```
 
 Then verify the correctness of the genesis configuration file:
@@ -87,7 +92,7 @@ seeds = "<node-id>@<ip>:<p2p port>"
 You can use the following code to get seeds from the repo and add it to your config:
 
 ```bash
-SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/seeds.txt | awk '{print $1}' | paste -s -d, -`
+SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evmos_9000-3/seeds.txt | awk '{print $1}' | paste -s -d, -`
 sed -i.bak -e "s/^seeds =.*/seeds = \"$SEEDS\"/" ~/.evmosd/config/config.toml
 ```
 
@@ -103,7 +108,7 @@ available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
-PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
+PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evmos_9000-3/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
 ```
 
 Use `sed` to include them into the configuration. You can also add them manually:
@@ -122,7 +127,7 @@ For more details on how to configure your validator, follow the validator [setup
 
 ```bash
 evmosd tx staking create-validator \
-  --amount=1000000000000aevmos \
+  --amount=1000000000000atevmos \
   --pubkey=$(evmosd tendermint show-validator) \
   --moniker="EvmosWhale" \
   --chain-id=<chain_id> \
