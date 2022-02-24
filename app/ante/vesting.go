@@ -73,12 +73,14 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 // VestingDelegationDecorator validates delegation of vested coins
 type VestingDelegationDecorator struct {
 	ak evmtypes.AccountKeeper
+	sk vestingtypes.StakingKeeper
 }
 
 // NewVestingDelegationDecorator creates a new VestingDelegationDecorator
-func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper) VestingDelegationDecorator {
+func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper, sk vestingtypes.StakingKeeper) VestingDelegationDecorator {
 	return VestingDelegationDecorator{
 		ak: ak,
+		sk: sk,
 	}
 }
 
@@ -107,8 +109,8 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 
 			// error if bond amount is > vested coins
 			coins := clawbackAccount.GetVestedOnly(ctx.BlockHeader().Time)
-			vested := coins.AmountOf(stakingtypes.DefaultParams().BondDenom)
-			// vested := coins.AmountOf(vdd.sk.BondDenom(ctx))
+			// vested := coins.AmountOf(stakingtypes.DefaultParams().BondDenom)
+			vested := coins.AmountOf(vdd.sk.BondDenom(ctx))
 			if vested.LT(delegateMsg.Amount.Amount) {
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest,
 					"cannot delegate unvested coins. Coins Vested: %x", vested,
