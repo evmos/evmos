@@ -107,11 +107,6 @@ func (k Keeper) CreateClawbackVestingAccount(
 		acc := ak.NewAccount(ctx, vestingAcc)
 		ak.SetAccount(ctx, acc)
 		madeNewAcc = true
-
-		// TODO check if NewAccountWithAddress can be replaced with NewBaseAccountWithAddress
-		// baseAccount := ak.NewAccountWithAddress(ctx, to)
-		// va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
-		// madeNewAcc = true
 	}
 
 	if madeNewAcc {
