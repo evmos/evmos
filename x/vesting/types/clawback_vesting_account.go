@@ -215,5 +215,4 @@ func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
 		unlockingTime.Add(time.Duration(lp.Length))
 	}
 	return blockTime.Before(unlockingTime)
-
 }

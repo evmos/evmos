@@ -21,7 +21,6 @@ func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper) VestingDelegationD
 }
 
 func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-
 	// check if the tx contains a staking delegation and error if the tokens are still locked or the bond amount is greater than the tokens already vested
 	for _, msg := range tx.GetMsgs() {
 		for _, addr := range msg.GetSigners() {
@@ -48,9 +47,7 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 				// TODO Define error message
 				return ctx, fmt.Errorf("coins are locked")
 			}
-
 		}
-
 	}
 
 	return next(ctx, tx, simulate)
