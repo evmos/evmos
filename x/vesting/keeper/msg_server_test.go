@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -33,7 +34,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 		malleate           func()
 		from               sdk.AccAddress
 		to                 sdk.AccAddress
-		startTime          int64
+		startTime          time.Time
 		lockup             []sdkvesting.Period
 		vesting            []sdkvesting.Period
 		merge              bool
@@ -45,7 +46,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			func() {},
 			addr,
 			addr2,
-			0,
+			time.Now(),
 			lockupPeriods,
 			vestingPeriods,
 			false,
@@ -57,7 +58,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			func() {},
 			addr,
 			addr2,
-			0,
+			time.Now(),
 			nil,
 			vestingPeriods,
 			false,
@@ -69,7 +70,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			func() {},
 			addr,
 			addr2,
-			0,
+			time.Now(),
 			lockupPeriods,
 			nil,
 			false,
@@ -81,7 +82,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			func() {},
 			addr,
 			addr2,
-			0,
+			time.Now(),
 			[]sdkvesting.Period{
 				{Length: 5000, Amount: quarter},
 			},
@@ -94,7 +95,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			"fail - account exists - clawback but no merge",
 			func() {
 				// Existing clawback account
-				vestingStart := s.ctx.BlockTime().Unix()
+				vestingStart := s.ctx.BlockTime()
 				baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
 				funder := sdk.AccAddress(types.ModuleName)
 				clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
@@ -103,7 +104,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			},
 			addr,
 			addr2,
-			0,
+			time.Now(),
 			lockupPeriods,
 			vestingPeriods,
 			false,
@@ -115,7 +116,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			func() {},
 			addr,
 			addr,
-			0,
+			time.Now(),
 			lockupPeriods,
 			vestingPeriods,
 			false,
@@ -127,7 +128,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			func() {},
 			addr,
 			addr,
-			0,
+			time.Now(),
 			lockupPeriods,
 			vestingPeriods,
 			true,
@@ -138,7 +139,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			"fail - account exists - wrong funder",
 			func() {
 				// Existing clawback account
-				vestingStart := s.ctx.BlockTime().Unix()
+				vestingStart := s.ctx.BlockTime()
 				baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
 				funder := sdk.AccAddress(types.ModuleName)
 				clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
@@ -147,7 +148,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			},
 			addr2,
 			addr2,
-			0,
+			time.Now(),
 			lockupPeriods,
 			vestingPeriods,
 			true,
@@ -158,7 +159,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			"ok - account exists - addGrant",
 			func() {
 				// Existing clawback account
-				vestingStart := s.ctx.BlockTime().Unix()
+				vestingStart := s.ctx.BlockTime()
 				baseAccount := authtypes.NewBaseAccountWithAddress(addr2)
 				funder := sdk.AccAddress(addr)
 				clawbackAccount := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
@@ -167,7 +168,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			},
 			addr,
 			addr2,
-			0,
+			time.Now(),
 			lockupPeriods,
 			vestingPeriods,
 			true,
@@ -281,7 +282,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, balances)
 
 			// Create Clawnback Vesting Account
-			createMsg := types.NewMsgCreateClawbackVestingAccount(addr, addr2, suite.ctx.BlockTime().Unix(), lockupPeriods, vestingPeriods, false)
+			createMsg := types.NewMsgCreateClawbackVestingAccount(addr, addr2, suite.ctx.BlockTime(), lockupPeriods, vestingPeriods, false)
 			createRes, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, createMsg)
 			suite.Require().NoError(err)
 			suite.Require().NotNil(createRes)
@@ -313,4 +314,43 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
+	suite.SetupTest()
+
+	// Create and set clawback vesting account
+	vestingStart := s.ctx.BlockTime()
+	funder := sdk.AccAddress(types.ModuleName)
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
+	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
+	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+	acc2 := suite.app.AccountKeeper.GetAccount(suite.ctx, acc.GetAddress())
+	suite.Require().IsType(&types.ClawbackVestingAccount{}, acc2)
+	suite.Require().Equal(acc.String(), acc2.String())
+}
+
+func (suite *KeeperTestSuite) TestClawbackVestingAccountMarshal() {
+	suite.SetupTest()
+
+	// Create and set clawback vesting account
+	vestingStart := s.ctx.BlockTime()
+	funder := sdk.AccAddress(types.ModuleName)
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
+	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
+
+	bz, err := suite.app.AccountKeeper.MarshalAccount(acc)
+	suite.Require().NoError(err)
+
+	acc2, err := suite.app.AccountKeeper.UnmarshalAccount(bz)
+	suite.Require().NoError(err)
+	suite.Require().IsType(&types.ClawbackVestingAccount{}, acc2)
+	suite.Require().Equal(acc.String(), acc2.String())
+
+	// error on bad bytes
+	_, err = suite.app.AccountKeeper.UnmarshalAccount(bz[:len(bz)/2])
+	suite.Require().Error(err)
 }

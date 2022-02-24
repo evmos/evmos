@@ -37,7 +37,7 @@ import (
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/contracts"
-	// "github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/x/incentives/types"
 )
 
 var (
@@ -211,6 +211,15 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+}
+
+// MintFeeCollector mints coins with the bank modules and sends them to the fee
+// collector.
+func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, types.ModuleName, authtypes.FeeCollectorName, coins)
+	suite.Require().NoError(err)
 }
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.

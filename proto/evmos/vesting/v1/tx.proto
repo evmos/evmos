@@ -3,6 +3,7 @@ package evmos.vesting.v1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 
 option go_package = "github.com/tharsis/evmos/x/vesting/types";
@@ -30,7 +31,10 @@ message MsgCreateClawbackVestingAccount {
   // to_address specifies the account to receive the funds
   string to_address = 2;
   // start_time defines the time at which the vesting period begins
-  int64 start_time = 3;
+  google.protobuf.Timestamp start_time = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
   // lockup_periods defines the unlocking schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
     (gogoproto.nullable) = false

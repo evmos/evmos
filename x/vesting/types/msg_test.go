@@ -2,13 +2,13 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/testutil"
 )
 
 type MsgsTestSuite struct {
@@ -24,9 +24,9 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 	msg := NewMsgCreateClawbackVestingAccount(
 		sdk.AccAddress(tests.GenerateAddress().Bytes()),
 		sdk.AccAddress(tests.GenerateAddress().Bytes()),
-		int64(100200300),
-		[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
-		[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+		time.Unix(100200300, 0),
+		[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+		[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 		true,
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
@@ -41,7 +41,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 		msg            string
 		from           sdk.AccAddress
 		to             sdk.AccAddress
-		startTime      int64
+		startTime      time.Time
 		lockupPeriods  []sdkvesting.Period
 		vestingPeriods []sdkvesting.Period
 		merge          bool
@@ -51,9 +51,9 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 			"msg create clawback vesting account - pass",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()),
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
-			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			true,
 		},
@@ -78,12 +78,12 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 	}
 }
 
-func (suite *MsgsTestSuite) TestMsgConvertCoin() {
+func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 	testCases := []struct {
 		msg            string
 		from           string
 		to             string
-		startTime      int64
+		startTime      time.Time
 		lockupPeriods  []sdkvesting.Period
 		vestingPeriods []sdkvesting.Period
 		merge          bool
@@ -93,9 +93,9 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - invalid from address",
 			"foo",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
-			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -103,9 +103,9 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - invalid to address",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			"foo",
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
-			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -113,9 +113,9 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - invalid lockup period length",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 0, Amount: testutil.NewTestCoins()}},
-			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -123,9 +123,9 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - invalid lockup period amount",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
-			int64(100200300),
+			time.Unix(100200300, 0),
 			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -133,9 +133,9 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - invalid vesting period length",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
-			[]sdkvesting.Period{{Length: 0, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			[]sdkvesting.Period{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -143,8 +143,8 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - invalid vesting period amount",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
 			true,
 			false,
@@ -153,9 +153,9 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg create clawback vesting account - pass",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
-			int64(100200300),
-			[]sdkvesting.Period{{Length: 200000, Amount: testutil.NewTestCoins()}},
-			[]sdkvesting.Period{{Length: 300000, Amount: testutil.NewTestCoins()}},
+			time.Unix(100200300, 0),
+			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			true,
 		},

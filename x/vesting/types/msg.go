@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -19,7 +21,7 @@ const (
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
 func NewMsgCreateClawbackVestingAccount(
 	fromAddr, toAddr sdk.AccAddress,
-	startTime int64,
+	startTime time.Time,
 	lockupPeriods,
 	vestingPeriods []sdkvesting.Period,
 	merge bool,
@@ -42,14 +44,12 @@ func (msg MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateC
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
-	if err != nil {
-		return sdkerrors.Wrapf(err, "invalid from address %s", from)
+	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
-	if err != nil {
-		return sdkerrors.Wrapf(err, "invalid to address %s", to)
+	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
+		return sdkerrors.Wrapf(err, "invalid to address")
 	}
 
 	lockupCoins := sdk.NewCoins()
@@ -114,20 +114,17 @@ func (msg MsgClawback) Type() string { return TypeMsgClawback }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgClawback) ValidateBasic() error {
-	funder, err := sdk.AccAddressFromBech32(msg.GetFunderAddress())
-	if err != nil {
-		return sdkerrors.Wrapf(err, "invalid funder address %s", funder)
+	if _, err := sdk.AccAddressFromBech32(msg.GetFunderAddress()); err != nil {
+		return sdkerrors.Wrapf(err, "invalid funder address")
 	}
 
-	addr, err := sdk.AccAddressFromBech32(msg.GetAccountAddress())
-	if err != nil {
-		return sdkerrors.Wrapf(err, "invalid addr address %s", addr)
+	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
+		return sdkerrors.Wrapf(err, "invalid addr address")
 	}
 
 	if msg.GetDestAddress() != "" {
-		dest, err := sdk.AccAddressFromBech32(msg.GetDestAddress())
-		if err != nil {
-			return sdkerrors.Wrapf(err, "invalid dest address %s", dest)
+		if _, err := sdk.AccAddressFromBech32(msg.GetDestAddress()); err != nil {
+			return sdkerrors.Wrapf(err, "invalid dest address")
 		}
 	}
 

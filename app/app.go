@@ -433,7 +433,6 @@ func NewEvmos(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
-			app.VestingKeeper.Hooks(),
 		),
 	)
 

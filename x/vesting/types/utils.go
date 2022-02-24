@@ -6,7 +6,10 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 func ScaleCoins(coins sdk.Coins, scale sdk.Dec) sdk.Coins {
 	scaledCoins := sdk.NewCoins()
 	for _, coin := range coins {
-		amt := coin.Amount.ToDec().Mul(scale).TruncateInt() // round down
+		var amt sdk.Int
+		if !coin.IsZero() {
+			amt = coin.Amount.ToDec().Mul(scale).TruncateInt() // round down
+		}
 		scaledCoins = scaledCoins.Add(sdk.NewCoin(coin.Denom, amt))
 	}
 	return scaledCoins
@@ -33,14 +36,6 @@ func CoinsMin(a, b sdk.Coins) sdk.Coins {
 // The IsEqual() method can panic.
 func coinEq(a, b sdk.Coins) bool {
 	return a.IsAllLTE(b) && b.IsAllLTE(a)
-}
-
-// minInt returns the minimum of its arguments.
-func MinInt(a, b sdk.Int) sdk.Int {
-	if a.GT(b) {
-		return b
-	}
-	return a
 }
 
 // max64 returns the maximum of its inputs.

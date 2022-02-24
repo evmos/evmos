@@ -99,8 +99,6 @@ func (vdd VestingGovernanceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 				return ctx, fmt.Errorf("coins are locked")
 			}
 		}
-
 	}
-
 	return next(ctx, tx, simulate)
 }

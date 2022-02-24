@@ -3,15 +3,16 @@ package keeper
 import (
 	"context"
 	"math"
-
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"time"
 
 	"github.com/armon/go-metrics"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
 	"github.com/tharsis/evmos/x/vesting/types"
 )
 
@@ -75,11 +76,11 @@ func (k Keeper) CreateClawbackVestingAccount(
 	// Otherwise create a new Clawback Vesting Account
 	madeNewAcc := false
 	acc := ak.GetAccount(ctx, to)
-	var va *types.ClawbackVestingAccount
+	var vestingAcc *types.ClawbackVestingAccount
 
 	if acc != nil {
 		var isClawback bool
-		va, isClawback = acc.(*types.ClawbackVestingAccount)
+		vestingAcc, isClawback = acc.(*types.ClawbackVestingAccount)
 		switch {
 		case !msg.Merge && isClawback:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists; consider using --merge", msg.ToAddress)
@@ -87,13 +88,24 @@ func (k Keeper) CreateClawbackVestingAccount(
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
 		case msg.Merge && !isClawback:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "account %s must be a clawback vesting account", msg.ToAddress)
-		case msg.FromAddress != va.FunderAddress:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, va.FunderAddress)
+		case msg.FromAddress != vestingAcc.FunderAddress:
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, vestingAcc.FunderAddress)
 		}
-		k.addGrant(ctx, va, msg.GetStartTime(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		ak.SetAccount(ctx, vestingAcc)
+
 	} else {
-		baseAccount := authtypes.NewBaseAccountWithAddress(to)
-		va = types.NewClawbackVestingAccount(baseAccount, from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
+		baseAcc := authtypes.NewBaseAccountWithAddress(to)
+		vestingAcc = types.NewClawbackVestingAccount(
+			baseAcc,
+			from,
+			vestingCoins,
+			msg.StartTime,
+			msg.LockupPeriods,
+			msg.VestingPeriods,
+		)
+		acc := ak.NewAccount(ctx, vestingAcc)
+		ak.SetAccount(ctx, acc)
 		madeNewAcc = true
 
 		// TODO check if NewAccountWithAddress can be replaced with NewBaseAccountWithAddress
@@ -101,8 +113,6 @@ func (k Keeper) CreateClawbackVestingAccount(
 		// va = types.NewClawbackVestingAccount(baseAccount.(*authtypes.BaseAccount), from, vestingCoins, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods)
 		// madeNewAcc = true
 	}
-
-	ak.SetAccount(ctx, va)
 
 	if madeNewAcc {
 		defer func() {
@@ -160,7 +170,7 @@ func (k Keeper) Clawback(
 		)
 	}
 
-	// Chech if account ecists
+	// Chech if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)
@@ -200,32 +210,14 @@ func (k Keeper) addGrant(
 	delegatedAmt := bondedAmt.Add(unbondingAmt)
 	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
 
-	// discover what has been slashed
-	oldDelegated := va.DelegatedVesting.Add(va.DelegatedFree...)
-	slashed := oldDelegated.Sub(types.CoinsMin(oldDelegated, delegated))
-
-	// Absorb the slashed amount by eliminating the tail of the vesting and lockup schedules
-	unvestedSlashed := types.CoinsMin(slashed, va.OriginalVesting)
-	if !unvestedSlashed.IsZero() {
-		newOrigVesting := va.OriginalVesting.Sub(unvestedSlashed)
-		cutoffPeriods := []sdkvesting.Period{{Length: 1, Amount: newOrigVesting}}
-		start := va.GetStartTime()
-		_, newLockupEnd, newLockupPeriods := types.ConjunctPeriods(start, start, va.LockupPeriods, cutoffPeriods)
-		_, newVestingEnd, newVestingPeriods := types.ConjunctPeriods(start, start, va.VestingPeriods, cutoffPeriods)
-		va.OriginalVesting = newOrigVesting
-		va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
-		va.LockupPeriods = newLockupPeriods
-		va.VestingPeriods = newVestingPeriods
-	}
-
 	// modify schedules for the new grant
-	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.StartTime, grantStartTime, va.LockupPeriods, grantLockupPeriods)
-	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.StartTime, grantStartTime,
+	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime, va.LockupPeriods, grantLockupPeriods)
+	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime,
 		va.GetVestingPeriods(), grantVestingPeriods)
 	if newLockupStart != newVestingStart {
 		panic("bad start time calculation")
 	}
-	va.StartTime = newLockupStart
+	va.StartTime = time.Unix(newLockupStart, 0)
 	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
 	va.LockupPeriods = newLockupPeriods
 	va.VestingPeriods = newVestingPeriods

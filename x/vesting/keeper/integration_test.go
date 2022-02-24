@@ -1,21 +1,26 @@
 package keeper_test
 
 import (
+	"math/big"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/app/ante"
 	"github.com/tharsis/evmos/testutil"
 
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/vesting/types"
@@ -124,7 +129,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.SetupTest()
 
 		// Create and fund periodic vesting account
-		vestingStart := s.ctx.BlockTime().Unix()
+		vestingStart := s.ctx.BlockTime()
 		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 		funder := sdk.AccAddress(types.ModuleName)
 		clawbackAccount = types.NewClawbackVestingAccount(
@@ -137,10 +142,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		)
 		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingAmtTotal)
 		s.Require().NoError(err)
-		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
-
-		acc := s.app.AccountKeeper.GetAccount(s.ctx, clawbackAccount.GetAddress())
-		s.Require().NotNil(acc)
+		acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
+		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
 		// Check if all tokens are unvested at vestingStart
 		unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
@@ -171,10 +174,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
-			// TODO EVM Hook?
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			chainID := s.app.EvmKeeper.ChainID()
+			from := common.BytesToAddress(addr.Bytes())
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+			msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+			msgEthereumTx.From = from.String()
+
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+			txBuilder.SetMsgs(msgEthereumTx)
+			tx := txBuilder.GetTx()
+
+			// Call Ante decorator
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err := dec.AnteHandle(s.ctx, tx, false, nextFn)
+
+			Expect(err).ToNot(BeNil())
 		})
 	})
 
@@ -212,10 +228,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
-			// TODO EVM Hook?
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			chainID := s.app.EvmKeeper.ChainID()
+			from := common.BytesToAddress(addr.Bytes())
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+			msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+			msgEthereumTx.From = from.String()
+
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+			txBuilder.SetMsgs(msgEthereumTx)
+			tx := txBuilder.GetTx()
+
+			// Call Ante decorator
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err := dec.AnteHandle(s.ctx, tx, false, nextFn)
+
+			Expect(err).ToNot(BeNil())
 		})
 	})
 
@@ -264,12 +293,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can perform ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
+			chainID := s.app.EvmKeeper.ChainID()
+			from := common.BytesToAddress(addr.Bytes())
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+			msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+			msgEthereumTx.From = from.String()
+
+			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+			txBuilder.SetMsgs(msgEthereumTx)
+			tx := txBuilder.GetTx()
+
+			// Call Ante decorator
+			dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+			_, err := dec.AnteHandle(s.ctx, tx, false, nextFn)
+
 			Expect(err).To(BeNil())
 		})
-
-		// TODO Rewards Tests
-		// TODO Clawback Tests
-		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})
 })

@@ -13,6 +13,7 @@ import (
 type AccountKeeper interface {
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 	SetAccount(sdk.Context, authtypes.AccountI)
+	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 }
 
@@ -20,8 +21,6 @@ type AccountKeeper interface {
 // for creating vesting accounts with funds.
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
-	IsSendEnabledCoins(ctx sdk.Context, coins ...sdk.Coin) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	BlockedAddr(addr sdk.AccAddress) bool
@@ -52,17 +51,7 @@ type StakingKeeper interface {
 	InsertRedelegationQueue(ctx sdk.Context, red stakingtypes.Redelegation, completionTime time.Time)
 	SetRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
-}
 
-// DistributionHooks is the expected interface for distribution module hooks.
-type DistributionHooks interface {
-	// AllowWithdrawAddr tells whether to honor the delegation withdraw address
-	// associated with the address (if any). The distribution keeper will call
-	// this before each reward withdrawal. If multiple distribution hooks are set,
-	// then any of them may disallow the withdraw address.
-	AllowWithdrawAddr(ctx sdk.Context, delAddr sdk.AccAddress) bool
-
-	// AfterDelegationReward is called after the reward has been transferred the
-	// address.
-	AfterDelegationReward(ctx sdk.Context, delAddr, withdrawAddr sdk.AccAddress, reward sdk.Coins)
+	// Hooks
+	stakingtypes.StakingHooks
 }
