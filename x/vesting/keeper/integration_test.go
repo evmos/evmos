@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"encoding/json"
 	"math/big"
 	"time"
 
@@ -9,14 +8,12 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/tharsis/ethermint/encoding"
-	"github.com/tharsis/ethermint/server/config"
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/app/ante"
-	"github.com/tharsis/evmos/contracts"
 	"github.com/tharsis/evmos/testutil"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -157,47 +154,30 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			// Create mint msgEthereumTx
-			contractAddr, err := s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
-			s.Require().NoError(err)
-			amount := big.NewInt(100)
-			transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", s.address, amount)
-			s.Require().NoError(err)
-
-			ctx := sdk.WrapSDKContext(s.ctx)
 			chainID := s.app.EvmKeeper.ChainID()
-
-			args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &s.address, Data: (*hexutil.Bytes)(&transferData)})
+			acc, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
 			s.Require().NoError(err)
+			from := common.BytesToAddress(acc.Bytes())
 
-			res, err := s.queryClientEvm.EstimateGas(ctx, &evmtypes.EthCallRequest{
-				Args:   args,
-				GasCap: uint64(config.DefaultGasCap),
-			})
-			s.Require().NoError(err)
-
-			nonce := s.app.EvmKeeper.GetNonce(s.ctx, s.address)
+			nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
 			// Mint the max gas to the FeeCollector to ensure balance in case of refund
-			s.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(s.app.FeeMarketKeeper.GetBaseFee(s.ctx).Int64()*int64(res.Gas)))))
+			s.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(s.app.FeeMarketKeeper.GetBaseFee(s.ctx).Int64()*int64(100000)))))
 
 			msgEthereumTx := evmtypes.NewTx(
 				chainID,
 				nonce,
-				&contractAddr,
+				&from,
 				nil,
-				res.Gas,
+				100000,
 				nil,
 				s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
 				big.NewInt(1),
-				transferData,
+				nil,
 				&ethtypes.AccessList{}, // accesses
 			)
 
-			msgEthereumTx.From = s.address.Hex()
-
-			err = msgEthereumTx.Sign(ethtypes.LatestSignerForChainID(chainID), s.signer)
-			s.Require().NoError(err)
+			msgEthereumTx.From = from.String()
 
 			encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
