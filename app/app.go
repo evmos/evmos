@@ -94,6 +94,7 @@ import (
 	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
+	ethante "github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
@@ -691,7 +692,7 @@ func NewEvmos(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 
-	options := ante.HandlerOptions{
+	options := ethante.HandlerOptions{
 		AccountKeeper:    app.AccountKeeper,
 		BankKeeper:       app.BankKeeper,
 		EvmKeeper:        app.EvmKeeper,

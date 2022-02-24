@@ -1,17 +1,13 @@
 package ante
 
 import (
-	"fmt"
-	"runtime/debug"
-
-	tmlog "github.com/tendermint/tendermint/libs/log"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	ethante "github.com/tharsis/ethermint/app/ante"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 )
 
@@ -23,13 +19,13 @@ const (
 // Ethereum or SDK transaction to an internal ante handler for performing
 // transaction-level processing (e.g. fee payment, signature verification) before
 // being passed onto it's respective handler.
-func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func NewAnteHandler(options ethante.HandlerOptions) sdk.AnteHandler {
 	return func(
 		ctx sdk.Context, tx sdk.Tx, sim bool,
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
-		defer Recover(ctx.Logger(), &err)
+		defer ethante.Recover(ctx.Logger(), &err)
 
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
@@ -59,25 +55,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		}
 
 		return anteHandler(ctx, tx, sim)
-	}
-}
-
-func Recover(logger tmlog.Logger, err *error) {
-	if r := recover(); r != nil {
-		*err = sdkerrors.Wrapf(sdkerrors.ErrPanic, "%v", r)
-
-		if e, ok := r.(error); ok {
-			logger.Error(
-				"ante handler panicked",
-				"error", e,
-				"stack trace", string(debug.Stack()),
-			)
-		} else {
-			logger.Error(
-				"ante handler panicked",
-				"recover", fmt.Sprintf("%v", r),
-			)
-		}
 	}
 }
 
