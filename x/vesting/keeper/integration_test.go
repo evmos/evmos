@@ -9,7 +9,6 @@ import (
 
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/app/ante"
 	"github.com/tharsis/evmos/testutil"
 
@@ -23,8 +22,60 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/vesting/types"
 )
+
+func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+	return ctx, nil
+}
+
+func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+	s.Require().NoError(err)
+	//
+	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
+	s.Require().NoError(err)
+	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(amount)))
+	txBuilder.SetMsgs(delegateMsg)
+	tx := txBuilder.GetTx()
+
+	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper)
+	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
+	return err
+}
+
+func proposeAndVote(clawbackAccount *types.ClawbackVestingAccount) error {
+	// Submit governance porposal
+	TestProposal := govtypes.NewTextProposal("Test", "description")
+	depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	proposalCoins := sdk.NewCoins(sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
+	err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
+	s.Require().NoError(err)
+
+	proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
+	s.Require().NoError(err)
+
+	_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
+	s.Require().NoError(err)
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+	s.Require().NoError(err)
+
+	voteMsg := govtypes.NewMsgVote(addr, proposal.ProposalId, govtypes.OptionNo)
+	txBuilder.SetMsgs(voteMsg)
+	tx := txBuilder.GetTx()
+
+	dec := ante.NewVestingGovernanceDecorator(s.app.AccountKeeper)
+	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
+	return err
+}
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
 // before the lockup period is reached to represent the scenario in which an
@@ -102,45 +153,14 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	})
 
 	Context("before cliff", func() {
-
 		It("cannot delegate tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				unvested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			// TODO Antehandler
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := delegate(clawbackAccount, 100)
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot vote on governance proposals", func() {
-			// Submit governance porposal
-			TestProposal := govtypes.NewTextProposal("Test", "description")
-			depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
-			proposalCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
-			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
-			s.Require().NoError(err)
-
-			_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			// Vote
-			err = s.app.GovKeeper.AddVote(
-				s.ctx,
-				proposal.ProposalId,
-				addr,
-				govtypes.NewNonSplitVoteOption(govtypes.OptionYes),
-			)
-			// TODO voting shouldn't be possible
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := proposeAndVote(clawbackAccount)
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot transfer tokens", func() {
@@ -188,38 +208,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				vested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
+			err := delegate(clawbackAccount, 1)
 			Expect(err).To(BeNil())
 		})
 
 		It("can vote on governance proposals", func() {
-			// Submit governance porposal
-			TestProposal := govtypes.NewTextProposal("Test", "description")
-			depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
-			proposalCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
-			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
-			s.Require().NoError(err)
-
-			_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			// Vote
-			err = s.app.GovKeeper.AddVote(
-				s.ctx,
-				proposal.ProposalId,
-				addr,
-				govtypes.NewNonSplitVoteOption(govtypes.OptionYes),
-			)
+			err := proposeAndVote(clawbackAccount)
 			Expect(err).To(BeNil())
 		})
 
@@ -269,29 +263,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				clawbackAccount.GetAddress(),
-				vested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
+			err := delegate(clawbackAccount, 1)
 			Expect(err).To(BeNil())
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				unvested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			// TODO Antehandler
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := delegate(clawbackAccount, 30)
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("can transfer vested tokens", func() {
@@ -335,7 +313,3 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 	})
 })
-
-func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
