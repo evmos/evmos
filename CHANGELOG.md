@@ -35,6 +35,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+### Features
+
+- [\#286](https://github.com/tharsis/evmos/pull/286) Add `x/vesting` module.
+
 ## [v1.0.0-beta1] - 2022-02-15
 
 ### State Machine Breaking

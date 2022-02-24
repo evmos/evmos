@@ -94,13 +94,13 @@ import (
 	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
-	"github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/evmos/app/ante"
 
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
@@ -695,6 +695,7 @@ func NewEvmos(
 		AccountKeeper:    app.AccountKeeper,
 		BankKeeper:       app.BankKeeper,
 		EvmKeeper:        app.EvmKeeper,
+		StakingKeeper:    app.StakingKeeper,
 		FeegrantKeeper:   app.FeeGrantKeeper,
 		IBCChannelKeeper: app.IBCKeeper.ChannelKeeper,
 		FeeMarketKeeper:  app.FeeMarketKeeper,

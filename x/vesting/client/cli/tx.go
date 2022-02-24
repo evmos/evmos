@@ -192,14 +192,12 @@ with a start time and an array of coins strings and durations relative to the st
 			if lockupFile == "" && vestingFile == "" {
 				return fmt.Errorf("must specify at least one of %s or %s", FlagLockup, FlagVesting)
 			}
-
 			if lockupFile != "" {
 				lockupStart, lockupPeriods, err = readScheduleFile(lockupFile)
 				if err != nil {
 					return err
 				}
 			}
-
 			if vestingFile != "" {
 				vestingStart, vestingPeriods, err = readScheduleFile(vestingFile)
 				if err != nil {

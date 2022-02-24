@@ -1,20 +1,27 @@
 package keeper_test
 
 import (
+	"math/big"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/app/ante"
 	"github.com/tharsis/evmos/testutil"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/vesting/types"
 )
 
@@ -57,9 +64,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		vestingPeriods = append(vestingPeriods, vestingPeriod)
 	}
 
-	// Vesting account address
-	addr := sdk.AccAddress(s.address.Bytes())
-
 	var (
 		clawbackAccount *types.ClawbackVestingAccount
 		unvested        sdk.Coins
@@ -83,7 +87,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		)
 		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingAmtTotal)
 		s.Require().NoError(err)
-		s.app.AccountKeeper.SetAccount(s.ctx, clawbackAccount)
+		acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
+		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
 		// Check if all tokens are unvested at vestingStart
 		unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
@@ -93,45 +98,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	})
 
 	Context("before cliff", func() {
-
 		It("cannot delegate tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				unvested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			// TODO Antehandler
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
-		})
-
-		It("cannot vote on governance proposals", func() {
-			// Submit governance porposal
-			TestProposal := govtypes.NewTextProposal("Test", "description")
-			depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
-			proposalCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
-			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
-			s.Require().NoError(err)
-
-			_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			// Vote
-			err = s.app.GovKeeper.AddVote(
-				s.ctx,
-				proposal.ProposalId,
-				addr,
-				govtypes.NewNonSplitVoteOption(govtypes.OptionYes),
-			)
-			// TODO voting shouldn't be possible
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := delegate(clawbackAccount, 100)
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot transfer tokens", func() {
@@ -145,10 +114,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
-			// TODO EVM Hook?
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := performEthTx(clawbackAccount)
+			Expect(err).ToNot(BeNil())
 		})
 	})
 
@@ -166,38 +133,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				vested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			Expect(err).To(BeNil())
-		})
-
-		It("can vote on governance proposals", func() {
-			// Submit governance porposal
-			TestProposal := govtypes.NewTextProposal("Test", "description")
-			depositor := sdk.AccAddress(tests.GenerateAddress().Bytes())
-			proposalCoins := sdk.NewCoins(sdk.NewCoin(stakeDenom, s.app.StakingKeeper.TokensFromConsensusPower(s.ctx, 10)))
-			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			proposal, err := s.app.GovKeeper.SubmitProposal(s.ctx, TestProposal)
-			s.Require().NoError(err)
-
-			_, err = s.app.GovKeeper.AddDeposit(s.ctx, proposal.ProposalId, depositor, proposalCoins)
-			s.Require().NoError(err)
-
-			// Vote
-			err = s.app.GovKeeper.AddVote(
-				s.ctx,
-				proposal.ProposalId,
-				addr,
-				govtypes.NewNonSplitVoteOption(govtypes.OptionYes),
-			)
+			err := delegate(clawbackAccount, 1)
 			Expect(err).To(BeNil())
 		})
 
@@ -212,10 +148,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
-			// TODO EVM Hook?
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := performEthTx(clawbackAccount)
+			Expect(err).ToNot(BeNil())
 		})
 	})
 
@@ -234,29 +168,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				clawbackAccount.GetAddress(),
-				vested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
+			err := delegate(clawbackAccount, 1)
 			Expect(err).To(BeNil())
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			_, err := s.app.StakingKeeper.Delegate(
-				s.ctx,
-				addr,
-				unvested.AmountOf(stakeDenom),
-				stakingtypes.Unbonded,
-				s.validator,
-				true,
-			)
-			// TODO Antehandler
-			// Expect(err).ToNot(BeNil())
-			Expect(err).To(BeNil())
+			err := delegate(clawbackAccount, 30)
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("can transfer vested tokens", func() {
@@ -280,8 +198,51 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can perform ethereum tx", func() {
-			_, err := s.DeployContract("vestcoin", "VESTCOIN", erc20Decimals)
+			err := performEthTx(clawbackAccount)
 			Expect(err).To(BeNil())
 		})
 	})
 })
+
+func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+	return ctx, nil
+}
+
+func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+	s.Require().NoError(err)
+	//
+	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
+	s.Require().NoError(err)
+	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(amount)))
+	txBuilder.SetMsgs(delegateMsg)
+	tx := txBuilder.GetTx()
+
+	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper)
+	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
+	return err
+}
+
+func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
+	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+	s.Require().NoError(err)
+	chainID := s.app.EvmKeeper.ChainID()
+	from := common.BytesToAddress(addr.Bytes())
+	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+	msgEthereumTx.From = from.String()
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+	txBuilder.SetMsgs(msgEthereumTx)
+	tx := txBuilder.GetTx()
+
+	// Call Ante decorator
+	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
+	return err
+}
