@@ -22,16 +22,16 @@ Open the Keplr extension on your browser. If you are setting up Keplr for the fi
 
 ## Connect to Evmos Testnet and Request Funds from the Faucet
 
-Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.org/) and click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (`evmos_{{ $themeConfig.project.testnet_chain_id }}-2`) to Keplr and approve the connection.
+Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.dev/) and click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (`evmos_{{ $themeConfig.project.testnet_chain_id }}-{{ $themeConfig.project.testnet_version_number }}`) to Keplr and approve the connection.
 
 ![chain add request](./../img/keplr_approve_chain.png)
 
-After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../basics/accounts.md#address-formats-for-clients) on the testnet (only `secp256k1` addresses are supported).
+After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../basics/accounts.md#address-formats-for-clients) on the testnet (only `eth_secp256k1` addresses are supported).
 
 ![chain add request](./../img/keplr_transaction.png)
 
 ::: tip
-You can request {{ $themeConfig.project.denom }} from the [Faucet](../../testnet/faucet.md) for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
+You can request {{ $themeConfig.project.testnet_denom }} from the [Faucet](../../testnet/faucet.md) for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
 :::
 
 View your account balance either by clicking on the Keplr extension or by [interacting with the node](../../quickstart/interact_node.md). Note that Faucet might not display the amount of {{ $themeConfig.project.testnet_denom }} transferred by the Faucet, as it might be smaller than the number of decimals displayed in the Keplr extension.
