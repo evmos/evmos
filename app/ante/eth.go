@@ -515,6 +515,8 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	return next(ctx, tx, simulate)
 }
 
+// EthVestingTransactionDecorator validates if clawback vesting accounts are
+// permitted to perform Ethereum Tx.
 type EthVestingTransactionDecorator struct {
 	ak evmtypes.AccountKeeper
 }
@@ -525,10 +527,15 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper) EthVestingTran
 	}
 }
 
-// AnteHandle ensures that a clawback vesting account cannot perform Ethereum Tx
-// if:
-//   - before surpassing all lockup periods (with no locked coins).
-//   -  Cannot perform Ethereum tx before surpassing all lockup periods (with no locked coins).
+// AnteHandle validates that a clawback vesting account has surpassed the
+// vesting cliff and lockup period.
+//
+// This AnteHandler decorator will fail if:
+//  - the message is not a MsgEthereumTx
+//  - sender account cannot be found
+//  - sender account is not a ClawbackvestingAccount
+//  - blocktime is before surpassing vesting cliff end (with zero vested coins) AND
+//  - blocktime is before surpassing all lockup periods (with non-zero locked coins)
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
