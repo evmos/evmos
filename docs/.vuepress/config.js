@@ -62,11 +62,11 @@ module.exports = {
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v0.4.2',
+      latest_version: 'v1.0.0',
       version_number: '1',
-      testnet_version_number: '2',
-      block_explorer_url: 'https://evm.evmos.org',
-      cosmos_block_explorer_url: 'https://explorer.evmos.org',
+      testnet_version_number: '3',
+      testnet_evm_explorer_url: 'https://evm.evmos.dev',
+      testnet_cosmos_explorer_url: 'https://explorer.evmos.dev/',
     },
     logo: {
       src: '/evmos-black.svg',
@@ -193,12 +193,12 @@ module.exports = {
               path: '/tools/explorers'
             },
             {
-              title: 'Evmos (EVM)',
-              path: 'https://evm.evmos.org'
+              title: 'Blockscout (EVM)',
+              path: 'https://evm.evmos.dev'
             },
             {
-              title: 'Evmos (Cosmos)',
-              path: 'https://explorer.evmos.org'
+              title: 'Mintscan (Cosmos)',
+              path: 'https://explorer.evmos.dev/'
             },
           ]
         },
@@ -215,7 +215,7 @@ module.exports = {
             },
             {
               title: 'Evmos gRPC Gateway API',
-              path: 'https://api.evmos.org/'
+              path: 'https://api.evmos.dev/'
             },
             {
               title: 'JSON-RPC API',

@@ -31,7 +31,7 @@ architecture.
 
 To run testnet nodes, you will need a machine with the following minimum hardware requirements:
 
-- 4 or more physical CPU cores
+- 4 or more physical CPU cores
 - At least 500GB of SSD disk storage
 - At least 16GB of memory (RAM)
 - At least 100mbps network bandwidth
@@ -104,7 +104,7 @@ evmosd gentx \
 When specifying commission parameters, the `commission-max-change-rate` is used to measure % _point_ change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
 :::
 
-You can then submit your `gentx` on the [launch repository](https://github.com/cosmos/launch). These `gentx` will be used to form the final genesis file. 
+You can then submit your `gentx` on the [launch repository](https://github.com/cosmos/launch). These `gentx` will be used to form the final genesis file.
 
 ## Edit Validator Description
 
