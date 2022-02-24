@@ -333,9 +333,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			Expect(err).To(BeNil())
 		})
-
-		// TODO Clawback Tests
-		// ? If the funder of a true vesting grant will be able to command "clawback" who is the funder in our case at genesis
 	})
 })
 
