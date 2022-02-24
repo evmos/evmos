@@ -212,7 +212,7 @@ func (va ClawbackVestingAccount) UpdateDelegation(
 func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
 	unlockingTime := va.StartTime
 	for _, lp := range va.LockupPeriods {
-		unlockingTime.Add(time.Duration(lp.Length))
+		unlockingTime = unlockingTime.Add(time.Duration(lp.Length))
 	}
 	return blockTime.Before(unlockingTime)
 }
