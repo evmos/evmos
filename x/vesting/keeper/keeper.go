@@ -28,7 +28,6 @@ func NewKeeper(
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 ) Keeper {
-
 	return Keeper{
 		storeKey:      storeKey,
 		cdc:           cdc,
