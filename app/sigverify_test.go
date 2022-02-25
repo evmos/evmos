@@ -89,7 +89,7 @@ func TestConsumeSignatureVerificationGas(t *testing.T) {
 			"PubKeyEd25519",
 			args{sdk.NewInfiniteGasMeter(), nil, ed25519.GenPrivKey().PubKey(), params},
 			p.SigVerifyCostED25519,
-			true,
+			false,
 		},
 		{
 			"PubKeyEthsecp256k1",
