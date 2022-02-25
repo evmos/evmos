@@ -116,6 +116,15 @@
   
     - [Query](#evmos.inflation.v1.Query)
   
+- [evmos/vesting/v1/vesting.proto](#evmos/vesting/v1/vesting.proto)
+    - [ClawbackVestingAccount](#evmos.vesting.v1.ClawbackVestingAccount)
+  
+- [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
+    - [QueryUnvestedRequest](#evmos.vesting.v1.QueryUnvestedRequest)
+    - [QueryUnvestedResponse](#evmos.vesting.v1.QueryUnvestedResponse)
+  
+    - [Query](#evmos.vesting.v1.Query)
+  
 - [evmos/vesting/v1/tx.proto](#evmos/vesting/v1/tx.proto)
     - [MsgClawback](#evmos.vesting.v1.MsgClawback)
     - [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse)
@@ -123,9 +132,6 @@
     - [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse)
   
     - [Msg](#evmos.vesting.v1.Msg)
-  
-- [evmos/vesting/v1/vesting.proto](#evmos/vesting/v1/vesting.proto)
-    - [ClawbackVestingAccount](#evmos.vesting.v1.ClawbackVestingAccount)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -1530,6 +1536,101 @@ Query provides defines the gRPC querier service.
 
 
 
+<a name="evmos/vesting/v1/vesting.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/vesting.proto
+
+
+
+<a name="evmos.vesting.v1.ClawbackVestingAccount"></a>
+
+### ClawbackVestingAccount
+ClawbackVestingAccount implements the VestingAccount interface. It provides
+an account that can hold contributions subject to "lockup" (like a
+PeriodicVestingAccount), or vesting which is subject to clawback
+of unvested tokens, or a combination (tokens vest, but are still locked).
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `base_vesting_account` | [cosmos.vesting.v1beta1.BaseVestingAccount](#cosmos.vesting.v1beta1.BaseVestingAccount) |  | base_vesting_account implements the VestingAccount interface. It contains all the necessary fields needed for any vesting account implementation |
+| `funder_address` | [string](#string) |  | funder_address specifies the account which can perform clawback |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | start_time defines the time at which the vesting period begins |
+| `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | lockup_periods defines the unlocking schedule relative to the start_time |
+| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting_periods defines the vesting schedule relative to the start_time |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/vesting/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/query.proto
+
+
+
+<a name="evmos.vesting.v1.QueryUnvestedRequest"></a>
+
+### QueryUnvestedRequest
+QueryUnvestedRequest is the request type for the Query/Unvested RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | address is the address of the clawback vesting account |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.QueryUnvestedResponse"></a>
+
+### QueryUnvestedResponse
+QueryUnvestedResponse is the response type for the Query/Unvested RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `unvested` | [string](#string) |  | unvested is the current amount of unvested tokens |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.vesting.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Unvested` | [QueryUnvestedRequest](#evmos.vesting.v1.QueryUnvestedRequest) | [QueryUnvestedResponse](#evmos.vesting.v1.QueryUnvestedResponse) | Retrieves the unvested tokens for a vesting account | GET|/evmos/vesting/v1/unvested/{address}|
+
+ <!-- end services -->
+
+
+
 <a name="evmos/vesting/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1611,44 +1712,6 @@ Msg defines the vesting Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `CreateClawbackVestingAccount` | [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount) | [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse) | CreateClawbackVestingAccount creats a vesting account that is subject to clawback and the configuration of vesting and lockup schedules. | GET|/evmos/vesting/v1/tx/create_clawback_vesting_account|
 | `Clawback` | [MsgClawback](#evmos.vesting.v1.MsgClawback) | [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse) | Clawback removes the unvested tokens from a ClawbackVestingAccount. | GET|/evmos/vesting/v1/tx/clawback|
-
- <!-- end services -->
-
-
-
-<a name="evmos/vesting/v1/vesting.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## evmos/vesting/v1/vesting.proto
-
-
-
-<a name="evmos.vesting.v1.ClawbackVestingAccount"></a>
-
-### ClawbackVestingAccount
-ClawbackVestingAccount implements the VestingAccount interface. It provides
-an account that can hold contributions subject to "lockup" (like a
-PeriodicVestingAccount), or vesting which is subject to clawback
-of unvested tokens, or a combination (tokens vest, but are still locked).
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `base_vesting_account` | [cosmos.vesting.v1beta1.BaseVestingAccount](#cosmos.vesting.v1beta1.BaseVestingAccount) |  | base_vesting_account implements the VestingAccount interface. It contains all the necessary fields needed for any vesting account implementation |
-| `funder_address` | [string](#string) |  | funder_address specifies the account which can perform clawback |
-| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | start_time defines the time at which the vesting period begins |
-| `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | lockup_periods defines the unlocking schedule relative to the start_time |
-| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting_periods defines the vesting schedule relative to the start_time |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
 
  <!-- end services -->
 

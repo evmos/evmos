@@ -1,0 +1,30 @@
+syntax = "proto3";
+package evmos.vesting.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/vesting/v1/vesting.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/vesting/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Retrieves the unvested tokens for a vesting account
+  rpc Unvested(QueryUnvestedRequest) returns (QueryUnvestedResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/unvested/{address}";
+  }
+}
+
+// QueryUnvestedRequest is the request type for the Query/Unvested RPC method.
+message QueryUnvestedRequest {
+  // address is the address of the clawback vesting account
+  string address = 1;
+}
+
+// QueryUnvestedResponse is the response type for the Query/Unvested RPC
+// method.
+message QueryUnvestedResponse {
+  // unvested is the current amount of unvested tokens
+  string unvested = 1;
+}
