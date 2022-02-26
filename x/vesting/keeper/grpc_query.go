@@ -41,7 +41,7 @@ func (k Keeper) Balances(
 	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
 	if !isClawback {
 		return nil, status.Errorf(codes.FailedPrecondition,
-			"account for address '%s'", req.Address,
+			"account at address '%s' is not a vesting account ", req.Address,
 		)
 	}
 
