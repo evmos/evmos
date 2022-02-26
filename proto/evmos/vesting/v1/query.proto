@@ -1,8 +1,6 @@
 syntax = "proto3";
 package evmos.vesting.v1;
 
-import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/vesting/v1/vesting.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
