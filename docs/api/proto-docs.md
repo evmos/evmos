@@ -120,8 +120,12 @@
     - [ClawbackVestingAccount](#evmos.vesting.v1.ClawbackVestingAccount)
   
 - [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
+    - [QueryLockedRequest](#evmos.vesting.v1.QueryLockedRequest)
+    - [QueryLockedResponse](#evmos.vesting.v1.QueryLockedResponse)
     - [QueryUnvestedRequest](#evmos.vesting.v1.QueryUnvestedRequest)
     - [QueryUnvestedResponse](#evmos.vesting.v1.QueryUnvestedResponse)
+    - [QueryVestedRequest](#evmos.vesting.v1.QueryVestedRequest)
+    - [QueryVestedResponse](#evmos.vesting.v1.QueryVestedResponse)
   
     - [Query](#evmos.vesting.v1.Query)
   
@@ -1581,6 +1585,37 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
 
 
 
+<a name="evmos.vesting.v1.QueryLockedRequest"></a>
+
+### QueryLockedRequest
+QueryLockedRequest is the request type for the Query/Locked RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | address of the clawback vesting account |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.QueryLockedResponse"></a>
+
+### QueryLockedResponse
+QueryLockedResponse is the response type for the Query/Locked RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `locked` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of locked tokens |
+
+
+
+
+
+
 <a name="evmos.vesting.v1.QueryUnvestedRequest"></a>
 
 ### QueryUnvestedRequest
@@ -1589,7 +1624,7 @@ QueryUnvestedRequest is the request type for the Query/Unvested RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | address is the address of the clawback vesting account |
+| `address` | [string](#string) |  | address of the clawback vesting account |
 
 
 
@@ -1605,7 +1640,38 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `unvested` | [string](#string) |  | unvested is the current amount of unvested tokens |
+| `unvested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of unvested tokens |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.QueryVestedRequest"></a>
+
+### QueryVestedRequest
+QueryVestedRequest is the request type for the Query/Vested RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | address of the clawback vesting account |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.QueryVestedResponse"></a>
+
+### QueryVestedResponse
+QueryVestedResponse is the response type for the Query/Vested RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `vested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of unvested tokens |
 
 
 
@@ -1626,6 +1692,8 @@ Query defines the gRPC querier service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Unvested` | [QueryUnvestedRequest](#evmos.vesting.v1.QueryUnvestedRequest) | [QueryUnvestedResponse](#evmos.vesting.v1.QueryUnvestedResponse) | Retrieves the unvested tokens for a vesting account | GET|/evmos/vesting/v1/unvested/{address}|
+| `Vested` | [QueryVestedRequest](#evmos.vesting.v1.QueryVestedRequest) | [QueryVestedResponse](#evmos.vesting.v1.QueryVestedResponse) | Retrieves the vested tokens for a vesting account | GET|/evmos/vesting/v1/vested/{address}|
+| `Locked` | [QueryLockedRequest](#evmos.vesting.v1.QueryLockedRequest) | [QueryLockedResponse](#evmos.vesting.v1.QueryLockedResponse) | Retrieves the locked tokens for a vesting account | GET|/evmos/vesting/v1/locked/{address}|
 
  <!-- end services -->
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/testutil"
@@ -71,21 +70,38 @@ func (suite *KeeperTestSuite) TestUnvested() {
 			"valid",
 			func() {
 				// Create and fund periodic vesting account
+
+				// vestingStart := s.ctx.BlockTime()
+				// baseAccount := authtypes.NewBaseAccountWithAddress(addr)
+				// funder := sdk.AccAddress(types.ModuleName)
+				// clawbackAccount := types.NewClawbackVestingAccount(
+				// 	baseAccount,
+				// 	funder,
+				// 	balances,
+				// 	vestingStart,
+				// 	lockupPeriods,
+				// 	vestingPeriods,
+				// )
+				// err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, balances)
+				// s.Require().NoError(err)
+				// acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
+				// s.app.AccountKeeper.SetAccount(s.ctx, acc)
+
 				vestingStart := s.ctx.BlockTime()
-				baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 				funder := sdk.AccAddress(types.ModuleName)
-				clawbackAccount := types.NewClawbackVestingAccount(
-					baseAccount,
+				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, funder, balances)
+				s.Require().NoError(err)
+
+				msg := types.NewMsgCreateClawbackVestingAccount(
 					funder,
-					balances,
+					addr,
 					vestingStart,
 					lockupPeriods,
 					vestingPeriods,
+					false,
 				)
-				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, balances)
+				_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 				s.Require().NoError(err)
-				acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
-				s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
 				req = &types.QueryUnvestedRequest{
 					Address: addr.String(),
@@ -113,13 +129,11 @@ func (suite *KeeperTestSuite) TestUnvested() {
 
 		res, err := suite.queryClient.Unvested(ctx, req)
 
-		fmt.Println(fmt.Sprintf("%s\n", res.Unvested))
-
 		if tc.expErr {
 			suite.Require().Error(err)
 		} else {
 			suite.Require().NoError(err)
-			suite.Require().Equal("STH", res.Unvested)
+			suite.Require().Equal(balances, res.Unvested)
 		}
 	}
 }

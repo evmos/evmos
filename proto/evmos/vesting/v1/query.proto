@@ -3,6 +3,7 @@ package evmos.vesting.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/vesting/v1/vesting.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
@@ -14,17 +15,60 @@ service Query {
   rpc Unvested(QueryUnvestedRequest) returns (QueryUnvestedResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/unvested/{address}";
   }
+  // Retrieves the vested tokens for a vesting account
+  rpc Vested(QueryVestedRequest) returns (QueryVestedResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/vested/{address}";
+  }
+  // Retrieves the locked tokens for a vesting account
+  rpc Locked(QueryLockedRequest) returns (QueryLockedResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/locked/{address}";
+  }
 }
 
 // QueryUnvestedRequest is the request type for the Query/Unvested RPC method.
 message QueryUnvestedRequest {
-  // address is the address of the clawback vesting account
+  // address of the clawback vesting account
   string address = 1;
 }
 
 // QueryUnvestedResponse is the response type for the Query/Unvested RPC
 // method.
 message QueryUnvestedResponse {
-  // unvested is the current amount of unvested tokens
-  string unvested = 1;
+  // current amount of unvested tokens
+  repeated cosmos.base.v1beta1.Coin unvested = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// QueryVestedRequest is the request type for the Query/Vested RPC method.
+message QueryVestedRequest {
+  // address of the clawback vesting account
+  string address = 1;
+}
+
+// QueryVestedResponse is the response type for the Query/Vested RPC
+// method.
+message QueryVestedResponse {
+    // current amount of unvested tokens
+  repeated cosmos.base.v1beta1.Coin vested = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// QueryLockedRequest is the request type for the Query/Locked RPC method.
+message QueryLockedRequest {
+  // address of the clawback vesting account
+  string address = 1;
+}
+
+// QueryLockedResponse is the response type for the Query/Locked RPC
+// method.
+message QueryLockedResponse {
+  // current amount of locked tokens
+  repeated cosmos.base.v1beta1.Coin locked = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }

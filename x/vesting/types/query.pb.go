@@ -6,6 +6,8 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -32,7 +34,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryUnvestedRequest is the request type for the Query/Unvested RPC method.
 type QueryUnvestedRequest struct {
-	// address is the address of the clawback vesting account
+	// address of the clawback vesting account
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -79,8 +81,8 @@ func (m *QueryUnvestedRequest) GetAddress() string {
 // QueryUnvestedResponse is the response type for the Query/Unvested RPC
 // method.
 type QueryUnvestedResponse struct {
-	// unvested is the current amount of unvested tokens
-	Unvested string `protobuf:"bytes,1,opt,name=unvested,proto3" json:"unvested,omitempty"`
+	// current amount of unvested tokens
+	Unvested github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=unvested,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"unvested"`
 }
 
 func (m *QueryUnvestedResponse) Reset()         { *m = QueryUnvestedResponse{} }
@@ -116,42 +118,242 @@ func (m *QueryUnvestedResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryUnvestedResponse proto.InternalMessageInfo
 
-func (m *QueryUnvestedResponse) GetUnvested() string {
+func (m *QueryUnvestedResponse) GetUnvested() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
 		return m.Unvested
 	}
+	return nil
+}
+
+// QueryVestedRequest is the request type for the Query/Vested RPC method.
+type QueryVestedRequest struct {
+	// address of the clawback vesting account
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *QueryVestedRequest) Reset()         { *m = QueryVestedRequest{} }
+func (m *QueryVestedRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryVestedRequest) ProtoMessage()    {}
+func (*QueryVestedRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ff0457b141ab5d28, []int{2}
+}
+func (m *QueryVestedRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryVestedRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryVestedRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryVestedRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryVestedRequest.Merge(m, src)
+}
+func (m *QueryVestedRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryVestedRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryVestedRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryVestedRequest proto.InternalMessageInfo
+
+func (m *QueryVestedRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
 	return ""
+}
+
+// QueryVestedResponse is the response type for the Query/Vested RPC
+// method.
+type QueryVestedResponse struct {
+	// current amount of unvested tokens
+	Vested github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=vested,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"vested"`
+}
+
+func (m *QueryVestedResponse) Reset()         { *m = QueryVestedResponse{} }
+func (m *QueryVestedResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryVestedResponse) ProtoMessage()    {}
+func (*QueryVestedResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ff0457b141ab5d28, []int{3}
+}
+func (m *QueryVestedResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryVestedResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryVestedResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryVestedResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryVestedResponse.Merge(m, src)
+}
+func (m *QueryVestedResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryVestedResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryVestedResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryVestedResponse proto.InternalMessageInfo
+
+func (m *QueryVestedResponse) GetVested() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Vested
+	}
+	return nil
+}
+
+// QueryLockedRequest is the request type for the Query/Locked RPC method.
+type QueryLockedRequest struct {
+	// address of the clawback vesting account
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *QueryLockedRequest) Reset()         { *m = QueryLockedRequest{} }
+func (m *QueryLockedRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryLockedRequest) ProtoMessage()    {}
+func (*QueryLockedRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ff0457b141ab5d28, []int{4}
+}
+func (m *QueryLockedRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryLockedRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryLockedRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryLockedRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryLockedRequest.Merge(m, src)
+}
+func (m *QueryLockedRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryLockedRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryLockedRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryLockedRequest proto.InternalMessageInfo
+
+func (m *QueryLockedRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+// QueryLockedResponse is the response type for the Query/Locked RPC
+// method.
+type QueryLockedResponse struct {
+	// current amount of locked tokens
+	Locked github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=locked,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"locked"`
+}
+
+func (m *QueryLockedResponse) Reset()         { *m = QueryLockedResponse{} }
+func (m *QueryLockedResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryLockedResponse) ProtoMessage()    {}
+func (*QueryLockedResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ff0457b141ab5d28, []int{5}
+}
+func (m *QueryLockedResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryLockedResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryLockedResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryLockedResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryLockedResponse.Merge(m, src)
+}
+func (m *QueryLockedResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryLockedResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryLockedResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryLockedResponse proto.InternalMessageInfo
+
+func (m *QueryLockedResponse) GetLocked() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Locked
+	}
+	return nil
 }
 
 func init() {
 	proto.RegisterType((*QueryUnvestedRequest)(nil), "evmos.vesting.v1.QueryUnvestedRequest")
 	proto.RegisterType((*QueryUnvestedResponse)(nil), "evmos.vesting.v1.QueryUnvestedResponse")
+	proto.RegisterType((*QueryVestedRequest)(nil), "evmos.vesting.v1.QueryVestedRequest")
+	proto.RegisterType((*QueryVestedResponse)(nil), "evmos.vesting.v1.QueryVestedResponse")
+	proto.RegisterType((*QueryLockedRequest)(nil), "evmos.vesting.v1.QueryLockedRequest")
+	proto.RegisterType((*QueryLockedResponse)(nil), "evmos.vesting.v1.QueryLockedResponse")
 }
 
 func init() { proto.RegisterFile("evmos/vesting/v1/query.proto", fileDescriptor_ff0457b141ab5d28) }
 
 var fileDescriptor_ff0457b141ab5d28 = []byte{
-	// 310 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x90, 0xc1, 0x4a, 0xc3, 0x40,
-	0x10, 0x86, 0xbb, 0x82, 0x5a, 0xf7, 0x24, 0xa1, 0x42, 0x09, 0x65, 0x91, 0x22, 0xb5, 0x88, 0x64,
-	0x8d, 0x7d, 0x83, 0xbe, 0x81, 0x05, 0x2f, 0xde, 0x36, 0xed, 0xb0, 0x0d, 0xd8, 0x9d, 0x34, 0xb3,
-	0x09, 0x16, 0xf1, 0xe2, 0xcd, 0x9b, 0xd0, 0x97, 0xf2, 0x58, 0xf0, 0xe2, 0x51, 0x5a, 0x1f, 0x44,
-	0x92, 0x6c, 0x7a, 0x68, 0x05, 0x6f, 0x33, 0xf3, 0xcf, 0xf7, 0xef, 0xec, 0xcf, 0x3b, 0x90, 0xcf,
-	0x90, 0x64, 0x0e, 0x64, 0x63, 0xa3, 0x65, 0x1e, 0xca, 0x79, 0x06, 0xe9, 0x22, 0x48, 0x52, 0xb4,
-	0xe8, 0x9d, 0x96, 0x6a, 0xe0, 0xd4, 0x20, 0x0f, 0xfd, 0xab, 0x31, 0x52, 0x01, 0x44, 0x8a, 0xa0,
-	0x5a, 0x95, 0x79, 0x18, 0x81, 0x55, 0xa1, 0x4c, 0x94, 0x8e, 0x8d, 0xb2, 0x31, 0x9a, 0x8a, 0xf6,
-	0xc5, 0x9e, 0x77, 0x6d, 0x54, 0xe9, 0x1d, 0x8d, 0xa8, 0x1f, 0x41, 0xaa, 0x24, 0x96, 0xca, 0x18,
-	0xb4, 0x25, 0x4c, 0x4e, 0x6d, 0x69, 0xd4, 0x58, 0x96, 0xb2, 0xa8, 0xaa, 0x69, 0xf7, 0x86, 0xb7,
-	0xee, 0x8a, 0x57, 0xef, 0x4d, 0xe1, 0x05, 0x93, 0x11, 0xcc, 0x33, 0x20, 0xeb, 0xb5, 0xf9, 0xb1,
-	0x9a, 0x4c, 0x52, 0x20, 0x6a, 0xb3, 0x73, 0xd6, 0x3f, 0x19, 0xd5, 0x6d, 0x77, 0xc0, 0xcf, 0x76,
-	0x08, 0x4a, 0xd0, 0x10, 0x78, 0x3e, 0x6f, 0x66, 0x6e, 0xe6, 0x98, 0x6d, 0x7f, 0xbb, 0x64, 0xfc,
-	0xb0, 0xa4, 0xbc, 0x37, 0xc6, 0x9b, 0x35, 0xea, 0xf5, 0x82, 0xdd, 0x40, 0x82, 0xbf, 0xae, 0xf1,
-	0x2f, 0xff, 0xdd, 0xab, 0x6e, 0xe8, 0x5e, 0xbf, 0x7e, 0xfe, 0x2c, 0x0f, 0x7a, 0xde, 0x85, 0xdc,
-	0xcb, 0xaa, 0xbe, 0x45, 0x3e, 0xbb, 0x9f, 0xbc, 0x0c, 0x87, 0x1f, 0x6b, 0xc1, 0x56, 0x6b, 0xc1,
-	0xbe, 0xd7, 0x82, 0xbd, 0x6f, 0x44, 0x63, 0xb5, 0x11, 0x8d, 0xaf, 0x8d, 0x68, 0x3c, 0xf4, 0x75,
-	0x6c, 0xa7, 0x59, 0x14, 0x8c, 0x71, 0x26, 0xed, 0x54, 0xa5, 0x14, 0x93, 0x73, 0x7c, 0xda, 0x7a,
-	0xda, 0x45, 0x02, 0x14, 0x1d, 0x95, 0x39, 0x0e, 0x7e, 0x03, 0x00, 0x00, 0xff, 0xff, 0x82, 0x05,
-	0xd0, 0xba, 0xf9, 0x01, 0x00, 0x00,
+	// 465 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x93, 0x4f, 0x6f, 0xd3, 0x30,
+	0x18, 0xc6, 0x6b, 0x26, 0xc2, 0x30, 0x17, 0x64, 0x86, 0x54, 0xa2, 0x29, 0x9b, 0xa2, 0x32, 0xaa,
+	0x09, 0xec, 0x65, 0x7c, 0x83, 0x72, 0xe5, 0x42, 0x25, 0x38, 0x70, 0x73, 0x12, 0xcb, 0xb3, 0xb6,
+	0xd9, 0x59, 0xec, 0x44, 0x0c, 0x84, 0x04, 0xdc, 0xb8, 0x21, 0x71, 0xe4, 0x1b, 0xf0, 0x49, 0x76,
+	0x9c, 0xc4, 0x85, 0x13, 0xa0, 0x96, 0x0f, 0x82, 0x62, 0x3b, 0xdb, 0xd2, 0xae, 0x0c, 0x0e, 0x3d,
+	0xd5, 0x7d, 0xff, 0x3c, 0xef, 0xcf, 0x79, 0x5e, 0xc3, 0x75, 0x56, 0x1f, 0x2a, 0x4d, 0x6a, 0xa6,
+	0x8d, 0x90, 0x9c, 0xd4, 0x09, 0x39, 0xaa, 0x58, 0x79, 0x8c, 0x8b, 0x52, 0x19, 0x85, 0x6e, 0xdb,
+	0x2c, 0xf6, 0x59, 0x5c, 0x27, 0xe1, 0x76, 0xa6, 0x74, 0xd3, 0x90, 0x52, 0xcd, 0x5c, 0x29, 0xa9,
+	0x93, 0x94, 0x19, 0x9a, 0x90, 0x82, 0x72, 0x21, 0xa9, 0x11, 0x4a, 0xba, 0xee, 0x30, 0x9a, 0xd3,
+	0x6e, 0x85, 0x7c, 0xfe, 0xa2, 0x56, 0xab, 0x92, 0x29, 0xd1, 0xf6, 0xaf, 0x73, 0xa5, 0xf8, 0x01,
+	0x23, 0xb4, 0x10, 0x84, 0x4a, 0xa9, 0x8c, 0x15, 0xd7, 0x3e, 0xbb, 0xc6, 0x15, 0x57, 0xf6, 0x48,
+	0x9a, 0x93, 0x8b, 0xc6, 0x3b, 0x70, 0xed, 0x59, 0x43, 0xf5, 0x5c, 0x36, 0xb3, 0x58, 0x3e, 0x66,
+	0x47, 0x15, 0xd3, 0x06, 0xf5, 0xe1, 0x0d, 0x9a, 0xe7, 0x25, 0xd3, 0xba, 0x0f, 0x36, 0xc1, 0xf0,
+	0xe6, 0xb8, 0xfd, 0x1b, 0xbf, 0x03, 0xf0, 0xee, 0x4c, 0x8b, 0x2e, 0x94, 0xd4, 0x0c, 0x71, 0xb8,
+	0x5a, 0xf9, 0x58, 0x1f, 0x6c, 0xae, 0x0c, 0x6f, 0xed, 0xde, 0xc3, 0x0e, 0x19, 0x37, 0xc8, 0xd8,
+	0x23, 0xe3, 0x27, 0x4a, 0xc8, 0xd1, 0xce, 0xc9, 0x8f, 0x8d, 0xde, 0xd7, 0x9f, 0x1b, 0x43, 0x2e,
+	0xcc, 0x5e, 0x95, 0xe2, 0x4c, 0x1d, 0x12, 0x7f, 0x3f, 0xf7, 0xf3, 0x48, 0xe7, 0xfb, 0xc4, 0x1c,
+	0x17, 0x4c, 0xdb, 0x06, 0x3d, 0x3e, 0x13, 0x8f, 0x31, 0x44, 0x96, 0xe0, 0xc5, 0x3f, 0x22, 0xbf,
+	0x86, 0x77, 0x3a, 0xf5, 0x9e, 0x37, 0x83, 0xc1, 0xf2, 0x68, 0x83, 0x19, 0xd6, 0xa7, 0x2a, 0xdb,
+	0xff, 0x1f, 0xd6, 0xb6, 0xfe, 0x9c, 0xf5, 0xc0, 0x46, 0x96, 0xc2, 0xea, 0xa4, 0x77, 0xbf, 0xac,
+	0xc0, 0xeb, 0x76, 0x38, 0xfa, 0x08, 0xe0, 0x6a, 0xeb, 0x2f, 0xda, 0xc2, 0xb3, 0x6b, 0x8d, 0x2f,
+	0xdb, 0x99, 0xf0, 0xc1, 0x95, 0x75, 0xee, 0x32, 0xf1, 0xc3, 0x0f, 0xdf, 0x7e, 0x7f, 0xbe, 0xb6,
+	0x85, 0x06, 0x64, 0x6e, 0xe3, 0x5b, 0x8f, 0xc9, 0x1b, 0xff, 0x41, 0xde, 0xa2, 0xf7, 0x00, 0x06,
+	0xce, 0x39, 0x34, 0x58, 0x30, 0xa1, 0xb3, 0x08, 0xe1, 0xfd, 0x2b, 0xaa, 0x3c, 0xc5, 0xb6, 0xa5,
+	0x18, 0xa0, 0x98, 0x5c, 0xfa, 0xee, 0xe6, 0x18, 0x9c, 0x23, 0x0b, 0x19, 0x3a, 0x06, 0x2f, 0x64,
+	0xe8, 0xda, 0xfa, 0x37, 0x06, 0xe7, 0xc9, 0x39, 0xc3, 0x68, 0x74, 0x32, 0x89, 0xc0, 0xe9, 0x24,
+	0x02, 0xbf, 0x26, 0x11, 0xf8, 0x34, 0x8d, 0x7a, 0xa7, 0xd3, 0xa8, 0xf7, 0x7d, 0x1a, 0xf5, 0x5e,
+	0x5e, 0x74, 0xda, 0xec, 0xd1, 0x52, 0x0b, 0xed, 0xf5, 0x5e, 0x9d, 0x29, 0x5a, 0xbf, 0xd3, 0xc0,
+	0xbe, 0xfa, 0xc7, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0xf5, 0x59, 0xda, 0x94, 0xc7, 0x04, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -168,6 +370,10 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Retrieves the unvested tokens for a vesting account
 	Unvested(ctx context.Context, in *QueryUnvestedRequest, opts ...grpc.CallOption) (*QueryUnvestedResponse, error)
+	// Retrieves the vested tokens for a vesting account
+	Vested(ctx context.Context, in *QueryVestedRequest, opts ...grpc.CallOption) (*QueryVestedResponse, error)
+	// Retrieves the locked tokens for a vesting account
+	Locked(ctx context.Context, in *QueryLockedRequest, opts ...grpc.CallOption) (*QueryLockedResponse, error)
 }
 
 type queryClient struct {
@@ -187,10 +393,32 @@ func (c *queryClient) Unvested(ctx context.Context, in *QueryUnvestedRequest, op
 	return out, nil
 }
 
+func (c *queryClient) Vested(ctx context.Context, in *QueryVestedRequest, opts ...grpc.CallOption) (*QueryVestedResponse, error) {
+	out := new(QueryVestedResponse)
+	err := c.cc.Invoke(ctx, "/evmos.vesting.v1.Query/Vested", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Locked(ctx context.Context, in *QueryLockedRequest, opts ...grpc.CallOption) (*QueryLockedResponse, error) {
+	out := new(QueryLockedResponse)
+	err := c.cc.Invoke(ctx, "/evmos.vesting.v1.Query/Locked", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Retrieves the unvested tokens for a vesting account
 	Unvested(context.Context, *QueryUnvestedRequest) (*QueryUnvestedResponse, error)
+	// Retrieves the vested tokens for a vesting account
+	Vested(context.Context, *QueryVestedRequest) (*QueryVestedResponse, error)
+	// Retrieves the locked tokens for a vesting account
+	Locked(context.Context, *QueryLockedRequest) (*QueryLockedResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -199,6 +427,12 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) Unvested(ctx context.Context, req *QueryUnvestedRequest) (*QueryUnvestedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unvested not implemented")
+}
+func (*UnimplementedQueryServer) Vested(ctx context.Context, req *QueryVestedRequest) (*QueryVestedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Vested not implemented")
+}
+func (*UnimplementedQueryServer) Locked(ctx context.Context, req *QueryLockedRequest) (*QueryLockedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Locked not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -223,6 +457,42 @@ func _Query_Unvested_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Vested_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryVestedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Vested(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/evmos.vesting.v1.Query/Vested",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Vested(ctx, req.(*QueryVestedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Locked_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryLockedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Locked(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/evmos.vesting.v1.Query/Locked",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Locked(ctx, req.(*QueryLockedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "evmos.vesting.v1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -230,6 +500,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Unvested",
 			Handler:    _Query_Unvested_Handler,
+		},
+		{
+			MethodName: "Vested",
+			Handler:    _Query_Vested_Handler,
+		},
+		{
+			MethodName: "Locked",
+			Handler:    _Query_Locked_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -287,11 +565,152 @@ func (m *QueryUnvestedResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	if len(m.Unvested) > 0 {
-		i -= len(m.Unvested)
-		copy(dAtA[i:], m.Unvested)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Unvested)))
+		for iNdEx := len(m.Unvested) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Unvested[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryVestedRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryVestedRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryVestedRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryVestedResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryVestedResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryVestedResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Vested) > 0 {
+		for iNdEx := len(m.Vested) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Vested[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryLockedRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryLockedRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryLockedRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryLockedResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryLockedResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryLockedResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Locked) > 0 {
+		for iNdEx := len(m.Locked) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Locked[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -326,9 +745,67 @@ func (m *QueryUnvestedResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Unvested)
+	if len(m.Unvested) > 0 {
+		for _, e := range m.Unvested {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryVestedRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryVestedResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Vested) > 0 {
+		for _, e := range m.Vested {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryLockedRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryLockedResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Locked) > 0 {
+		for _, e := range m.Locked {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
 	}
 	return n
 }
@@ -454,6 +931,90 @@ func (m *QueryUnvestedResponse) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Unvested", wireType)
 			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Unvested = append(m.Unvested, types.Coin{})
+			if err := m.Unvested[len(m.Unvested)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryVestedRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryVestedRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryVestedRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
@@ -480,7 +1041,257 @@ func (m *QueryUnvestedResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Unvested = string(dAtA[iNdEx:postIndex])
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryVestedResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryVestedResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryVestedResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Vested", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Vested = append(m.Vested, types.Coin{})
+			if err := m.Vested[len(m.Vested)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryLockedRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryLockedRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryLockedRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryLockedResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryLockedResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryLockedResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Locked", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Locked = append(m.Locked, types.Coin{})
+			if err := m.Locked[len(m.Locked)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
