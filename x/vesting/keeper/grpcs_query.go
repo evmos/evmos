@@ -21,31 +21,13 @@ func (k Keeper) Unvested(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	addr, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// Get vesting account
-	acc := k.accountKeeper.GetAccount(ctx, addr)
-	if acc == nil {
-		return nil, status.Errorf(codes.NotFound,
-			"account for address '%s'", req.Address,
-		)
-	}
-
-	// Check if clawback vesting account
-	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
-	if !isClawback {
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"account for address '%s'", req.Address,
-		)
+	clawbackAccount, err := k.validateQuery(ctx, req.Address)
+	if err != nil {
+		return nil, err
 	}
 
 	unvested := clawbackAccount.GetVestingCoins(ctx.BlockTime())
-
 	return &types.QueryUnvestedResponse{
 		Unvested: unvested,
 	}, nil
@@ -60,31 +42,13 @@ func (k Keeper) Vested(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	addr, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// Get vesting account
-	acc := k.accountKeeper.GetAccount(ctx, addr)
-	if acc == nil {
-		return nil, status.Errorf(codes.NotFound,
-			"account for address '%s'", req.Address,
-		)
-	}
-
-	// Check if clawback vesting account
-	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
-	if !isClawback {
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"account for address '%s'", req.Address,
-		)
+	clawbackAccount, err := k.validateQuery(ctx, req.Address)
+	if err != nil {
+		return nil, err
 	}
 
 	vested := clawbackAccount.GetVestedOnly(ctx.BlockTime())
-
 	return &types.QueryVestedResponse{
 		Vested: vested,
 	}, nil
@@ -99,18 +63,32 @@ func (k Keeper) Locked(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	clawbackAccount, err := k.validateQuery(ctx, req.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	locked := clawbackAccount.GetLockedOnly(ctx.BlockTime())
+	return &types.QueryLockedResponse{
+		Locked: locked,
+	}, nil
+}
+
+func (k Keeper) validateQuery(
+	ctx sdk.Context,
+	address string,
+) (*types.ClawbackVestingAccount, error) {
+	addr, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get vesting account
 	acc := k.accountKeeper.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, status.Errorf(codes.NotFound,
-			"account for address '%s'", req.Address,
+			"account for address '%s'", address,
 		)
 	}
 
@@ -118,15 +96,9 @@ func (k Keeper) Locked(
 	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
 	if !isClawback {
 		return nil, status.Errorf(codes.FailedPrecondition,
-			"account for address '%s'", req.Address,
+			"account for address '%s'", address,
 		)
 	}
 
-	// TODO move to types and replace GetLocked()
-	unlocked := clawbackAccount.GetUnlockedOnly(ctx.BlockTime())
-	locked := clawbackAccount.OriginalVesting.Sub(unlocked)
-
-	return &types.QueryLockedResponse{
-		Locked: locked,
-	}, nil
+	return clawbackAccount, nil
 }

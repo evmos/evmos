@@ -129,6 +129,11 @@ func (va ClawbackVestingAccount) GetUnlockedOnly(blockTime time.Time) sdk.Coins 
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.LockupPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
+// LockedCoins returns the set of coins that are not spendable (i.e. locked).
+func (va ClawbackVestingAccount) GetLockedOnly(blockTime time.Time) sdk.Coins {
+	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime))
+}
+
 // GetVestedOnly returns the vesting schedule and blockTime.
 // Like GetVestedCoins, but only for the vesting (in the clawback sense) component.
 func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
