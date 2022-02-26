@@ -7,6 +7,7 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	ibcante "github.com/cosmos/ibc-go/v3/modules/core/ante"
 	ethante "github.com/tharsis/ethermint/app/ante"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 )
@@ -35,6 +36,9 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = newEthAnteHandler(options)
+				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
+					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
+					anteHandler = newCosmosAnteHandlerEip712(options)
 				default:
 					return ctx, sdkerrors.Wrapf(
 						sdkerrors.ErrUnknownExtensionOptions,
@@ -74,4 +78,26 @@ func DefaultSigVerificationGasConsumer(
 	}
 
 	return authante.DefaultSigVerificationGasConsumer(meter, sig, params)
+}
+
+// newCosmosAnteHandlerEip712 creates the ante handler for transactions signed with EIP712
+func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
+	return sdk.ChainAnteDecorators(
+		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
+		authante.NewSetUpContextDecorator(),
+		authante.NewMempoolFeeDecorator(),
+		authante.NewValidateBasicDecorator(),
+		authante.NewTxTimeoutHeightDecorator(),
+		authante.NewValidateMemoDecorator(options.AccountKeeper),
+		authante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		authante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		// SetPubKeyDecorator must be called before all signature verification decorators
+		authante.NewSetPubKeyDecorator(options.AccountKeeper),
+		authante.NewValidateSigCountDecorator(options.AccountKeeper),
+		authante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// Note: signature verification uses EIP instead of the cosmos signature validator
+		ethante.NewEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		authante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		ibcante.NewAnteDecorator(options.IBCChannelKeeper),
+	)
 }
