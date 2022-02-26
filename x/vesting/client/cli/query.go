@@ -22,19 +22,17 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetUnvestedCmd(),
-		GetVestedCmd(),
-		GetLockedCmd(),
+		GetBalancesCmd(),
 	)
 	return cmd
 }
 
-// GetUnvestedCmd queries the unvested tokens for a given vesting account
-func GetUnvestedCmd() *cobra.Command {
+// GetBalancesCmd queries the unvested tokens for a given vesting account
+func GetBalancesCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "unvested [address]",
-		Short: "Gets unvested tokens for a vesting account",
-		Long:  "Gets unvested tokens for a vesting account",
+		Use:   "balances [address]",
+		Short: "Gets locked, unvested and vested tokens for a vesting account",
+		Long:  "Gets locked, unvested and vested tokens for a vesting account",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -44,80 +42,17 @@ func GetUnvestedCmd() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryUnvestedRequest{
+			req := &types.QueryBalancesRequest{
 				Address: args[0],
 			}
 
-			res, err := queryClient.Unvested(context.Background(), req)
+			res, err := queryClient.Balances(context.Background(), req)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.Unvested))
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-// GetVestedCmd queries the unvested tokens for a given vesting account
-func GetVestedCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "vested [address]",
-		Short: "Gets vested tokens for a vesting account",
-		Long:  "Gets vested tokens for a vesting account",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryVestedRequest{
-				Address: args[0],
-			}
-
-			res, err := queryClient.Vested(context.Background(), req)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.Vested))
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-// GetLockedCmd queries the unvested tokens for a given vesting account
-func GetLockedCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "locked [address]",
-		Short: "Gets locked tokens for a vesting account",
-		Long:  "Gets locked tokens for a vesting account",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryLockedRequest{
-				Address: args[0],
-			}
-
-			res, err := queryClient.Locked(context.Background(), req)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.Locked))
+			return clientCtx.PrintString(
+				fmt.Sprintf("Locked: %s\nUnvested: %s\nVested: %s\n", res.Locked, res.Unvested, res.Vested))
 		},
 	}
 
