@@ -34,7 +34,7 @@ message QueryBalancesResponse {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-      // current amount of vested tokens
+  // current amount of vested tokens
   repeated cosmos.base.v1beta1.Coin vested = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
