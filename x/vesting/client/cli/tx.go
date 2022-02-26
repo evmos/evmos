@@ -152,8 +152,7 @@ If both files are given, they must describe schedules for the same total amount.
 If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount.
 The described amount of coins will be transferred from the --from address to the vesting account.
 Unvested coins may be "clawed back" by the funder with the clawback command.
-Coins may not be transferred out of the account if they are locked or unvested, but may be staked.
-Staking rewards are subject to a proportional vesting encumbrance.
+Coins may not be transferred out of the account if they are locked or unvested. Only vested coins may be staked.
 
 A periods file is a JSON object describing a sequence of unlocking or vesting events,
 with a start time and an array of coins strings and durations relative to the start or previous event.`,
