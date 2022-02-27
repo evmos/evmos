@@ -42,9 +42,8 @@ func CalculateEpochMintProvision(
 	)
 	epochProvision := sdk.NewDecFromBigInt(decEpochProvision)
 
-	// Multiply epochMintProvision with power reduction (10^18) to convert as the
-	// calculation is based on `evmos` and the issued tokens need to be given in
-	// `aevmos`
+	// Multiply epochMintProvision with power reduction (10^18) as the calculation
+	// is based on `evmos` and the issued tokens need to be given in `aevmos`
 	epochProvision = epochProvision.Mul(sdk.NewDec(ethermint.PowerReduction.Int64()))
 	return epochProvision
 }
