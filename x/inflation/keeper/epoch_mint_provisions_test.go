@@ -35,7 +35,7 @@ func (suite *KeeperTestSuite) TestSetGetEpochMintProvision() {
 
 			provision, found := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
 			suite.Require().True(found)
-			genesisProvision := sdk.NewDec(847602)
+			genesisProvision := sdk.NewDec(847602).Mul(sdk.DefaultPowerReduction.ToDec())
 			if tc.genesis {
 				suite.Require().Equal(genesisProvision, provision, tc.name)
 			} else {
