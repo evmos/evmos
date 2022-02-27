@@ -1,0 +1,9 @@
+syntax = "proto3";
+package evmos.vesting.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/vesting/types";
+
+// GenesisState defines the vesting module's genesis state.
+message GenesisState {}

@@ -116,6 +116,9 @@
   
     - [Query](#evmos.inflation.v1.Query)
   
+- [evmos/vesting/v1/genesis.proto](#evmos/vesting/v1/genesis.proto)
+    - [GenesisState](#evmos.vesting.v1.GenesisState)
+  
 - [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
     - [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest)
     - [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse)
@@ -1531,6 +1534,32 @@ Query provides defines the gRPC querier service.
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/vesting/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/genesis.proto
+
+
+
+<a name="evmos.vesting.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the vesting module's genesis state.
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 
