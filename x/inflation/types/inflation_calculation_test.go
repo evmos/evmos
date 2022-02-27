@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
-	ethermint "github.com/tharsis/ethermint/types"
 )
 
 type InflationTestSuite struct {
@@ -137,7 +136,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			)
 
 			// Multiply expected epoch mint provision with 10^18
-			expEpochProvision := tc.expEpochProvision.Mul(sdk.NewDec(ethermint.PowerReduction.Int64()))
+			expEpochProvision := tc.expEpochProvision.Mul(sdk.NewDec(sdk.DefaultPowerReduction.Int64()))
 
 			suite.Require().Equal(expEpochProvision, epochMintProvisions)
 		})
