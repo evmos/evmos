@@ -91,7 +91,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
 		// Check if all tokens are unvested at vestingStart
-		unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+		unvested = clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
 		vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
 		s.Require().Equal(vestingAmtTotal, unvested)
 		s.Require().True(vested.IsZero())
@@ -160,7 +160,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			s.CommitAfter(lockupDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
-			unvested = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+			unvested = clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
 			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
 			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
 			s.Require().NotEqual(vestingAmtTotal, vested)
