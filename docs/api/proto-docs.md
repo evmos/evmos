@@ -1633,7 +1633,8 @@ MsgClawbackResponse defines the MsgClawback response type.
 <a name="evmos.vesting.v1.MsgCreateClawbackVestingAccount"></a>
 
 ### MsgCreateClawbackVestingAccount
-MsgCreateClawbackVestingAccount defines a message that enables creating a ClawbackVestingAccount.
+MsgCreateClawbackVestingAccount defines a message that enables creating a
+ClawbackVestingAccount.
 
 
 | Field | Type | Label | Description |

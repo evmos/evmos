@@ -304,7 +304,7 @@ For example, if one wanted to test that the base application cannot affect the o
 	}
 ```
 
-Using a mock module as a base application in a middleware stack may require adding the module to your `SimApp`. 
+Using a mock module as a base application in a middleware stack may require adding the module to your `SimApp`.
 This is because IBC will route to the top level IBC module of a middleware stack, so a module which never
 sits at the top of middleware stack will need to be accessed via a public field in `SimApp`
 
