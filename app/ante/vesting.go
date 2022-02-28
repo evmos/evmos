@@ -119,7 +119,7 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 			islocked := clawbackAccount.HasLockedCoins(ctx.BlockTime())
 			if islocked {
 				return ctx, sdkerrors.Wrapf(vestingtypes.ErrVestingLockup,
-					"cannot perform Ethereum tx with clawback vesting account, that has locked coins: %s", clawbackAccount.GetLockedOnly(ctx.BlockTime()),
+					"cannot delegate coins with clawback vesting account, that has locked coins: %s", clawbackAccount.GetLockedOnly(ctx.BlockTime()),
 				)
 			}
 
