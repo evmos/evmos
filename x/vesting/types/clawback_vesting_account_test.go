@@ -428,7 +428,6 @@ func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 			func(va *types.ClawbackVestingAccount) {
 				va.TrackUndelegation(sdk.Coins{sdk.NewInt64Coin(stakeDenom, 25)})
 				va.TrackUndelegation(sdk.Coins{sdk.NewInt64Coin(stakeDenom, 50)})
-
 			},
 			sdk.Coins{sdk.NewInt64Coin(stakeDenom, 25)},
 			nil,

@@ -96,26 +96,33 @@ func (va ClawbackVestingAccount) Validate() error {
 
 	lockupEnd := va.GetStartTime()
 	lockupCoins := sdk.NewCoins()
+
 	for _, p := range va.LockupPeriods {
 		lockupEnd += p.Length
 		lockupCoins = lockupCoins.Add(p.Amount...)
 	}
+
 	if lockupEnd > va.EndTime {
 		return errors.New("lockup schedule extends beyond account end time")
 	}
+
+	// use coinEq to prevent panic
 	if !coinEq(lockupCoins, va.OriginalVesting) {
 		return errors.New("original vesting coins does not match the sum of all coins in lockup periods")
 	}
 
 	vestingEnd := va.GetStartTime()
 	vestingCoins := sdk.NewCoins()
+
 	for _, p := range va.VestingPeriods {
 		vestingEnd += p.Length
 		vestingCoins = vestingCoins.Add(p.Amount...)
 	}
+
 	if vestingEnd > va.EndTime {
 		return errors.New("vesting schedule exteds beyond account end time")
 	}
+
 	if !coinEq(vestingCoins, va.OriginalVesting) {
 		return errors.New("original vesting coins does not match the sum of all coins in vesting periods")
 	}
@@ -158,6 +165,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	totalVested := sdk.NewCoins()
 	totalUnvested := sdk.NewCoins()
 	unvestedIdx := 0
+
 	for i, period := range va.VestingPeriods {
 		t += period.Length
 		// tie in time goes to clawback
@@ -168,6 +176,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 			totalUnvested = totalUnvested.Add(period.Amount...)
 		}
 	}
+
 	newVestingPeriods := va.VestingPeriods[:unvestedIdx]
 
 	// To cap the unlocking schedule to the new total vested, conjunct with a limiting schedule
