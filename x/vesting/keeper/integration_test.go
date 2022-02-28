@@ -134,7 +134,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("cannot delegate vested tokens", func() {
 			err := delegate(clawbackAccount, 1)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(BeNil())
 		})
 
 		It("cannot transfer vested tokens", func() {

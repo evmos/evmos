@@ -115,14 +115,6 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 				return next(ctx, tx, simulate)
 			}
 
-			// Error if account has locked coins (before surpassing all lockup periods)
-			islocked := clawbackAccount.HasLockedCoins(ctx.BlockTime())
-			if islocked {
-				return ctx, sdkerrors.Wrapf(vestingtypes.ErrVestingLockup,
-					"cannot delegate coins with clawback vesting account, that has locked coins: %s", clawbackAccount.GetLockedOnly(ctx.BlockTime()),
-				)
-			}
-
 			// error if bond amount is > vested coins
 			bondDenom := vdd.sk.BondDenom(ctx)
 			coins := clawbackAccount.GetVestedOnly(ctx.BlockTime())
