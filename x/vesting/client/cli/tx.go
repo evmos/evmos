@@ -27,6 +27,7 @@ const (
 	FlagMerge    = "merge"
 	FlagVesting  = "vesting"
 	FlagClawback = "clawback"
+	FlagFunder   = "funder"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/vesting

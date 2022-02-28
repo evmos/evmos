@@ -24,7 +24,7 @@ evmosd config chain-id $CHAINID
 evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
-evmosd init $MONIKER --chain-id $CHAINID 
+evmosd init $MONIKER --chain-id $CHAINID
 
 # Change parameter token denominations to aevmos
 cat $HOME/.evmosd/config/genesis.json | jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
@@ -88,11 +88,15 @@ fi
 # Allocate genesis accounts (cosmos formatted addresses)
 evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
 
+FUNDER=evmos160ka7ccq7tn2355lppetq262sgh6r0u379pr4g
+DEV1=evmos1wmzx0dj2emwxh5q3a9znwjtgrne0aadh5c7lxl
+evmosd add-genesis-account $DEV1 5000000000000000000aevmos --keyring-backend $KEYRING --clawback --lockup ../tmp/lockup-schedule.json --vesting ../tmp/vesting-schedule.json --funder $FUNDER
+
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.evmosd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
 # Bc is required to add this big numbers
 # total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
-total_supply=100000000000000000000010000
+total_supply=100000005000000000000010000
 cat $HOME/.evmosd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Sign genesis transaction

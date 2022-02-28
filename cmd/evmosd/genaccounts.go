@@ -121,12 +121,17 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			if clawback {
 				var (
 					lockupStart                   int64
-					lockupPeriods, vestingPeriods []sdkvesting.Period
+					lockupPeriods, vestingPeriods sdkvesting.Periods
 				)
 
-				from := clientCtx.GetFromAddress()
-				if len(from) == 0 {
-					return fmt.Errorf("must specify the clawback vesting account funder with the --from flag")
+				funderStr, err := cmd.Flags().GetString(vestingcli.FlagFunder)
+				if err != nil {
+					return fmt.Errorf("must specify the clawback vesting account funder with the --funder flag")
+				}
+
+				funder, err := sdk.AccAddressFromBech32(funderStr)
+				if err != nil {
+					return err
 				}
 
 				// Read lockup and vesting schedules
@@ -198,7 +203,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				// create raw ClawbackVestingAccount object
 				genAccount = vestingtypes.NewClawbackVestingAccount(
 					baseAccount,
-					from,
+					funder,
 					vestingCoins,
 					time.Unix(commonStart, 0),
 					lockupPeriods,
@@ -299,10 +304,10 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 	cmd.Flags().Int64(flagVestingStart, 0, "schedule start time (unix epoch) for vesting accounts")
 	cmd.Flags().Int64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
 	cmd.Flags().Bool(vestingcli.FlagClawback, false, "create clawback account")
+	cmd.Flags().String(vestingcli.FlagFunder, "", "addr for clawback")
 	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods")
 	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods")
 	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddTxFlagsToCmd(cmd) // TODO Tx needed?
 
 	return cmd
 }
