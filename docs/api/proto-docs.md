@@ -116,6 +116,12 @@
   
     - [Query](#evmos.inflation.v1.Query)
   
+- [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
+    - [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest)
+    - [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse)
+  
+    - [Query](#evmos.vesting.v1.Query)
+  
 - [evmos/vesting/v1/tx.proto](#evmos/vesting/v1/tx.proto)
     - [MsgClawback](#evmos.vesting.v1.MsgClawback)
     - [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse)
@@ -1525,6 +1531,65 @@ Query provides defines the gRPC querier service.
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/vesting/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/query.proto
+
+
+
+<a name="evmos.vesting.v1.QueryBalancesRequest"></a>
+
+### QueryBalancesRequest
+QueryBalancesRequest is the request type for the Query/Balances RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | address of the clawback vesting account |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.QueryBalancesResponse"></a>
+
+### QueryBalancesResponse
+QueryBalancesResponse is the response type for the Query/Balances RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `locked` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of locked tokens |
+| `unvested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of unvested tokens |
+| `vested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of vested tokens |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.vesting.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Balances` | [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest) | [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse) | Retrieves the unvested, vested and locked tokens for a vesting account | GET|/evmos/vesting/v1/balances/{address}|
 
  <!-- end services -->
 

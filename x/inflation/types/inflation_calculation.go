@@ -40,5 +40,10 @@ func CalculateEpochMintProvision(
 		sdk.NewDec(epochsPerPeriod).BigInt(),
 	)
 	epochProvision := sdk.NewDecFromBigInt(decEpochProvision)
+
+	// Multiply epochMintProvision with power reduction (10^18 for evmos) as the
+	// calculation is based on `evmos` and the issued tokens need to be given in
+	// `aevmos`
+	epochProvision = epochProvision.Mul(sdk.NewDec(sdk.DefaultPowerReduction.Int64()))
 	return epochProvision
 }
