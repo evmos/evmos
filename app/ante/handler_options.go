@@ -103,7 +103,6 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
-		NewEthVestingTransactionDecorator(options.AccountKeeper),
 		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper),
 		NewValidatorCommissionDecorator(),
 		// SetPubKeyDecorator must be called before all signature verification decorators
