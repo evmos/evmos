@@ -1,6 +1,8 @@
+// Since: cosmos-sdk 0.43
 syntax = "proto3";
 package cosmos.feegrant.v1beta1;
 
+import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
 
@@ -24,17 +26,14 @@ message MsgGrantAllowance {
   // granter is the address of the user granting an allowance of their funds.
   string granter = 1;
 
-  // grantee is the address of the user being granted an allowance of another
-  // user's funds.
+  // grantee is the address of the user being granted an allowance of another user's funds.
   string grantee = 2;
 
   // allowance can be any of basic and filtered fee allowance.
-  google.protobuf.Any allowance = 3
-      [ (cosmos_proto.accepts_interface) = "FeeAllowanceI" ];
+  google.protobuf.Any allowance = 3 [(cosmos_proto.accepts_interface) = "FeeAllowanceI"];
 }
 
-// MsgGrantAllowanceResponse defines the Msg/GrantAllowanceResponse response
-// type.
+// MsgGrantAllowanceResponse defines the Msg/GrantAllowanceResponse response type.
 message MsgGrantAllowanceResponse {}
 
 // MsgRevokeAllowance removes any existing Allowance from Granter to Grantee.
@@ -42,11 +41,9 @@ message MsgRevokeAllowance {
   // granter is the address of the user granting an allowance of their funds.
   string granter = 1;
 
-  // grantee is the address of the user being granted an allowance of another
-  // user's funds.
+  // grantee is the address of the user being granted an allowance of another user's funds.
   string grantee = 2;
 }
 
-// MsgRevokeAllowanceResponse defines the Msg/RevokeAllowanceResponse response
-// type.
+// MsgRevokeAllowanceResponse defines the Msg/RevokeAllowanceResponse response type.
 message MsgRevokeAllowanceResponse {}

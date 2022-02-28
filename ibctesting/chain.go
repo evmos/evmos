@@ -203,7 +203,7 @@ func (chain *TestChain) QueryUpgradeProof(key []byte, height uint64) ([]byte, cl
 func (chain *TestChain) QueryConsensusStateProof(clientID string) ([]byte, clienttypes.Height) {
 	clientState := chain.GetClientState(clientID)
 
-	consensusHeight, _ := clientState.GetLatestHeight().(clienttypes.Height)
+	consensusHeight, _ := clientState.GetLatestHeight().(clienttypes.Height) // nosemgrep
 	consensusKey := host.FullConsensusStateKey(clientID, consensusHeight)
 	proofConsensus, _ := chain.QueryProof(consensusKey)
 
@@ -333,7 +333,7 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterpa
 	header := counterparty.LastHeader
 	// Relayer must query for LatestHeight on client to get TrustedHeight if the trusted height is not set
 	if trustedHeight.IsZero() {
-		trustedHeight, _ = chain.GetClientState(clientID).GetLatestHeight().(clienttypes.Height)
+		trustedHeight, _ = chain.GetClientState(clientID).GetLatestHeight().(clienttypes.Height) // nosemgrep
 	}
 	var (
 		tmTrustedVals *tmtypes.ValidatorSet
