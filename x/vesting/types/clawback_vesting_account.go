@@ -46,7 +46,7 @@ func NewClawbackVestingAccount(
 	}
 }
 
-// GetVestedCoins returns the total number of vested coins. If no coins are
+// GetVestedCoins returns the total number of vested coins that are still in lockup. If no coins are
 // vested, nil is returned.
 func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 	// It's likely that one or the other schedule will be nearly trivial,
@@ -124,18 +124,16 @@ func (va ClawbackVestingAccount) Validate() error {
 }
 
 // GetUnlockedOnly returns the unlocking schedule at blockTIme.
-// Like GetVestedCoins, but only for the lockup component.
 func (va ClawbackVestingAccount) GetUnlockedOnly(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.LockupPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
-// LockedCoins returns the set of coins that are not spendable (i.e. locked).
+// GetUnlockedOnly returns the locking schedule at blockTIme.
 func (va ClawbackVestingAccount) GetLockedOnly(blockTime time.Time) sdk.Coins {
 	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime))
 }
 
 // GetVestedOnly returns the vesting schedule and blockTime.
-// Like GetVestedCoins, but only for the vesting (in the clawback sense) component.
 func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
 }
