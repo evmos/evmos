@@ -128,7 +128,7 @@ func (va ClawbackVestingAccount) GetUnlockedOnly(blockTime time.Time) sdk.Coins 
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.LockupPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
-// GetUnlockedOnly returns the locking schedule at blockTIme.
+// GetLockedOnly returns the locking schedule at blockTIme.
 func (va ClawbackVestingAccount) GetLockedOnly(blockTime time.Time) sdk.Coins {
 	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime))
 }
