@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
@@ -24,6 +25,10 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	evmoskr "github.com/tharsis/evmos/crypto/keyring"
+
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	vestingcli "github.com/tharsis/evmos/x/vesting/client/cli"
+	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
 )
 
 const (
@@ -110,6 +115,98 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
 			baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
 
+			// ClawbackvestingAccount requires --clawback, --lockup, --vesting, and
+			// --from flags
+			clawback, _ := cmd.Flags().GetBool(vestingcli.FlagClawback)
+			if clawback {
+				var (
+					lockupStart                   int64
+					lockupPeriods, vestingPeriods []sdkvesting.Period
+				)
+
+				from := clientCtx.GetFromAddress()
+				if len(from) == 0 {
+					return fmt.Errorf("must specify the clawback vesting account funder with the --from flag")
+				}
+
+				// Read lockup and vesting schedules
+				lockupFile, _ := cmd.Flags().GetString(vestingcli.FlagLockup)
+				vestingFile, _ := cmd.Flags().GetString(vestingcli.FlagVesting)
+
+				if lockupFile == "" && vestingFile == "" {
+					return fmt.Errorf("must specify at least one of %s or %s", vestingcli.FlagLockup, vestingcli.FlagVesting)
+				}
+
+				if lockupFile != "" {
+					lockupStart, lockupPeriods, err = vestingcli.ReadScheduleFile(lockupFile)
+					if err != nil {
+						return err
+					}
+				}
+
+				if vestingFile != "" {
+					vestingStart, vestingPeriods, err = vestingcli.ReadScheduleFile(vestingFile)
+					if err != nil {
+						return err
+					}
+				}
+
+				commonStart, _ := vestingtypes.AlignSchedules(lockupStart, vestingStart, lockupPeriods, vestingPeriods)
+
+				// Get total lockup and vesting from schedules
+				vestingCoins := sdk.NewCoins()
+				for _, period := range vestingPeriods {
+					vestingCoins = vestingCoins.Add(period.Amount...)
+				}
+
+				lockupCoins := sdk.NewCoins()
+				for _, period := range lockupPeriods {
+					lockupCoins = lockupCoins.Add(period.Amount...)
+				}
+
+				// If lockup absent, default to an instant unlock schedule
+				if !vestingCoins.IsZero() && len(lockupPeriods) == 0 {
+					lockupPeriods = []sdkvesting.Period{
+						{Length: 0, Amount: vestingCoins},
+					}
+					lockupCoins = vestingCoins
+				}
+
+				// If vesting absent, default to an instant vesting schedule
+				if !lockupCoins.IsZero() && len(vestingPeriods) == 0 {
+					vestingPeriods = []sdkvesting.Period{
+						{Length: 0, Amount: lockupCoins},
+					}
+					vestingCoins = lockupCoins
+				}
+
+				// The vesting and lockup schedules must describe the same total amount.
+				// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
+				if !(vestingCoins.IsAllLTE(lockupCoins) && lockupCoins.IsAllLTE(vestingCoins)) {
+					return fmt.Errorf("lockup (%s) and vesting (%s) amounts must be equal",
+						lockupCoins, vestingCoins,
+					)
+				}
+
+				// Check if account balance is aligned with vesting schedule
+				if !vestingCoins.IsEqual(coins) {
+					return fmt.Errorf("vestingCoins (%s) and coin balance (%s) amounts must be equal",
+						vestingCoins, coins,
+					)
+				}
+
+				// create raw ClawbackVestingAccount object
+				genAccount = vestingtypes.NewClawbackVestingAccount(
+					baseAccount,
+					from,
+					vestingCoins,
+					time.Unix(commonStart, 0),
+					lockupPeriods,
+					vestingPeriods,
+				)
+			}
+
+			// SDK vesting types
 			if !vestingAmt.IsZero() {
 				baseVestingAccount := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
 
@@ -201,7 +298,11 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 	cmd.Flags().String(flagVestingAmt, "", "amount of coins for vesting accounts")
 	cmd.Flags().Int64(flagVestingStart, 0, "schedule start time (unix epoch) for vesting accounts")
 	cmd.Flags().Int64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
+	cmd.Flags().Bool(vestingcli.FlagClawback, false, "create clawback account")
+	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods")
+	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods")
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddTxFlagsToCmd(cmd) // TODO Tx needed?
 
 	return cmd
 }
