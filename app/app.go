@@ -36,8 +36,6 @@ import (
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
@@ -96,13 +94,13 @@ import (
 	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
-	"github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/evmos/app/ante"
 
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
@@ -111,6 +109,7 @@ import (
 	"github.com/tharsis/evmos/x/claims"
 	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/x/claims/types"
+
 	"github.com/tharsis/evmos/x/epochs"
 	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
 	epochstypes "github.com/tharsis/evmos/x/epochs/types"
@@ -125,6 +124,9 @@ import (
 	"github.com/tharsis/evmos/x/inflation"
 	inflationkeeper "github.com/tharsis/evmos/x/inflation/keeper"
 	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
 )
 
 func init() {
@@ -263,6 +265,7 @@ type Evmos struct {
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
+	VestingKeeper    vestingkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -317,11 +320,8 @@ func NewEvmos(
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
-		inflationtypes.StoreKey,
-		erc20types.StoreKey,
-		incentivestypes.StoreKey,
-		epochstypes.StoreKey,
-		claimstypes.StoreKey,
+		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
+		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -409,18 +409,20 @@ func NewEvmos(
 		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
 
 	govKeeper := govkeeper.NewKeeper(
-		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, govRouter,
+		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, &stakingKeeper, govRouter,
 	)
 
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		keys[inflationtypes.StoreKey], appCodec, app.GetSubspace(inflationtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, authtypes.FeeCollectorName,
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
+		authtypes.FeeCollectorName,
 	)
 	app.ClaimsKeeper = *claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// register the staking hooks
@@ -432,6 +434,11 @@ func NewEvmos(
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
+	)
+
+	app.VestingKeeper = vestingkeeper.NewKeeper(
+		keys[vestingtypes.StoreKey], appCodec,
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -446,9 +453,8 @@ func NewEvmos(
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
-		epochstypes.NewMultiEpochHooks(
+		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
-			// TODO activate Inflation hook
 			app.IncentivesKeeper.Hooks(),
 			app.InflationKeeper.Hooks(),
 		),
@@ -469,20 +475,23 @@ func NewEvmos(
 	)
 
 	// Create Transfer Keepers
+
+	// NOTE: since the transfer keeper is the last layer of the stack,
+	// we use the ChannelKeeper as the ICS4 wrapper
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, // FIXME: implement middleware
+		app.ClaimsKeeper.Hooks(), // claims IBC middleware
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
+	transferStack := claims.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
 	app.IBCKeeper.SetRouter(ibcRouter)
-
-	// TODO: add IBC transfer hooks
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -506,7 +515,6 @@ func NewEvmos(
 			encodingConfig.TxConfig,
 		),
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
-		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
@@ -527,12 +535,12 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
-		// TODO is inflation vesting account and AccountKeeper needed ?
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper),
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, app.ClaimsKeeper),
+		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -594,6 +602,7 @@ func NewEvmos(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
+		// Evmos modules
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
@@ -624,10 +633,10 @@ func NewEvmos(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		vestingtypes.ModuleName,
 		// Ethermint modules
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 		// Evmos modules
+		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
@@ -686,6 +695,7 @@ func NewEvmos(
 		AccountKeeper:    app.AccountKeeper,
 		BankKeeper:       app.BankKeeper,
 		EvmKeeper:        app.EvmKeeper,
+		StakingKeeper:    app.StakingKeeper,
 		FeegrantKeeper:   app.FeeGrantKeeper,
 		IBCChannelKeeper: app.IBCKeeper.ChannelKeeper,
 		FeeMarketKeeper:  app.FeeMarketKeeper,

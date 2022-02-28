@@ -3,6 +3,8 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+
+	// nolint: typecheck
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,8 +13,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	"github.com/tharsis/evmos/contracts"
 	"github.com/tharsis/evmos/x/erc20/types"
-	"github.com/tharsis/evmos/x/erc20/types/contracts"
 )
 
 // Hooks wrapper struct for erc20 keeper

@@ -14,7 +14,7 @@ Follow the [Metamask](./../guides/keys-wallets/metamask.md), [Keplr](../guides/k
 
 ## Request tokens
 
-You can request tokens for the testnet by using the Evmos [faucet](https://faucet.evmos.org).
+You can request tokens for the testnet by using the Evmos [faucet](https://faucet.evmos.dev).
 Simply fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
 
 ::: warning
@@ -38,5 +38,5 @@ For each request, the faucet transfers 1 {{ $themeConfig.project.testnet_denom }
 
 The public faucet addresses for the testnet are:
 
-- **Hex**: [`0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151`](https://evm.evmos.org/address/0x1549d29D1d51A694Cd5bbC89bF2c5F86ea5cE151/transactions)
-- **Bech32**: [`evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze`](https://explorer.evmos.org/accounts/evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze)
+- **Hex**: [`0xBaE9A7A2210F94511F5050348251d0d7113E2cE3`](https://evm.evmos.dev/address/0xBaE9A7A2210F94511F5050348251d0d7113E2cE3/transactions)
+- **Bech32**: [`evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth`](https://testnet.mintscan.io/evmos/account/evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth)

@@ -15,7 +15,10 @@ import (
 var _ types.QueryServer = Keeper{}
 
 // EpochInfos provide running epochInfos
-func (k Keeper) EpochInfos(c context.Context, req *types.QueryEpochsInfoRequest) (*types.QueryEpochsInfoResponse, error) {
+func (k Keeper) EpochInfos(
+	c context.Context,
+	req *types.QueryEpochsInfoRequest,
+) (*types.QueryEpochsInfoResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -44,7 +47,10 @@ func (k Keeper) EpochInfos(c context.Context, req *types.QueryEpochsInfoRequest)
 }
 
 // CurrentEpoch provides current epoch of specified identifier
-func (k Keeper) CurrentEpoch(c context.Context, req *types.QueryCurrentEpochRequest) (*types.QueryCurrentEpochResponse, error) {
+func (k Keeper) CurrentEpoch(
+	c context.Context,
+	req *types.QueryCurrentEpochRequest,
+) (*types.QueryCurrentEpochResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}

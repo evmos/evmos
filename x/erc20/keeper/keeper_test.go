@@ -39,8 +39,8 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/contracts"
 	"github.com/tharsis/evmos/x/erc20/types"
-	"github.com/tharsis/evmos/x/erc20/types/contracts"
 )
 
 type KeeperTestSuite struct {
@@ -77,7 +77,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
 	feemarketGenesis.Params.EnableHeight = 1
 	feemarketGenesis.Params.NoBaseFee = false
-	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
 	// init app
 	suite.app = app.Setup(checkTx, feemarketGenesis)

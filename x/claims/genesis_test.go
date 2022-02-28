@@ -45,7 +45,6 @@ func TestClaimInitGenesis(t *testing.T) {
 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
 	feemarketGenesis.Params.EnableHeight = 1
 	feemarketGenesis.Params.NoBaseFee = false
-	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
 	app := simapp.Setup(false, feemarketGenesis)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
@@ -72,7 +71,6 @@ func TestClaimExportGenesis(t *testing.T) {
 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
 	feemarketGenesis.Params.EnableHeight = 1
 	feemarketGenesis.Params.NoBaseFee = false
-	feemarketGenesis.BaseFee = sdk.NewInt(feemarketGenesis.Params.InitialBaseFee)
 
 	app := simapp.Setup(false, feemarketGenesis)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
@@ -94,7 +92,7 @@ func TestClaimExportGenesis(t *testing.T) {
 		ActionsCompleted:       []bool{false, false, false, false},
 	})
 
-	claimableAmount := app.ClaimsKeeper.GetClaimableAmountForAction(ctx, acc2, claimsRecord, types.ActionIBCTransfer, genesis.Params)
+	claimableAmount := app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionIBCTransfer, genesis.Params)
 	require.Equal(t, claimableAmount, sdk.NewInt(100))
 
 	genesisExported := claims.ExportGenesis(ctx, app.ClaimsKeeper)

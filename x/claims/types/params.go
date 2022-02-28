@@ -10,8 +10,8 @@ import (
 
 var (
 	DefaultClaimsDenom        = "aevmos"
-	DefaultDurationUntilDecay = time.Hour
-	DefaultDurationOfDecay    = time.Hour * 5
+	DefaultDurationUntilDecay = 2629800 * time.Second         // 1 month = 30.4375 days
+	DefaultDurationOfDecay    = 2 * DefaultDurationUntilDecay // 2 months
 )
 
 // Parameter store key
@@ -56,13 +56,15 @@ func NewParams(
 	}
 }
 
+// DefaultParams creates a parameter instance with default values
+// for the claims module.
 func DefaultParams() Params {
 	return Params{
 		EnableClaims:       true,
 		AirdropStartTime:   time.Time{},
-		DurationUntilDecay: DefaultDurationUntilDecay, // 2 month
-		DurationOfDecay:    DefaultDurationOfDecay,    // 4 months
-		ClaimsDenom:        DefaultClaimsDenom,        // aevmos
+		DurationUntilDecay: DefaultDurationUntilDecay,
+		DurationOfDecay:    DefaultDurationOfDecay,
+		ClaimsDenom:        DefaultClaimsDenom,
 	}
 }
 
@@ -123,4 +125,13 @@ func (p Params) DecayStartTime() time.Time {
 // AirdropEndTime returns the time at which no further claims will be processed.
 func (p Params) AirdropEndTime() time.Time {
 	return p.AirdropStartTime.Add(p.DurationUntilDecay).Add(p.DurationOfDecay)
+}
+
+// IsClaimsActive returns true if the claiming process is active, i.e block time
+// is after the airdrop start time and claims are enabled.
+func (p Params) IsClaimsActive(blockTime time.Time) bool {
+	if !p.EnableClaims || blockTime.Before(p.AirdropStartTime) {
+		return false
+	}
+	return true
 }

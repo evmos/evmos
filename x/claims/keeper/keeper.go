@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
 	"github.com/tharsis/evmos/x/claims/types"
 )
@@ -23,6 +24,7 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	stakingKeeper types.StakingKeeper
 	distrKeeper   types.DistrKeeper
+	ics4Wrapper   transfertypes.ICS4Wrapper
 }
 
 // NewKeeper returns keeper
@@ -34,8 +36,8 @@ func NewKeeper(
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
+	ics4Wrapper transfertypes.ICS4Wrapper,
 ) *Keeper {
-
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
@@ -49,6 +51,7 @@ func NewKeeper(
 		bankKeeper:    bk,
 		stakingKeeper: sk,
 		distrKeeper:   dk,
+		ics4Wrapper:   ics4Wrapper,
 	}
 }
 

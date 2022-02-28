@@ -29,3 +29,9 @@ type BankKeeper interface {
 type DistrKeeper interface {
 	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
+
+// StakingKeeper expected staking keeper
+type StakingKeeper interface {
+	// BondedRatio the fraction of the staking tokens which are currently bonded
+	BondedRatio(ctx sdk.Context) sdk.Dec
+}

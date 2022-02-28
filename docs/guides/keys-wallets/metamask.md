@@ -31,7 +31,7 @@ Here is the list of fields that you can use to paste on Metamask:
 - **New RPC URL:** `{{ $themeConfig.project.rpc_url_testnet }}`
 - **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
 - **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
-- **Block Explorer URL (optional):** `{{ $themeConfig.project.block_explorer_url }}`
+- **Block Explorer URL (optional):** `{{ $themeConfig.project.testnet_evm_explorer_url }}`
   :::
   ::: tab Local Node
 

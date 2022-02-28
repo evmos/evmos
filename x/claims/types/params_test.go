@@ -70,3 +70,93 @@ func TestParamsValidate(t *testing.T) {
 		}
 	}
 }
+
+func TestParamsValidateBool(t *testing.T) {
+	err := validateBool(true)
+	require.NoError(t, err)
+	err = validateBool(false)
+	require.NoError(t, err)
+	err = validateBool("")
+	require.Error(t, err)
+	err = validateBool(int64(123))
+	require.Error(t, err)
+}
+
+func TestParamsvalidateStartDate(t *testing.T) {
+	err := validateStartDate(time.Time{})
+	require.NoError(t, err)
+	err = validateStartDate(time.Now())
+	require.NoError(t, err)
+	err = validateStartDate("")
+	require.Error(t, err)
+	err = validateStartDate(int64(123))
+	require.Error(t, err)
+}
+
+func TestParamsvalidateDuration(t *testing.T) {
+	err := validateDuration(time.Hour)
+	require.NoError(t, err)
+	err = validateDuration(time.Hour * -1)
+	require.Error(t, err)
+	err = validateDuration("")
+	require.Error(t, err)
+	err = validateDuration(int64(123))
+	require.Error(t, err)
+}
+
+func TestParamsValidateDenom(t *testing.T) {
+	err := validateDenom("aevmos")
+	require.NoError(t, err)
+	err = validateDenom(false)
+	require.Error(t, err)
+	err = validateDuration(int64(123))
+	require.Error(t, err)
+	err = validateDenom("")
+	require.Error(t, err)
+}
+
+func TestParamsDecayStartTime(t *testing.T) {
+	startTime := time.Now().UTC()
+	params := Params{
+		AirdropStartTime:   startTime,
+		DurationOfDecay:    time.Hour,
+		DurationUntilDecay: time.Hour,
+	}
+
+	decayStartTime := params.DecayStartTime()
+	require.Equal(t, startTime.Add(time.Hour), decayStartTime)
+}
+
+func TestIsClaimsActive(t *testing.T) {
+	startTime := time.Now().UTC()
+	params := Params{
+		EnableClaims:       false,
+		AirdropStartTime:   startTime,
+		DurationOfDecay:    time.Hour,
+		DurationUntilDecay: time.Hour,
+	}
+
+	res := params.IsClaimsActive(time.Now().UTC())
+	require.False(t, res)
+
+	params.EnableClaims = true
+	blockTime := startTime.Add(-time.Hour)
+	res = params.IsClaimsActive(blockTime)
+	require.False(t, res)
+
+	blockTime = startTime.Add(time.Hour)
+	res = params.IsClaimsActive(blockTime)
+	require.True(t, res)
+}
+
+func TestParamsAirdropEndTime(t *testing.T) {
+	startTime := time.Now().UTC()
+	params := Params{
+		AirdropStartTime:   startTime,
+		DurationOfDecay:    time.Hour,
+		DurationUntilDecay: time.Hour,
+	}
+
+	endTime := params.AirdropEndTime()
+	require.Equal(t, startTime.Add(time.Hour).Add(time.Hour), endTime)
+}
