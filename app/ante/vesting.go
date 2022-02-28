@@ -73,6 +73,8 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	return next(ctx, tx, simulate)
 }
 
+// TODO: remove once Cosmos SDK is upgraded to v0.46
+
 // VestingDelegationDecorator validates delegation of vested coins
 type VestingDelegationDecorator struct {
 	ak evmtypes.AccountKeeper
