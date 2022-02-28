@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (ante) [\#302](https://github.com/tharsis/evmos/pull/302) Add AnteHandler decorator to enforce global min validator commission rate.
 - (app) [\#224](https://github.com/tharsis/evmos/pull/224) Fix power reduction my setting the correct value on app initialization.
 - (keys) [\#189](https://github.com/tharsis/evmos/pull/189) Remove support for Tendermint's `secp256k1` keys.
 - [\#173](https://github.com/tharsis/evmos/pull/173) Rename `intrarelayer` module to `erc20`
