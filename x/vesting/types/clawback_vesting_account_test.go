@@ -227,6 +227,90 @@ func (suite *VestingAccountTestSuite) TestGetVestedVestingLockedCoins() {
 	}
 }
 
+func (suite *VestingAccountTestSuite) TestGetVestedUnvestedLockedOnly() {
+	now := tmtime.Now()
+	endTime := now.Add(24 * time.Hour)
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	bacc := authtypes.NewBaseAccountWithAddress(addr)
+	va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
+
+	testCases := []struct {
+		name             string
+		time             time.Time
+		expVestedCoins   sdk.Coins
+		expUnvestedCoins sdk.Coins
+		expLockedCoins   sdk.Coins
+	}{
+		{
+			"no coins vested at the beginning of the vesting schedule",
+			now,
+			sdk.Coins{},
+			origCoins,
+			origCoins,
+		},
+		{
+			"all coins vested at the end of the vesting schedule",
+			endTime,
+			origCoins,
+			nil,
+			nil,
+		},
+		{
+			"no coins vested during first vesting period",
+			now.Add(6 * time.Hour),
+			sdk.Coins{},
+			origCoins,
+			origCoins,
+		},
+		{
+			"50 percent of coins vested after period 1 before unlocking",
+			now.Add(14 * time.Hour),
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 500), sdk.NewInt64Coin(stakeDenom, 50)},
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 500), sdk.NewInt64Coin(stakeDenom, 50)},
+			origCoins,
+		},
+		{
+			"50 percent of coins vested after period 1 at unlocking",
+			now.Add(16 * time.Hour),
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 500), sdk.NewInt64Coin(stakeDenom, 50)},
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 500), sdk.NewInt64Coin(stakeDenom, 50)},
+			nil,
+		},
+		{
+			"period 2 coins don't vest until period is over",
+			now.Add(17 * time.Hour),
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 500), sdk.NewInt64Coin(stakeDenom, 50)},
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 500), sdk.NewInt64Coin(stakeDenom, 50)},
+			nil,
+		},
+		{
+			"75 percent of coins vested after period 2",
+			now.Add(18 * time.Hour),
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 750), sdk.NewInt64Coin(stakeDenom, 75)},
+			sdk.Coins{sdk.NewInt64Coin(feeDenom, 250), sdk.NewInt64Coin(stakeDenom, 25)},
+			nil,
+		},
+		{
+			"100 percent of coins vested",
+			now.Add(48 * time.Hour),
+			origCoins,
+			nil,
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			vestedCoins := va.GetVestedOnly(tc.time)
+			suite.Require().Equal(tc.expVestedCoins, vestedCoins)
+			unvestedCoins := va.GetUnvestedOnly(tc.time)
+			suite.Require().Equal(tc.expUnvestedCoins, unvestedCoins)
+			lockedCoins := va.GetLockedOnly(tc.time)
+			suite.Require().Equal(tc.expLockedCoins, lockedCoins)
+		})
+	}
+}
+
 func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 	now := tmtime.Now()
 	endTime := now.Add(24 * time.Hour)

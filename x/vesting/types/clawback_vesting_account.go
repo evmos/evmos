@@ -140,6 +140,11 @@ func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
+// GetUNvestedOnly returns the unvesting schedule and blockTime.
+func (va ClawbackVestingAccount) GetUnvestedOnly(blockTime time.Time) sdk.Coins {
+	return va.OriginalVesting.Sub(va.GetVestedOnly(blockTime))
+}
+
 // ComputeClawback returns an account with all future vesting events removed,
 // plus the total sum of these events. When removing the future vesting events,
 // the lockup schedule will also have to be capped to keep the total sums the same.
