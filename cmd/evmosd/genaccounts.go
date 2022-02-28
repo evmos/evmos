@@ -115,10 +115,13 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
 			baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
 
-			// ClawbackvestingAccount requires --clawback, --lockup, --vesting, and
-			// --from flags
 			clawback, _ := cmd.Flags().GetBool(vestingcli.FlagClawback)
-			if clawback {
+
+			// SDK vesting types
+			switch {
+			case clawback:
+				// ClawbackvestingAccount requires --clawback, --lockup, --vesting, and
+				// --from flags
 				var (
 					lockupStart                   int64
 					lockupPeriods, vestingPeriods sdkvesting.Periods
@@ -209,10 +212,8 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					lockupPeriods,
 					vestingPeriods,
 				)
-			}
 
-			// SDK vesting types
-			if !vestingAmt.IsZero() {
+			case !vestingAmt.IsZero():
 				baseVestingAccount := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
 
 				if (balances.Coins.IsZero() && !baseVestingAccount.OriginalVesting.IsZero()) ||
@@ -230,7 +231,8 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				default:
 					return errors.New("invalid vesting parameters; must supply start and end time or end time")
 				}
-			} else {
+
+			default:
 				genAccount = &ethermint.EthAccount{
 					BaseAccount: baseAccount,
 					CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
