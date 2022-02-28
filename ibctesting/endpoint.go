@@ -91,7 +91,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		tmConfig, ok := endpoint.ClientConfig.(*ibctesting.TendermintConfig)
 		require.True(endpoint.Chain.t, ok)
 
-		height := endpoint.Counterparty.Chain.LastHeader.GetHeight().(clienttypes.Height)
+		height, _ := endpoint.Counterparty.Chain.LastHeader.GetHeight().(clienttypes.Height) // nosemgrep
 		clientState = ibctmtypes.NewClientState(
 			endpoint.Counterparty.Chain.ChainID, tmConfig.TrustLevel, tmConfig.TrustingPeriod, tmConfig.UnbondingPeriod, tmConfig.MaxClockDrift,
 			height, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath, tmConfig.AllowUpdateAfterExpiry, tmConfig.AllowUpdateAfterMisbehaviour,
@@ -254,7 +254,7 @@ func (endpoint *Endpoint) QueryConnectionHandshakeProof() (
 	clientKey := host.FullClientStateKey(endpoint.Counterparty.ClientID)
 	proofClient, proofHeight = endpoint.Counterparty.QueryProof(clientKey)
 
-	consensusHeight = clientState.GetLatestHeight().(clienttypes.Height)
+	consensusHeight, _ = clientState.GetLatestHeight().(clienttypes.Height) // nosemgrep
 
 	// query proof for the consensus state on the counterparty
 	consensusKey := host.FullConsensusStateKey(endpoint.Counterparty.ClientID, consensusHeight)

@@ -99,10 +99,10 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 		}
 
 		for _, addr := range msg.GetSigners() {
-
 			acc := vdd.ak.GetAccount(ctx, addr)
 			if acc == nil {
-				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownAddress,
+				return ctx, sdkerrors.Wrapf(
+					sdkerrors.ErrUnknownAddress,
 					"account %s does not exist", addr,
 				)
 			}
@@ -114,11 +114,21 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 			}
 
 			// error if bond amount is > vested coins
-			coins := clawbackAccount.GetVestedOnly(ctx.BlockHeader().Time)
-			vested := coins.AmountOf(vdd.sk.BondDenom(ctx))
+			bondDenom := vdd.sk.BondDenom(ctx)
+			coins := clawbackAccount.GetVestedOnly(ctx.BlockTime())
+			if coins == nil || coins.Empty() {
+				return ctx, sdkerrors.Wrap(
+					vestingtypes.ErrInsufficientVestedCoins,
+					"account has no vested coins",
+				)
+			}
+
+			vested := coins.AmountOf(bondDenom)
+
 			if vested.LT(delegateMsg.Amount.Amount) {
-				return ctx, sdkerrors.Wrapf(vestingtypes.ErrInsufficientVestedCoins,
-					"cannot delegate unvested coins. Coins Vested: %x", vested,
+				return ctx, sdkerrors.Wrapf(
+					vestingtypes.ErrInsufficientVestedCoins,
+					"cannot delegate unvested coins. Coins Vested: %s", vested,
 				)
 			}
 		}

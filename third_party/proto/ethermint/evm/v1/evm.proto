@@ -7,8 +7,6 @@ option go_package = "github.com/tharsis/ethermint/x/evm/types";
 
 // Params defines the EVM module parameters
 message Params {
-  option (gogoproto.goproto_stringer) = false;
-
   // evm denom represents the token denomination used to run the EVM state
   // transitions.
   string evm_denom = 1 [ (gogoproto.moretags) = "yaml:\"evm_denom\"" ];
@@ -101,18 +99,23 @@ message ChainConfig {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"berlin_block\""
   ];
-  // DEPRECATED: EWASM and YOLOV3 block have been deprecated
-  reserved 14, 15;
-  reserved "yolo_v3_block", "ewasm_block";
-  // Catalyst switch block (nil = no fork, 0 = already on catalyst)
-  string catalyst_block = 16 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.moretags) = "yaml:\"catalyst_block\""
-  ];
+  // DEPRECATED: EWASM, YOLOV3 and Catalyst block have been deprecated
+  reserved 14, 15, 16;
+  reserved "yolo_v3_block", "ewasm_block", "catalyst_block";
   // London switch block (nil = no fork, 0 = already on london)
   string london_block = 17 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"london_block\""
+  ];
+  // Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already activated)
+  string arrow_glacier_block = 18 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.moretags) = "yaml:\"arrow_glacier_block\""
+  ];
+  // EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in merge proceedings)
+  string merge_fork_block = 19 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.moretags) = "yaml:\"merge_fork_block\""
   ];
 }
 
@@ -196,4 +199,34 @@ message AccessTuple {
   string address = 1;
   // hex formatted hashes of the storage keys
   repeated string storage_keys = 2 [ (gogoproto.jsontag) = "storageKeys" ];
+}
+
+// TraceConfig holds extra parameters to trace functions.
+message TraceConfig {
+  // DEPRECATED: DisableMemory and DisableReturnData have been renamed to
+  // Enable*.
+  reserved 4, 7;
+  reserved "disable_memory", "disable_return_data";
+
+  // custom javascript tracer
+  string tracer = 1;
+  // overrides the default timeout of 5 seconds for JavaScript-based tracing
+  // calls
+  string timeout = 2;
+  // number of blocks the tracer is willing to go back
+  uint64 reexec = 3;
+  // disable stack capture
+  bool disable_stack = 5 [ (gogoproto.jsontag) = "disableStack" ];
+  // disable storage capture
+  bool disable_storage = 6 [ (gogoproto.jsontag) = "disableStorage" ];
+  // print output during capture end
+  bool debug = 8;
+  // maximum length of output, but zero means unlimited
+  int32 limit = 9;
+  // Chain overrides, can be used to execute a trace using future fork rules
+  ChainConfig overrides = 10;
+  // enable memory capture
+  bool enable_memory = 11 [ (gogoproto.jsontag) = "enableMemory" ];
+  // enable return data capture
+  bool enable_return_data = 12 [ (gogoproto.jsontag) = "enableReturnData" ];
 }
