@@ -4,8 +4,9 @@ import (
 	fmt "fmt"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type InflationTestSuite struct {
@@ -34,7 +35,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			DefaultParams(),
 			uint64(0),
 			sdk.OneDec(),
-			sdk.NewDec(int64(847_602)),
+			sdk.MustNewDecFromStr("847602739726027397260274.000000000000000000"),
 			true,
 		},
 		{
@@ -42,7 +43,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			DefaultParams(),
 			uint64(1),
 			sdk.OneDec(),
-			sdk.NewDec(int64(436_643)),
+			sdk.MustNewDecFromStr("436643835616438356164384.000000000000000000"),
 			true,
 		},
 		{
@@ -50,7 +51,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			DefaultParams(),
 			uint64(2),
 			sdk.OneDec(),
-			sdk.NewDec(int64(231_164)),
+			sdk.MustNewDecFromStr("231164383561643835616438.000000000000000000"),
 			true,
 		},
 		{
@@ -58,7 +59,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			DefaultParams(),
 			uint64(3),
 			sdk.OneDec(),
-			sdk.NewDec(int64(128_424)),
+			sdk.MustNewDecFromStr("128424657534246575342466.000000000000000000"),
 			true,
 		},
 		{
@@ -66,7 +67,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			DefaultParams(),
 			uint64(20),
 			sdk.OneDec(),
-			sdk.NewDec(int64(25_685)),
+			sdk.MustNewDecFromStr("25685715348753210410959.000000000000000000"),
 			true,
 		},
 		{
@@ -74,15 +75,15 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			DefaultParams(),
 			uint64(21),
 			sdk.OneDec(),
-			sdk.NewDec(int64(25_685)),
+			sdk.MustNewDecFromStr("25685323427801262739726.000000000000000000"),
 			true,
 		},
 		{
-			"pass - 0 percent bonding - initial perid",
+			"pass - 0 percent bonding - initial period",
 			bondingParams,
 			uint64(0),
 			sdk.ZeroDec(),
-			sdk.NewDec(int64(1_186_643)),
+			sdk.MustNewDecFromStr("1186643835616438356164384.000000000000000000"),
 			true,
 		},
 		{
@@ -90,7 +91,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			bondingParams,
 			uint64(1),
 			sdk.ZeroDec(),
-			sdk.NewDec(int64(611_301)),
+			sdk.MustNewDecFromStr("611301369863013698630137.000000000000000000"),
 			true,
 		},
 		{
@@ -98,7 +99,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			bondingParams,
 			uint64(2),
 			sdk.ZeroDec(),
-			sdk.NewDec(int64(323_630)),
+			sdk.MustNewDecFromStr("323630136986301369863014.000000000000000000"),
 			true,
 		},
 		{
@@ -106,7 +107,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			bondingParams,
 			uint64(3),
 			sdk.ZeroDec(),
-			sdk.NewDec(int64(179_794)),
+			sdk.MustNewDecFromStr("179794520547945205479452.000000000000000000"),
 			true,
 		},
 		{
@@ -114,7 +115,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			bondingParams,
 			uint64(20),
 			sdk.ZeroDec(),
-			sdk.NewDec(int64(35_960)),
+			sdk.MustNewDecFromStr("35960001488254494575342.000000000000000000"),
 			true,
 		},
 		{
@@ -122,7 +123,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			bondingParams,
 			uint64(21),
 			sdk.ZeroDec(),
-			sdk.NewDec(int64(35_959)),
+			sdk.MustNewDecFromStr("35959452798921767835616.000000000000000000"),
 			true,
 		},
 	}
@@ -135,10 +136,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 				tc.bondedRatio,
 			)
 
-			// Multiply expected epoch mint provision with 10^18
-			expEpochProvision := tc.expEpochProvision.Mul(sdk.NewDec(sdk.DefaultPowerReduction.Int64()))
-
-			suite.Require().Equal(expEpochProvision, epochMintProvisions)
+			suite.Require().Equal(tc.expEpochProvision, epochMintProvisions)
 		})
 	}
 }

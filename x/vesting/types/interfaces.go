@@ -29,6 +29,7 @@ type BankKeeper interface {
 // StakingKeeper defines the expected interface contract the vesting module
 // requires for finding and changing the delegated tokens, used in clawback.
 type StakingKeeper interface {
+	GetParams(ctx sdk.Context) stakingtypes.Params
 	BondDenom(ctx sdk.Context) string
 	GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.Delegation
 	GetUnbondingDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.UnbondingDelegation

@@ -16,6 +16,8 @@ import (
 	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
 )
 
+// HandlerOptions defines the list of module keepers required to run the Evmos
+// AnteHandler decorators.
 type HandlerOptions struct {
 	AccountKeeper    evmtypes.AccountKeeper
 	BankKeeper       evmtypes.BankKeeper
@@ -28,6 +30,7 @@ type HandlerOptions struct {
 	SigGasConsumer   func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 }
 
+// Validate checks if the keepers are defined
 func (options HandlerOptions) Validate() error {
 	if options.AccountKeeper == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
@@ -50,6 +53,7 @@ func (options HandlerOptions) Validate() error {
 	return nil
 }
 
+// newCosmosAnteHandler creates the default ante handler for Ethereum transactions
 func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
@@ -64,6 +68,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	)
 }
 
+// newCosmosAnteHandler creates the default ante handler for Cosmos transactions
 func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
@@ -76,11 +81,36 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
 		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper),
+		NewValidatorCommissionDecorator(),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		ibcante.NewAnteDecorator(options.IBCChannelKeeper),
+	)
+}
+
+// newCosmosAnteHandlerEip712 creates the ante handler for transactions signed with EIP712
+func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
+	return sdk.ChainAnteDecorators(
+		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
+		ante.NewSetUpContextDecorator(),
+		ante.NewMempoolFeeDecorator(),
+		ante.NewValidateBasicDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
+		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper),
+		NewValidatorCommissionDecorator(),
+		// SetPubKeyDecorator must be called before all signature verification decorators
+		ante.NewSetPubKeyDecorator(options.AccountKeeper),
+		ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// Note: signature verification uses EIP instead of the cosmos signature validator
+		ethante.NewEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewAnteDecorator(options.IBCChannelKeeper),
 	)

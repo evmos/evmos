@@ -41,10 +41,8 @@ message QueryBaseFeeRequest {}
 
 // BaseFeeResponse returns the EIP1559 base fee.
 message QueryBaseFeeResponse {
-  string base_fee = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
+  string base_fee = 1
+      [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int" ];
 }
 
 // QueryBlockGasRequest defines the request type for querying the EIP1559 base
