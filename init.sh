@@ -22,7 +22,6 @@ evmosd config chain-id $CHAINID
 
 # if $KEY exists it should be deleted
 evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
-evmosd keys add $KEY2 --keyring-backend $KEYRING --algo $KEYALGO
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 evmosd init $MONIKER --chain-id $CHAINID
@@ -88,10 +87,6 @@ fi
 
 # Allocate genesis accounts (cosmos formatted addresses)
 evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
-
-FUNDER=evmos160ka7ccq7tn2355lppetq262sgh6r0u379pr4g
-DEV1=evmos1wmzx0dj2emwxh5q3a9znwjtgrne0aadh5c7lxl
-evmosd add-genesis-account $DEV1 100000000000000000000000000aevmos --keyring-backend $KEYRING --clawback --lockup ../tmp/lockup-schedule.json --vesting ../tmp/vesting-schedule.json --funder $FUNDER
 
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.evmosd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
