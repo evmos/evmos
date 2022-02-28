@@ -27,6 +27,9 @@ func (suite *KeeperTestSuite) TestSetGetEpochMintProvision() {
 			false,
 		},
 	}
+
+	genesisProvision := sdk.MustNewDecFromStr("847602739726027397260274.000000000000000000")
+
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
@@ -35,7 +38,7 @@ func (suite *KeeperTestSuite) TestSetGetEpochMintProvision() {
 
 			provision, found := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
 			suite.Require().True(found)
-			genesisProvision := sdk.NewDec(847602).Mul(sdk.DefaultPowerReduction.ToDec())
+
 			if tc.genesis {
 				suite.Require().Equal(genesisProvision, provision, tc.name)
 			} else {
