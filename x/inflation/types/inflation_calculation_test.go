@@ -136,7 +136,7 @@ func (suite *InflationTestSuite) TestCalculateEpochMintProvision() {
 			)
 
 			// Multiply expected epoch mint provision with 10^18
-			expEpochProvision := tc.expEpochProvision.Mul(sdk.NewDec(sdk.DefaultPowerReduction.Int64()))
+			expEpochProvision := tc.expEpochProvision.Mul(sdk.DefaultPowerReduction.ToDec())
 
 			suite.Require().Equal(expEpochProvision, epochMintProvisions)
 		})

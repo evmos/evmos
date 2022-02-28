@@ -128,9 +128,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -507,9 +508,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -711,9 +713,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -924,9 +927,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -1121,9 +1125,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -1333,9 +1338,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -1918,588 +1924,6 @@ paths:
           in: path
           required: true
           type: string
-      tags:
-        - Query
-  /ethermint/evm/v1/block_bloom:
-    get:
-      summary: BlockBloom queries the block bloom filter bytes at a given height.
-      operationId: BlockBloom
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              bloom:
-                type: string
-                format: byte
-                description: bloom represents bloom filter for the given block hash.
-            description: >-
-              QueryBlockBloomResponse is the response type for the
-              Query/BlockBloom RPC
-
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                      description: >-
-                        A URL/resource name that uniquely identifies the type of
-                        the serialized
-
-                        protocol buffer message. This string must contain at
-                        least
-
-                        one "/" character. The last segment of the URL's path
-                        must represent
-
-                        the fully qualified name of the type (as in
-
-                        `path/google.protobuf.Duration`). The name should be in
-                        a canonical form
-
-                        (e.g., leading "." is not accepted).
-
-
-                        In practice, teams usually precompile into the binary
-                        all types that they
-
-                        expect it to use in the context of Any. However, for
-                        URLs which use the
-
-                        scheme `http`, `https`, or no scheme, one can optionally
-                        set up a type
-
-                        server that maps type URLs to message definitions as
-                        follows:
-
-
-                        * If no scheme is provided, `https` is assumed.
-
-                        * An HTTP GET on the URL must yield a
-                        [google.protobuf.Type][]
-                          value in binary format, or produce an error.
-                        * Applications are allowed to cache lookup results based
-                        on the
-                          URL, or have them precompiled into a binary to avoid any
-                          lookup. Therefore, binary compatibility needs to be preserved
-                          on changes to types. (Use versioned type names to manage
-                          breaking changes.)
-
-                        Note: this functionality is not currently available in
-                        the official
-
-                        protobuf release, and it is not used for type URLs
-                        beginning with
-
-                        type.googleapis.com.
-
-
-                        Schemes other than `http`, `https` (or the empty scheme)
-                        might be
-
-                        used with implementation specific semantics.
-                    value:
-                      type: string
-                      format: byte
-                      description: >-
-                        Must be a valid serialized protocol buffer of the above
-                        specified type.
-                  description: >-
-                    `Any` contains an arbitrary serialized protocol buffer
-                    message along with a
-
-                    URL that describes the type of the serialized message.
-
-
-                    Protobuf library provides support to pack/unpack Any values
-                    in the form
-
-                    of utility functions or additional generated methods of the
-                    Any type.
-
-
-                    Example 1: Pack and unpack a message in C++.
-
-                        Foo foo = ...;
-                        Any any;
-                        any.PackFrom(foo);
-                        ...
-                        if (any.UnpackTo(&foo)) {
-                          ...
-                        }
-
-                    Example 2: Pack and unpack a message in Java.
-
-                        Foo foo = ...;
-                        Any any = Any.pack(foo);
-                        ...
-                        if (any.is(Foo.class)) {
-                          foo = any.unpack(Foo.class);
-                        }
-
-                     Example 3: Pack and unpack a message in Python.
-
-                        foo = Foo(...)
-                        any = Any()
-                        any.Pack(foo)
-                        ...
-                        if any.Is(Foo.DESCRIPTOR):
-                          any.Unpack(foo)
-                          ...
-
-                     Example 4: Pack and unpack a message in Go
-
-                         foo := &pb.Foo{...}
-                         any, err := ptypes.MarshalAny(foo)
-                         ...
-                         foo := &pb.Foo{}
-                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                           ...
-                         }
-
-                    The pack methods provided by protobuf library will by
-                    default use
-
-                    'type.googleapis.com/full.type.name' as the type URL and the
-                    unpack
-
-                    methods only use the fully qualified type name after the
-                    last '/'
-
-                    in the type URL, for example "foo.bar.com/x/y.z" will yield
-                    type
-
-                    name "y.z".
-
-
-
-                    JSON
-
-                    ====
-
-                    The JSON representation of an `Any` value uses the regular
-
-                    representation of the deserialized, embedded message, with
-                    an
-
-                    additional field `@type` which contains the type URL.
-                    Example:
-
-                        package google.profile;
-                        message Person {
-                          string first_name = 1;
-                          string last_name = 2;
-                        }
-
-                        {
-                          "@type": "type.googleapis.com/google.profile.Person",
-                          "firstName": <string>,
-                          "lastName": <string>
-                        }
-
-                    If the embedded message type is well-known and has a custom
-                    JSON
-
-                    representation, that representation will be embedded adding
-                    a field
-
-                    `value` which holds the custom JSON in addition to the
-                    `@type`
-
-                    field. Example (for message [google.protobuf.Duration][]):
-
-                        {
-                          "@type": "type.googleapis.com/google.protobuf.Duration",
-                          "value": "1.212s"
-                        }
-      parameters:
-        - name: height
-          description: >-
-            height of the block which we want to query the bloom filter.
-
-            Tendermint always replace the query request header by the current
-            context
-
-            header, height cannot be extracted from there, so we need to
-            explicitly
-
-            pass it in parameter.
-          in: query
-          required: false
-          type: string
-          format: int64
-      tags:
-        - Query
-  '/ethermint/evm/v1/block_logs/{hash}':
-    get:
-      summary: BlockLogs queries all the ethereum logs for a given block hash.
-      operationId: BlockLogs
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              tx_logs:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    hash:
-                      type: string
-                    logs:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          address:
-                            type: string
-                            title: address of the contract that generated the event
-                          topics:
-                            type: array
-                            items:
-                              type: string
-                            description: list of topics provided by the contract.
-                          data:
-                            type: string
-                            format: byte
-                            title: 'supplied by the contract, usually ABI-encoded'
-                          block_number:
-                            type: string
-                            format: uint64
-                            title: block in which the transaction was included
-                          tx_hash:
-                            type: string
-                            title: hash of the transaction
-                          tx_index:
-                            type: string
-                            format: uint64
-                            title: index of the transaction in the block
-                          block_hash:
-                            type: string
-                            title: >-
-                              hash of the block in which the transaction was
-                              included
-                          index:
-                            type: string
-                            format: uint64
-                            title: index of the log in the block
-                          removed:
-                            type: boolean
-                            description: >-
-                              The Removed field is true if this log was reverted
-                              due to a chain
-
-                              reorganisation. You must pay attention to this
-                              field if you receive logs
-
-                              through a filter query.
-                        description: >-
-                          Log represents an protobuf compatible Ethereum Log
-                          that defines a contract
-
-                          log event. These events are generated by the LOG
-                          opcode and stored/indexed by
-
-                          the node.
-                  description: >-
-                    TransactionLogs define the logs generated from a transaction
-                    execution
-
-                    with a given hash. It it used for import/export data as
-                    transactions are not
-
-                    persisted on blockchain state after an upgrade.
-                description: >-
-                  logs represents the ethereum logs generated at the given block
-                  hash.
-              pagination:
-                description: pagination defines the pagination in the response.
-                type: object
-                properties:
-                  next_key:
-                    type: string
-                    format: byte
-                    title: |-
-                      next_key is the key to be passed to PageRequest.key to
-                      query the next page most efficiently
-                  total:
-                    type: string
-                    format: uint64
-                    title: >-
-                      total is total number of results available if
-                      PageRequest.count_total
-
-                      was set, its value is undefined otherwise
-            description: >-
-              QueryTxLogs is the response type for the Query/BlockLogs RPC
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                      description: >-
-                        A URL/resource name that uniquely identifies the type of
-                        the serialized
-
-                        protocol buffer message. This string must contain at
-                        least
-
-                        one "/" character. The last segment of the URL's path
-                        must represent
-
-                        the fully qualified name of the type (as in
-
-                        `path/google.protobuf.Duration`). The name should be in
-                        a canonical form
-
-                        (e.g., leading "." is not accepted).
-
-
-                        In practice, teams usually precompile into the binary
-                        all types that they
-
-                        expect it to use in the context of Any. However, for
-                        URLs which use the
-
-                        scheme `http`, `https`, or no scheme, one can optionally
-                        set up a type
-
-                        server that maps type URLs to message definitions as
-                        follows:
-
-
-                        * If no scheme is provided, `https` is assumed.
-
-                        * An HTTP GET on the URL must yield a
-                        [google.protobuf.Type][]
-                          value in binary format, or produce an error.
-                        * Applications are allowed to cache lookup results based
-                        on the
-                          URL, or have them precompiled into a binary to avoid any
-                          lookup. Therefore, binary compatibility needs to be preserved
-                          on changes to types. (Use versioned type names to manage
-                          breaking changes.)
-
-                        Note: this functionality is not currently available in
-                        the official
-
-                        protobuf release, and it is not used for type URLs
-                        beginning with
-
-                        type.googleapis.com.
-
-
-                        Schemes other than `http`, `https` (or the empty scheme)
-                        might be
-
-                        used with implementation specific semantics.
-                    value:
-                      type: string
-                      format: byte
-                      description: >-
-                        Must be a valid serialized protocol buffer of the above
-                        specified type.
-                  description: >-
-                    `Any` contains an arbitrary serialized protocol buffer
-                    message along with a
-
-                    URL that describes the type of the serialized message.
-
-
-                    Protobuf library provides support to pack/unpack Any values
-                    in the form
-
-                    of utility functions or additional generated methods of the
-                    Any type.
-
-
-                    Example 1: Pack and unpack a message in C++.
-
-                        Foo foo = ...;
-                        Any any;
-                        any.PackFrom(foo);
-                        ...
-                        if (any.UnpackTo(&foo)) {
-                          ...
-                        }
-
-                    Example 2: Pack and unpack a message in Java.
-
-                        Foo foo = ...;
-                        Any any = Any.pack(foo);
-                        ...
-                        if (any.is(Foo.class)) {
-                          foo = any.unpack(Foo.class);
-                        }
-
-                     Example 3: Pack and unpack a message in Python.
-
-                        foo = Foo(...)
-                        any = Any()
-                        any.Pack(foo)
-                        ...
-                        if any.Is(Foo.DESCRIPTOR):
-                          any.Unpack(foo)
-                          ...
-
-                     Example 4: Pack and unpack a message in Go
-
-                         foo := &pb.Foo{...}
-                         any, err := ptypes.MarshalAny(foo)
-                         ...
-                         foo := &pb.Foo{}
-                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                           ...
-                         }
-
-                    The pack methods provided by protobuf library will by
-                    default use
-
-                    'type.googleapis.com/full.type.name' as the type URL and the
-                    unpack
-
-                    methods only use the fully qualified type name after the
-                    last '/'
-
-                    in the type URL, for example "foo.bar.com/x/y.z" will yield
-                    type
-
-                    name "y.z".
-
-
-
-                    JSON
-
-                    ====
-
-                    The JSON representation of an `Any` value uses the regular
-
-                    representation of the deserialized, embedded message, with
-                    an
-
-                    additional field `@type` which contains the type URL.
-                    Example:
-
-                        package google.profile;
-                        message Person {
-                          string first_name = 1;
-                          string last_name = 2;
-                        }
-
-                        {
-                          "@type": "type.googleapis.com/google.profile.Person",
-                          "firstName": <string>,
-                          "lastName": <string>
-                        }
-
-                    If the embedded message type is well-known and has a custom
-                    JSON
-
-                    representation, that representation will be embedded adding
-                    a field
-
-                    `value` which holds the custom JSON in addition to the
-                    `@type`
-
-                    field. Example (for message [google.protobuf.Duration][]):
-
-                        {
-                          "@type": "type.googleapis.com/google.protobuf.Duration",
-                          "value": "1.212s"
-                        }
-      parameters:
-        - name: hash
-          description: hash is the block hash to query the logs for.
-          in: path
-          required: true
-          type: string
-        - name: pagination.key
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-            querying the next page most efficiently. Only one of offset or key
-            should be set.
-          in: query
-          required: false
-          type: string
-          format: byte
-        - name: pagination.offset
-          description: >-
-            offset is a numeric offset that can be used when key is unavailable.
-
-            It is less efficient than using key. Only one of offset or key
-            should
-
-            be set.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.limit
-          description: >-
-            limit is the total number of results to be returned in the result
-            page.
-
-            If left empty it will default to a value to be set by each app.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.count_total
-          description: >-
-            count_total is set to true  to indicate that the result set should
-            include
-
-            a count of the total number of items available for pagination in
-            UIs.
-
-            count_total is only respected when offset is used. It is ignored
-            when key
-
-            is set.
-          in: query
-          required: false
-          type: boolean
-        - name: pagination.reverse
-          description: >-
-            reverse is set to true if results are to be returned in the
-            descending
-
-            order.
-          in: query
-          required: false
-          type: boolean
       tags:
         - Query
   '/ethermint/evm/v1/codes/{address}':
@@ -3558,16 +2982,21 @@ paths:
                         title: >-
                           Berlin switch block (nil = no fork, 0 = already on
                           berlin)
-                      catalyst_block:
-                        type: string
-                        title: >-
-                          Catalyst switch block (nil = no fork, 0 = already on
-                          catalyst)
                       london_block:
                         type: string
                         title: >-
                           London switch block (nil = no fork, 0 = already on
                           london)
+                      arrow_glacier_block:
+                        type: string
+                        title: >-
+                          Eip-4345 (bomb delay) switch block (nil = no fork, 0 =
+                          already activated)
+                      merge_fork_block:
+                        type: string
+                        title: >-
+                          EIP-3675 (TheMerge) switch block (nil = no fork, 0 =
+                          already in merge proceedings)
                     description: >-
                       ChainConfig defines the Ethereum ChainConfig parameters
                       using *sdk.Int values
@@ -3992,73 +3421,22 @@ paths:
           type: string
       tags:
         - Query
-  '/ethermint/evm/v1/tx_logs/{hash}':
+  /ethermint/evm/v1/trace_block:
     get:
-      summary: TxLogs queries ethereum logs from a transaction.
-      operationId: TxLogs
+      summary: >-
+        TraceBlock implements the `debug_traceBlockByNumber` and
+        `debug_traceBlockByHash` rpc api
+      operationId: TraceBlock
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              logs:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    address:
-                      type: string
-                      title: address of the contract that generated the event
-                    topics:
-                      type: array
-                      items:
-                        type: string
-                      description: list of topics provided by the contract.
-                    data:
-                      type: string
-                      format: byte
-                      title: 'supplied by the contract, usually ABI-encoded'
-                    block_number:
-                      type: string
-                      format: uint64
-                      title: block in which the transaction was included
-                    tx_hash:
-                      type: string
-                      title: hash of the transaction
-                    tx_index:
-                      type: string
-                      format: uint64
-                      title: index of the transaction in the block
-                    block_hash:
-                      type: string
-                      title: hash of the block in which the transaction was included
-                    index:
-                      type: string
-                      format: uint64
-                      title: index of the log in the block
-                    removed:
-                      type: boolean
-                      description: >-
-                        The Removed field is true if this log was reverted due
-                        to a chain
-
-                        reorganisation. You must pay attention to this field if
-                        you receive logs
-
-                        through a filter query.
-                  description: >-
-                    Log represents an protobuf compatible Ethereum Log that
-                    defines a contract
-
-                    log event. These events are generated by the LOG opcode and
-                    stored/indexed by
-
-                    the node.
-                description: >-
-                  logs represents the ethereum logs generated from the given
-                  transaction.
-            description: QueryTxLogs is the response type for the Query/TxLogs RPC method.
+              data:
+                type: string
+                format: byte
+            title: QueryTraceBlockResponse defines TraceBlock response
         default:
           description: An unexpected error response.
           schema:
@@ -4249,11 +3627,618 @@ paths:
                           "value": "1.212s"
                         }
       parameters:
-        - name: hash
-          description: hash is the ethereum transaction hex hash to query the logs for.
-          in: path
-          required: true
+        - name: trace_config.tracer
+          description: custom javascript tracer.
+          in: query
+          required: false
           type: string
+        - name: trace_config.timeout
+          description: >-
+            overrides the default timeout of 5 seconds for JavaScript-based
+            tracing
+
+            calls.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.reexec
+          description: number of blocks the tracer is willing to go back.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: trace_config.disable_stack
+          description: disable stack capture.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.disable_storage
+          description: disable storage capture.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.debug
+          description: print output during capture end.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.limit
+          description: 'maximum length of output, but zero means unlimited.'
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: trace_config.overrides.homestead_block
+          description: 'Homestead switch block (nil no fork, 0 = already homestead).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.dao_fork_block
+          description: TheDAO hard-fork switch block (nil no fork).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.dao_fork_support
+          description: Whether the nodes supports or opposes the DAO hard-fork.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.overrides.eip150_block
+          description: >-
+            EIP150 implements the Gas price changes
+
+            (https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil
+            no fork).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.eip150_hash
+          description: >-
+            EIP150 HF hash (needed for header only clients as only gas pricing
+            changed).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.eip155_block
+          description: EIP155Block HF block.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.eip158_block
+          description: EIP158 HF block.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.byzantium_block
+          description: 'Byzantium switch block (nil no fork, 0 = already on byzantium).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.constantinople_block
+          description: 'Constantinople switch block (nil no fork, 0 = already activated).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.petersburg_block
+          description: Petersburg switch block (nil same as Constantinople).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.istanbul_block
+          description: 'Istanbul switch block (nil no fork, 0 = already on istanbul).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.muir_glacier_block
+          description: >-
+            Eip-2384 (bomb delay) switch block (nil no fork, 0 = already
+            activated).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.berlin_block
+          description: 'Berlin switch block (nil = no fork, 0 = already on berlin).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.london_block
+          description: 'London switch block (nil = no fork, 0 = already on london).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.arrow_glacier_block
+          description: >-
+            Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already
+            activated).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.merge_fork_block
+          description: >-
+            EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in
+            merge proceedings).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.enable_memory
+          description: enable memory capture.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.enable_return_data
+          description: enable return data capture.
+          in: query
+          required: false
+          type: boolean
+        - name: block_number
+          description: block number.
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: block_hash
+          description: block hex hash.
+          in: query
+          required: false
+          type: string
+        - name: block_time
+          description: block time.
+          in: query
+          required: false
+          type: string
+          format: date-time
+      tags:
+        - Query
+  /ethermint/evm/v1/trace_tx:
+    get:
+      summary: TraceTx implements the `debug_traceTransaction` rpc api
+      operationId: TraceTx
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                format: byte
+                title: response serialized in bytes
+            title: QueryTraceTxResponse defines TraceTx response
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := ptypes.MarshalAny(foo)
+                         ...
+                         foo := &pb.Foo{}
+                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: msg.data.type_url
+          description: >-
+            A URL/resource name that uniquely identifies the type of the
+            serialized
+
+            protocol buffer message. This string must contain at least
+
+            one "/" character. The last segment of the URL's path must represent
+
+            the fully qualified name of the type (as in
+
+            `path/google.protobuf.Duration`). The name should be in a canonical
+            form
+
+            (e.g., leading "." is not accepted).
+
+
+            In practice, teams usually precompile into the binary all types that
+            they
+
+            expect it to use in the context of Any. However, for URLs which use
+            the
+
+            scheme `http`, `https`, or no scheme, one can optionally set up a
+            type
+
+            server that maps type URLs to message definitions as follows:
+
+
+            * If no scheme is provided, `https` is assumed.
+
+            * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+              value in binary format, or produce an error.
+            * Applications are allowed to cache lookup results based on the
+              URL, or have them precompiled into a binary to avoid any
+              lookup. Therefore, binary compatibility needs to be preserved
+              on changes to types. (Use versioned type names to manage
+              breaking changes.)
+
+            Note: this functionality is not currently available in the official
+
+            protobuf release, and it is not used for type URLs beginning with
+
+            type.googleapis.com.
+
+
+            Schemes other than `http`, `https` (or the empty scheme) might be
+
+            used with implementation specific semantics.
+          in: query
+          required: false
+          type: string
+        - name: msg.data.value
+          description: >-
+            Must be a valid serialized protocol buffer of the above specified
+            type.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: msg.size
+          description: encoded storage size of the transaction.
+          in: query
+          required: false
+          type: number
+          format: double
+        - name: msg.hash
+          description: transaction hash in hex format.
+          in: query
+          required: false
+          type: string
+        - name: msg.from
+          description: |-
+            ethereum signer address in hex format. This address value is checked
+            against the address derived from the signature (V, R, S) using the
+            secp256k1 elliptic curve.
+          in: query
+          required: false
+          type: string
+        - name: tx_index
+          description: transaction index.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: trace_config.tracer
+          description: custom javascript tracer.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.timeout
+          description: >-
+            overrides the default timeout of 5 seconds for JavaScript-based
+            tracing
+
+            calls.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.reexec
+          description: number of blocks the tracer is willing to go back.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: trace_config.disable_stack
+          description: disable stack capture.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.disable_storage
+          description: disable storage capture.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.debug
+          description: print output during capture end.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.limit
+          description: 'maximum length of output, but zero means unlimited.'
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: trace_config.overrides.homestead_block
+          description: 'Homestead switch block (nil no fork, 0 = already homestead).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.dao_fork_block
+          description: TheDAO hard-fork switch block (nil no fork).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.dao_fork_support
+          description: Whether the nodes supports or opposes the DAO hard-fork.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.overrides.eip150_block
+          description: >-
+            EIP150 implements the Gas price changes
+
+            (https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil
+            no fork).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.eip150_hash
+          description: >-
+            EIP150 HF hash (needed for header only clients as only gas pricing
+            changed).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.eip155_block
+          description: EIP155Block HF block.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.eip158_block
+          description: EIP158 HF block.
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.byzantium_block
+          description: 'Byzantium switch block (nil no fork, 0 = already on byzantium).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.constantinople_block
+          description: 'Constantinople switch block (nil no fork, 0 = already activated).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.petersburg_block
+          description: Petersburg switch block (nil same as Constantinople).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.istanbul_block
+          description: 'Istanbul switch block (nil no fork, 0 = already on istanbul).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.muir_glacier_block
+          description: >-
+            Eip-2384 (bomb delay) switch block (nil no fork, 0 = already
+            activated).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.berlin_block
+          description: 'Berlin switch block (nil = no fork, 0 = already on berlin).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.london_block
+          description: 'London switch block (nil = no fork, 0 = already on london).'
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.arrow_glacier_block
+          description: >-
+            Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already
+            activated).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.overrides.merge_fork_block
+          description: >-
+            EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in
+            merge proceedings).
+          in: query
+          required: false
+          type: string
+        - name: trace_config.enable_memory
+          description: enable memory capture.
+          in: query
+          required: false
+          type: boolean
+        - name: trace_config.enable_return_data
+          description: enable return data capture.
+          in: query
+          required: false
+          type: boolean
+        - name: block_number
+          description: block number of requested transaction.
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: block_hash
+          description: block hex hash of requested transaction.
+          in: query
+          required: false
+          type: string
+        - name: block_time
+          description: block time of requested transaction.
+          in: query
+          required: false
+          type: string
+          format: date-time
       tags:
         - Query
   '/ethermint/evm/v1/validator_account/{cons_address}':
@@ -4593,14 +4578,13 @@ paths:
                       EIP-1559 block may
 
                       have.
-                  initial_base_fee:
-                    type: string
-                    format: int64
-                    description: initial base fee for EIP-1559 blocks.
                   enable_height:
                     type: string
                     format: int64
                     description: height at which the base fee calculation is enabled.
+                  base_fee:
+                    type: string
+                    description: base fee for EIP-1559 blocks.
                 title: Params defines the EVM module parameters
             description: >-
               QueryParamsResponse defines the response type for querying x/evm
@@ -4632,6 +4616,7 @@ paths:
   /cosmos/auth/v1beta1/accounts:
     get:
       summary: Accounts returns all the existing accounts
+      description: 'Since: cosmos-sdk 0.43'
       operationId: Accounts
       responses:
         '200':
@@ -4838,6 +4823,9 @@ paths:
             description: >-
               QueryAccountsResponse is the response type for the Query/Accounts
               RPC method.
+
+
+              Since: cosmos-sdk 0.43
         default:
           description: An unexpected error response.
           schema:
@@ -5077,9 +5065,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -5713,15 +5702,16 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
       tags:
         - Query
-  '/cosmos/bank/v1beta1/balances/{address}/{denom}':
+  '/cosmos/bank/v1beta1/balances/{address}/by_denom':
     get:
       summary: Balance queries the balance of a single coin for a single account.
       operationId: BankBalance
@@ -5772,14 +5762,14 @@ paths:
           type: string
         - name: denom
           description: denom is the coin denom to query balances for.
-          in: path
-          required: true
+          in: query
+          required: false
           type: string
       tags:
         - Query
   /cosmos/bank/v1beta1/denoms_metadata:
     get:
-      summary: |-
+      summary: >-
         DenomsMetadata queries the client metadata for all registered coin
         denominations.
       operationId: DenomsMetadata
@@ -5847,6 +5837,7 @@ paths:
                         displayed in clients.
                     name:
                       type: string
+                      description: 'Since: cosmos-sdk 0.43'
                       title: 'name defines the name of the token (eg: Cosmos Atom)'
                     symbol:
                       type: string
@@ -5855,6 +5846,9 @@ paths:
                         (eg: ATOM). This can
 
                         be the same as the display.
+
+
+                        Since: cosmos-sdk 0.43
                   description: |-
                     Metadata represents a struct that describes
                     a basic token.
@@ -5881,9 +5875,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryDenomsMetadataResponse is the response type for the
-              Query/DenomsMetadata
+              Query/DenomsMetadata RPC
 
-              RPC method.
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -5956,9 +5950,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -5977,9 +5972,7 @@ paths:
               metadata:
                 description: >-
                   metadata describes and provides all the client information for
-                  the
-
-                  requested token.
+                  the requested token.
                 type: object
                 properties:
                   description:
@@ -6035,6 +6028,7 @@ paths:
                       displayed in clients.
                   name:
                     type: string
+                    description: 'Since: cosmos-sdk 0.43'
                     title: 'name defines the name of the token (eg: Cosmos Atom)'
                   symbol:
                     type: string
@@ -6043,11 +6037,14 @@ paths:
                       ATOM). This can
 
                       be the same as the display.
+
+
+                      Since: cosmos-sdk 0.43
             description: >-
               QueryDenomMetadataResponse is the response type for the
-              Query/DenomMetadata
+              Query/DenomMetadata RPC
 
-              RPC method.
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -6164,7 +6161,10 @@ paths:
                     signatures required by gogoproto.
                 title: supply is the supply of the coins
               pagination:
-                description: pagination defines the pagination in the response.
+                description: |-
+                  pagination defines the pagination in the response.
+
+                  Since: cosmos-sdk 0.43
                 type: object
                 properties:
                   next_key:
@@ -6258,9 +6258,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -6962,9 +6963,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -7954,9 +7956,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -8734,9 +8737,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -9275,6 +9279,10 @@ paths:
                         description: >-
                           WeightedVoteOption defines a unit of vote for vote
                           split.
+
+
+                          Since: cosmos-sdk 0.43
+                      title: 'Since: cosmos-sdk 0.43'
                   description: >-
                     Vote defines a vote on a governance proposal.
 
@@ -9547,9 +9555,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -9620,6 +9629,10 @@ paths:
                       description: >-
                         WeightedVoteOption defines a unit of vote for vote
                         split.
+
+
+                        Since: cosmos-sdk 0.43
+                    title: 'Since: cosmos-sdk 0.43'
             description: >-
               QueryVoteResponse is the response type for the Query/Vote RPC
               method.
@@ -10156,9 +10169,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -10191,16 +10205,12 @@ paths:
                           type: string
                           description: >-
                             validator_src_address is the validator redelegation
-                            source operator
-
-                            address.
+                            source operator address.
                         validator_dst_address:
                           type: string
                           description: >-
                             validator_dst_address is the validator redelegation
-                            destination operator
-
-                            address.
+                            destination operator address.
                         entries:
                           type: array
                           items:
@@ -10228,7 +10238,6 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
-
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -10270,7 +10279,6 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
-
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -10570,9 +10578,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -10628,9 +10637,7 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at
-
-                              completion.
+                              scheduled to receive at completion.
                           balance:
                             type: string
                             description: >-
@@ -10912,9 +10919,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -10941,15 +10949,11 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech
-
-                        encoded in JSON.
+                        operator; bech encoded in JSON.
                     consensus_pubkey:
                       description: >-
                         consensus_pubkey is the consensus public key of the
-                        validator, as a
-
-                        Protobuf Any.
+                        validator, as a Protobuf Any.
                       type: object
                       properties:
                         type_url:
@@ -11020,9 +11024,7 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or
-
-                        not.
+                        from bonded status or not.
                     status:
                       description: >-
                         status is the validator status
@@ -11076,17 +11078,13 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator
-
-                        has begun unbonding.
+                        which this validator has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to
-
-                        complete unbonding.
+                        the validator to complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -11094,9 +11092,7 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for
-
-                            creating a validator.
+                            rates to be used for creating a validator.
                           type: object
                           properties:
                             rate:
@@ -11108,16 +11104,13 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever
-
-                                charge, as a fraction.
+                                which validator can ever charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator
-
-                                commission, as a fraction.
+                                increase of the validator commission, as a
+                                fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -11128,9 +11121,7 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self
-
-                        delegation.
+                        minimum self delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -11420,9 +11411,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -11448,15 +11440,11 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech
-
-                      encoded in JSON.
+                      operator; bech encoded in JSON.
                   consensus_pubkey:
                     description: >-
                       consensus_pubkey is the consensus public key of the
-                      validator, as a
-
-                      Protobuf Any.
+                      validator, as a Protobuf Any.
                     type: object
                     properties:
                       type_url:
@@ -11527,9 +11515,7 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or
-
-                      not.
+                      bonded status or not.
                   status:
                     description: >-
                       status is the validator status
@@ -11583,17 +11569,13 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator
-
-                      has begun unbonding.
+                      which this validator has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to
-
-                      complete unbonding.
+                      validator to complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -11601,9 +11583,7 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for
-
-                          creating a validator.
+                          to be used for creating a validator.
                         type: object
                         properties:
                           rate:
@@ -11615,16 +11595,12 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever
-
-                              charge, as a fraction.
+                              validator can ever charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator
-
-                              commission, as a fraction.
+                              of the validator commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -11635,9 +11611,7 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self
-
-                      delegation.
+                      minimum self delegation.
             description: |-
               QueryDelegatorValidatorResponse response type for the
               Query/DelegatorValidator RPC method.
@@ -11943,15 +11917,11 @@ paths:
                           type: string
                           description: >-
                             operator_address defines the address of the
-                            validator's operator; bech
-
-                            encoded in JSON.
+                            validator's operator; bech encoded in JSON.
                         consensus_pubkey:
                           description: >-
                             consensus_pubkey is the consensus public key of the
-                            validator, as a
-
-                            Protobuf Any.
+                            validator, as a Protobuf Any.
                           type: object
                           properties:
                             type_url:
@@ -12022,9 +11992,7 @@ paths:
                           type: boolean
                           description: >-
                             jailed defined whether the validator has been jailed
-                            from bonded status or
-
-                            not.
+                            from bonded status or not.
                         status:
                           description: >-
                             status is the validator status
@@ -12078,17 +12046,13 @@ paths:
                           format: int64
                           description: >-
                             unbonding_height defines, if unbonding, the height
-                            at which this validator
-
-                            has begun unbonding.
+                            at which this validator has begun unbonding.
                         unbonding_time:
                           type: string
                           format: date-time
                           description: >-
                             unbonding_time defines, if unbonding, the min time
-                            for the validator to
-
-                            complete unbonding.
+                            for the validator to complete unbonding.
                         commission:
                           description: commission defines the commission parameters.
                           type: object
@@ -12096,9 +12060,7 @@ paths:
                             commission_rates:
                               description: >-
                                 commission_rates defines the initial commission
-                                rates to be used for
-
-                                creating a validator.
+                                rates to be used for creating a validator.
                               type: object
                               properties:
                                 rate:
@@ -12110,16 +12072,14 @@ paths:
                                   type: string
                                   description: >-
                                     max_rate defines the maximum commission rate
-                                    which validator can ever
-
-                                    charge, as a fraction.
+                                    which validator can ever charge, as a
+                                    fraction.
                                 max_change_rate:
                                   type: string
                                   description: >-
                                     max_change_rate defines the maximum daily
-                                    increase of the validator
-
-                                    commission, as a fraction.
+                                    increase of the validator commission, as a
+                                    fraction.
                             update_time:
                               type: string
                               format: date-time
@@ -12130,9 +12090,7 @@ paths:
                           type: string
                           description: >-
                             min_self_delegation is the validator's self declared
-                            minimum self
-
-                            delegation.
+                            minimum self delegation.
                       description: >-
                         Validator defines a validator, together with the total
                         amount of the
@@ -12385,9 +12343,7 @@ paths:
                     format: int64
                     description: >-
                       max_entries is the max entries for either unbonding
-                      delegation or
-
-                      redelegation (per pair/trio).
+                      delegation or redelegation (per pair/trio).
                   historical_entries:
                     type: integer
                     format: int64
@@ -12820,15 +12776,11 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech
-
-                        encoded in JSON.
+                        operator; bech encoded in JSON.
                     consensus_pubkey:
                       description: >-
                         consensus_pubkey is the consensus public key of the
-                        validator, as a
-
-                        Protobuf Any.
+                        validator, as a Protobuf Any.
                       type: object
                       properties:
                         type_url:
@@ -12899,9 +12851,7 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or
-
-                        not.
+                        from bonded status or not.
                     status:
                       description: >-
                         status is the validator status
@@ -12955,17 +12905,13 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator
-
-                        has begun unbonding.
+                        which this validator has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to
-
-                        complete unbonding.
+                        the validator to complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -12973,9 +12919,7 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for
-
-                            creating a validator.
+                            rates to be used for creating a validator.
                           type: object
                           properties:
                             rate:
@@ -12987,16 +12931,13 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever
-
-                                charge, as a fraction.
+                                which validator can ever charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator
-
-                                commission, as a fraction.
+                                increase of the validator commission, as a
+                                fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -13007,9 +12948,7 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self
-
-                        delegation.
+                        minimum self delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -13299,9 +13238,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -13325,15 +13265,11 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech
-
-                      encoded in JSON.
+                      operator; bech encoded in JSON.
                   consensus_pubkey:
                     description: >-
                       consensus_pubkey is the consensus public key of the
-                      validator, as a
-
-                      Protobuf Any.
+                      validator, as a Protobuf Any.
                     type: object
                     properties:
                       type_url:
@@ -13404,9 +13340,7 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or
-
-                      not.
+                      bonded status or not.
                   status:
                     description: >-
                       status is the validator status
@@ -13460,17 +13394,13 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator
-
-                      has begun unbonding.
+                      which this validator has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to
-
-                      complete unbonding.
+                      validator to complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -13478,9 +13408,7 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for
-
-                          creating a validator.
+                          to be used for creating a validator.
                         type: object
                         properties:
                           rate:
@@ -13492,16 +13420,12 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever
-
-                              charge, as a fraction.
+                              validator can ever charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator
-
-                              commission, as a fraction.
+                              of the validator commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -13512,9 +13436,7 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self
-
-                      delegation.
+                      minimum self delegation.
             title: >-
               QueryValidatorResponse is response type for the Query/Validator
               RPC method
@@ -14040,9 +13962,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -14355,9 +14278,7 @@ paths:
                           type: string
                           description: >-
                             initial_balance defines the tokens initially
-                            scheduled to receive at
-
-                            completion.
+                            scheduled to receive at completion.
                         balance:
                           type: string
                           description: balance defines the tokens to receive at completion.
@@ -14620,9 +14541,7 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at
-
-                              completion.
+                              scheduled to receive at completion.
                           balance:
                             type: string
                             description: >-
@@ -14904,9 +14823,10 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending
+            descending order.
 
-            order.
+
+            Since: cosmos-sdk 0.43
           in: query
           required: false
           type: boolean
@@ -14952,9 +14872,12 @@ definitions:
           is set.
       reverse:
         type: boolean
-        description: |-
+        description: >-
           reverse is set to true if results are to be returned in the descending
           order.
+
+
+          Since: cosmos-sdk 0.43
     description: |-
       message SomeRequest {
                Foo some_parameter = 1;
@@ -16184,12 +16107,19 @@ definitions:
       berlin_block:
         type: string
         title: 'Berlin switch block (nil = no fork, 0 = already on berlin)'
-      catalyst_block:
-        type: string
-        title: 'Catalyst switch block (nil = no fork, 0 = already on catalyst)'
       london_block:
         type: string
         title: 'London switch block (nil = no fork, 0 = already on london)'
+      arrow_glacier_block:
+        type: string
+        title: >-
+          Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already
+          activated)
+      merge_fork_block:
+        type: string
+        title: >-
+          EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in merge
+          proceedings)
     description: >-
       ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int
       values
@@ -16252,6 +16182,183 @@ definitions:
       by
 
       the node.
+  ethermint.evm.v1.MsgEthereumTx:
+    type: object
+    properties:
+      data:
+        title: inner transaction data
+        type: object
+        properties:
+          type_url:
+            type: string
+            description: >-
+              A URL/resource name that uniquely identifies the type of the
+              serialized
+
+              protocol buffer message. This string must contain at least
+
+              one "/" character. The last segment of the URL's path must
+              represent
+
+              the fully qualified name of the type (as in
+
+              `path/google.protobuf.Duration`). The name should be in a
+              canonical form
+
+              (e.g., leading "." is not accepted).
+
+
+              In practice, teams usually precompile into the binary all types
+              that they
+
+              expect it to use in the context of Any. However, for URLs which
+              use the
+
+              scheme `http`, `https`, or no scheme, one can optionally set up a
+              type
+
+              server that maps type URLs to message definitions as follows:
+
+
+              * If no scheme is provided, `https` is assumed.
+
+              * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+                value in binary format, or produce an error.
+              * Applications are allowed to cache lookup results based on the
+                URL, or have them precompiled into a binary to avoid any
+                lookup. Therefore, binary compatibility needs to be preserved
+                on changes to types. (Use versioned type names to manage
+                breaking changes.)
+
+              Note: this functionality is not currently available in the
+              official
+
+              protobuf release, and it is not used for type URLs beginning with
+
+              type.googleapis.com.
+
+
+              Schemes other than `http`, `https` (or the empty scheme) might be
+
+              used with implementation specific semantics.
+          value:
+            type: string
+            format: byte
+            description: >-
+              Must be a valid serialized protocol buffer of the above specified
+              type.
+        description: >-
+          `Any` contains an arbitrary serialized protocol buffer message along
+          with a
+
+          URL that describes the type of the serialized message.
+
+
+          Protobuf library provides support to pack/unpack Any values in the
+          form
+
+          of utility functions or additional generated methods of the Any type.
+
+
+          Example 1: Pack and unpack a message in C++.
+
+              Foo foo = ...;
+              Any any;
+              any.PackFrom(foo);
+              ...
+              if (any.UnpackTo(&foo)) {
+                ...
+              }
+
+          Example 2: Pack and unpack a message in Java.
+
+              Foo foo = ...;
+              Any any = Any.pack(foo);
+              ...
+              if (any.is(Foo.class)) {
+                foo = any.unpack(Foo.class);
+              }
+
+           Example 3: Pack and unpack a message in Python.
+
+              foo = Foo(...)
+              any = Any()
+              any.Pack(foo)
+              ...
+              if any.Is(Foo.DESCRIPTOR):
+                any.Unpack(foo)
+                ...
+
+           Example 4: Pack and unpack a message in Go
+
+               foo := &pb.Foo{...}
+               any, err := ptypes.MarshalAny(foo)
+               ...
+               foo := &pb.Foo{}
+               if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                 ...
+               }
+
+          The pack methods provided by protobuf library will by default use
+
+          'type.googleapis.com/full.type.name' as the type URL and the unpack
+
+          methods only use the fully qualified type name after the last '/'
+
+          in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+          name "y.z".
+
+
+
+          JSON
+
+          ====
+
+          The JSON representation of an `Any` value uses the regular
+
+          representation of the deserialized, embedded message, with an
+
+          additional field `@type` which contains the type URL. Example:
+
+              package google.profile;
+              message Person {
+                string first_name = 1;
+                string last_name = 2;
+              }
+
+              {
+                "@type": "type.googleapis.com/google.profile.Person",
+                "firstName": <string>,
+                "lastName": <string>
+              }
+
+          If the embedded message type is well-known and has a custom JSON
+
+          representation, that representation will be embedded adding a field
+
+          `value` which holds the custom JSON in addition to the `@type`
+
+          field. Example (for message [google.protobuf.Duration][]):
+
+              {
+                "@type": "type.googleapis.com/google.protobuf.Duration",
+                "value": "1.212s"
+              }
+      size:
+        type: number
+        format: double
+        title: encoded storage size of the transaction
+      hash:
+        type: string
+        title: transaction hash in hex format
+      from:
+        type: string
+        title: |-
+          ethereum signer address in hex format. This address value is checked
+          against the address derived from the signature (V, R, S) using the
+          secp256k1 elliptic curve
+    description: MsgEthereumTx encapsulates an Ethereum transaction as an SDK message.
   ethermint.evm.v1.MsgEthereumTxResponse:
     type: object
     properties:
@@ -16404,12 +16511,19 @@ definitions:
           berlin_block:
             type: string
             title: 'Berlin switch block (nil = no fork, 0 = already on berlin)'
-          catalyst_block:
-            type: string
-            title: 'Catalyst switch block (nil = no fork, 0 = already on catalyst)'
           london_block:
             type: string
             title: 'London switch block (nil = no fork, 0 = already on london)'
+          arrow_glacier_block:
+            type: string
+            title: >-
+              Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already
+              activated)
+          merge_fork_block:
+            type: string
+            title: >-
+              EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in
+              merge proceedings)
         description: >-
           ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int
           values
@@ -16441,107 +16555,6 @@ definitions:
     description: >-
       QueryBalanceResponse is the response type for the Query/Balance RPC
       method.
-  ethermint.evm.v1.QueryBlockBloomResponse:
-    type: object
-    properties:
-      bloom:
-        type: string
-        format: byte
-        description: bloom represents bloom filter for the given block hash.
-    description: |-
-      QueryBlockBloomResponse is the response type for the Query/BlockBloom RPC
-      method.
-  ethermint.evm.v1.QueryBlockLogsResponse:
-    type: object
-    properties:
-      tx_logs:
-        type: array
-        items:
-          type: object
-          properties:
-            hash:
-              type: string
-            logs:
-              type: array
-              items:
-                type: object
-                properties:
-                  address:
-                    type: string
-                    title: address of the contract that generated the event
-                  topics:
-                    type: array
-                    items:
-                      type: string
-                    description: list of topics provided by the contract.
-                  data:
-                    type: string
-                    format: byte
-                    title: 'supplied by the contract, usually ABI-encoded'
-                  block_number:
-                    type: string
-                    format: uint64
-                    title: block in which the transaction was included
-                  tx_hash:
-                    type: string
-                    title: hash of the transaction
-                  tx_index:
-                    type: string
-                    format: uint64
-                    title: index of the transaction in the block
-                  block_hash:
-                    type: string
-                    title: hash of the block in which the transaction was included
-                  index:
-                    type: string
-                    format: uint64
-                    title: index of the log in the block
-                  removed:
-                    type: boolean
-                    description: >-
-                      The Removed field is true if this log was reverted due to
-                      a chain
-
-                      reorganisation. You must pay attention to this field if
-                      you receive logs
-
-                      through a filter query.
-                description: >-
-                  Log represents an protobuf compatible Ethereum Log that
-                  defines a contract
-
-                  log event. These events are generated by the LOG opcode and
-                  stored/indexed by
-
-                  the node.
-          description: >-
-            TransactionLogs define the logs generated from a transaction
-            execution
-
-            with a given hash. It it used for import/export data as transactions
-            are not
-
-            persisted on blockchain state after an upgrade.
-        description: logs represents the ethereum logs generated at the given block hash.
-      pagination:
-        description: pagination defines the pagination in the response.
-        type: object
-        properties:
-          next_key:
-            type: string
-            format: byte
-            title: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-    description: QueryTxLogs is the response type for the Query/BlockLogs RPC method.
   ethermint.evm.v1.QueryCodeResponse:
     type: object
     properties:
@@ -16654,12 +16667,19 @@ definitions:
               berlin_block:
                 type: string
                 title: 'Berlin switch block (nil = no fork, 0 = already on berlin)'
-              catalyst_block:
-                type: string
-                title: 'Catalyst switch block (nil = no fork, 0 = already on catalyst)'
               london_block:
                 type: string
                 title: 'London switch block (nil = no fork, 0 = already on london)'
+              arrow_glacier_block:
+                type: string
+                title: >-
+                  Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already
+                  activated)
+              merge_fork_block:
+                type: string
+                title: >-
+                  EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already
+                  in merge proceedings)
             description: >-
               ChainConfig defines the Ethereum ChainConfig parameters using
               *sdk.Int values
@@ -16680,66 +16700,21 @@ definitions:
     description: |-
       QueryStorageResponse is the response type for the Query/Storage RPC
       method.
-  ethermint.evm.v1.QueryTxLogsResponse:
+  ethermint.evm.v1.QueryTraceBlockResponse:
     type: object
     properties:
-      logs:
-        type: array
-        items:
-          type: object
-          properties:
-            address:
-              type: string
-              title: address of the contract that generated the event
-            topics:
-              type: array
-              items:
-                type: string
-              description: list of topics provided by the contract.
-            data:
-              type: string
-              format: byte
-              title: 'supplied by the contract, usually ABI-encoded'
-            block_number:
-              type: string
-              format: uint64
-              title: block in which the transaction was included
-            tx_hash:
-              type: string
-              title: hash of the transaction
-            tx_index:
-              type: string
-              format: uint64
-              title: index of the transaction in the block
-            block_hash:
-              type: string
-              title: hash of the block in which the transaction was included
-            index:
-              type: string
-              format: uint64
-              title: index of the log in the block
-            removed:
-              type: boolean
-              description: >-
-                The Removed field is true if this log was reverted due to a
-                chain
-
-                reorganisation. You must pay attention to this field if you
-                receive logs
-
-                through a filter query.
-          description: >-
-            Log represents an protobuf compatible Ethereum Log that defines a
-            contract
-
-            log event. These events are generated by the LOG opcode and
-            stored/indexed by
-
-            the node.
-        description: >-
-          logs represents the ethereum logs generated from the given
-          transaction.
-    description: QueryTxLogs is the response type for the Query/TxLogs RPC method.
+      data:
+        type: string
+        format: byte
+    title: QueryTraceBlockResponse defines TraceBlock response
+  ethermint.evm.v1.QueryTraceTxResponse:
+    type: object
+    properties:
+      data:
+        type: string
+        format: byte
+        title: response serialized in bytes
+    title: QueryTraceTxResponse defines TraceTx response
   ethermint.evm.v1.QueryValidatorAccountResponse:
     type: object
     properties:
@@ -16757,71 +16732,114 @@ definitions:
     description: |-
       QueryValidatorAccountResponse is the response type for the
       Query/ValidatorAccount RPC method.
-  ethermint.evm.v1.TransactionLogs:
+  ethermint.evm.v1.TraceConfig:
     type: object
     properties:
-      hash:
+      tracer:
         type: string
-      logs:
-        type: array
-        items:
-          type: object
-          properties:
-            address:
-              type: string
-              title: address of the contract that generated the event
-            topics:
-              type: array
-              items:
-                type: string
-              description: list of topics provided by the contract.
-            data:
-              type: string
-              format: byte
-              title: 'supplied by the contract, usually ABI-encoded'
-            block_number:
-              type: string
-              format: uint64
-              title: block in which the transaction was included
-            tx_hash:
-              type: string
-              title: hash of the transaction
-            tx_index:
-              type: string
-              format: uint64
-              title: index of the transaction in the block
-            block_hash:
-              type: string
-              title: hash of the block in which the transaction was included
-            index:
-              type: string
-              format: uint64
-              title: index of the log in the block
-            removed:
-              type: boolean
-              description: >-
-                The Removed field is true if this log was reverted due to a
-                chain
+        title: custom javascript tracer
+      timeout:
+        type: string
+        title: >-
+          overrides the default timeout of 5 seconds for JavaScript-based
+          tracing
 
-                reorganisation. You must pay attention to this field if you
-                receive logs
+          calls
+      reexec:
+        type: string
+        format: uint64
+        title: number of blocks the tracer is willing to go back
+      disable_stack:
+        type: boolean
+        title: disable stack capture
+      disable_storage:
+        type: boolean
+        title: disable storage capture
+      debug:
+        type: boolean
+        title: print output during capture end
+      limit:
+        type: integer
+        format: int32
+        title: 'maximum length of output, but zero means unlimited'
+      overrides:
+        title: >-
+          Chain overrides, can be used to execute a trace using future fork
+          rules
+        type: object
+        properties:
+          homestead_block:
+            type: string
+            title: 'Homestead switch block (nil no fork, 0 = already homestead)'
+          dao_fork_block:
+            type: string
+            title: TheDAO hard-fork switch block (nil no fork)
+          dao_fork_support:
+            type: boolean
+            title: Whether the nodes supports or opposes the DAO hard-fork
+          eip150_block:
+            type: string
+            title: >-
+              EIP150 implements the Gas price changes
 
-                through a filter query.
-          description: >-
-            Log represents an protobuf compatible Ethereum Log that defines a
-            contract
+              (https://github.com/ethereum/EIPs/issues/150) EIP150 HF block (nil
+              no fork)
+          eip150_hash:
+            type: string
+            title: >-
+              EIP150 HF hash (needed for header only clients as only gas pricing
+              changed)
+          eip155_block:
+            type: string
+            title: EIP155Block HF block
+          eip158_block:
+            type: string
+            title: EIP158 HF block
+          byzantium_block:
+            type: string
+            title: 'Byzantium switch block (nil no fork, 0 = already on byzantium)'
+          constantinople_block:
+            type: string
+            title: 'Constantinople switch block (nil no fork, 0 = already activated)'
+          petersburg_block:
+            type: string
+            title: Petersburg switch block (nil same as Constantinople)
+          istanbul_block:
+            type: string
+            title: 'Istanbul switch block (nil no fork, 0 = already on istanbul)'
+          muir_glacier_block:
+            type: string
+            title: >-
+              Eip-2384 (bomb delay) switch block (nil no fork, 0 = already
+              activated)
+          berlin_block:
+            type: string
+            title: 'Berlin switch block (nil = no fork, 0 = already on berlin)'
+          london_block:
+            type: string
+            title: 'London switch block (nil = no fork, 0 = already on london)'
+          arrow_glacier_block:
+            type: string
+            title: >-
+              Eip-4345 (bomb delay) switch block (nil = no fork, 0 = already
+              activated)
+          merge_fork_block:
+            type: string
+            title: >-
+              EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in
+              merge proceedings)
+        description: >-
+          ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int
+          values
 
-            log event. These events are generated by the LOG opcode and
-            stored/indexed by
-
-            the node.
-    description: >-
-      TransactionLogs define the logs generated from a transaction execution
-
-      with a given hash. It it used for import/export data as transactions are
-      not
-
-      persisted on blockchain state after an upgrade.
+          instead of *big.Int.
+      enable_memory:
+        type: boolean
+        title: enable memory capture
+      enable_return_data:
+        type: boolean
+        title: enable return data capture
+    description: TraceConfig holds extra parameters to trace functions.
   ethermint.feemarket.v1.Params:
     type: object
     properties:
@@ -16844,14 +16862,13 @@ definitions:
           may
 
           have.
-      initial_base_fee:
-        type: string
-        format: int64
-        description: initial base fee for EIP-1559 blocks.
       enable_height:
         type: string
         format: int64
         description: height at which the base fee calculation is enabled.
+      base_fee:
+        type: string
+        description: base fee for EIP-1559 blocks.
     title: Params defines the EVM module parameters
   ethermint.feemarket.v1.QueryBaseFeeResponse:
     type: object
@@ -16894,14 +16911,13 @@ definitions:
               block may
 
               have.
-          initial_base_fee:
-            type: string
-            format: int64
-            description: initial base fee for EIP-1559 blocks.
           enable_height:
             type: string
             format: int64
             description: height at which the base fee calculation is enabled.
+          base_fee:
+            type: string
+            description: base fee for EIP-1559 blocks.
         title: Params defines the EVM module parameters
     description: >-
       QueryParamsResponse defines the response type for querying x/evm
@@ -17182,6 +17198,9 @@ definitions:
     description: >-
       QueryAccountsResponse is the response type for the Query/Accounts RPC
       method.
+
+
+      Since: cosmos-sdk 0.43
   cosmos.auth.v1beta1.QueryParamsResponse:
     type: object
     properties:
@@ -17284,6 +17303,7 @@ definitions:
           displayed in clients.
       name:
         type: string
+        description: 'Since: cosmos-sdk 0.43'
         title: 'name defines the name of the token (eg: Cosmos Atom)'
       symbol:
         type: string
@@ -17292,6 +17312,9 @@ definitions:
           can
 
           be the same as the display.
+
+
+          Since: cosmos-sdk 0.43
     description: |-
       Metadata represents a struct that describes
       a basic token.
@@ -17374,7 +17397,7 @@ definitions:
     type: object
     properties:
       metadata:
-        description: |-
+        description: >-
           metadata describes and provides all the client information for the
           requested token.
         type: object
@@ -17427,6 +17450,7 @@ definitions:
               displayed in clients.
           name:
             type: string
+            description: 'Since: cosmos-sdk 0.43'
             title: 'name defines the name of the token (eg: Cosmos Atom)'
           symbol:
             type: string
@@ -17435,11 +17459,14 @@ definitions:
               This can
 
               be the same as the display.
+
+
+              Since: cosmos-sdk 0.43
     description: >-
       QueryDenomMetadataResponse is the response type for the
-      Query/DenomMetadata
+      Query/DenomMetadata RPC
 
-      RPC method.
+      method.
   cosmos.bank.v1beta1.QueryDenomsMetadataResponse:
     type: object
     properties:
@@ -17496,6 +17523,7 @@ definitions:
                 displayed in clients.
             name:
               type: string
+              description: 'Since: cosmos-sdk 0.43'
               title: 'name defines the name of the token (eg: Cosmos Atom)'
             symbol:
               type: string
@@ -17504,6 +17532,9 @@ definitions:
                 ATOM). This can
 
                 be the same as the display.
+
+
+                Since: cosmos-sdk 0.43
           description: |-
             Metadata represents a struct that describes
             a basic token.
@@ -17530,9 +17561,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryDenomsMetadataResponse is the response type for the
-      Query/DenomsMetadata
+      Query/DenomsMetadata RPC
 
-      RPC method.
+      method.
   cosmos.bank.v1beta1.QueryParamsResponse:
     type: object
     properties:
@@ -17592,7 +17623,10 @@ definitions:
             signatures required by gogoproto.
         title: supply is the supply of the coins
       pagination:
-        description: pagination defines the pagination in the response.
+        description: |-
+          pagination defines the pagination in the response.
+
+          Since: cosmos-sdk 0.43
         type: object
         properties:
           next_key:
@@ -19046,7 +19080,11 @@ definitions:
                      - VOTE_OPTION_NO_WITH_VETO: VOTE_OPTION_NO_WITH_VETO defines a no with veto vote option.
                 weight:
                   type: string
-              description: WeightedVoteOption defines a unit of vote for vote split.
+              description: |-
+                WeightedVoteOption defines a unit of vote for vote split.
+
+                Since: cosmos-sdk 0.43
+            title: 'Since: cosmos-sdk 0.43'
     description: QueryVoteResponse is the response type for the Query/Vote RPC method.
   cosmos.gov.v1beta1.QueryVotesResponse:
     type: object
@@ -19103,7 +19141,11 @@ definitions:
                        - VOTE_OPTION_NO_WITH_VETO: VOTE_OPTION_NO_WITH_VETO defines a no with veto vote option.
                   weight:
                     type: string
-                description: WeightedVoteOption defines a unit of vote for vote split.
+                description: |-
+                  WeightedVoteOption defines a unit of vote for vote split.
+
+                  Since: cosmos-sdk 0.43
+              title: 'Since: cosmos-sdk 0.43'
           description: |-
             Vote defines a vote on a governance proposal.
             A Vote consists of a proposal ID, the voter, and the vote option.
@@ -19211,7 +19253,11 @@ definitions:
                  - VOTE_OPTION_NO_WITH_VETO: VOTE_OPTION_NO_WITH_VETO defines a no with veto vote option.
             weight:
               type: string
-          description: WeightedVoteOption defines a unit of vote for vote split.
+          description: |-
+            WeightedVoteOption defines a unit of vote for vote split.
+
+            Since: cosmos-sdk 0.43
+        title: 'Since: cosmos-sdk 0.43'
     description: |-
       Vote defines a vote on a governance proposal.
       A Vote consists of a proposal ID, the voter, and the vote option.
@@ -19263,7 +19309,10 @@ definitions:
            - VOTE_OPTION_NO_WITH_VETO: VOTE_OPTION_NO_WITH_VETO defines a no with veto vote option.
       weight:
         type: string
-    description: WeightedVoteOption defines a unit of vote for vote split.
+    description: |-
+      WeightedVoteOption defines a unit of vote for vote split.
+
+      Since: cosmos-sdk 0.43
   cosmos.staking.v1beta1.BondStatus:
     type: string
     enum:
@@ -19283,7 +19332,7 @@ definitions:
     type: object
     properties:
       commission_rates:
-        description: |-
+        description: >-
           commission_rates defines the initial commission rates to be used for
           creating a validator.
         type: object
@@ -19295,16 +19344,12 @@ definitions:
             type: string
             description: >-
               max_rate defines the maximum commission rate which validator can
-              ever
-
-              charge, as a fraction.
+              ever charge, as a fraction.
           max_change_rate:
             type: string
             description: >-
               max_change_rate defines the maximum daily increase of the
-              validator
-
-              commission, as a fraction.
+              validator commission, as a fraction.
       update_time:
         type: string
         format: date-time
@@ -19318,12 +19363,12 @@ definitions:
         description: 'rate is the commission rate charged to delegators, as a fraction.'
       max_rate:
         type: string
-        description: |-
+        description: >-
           max_rate defines the maximum commission rate which validator can ever
           charge, as a fraction.
       max_change_rate:
         type: string
-        description: |-
+        description: >-
           max_change_rate defines the maximum daily increase of the validator
           commission, as a fraction.
     description: >-
@@ -19491,15 +19536,11 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech
-
-                encoded in JSON.
+                operator; bech encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a
-
-                Protobuf Any.
+                as a Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -19569,9 +19610,7 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or
-
-                not.
+                status or not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -19617,17 +19656,13 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator
-
-                has begun unbonding.
+                validator has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to
-
-                complete unbonding.
+                validator to complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -19635,9 +19670,7 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for
-
-                    creating a validator.
+                    used for creating a validator.
                   type: object
                   properties:
                     rate:
@@ -19649,16 +19682,12 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever
-
-                        charge, as a fraction.
+                        validator can ever charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator
-
-                        commission, as a fraction.
+                        the validator commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -19669,9 +19698,7 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self
-
-                delegation.
+                self delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -19716,7 +19743,7 @@ definitions:
       max_entries:
         type: integer
         format: int64
-        description: |-
+        description: >-
           max_entries is the max entries for either unbonding delegation or
           redelegation (per pair/trio).
       historical_entries:
@@ -19898,9 +19925,7 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at
-
-                      completion.
+                      receive at completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -19945,15 +19970,11 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech
-
-              encoded in JSON.
+              bech encoded in JSON.
           consensus_pubkey:
             description: >-
               consensus_pubkey is the consensus public key of the validator, as
-              a
-
-              Protobuf Any.
+              a Protobuf Any.
             type: object
             properties:
               type_url:
@@ -20021,9 +20042,7 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or
-
-              not.
+              status or not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -20069,17 +20088,13 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator
-
-              has begun unbonding.
+              validator has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to
-
-              complete unbonding.
+              validator to complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -20087,9 +20102,7 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for
-
-                  creating a validator.
+                  used for creating a validator.
                 type: object
                 properties:
                   rate:
@@ -20101,23 +20114,19 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever
-
-                      charge, as a fraction.
+                      validator can ever charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator
-
-                      commission, as a fraction.
+                      validator commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: |-
+            description: >-
               min_self_delegation is the validator's self declared minimum self
               delegation.
     description: |-
@@ -20135,15 +20144,11 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech
-
-                encoded in JSON.
+                operator; bech encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a
-
-                Protobuf Any.
+                as a Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -20213,9 +20218,7 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or
-
-                not.
+                status or not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -20261,17 +20264,13 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator
-
-                has begun unbonding.
+                validator has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to
-
-                complete unbonding.
+                validator to complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -20279,9 +20278,7 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for
-
-                    creating a validator.
+                    used for creating a validator.
                   type: object
                   properties:
                     rate:
@@ -20293,16 +20290,12 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever
-
-                        charge, as a fraction.
+                        validator can ever charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator
-
-                        commission, as a fraction.
+                        the validator commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -20313,9 +20306,7 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self
-
-                delegation.
+                self delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -20452,15 +20443,11 @@ definitions:
                   type: string
                   description: >-
                     operator_address defines the address of the validator's
-                    operator; bech
-
-                    encoded in JSON.
+                    operator; bech encoded in JSON.
                 consensus_pubkey:
                   description: >-
                     consensus_pubkey is the consensus public key of the
-                    validator, as a
-
-                    Protobuf Any.
+                    validator, as a Protobuf Any.
                   type: object
                   properties:
                     type_url:
@@ -20531,9 +20518,7 @@ definitions:
                   type: boolean
                   description: >-
                     jailed defined whether the validator has been jailed from
-                    bonded status or
-
-                    not.
+                    bonded status or not.
                 status:
                   description: status is the validator status (bonded/unbonding/unbonded).
                   type: string
@@ -20579,17 +20564,13 @@ definitions:
                   format: int64
                   description: >-
                     unbonding_height defines, if unbonding, the height at which
-                    this validator
-
-                    has begun unbonding.
+                    this validator has begun unbonding.
                 unbonding_time:
                   type: string
                   format: date-time
                   description: >-
                     unbonding_time defines, if unbonding, the min time for the
-                    validator to
-
-                    complete unbonding.
+                    validator to complete unbonding.
                 commission:
                   description: commission defines the commission parameters.
                   type: object
@@ -20597,9 +20578,7 @@ definitions:
                     commission_rates:
                       description: >-
                         commission_rates defines the initial commission rates to
-                        be used for
-
-                        creating a validator.
+                        be used for creating a validator.
                       type: object
                       properties:
                         rate:
@@ -20611,16 +20590,12 @@ definitions:
                           type: string
                           description: >-
                             max_rate defines the maximum commission rate which
-                            validator can ever
-
-                            charge, as a fraction.
+                            validator can ever charge, as a fraction.
                         max_change_rate:
                           type: string
                           description: >-
                             max_change_rate defines the maximum daily increase
-                            of the validator
-
-                            commission, as a fraction.
+                            of the validator commission, as a fraction.
                     update_time:
                       type: string
                       format: date-time
@@ -20631,9 +20606,7 @@ definitions:
                   type: string
                   description: >-
                     min_self_delegation is the validator's self declared minimum
-                    self
-
-                    delegation.
+                    self delegation.
               description: >-
                 Validator defines a validator, together with the total amount of
                 the
@@ -20679,7 +20652,7 @@ definitions:
           max_entries:
             type: integer
             format: int64
-            description: |-
+            description: >-
               max_entries is the max entries for either unbonding delegation or
               redelegation (per pair/trio).
           historical_entries:
@@ -20722,16 +20695,12 @@ definitions:
                   type: string
                   description: >-
                     validator_src_address is the validator redelegation source
-                    operator
-
-                    address.
+                    operator address.
                 validator_dst_address:
                   type: string
                   description: >-
                     validator_dst_address is the validator redelegation
-                    destination operator
-
-                    address.
+                    destination operator address.
                 entries:
                   type: array
                   items:
@@ -20758,9 +20727,7 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by
-
-                          redelegation.
+                          shares created by redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -20800,9 +20767,7 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by
-
-                          redelegation.
+                          shares created by redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -20879,9 +20844,7 @@ definitions:
                   type: string
                   description: >-
                     initial_balance defines the tokens initially scheduled to
-                    receive at
-
-                    completion.
+                    receive at completion.
                 balance:
                   type: string
                   description: balance defines the tokens to receive at completion.
@@ -20977,15 +20940,11 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech
-
-              encoded in JSON.
+              bech encoded in JSON.
           consensus_pubkey:
             description: >-
               consensus_pubkey is the consensus public key of the validator, as
-              a
-
-              Protobuf Any.
+              a Protobuf Any.
             type: object
             properties:
               type_url:
@@ -21053,9 +21012,7 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or
-
-              not.
+              status or not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -21101,17 +21058,13 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator
-
-              has begun unbonding.
+              validator has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to
-
-              complete unbonding.
+              validator to complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -21119,9 +21072,7 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for
-
-                  creating a validator.
+                  used for creating a validator.
                 type: object
                 properties:
                   rate:
@@ -21133,23 +21084,19 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever
-
-                      charge, as a fraction.
+                      validator can ever charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator
-
-                      commission, as a fraction.
+                      validator commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: |-
+            description: >-
               min_self_delegation is the validator's self declared minimum self
               delegation.
     title: QueryValidatorResponse is response type for the Query/Validator RPC method
@@ -21190,9 +21137,7 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at
-
-                      completion.
+                      receive at completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -21238,15 +21183,11 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech
-
-                encoded in JSON.
+                operator; bech encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a
-
-                Protobuf Any.
+                as a Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -21316,9 +21257,7 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or
-
-                not.
+                status or not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -21364,17 +21303,13 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator
-
-                has begun unbonding.
+                validator has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to
-
-                complete unbonding.
+                validator to complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -21382,9 +21317,7 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for
-
-                    creating a validator.
+                    used for creating a validator.
                   type: object
                   properties:
                     rate:
@@ -21396,16 +21329,12 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever
-
-                        charge, as a fraction.
+                        validator can ever charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator
-
-                        commission, as a fraction.
+                        the validator commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -21416,9 +21345,7 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self
-
-                delegation.
+                self delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -21470,16 +21397,14 @@ definitions:
         description: delegator_address is the bech32-encoded address of the delegator.
       validator_src_address:
         type: string
-        description: |-
+        description: >-
           validator_src_address is the validator redelegation source operator
           address.
       validator_dst_address:
         type: string
         description: >-
           validator_dst_address is the validator redelegation destination
-          operator
-
-          address.
+          operator address.
       entries:
         type: array
         items:
@@ -21506,9 +21431,7 @@ definitions:
               type: string
               description: >-
                 shares_dst is the amount of destination-validator shares created
-                by
-
-                redelegation.
+                by redelegation.
           description: >-
             RedelegationEntry defines a redelegation object with relevant
             metadata.
@@ -21534,7 +21457,7 @@ definitions:
         description: initial_balance defines the initial balance when redelegation started.
       shares_dst:
         type: string
-        description: |-
+        description: >-
           shares_dst is the amount of destination-validator shares created by
           redelegation.
     description: RedelegationEntry defines a redelegation object with relevant metadata.
@@ -21563,9 +21486,7 @@ definitions:
             type: string
             description: >-
               shares_dst is the amount of destination-validator shares created
-              by
-
-              redelegation.
+              by redelegation.
         description: >-
           RedelegationEntry defines a redelegation object with relevant
           metadata.
@@ -21591,16 +21512,12 @@ definitions:
             type: string
             description: >-
               validator_src_address is the validator redelegation source
-              operator
-
-              address.
+              operator address.
           validator_dst_address:
             type: string
             description: >-
               validator_dst_address is the validator redelegation destination
-              operator
-
-              address.
+              operator address.
           entries:
             type: array
             items:
@@ -21627,9 +21544,7 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by
-
-                    redelegation.
+                    created by redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -21669,9 +21584,7 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by
-
-                    redelegation.
+                    created by redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -21718,9 +21631,7 @@ definitions:
               type: string
               description: >-
                 initial_balance defines the tokens initially scheduled to
-                receive at
-
-                completion.
+                receive at completion.
             balance:
               type: string
               description: balance defines the tokens to receive at completion.
@@ -21744,7 +21655,7 @@ definitions:
         description: completion_time is the unix time for unbonding completion.
       initial_balance:
         type: string
-        description: |-
+        description: >-
           initial_balance defines the tokens initially scheduled to receive at
           completion.
       balance:
@@ -21758,11 +21669,11 @@ definitions:
     properties:
       operator_address:
         type: string
-        description: |-
+        description: >-
           operator_address defines the address of the validator's operator; bech
           encoded in JSON.
       consensus_pubkey:
-        description: |-
+        description: >-
           consensus_pubkey is the consensus public key of the validator, as a
           Protobuf Any.
         type: object
@@ -21829,9 +21740,7 @@ definitions:
         type: boolean
         description: >-
           jailed defined whether the validator has been jailed from bonded
-          status or
-
-          not.
+          status or not.
       status:
         description: status is the validator status (bonded/unbonding/unbonded).
         type: string
@@ -21875,17 +21784,13 @@ definitions:
         format: int64
         description: >-
           unbonding_height defines, if unbonding, the height at which this
-          validator
-
-          has begun unbonding.
+          validator has begun unbonding.
       unbonding_time:
         type: string
         format: date-time
         description: >-
           unbonding_time defines, if unbonding, the min time for the validator
-          to
-
-          complete unbonding.
+          to complete unbonding.
       commission:
         description: commission defines the commission parameters.
         type: object
@@ -21893,9 +21798,7 @@ definitions:
           commission_rates:
             description: >-
               commission_rates defines the initial commission rates to be used
-              for
-
-              creating a validator.
+              for creating a validator.
             type: object
             properties:
               rate:
@@ -21907,23 +21810,19 @@ definitions:
                 type: string
                 description: >-
                   max_rate defines the maximum commission rate which validator
-                  can ever
-
-                  charge, as a fraction.
+                  can ever charge, as a fraction.
               max_change_rate:
                 type: string
                 description: >-
                   max_change_rate defines the maximum daily increase of the
-                  validator
-
-                  commission, as a fraction.
+                  validator commission, as a fraction.
           update_time:
             type: string
             format: date-time
             description: update_time is the last time the commission rate was changed.
       min_self_delegation:
         type: string
-        description: |-
+        description: >-
           min_self_delegation is the validator's self declared minimum self
           delegation.
     description: >-
