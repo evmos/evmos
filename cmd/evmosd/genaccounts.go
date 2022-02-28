@@ -308,7 +308,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 	cmd.Flags().Int64(flagVestingStart, 0, "schedule start time (unix epoch) for vesting accounts")
 	cmd.Flags().Int64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
 	cmd.Flags().Bool(vestingcli.FlagClawback, false, "create clawback account")
-	cmd.Flags().String(vestingcli.FlagFunder, "", "addr for clawback")
+	cmd.Flags().String(vestingcli.FlagFunder, "", "funder address for clawback")
 	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods")
 	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods")
 	flags.AddQueryFlagsToCmd(cmd)
