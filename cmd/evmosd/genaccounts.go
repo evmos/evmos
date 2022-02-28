@@ -117,21 +117,21 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 			clawback, _ := cmd.Flags().GetBool(vestingcli.FlagClawback)
 
-			// SDK vesting types
+			// Create ClawbackvestingAccount, sdk.VestingAccount or EthAccount
 			switch {
 			case clawback:
-				// ClawbackvestingAccount requires --clawback, --lockup, --vesting, and
-				// --from flags
+				// ClawbackvestingAccount requires clawback, lockup, vesting, and funder
+				// flags
 				var (
 					lockupStart                   int64
 					lockupPeriods, vestingPeriods sdkvesting.Periods
 				)
 
+				// Get funder addr which can perform clawback
 				funderStr, err := cmd.Flags().GetString(vestingcli.FlagFunder)
 				if err != nil {
 					return fmt.Errorf("must specify the clawback vesting account funder with the --funder flag")
 				}
-
 				funder, err := sdk.AccAddressFromBech32(funderStr)
 				if err != nil {
 					return err
@@ -159,6 +159,8 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					}
 				}
 
+				// Align schedules in case lockup and vesting schedules have different
+				// start_time
 				commonStart, _ := vestingtypes.AlignSchedules(lockupStart, vestingStart, lockupPeriods, vestingPeriods)
 
 				// Get total lockup and vesting from schedules
@@ -203,7 +205,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					)
 				}
 
-				// create raw ClawbackVestingAccount object
 				genAccount = vestingtypes.NewClawbackVestingAccount(
 					baseAccount,
 					funder,
@@ -213,6 +214,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					vestingPeriods,
 				)
 
+			// SDK vesting types
 			case !vestingAmt.IsZero():
 				baseVestingAccount := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
 

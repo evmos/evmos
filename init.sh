@@ -88,10 +88,6 @@ fi
 # Allocate genesis accounts (cosmos formatted addresses)
 evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
 
-FUNDER=evmos160ka7ccq7tn2355lppetq262sgh6r0u379pr4g
-DEV1=evmos1wmzx0dj2emwxh5q3a9znwjtgrne0aadh5c7lxl
-evmosd add-genesis-account $DEV1 5000000000000000000aevmos --keyring-backend $KEYRING --clawback --lockup ../tmp/lockup-schedule.json --vesting ../tmp/vesting-schedule.json --funder $FUNDER
-
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.evmosd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
 # Bc is required to add this big numbers
