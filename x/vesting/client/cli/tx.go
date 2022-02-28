@@ -21,11 +21,13 @@ import (
 
 // Transaction command flags
 const (
-	FlagDelayed = "delayed"
-	FlagDest    = "dest"
-	FlagLockup  = "lockup"
-	FlagMerge   = "merge"
-	FlagVesting = "vesting"
+	FlagDelayed  = "delayed"
+	FlagDest     = "dest"
+	FlagLockup   = "lockup"
+	FlagMerge    = "merge"
+	FlagVesting  = "vesting"
+	FlagClawback = "clawback"
+	FlagFunder   = "funder"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/vesting
@@ -109,7 +111,7 @@ type InputPeriod struct {
 
 // readScheduleFile reads the file at path and unmarshals it to get the schedule.
 // Returns start time, periods, and error.
-func readScheduleFile(path string) (int64, []sdkvesting.Period, error) {
+func ReadScheduleFile(path string) (int64, []sdkvesting.Period, error) {
 	contents, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return 0, nil, err
@@ -192,13 +194,13 @@ with a start time and an array of coins strings and durations relative to the st
 				return fmt.Errorf("must specify at least one of %s or %s", FlagLockup, FlagVesting)
 			}
 			if lockupFile != "" {
-				lockupStart, lockupPeriods, err = readScheduleFile(lockupFile)
+				lockupStart, lockupPeriods, err = ReadScheduleFile(lockupFile)
 				if err != nil {
 					return err
 				}
 			}
 			if vestingFile != "" {
-				vestingStart, vestingPeriods, err = readScheduleFile(vestingFile)
+				vestingStart, vestingPeriods, err = ReadScheduleFile(vestingFile)
 				if err != nil {
 					return err
 				}

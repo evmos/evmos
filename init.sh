@@ -24,7 +24,7 @@ evmosd config chain-id $CHAINID
 evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
-evmosd init $MONIKER --chain-id $CHAINID 
+evmosd init $MONIKER --chain-id $CHAINID
 
 # Change parameter token denominations to aevmos
 cat $HOME/.evmosd/config/genesis.json | jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
