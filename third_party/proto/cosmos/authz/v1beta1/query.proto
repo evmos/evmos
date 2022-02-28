@@ -1,3 +1,4 @@
+// Since: cosmos-sdk 0.43
 syntax = "proto3";
 package cosmos.authz.v1beta1;
 
@@ -19,15 +20,13 @@ service Query {
 message QueryGrantsRequest {
   string granter = 1;
   string grantee = 2;
-  // Optional, msg_type_url, when set, will query only grants matching given msg
-  // type.
+  // Optional, msg_type_url, when set, will query only grants matching given msg type.
   string msg_type_url = 3;
   // pagination defines an pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 4;
 }
 
-// QueryGrantsResponse is the response type for the Query/Authorizations RPC
-// method.
+// QueryGrantsResponse is the response type for the Query/Authorizations RPC method.
 message QueryGrantsResponse {
   // authorizations is a list of grants granted for grantee by granter.
   repeated cosmos.authz.v1beta1.Grant grants = 1;

@@ -473,8 +473,9 @@ proto-check-breaking:
 
 TM_URL              = https://raw.githubusercontent.com/tendermint/tendermint/v0.34.15/proto/tendermint
 GOGO_PROTO_URL      = https://raw.githubusercontent.com/regen-network/protobuf/cosmos
-COSMOS_SDK_URL      = https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.0
-ETHERMINT_URL      = https://raw.githubusercontent.com/tharsis/ethermint/v0.10.0-alpha2
+COSMOS_SDK_URL      = https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.1
+ETHERMINT_URL      	= https://raw.githubusercontent.com/tharsis/ethermint/v0.10.0
+IBC_GO_URL      		= https://raw.githubusercontent.com/cosmos/ibc-go/v3.0.0-rc0
 COSMOS_PROTO_URL    = https://raw.githubusercontent.com/regen-network/cosmos-proto/master
 
 TM_CRYPTO_TYPES     = third_party/proto/tendermint/crypto

@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -167,12 +168,14 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
+	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
+	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
+	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
