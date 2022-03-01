@@ -47,7 +47,7 @@ func (vcd ValidatorCommissionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	return next(ctx, tx, simulate)
 }
 
-// validAuthz validates if a message is authorized
+// validateAuthz validates the authorization internal message
 func (vcd ValidatorCommissionDecorator) validateAuthz(ctx sdk.Context, execMsg *authz.MsgExec) error {
 	for _, v := range execMsg.Msgs {
 		var innerMsg sdk.Msg
@@ -64,6 +64,7 @@ func (vcd ValidatorCommissionDecorator) validateAuthz(ctx sdk.Context, execMsg *
 	return nil
 }
 
+// validateMsg checks that the commission rate is over 5% for create and edit validator msgs
 func (vcd ValidatorCommissionDecorator) validateMsg(_ sdk.Context, msg sdk.Msg) error {
 	switch msg := msg.(type) {
 	case *stakingtypes.MsgCreateValidator:

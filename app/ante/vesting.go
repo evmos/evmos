@@ -114,7 +114,7 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 	return next(ctx, tx, simulate)
 }
 
-// validAuthz validates if a message is authorized
+// validateAuthz validates the authorization internal message
 func (vdd VestingDelegationDecorator) validateAuthz(ctx sdk.Context, execMsg *authz.MsgExec) error {
 	for _, v := range execMsg.Msgs {
 		var innerMsg sdk.Msg
@@ -130,6 +130,7 @@ func (vdd VestingDelegationDecorator) validateAuthz(ctx sdk.Context, execMsg *au
 	return nil
 }
 
+// validateMsg checks that the only vested coins can be delegated
 func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) error {
 	delegateMsg, ok := msg.(*stakingtypes.MsgDelegate)
 	if !ok {
