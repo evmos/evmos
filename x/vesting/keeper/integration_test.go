@@ -345,11 +345,12 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
 		bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
+		expClawback := clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
+
 		// Any unvested amount is clawed back
-		// Any vested but locked amount is also clawed back
 		s.Require().Equal(balanceFunder, bF)
-		s.Require().Equal(balanceGrantee.Sub(vesting[0]).Amount.Uint64(), bG.Amount.Uint64())
-		s.Require().Equal(balanceDest.Add(vesting[0]).Amount.Uint64(), bD.Amount.Uint64())
+		s.Require().Equal(balanceGrantee.Sub(expClawback[0]).Amount.Uint64(), bG.Amount.Uint64())
+		s.Require().Equal(balanceDest.Add(expClawback[0]).Amount.Uint64(), bD.Amount.Uint64())
 	})
 
 	It("clawback after cliff and unlocking", func() {
