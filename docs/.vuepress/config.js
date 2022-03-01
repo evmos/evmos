@@ -234,6 +234,10 @@ module.exports = {
               title: 'Awesome Evmos',
               path: 'https://github.com/tharsis/awesome'
             },
+            {
+              title: 'Evmos Space',
+              path: 'https://evmos.space/'
+            }
           ]
         },
         {
