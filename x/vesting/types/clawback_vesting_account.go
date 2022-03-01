@@ -145,7 +145,7 @@ func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
-// GetUNvestedOnly returns the unvesting schedule at blockTime.
+// GetUnvestedOnly returns the unvesting schedule at blockTime.
 func (va ClawbackVestingAccount) GetUnvestedOnly(blockTime time.Time) sdk.Coins {
 	totalUnvested := va.OriginalVesting.Sub(va.GetVestedOnly(blockTime))
 	if totalUnvested == nil {

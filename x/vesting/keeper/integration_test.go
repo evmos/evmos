@@ -291,7 +291,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceDest, sdk.NewInt64Coin(stakeDenom, 0))
 	})
 
-	It("clawback before cliff", func() {
+	It("should claw back unvested amount before cliff", func() {
 		ctx := sdk.WrapSDKContext(s.ctx)
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -313,7 +313,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceDest.Add(vestingAmtTotal[0]).Amount.Uint64(), bD.Amount.Uint64())
 	})
 
-	It("clawback after cliff before unlocking", func() {
+	It("should claw back any unvested amount after cliff before unlocking", func() {
 		// Surpass cliff but not lockup duration
 		cliffDuration := time.Duration(cliffLength)
 		s.CommitAfter(cliffDuration * time.Second)
@@ -353,7 +353,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceDest.Add(expClawback[0]).Amount.Uint64(), bD.Amount.Uint64())
 	})
 
-	It("clawback after cliff and unlocking", func() {
+	It("should claw back any unvested amount after cliff and unlocking", func() {
 		// Surpass lockup duration
 		// A strict `if t < clawbackTime` comparison is used in ComputeClawback
 		// so, we increment the duration with 1 for the free token calculation to match
@@ -393,7 +393,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceDest.Add(vesting[0]).Amount.Uint64(), bD.Amount.Uint64())
 	})
 
-	It("clawback after vesting periods end", func() {
+	It("should not claw back any amount after vesting periods end", func() {
 		// Surpass vesting periods
 		vestingDuration := time.Duration(periodsTotal*vestingLength + 1)
 		s.CommitAfter(vestingDuration * time.Second)
