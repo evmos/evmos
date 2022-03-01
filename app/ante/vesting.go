@@ -101,42 +101,12 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 		switch msg := msg.(type) {
 		case *authz.MsgExec:
 			// Check for bypassing authorization
-			if err := vdd.validAuthz(msg); err != nil {
+			if err := vdd.validateAuthz(ctx, msg); err != nil {
 				return ctx, err
 			}
-		case *stakingtypes.MsgDelegate:
-			for _, addr := range msg.GetSigners() {
-				acc := vdd.ak.GetAccount(ctx, addr)
-				if acc == nil {
-					return ctx, sdkerrors.Wrapf(
-						sdkerrors.ErrUnknownAddress,
-						"account %s does not exist", addr,
-					)
-				}
-
-				clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
-				if !isClawback {
-					// continue to next decorator as this logic only applies to vesting
-					return next(ctx, tx, simulate)
-				}
-
-				// error if bond amount is > vested coins
-				bondDenom := vdd.sk.BondDenom(ctx)
-				coins := clawbackAccount.GetVestedOnly(ctx.BlockTime())
-				if coins == nil || coins.Empty() {
-					return ctx, sdkerrors.Wrap(
-						vestingtypes.ErrInsufficientVestedCoins,
-						"account has no vested coins",
-					)
-				}
-
-				vested := coins.AmountOf(bondDenom)
-				if vested.LT(msg.Amount.Amount) {
-					return ctx, sdkerrors.Wrapf(
-						vestingtypes.ErrInsufficientVestedCoins,
-						"cannot delegate unvested coins. Coins Vested: %s", vested,
-					)
-				}
+		default:
+			if err := vdd.validateMsg(ctx, msg); err != nil {
+				return ctx, err
 			}
 		}
 	}
@@ -145,12 +115,58 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 }
 
 // validAuthz validates if a message is authorized
-func (vdd VestingDelegationDecorator) validAuthz(execMsg *authz.MsgExec) error {
+func (vdd VestingDelegationDecorator) validateAuthz(ctx sdk.Context, execMsg *authz.MsgExec) error {
 	for _, v := range execMsg.Msgs {
 		var innerMsg sdk.Msg
-		err := vdd.cdc.UnpackAny(v, &innerMsg)
-		if err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+		if err := vdd.cdc.UnpackAny(v, &innerMsg); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs: %s", err.Error())
+		}
+
+		if err := vdd.validateMsg(ctx, innerMsg); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) error {
+	delegateMsg, ok := msg.(*stakingtypes.MsgDelegate)
+	if !ok {
+		return nil
+	}
+
+	for _, addr := range msg.GetSigners() {
+		acc := vdd.ak.GetAccount(ctx, addr)
+		if acc == nil {
+			return sdkerrors.Wrapf(
+				sdkerrors.ErrUnknownAddress,
+				"account %s does not exist", addr,
+			)
+		}
+
+		clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
+		if !isClawback {
+			// continue to next decorator as this logic only applies to vesting
+			return nil
+		}
+
+		// error if bond amount is > vested coins
+		bondDenom := vdd.sk.BondDenom(ctx)
+		coins := clawbackAccount.GetVestedOnly(ctx.BlockTime())
+		if coins == nil || coins.Empty() {
+			return sdkerrors.Wrap(
+				vestingtypes.ErrInsufficientVestedCoins,
+				"account has no vested coins",
+			)
+		}
+
+		vested := coins.AmountOf(bondDenom)
+		if vested.LT(delegateMsg.Amount.Amount) {
+			return sdkerrors.Wrapf(
+				vestingtypes.ErrInsufficientVestedCoins,
+				"cannot delegate unvested coins. Coins Vested: %s", vested,
+			)
 		}
 	}
 
