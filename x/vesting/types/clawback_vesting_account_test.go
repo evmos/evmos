@@ -252,7 +252,7 @@ func (suite *VestingAccountTestSuite) TestGetVestedUnvestedLockedOnly() {
 			"all coins vested at the end of the vesting schedule",
 			endTime,
 			origCoins,
-			nil,
+			sdk.Coins{},
 			nil,
 		},
 		{
@@ -294,7 +294,7 @@ func (suite *VestingAccountTestSuite) TestGetVestedUnvestedLockedOnly() {
 			"100 percent of coins vested",
 			now.Add(48 * time.Hour),
 			origCoins,
-			nil,
+			sdk.Coins{},
 			nil,
 		},
 	}
@@ -499,7 +499,7 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 			[]sdkvesting.Period{},
 		},
 		{
-			"clawback after two periods",
+			"clawback after two periods ",
 			now.Add(11 * time.Hour).Unix(),
 			c(fee(600), stake(50)),
 			c(fee(400), stake(50)),
@@ -512,7 +512,7 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 		{
 			"clawback after all periods",
 			now.Add(23 * time.Hour).Unix(),
-			c(),
+			sdk.Coins{},
 			c(fee(1000), stake(100)),
 			lockupPeriods,
 			vestingPeriods,
