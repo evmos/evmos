@@ -1,9 +1,11 @@
 package ante
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
@@ -77,15 +79,17 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 
 // VestingDelegationDecorator validates delegation of vested coins
 type VestingDelegationDecorator struct {
-	ak evmtypes.AccountKeeper
-	sk vestingtypes.StakingKeeper
+	ak  evmtypes.AccountKeeper
+	sk  vestingtypes.StakingKeeper
+	cdc codec.BinaryCodec
 }
 
 // NewVestingDelegationDecorator creates a new VestingDelegationDecorator
-func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper, sk vestingtypes.StakingKeeper) VestingDelegationDecorator {
+func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper, sk vestingtypes.StakingKeeper, cdc codec.BinaryCodec) VestingDelegationDecorator {
 	return VestingDelegationDecorator{
-		ak: ak,
-		sk: sk,
+		ak:  ak,
+		sk:  sk,
+		cdc: cdc,
 	}
 }
 
@@ -94,6 +98,14 @@ func NewVestingDelegationDecorator(ak evmtypes.AccountKeeper, sk vestingtypes.St
 // the coins already vested
 func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
+
+		// Check for bypassing authorization
+		if m, ok := msg.(*authz.MsgExec); ok {
+			if err := vdd.validAuthz(m); err != nil {
+				return ctx, err
+			}
+		}
+
 		// Continue only if delegation
 		delegateMsg, isDelegation := msg.(*stakingtypes.MsgDelegate)
 		if !isDelegation {
@@ -136,4 +148,17 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+// validAuthz validates if a message is authorized
+func (vdd VestingDelegationDecorator) validAuthz(execMsg *authz.MsgExec) error {
+	for _, v := range execMsg.Msgs {
+		var innerMsg sdk.Msg
+		err := vdd.cdc.UnpackAny(v, &innerMsg)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+		}
+	}
+
+	return nil
 }
