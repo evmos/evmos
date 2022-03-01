@@ -35,12 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
-### Features
-
-- [\#286](https://github.com/tharsis/evmos/pull/286) Add `x/vesting` module.
-
-## [v1.0.0-beta1] - 2022-02-15
+## [v1.0.0] - 2022-02-28
 
 ### State Machine Breaking
 
@@ -52,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
+- [\#286](https://github.com/tharsis/evmos/pull/286) Add `x/vesting` module.
 - [\#184](https://github.com/tharsis/evmos/pull/184) Add claims module for claiming the airdrop tokens.
 - [\#183](https://github.com/tharsis/evmos/pull/183) Add epoch module for incentives.
 - [\#202](https://github.com/tharsis/evmos/pull/202) Add custom configuration for state sync snapshots and tendermint p2p peers. This introduces a custom `InitCmd` function.
@@ -59,9 +55,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (deps) Bumped Ethermint to [`v0.10.0-alpha2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.0-alpha2)
-- (deps) Bumped IBC-go to `v3.0.0-alpha2`
-- (deps) Bumped Cosmos SDK to [`v0.45.0`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.0)
+- (deps) Bumped Ethermint to [`v0.10.0`](https://github.com/tharsis/ethermint/releases/tag/v0.10.0)
+- (deps) Bumped IBC-go to `v3.0.0-rc0`
+- (deps) Bumped Cosmos SDK to [`v0.45.1`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.1)
 - (deps) bumped Tendermint to `v0.34.15` and tm-db to `v0.6.6`.
 - [\#180](https://github.com/tharsis/evmos/pull/180) Delete `TokenPair` if ERC20 contract has been selfdestructed.
 
