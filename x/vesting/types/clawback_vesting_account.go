@@ -177,7 +177,6 @@ func (va ClawbackVestingAccount) ComputeClawback(
 		newVestingEnd += period.Length
 	}
 
-	// TODO CHECK THIS
 	// Cap the unlocking schedule to the new total vested.
 	//  - If lockup has already passed, all vested coins are unlocked.
 	//  - If lockup has not passed, the vested coins, are still locked.
