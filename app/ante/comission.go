@@ -1,9 +1,11 @@
 package ante
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -13,11 +15,15 @@ var minCommission = sdk.NewDecWithPrec(5, 2) // 5%
 
 // ValidatorCommissionDecorator validates that the validator commission is always
 // greater or equal than the min commission rate
-type ValidatorCommissionDecorator struct{}
+type ValidatorCommissionDecorator struct {
+	cdc codec.BinaryCodec
+}
 
 // NewValidatorCommissionDecorator creates a new NewValidatorCommissionDecorator
-func NewValidatorCommissionDecorator() ValidatorCommissionDecorator {
-	return ValidatorCommissionDecorator{}
+func NewValidatorCommissionDecorator(cdc codec.BinaryCodec) ValidatorCommissionDecorator {
+	return ValidatorCommissionDecorator{
+		cdc: cdc,
+	}
 }
 
 // AnteHandle checks if the tx contains a staking create validator or edit validator.
@@ -25,6 +31,11 @@ func NewValidatorCommissionDecorator() ValidatorCommissionDecorator {
 func (vcd ValidatorCommissionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
 		switch msg := msg.(type) {
+		case *authz.MsgExec:
+			// Check for bypassing authorization
+			if err := vcd.validAuthz(msg); err != nil {
+				return ctx, err
+			}
 		case *stakingtypes.MsgCreateValidator:
 			if msg.Commission.Rate.LT(minCommission) {
 				return ctx, sdkerrors.Wrapf(
@@ -43,4 +54,17 @@ func (vcd ValidatorCommissionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+// validAuthz validates if a message is authorized
+func (vcd ValidatorCommissionDecorator) validAuthz(execMsg *authz.MsgExec) error {
+	for _, v := range execMsg.Msgs {
+		var innerMsg sdk.Msg
+		err := vcd.cdc.UnpackAny(v, &innerMsg)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+		}
+	}
+
+	return nil
 }
