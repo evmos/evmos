@@ -173,7 +173,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
 
 	newVestingEnd := va.GetStartTime()
-	for _, period := range va.VestingPeriods {
+	for _, period := range newVestingPeriods {
 		newVestingEnd += period.Length
 	}
 
