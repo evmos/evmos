@@ -227,9 +227,5 @@ func (va ClawbackVestingAccount) UpdateDelegation(
 // HasLockedCoins returns true if the blocktime has not passed all clawback
 // account's lockup periods
 func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
-	unlockingTime := va.StartTime
-	for _, lp := range va.LockupPeriods {
-		unlockingTime = unlockingTime.Add(time.Duration(lp.Length))
-	}
-	return blockTime.Before(unlockingTime)
+	return !va.GetLockedOnly(blockTime).IsZero()
 }

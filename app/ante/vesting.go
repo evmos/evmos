@@ -109,8 +109,8 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 				)
 			}
 
-			clawbackAccount, isPeriodicVesting := acc.(*vestingtypes.ClawbackVestingAccount)
-			if !isPeriodicVesting {
+			clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
+			if !isClawback {
 				// continue to next decorator as this logic only applies to vesting
 				return next(ctx, tx, simulate)
 			}
@@ -126,7 +126,6 @@ func (vdd VestingDelegationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 			}
 
 			vested := coins.AmountOf(bondDenom)
-
 			if vested.LT(delegateMsg.Amount.Amount) {
 				return ctx, sdkerrors.Wrapf(
 					vestingtypes.ErrInsufficientVestedCoins,

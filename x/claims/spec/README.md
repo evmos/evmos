@@ -29,8 +29,7 @@ Furthermore, these claimable assets 'expire' if not claimed. Users have two mont
 1. **[Concepts](01_concepts.md)**
 2. **[State](02_state.md)**
 3. **[State Transitions](03_state_transitions.md)**
-4. **[Transactions](04_transactions.md)**
-5. **[Hooks](05_hooks.md)**
-6. **[Events](06_events.md)**
-7. **[Parameters](07_params.md)**
-8. **[Clients](08_clients.md)**
+4. **[Hooks](04_hooks.md)**
+5. **[Events](05_events.md)**
+6. **[Parameters](06_parameters.md)**
+7. **[Clients](07_clients.md)**

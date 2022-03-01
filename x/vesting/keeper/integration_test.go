@@ -97,7 +97,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		s.Require().True(vested.IsZero())
 	})
 
-	Context("before cliff", func() {
+	Context("before first vesting period", func() {
 		It("cannot delegate tokens", func() {
 			err := delegate(clawbackAccount, 100)
 			Expect(err).ToNot(BeNil())
@@ -119,7 +119,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 	})
 
-	Context("after cliff and before lockup", func() {
+	Context("after first vesting period and before lockup", func() {
 		BeforeEach(func() {
 			// Surpass cliff but not lockup duration
 			cliffDuration := time.Duration(cliffLength)
@@ -132,7 +132,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			s.Require().Equal(expVested, vested)
 		})
 
-		It("can delegate vested tokens", func() {
+		It("cannot delegate vested tokens", func() {
 			err := delegate(clawbackAccount, 1)
 			Expect(err).To(BeNil())
 		})
@@ -153,7 +153,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 	})
 
-	Context("after cliff and lockup", func() {
+	Context("after first vesting period and lockup", func() {
 		BeforeEach(func() {
 			// Surpass lockup duration
 			lockupDuration := time.Duration(lockupLength)
