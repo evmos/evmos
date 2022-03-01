@@ -28,10 +28,10 @@ Here is the list of fields that you can use to paste on Metamask:
 ::: tab Mainnet
 
 - **Network Name:** `{{ $themeConfig.project.name }} Mainnet`
-- **New RPC URL:** `{{ $themeConfig.project.rpc_url_mainnet }}`
+- **New RPC URL:** `{{ $themeConfig.project.rpc_url }}`
 - **Chain ID:** `{{ $themeConfig.project.chain_id }}`
 - **Currency Symbol (optional):** `{{ $themeConfig.project.ticker }}`
-- **Block Explorer URL (optional):** `{{ $themeConfig.project.mainnet_evm_explorer_url }}`
+- **Block Explorer URL (optional):** `{{ $themeConfig.project.evm_explorer_url }}`
   :::
 ::: tab Testnet
 
