@@ -33,7 +33,7 @@ To run testnet nodes, you will need a machine with the following minimum hardwar
 
 - 4 or more physical CPU cores
 - At least 500GB of SSD disk storage
-- At least 16GB of memory (RAM)
+- At least 32GB of memory (RAM)
 - At least 100mbps network bandwidth
 
 As the usage of the blockchain grows, the server requirements may increase as well, so you should have a plan for updating your server as well.
@@ -54,8 +54,8 @@ evmosd tx staking create-validator \
   --pubkey=$(evmosd tendermint show-validator) \
   --moniker="choose a moniker" \
   --chain-id=<chain_id> \
-  --commission-rate="0.10" \
-  --commission-max-rate="0.20" \
+  --commission-rate="0.05" \
+  --commission-max-rate="0.10" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
