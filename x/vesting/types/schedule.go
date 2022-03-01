@@ -40,7 +40,7 @@ func ReadSchedule(
 	return coins
 }
 
-// ReadPastPeriodCount returns the amount of remaining periods before read time
+// ReadPastPeriodCount returns the amount of passed periods before read time
 func ReadPastPeriodCount(
 	startTime, endTime int64,
 	periods []sdkvesting.Period,
