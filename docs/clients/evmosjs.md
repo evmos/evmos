@@ -6,14 +6,14 @@ order: 1
 
 Use the evmosjs library for connecting clients to Evmos {synopsis}
 
-[`evmosjs`](https://github.com/tharsis/evmosjs) is a JavaScript and TypeScript client library for [Evmos](https://github.com/tharsis/evmos) and [Ethermint](https://github.com/tharsis/ethermint).
+[`evmosjs`](https://github.com/tharsis/evmosjs) is a JavaScript and TypeScript client library for [Evmos](https://github.com/tharsis/evmos) and [Ethermint](https://github.com/tharsis/ethermint) nodes.
 
 ## Cosmjs
 
-Additionally to @evmosjs, users can integrate [cosmjs](https://github.com/cosmos/cosmjs) to connect:
+Additionally to `evmosjs`, users can integrate [cosmjs](https://github.com/cosmos/cosmjs) to:
 
-- Evmos Tendermint RPC
-- Evmos Cosmos Proto Signing
-- Utils and more
+- Connect to Evmos Tendermint RPC
+- Use Evmos Cosmos Proto Signing
+- Network and misc. utils and more
 
-CosmJS documentation can be found at [https://cosmos.github.io/cosmjs](https://cosmos.github.io/cosmjs). As of February 2022, CosmJS documentation is still work in progress.
+CosmJS documentation can be found [here](https://cosmos.github.io/cosmjs). As of February 2022, CosmJS documentation is still work in progress.

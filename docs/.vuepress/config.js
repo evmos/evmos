@@ -158,6 +158,31 @@ module.exports = {
           ]
         },
         {
+          title: 'Clients',
+          children: [
+            {
+              title: 'APIs',
+              directory: false,
+              path: '/clients/apis'
+            },
+            {
+              title: 'Evmosjs',
+              directory: false,
+              path: '/clients/evmosjs'
+            },
+          ]
+        },
+        {
+          title: 'Mainnet',
+          children: [
+            {
+              title: 'Join Mainnet',
+              directory: false,
+              path: '/mainnet/join'
+            },
+          ]
+        },
+        {
           title: 'Testnet',
           children: [
             {
@@ -199,6 +224,15 @@ module.exports = {
             {
               title: 'Mintscan (Cosmos)',
               path: 'https://explorer.evmos.dev/'
+            },
+          ]
+        },
+        {
+          title: 'Ecosystem',
+          children: [
+            {
+              title: 'Awesome Evmos',
+              path: 'https://github.com/tharsis/awesome'
             },
           ]
         },
