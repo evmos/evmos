@@ -61,7 +61,7 @@ func ReadPastPeriodCount(
 			// we're reading before the next event
 			break
 		}
-		passedPeriods += 1
+		passedPeriods++
 		time += period.Length
 	}
 

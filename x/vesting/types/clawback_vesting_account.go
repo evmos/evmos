@@ -168,13 +168,12 @@ func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
-
 	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
 	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
 	// Remove all unvested periods from the schdule
-	passedPeriodId := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
-	newVestingPeriods := va.VestingPeriods[:passedPeriodId]
+	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
+	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
 
 	// TODO CHECK THIS
 	// Cap the unlocking schedule to the new total vested.
