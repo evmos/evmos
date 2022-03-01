@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- (vesting) [\#317](https://github.com/tharsis/evmos/pull/317) Fix clawback for vested coins.
+
 ## [v1.0.0] - 2022-02-28
 
 ### State Machine Breaking
