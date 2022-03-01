@@ -33,12 +33,12 @@ func (vcd ValidatorCommissionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		switch msg := msg.(type) {
 		case *authz.MsgExec:
 			// Check for bypassing authorization
-			if err := vcd.validateAuthz(msg); err != nil {
+			if err := vcd.validateAuthz(ctx, msg); err != nil {
 				return ctx, err
 			}
 
 		default:
-			if err := vcd.validateMsg(msg); err != nil {
+			if err := vcd.validateMsg(ctx, msg); err != nil {
 				return ctx, err
 			}
 		}
@@ -48,15 +48,15 @@ func (vcd ValidatorCommissionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 }
 
 // validAuthz validates if a message is authorized
-func (vcd ValidatorCommissionDecorator) validateAuthz(execMsg *authz.MsgExec) error {
+func (vcd ValidatorCommissionDecorator) validateAuthz(ctx sdk.Context, execMsg *authz.MsgExec) error {
 	for _, v := range execMsg.Msgs {
 		var innerMsg sdk.Msg
 		err := vcd.cdc.UnpackAny(v, &innerMsg)
 		if err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+			return sdkerrors.Wrap(err, "cannot unmarshal authz exec msgs")
 		}
 
-		if err := vcd.validateMsg(innerMsg); err != nil {
+		if err := vcd.validateMsg(ctx, innerMsg); err != nil {
 			return err
 		}
 	}
@@ -64,7 +64,7 @@ func (vcd ValidatorCommissionDecorator) validateAuthz(execMsg *authz.MsgExec) er
 	return nil
 }
 
-func (vcd ValidatorCommissionDecorator) validateMsg(msg sdk.Msg) error {
+func (vcd ValidatorCommissionDecorator) validateMsg(_ sdk.Context, msg sdk.Msg) error {
 	switch msg := msg.(type) {
 	case *stakingtypes.MsgCreateValidator:
 		if msg.Commission.Rate.LT(minCommission) {

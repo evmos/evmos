@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.  
+
 ## [v1.0.0] - 2022-02-28
 
 ### State Machine Breaking

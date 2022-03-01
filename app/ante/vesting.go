@@ -119,7 +119,7 @@ func (vdd VestingDelegationDecorator) validateAuthz(ctx sdk.Context, execMsg *au
 	for _, v := range execMsg.Msgs {
 		var innerMsg sdk.Msg
 		if err := vdd.cdc.UnpackAny(v, &innerMsg); err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs: %s", err.Error())
+			return sdkerrors.Wrap(err, "cannot unmarshal authz exec msgs")
 		}
 
 		if err := vdd.validateMsg(ctx, innerMsg); err != nil {
@@ -165,7 +165,8 @@ func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) 
 		if vested.LT(delegateMsg.Amount.Amount) {
 			return sdkerrors.Wrapf(
 				vestingtypes.ErrInsufficientVestedCoins,
-				"cannot delegate unvested coins. Coins Vested: %s", vested,
+				"cannot delegate unvested coins. coins vested < delegation amount (%s < %s)",
+				vested, delegateMsg.Amount.Amount,
 			)
 		}
 	}
