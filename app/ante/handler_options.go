@@ -1,6 +1,7 @@
 package ante
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -28,6 +29,7 @@ type HandlerOptions struct {
 	FeegrantKeeper   ante.FeegrantKeeper
 	SignModeHandler  authsigning.SignModeHandler
 	SigGasConsumer   func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
+	Cdc              codec.BinaryCodec
 }
 
 // Validate checks if the keepers are defined
@@ -80,8 +82,8 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
-		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper),
-		NewValidatorCommissionDecorator(),
+		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
+		NewValidatorCommissionDecorator(options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -103,8 +105,8 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
-		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper),
-		NewValidatorCommissionDecorator(),
+		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
+		NewValidatorCommissionDecorator(options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

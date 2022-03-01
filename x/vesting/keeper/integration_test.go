@@ -450,7 +450,7 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	txBuilder.SetMsgs(delegateMsg)
 	tx := txBuilder.GetTx()
 
-	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper)
+	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
