@@ -62,7 +62,7 @@ module.exports = {
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v1.0.0',
+      latest_version: 'v1.1.0',
       version_number: '1',
       testnet_version_number: '3',
       testnet_evm_explorer_url: 'https://evm.evmos.dev',
@@ -158,6 +158,31 @@ module.exports = {
             },
           ]
         },
+        // {
+        //   title: 'Clients',
+        //   children: [
+        //     {
+        //       title: 'APIs',
+        //       directory: false,
+        //       path: '/clients/apis'
+        //     },
+        //     {
+        //       title: 'Evmosjs',
+        //       directory: false,
+        //       path: '/clients/evmosjs'
+        //     },
+        //   ]
+        // },
+        {
+          title: 'Mainnet',
+          children: [
+            {
+              title: 'Join Mainnet',
+              directory: false,
+              path: '/mainnet/join'
+            },
+          ]
+        },
         {
           title: 'Testnet',
           children: [
@@ -201,6 +226,19 @@ module.exports = {
               title: 'Mintscan (Cosmos)',
               path: 'https://explorer.evmos.dev/'
             },
+          ]
+        },
+        {
+          title: 'Ecosystem',
+          children: [
+            {
+              title: 'Awesome Evmos',
+              path: 'https://github.com/tharsis/awesome'
+            },
+            {
+              title: 'Evmos Space',
+              path: 'https://evmos.space/'
+            }
           ]
         },
         {

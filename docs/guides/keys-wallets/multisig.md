@@ -73,10 +73,10 @@ evmosd keys show multi
   pubkeys: []
 ```
 
-Let's add 10 PHOTON to the multisig wallet:
+Let's add 10 EVMOS to the multisig wallet:
 
 ```bash
-evmosd tx send \
+evmosd tx bank send \
     test1 \
     evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     10000000000000000000aevmos \
@@ -88,10 +88,10 @@ evmosd tx send \
 
 ### Step 2: Create the multisig transaction
 
-We want to send 5 PHOTON from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
+We want to send 5 EVMOS from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
 
 ```bash
-evmosd tx send \
+evmosd tx bank send \
     evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
     evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
     5000000000000000000aevmos \
