@@ -12,7 +12,7 @@ You need to set the **genesis file** and **seeds**. If you need more information
 
 | Chain ID       | Description   | Site                                                               | Version                                               | Status     |
 | -------------- | ------------- | ------------------------------------------------------------------ | ----------------------------------------------------- | ---------- |
-| `evmos_9001-1` | Evmos Mainnet | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-1) | [`v1.0.x`](https://github.com/tharsis/evmos/releases) | `Not Live` |
+| `evmos_9001-1` | Evmos Mainnet | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-1) | [`v1.1.x`](https://github.com/tharsis/evmos/releases) | `Not Live` |
 
 ## Install `evmosd`
 
