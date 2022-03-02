@@ -18,7 +18,12 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	// check if the conversion is globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
-		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
+		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "registration is currently disabled by governance")
+	}
+
+	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
+	if coinMetadata.Base == evmDenom {
+		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, " is not possible for EVM denomination disabled by governance")
 	}
 
 	// check if the denomination already registered
@@ -101,7 +106,7 @@ func (k Keeper) DeployERC20Contract(
 func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
-		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "intrarelaying is currently disabled by governance")
+		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "registration is currently disabled by governance")
 	}
 
 	if k.IsERC20Registered(ctx, contract) {
@@ -132,7 +137,7 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 	_, found := k.bankKeeper.GetDenomMetaData(ctx, types.CreateDenom(strContract))
 	if found {
 		// metadata already exists; exit
-		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered")
+		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "denom metadata already registered")
 	}
 
 	if k.IsDenomRegistered(ctx, types.CreateDenom(strContract)) {
@@ -185,14 +190,13 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 // ToggleRelay toggles relaying for a given token pair
 func (k Keeper) ToggleRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
 	id := k.GetTokenPairID(ctx, token)
-
 	if len(id) == 0 {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "token %s not registered", token)
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered by id", token)
 	}
 
 	pair, found := k.GetTokenPair(ctx, id)
 	if !found {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
 	}
 
 	pair.Enabled = !pair.Enabled
@@ -210,7 +214,7 @@ func (k Keeper) UpdateTokenPairERC20(ctx sdk.Context, erc20Addr, newERC20Addr co
 
 	pair, found := k.GetTokenPair(ctx, id)
 	if !found {
-		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrInternalTokenPair, "not registered")
+		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", erc20Addr)
 	}
 
 	// Get current stored metadata

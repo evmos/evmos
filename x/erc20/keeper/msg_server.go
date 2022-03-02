@@ -137,7 +137,7 @@ func (k Keeper) convertCoinNativeCoin(
 	exp := big.NewInt(0).Add(balanceToken, tokens)
 	if r := balanceTokenAfter.Cmp(exp); r != 0 {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidConversionBalance,
+			types.ErrBalanceInvariance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
 	}
@@ -193,7 +193,7 @@ func (k Keeper) convertERC20NativeCoin(
 	expCoin := balanceCoin.Add(coins[0])
 	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidConversionBalance,
+			types.ErrBalanceInvariance,
 			"invalid coin balance - expected: %v, actual: %v",
 			expCoin, balanceCoinAfter,
 		)
@@ -205,7 +205,7 @@ func (k Keeper) convertERC20NativeCoin(
 	expToken := big.NewInt(0).Sub(balanceToken, tokens)
 	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidConversionBalance,
+			types.ErrBalanceInvariance,
 			"invalid token balance - expected: %v, actual: %v",
 			expToken, balanceTokenAfter,
 		)
@@ -274,7 +274,7 @@ func (k Keeper) convertERC20NativeToken(
 	expToken := big.NewInt(0).Add(balanceToken, tokens)
 	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidConversionBalance,
+			types.ErrBalanceInvariance,
 			"invalid token balance - expected: %v, actual: %v",
 			expToken, balanceTokenAfter,
 		)
@@ -295,7 +295,7 @@ func (k Keeper) convertERC20NativeToken(
 	expCoin := balanceCoin.Add(coins[0])
 	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidConversionBalance,
+			types.ErrBalanceInvariance,
 			"invalid coin balance - expected: %v, actual: %v",
 			expCoin, balanceCoinAfter,
 		)
@@ -370,7 +370,7 @@ func (k Keeper) convertCoinNativeERC20(
 	exp := big.NewInt(0).Add(balanceToken, tokens)
 	if r := balanceTokenAfter.Cmp(exp); r != 0 {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidConversionBalance,
+			types.ErrBalanceInvariance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
 	}
@@ -439,7 +439,7 @@ func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error 
 	for _, log := range res.Logs {
 		if log.Topics[0] == logApprovalSigHash.Hex() {
 			return sdkerrors.Wrapf(
-				types.ErrUnexpectedEvent, "unexpected approval event",
+				types.ErrUnexpectedEvent, "unexpected Approval event",
 			)
 		}
 	}
