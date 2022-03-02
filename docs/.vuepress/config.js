@@ -158,21 +158,21 @@ module.exports = {
             },
           ]
         },
-        {
-          title: 'Clients',
-          children: [
-            {
-              title: 'APIs',
-              directory: false,
-              path: '/clients/apis'
-            },
-            {
-              title: 'Evmosjs',
-              directory: false,
-              path: '/clients/evmosjs'
-            },
-          ]
-        },
+        // {
+        //   title: 'Clients',
+        //   children: [
+        //     {
+        //       title: 'APIs',
+        //       directory: false,
+        //       path: '/clients/apis'
+        //     },
+        //     {
+        //       title: 'Evmosjs',
+        //       directory: false,
+        //       path: '/clients/evmosjs'
+        //     },
+        //   ]
+        // },
         {
           title: 'Mainnet',
           children: [
