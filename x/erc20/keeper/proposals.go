@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -18,17 +16,17 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	// check if the conversion is globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
-		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "registration is currently disabled by governance")
+		return nil, sdkerrors.Wrap(types.ErrERC20Disabled, "registration is currently disabled by governance")
 	}
 
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	if coinMetadata.Base == evmDenom {
-		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, " is not possible for EVM denomination disabled by governance")
+		return nil, sdkerrors.Wrapf(types.ErrEVMDenom, "cannot register the EVM denomination %s", evmDenom)
 	}
 
 	// check if the denomination already registered
 	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
-		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "coin denomination already registered: %s", coinMetadata.Name)
+		return nil, sdkerrors.Wrapf(types.ErrTokenPairAlreadyExists, "coin denomination already registered: %s", coinMetadata.Name)
 	}
 
 	// check if the coin exists by ensuring the supply is set
@@ -81,7 +79,7 @@ func (k Keeper) DeployERC20Contract(
 		decimals,
 	)
 	if err != nil {
-		return common.Address{}, sdkerrors.Wrapf(err, "coin metadata is invalid  %s", coinMetadata.Name)
+		return common.Address{}, sdkerrors.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
 	}
 
 	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
@@ -96,7 +94,7 @@ func (k Keeper) DeployERC20Contract(
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
 	_, err = k.CallEVMWithData(ctx, types.ModuleAddress, nil, data)
 	if err != nil {
-		return common.Address{}, fmt.Errorf("failed to deploy contract for %s", coinMetadata.Name)
+		return common.Address{}, sdkerrors.Wrapf(err, "failed to deploy contract for %s", coinMetadata.Name)
 	}
 
 	return contractAddr, nil
@@ -106,11 +104,11 @@ func (k Keeper) DeployERC20Contract(
 func (k Keeper) RegisterERC20(ctx sdk.Context, contract common.Address) (*types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
-		return nil, sdkerrors.Wrap(types.ErrInternalTokenPair, "registration is currently disabled by governance")
+		return nil, sdkerrors.Wrap(types.ErrERC20Disabled, "registration is currently disabled by governance")
 	}
 
 	if k.IsERC20Registered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(types.ErrInternalTokenPair, "token ERC20 contract already registered: %s", contract.String())
+		return nil, sdkerrors.Wrapf(types.ErrTokenPairAlreadyExists, "token ERC20 contract already registered: %s", contract.String())
 	}
 
 	metadata, err := k.CreateCoinMetadata(ctx, contract)

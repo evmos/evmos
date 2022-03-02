@@ -135,6 +135,7 @@ func (k Keeper) convertCoinNativeCoin(
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, receiver)
 	exp := big.NewInt(0).Add(balanceToken, tokens)
+
 	if r := balanceTokenAfter.Cmp(exp); r != 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrBalanceInvariance,
@@ -188,6 +189,7 @@ func (k Keeper) convertERC20NativeCoin(
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins); err != nil {
 		return nil, err
 	}
+
 	// Check expected Receiver balance after transfer execution
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	expCoin := balanceCoin.Add(coins[0])
@@ -253,6 +255,7 @@ func (k Keeper) convertERC20NativeToken(
 	if err != nil {
 		return nil, err
 	}
+
 	res, err := k.CallEVMWithData(ctx, sender, &contract, transferData)
 	if err != nil {
 		return nil, err
@@ -272,6 +275,7 @@ func (k Keeper) convertERC20NativeToken(
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, types.ModuleAddress)
 	expToken := big.NewInt(0).Add(balanceToken, tokens)
+
 	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrBalanceInvariance,
@@ -293,6 +297,7 @@ func (k Keeper) convertERC20NativeToken(
 	// Check expected Receiver balance after transfer execution
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	expCoin := balanceCoin.Add(coins[0])
+
 	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
 		return nil, sdkerrors.Wrapf(
 			types.ErrBalanceInvariance,
@@ -368,6 +373,7 @@ func (k Keeper) convertCoinNativeERC20(
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.balanceOf(ctx, erc20, contract, receiver)
 	exp := big.NewInt(0).Add(balanceToken, tokens)
+
 	if r := balanceTokenAfter.Cmp(exp); r != 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrBalanceInvariance,
@@ -413,8 +419,8 @@ func (k Keeper) balanceOf(
 		return nil
 	}
 
-	unpacked, _ := abi.Unpack("balanceOf", res.Ret)
-	if len(unpacked) == 0 {
+	unpacked, err := abi.Unpack("balanceOf", res.Ret)
+	if err != nil || len(unpacked) == 0 {
 		return nil
 	}
 
@@ -443,5 +449,6 @@ func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error 
 			)
 		}
 	}
+
 	return nil
 }
