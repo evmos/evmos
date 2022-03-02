@@ -3,11 +3,16 @@ package types
 import (
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	"github.com/tharsis/ethermint/x/evm/statedb"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
 	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
 )
 
@@ -39,14 +44,15 @@ type GovKeeper interface {
 	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
 }
 
-// MintKeeper defines the expected mint keeper interface used on incentives
-type MintKeeper interface {
-	GetParams(ctx sdk.Context) (params minttypes.Params)
-}
-
 // InflationKeeper defines the expected mint keeper interface used on incentives
 type InflationKeeper interface {
 	GetParams(ctx sdk.Context) (params inflationtypes.Params)
+}
+
+// EVMKeeper defines the expected EVM keeper interface used on erc20
+type EVMKeeper interface {
+	GetParams(ctx sdk.Context) evmtypes.Params
+	GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account
 }
 
 // Stakekeeper defines the expected staking keeper interface used on incentives
