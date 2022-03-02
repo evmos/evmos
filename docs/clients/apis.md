@@ -1,6 +1,14 @@
 
 # Evmos APIs
 
+::: tip
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 
+
+This documentation page is currently under work in progress.
+
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 
+:::
+
 ## Public Testnet Nodes
 
 <!-- TODO: List public nodes for testnet -->
@@ -12,5 +20,3 @@
 ## Evmos gRPC Web API
 
 <!-- TODO: intro -->
-
-[api.evmos.dev](https://api.evmos.dev)
