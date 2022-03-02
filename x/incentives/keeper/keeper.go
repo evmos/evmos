@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
-	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 
 	"github.com/tharsis/evmos/x/incentives/types"
 )
@@ -26,7 +25,7 @@ type Keeper struct {
 	// to allocate incentives to staking instead of transferring the deferred
 	// rewards to the user's wallet
 	stakeKeeper types.StakeKeeper
-	evmKeeper   *evmkeeper.Keeper // TODO: use interface
+	evmKeeper   types.EVMKeeper
 }
 
 // NewKeeper creates new instances of the incentives Keeper
@@ -38,7 +37,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	ik types.InflationKeeper,
 	sk types.StakeKeeper,
-	evmKeeper *evmkeeper.Keeper,
+	evmKeeper types.EVMKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {

@@ -40,6 +40,21 @@ func (suite *ScheduleTestSuite) TestReadSchedule() {
 	}
 }
 
+func (suite *ScheduleTestSuite) TestReadPastPeriodCount() {
+	periods := []sdkvesting.Period{period(10, 10), period(20, 20), period(40, 40)}
+	testCases := []struct {
+		time     int64
+		expCount int
+	}{
+		{0, 0}, {100, 0}, {105, 0}, {110, 1}, {120, 1}, {130, 2},
+		{150, 2}, {170, 3}, {180, 3},
+	}
+	for _, tc := range testCases {
+		count := ReadPastPeriodCount(100, 170, periods, tc.time)
+		suite.Require().Equal(tc.expCount, count)
+	}
+}
+
 func (suite *ScheduleTestSuite) TestDisjunctPeriods() {
 	testCases := []struct {
 		name      string

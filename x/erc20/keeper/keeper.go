@@ -8,8 +8,6 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
-
 	"github.com/tharsis/evmos/x/erc20/types"
 )
 
@@ -21,7 +19,7 @@ type Keeper struct {
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
-	evmKeeper     *evmkeeper.Keeper // TODO: use interface
+	evmKeeper     types.EVMKeeper
 }
 
 // NewKeeper creates new instances of the erc20 Keeper
@@ -31,7 +29,7 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	evmKeeper *evmkeeper.Keeper,
+	evmKeeper types.EVMKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {

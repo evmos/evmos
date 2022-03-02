@@ -26,7 +26,6 @@ import (
 
 	evmoskr "github.com/tharsis/evmos/crypto/keyring"
 
-	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	vestingcli "github.com/tharsis/evmos/x/vesting/client/cli"
 	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
 )
@@ -124,7 +123,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				// flags
 				var (
 					lockupStart                   int64
-					lockupPeriods, vestingPeriods sdkvesting.Periods
+					lockupPeriods, vestingPeriods authvesting.Periods
 				)
 
 				// Get funder addr which can perform clawback
@@ -176,7 +175,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 				// If lockup absent, default to an instant unlock schedule
 				if !vestingCoins.IsZero() && len(lockupPeriods) == 0 {
-					lockupPeriods = []sdkvesting.Period{
+					lockupPeriods = []authvesting.Period{
 						{Length: 0, Amount: vestingCoins},
 					}
 					lockupCoins = vestingCoins
@@ -184,7 +183,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 				// If vesting absent, default to an instant vesting schedule
 				if !lockupCoins.IsZero() && len(vestingPeriods) == 0 {
-					vestingPeriods = []sdkvesting.Period{
+					vestingPeriods = []authvesting.Period{
 						{Length: 0, Amount: lockupCoins},
 					}
 					vestingCoins = lockupCoins

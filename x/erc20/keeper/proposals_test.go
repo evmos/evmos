@@ -161,8 +161,18 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			false,
 		},
 		{
+			"evm denom registration",
+			func() {
+				metadata.Base = suite.app.EvmKeeper.GetParams(suite.ctx).EvmDenom
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				suite.Require().NoError(err)
+			},
+			false,
+		},
+		{
 			"ok",
 			func() {
+				metadata.Base = cosmosTokenBase
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
 				suite.Require().NoError(err)
 			},

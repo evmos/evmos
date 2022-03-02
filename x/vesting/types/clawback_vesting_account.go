@@ -140,88 +140,61 @@ func (va ClawbackVestingAccount) GetLockedOnly(blockTime time.Time) sdk.Coins {
 	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime))
 }
 
-// GetVestedOnly returns the vesting schedule and blockTime.
+// GetVestedOnly returns the vesting schedule at blockTime.
 func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
 	return ReadSchedule(va.GetStartTime(), va.EndTime, va.VestingPeriods, va.OriginalVesting, blockTime.Unix())
 }
 
-// GetUNvestedOnly returns the unvesting schedule and blockTime.
+// GetUnvestedOnly returns the unvesting schedule at blockTime.
 func (va ClawbackVestingAccount) GetUnvestedOnly(blockTime time.Time) sdk.Coins {
-	return va.OriginalVesting.Sub(va.GetVestedOnly(blockTime))
+	totalUnvested := va.OriginalVesting.Sub(va.GetVestedOnly(blockTime))
+	if totalUnvested == nil {
+		totalUnvested = sdk.Coins{}
+	}
+	return totalUnvested
 }
 
-// ComputeClawback returns an account with all future vesting events removed,
-// plus the total sum of these events. When removing the future vesting events,
-// the lockup schedule will also have to be capped to keep the total sums the same.
-// (But future unlocking events might be preserved if they unlock currently vested coins.)
-// If the amount returned is zero, then the returned account should be unchanged.
-// Does not adjust DelegatedVesting
+// GetPassedPeriodCount returns the amount of passed periods at blockTime.
+func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
+	return ReadPastPeriodCount(va.GetStartTime(), va.EndTime, va.VestingPeriods, blockTime.Unix())
+}
+
+// ComputeClawback returns an account with all future vesting events removed and
+// the clawback amount (total sum of these events). Future unlocking events are
+// preserved and update in case unlocked vested coins remain after clawback.
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
-	// Compute the truncated vesting schedule and amounts.
-	// Work with the schedule as the primary data and recompute derived fields, e.g. OriginalVesting.
-	t := va.GetStartTime()
-	totalVested := sdk.NewCoins()
-	totalUnvested := sdk.NewCoins()
-	unvestedIdx := 0
+	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
+	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
-	for i, period := range va.VestingPeriods {
-		t += period.Length
-		// tie in time goes to clawback
-		if t < clawbackTime {
-			totalVested = totalVested.Add(period.Amount...)
-			unvestedIdx = i + 1
-		} else {
-			totalUnvested = totalUnvested.Add(period.Amount...)
-		}
+	// Remove all unvested periods from the schdule
+	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
+	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
+
+	newVestingEnd := va.GetStartTime()
+	for _, period := range newVestingPeriods {
+		newVestingEnd += period.Length
 	}
 
-	newVestingPeriods := va.VestingPeriods[:unvestedIdx]
-
-	// To cap the unlocking schedule to the new total vested, conjunct with a limiting schedule
+	// Cap the unlocking schedule to the new total vested.
+	//  - If lockup has already passed, all vested coins are unlocked.
+	//  - If lockup has not passed, the vested coins, are still locked.
 	capPeriods := []sdkvesting.Period{
 		{
 			Length: 0,
 			Amount: totalVested,
 		},
 	}
-	_, _, newLockupPeriods := ConjunctPeriods(va.GetStartTime(), va.GetStartTime(), va.LockupPeriods, capPeriods)
+	_, newLockingEnd, newLockupPeriods := ConjunctPeriods(va.GetStartTime(), va.GetStartTime(), va.LockupPeriods, capPeriods)
 
 	// Now construct the new account state
 	va.OriginalVesting = totalVested
-	va.EndTime = t
+	va.EndTime = Max64(newVestingEnd, newLockingEnd)
 	va.LockupPeriods = newLockupPeriods
 	va.VestingPeriods = newVestingPeriods
-	// DelegatedVesting and DelegatedFree will be adjusted elsewhere
 
 	return va, totalUnvested
-}
-
-// updateDelegation returns an account with its delegation bookkeeping modified
-// for clawback, given the current disposition of the account's bank and staking
-// state. Also returns the modified amount to claw back.
-//
-// Computation steps:
-// - first, compute the total amount in bonded and unbonding states, used for BaseAccount bookkeeping;
-// - based on the old bookkeeping, determine the amount lost to slashing since origin;
-// - clip the amount to claw back to be at most the full funds in the account;
-// - first claw back the unbonded funds, then go after what's delegated;
-// - to the remaining delegated amount, add what's slashed;
-// - the "encumbered" (locked up and/or vesting) amount of this goes in DV;
-// - the remainder of the new delegated amount goes in DF.
-func (va ClawbackVestingAccount) UpdateDelegation(
-	encumbered, toClawBack, bonded, unbonding, unbonded sdk.Coins,
-) (ClawbackVestingAccount, sdk.Coins) {
-	delegated := bonded.Add(unbonding...)
-	oldDelegated := va.DelegatedVesting.Add(va.DelegatedFree...)
-	slashed := oldDelegated.Sub(CoinsMin(delegated, oldDelegated))
-	total := delegated.Add(unbonded...)
-	toClawBack = CoinsMin(toClawBack, total) // might have been slashed
-	newDelegated := CoinsMin(delegated, total.Sub(toClawBack)).Add(slashed...)
-	va.DelegatedVesting = CoinsMin(encumbered, newDelegated)
-	va.DelegatedFree = newDelegated.Sub(va.DelegatedVesting)
-	return va, toClawBack
 }
 
 // HasLockedCoins returns true if the blocktime has not passed all clawback
