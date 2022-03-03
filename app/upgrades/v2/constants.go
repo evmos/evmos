@@ -1,6 +1,6 @@
 package v2
 
 const (
-    UpgradeName = "v2"
-    UpgradeHeight = 1 // todo: pick a height
+	UpgradeName   = "v2"
+	UpgradeHeight = 33200 // (21 * 60 * 60) / 6
 )
