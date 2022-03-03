@@ -41,12 +41,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (erc20) [\#337](https://github.com/tharsis/evmos/pull/337) Ignore errors in ERC20 module's EVM hook.
 - (erc20) [\#336](https://github.com/tharsis/evmos/pull/336) Return `nil` for disabled ERC20 module or ERC20 EVM hook.
+- (app) [\#341](https://github.com/tharsis/evmos/pull/341) Return error when `--ledger` flag is passed in cli.
 
 ## [v1.1.0] - 2022-03-02
 
 ### Bug Fixes
 
-- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.  
+- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.
 - (vesting) [\#317](https://github.com/tharsis/evmos/pull/317) Fix clawback for vested coins.
 
 ## [v1.0.0] - 2022-02-28
