@@ -16,6 +16,6 @@ func RunForkLogic(ctx sdk.Context, erc20 *erc20keeper.Keeper) {
 func FixErc20Param(ctx sdk.Context, erc20 *erc20keeper.Keeper) {
 	// update erc20 evmhook param to true
 	params := erc20.GetParams(ctx)
-	params.EnableErc20 = true
+	params.EnableEVMHook = true
 	erc20.SetParams(ctx, params)
 }
