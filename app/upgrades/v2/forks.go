@@ -7,8 +7,7 @@ import (
 )
 
 func RunForkLogic(ctx sdk.Context, erc20 *erc20keeper.Keeper) {
-	ctx.Logger().Info("Applying Evmos v2 upgrade." +
-		" Fixing erc20 module evmhook by setting it to true,")
+	ctx.Logger().Info("Applying Evmos v2 upgrade. Setting ERC20 module evmhook to true")
 
 	FixErc20Param(ctx, erc20)
 }
