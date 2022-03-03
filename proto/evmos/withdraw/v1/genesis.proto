@@ -1,0 +1,21 @@
+syntax = "proto3";
+package evmos.withdraw.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/x/withdraw/types";
+
+// GenesisState defines the withdraw module's genesis state.
+message GenesisState {
+    // params defines all the paramaters of the module.
+    Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// Params holds parameters for the withdraw module.
+message Params {
+    option (gogoproto.goproto_stringer) = false;
+    // enable withdraw IBC middleware
+    bool enable_withdraw = 1;
+    // list of enabled channels that can withdraw funds to sender account
+    repeated string enabled_channels = 2;
+}

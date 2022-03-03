@@ -333,7 +333,7 @@ type QueryClient interface {
 	Period(ctx context.Context, in *QueryPeriodRequest, opts ...grpc.CallOption) (*QueryPeriodResponse, error)
 	// EpochMintProvision retrieves current minting epoch provision value.
 	EpochMintProvision(ctx context.Context, in *QueryEpochMintProvisionRequest, opts ...grpc.CallOption) (*QueryEpochMintProvisionResponse, error)
-	// Params retrieves the total set of minting parameters.
+	// Params retrieves the total set of inflation parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -378,7 +378,7 @@ type QueryServer interface {
 	Period(context.Context, *QueryPeriodRequest) (*QueryPeriodResponse, error)
 	// EpochMintProvision retrieves current minting epoch provision value.
 	EpochMintProvision(context.Context, *QueryEpochMintProvisionRequest) (*QueryEpochMintProvisionResponse, error)
-	// Params retrieves the total set of minting parameters.
+	// Params retrieves the total set of inflation parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 
