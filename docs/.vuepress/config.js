@@ -57,8 +57,8 @@ module.exports = {
       binary: 'evmosd',
       testnet_denom: 'tEvmos',
       testnet_ticker: 'tEVMOS',
-      rpc_url: 'https://eth.bd.evmos.org',
-      rpc_url_testnet: 'https://eth.bd.evmos.dev',
+      rpc_url: 'https://eth.bd.evmos.org:8545',
+      rpc_url_testnet: 'https://eth.bd.evmos.dev:8545',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
@@ -68,6 +68,7 @@ module.exports = {
       testnet_evm_explorer_url: 'https://evm.evmos.dev',
       evm_explorer_url: 'https://evm.evmos.org',
       testnet_cosmos_explorer_url: 'https://explorer.evmos.dev/',
+      cosmos_explorer_url: 'https://www.mintscan.io/evmos',
     },
     logo: {
       src: '/evmos-black.svg',
@@ -224,7 +225,7 @@ module.exports = {
             },
             {
               title: 'Mintscan (Cosmos)',
-              path: 'https://explorer.evmos.dev/'
+              path: 'https://www.mintscan.io/evmos/'
             },
           ]
         },
