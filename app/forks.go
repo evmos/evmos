@@ -6,7 +6,7 @@ import (
 	v2 "github.com/tharsis/evmos/app/upgrades/v2"
 )
 
-// BeginBlockForks is intended to be ran in
+// BeginBlockForks executes any necessary fork logic based upon the current block height.
 func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 	switch ctx.BlockHeight() {
 	case v2.UpgradeHeight:
