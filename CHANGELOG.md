@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (erc20) [\#337](https://github.com/tharsis/evmos/pull/337) Ignore errors in ERC20 module's EVM hook.
 - (erc20) [\#336](https://github.com/tharsis/evmos/pull/336) Return `nil` for disabled ERC20 module or ERC20 EVM hook.
 
 ## [v1.1.0] - 2022-03-02

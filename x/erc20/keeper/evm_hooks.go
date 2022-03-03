@@ -7,7 +7,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -96,12 +95,14 @@ func (h Hooks) PostTxProcessing(
 			continue
 		}
 
-		// check that relaying for the pair is enabled
+		// check that conversion for the pair is enabled
 		if !pair.Enabled {
-			return sdkerrors.Wrapf(
-				types.ErrERC20Disabled,
-				"conversion is disabled for pair %s, please create a governance proposal to enable it", contractAddr,
+			// continue to allow transfers for the ERC20 in case the token pair is disabled
+			h.k.Logger(ctx).Debug(
+				"ERC20 token -> Cosmos coin conversion is disabled for pair",
+				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
 			)
+			continue
 		}
 
 		// ignore as the burning always transfers to the zero address
