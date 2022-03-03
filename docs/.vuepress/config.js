@@ -221,7 +221,7 @@ module.exports = {
             },
             {
               title: 'Blockscout (EVM)',
-              path: 'https://evm.evmos.dev'
+              path: 'https://evm.evmos.org'
             },
             {
               title: 'Mintscan (Cosmos)',
