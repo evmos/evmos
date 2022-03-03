@@ -736,6 +736,7 @@ func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker updates every begin block
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	BeginBlockForks(ctx, app)
 	return app.mm.BeginBlock(ctx, req)
 }
 
