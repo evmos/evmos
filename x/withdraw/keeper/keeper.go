@@ -5,9 +5,9 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
@@ -19,23 +19,24 @@ var _ transfertypes.ICS4Wrapper = Keeper{}
 
 // Keeper struct
 type Keeper struct {
-	cdc            codec.Codec
-	accountKeeper  types.AccountKeeper
+	paramstore     paramtypes.Subspace
 	bankKeeper     types.BankKeeper
 	transferKeeper types.TransferKeeper
 }
 
 // NewKeeper returns keeper
 func NewKeeper(
-	cdc codec.Codec,
-	ak types.AccountKeeper,
+	ps paramtypes.Subspace,
 	bk types.BankKeeper,
 	tk types.TransferKeeper,
 ) *Keeper {
+	// set KeyTable if it has not already been set
+	if !ps.HasKeyTable() {
+		ps = ps.WithKeyTable(types.ParamKeyTable())
+	}
 
 	return &Keeper{
-		cdc:            cdc,
-		accountKeeper:  ak,
+		paramstore:     ps,
 		bankKeeper:     bk,
 		transferKeeper: tk,
 	}

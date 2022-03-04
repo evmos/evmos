@@ -7,4 +7,5 @@ import (
 // errors
 var (
 	ErrKeyTypeNotSupported = sdkerrors.Register(ModuleName, 2, "key type 'secp256k1' not supported")
+	ErrChannelNotEnabled   = sdkerrors.Register(ModuleName, 3, "channel not enabled")
 )

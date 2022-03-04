@@ -23,13 +23,12 @@ func (k Keeper) OnRecvPacket(
 
 	// TODO: get params for list of enabled channels
 
-	// enabledChannels := k.GetParams(ctx).EnabledChannels
-
-	// return original ack if the source channel is not in the list of
-	// enabled channels
-
-	// if packet.SourceChannel not in enabledChannels
-	// return ack
+	params := k.GetParams(ctx)
+	// check channels from this chain (i.e destination)
+	if !params.EnableWithdraw || !params.IsChannelEnabled(packet.DestinationChannel) {
+		// return original ACK if withdraw is disabled globally or per channel
+		return ack
+	}
 
 	// unmarshal packet data to obtain the sender and recipient
 	var data transfertypes.FungibleTokenPacketData
