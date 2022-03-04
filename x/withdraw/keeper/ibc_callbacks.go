@@ -123,6 +123,32 @@ func (k Keeper) OnRecvPacket(
 				)
 			}
 
+			path := strings.Split(denomTrace.Path, "/")
+			if len(path)%2 != 0 {
+				return channeltypes.NewErrorAcknowledgement(
+					sdkerrors.Wrapf(
+						sdkerrors.ErrInvalidCoins,
+						"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
+					).Error(),
+				)
+			}
+
+			counterpartyPortID := path[0]
+			counterpartyChannelID := path[1]
+
+			channel, found := k.channelKeeper.GetChannel(ctx, counterpartyPortID, counterpartyChannelID)
+			if !found {
+				return channeltypes.NewErrorAcknowledgement(
+					sdkerrors.Wrapf(
+						channeltypes.ErrChannelNotFound,
+						"port ID %s, channel ID %s", counterpartyPortID, counterpartyChannelID,
+					).Error(),
+				)
+			}
+
+			srcPort = channel.Counterparty.PortId
+			srcChannel = channel.Counterparty.ChannelId
+
 		} else {
 			// send Evmos native tokens to Osmosis
 			recipientStr = data.Sender

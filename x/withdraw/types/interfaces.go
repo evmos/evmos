@@ -5,6 +5,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+
+	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 )
 
 // BankKeeper defines the banking keeper that must be fulfilled when
@@ -31,4 +34,9 @@ type TransferKeeper interface {
 		timeoutHeight clienttypes.Height,
 		timeoutTimestamp uint64,
 	) error
+}
+
+type ChannelKeeper interface {
+	transfertypes.ICS4Wrapper
+	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
 }
