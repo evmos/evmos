@@ -111,7 +111,7 @@ func (am AppModule) NewHandler() sdk.Handler {
 }
 
 func (am AppModule) Route() sdk.Route {
-	return sdk.Route{}
+	return sdk.NewRoute(types.RouterKey, nil)
 }
 
 func (am AppModule) QuerierRoute() string {

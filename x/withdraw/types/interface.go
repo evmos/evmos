@@ -4,12 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 )
-
-// ModuleName defines the withdraw module name
-const ModuleName = "withdraw"
 
 // BankKeeper defines the banking keeper that must be fulfilled when
 // creating a x/withdraw keeper.
@@ -25,7 +21,6 @@ type AccountKeeper interface {
 
 // TransferKeeper defines the expected IBC transfer keeper.
 type TransferKeeper interface {
-	transfertypes.ICS4Wrapper
 	SendTransfer(
 		ctx sdk.Context,
 		sourcePort,

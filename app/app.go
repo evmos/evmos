@@ -127,6 +127,9 @@ import (
 	"github.com/tharsis/evmos/x/vesting"
 	vestingkeeper "github.com/tharsis/evmos/x/vesting/keeper"
 	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/x/withdraw"
+	withdrawkeeper "github.com/tharsis/evmos/x/withdraw/keeper"
+	withdrawtypes "github.com/tharsis/evmos/x/withdraw/types"
 )
 
 func init() {
@@ -187,6 +190,7 @@ var (
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
+		withdraw.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -266,6 +270,7 @@ type Evmos struct {
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
+	WithdrawKeeper   withdrawkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -322,6 +327,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
+		withdrawtypes.Storekey,
 	)
 
 	// Add the EVM transient store key
@@ -484,9 +490,23 @@ func NewEvmos(
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
+
+	app.WithdrawKeeper = *withdrawkeeper.NewKeeper(
+		app.GetSubspace(withdrawtypes.ModuleName),
+		app.BankKeeper, app.IBCKeeper.ChannelKeeper, app.TransferKeeper,
+	)
+
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
-	transferStack := claims.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
+
+	// transfer stack contains:
+	// Withdraw Middleware -> Airdrop Claim Middleware -> Transfer -> SendPacket
+
+	// create from bottom to top of stack
+	var transferStack porttypes.IBCModule
+
+	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = claims.NewIBCModule(app.ClaimsKeeper, transferStack)
+	transferStack = withdraw.NewIBCModule(app.WithdrawKeeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -541,6 +561,7 @@ func NewEvmos(
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		withdraw.NewAppModule(app.WithdrawKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -576,6 +597,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
+		withdrawtypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -607,6 +629,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
+		withdrawtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -641,6 +664,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
+		withdrawtypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -933,7 +957,8 @@ func GetMaccPerms() map[string][]string {
 
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(
-	appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+	appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey,
+) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	// SDK subspaces
@@ -954,5 +979,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
+	paramsKeeper.Subspace(withdrawtypes.ModuleName)
 	return paramsKeeper
 }
