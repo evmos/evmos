@@ -91,20 +91,6 @@ func (k Keeper) OnRecvPacket(
 	srcPort := packet.DestinationPort
 	srcChannel := packet.DestinationChannel
 
-	amount, ok := sdk.NewIntFromString(data.Amount)
-	// NOTE: safety check, shouldn't fail as the packet fields are validated
-	// before processing the transaction.
-	if !ok {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, data.Amount).Error(),
-		)
-	}
-
-	coin := sdk.Coin{Denom: data.Denom, Amount: amount}
-
-	// add the original IBC transfer amount to the balance
-	balances = balances.Add(coin)
-
 	// swap the sender and recipient
 	sender = recipient
 	recipientStr := data.Sender
@@ -139,6 +125,13 @@ func (k Keeper) OnRecvPacket(
 		"source-channel", packet.SourceChannel,
 	)
 
-	// return original acknowledgement to process the state transition
-	return ack
+	// return error acknowledgement so that the counterparty chain can revert the
+	// transfer
+	return channeltypes.NewErrorAcknowledgement(
+		sdkerrors.Wrapf(
+			types.ErrKeyTypeNotSupported,
+			"reverted IBC transfer from %s (%s) to recipient %s",
+			data.Sender, sender, data.Receiver,
+		).Error(),
+	)
 }
