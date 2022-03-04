@@ -71,6 +71,12 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
 
+			// Disable ledger temporarily
+			useLedger, _ := cmd.Flags().GetBool(flags.FlagUseLedger)
+			if useLedger {
+				return errors.New("--ledger flag passed: Ledger device is currently not supported")
+			}
+
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
 				return err
