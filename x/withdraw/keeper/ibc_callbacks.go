@@ -171,7 +171,9 @@ func (k Keeper) OnRecvPacket(
 			sender,                   // transfer recipient is now the sender
 			recipientStr,             // transfer sender is now the recipient
 			clienttypes.ZeroHeight(), // timeout height disabled
-			0,                        // timeout timestamp disabled
+			//	TODO: remove HARDCODED.
+			// either timeout height or timestamp must not be zero.
+			1677926229000000000, // timeout timestamp disabled
 		)
 	}
 
@@ -195,11 +197,20 @@ func (k Keeper) OnRecvPacket(
 
 	// return error acknowledgement so that the counterparty chain can revert the
 	// transfer
-	return channeltypes.NewErrorAcknowledgement(
-		sdkerrors.Wrapf(
-			types.ErrKeyTypeNotSupported,
-			"reverted IBC transfer from %s (%s) to recipient %s",
-			data.Sender, sender, data.Receiver,
-		).Error(),
-	)
+	// return channeltypes.NewErrorAcknowledgement(
+	// 	sdkerrors.Wrapf(
+	// 		types.ErrKeyTypeNotSupported,
+	// 		"reverted IBC transfer from %s (%s) to recipient %s",
+	// 		data.Sender, sender, data.Receiver,
+	// 	).Error(),
+	// )
+
+	// FIXME: if the above code is executed
+	// failed to execute message; message index: 0:
+	// acknowledge packet callback failed: unable to unescrow tokens,
+	// this may be caused by a malicious counterparty module or a bug:
+	// please open an issue on counterparty module:
+	// 0testcoin is smaller than 10testcoin: insufficient funds
+
+	return ack
 }

@@ -492,7 +492,7 @@ func NewEvmos(
 
 	app.WithdrawKeeper = *withdrawkeeper.NewKeeper(
 		app.GetSubspace(withdrawtypes.ModuleName),
-		app.BankKeeper, app.IBCKeeper.ChannelKeeper, app.TransferKeeper,
+		app.BankKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.ChannelKeeper, &app.TransferKeeper,
 	)
 
 	transferModule := transfer.NewAppModule(app.TransferKeeper)

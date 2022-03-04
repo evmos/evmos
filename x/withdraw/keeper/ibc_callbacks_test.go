@@ -61,8 +61,11 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params := types.DefaultParams()
 	params.EnableWithdraw = true
 	params.EnabledChannels = []string{"channel-0"}
-	suite.chainA.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainA.GetContext(), params)
+	//	suite.chainA.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainA.GetContext(), params)
 	suite.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainB.GetContext(), params)
+
+	params.EnableWithdraw = false
+	suite.chainA.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainA.GetContext(), params)
 
 	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
 	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
@@ -119,17 +122,52 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			err := suite.path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
-			err = suite.path.EndpointB.UpdateClient()
-			suite.Require().NoError(err)
+			// Recreate packets that were sent in the ibc_callback
+			transfer2 := transfertypes.FungibleTokenPacketData{
+				Amount:   "10000",
+				Denom:    "aevmos",
+				Receiver: suite.sender,
+				Sender:   suite.sender,
+			}
+			packet2 := channeltypes.NewPacket(
+				transfer2.GetBytes(),
+				1,
+				"transfer",
+				"channel-0",
+				"transfer",
+				"channel-0",
+				clienttypes.ZeroHeight(), // timeout height disabled
+				1677926229000000000,      // timeout timestamp disabled
+			)
 
-			err = suite.path.EndpointA.UpdateClient()
+			transfer3 := transfertypes.FungibleTokenPacketData{
+				Amount:   "10",
+				Denom:    "transfer/channel-0/testcoin",
+				Receiver: suite.sender,
+				Sender:   suite.sender,
+			}
+			packet3 := channeltypes.NewPacket(
+				transfer3.GetBytes(),
+				2,
+				"transfer",
+				"channel-0",
+				"transfer",
+				"channel-0",
+				clienttypes.ZeroHeight(), // timeout height disabled
+				1677926229000000000,      // timeout timestamp disabled
+			)
+
+			// Relay both packets that were sent in the ibc_callback
+			err = suite.path.RelayPacket(packet2)
+			suite.Require().NoError(err)
+			err = suite.path.RelayPacket(packet3)
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), suite.senderAcc, "aevmos")
+				coin = suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), suite.senderAcc, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
-				_ = suite.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(suite.chainA.GetContext(), suite.senderAcc)
-				//suite.Require().Equal(coins[0], sdk.NewCoin("ibc / id", sdk.NewInt(10000)))
+				coins := suite.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(suite.chainA.GetContext(), suite.senderAcc)
+				suite.Require().Equal(coins[0].Amount, sdk.NewInt(10000))
 			}
 		})
 	}
