@@ -35,11 +35,21 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v1.1.1] - 2022-03-04
+
+### Improvements
+
+- (deps)[\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
+
+### Bug Fixes
+
+- (app) [\#341](https://github.com/tharsis/evmos/pull/341) Return error when `--ledger` flag is passed in CLI
+
 ## [v1.1.0] - 2022-03-02
 
 ### Bug Fixes
 
-- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.  
+- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.
 - (vesting) [\#317](https://github.com/tharsis/evmos/pull/317) Fix clawback for vested coins.
 
 ## [v1.0.0] - 2022-02-28
