@@ -1,4 +1,4 @@
-package incentives
+package withdraw
 
 import (
 	"context"
@@ -18,9 +18,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/cosmos/cosmos-sdk/x/upgrade/client/cli"
 
-	// "github.com/tharsis/evmos/x/withdraw/client/cli"
-
+	"github.com/tharsis/evmos/x/withdraw/client/cli"
 	"github.com/tharsis/evmos/x/withdraw/keeper"
 	"github.com/tharsis/evmos/x/withdraw/types"
 )
@@ -39,7 +39,7 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec performs a no-op as the incentives doesn't support Amino encoding
+// RegisterLegacyAminoCodec performs a no-op as the withdraw doesn't support Amino encoding
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
@@ -47,12 +47,12 @@ func (AppModuleBasic) ConsensusVersion() uint64 {
 	return 1
 }
 
-// RegisterInterfaces registers interfaces and implementations of the incentives
+// RegisterInterfaces registers interfaces and implementations of the withdraw
 // module.
 func (AppModuleBasic) RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the incentives
+// DefaultGenesis returns default genesis state as raw bytes for the withdraw
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
@@ -67,7 +67,7 @@ func (b AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEnc
 	return genesisState.Validate()
 }
 
-// RegisterRESTRoutes performs a no-op as the incentives module doesn't expose REST
+// RegisterRESTRoutes performs a no-op as the withdraw module doesn't expose REST
 // endpoints
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {}
 
@@ -77,13 +77,12 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
-// GetTxCmd returns the root tx command for the incentives module.
+// GetTxCmd returns the root tx command for the withdraw module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
 
-// GetQueryCmd returns no root query command for the incentives module.
+// GetQueryCmd returns no root query command for the withdraw module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	// TODO: cli params
-	return nil
+	return cli.GetQueryCmd()
 }
 
 type AppModule struct {
@@ -107,7 +106,7 @@ func (AppModule) Name() string {
 
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
-// NewHandler returns nil incentives module doesn't expose tx gRPC endpoints
+// NewHandler returns nil withdraw module doesn't expose tx gRPC endpoints
 func (am AppModule) NewHandler() sdk.Handler {
 	return nil
 }
@@ -125,8 +124,7 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	// TODO: gRPC
-	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
