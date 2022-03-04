@@ -15,7 +15,6 @@ Get started with your Ledger hardware wallet on Evmos. {synopsis}
 
 “Hardware wallets are a form of offline storage. A hardware wallet is a cryptocurrency wallet that stores the user's private keys (a critical piece of information used to authorize outgoing transactions on the blockchain network) in a secure hardware device.”
 [Investopedia](https://www.investopedia.com/terms/l/ledger-wallet.asp)
- 
 
 ## Installation
 
@@ -49,19 +48,19 @@ Now you can import your Ledger account to MetaMask by using the following steps:
 
 1. Click on connect hardware wallet
 
-![Captura de pantalla 2022-03-02 a las 11.54.20.png](imgs/Captura_de_pantalla_2022-03-02_a_las_11.54.20.png)
+![mm1.png](imgs/mm1.png)
 
 - Select Ledger hardware wallet:
-    
-    ![Captura de pantalla 2022-03-02 a las 11.55.16.png](imgs/Captura_de_pantalla_2022-03-02_a_las_11.55.16.png)
-    
+
+![mm2.png](imgs/mm2.png)
+
 - Select your connected Ledger Device
-    
-    ![Captura de pantalla 2022-03-02 a las 11.57.37.png](imgs/Captura_de_pantalla_2022-03-02_a_las_11.57.37.png)
-    
+
+![mm4.png](imgs/mm4.png)
+
 - Import the addresses that you want to use
 
-![Captura de pantalla 2022-03-02 a las 11.56.46.png](imgs/Captura_de_pantalla_2022-03-02_a_las_11.56.46.png)
+![mm3.png](imgs/mm3.png)
 
 ## EIP712 signing
 
@@ -69,29 +68,29 @@ In order to sign Cosmos transactions (staking, voting on proposals, IBC transfer
 
 EIP712 means that the signer will generate a signature for something like a JSON representation of the Cosmos transaction and that signature will be included in the Cosmos transaction itself.
 
-### Example - Cosmos transaction using Evmos.me:
+### Example - Cosmos transaction using Evmos.me
 
 **Get your address in both encodings**
 
 After connecting the Ledger wallet to Metamask and connecting to the [https://evmos.me](https://evmos.me) webpage, it will display our wallet formatted on `bech32` and `hex` representation, we need these values to make sure that the message that we are going to sign is the correct one.
 
-![Captura de pantalla 2022-03-02 a las 10.47.08.png](imgs/Captura_de_pantalla_2022-03-02_a_las_10.47.08.png)
+![addresses.png](imgs/addresses.png)
 
 **Create a Cosmos transaction**
 
 In this example, we are going to create a simple message to send tokens to a recipient*.*
 
-![Captura de pantalla 2022-03-02 a las 10.53.50.png](imgs/Captura_de_pantalla_2022-03-02_a_las_10.53.50.png)
+![msgsend.png](imgs/msgsend.png)
 
 After clicking `Send Coins`, Metamask will ask us to sign the typed message
 
 **Sign with Metamask and Ledger**
 
-![Captura de pantalla 2022-03-02 a las 15.43.15.png](imgs/Captura_de_pantalla_2022-03-02_a_las_15.43.15.png)
+![mm5.png](imgs/mm5.png)
 
 You can see the complete message to be signed
 
-![Nuevo proyecto (2).png](imgs/Nuevo_proyecto_(2).png)
+![eipmessage.png](imgs/eipmessage.png)
 
 **Validate the data before signing!**
 
@@ -101,19 +100,19 @@ You can see the complete message to be signed
 - `memo`: transaction note or comment.
 - `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds. Also, we can verify that we are actually sending *10000aevmos* to that wallet.
 
-### L**edger signing**
+### **Ledger signing**
 
 If you have a Ledger connected to Metamask, you need to use it to sign the message.
 
 The Ledger device will display the domain hash and message hash before asking you to sign the transaction.
 
-![IMG_20220302_110941.jpg](imgs/IMG_20220302_110941.jpg)
+![hw_01.jpg](imgs/hw_01.jpg)
 
-![IMG_20220302_110945.jpg](imgs/IMG_20220302_110945.jpg)
+![hw_02.jpg](imgs/hw_02.jpg)
 
-![IMG_20220302_110951.jpg](imgs/IMG_20220302_110951.jpg)
+![hw_03.jpg](imgs/hw_03.jpg)
 
-![IMG_20220302_110958.jpg](imgs/IMG_20220302_110958.jpg)
+![hw_04.jpg](imgs/hw_04.jpg)
 
 **Broadcast the transaction**
 
@@ -121,15 +120,13 @@ After signing the message, that signature needs to be added to the cosmos transa
 
 This step should be done automatically by the same service that generated the message, in this case, **[evmos.me](http://evmos.me)** will broadcast the transaction for you.
 
-![Captura de pantalla 2022-03-02 a las 11.15.16.png](imgs/Captura_de_pantalla_2022-03-02_a_las_11.15.16.png)
+![txsent.png](imgs/txsent.png)
 
 ### Common errors
 
 - Make sure that the Ethereum Ledger app is installed. The Cosmos Ledger app is not supported on the Evmos chain at the moment.
 - Make sure you have created at least one Ethereum address on the Ledger Ethereum app.
 - Make sure the Ledger device is unlocked and with the Ledger Ethereum app opened before starting the importing process.
-
- 
 
 ### Known issues
 
