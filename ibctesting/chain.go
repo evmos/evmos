@@ -74,7 +74,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	// create an account to send transactions from
 	chain := &ibcgotesting.TestChain{
-		// T:             t, // FIXME: make T public
+		T:             t,
 		Coordinator:   coord,
 		ChainID:       chainID,
 		App:           app,

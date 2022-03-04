@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 
 	"github.com/tharsis/evmos/x/claims/types"
 )
@@ -97,6 +98,11 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 				"airdrop account not found during clawback",
 				"address", addr.String(),
 			)
+			return false
+		}
+
+		// ignore vesting accounts since some of the funds might be locked
+		if _, isVesting := acc.(vestexported.VestingAccount); isVesting {
 			return false
 		}
 

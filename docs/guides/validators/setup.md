@@ -31,9 +31,9 @@ architecture.
 
 To run testnet nodes, you will need a machine with the following minimum hardware requirements:
 
-- 4 or more physical CPU cores
+- 4 or more physical CPU cores
 - At least 500GB of SSD disk storage
-- At least 16GB of memory (RAM)
+- At least 32GB of memory (RAM)
 - At least 100mbps network bandwidth
 
 As the usage of the blockchain grows, the server requirements may increase as well, so you should have a plan for updating your server as well.
@@ -54,8 +54,8 @@ evmosd tx staking create-validator \
   --pubkey=$(evmosd tendermint show-validator) \
   --moniker="choose a moniker" \
   --chain-id=<chain_id> \
-  --commission-rate="0.10" \
-  --commission-max-rate="0.20" \
+  --commission-rate="0.05" \
+  --commission-max-rate="0.10" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
@@ -104,7 +104,7 @@ evmosd gentx \
 When specifying commission parameters, the `commission-max-change-rate` is used to measure % _point_ change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
 :::
 
-You can then submit your `gentx` on the [launch repository](https://github.com/cosmos/launch). These `gentx` will be used to form the final genesis file. 
+You can then submit your `gentx` on the [launch repository](https://github.com/cosmos/launch). These `gentx` will be used to form the final genesis file.
 
 ## Edit Validator Description
 

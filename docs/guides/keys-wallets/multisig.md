@@ -73,14 +73,14 @@ evmosd keys show multi
   pubkeys: []
 ```
 
-Let's add 10 PHOTON to the multisig wallet:
+Let's add 10 EVMOS to the multisig wallet:
 
 ```bash
-evmosd tx send \
+evmosd tx bank send \
     test1 \
     evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     10000000000000000000aevmos \
-    --chain-id=evmos_9000-2 \
+    --chain-id=evmos_9000-3 \
     --gas=auto \
     --fees=1000000aevmos \
     --broadcast-mode=block
@@ -88,16 +88,16 @@ evmosd tx send \
 
 ### Step 2: Create the multisig transaction
 
-We want to send 5 PHOTON from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
+We want to send 5 EVMOS from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
 
 ```bash
-evmosd tx send \
+evmosd tx bank send \
     evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
     evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
     5000000000000000000aevmos \
     --gas=200000 \
     --fees=1000000aevmos \
-    --chain-id=evmos_9000-2 \
+    --chain-id=evmos_9000-3 \
     --generate-only > unsignedTx.json
 ```
 
@@ -152,7 +152,7 @@ evmosd tx sign \
     --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test1 \
     --output-document=test1sig.json \
-    --chain-id=evmos_9000-2
+    --chain-id=evmos_9000-3
 ```
 
 ```sh
@@ -161,7 +161,7 @@ evmosd tx sign \
     --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test2 \
     --output-document=test2sig.json \
-    --chain-id=evmos_9000-2
+    --chain-id=evmos_9000-3
 ```
 
 ### Step 4: Create multisignature
@@ -174,7 +174,7 @@ evmosd tx multisign \
     multi \
     test1sig.json test2sig.json \
     --output-document=signedTx.json \
-    --chain-id=evmos_9000-2
+    --chain-id=evmos_9000-3
 ```
 
 The TX is now signed:
@@ -266,6 +266,6 @@ The TX is now signed:
 
 ```sh
 evmosd tx broadcast signedTx.json \
-    --chain-id=evmos_9000-2 \
+    --chain-id=evmos_9000-3 \
     --broadcast-mode=block
 ```

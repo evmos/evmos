@@ -31,5 +31,5 @@ With the `x/erc20` users on Evmos can
 4. **[Transactions](04_transactions.md)**
 5. **[Hooks](05_hooks.md)**
 6. **[Events](06_events.md)**
-7. **[Parameters](07_params.md)**
+7. **[Parameters](07_parameters.md)**
 8. **[Clients](08_clients.md)**

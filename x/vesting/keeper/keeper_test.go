@@ -37,7 +37,7 @@ import (
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/contracts"
-	// "github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/x/vesting/types"
 )
 
 var (
@@ -69,10 +69,10 @@ var (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx            sdk.Context
-	app            *app.Evmos
-	queryClientEvm evm.QueryClient
-	// queryClient      types.QueryClient
+	ctx              sdk.Context
+	app              *app.Evmos
+	queryClientEvm   evm.QueryClient
+	queryClient      types.QueryClient
 	address          common.Address
 	consAddress      sdk.ConsAddress
 	validator        stakingtypes.Validator
@@ -146,9 +146,9 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
-	// queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	// types.RegisterQueryServer(queryHelper, suite.app.VestingKeeper)
-	// suite.queryClient = types.NewQueryClient(queryHelper)
+	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, suite.app.VestingKeeper)
+	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
 	// module
@@ -211,6 +211,15 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+}
+
+// MintFeeCollector mints coins with the bank modules and sends them to the fee
+// collector.
+func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, types.ModuleName, authtypes.FeeCollectorName, coins)
+	suite.Require().NoError(err)
 }
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.

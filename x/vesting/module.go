@@ -1,6 +1,7 @@
 package vesting
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/gorilla/mux"
@@ -17,6 +18,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/tharsis/evmos/x/vesting/client/cli"
 	"github.com/tharsis/evmos/x/vesting/keeper"
 	"github.com/tharsis/evmos/x/vesting/types"
 )
@@ -37,9 +39,7 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterCodec registers the module's types with the given codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
-}
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // RegisterInterfaces registers the module's interfaces and implementations with
 // the given interface registry.
@@ -60,18 +60,21 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConf
 // RegisterRESTRoutes registers module's REST handlers. Currently, this is a no-op.
 func (AppModuleBasic) RegisterRESTRoutes(_ client.Context, _ *mux.Router) {}
 
-// RegisterGRPCGatewayRoutes registers the module's gRPC Gateway routes. Currently, this
-// is a no-op.
-func (a AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.ServeMux) {}
+// RegisterGRPCGatewayRoutes registers the module's gRPC Gateway routes.
+func (a AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *runtime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
+		panic(err)
+	}
+}
 
 // GetTxCmd returns the root tx command for the auth module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.NewTxCmd()
 }
 
 // GetQueryCmd returns the module's root query command. Currently, this is a no-op.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return nil
+	return cli.GetQueryCmd()
 }
 
 // AppModule extends the AppModuleBasic implementation by implementing the
@@ -100,6 +103,10 @@ func NewAppModule(
 	}
 }
 
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
 // RegisterInvariants performs a no-op; there are no invariants to enforce.
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
@@ -114,14 +121,14 @@ func (am AppModule) Route() sdk.Route {
 
 // QuerierRoute returns an empty string as the module contains no query
 // functionality.
-func (AppModule) QuerierRoute() string { return "" }
+func (AppModule) QuerierRoute() string {
+	return types.RouterKey
+}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
-	// types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
-
-	// _ = keeper.NewMigrator(am.keeper)
+	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 // LegacyQuerierHandler performs a no-op.

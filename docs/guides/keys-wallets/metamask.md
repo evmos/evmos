@@ -4,9 +4,11 @@ order: 2
 
 # MetaMask
 
-Connect your MetaMask wallet with Evmos {synopsis}
+Connect your Metamask wallet with Evmos {synopsis}
 
-The MetaMask browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet or via a locally-running {{ $themeConfig.project.name }} node.
+- [Download Metamask](https://metamask.io/download/) {prereq}
+
+The [MetaMask](https://metamask.io/) browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet or via a locally-running {{ $themeConfig.project.name }} node.
 
 ::: tip
 If you are planning on developing on Evmos locally and you haven’t already set up your own local node, refer to [the quickstart tutorial](../../quickstart/run_node/), or follow the instructions in the [GitHub repository](https://github.com/tharsis/evmos/).
@@ -25,13 +27,21 @@ You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EI
 Here is the list of fields that you can use to paste on Metamask:
 
 :::: tabs
+::: tab Mainnet
+
+- **Network Name:** `{{ $themeConfig.project.name }} Mainnet`
+- **New RPC URL:** `{{ $themeConfig.project.rpc_url }}`
+- **Chain ID:** `{{ $themeConfig.project.chain_id }}`
+- **Currency Symbol (optional):** `{{ $themeConfig.project.ticker }}`
+- **Block Explorer URL (optional):** `{{ $themeConfig.project.evm_explorer_url }}`
+  :::
 ::: tab Testnet
 
 - **Network Name:** `{{ $themeConfig.project.name }} Testnet`
 - **New RPC URL:** `{{ $themeConfig.project.rpc_url_testnet }}`
 - **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
 - **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
-- **Block Explorer URL (optional):** `{{ $themeConfig.project.block_explorer_url }}`
+- **Block Explorer URL (optional):** `{{ $themeConfig.project.testnet_evm_explorer_url }}`
   :::
   ::: tab Local Node
 

@@ -31,5 +31,5 @@ account  to provide supply for usage incentives and 3) the community pool
 2. **[State](02_state.md)**
 3. **[Hooks](03_hooks.md)**
 4. **[Events](04_events.md)**
-5. **[Parameters](05_params.md)**
+5. **[Parameters](05_parameters.md)**
 6. **[Clients](06_clients.md)**

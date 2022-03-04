@@ -116,6 +116,12 @@
   
     - [Query](#evmos.inflation.v1.Query)
   
+- [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
+    - [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest)
+    - [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse)
+  
+    - [Query](#evmos.vesting.v1.Query)
+  
 - [evmos/vesting/v1/tx.proto](#evmos/vesting/v1/tx.proto)
     - [MsgClawback](#evmos.vesting.v1.MsgClawback)
     - [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse)
@@ -1530,6 +1536,65 @@ Query provides defines the gRPC querier service.
 
 
 
+<a name="evmos/vesting/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/vesting/v1/query.proto
+
+
+
+<a name="evmos.vesting.v1.QueryBalancesRequest"></a>
+
+### QueryBalancesRequest
+QueryBalancesRequest is the request type for the Query/Balances RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  | address of the clawback vesting account |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.QueryBalancesResponse"></a>
+
+### QueryBalancesResponse
+QueryBalancesResponse is the response type for the Query/Balances RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `locked` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of locked tokens |
+| `unvested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of unvested tokens |
+| `vested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of vested tokens |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.vesting.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Balances` | [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest) | [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse) | Retrieves the unvested, vested and locked tokens for a vesting account | GET|/evmos/vesting/v1/balances/{address}|
+
+ <!-- end services -->
+
+
+
 <a name="evmos/vesting/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1540,14 +1605,15 @@ Query provides defines the gRPC querier service.
 <a name="evmos.vesting.v1.MsgClawback"></a>
 
 ### MsgClawback
-MsgClawback defines a message that removes unvested tokens from a ClawbackVestingAccount.
+MsgClawback defines a message that removes unvested tokens from a
+ClawbackVestingAccount.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `funder_address` | [string](#string) |  | funder_address is the address which funded the account |
-| `address` | [string](#string) |  | address is the address of the ClawbackVestingAccount to claw back from. |
-| `dest_address` | [string](#string) |  | dest_address specifies where the clawed-back tokens should be transferred. If empty, the tokens will be transferred back to the original funder of the account. |
+| `account_address` | [string](#string) |  | account_address is the address of the ClawbackVestingAccount to claw back from. |
+| `dest_address` | [string](#string) |  | dest_address specifies where the clawed-back tokens should be transferred to. If empty, the tokens will be transferred back to the original funder of the account. |
 
 
 
@@ -1572,12 +1638,12 @@ MsgCreateClawbackVestingAccount defines a message that enables creating a Clawba
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `from_address` | [string](#string) |  | Address of the account providing the funds, which must also sign the request. |
-| `to_address` | [string](#string) |  | Address of the account to receive the funds. |
-| `start_time` | [int64](#int64) |  | Start time of the vesting. Periods start relative to this time. |
-| `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | Unlocking events as a sequence of durations and amounts, starting relative to start_time. |
-| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | Vesting events as a sequence of durations and amounts, starting relative to start_time. |
-| `merge` | [bool](#bool) |  | If true, merge this new grant into an existing ClawbackVestingAccount, or create it if it does not exist. If false, creates a new account. New grants to an existing account must be from the same from_address. |
+| `from_address` | [string](#string) |  | from_address specifies the account to provide the funds and sign the clawback request |
+| `to_address` | [string](#string) |  | to_address specifies the account to receive the funds |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | start_time defines the time at which the vesting period begins |
+| `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | lockup_periods defines the unlocking schedule relative to the start_time |
+| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting_periods defines thevesting schedule relative to the start_time |
+| `merge` | [bool](#bool) |  | merge specifies a the creation mechanism for existing ClawbackVestingAccounts. If true, merge this new grant into an existing ClawbackVestingAccount, or create it if it does not exist. If false, creates a new account. New grants to an existing account must be from the same from_address. |
 
 
 
@@ -1587,7 +1653,8 @@ MsgCreateClawbackVestingAccount defines a message that enables creating a Clawba
 <a name="evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse"></a>
 
 ### MsgCreateClawbackVestingAccountResponse
-MsgCreateClawbackVestingAccountResponse defines the MsgCreateClawbackVestingAccount response type.
+MsgCreateClawbackVestingAccountResponse defines the
+MsgCreateClawbackVestingAccount response type.
 
 
 
@@ -1603,11 +1670,11 @@ MsgCreateClawbackVestingAccountResponse defines the MsgCreateClawbackVestingAcco
 <a name="evmos.vesting.v1.Msg"></a>
 
 ### Msg
-Msg defines the bank Msg service.
+Msg defines the vesting Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `CreateClawbackVestingAccount` | [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount) | [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse) | CreateClawbackVestingAccount defines a method that enables creating a vesting account that is subject to clawback. | GET|/evmos/vesting/v1/tx/create_clawback_vesting_account|
+| `CreateClawbackVestingAccount` | [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount) | [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse) | CreateClawbackVestingAccount creats a vesting account that is subject to clawback and the configuration of vesting and lockup schedules. | GET|/evmos/vesting/v1/tx/create_clawback_vesting_account|
 | `Clawback` | [MsgClawback](#evmos.vesting.v1.MsgClawback) | [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse) | Clawback removes the unvested tokens from a ClawbackVestingAccount. | GET|/evmos/vesting/v1/tx/clawback|
 
  <!-- end services -->
@@ -1632,11 +1699,11 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `base_vesting_account` | [cosmos.vesting.v1beta1.BaseVestingAccount](#cosmos.vesting.v1beta1.BaseVestingAccount) |  |  |
-| `funder_address` | [string](#string) |  | funder_address specifies the account which can perform clawback. |
-| `start_time` | [int64](#int64) |  |  |
-| `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | unlocking schedule relative to the BaseVestingAccount start_time. |
-| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting (i.e. immunity from clawback) schedule relative to the BaseVestingAccount start_time. |
+| `base_vesting_account` | [cosmos.vesting.v1beta1.BaseVestingAccount](#cosmos.vesting.v1beta1.BaseVestingAccount) |  | base_vesting_account implements the VestingAccount interface. It contains all the necessary fields needed for any vesting account implementation |
+| `funder_address` | [string](#string) |  | funder_address specifies the account which can perform clawback |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | start_time defines the time at which the vesting period begins |
+| `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | lockup_periods defines the unlocking schedule relative to the start_time |
+| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting_periods defines the vesting schedule relative to the start_time |
 
 
 

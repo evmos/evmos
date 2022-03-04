@@ -57,16 +57,18 @@ module.exports = {
       binary: 'evmosd',
       testnet_denom: 'tEvmos',
       testnet_ticker: 'tEVMOS',
-      rpc_url: 'http://localhost:8545/',
-      rpc_url_testnet: 'https://ethereum.rpc.evmos.dev',
+      rpc_url: 'https://eth.bd.evmos.org:8545',
+      rpc_url_testnet: 'https://eth.bd.evmos.dev:8545',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v0.4.2',
+      latest_version: 'v1.1.0',
       version_number: '1',
-      testnet_version_number: '2',
-      block_explorer_url: 'https://evm.evmos.org',
-      cosmos_block_explorer_url: 'https://explorer.evmos.org',
+      testnet_version_number: '3',
+      testnet_evm_explorer_url: 'https://evm.evmos.dev',
+      evm_explorer_url: 'https://evm.evmos.org',
+      testnet_cosmos_explorer_url: 'https://explorer.evmos.dev/',
+      cosmos_explorer_url: 'https://www.mintscan.io/evmos',
     },
     logo: {
       src: '/evmos-black.svg',
@@ -157,6 +159,31 @@ module.exports = {
             },
           ]
         },
+        // {
+        //   title: 'Clients',
+        //   children: [
+        //     {
+        //       title: 'APIs',
+        //       directory: false,
+        //       path: '/clients/apis'
+        //     },
+        //     {
+        //       title: 'Evmosjs',
+        //       directory: false,
+        //       path: '/clients/evmosjs'
+        //     },
+        //   ]
+        // },
+        {
+          title: 'Mainnet',
+          children: [
+            {
+              title: 'Join Mainnet',
+              directory: false,
+              path: '/mainnet/join'
+            },
+          ]
+        },
         {
           title: 'Testnet',
           children: [
@@ -193,13 +220,26 @@ module.exports = {
               path: '/tools/explorers'
             },
             {
-              title: 'Evmos (EVM)',
+              title: 'Blockscout (EVM)',
               path: 'https://evm.evmos.org'
             },
             {
-              title: 'Evmos (Cosmos)',
-              path: 'https://explorer.evmos.org'
+              title: 'Mintscan (Cosmos)',
+              path: 'https://www.mintscan.io/evmos/'
             },
+          ]
+        },
+        {
+          title: 'Ecosystem',
+          children: [
+            {
+              title: 'Awesome Evmos',
+              path: 'https://github.com/tharsis/awesome'
+            },
+            {
+              title: 'Evmos Space',
+              path: 'https://evmos.space/'
+            }
           ]
         },
         {
@@ -215,7 +255,7 @@ module.exports = {
             },
             {
               title: 'Evmos gRPC Gateway API',
-              path: 'https://api.evmos.org/'
+              path: 'https://api.evmos.dev/'
             },
             {
               title: 'JSON-RPC API',

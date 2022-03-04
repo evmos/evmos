@@ -94,13 +94,13 @@ import (
 	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
-	"github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/evmos/app/ante"
 
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
@@ -433,7 +433,6 @@ func NewEvmos(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
-			app.VestingKeeper.Hooks(),
 		),
 	)
 
@@ -696,11 +695,13 @@ func NewEvmos(
 		AccountKeeper:    app.AccountKeeper,
 		BankKeeper:       app.BankKeeper,
 		EvmKeeper:        app.EvmKeeper,
+		StakingKeeper:    app.StakingKeeper,
 		FeegrantKeeper:   app.FeeGrantKeeper,
 		IBCChannelKeeper: app.IBCKeeper.ChannelKeeper,
 		FeeMarketKeeper:  app.FeeMarketKeeper,
 		SignModeHandler:  encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:   SigVerificationGasConsumer,
+		Cdc:              appCodec,
 	}
 
 	if err := options.Validate(); err != nil {
@@ -735,6 +736,7 @@ func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker updates every begin block
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	BeginBlockForks(ctx, app)
 	return app.mm.BeginBlock(ctx, req)
 }
 
