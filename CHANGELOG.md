@@ -39,6 +39,22 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (deps) [\#282](https://github.com/tharsis/evmos/pull/282) Bump IBC go to [`v3.0.0-rc1`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0-rc1)
+
+## [v1.1.1] - 2022-03-04
+
+### Improvements
+
+- (deps) [\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
+
+### Bug Fixes
+
+- (app) [\#341](https://github.com/tharsis/evmos/pull/341) Return error when `--ledger` flag is passed in CLI
+
+## [v1.1.0] - 2022-03-02
+
+### Improvements
+
 - (deps)[\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
 
 ### Bug Fixes
