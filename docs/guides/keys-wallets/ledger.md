@@ -1,21 +1,31 @@
-# Ledger Guide
+<!--
+order: 5
+-->
 
-Get started with your Ledger hardware wallet on Evmos. {synopsis}
+# Ledger
+
+Get started with your Ledger hardware wallet on Evmos {synopsis}
 
 ## Pre-requisites
 
-- Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
-- [Ledger Live](https://www.ledger.com/ledger-live) installed
-- [Metamask](https://metamask.io) installed
-- Ethereum Ledger app installed
-- Versions (Firmware and Ethereum app)
+- [Ledger device](https://shop.ledger.com/) {prereq}
+- [Install Ledger Live](https://www.ledger.com/ledger-live) {prereq}
+- [Intall Metamask](https://metamask.io) {prereq}
+
+## Checklist
+
+- ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
+- ✅ [Ledger Live](https://www.ledger.com/ledger-live) installed
+- ✅ [Metamask](https://metamask.io) installed
+- ✅ Ethereum Ledger app installed
+- ✅ Latest Versions (Firmware and Ethereum app)
 
 ## Introduction
 
 [Ledger](https://www.ledger.com/)'s hardware wallets are cryptocurrency wallets that are used to store private keys offline.
 
-“Hardware wallets are a form of offline storage. A hardware wallet is a cryptocurrency wallet that stores the user's private keys (a critical piece of information used to authorize outgoing transactions on the blockchain network) in a secure hardware device.”
-[Investopedia](https://www.investopedia.com/terms/l/ledger-wallet.asp)
+> “Hardware wallets are a form of offline storage. A hardware wallet is a cryptocurrency wallet that stores the user's private keys (a critical piece of information used to authorize outgoing transactions on the blockchain network) in a secure hardware device.”
+> [Investopedia](https://www.investopedia.com/terms/l/ledger-wallet.asp)
 
 ## Installation
 
@@ -46,6 +56,10 @@ In the table below you can find a list of Chain IDs to use with the Ethereum Led
 ### Metamask
 
 Now that you've installed the app on Ledger Live, you can connect your Ledger to your computer and unlock it with your PIN-code and open the Ethereum app.
+
+::: tip
+Follow our [Metamask Guide](./metamask.md) to add the Evmos Mainnet and Testnet to your Settings
+:::
 
 Now you can import your Ledger account to MetaMask by using the following steps:
 
