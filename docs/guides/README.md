@@ -19,3 +19,4 @@ parent:
 4. [Validators](./validators/overview)
 5. [Key Management System](./kms/kms)
 6. [Upgrades](./upgrades/upgrade_node.md)
+7. [Ledger](./ledger/ledger.md)
