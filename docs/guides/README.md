@@ -12,6 +12,9 @@ parent:
 2. Keys and Wallets
     * [Keyring](./keys-wallets/keyring)
     * [MetaMask](./keys-wallets/metamask)
+    * [Multisig](./keys-wallets/multisig)
+    * [Keplr](./keys-wallets/kelpr)
+    * [Ledger](./ledger/ledger.md)
 3. Ethereum Tooling
     * [Remix](./tools/remix)
     * [Hardhat](./tools/hardhat)
@@ -19,4 +22,3 @@ parent:
 4. [Validators](./validators/overview)
 5. [Key Management System](./kms/kms)
 6. [Upgrades](./upgrades/upgrade_node.md)
-7. [Ledger](./ledger/ledger.md)
