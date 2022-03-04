@@ -18,7 +18,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/cosmos/cosmos-sdk/x/upgrade/client/cli"
 
 	"github.com/tharsis/evmos/x/withdraw/client/cli"
 	"github.com/tharsis/evmos/x/withdraw/keeper"
