@@ -32,12 +32,14 @@ First, you will need to install the Ethereum Ledger app by following the instruc
 
 In the Ledger Live app, you should see the Ethereum app listed under the **Apps installed** tab on the **Manager** page. After the app has been successfully installed, you can close out of Ledger Live.
 
-### List of Chain IDs for Ethereum app
+### Chain IDs
 
-|  | EIP155 chain ID |
-| --- | --- |
-| Evmos mainnet | 9001 |
-| Evmos testnet | 9000 |
+In the table below you can find a list of Chain IDs to use with the Ethereum Ledger app.
+
+|               | EIP155 chain ID |
+| ------------- | --------------- |
+| Evmos mainnet | `9001`          |
+| Evmos testnet | `9000`          |
 
 ## Import your Ledger Account
 
@@ -51,15 +53,15 @@ Now you can import your Ledger account to MetaMask by using the following steps:
 
 ![mm1.png](./../img/mm1.png)
 
-- Select Ledger hardware wallet:
+2. Select Ledger hardware wallet
 
 ![mm2.png](./../img/mm2.png)
 
-- Select your connected Ledger Device
+3. Select your connected Ledger Device
 
 ![mm4.png](./../img/mm4.png)
 
-- Import the addresses that you want to use
+4. Import the hex addresses that you want to use
 
 ![mm3.png](./../img/mm3.png)
 
@@ -69,15 +71,15 @@ In order to sign Cosmos transactions (staking, voting on proposals, IBC transfer
 
 EIP712 means that the signer will generate a signature for something like a JSON representation of the Cosmos transaction and that signature will be included in the Cosmos transaction itself.
 
-### Example - Cosmos transaction using Evmos.me
+### Step-by Cosmos transaction using Evmos.me
 
-**Get your address in both encodings**
+1. **Get your address in both encodings**
 
 After connecting the Ledger wallet to Metamask and connecting to the [https://evmos.me](https://evmos.me) webpage, it will display our wallet formatted on `bech32` and `hex` representation, we need these values to make sure that the message that we are going to sign is the correct one.
 
 ![addresses.png](./../img/addresses.png)
 
-**Create a Cosmos transaction**
+2. **Create a Cosmos transaction**
 
 In this example, we are going to create a simple message to send tokens to a recipient*.*
 
@@ -85,7 +87,7 @@ In this example, we are going to create a simple message to send tokens to a rec
 
 After clicking `Send Coins`, Metamask will ask us to sign the typed message
 
-**Sign with Metamask and Ledger**
+3. **Sign with Metamask and Ledger**
 
 ![mm5.png](./../img/mm5.png)
 
@@ -93,7 +95,7 @@ You can see the complete message to be signed
 
 ![eipmessage.png](./../img/eipmessage.png)
 
-**Validate the data before signing!**
+4. **Validate the data before signing!**
 
 - `feePayer`: represents the wallet that is signing the message. So it MUST match yours, if it’s different your transaction will be invalid.
 - `fee`: amount to be paid to send the transaction.
@@ -101,7 +103,7 @@ You can see the complete message to be signed
 - `memo`: transaction note or comment.
 - `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds. Also, we can verify that we are actually sending *10000aevmos* to that wallet.
 
-### **Ledger signing**
+### Ledger signing
 
 If you have a Ledger connected to Metamask, you need to use it to sign the message.
 
@@ -119,39 +121,44 @@ The Ledger device will display the domain hash and message hash before asking yo
 
 After signing the message, that signature needs to be added to the cosmos transaction and broadcasted to the network.
 
-This step should be done automatically by the same service that generated the message, in this case, **[evmos.me](http://evmos.me)** will broadcast the transaction for you.
+This step should be done automatically by the same service that generated the message, in this case, [evmos.me](http://evmos.me) will broadcast the transaction for you.
 
 ![txsent.png](./../img/txsent.png)
 
 ### Common errors
 
-- Make sure that the Ethereum Ledger app is installed. The Cosmos Ledger app is not supported on the Evmos chain at the moment.
+- Make sure that the Ethereum Ledger app is installed. The Cosmos Ledger app is not supported on the Evmos chain at the moment (see [FAQ](#faq)).
 - Make sure you have created at least one Ethereum address on the Ledger Ethereum app.
 - Make sure the Ledger device is unlocked and with the Ledger Ethereum app opened before starting the importing process.
 
 ### Known issues
 
 - The denomination displayed as `ETH` when importing the wallet because we are using the Ethereum app.
-- If you have Metamask correctly configured, the balance on the extension will be displayed as `EVMOS`, but on the Ledger device it will be displayed as `ETH`. Make sure you are on the correct network before signing any transaction!
+- If you have Metamask correctly configured, the balance on the extension will be displayed as `EVMOS`, but on the Ledger device it will be displayed as `ETH`.
+
+::: warning
+**IMPORTANT:** Make sure you are on the correct network before signing any transaction!
+:::
 
 ## FAQ
 
-1. I can’t generate keys using the CLI with `evmosd` with the `--ledger` flag
+1. **How can I generate Cosmos `sep256k1` keys with Ledger?**
 
-CLI bindings with `evmosd` binary are not currently supported. In the meantime, you can use EIP712. See the [sign cosmos txs](#cosmos-transactions) section for reference.
+Cosmos `sep256k1` keys are not supported on Evmos with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
 
-1. I can’t generate a native multisig using the `evmosd` CLI and and Ledger
+2. **I can’t generate keys using the CLI with `evmosd` with the `--ledger` flag**
 
-See 1.
+CLI bindings with `evmosd` binary are not currently supported. In the meantime, you can use the Ethereum Ledger App with EIP712 using [evmos.me](https://evmos.me). See the [`EIP712 Signing`](#eip712-signing) section for reference.
 
-1. I can’t use Ledger for my validator
+3. **I can’t generate a key for the Evmos native multisig using the `evmosd` CLI and and Ledger**
 
-See 1.
+You can generate a multisig wallet using the `evmosd` CLI, although the `--ledger` option is not available at the moment.
 
-1. I can’t use Metamask with the Cosmos Ledger app
+4. **I can’t use Metamask with the Cosmos Ledger app**
 
 Since Evmos only support Ethereum keys and uses the same HD path as Ethereum, the Cosmos Ledger app doesn’t work to sign cosmos transactions.
 
-1. How can I generate Cosmos `sep256k1` keys?
+<!-- 4. **I can’t use Ledger for my validator**
 
-Cosmos `sep256k1` keys are not supported on Evmos. Only Ethereum keys (`eth_secp256k1`)  can be generated.
+Validators can use [`EIP712`](#eip712-signing) with their Ethereum Ledger app to sign transactions. If you are using an 
+existing Cosmos `secp256k1` key, it won't work -->
