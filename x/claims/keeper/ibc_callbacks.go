@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
 	"github.com/tharsis/evmos/x/claims/types"
+	withdrawtypes "github.com/tharsis/evmos/x/withdraw/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It performs a no-op if
@@ -56,6 +57,13 @@ func (k Keeper) OnRecvPacket(
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address %s", err.Error()).Error(),
+		)
+	}
+
+	if sender.Equals(recipient) {
+		// return the an error acknowledgement since the address the same
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(withdrawtypes.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver).Error(),
 		)
 	}
 

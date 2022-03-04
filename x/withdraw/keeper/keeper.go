@@ -9,6 +9,7 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
+	transferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
@@ -22,7 +23,8 @@ type Keeper struct {
 	paramstore     paramtypes.Subspace
 	bankKeeper     types.BankKeeper
 	ics4Wrapper    transfertypes.ICS4Wrapper
-	transferKeeper types.TransferKeeper
+	transferKeeper *transferkeeper.Keeper
+	// transferKeeper types.TransferKeeper
 }
 
 // NewKeeper returns keeper
@@ -30,7 +32,8 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	bk types.BankKeeper,
 	ics4Wrapper transfertypes.ICS4Wrapper,
-	tk types.TransferKeeper,
+	tk *transferkeeper.Keeper,
+	// tk types.TransferKeeper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {

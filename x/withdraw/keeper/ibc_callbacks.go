@@ -81,23 +81,63 @@ func (k Keeper) OnRecvPacket(
 			"sender", data.Sender, "recipient", data.Receiver,
 		)
 
+		// return the an error acknowledgement since the address the same
 		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(types.ErrKeyTypeNotSupported, "receiver address %s", err.Error()).Error(),
+			sdkerrors.Wrapf(types.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver).Error(),
 		)
 	}
 
-	// transfer the balance back to the sender address
-
-	srcPort := packet.DestinationPort
-	srcChannel := packet.DestinationChannel
-
 	// swap the sender and recipient
 	sender = recipient
-	recipientStr := data.Sender
+
+	// transfer the balance back to the sender address
+
+	var (
+		recipientStr        string
+		srcPort, srcChannel string
+	)
 
 	for _, coin := range balances {
-		// withdraw the tokens back to sender
-		if err := k.transferKeeper.SendTransfer(
+		// we only transfer IBC tokens back to their respective source chains
+		if strings.HasPrefix(coin.Denom, "ibc/") {
+			recipientStr = data.Sender
+
+			ibcHexHash := strings.SplitN(coin.Denom, "/", 2)[1]
+			hash, err := transfertypes.ParseHexHash(ibcHexHash)
+			if err != nil {
+				return channeltypes.NewErrorAcknowledgement(
+					sdkerrors.Wrapf(
+						err,
+						"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", data.Sender,
+					).Error(),
+				)
+			}
+
+			denomTrace, found := k.transferKeeper.GetDenomTrace(ctx, hash)
+			if !found {
+				return channeltypes.NewErrorAcknowledgement(
+					sdkerrors.Wrapf(
+						transfertypes.ErrTraceNotFound,
+						"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", coin.Denom,
+					).Error(),
+				)
+			}
+
+		} else {
+			// send Evmos native tokens to Osmosis
+			recipientStr = data.Sender
+			// TODO: get Osmo source port and channels from IBC
+			srcPort = "transfer"
+			srcChannel = "channel-0"
+		}
+
+		// TODO: get the correct bech32 address of the source chain
+		recipientStr = data.Sender
+
+		// TODO: coin needs
+
+		// Withdraw the tokens to the bech32 prefixed address of the source chain
+		err = k.transferKeeper.SendTransfer(
 			ctx,
 			srcPort,                  // packet destination port is now the source
 			srcChannel,               // packet destination channel is now the source
@@ -106,14 +146,16 @@ func (k Keeper) OnRecvPacket(
 			recipientStr,             // transfer sender is now the recipient
 			clienttypes.ZeroHeight(), // timeout height disabled
 			0,                        // timeout timestamp disabled
-		); err != nil {
-			return channeltypes.NewErrorAcknowledgement(
-				sdkerrors.Wrapf(
-					err,
-					"failed to withdraw '%s' back to sender %s", coin.Denom, recipientStr,
-				).Error(),
-			)
-		}
+		)
+	}
+
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(
+				err,
+				"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", data.Sender,
+			).Error(),
+		)
 	}
 
 	logger.Debug(
