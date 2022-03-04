@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+- (deps)[\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
+
 ### Bug Fixes
 
 - (erc20) [\#337](https://github.com/tharsis/evmos/pull/337) Ignore errors in ERC20 module's EVM hook.
