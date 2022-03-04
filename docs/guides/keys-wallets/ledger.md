@@ -156,9 +156,9 @@ This step should be done automatically by the same service that generated the me
 
 ## FAQ
 
-1. **How can I generate Cosmos `sep256k1` keys with Ledger?**
+1. **How can I generate Cosmos `secp256k1` keys with Ledger?**
 
-Cosmos `sep256k1` keys are not supported on Evmos with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
+Cosmos `secp256k1` keys are not supported on Evmos with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
 
 2. **I can’t generate keys using the CLI with `evmosd` with the `--ledger` flag**
 
@@ -168,7 +168,7 @@ CLI bindings with `evmosd` binary are not currently supported. In the meantime, 
 
 You can generate a multisig wallet using the `evmosd` CLI, although the `--ledger` option is not available at the moment.
 
-4. **I can’t use Metamask with the Cosmos Ledger app**
+4. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
 
 Since Evmos only support Ethereum keys and uses the same HD path as Ethereum, the Cosmos Ledger app doesn’t work to sign cosmos transactions.
 
