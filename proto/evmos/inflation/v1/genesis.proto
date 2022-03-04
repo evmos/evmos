@@ -21,7 +21,6 @@ message GenesisState {
 
 // Params holds parameters for the inflation module.
 message Params {
-  option (gogoproto.goproto_stringer) = false;
   // type of coin to mint
   string mint_denom = 1;
   // variables to calculate exponential inflation

@@ -13,7 +13,6 @@ message GenesisState {
 
 // Params holds parameters for the withdraw module.
 message Params {
-    option (gogoproto.goproto_stringer) = false;
     // enable withdraw IBC middleware
     bool enable_withdraw = 1;
     // list of enabled channels that can withdraw funds to sender account

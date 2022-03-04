@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"gopkg.in/yaml.v2"
 )
 
 // Parameter store keys
@@ -52,12 +51,6 @@ func DefaultParams() Params {
 			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 		},
 	}
-}
-
-// String implements the Stringer interface.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
 }
 
 // Implements params.ParamSet
