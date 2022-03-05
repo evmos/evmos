@@ -23,22 +23,22 @@ import (
 
 type IBCTestingSuite struct {
 	suite.Suite
-	coordinator *ibctesting.Coordinator
+	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	chainA *ibctesting.TestChain
-	chainB *ibctesting.TestChain
+	chainA *ibcgotesting.TestChain
+	chainB *ibcgotesting.TestChain
 
-	path *ibctesting.Path
+	path *ibcgotesting.Path
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
 	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
 
 	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)           // initializes 2 test chains
+	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
+	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
@@ -72,8 +72,8 @@ func TestIBCTestingSuite(t *testing.T) {
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
-func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
-	path := ibctesting.NewPath(chainA, chainB)
+func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
+	path := ibcgotesting.NewPath(chainA, chainB)
 	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
 	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
 
