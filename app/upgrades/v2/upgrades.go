@@ -18,7 +18,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator) 
 			fromVM[moduleName] = 1
 		}
 
-		// TODO: Consensus versions for erc20 module and claims should be 2
+		// TODO: Consensus versions for erc20 module and claims and inflation should be 2
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }
