@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/tharsis/evmos/contracts"
+	"github.com/tharsis/evmos/v2/contracts"
 	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 

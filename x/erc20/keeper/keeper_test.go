@@ -38,8 +38,8 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/contracts"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/contracts"
 	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 

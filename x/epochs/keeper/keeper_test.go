@@ -19,7 +19,7 @@ import (
 
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/v2/app"
 	"github.com/tharsis/evmos/v2/x/epochs/types"
 )
 

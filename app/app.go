@@ -100,16 +100,14 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v2/app/ante"
-
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
+	"github.com/tharsis/evmos/v2/app/ante"
 	"github.com/tharsis/evmos/v2/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v2/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
-
 	"github.com/tharsis/evmos/v2/x/epochs"
 	epochskeeper "github.com/tharsis/evmos/v2/x/epochs/keeper"
 	epochstypes "github.com/tharsis/evmos/v2/x/epochs/types"

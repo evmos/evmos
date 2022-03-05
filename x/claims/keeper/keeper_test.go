@@ -15,7 +15,7 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/v2/app"
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 

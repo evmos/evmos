@@ -14,8 +14,8 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/ibctesting"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/ibctesting"
 	"github.com/tharsis/evmos/v2/x/claims/types"
 	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )

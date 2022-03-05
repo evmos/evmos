@@ -13,7 +13,7 @@ import (
 	"github.com/tharsis/ethermint/server/config"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/contracts"
+	"github.com/tharsis/evmos/v2/contracts"
 	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 

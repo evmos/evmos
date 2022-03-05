@@ -35,8 +35,8 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/contracts"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/contracts"
 	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 

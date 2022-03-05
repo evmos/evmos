@@ -7,7 +7,7 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/app"
+	"github.com/tharsis/evmos/v2/app"
 	cmdcfg "github.com/tharsis/evmos/v2/cmd/config"
 )
 

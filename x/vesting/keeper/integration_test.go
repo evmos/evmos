@@ -9,9 +9,9 @@ import (
 
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/testutil"
+	"github.com/tharsis/evmos/v2/app"
 	"github.com/tharsis/evmos/v2/app/ante"
+	"github.com/tharsis/evmos/v2/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
