@@ -9,7 +9,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It performs a no-op if

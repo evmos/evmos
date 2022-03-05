@@ -100,33 +100,31 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/app/ante"
-
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/x/claims"
-	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/x/claims/types"
-
-	"github.com/tharsis/evmos/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/x/epochs/types"
-	"github.com/tharsis/evmos/x/erc20"
-	erc20client "github.com/tharsis/evmos/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/x/erc20/types"
-	"github.com/tharsis/evmos/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
-	"github.com/tharsis/evmos/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
-	"github.com/tharsis/evmos/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/app/ante"
+	"github.com/tharsis/evmos/v2/x/claims"
+	claimskeeper "github.com/tharsis/evmos/v2/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/v2/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/v2/x/epochs/types"
+	"github.com/tharsis/evmos/v2/x/erc20"
+	erc20client "github.com/tharsis/evmos/v2/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/v2/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/v2/x/erc20/types"
+	"github.com/tharsis/evmos/v2/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/v2/x/incentives/client"
+	incentiveskeeper "github.com/tharsis/evmos/v2/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/inflation"
+	inflationkeeper "github.com/tharsis/evmos/v2/x/inflation/keeper"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/v2/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 func init() {
@@ -933,7 +931,8 @@ func GetMaccPerms() map[string][]string {
 
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(
-	appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+	appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey,
+) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	// SDK subspaces

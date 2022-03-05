@@ -13,12 +13,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
-	"github.com/tharsis/evmos/ibctesting"
-
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/ibctesting"
+	"github.com/tharsis/evmos/v2/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 type IBCTestingSuite struct {

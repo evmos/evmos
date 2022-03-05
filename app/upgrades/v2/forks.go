@@ -3,7 +3,7 @@ package v2
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
+	erc20keeper "github.com/tharsis/evmos/v2/x/erc20/keeper"
 )
 
 func RunForkLogic(ctx sdk.Context, erc20 *erc20keeper.Keeper) {
