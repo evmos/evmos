@@ -16,6 +16,8 @@ func SetupUpgradeHandlers(app *Evmos) {
 		for moduleName := range app.mm.Modules {
 			fromVM[moduleName] = 1
 		}
+
+		// TODO: Consensus versions for erc20 module and claims should be 2
 		return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 	})
 }
