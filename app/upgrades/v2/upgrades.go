@@ -37,11 +37,10 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 		claimsParams.AuthorizedChannels = claimstypes.DefaultAuthorizedChannels
 		claimsParams.EVMChannels = claimstypes.DefaultEVMChannels
 		claimsKeeper.SetParams(ctx, claimsParams)
-		// Two parameters added, how do we set them?
-		// copy the struct on genesis.pb.go file
 
-		// TODO: Consensus versions for claims should be 2
-		// But do we need to bump the consensus versions for the ERC20 module?
+		// Bump the consensus version for claims so that InitGenesis will run
+		fromVM[claimstypes.ModuleName] = 2
+
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }
