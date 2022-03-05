@@ -960,7 +960,7 @@ func initParamsKeeper(
 
 func (app *Evmos) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(v2.UpgradeName, v2.CreateUpgradeHandler(
-		app.mm, app.configurator,
+		app.mm, app.configurator, &app.Erc20Keeper, &app.ClaimsKeeper,
 	))
 }
 
