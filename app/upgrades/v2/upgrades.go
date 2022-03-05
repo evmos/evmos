@@ -12,8 +12,6 @@ import (
 	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
 )
 
-const UpgradeName = "v2"
-
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 	erc20Keeper *erc20keeper.Keeper,
 	claimsKeeper *claimskeeper.Keeper,
