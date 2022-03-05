@@ -3,8 +3,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	incentivestypes "github.com/tharsis/evmos/v2x/incentives/types"
-	"github.com/tharsis/evmos/v2x/inflation/types"
+	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 // MintAndAllocateInflation performs inflation minting and allocation

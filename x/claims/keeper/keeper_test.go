@@ -16,7 +16,7 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/v2x/claims/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 type KeeperTestSuite struct {

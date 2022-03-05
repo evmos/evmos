@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/evmos/app"
-	cmdcfg "github.com/tharsis/evmos/v2cmd/config"
+	cmdcfg "github.com/tharsis/evmos/v2/cmd/config"
 )
 
 func main() {

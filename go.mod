@@ -22,6 +22,7 @@ require (
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tharsis/ethermint v0.10.2
+	github.com/tharsis/evmos v1.1.1
 	go.opencensus.io v0.23.0
 	google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7
 	google.golang.org/grpc v1.44.0
@@ -37,7 +38,6 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
-	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect

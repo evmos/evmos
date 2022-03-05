@@ -37,7 +37,7 @@ import (
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/v2x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 var (

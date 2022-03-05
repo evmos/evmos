@@ -11,7 +11,7 @@ import (
 
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/testutil"
-	"github.com/tharsis/evmos/v2x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 var (

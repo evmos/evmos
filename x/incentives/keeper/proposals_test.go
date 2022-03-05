@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/v2x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/incentives/types"
 )
 
 func (suite KeeperTestSuite) TestRegisterIncentive() {
