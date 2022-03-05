@@ -20,12 +20,10 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2x/inflation/types"
 )
 
-var (
-	denomMint = evm.DefaultEVMDenom
-)
+var denomMint = evm.DefaultEVMDenom
 
 type KeeperTestSuite struct {
 	suite.Suite
@@ -99,7 +97,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		epoch.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epoch)
 	}
-
 }
 
 func (suite *KeeperTestSuite) Commit() {

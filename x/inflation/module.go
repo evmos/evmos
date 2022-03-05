@@ -19,9 +19,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/tharsis/evmos/x/inflation/client/cli"
-	"github.com/tharsis/evmos/x/inflation/keeper"
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2x/inflation/client/cli"
+	"github.com/tharsis/evmos/v2x/inflation/keeper"
+	"github.com/tharsis/evmos/v2x/inflation/types"
 )
 
 // type check to ensure the interface is properly implemented

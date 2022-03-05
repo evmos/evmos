@@ -1,4 +1,4 @@
-module github.com/tharsis/evmos
+module github.com/tharsis/evmos/v2
 
 go 1.17
 

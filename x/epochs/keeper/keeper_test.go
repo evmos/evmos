@@ -20,12 +20,10 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/epochs/types"
+	"github.com/tharsis/evmos/v2x/epochs/types"
 )
 
-var (
-	denomMint = evm.DefaultEVMDenom
-)
+var denomMint = evm.DefaultEVMDenom
 
 type KeeperTestSuite struct {
 	suite.Suite

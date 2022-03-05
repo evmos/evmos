@@ -39,8 +39,8 @@ import (
 	srvflags "github.com/tharsis/ethermint/server/flags"
 
 	"github.com/tharsis/evmos/app"
-	cmdcfg "github.com/tharsis/evmos/cmd/config"
-	evmoskr "github.com/tharsis/evmos/crypto/keyring"
+	cmdcfg "github.com/tharsis/evmos/v2cmd/config"
+	evmoskr "github.com/tharsis/evmos/v2crypto/keyring"
 )
 
 const (

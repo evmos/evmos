@@ -14,9 +14,9 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/evmos/testutil"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	inflationtypes "github.com/tharsis/evmos/v2x/inflation/types"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/tharsis/evmos/v2x/claims/types"
 )
 
 func (suite *KeeperTestSuite) SetupClaimTest() {
