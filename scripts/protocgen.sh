@@ -37,7 +37,7 @@ buf protoc \
 --doc_out=./docs/api \
 --doc_opt=./docs/protodoc-markdown.tmpl,proto-docs.md \
 $(find "$(pwd)/proto" -maxdepth 5 -name '*.proto')
-# go mod tidy
+go mod tidy -compat 1.17
 
 # move proto files to the right places
 cp -r github.com/tharsis/evmos/* ./
