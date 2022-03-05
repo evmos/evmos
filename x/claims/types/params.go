@@ -6,12 +6,27 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 )
 
 var (
-	DefaultClaimsDenom        = "aevmos"
-	DefaultDurationUntilDecay = 2629800 * time.Second         // 1 month = 30.4375 days
-	DefaultDurationOfDecay    = 2 * DefaultDurationUntilDecay // 2 months
+	// DefaultClaimsDenom is aevmos
+	DefaultClaimsDenom = "aevmos"
+	// DefaultDurationUntilDecay is 1 month = 30.4375 days
+	DefaultDurationUntilDecay = 2629800 * time.Second
+	// DefaultDurationOfDecay is 2 months
+	DefaultDurationOfDecay = 2 * DefaultDurationUntilDecay
+	// DefaultChannels defines the list of default IBC authorized channels that can perform
+	// IBC address attestations in order to migrate claimable amounts. By default
+	// only Osmosis and Cosmos Hub channels are authorized
+	DefaultAuthorizedChannels = []string{
+		"channel-0", // Osmosis
+		"channel-3", // Cosmos Hub
+	}
+	DefaultEVMChannels = []string{
+		"channel-2", // Injective
+	}
 )
 
 // Parameter store key
@@ -21,6 +36,8 @@ var (
 	ParamStoreKeyDurationUntilDecay = []byte("DurationUntilDecay")
 	ParamStoreKeyDurationOfDecay    = []byte("DurationOfDecay")
 	ParamStoreKeyClaimsDenom        = []byte("ClaimsDenom")
+	ParamStoreKeyAuthorizedChannels = []byte("AuthorizedChannels")
+	ParamStoreKeyEVMChannels        = []byte("EVMChannels")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -36,6 +53,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreKeyDurationUntilDecay, &p.DurationUntilDecay, validateDuration),
 		paramtypes.NewParamSetPair(ParamStoreKeyDurationOfDecay, &p.DurationOfDecay, validateDuration),
 		paramtypes.NewParamSetPair(ParamStoreKeyClaimsDenom, &p.ClaimsDenom, validateDenom),
+		paramtypes.NewParamSetPair(ParamStoreKeyAuthorizedChannels, &p.AuthorizedChannels, ValidateChannels),
+		paramtypes.NewParamSetPair(ParamStoreKeyEVMChannels, &p.EVMChannels, ValidateChannels),
 	}
 }
 
@@ -46,6 +65,8 @@ func NewParams(
 	claimsDenom string,
 	durationUntilDecay,
 	durationOfDecay time.Duration,
+	authorizedChannels,
+	evmChannels []string,
 ) Params {
 	return Params{
 		EnableClaims:       enableClaim,
@@ -53,6 +74,8 @@ func NewParams(
 		DurationUntilDecay: durationUntilDecay,
 		DurationOfDecay:    durationOfDecay,
 		ClaimsDenom:        claimsDenom,
+		AuthorizedChannels: authorizedChannels,
+		EVMChannels:        evmChannels,
 	}
 }
 
@@ -65,6 +88,8 @@ func DefaultParams() Params {
 		DurationUntilDecay: DefaultDurationUntilDecay,
 		DurationOfDecay:    DefaultDurationOfDecay,
 		ClaimsDenom:        DefaultClaimsDenom,
+		AuthorizedChannels: DefaultAuthorizedChannels,
+		EVMChannels:        DefaultEVMChannels,
 	}
 }
 
@@ -107,6 +132,22 @@ func validateDenom(i interface{}) error {
 	return sdk.ValidateDenom(denom)
 }
 
+// ValidateChannels checks if channels ids are valid
+func ValidateChannels(i interface{}) error {
+	channels, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	for _, channel := range channels {
+		if !channeltypes.IsValidChannelID(channel) {
+			return fmt.Errorf("invalid channel id %s", channel)
+		}
+	}
+
+	return nil
+}
+
 func (p Params) Validate() error {
 	if p.DurationOfDecay <= 0 {
 		return fmt.Errorf("duration of decay must be positive: %d", p.DurationOfDecay)
@@ -114,7 +155,13 @@ func (p Params) Validate() error {
 	if p.DurationUntilDecay <= 0 {
 		return fmt.Errorf("duration until decay must be positive: %d", p.DurationOfDecay)
 	}
-	return sdk.ValidateDenom(p.ClaimsDenom)
+	if err := sdk.ValidateDenom(p.ClaimsDenom); err != nil {
+		return err
+	}
+	if err := ValidateChannels(p.AuthorizedChannels); err != nil {
+		return err
+	}
+	return ValidateChannels(p.EVMChannels)
 }
 
 // DecayStartTime returns the time at which the Decay period starts
@@ -134,4 +181,28 @@ func (p Params) IsClaimsActive(blockTime time.Time) bool {
 		return false
 	}
 	return true
+}
+
+// IsAuthorizedChannel returns true if the channel provided is in the list of
+// authorized channels
+func (p Params) IsAuthorizedChannel(channel string) bool {
+	for _, authorizedChannel := range p.AuthorizedChannels {
+		if channel == authorizedChannel {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsEVMChannel returns true if the channel provided is in the list of
+// EVM channels
+func (p Params) IsEVMChannel(channel string) bool {
+	for _, evmChannel := range p.EVMChannels {
+		if channel == evmChannel {
+			return true
+		}
+	}
+
+	return false
 }
