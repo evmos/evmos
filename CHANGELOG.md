@@ -35,11 +35,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v1.1.2] - 2022-03-06
+
+### Bug Fixes
+
+- (app) [\#354](https://github.com/tharsis/evmos/pull/354) Add v2 version upgrade logic
+
 ## [v1.1.1] - 2022-03-04
 
 ### Improvements
 
-- (deps)[\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
+- (deps) [\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
 
 ### Bug Fixes
 
