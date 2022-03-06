@@ -2,15 +2,15 @@
 order: 1
 -->
 
-# Upgrade Node
+# Handling Upgrades
 
-Learn how to upgrade your full node to the latest software version {synopsis}
+Learn how to upgrade your full nodes and validator nodes to the latest software version {synopsis}
 
 With every new software release, we strongly recommend validators to perform a software upgrade, in order to prevent [double signing or halting the chain during consensus](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
 
 You can upgrade your node by 1) upgrading your software version and 2) upgrading your node to that version. In this guide, you can find out how to automatically upgrade your node with Cosmovisor or perform the update manually.
 
-## Software Upgrade
+## Updating the `evmosd` binary
 
 These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet.
 
@@ -44,7 +44,7 @@ go: go version go1.17 darwin/amd64
 
 If the software version does not match, then please check your $PATH to ensure the correct evmosd is running.
 
-## Upgrade Node
+## Upgrading your Validator
 
 We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to manually upgrade binaries during the upgrade. Instead users can preinstall new binaries, and cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
@@ -203,7 +203,20 @@ systemctl status evmosd
 
 #### Update Cosmosvisor to V2
 
-If you want evmosd to upgrade automatically from V1 to V2, do the following steps prior to the upgrade height:
+If you're not yet on the latest V1 release (`v1.1.2`) please upgrade your current version first:
+```bash
+cd $HOME/evmos
+git pull
+git checkout v1.1.2
+make build
+systemctl stop evmosd.service
+cp build/evmosd ~/.evmosd/cosmovisor/genesis/bin
+systemctl start evmosd.service
+cd $HOME
+```
+
+
+If you are on the latest V1 release (`v1.1.2`) and you want evmosd to upgrade automatically from V1 to V2, do the following steps prior to the upgrade height:
 ```bash
 mkdir -p ~/.evmosd/cosmovisor/upgrades/v2/bin
 cd $HOME/evmos
