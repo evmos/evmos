@@ -16,6 +16,7 @@ type ClaimsKeeper interface {
 func UpdateParams(ctx sdk.Context, k ClaimsKeeper) error {
 	claimsParams := k.GetParams(ctx)
 	claimsParams.DurationUntilDecay += time.Hour * 24 * 14 // add 2 weeks
+	// TODO: add for v2
 	// claimsParams.AuthorizedChannels = claimstypes.DefaultAuthorizedChannels
 	// claimsParams.EVMChannels = claimstypes.DefaultEVMChannels
 	k.SetParams(ctx, claimsParams)
