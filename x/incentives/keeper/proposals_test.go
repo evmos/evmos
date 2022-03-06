@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/incentives/types"
 )
 
 func (suite KeeperTestSuite) TestRegisterIncentive() {
@@ -151,7 +151,6 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 }
 
 func (suite KeeperTestSuite) TestCancelIncentive() {
-
 	testCases := []struct {
 		name                string
 		malleate            func()

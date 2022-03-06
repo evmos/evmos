@@ -256,6 +256,8 @@ Params defines the claims module's parameters.
 | `duration_until_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration until decay of claimable tokens begin |
 | `duration_of_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration of the token claim decay period |
 | `claims_denom` | [string](#string) |  | denom of claimable coin |
+| `authorized_channels` | [string](#string) | repeated | list of authorized channel identifiers that can perform address attestations via IBC. |
+| `evm_channels` | [string](#string) | repeated | list of channel identifiers from EVM compatible chains |
 
 
 

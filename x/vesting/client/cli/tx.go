@@ -16,7 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 // Transaction command flags

@@ -38,9 +38,9 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/contracts"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 type KeeperTestSuite struct {
@@ -264,6 +264,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 	suite.Require().Empty(rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce)
 }
+
 func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name string, symbol string) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()

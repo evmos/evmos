@@ -57,6 +57,17 @@ func (cr ClaimsRecord) HasClaimedAction(action Action) bool {
 	}
 }
 
+// HasClaimedAny returns true if the user has claimed at least one reward from the
+// available actions
+func (cr ClaimsRecord) HasClaimedAny() bool {
+	for _, completed := range cr.ActionsCompleted {
+		if completed {
+			return true
+		}
+	}
+	return false
+}
+
 // HasClaimedAll returns true if the user has claimed all the rewards from the
 // available actions
 func (cr ClaimsRecord) HasClaimedAll() bool {

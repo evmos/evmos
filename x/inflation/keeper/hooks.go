@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochstypes "github.com/tharsis/evmos/x/epochs/types"
-	"github.com/tharsis/evmos/x/inflation/types"
+	epochstypes "github.com/tharsis/evmos/v2/x/epochs/types"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here
@@ -46,7 +46,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		period++
 		k.SetPeriod(ctx, period)
 		period = k.GetPeriod(ctx)
-		bondedRatio := k.stakingKeeper.BondedRatio(ctx)
+		bondedRatio := k.BondedRatio(ctx)
 		newProvision = types.CalculateEpochMintProvision(
 			params,
 			period,

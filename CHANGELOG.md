@@ -37,6 +37,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## [v2.0.0] - 2022-03-06
+
+### State Machine Breaking
+
+- (claims) Restrict claiming to a list of authorized IBC channels.
+
 ### Improvements
 
 - (deps) [\#360](https://github.com/tharsis/evmos/pull/360) Bump Ethermint to [`v0.11.0`](https://github.com/tharsis/ethermint/releases/tag/v0.11.0)
