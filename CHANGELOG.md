@@ -35,13 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v1.1.2]
+## [v1.1.2] - 2022-03-05
 
 ### Bug Fixes
 
 - (app) [\#354](https://github.com/tharsis/evmos/pull/354) Add v2 version upgrade logic
 
-## `v1.1.1` - 2022-03-04
+## [v1.1.1] - 2022-03-04
 
 ### Improvements
 
@@ -55,7 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.  
+- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.
 - (vesting) [\#317](https://github.com/tharsis/evmos/pull/317) Fix clawback for vested coins.
 
 ## [v1.0.0] - 2022-02-28
