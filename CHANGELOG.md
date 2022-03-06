@@ -39,6 +39,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+
+- (deps) [\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.11.0`](https://github.com/tharsis/ethermint/releases/tag/v0.11.0)
 - (deps) [\#282](https://github.com/tharsis/evmos/pull/282) Bump IBC go to [`v3.0.0-rc1`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0-rc1)
 
 ### Bug Fixes
