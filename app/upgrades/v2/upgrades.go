@@ -17,14 +17,6 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 	claimsKeeper *claimskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		// Set all modules "old versions" to 1.
-		// Then the run migrations logic will handle running their upgrade logics
-		// This will skip their InitGenesis
-		fromVM := make(map[string]uint64)
-		for moduleName := range mm.Modules {
-			fromVM[moduleName] = 1
-		}
-
 		// Set the params for the erc20 module
 		erc20Params := erc20Keeper.GetParams(ctx)
 		erc20Params.EnableEVMHook = true
@@ -39,8 +31,8 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 		claimsKeeper.SetParams(ctx, claimsParams)
 
 		// Bump the consensus version for claims so that InitGenesis will run
-		fromVM[claimstypes.ModuleName] = 2
+		vm[claimstypes.ModuleName] = 2
 
-		return mm.RunMigrations(ctx, configurator, fromVM)
+		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
