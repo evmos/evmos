@@ -250,6 +250,20 @@ paths:
                   claims_denom:
                     type: string
                     title: denom of claimable coin
+                  authorized_channels:
+                    type: array
+                    items:
+                      type: string
+                    description: >-
+                      list of authorized channel identifiers that can perform
+                      address attestations
+
+                      via IBC.
+                  evm_channels:
+                    type: array
+                    items:
+                      type: string
+                    title: list of channel identifiers from EVM compatible chains
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -26870,6 +26884,20 @@ definitions:
       claims_denom:
         type: string
         title: denom of claimable coin
+      authorized_channels:
+        type: array
+        items:
+          type: string
+        description: >-
+          list of authorized channel identifiers that can perform address
+          attestations
+
+          via IBC.
+      evm_channels:
+        type: array
+        items:
+          type: string
+        title: list of channel identifiers from EVM compatible chains
     description: Params defines the claims module's parameters.
   evmos.claims.v1.QueryClaimsRecordResponse:
     type: object
@@ -26983,6 +27011,20 @@ definitions:
           claims_denom:
             type: string
             title: denom of claimable coin
+          authorized_channels:
+            type: array
+            items:
+              type: string
+            description: >-
+              list of authorized channel identifiers that can perform address
+              attestations
+
+              via IBC.
+          evm_channels:
+            type: array
+            items:
+              type: string
+            title: list of channel identifiers from EVM compatible chains
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   evmos.claims.v1.QueryTotalUnclaimedResponse:
     type: object

@@ -3,7 +3,7 @@ package v2
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 type ERC20Keeper interface {

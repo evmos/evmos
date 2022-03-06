@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	simapp "github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claims"
-	"github.com/tharsis/evmos/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	simapp "github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/x/claims"
+	"github.com/tharsis/evmos/v2/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 var (

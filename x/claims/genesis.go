@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/x/claims/keeper"
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/claims/keeper"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // InitGenesis initializes the claim module's state from a provided genesis

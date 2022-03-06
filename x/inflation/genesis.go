@@ -2,8 +2,8 @@ package inflation
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/inflation/keeper"
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/inflation/keeper"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 // InitGenesis import module genesis
@@ -11,7 +11,7 @@ func InitGenesis(
 	ctx sdk.Context,
 	k keeper.Keeper,
 	ak types.AccountKeeper,
-	sk types.StakingKeeper,
+	_ types.StakingKeeper,
 	data types.GenesisState,
 ) {
 	// Ensure inflation module account is set on genesis
@@ -33,7 +33,7 @@ func InitGenesis(
 	k.SetEpochsPerPeriod(ctx, epochsPerPeriod)
 
 	// Get bondedRatio
-	bondedRatio := sk.BondedRatio(ctx)
+	bondedRatio := k.BondedRatio(ctx)
 
 	// Calculate epoch mint provision
 	epochMintProvision := types.CalculateEpochMintProvision(

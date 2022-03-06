@@ -4,7 +4,7 @@ import (
 	fmt "fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochtypes "github.com/tharsis/evmos/x/epochs/types"
+	epochtypes "github.com/tharsis/evmos/v2/x/epochs/types"
 )
 
 // NewGenesisState creates a new GenesisState object

@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 
 import "evmos/inflation/v1/inflation.proto";
 
-option go_package = "github.com/tharsis/evmos/x/inflation/types";
+option go_package = "github.com/tharsis/evmos/v2/x/inflation/types";
 
 // GenesisState defines the inflation module's genesis state.
 message GenesisState {
@@ -21,7 +21,6 @@ message GenesisState {
 
 // Params holds parameters for the inflation module.
 message Params {
-  option (gogoproto.goproto_stringer) = false;
   // type of coin to mint
   string mint_denom = 1;
   // variables to calculate exponential inflation
