@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	
+	// nolint: typecheck
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
