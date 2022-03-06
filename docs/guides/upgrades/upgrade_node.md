@@ -70,32 +70,36 @@ Set up the Cosmovisor environment variables. We recommend setting these in your 
 echo "# Setup Cosmovisor" >> ~/.profile
 echo "export DAEMON_NAME=evmosd" >> ~/.profile
 echo "export DAEMON_HOME=$HOME/.evmosd" >> ~/.profile
-echo 'export PATH="$DAEMON_HOME/cosmovisor/current/bin:$PATH"' >> ~/.profile
 source ~/.profile
 ```
 
-
-After this, you must make the necessary folders for cosmosvisor in your daemon home directory (~/.evmosd).
+After this, you must make the necessary folders for cosmosvisor in your daemon home directory (~/.evmosd) and copy over the current binary.
 
 ```bash
-mkdir -p ~/.evmosd/cosmovisor/upgrades
+mkdir -p ~/.evmosd/cosmovisor
+mkdir -p ~/.evmosd/cosmovisor/genesis
 mkdir -p ~/.evmosd/cosmovisor/genesis/bin
-cp $(which evmosd) ~/.evmosd/cosmovisor/genesis/bin/
+mkdir -p ~/.evmosd/cosmovisor/upgrades
 
-# Verify the setup
-# It should return the same version as evmosd
-cosmovisor version
+cp $GOPATH/bin/evmosd ~/.evmosd/cosmovisor/genesis/bin
 ```
 
-#### Preparing an Upgrade
+To check that you did this correctly, ensure your versions of cosmovisor and evmosd are the same:
+```
+cosmovisor version
+evmosd version
+```
+
+#### Generally Preparing an Upgrade
 
 Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is ready, node operators can download the new binary and place it under `$DAEMON_HOME/cosmovisor/upgrades/<name>/bin` where `<name>` is the URI-encoded name of the upgrade as specified in the upgrade module plan.
 
 It is possible to have Cosmovisor automatically download the new binary. To do this set the following environment variable.
 
 ```bash
-export DAEMON_ALLOW_DOWNLOAD_BINARIES=true
+echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=true" >> ~/.profile
 ```
+
 
 #### Download Genesis File
 
@@ -195,6 +199,21 @@ You can check the status with:
 
 ```bash
 systemctl status evmosd
+```
+
+#### Update Cosmosvisor to V2
+
+If you want evmosd to upgrade automatically from V1 to V2, do the following steps prior to the upgrade height:
+```bash
+mkdir -p ~/.evmosd/cosmovisor/upgrades/v2/bin
+cd $HOME/evmos
+git pull
+git checkout v2.0.0
+make build
+systemctl stop evmosd.service
+cp build/evmosd ~/.evmosd/cosmovisor/upgrades/v2/bin
+systemctl start evmosd.service
+cd $HOME
 ```
 
 ### Upgrade Manually
