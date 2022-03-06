@@ -6,10 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	claimstypes "github.com/tharsis/evmos/x/claims/types"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 
-	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
-	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
+	claimskeeper "github.com/tharsis/evmos/v2/x/claims/keeper"
+	erc20keeper "github.com/tharsis/evmos/v2/x/erc20/keeper"
 )
 
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,

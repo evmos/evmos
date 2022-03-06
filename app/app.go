@@ -100,7 +100,7 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	v2 "github.com/tharsis/evmos/app/upgrades/v2"
+	v2 "github.com/tharsis/evmos/v2/app/upgrades/v2"
 
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
