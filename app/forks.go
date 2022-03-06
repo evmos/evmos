@@ -2,7 +2,6 @@ package app
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	v2 "github.com/tharsis/evmos/app/upgrades/v2"
 )
