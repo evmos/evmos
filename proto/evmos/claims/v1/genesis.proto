@@ -12,7 +12,6 @@ option go_package = "github.com/tharsis/evmos/v2/x/claims/types";
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
-
   // list of claim records with the corresponding airdrop recipient
   repeated ClaimsRecordAddress claims_records = 2
       [ (gogoproto.nullable) = false ];

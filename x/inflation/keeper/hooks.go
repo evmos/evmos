@@ -46,7 +46,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		period++
 		k.SetPeriod(ctx, period)
 		period = k.GetPeriod(ctx)
-		bondedRatio := k.stakingKeeper.BondedRatio(ctx)
+		bondedRatio := k.BondedRatio(ctx)
 		newProvision = types.CalculateEpochMintProvision(
 			params,
 			period,

@@ -55,7 +55,7 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 
 	currentEpochPeriod := suite.app.InflationKeeper.GetEpochsPerPeriod(suite.ctx)
 	// bondingRatio is zero in tests
-	bondedRatio := suite.app.StakingKeeper.BondedRatio(suite.ctx)
+	bondedRatio := suite.app.InflationKeeper.BondedRatio(suite.ctx)
 
 	testCases := []struct {
 		name    string
