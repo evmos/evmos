@@ -22,4 +22,5 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 	default:
 		// do nothing
 		return
+	}
 }
