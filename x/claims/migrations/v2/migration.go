@@ -14,10 +14,15 @@ type ClaimsKeeper interface {
 }
 
 func UpdateParams(ctx sdk.Context, k ClaimsKeeper) error {
-	claimsParams := k.GetParams(ctx)
-	claimsParams.DurationUntilDecay += time.Hour * 24 * 14 // add 2 weeks
-	claimsParams.AuthorizedChannels = types.DefaultAuthorizedChannels
-	claimsParams.EVMChannels = types.DefaultEVMChannels
+	claimsParams := types.Params{
+		EnableClaims:       true,
+		AirdropStartTime:   time.Date(2022, time.March, 3, 18, 0, 0, 0, time.UTC),
+		DurationUntilDecay: (2592000 * time.Second) + (time.Hour * 24 * 14), // add 2 weeks
+		DurationOfDecay:    5184000 * time.Second,
+		ClaimsDenom:        "aevmos",
+		AuthorizedChannels: types.DefaultAuthorizedChannels,
+		EVMChannels:        types.DefaultEVMChannels,
+	}
 	k.SetParams(ctx, claimsParams)
 	return nil
 }
