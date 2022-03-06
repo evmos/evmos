@@ -22,7 +22,6 @@ require (
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tharsis/ethermint v0.10.2
-	github.com/tharsis/evmos v1.1.1
 	go.opencensus.io v0.23.0
 	google.golang.org/genproto v0.0.0-20220304144024-325a89244dc8
 	google.golang.org/grpc v1.44.0
