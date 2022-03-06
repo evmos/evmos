@@ -31,7 +31,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 		erc20Params.EnableErc20 = true
 		erc20Keeper.SetParams(ctx, erc20Params)
 
-		// Claims
+		// Set the params for the claims module
 		claimsParams := claimsKeeper.GetParams(ctx)
 		claimsParams.DurationUntilDecay += time.Hour * 24 * 14 // add 2 weeks
 		claimsParams.AuthorizedChannels = claimstypes.DefaultAuthorizedChannels
