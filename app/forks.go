@@ -16,10 +16,7 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 			Info:   v2.UpgradeInfo,
 			Height: v2.UpgradeHeight,
 		}
-		upgradeMsg := upgrade.BuildUpgradeNeededMsg(upgradePlan)
-		ctx.Logger().Error(upgradeMsg)
-
-		panic(upgradeMsg)
+		app.UpgradeKeeper.ScheduleUpgradeNoHeightCheck(ctx, upgradePlan)
 	default:
 		// do nothing
 		return
