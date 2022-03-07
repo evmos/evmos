@@ -12,7 +12,7 @@ func NewGenesisState(
 	period uint64,
 	epochIdentifier string,
 	epochsPerPeriod int64,
-	skippedEpochs int64,
+	skippedEpochs uint64,
 ) GenesisState {
 	return GenesisState{
 		Params:          params,
@@ -66,14 +66,9 @@ func validateEpochsPerPeriod(i interface{}) error {
 }
 
 func validateSkippedEpochs(i interface{}) error {
-	v, ok := i.(int64)
+	_, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid genesis state type: %T", i)
 	}
-
-	if v < 0 {
-		return fmt.Errorf("skipped epochs must be non-negative: %d", v)
-	}
-
 	return nil
 }

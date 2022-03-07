@@ -61,7 +61,7 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 		name          string
 		currentPeriod int64
 		height        int64
-		skippedEpochs int64
+		skippedEpochs uint64
 		changes       bool
 	}{
 		{

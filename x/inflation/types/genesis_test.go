@@ -80,17 +80,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			},
 			false,
 		},
-		{
-			"invalid genesis - negative skippedEpochs",
-			&GenesisState{
-				Params:          validParams,
-				Period:          uint64(5),
-				EpochIdentifier: "day",
-				EpochsPerPeriod: 365,
-				SkippedEpochs:   -1,
-			},
-			false,
-		},
 	}
 
 	for _, tc := range testCases {

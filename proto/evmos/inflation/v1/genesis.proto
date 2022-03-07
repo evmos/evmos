@@ -18,7 +18,7 @@ message GenesisState {
   // number of epochs after which inflation is recalculated
   int64 epochs_per_period = 4;
   // number of epochs that have passed while inflation is disabled
-  int64 skipped_epochs = 5;
+  uint64 skipped_epochs = 5;
 }
 
 // Params holds parameters for the inflation module.

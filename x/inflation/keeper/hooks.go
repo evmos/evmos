@@ -50,7 +50,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// 1 - 365 * 0 < 365 --- nothing to do here
 	// Given, epochNumber = 731, period = 1, epochPerPeriod = 365
 	// 731 - 1 * 365 > 365 --- a period has passed! we change the epochMintProvision and set a new period
-	if epochNumber-epochsPerPeriod*int64(period)-skippedEpochs > epochsPerPeriod {
+	if epochNumber-epochsPerPeriod*int64(period)-int64(skippedEpochs) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
 		period = k.GetPeriod(ctx)
