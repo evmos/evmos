@@ -1401,6 +1401,7 @@ GenesisState defines the inflation module's genesis state.
 | `period` | [uint64](#uint64) |  | amount of past periods, based on the epochs per period param |
 | `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
 | `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
+| `skipped_epochs` | [int64](#int64) |  | number of epochs that have passed while inflation is disabled |
 
 
 
@@ -1418,6 +1419,7 @@ Params holds parameters for the inflation module.
 | `mint_denom` | [string](#string) |  | type of coin to mint |
 | `exponential_calculation` | [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation) |  | variables to calculate exponential inflation |
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation distribution of the minted denom |
+| `enable_inflation` | [bool](#bool) |  | parameter to enable inflation and halt increasing the epoch counter |
 
 
 

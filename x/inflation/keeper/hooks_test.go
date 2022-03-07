@@ -58,59 +58,109 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 	bondedRatio := suite.app.InflationKeeper.BondedRatio(suite.ctx)
 
 	testCases := []struct {
-		name    string
-		height  int64
-		changes bool
+		name          string
+		currentPeriod int64
+		height        int64
+		skippedEpochs int64
+		changes       bool
 	}{
 		{
-			"[Period 0] period stays the same under epoch per period",
+			"[Period 0] period stays the same under epochs per period",
+			0,
 			currentEpochPeriod - 10, // so it's within range
+			0,
 			false,
 		},
 		{
 			"[Period 0] period changes once enough epochs have passed",
+			0,
 			currentEpochPeriod + 1,
+			0,
 			true,
 		},
 		{
 			"[Period 1] period stays the same under the epoch per period",
+			1,
 			2*currentEpochPeriod - 1,
+			0,
 			false,
 		},
 		{
 			"[Period 1] period changes once enough epochs have passed",
+			1,
 			2*currentEpochPeriod + 1,
+			0,
+			true,
+		},
+		{
+			"[Period 0] with skipped epochs - period stays the same under epochs per period",
+			0,
+			currentEpochPeriod - 1,
+			10,
+			false,
+		},
+		{
+			"[Period 0] with skipped epochs - period stays the same under epochs per period",
+			0,
+			currentEpochPeriod + 1,
+			10,
+			false,
+		},
+		{
+			"[Period 0] with skipped epochs - period changes once enough epochs have passed",
+			0,
+			currentEpochPeriod + 11,
+			10,
+			true,
+		},
+		{
+			"[Period 1] with skipped epochs - period stays the same under epochs per period",
+			1,
+			2*currentEpochPeriod + 1,
+			10,
+			false,
+		},
+		{
+			"[Period 1] with skipped epochs - period changes once enough epochs have passed",
+			1,
+			2*currentEpochPeriod + 11,
+			10,
 			true,
 		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			// Before hook
+			suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, tc.skippedEpochs)
+			suite.app.InflationKeeper.SetPeriod(suite.ctx, uint64(tc.currentPeriod))
 			currentPeriod := suite.app.InflationKeeper.GetPeriod(suite.ctx)
 			epochIdentifier := suite.app.InflationKeeper.GetEpochIdentifier(suite.ctx)
-
 			originalProvision, found := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
 			suite.Require().True(found)
 
+			// Perform Epoch Hooks
 			futureCtx := suite.ctx.WithBlockTime(time.Now().Add(time.Minute))
 			suite.app.EpochsKeeper.BeforeEpochStart(futureCtx, epochIdentifier, tc.height)
 			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, epochIdentifier, tc.height)
-			newPeriod := suite.app.InflationKeeper.GetPeriod(suite.ctx)
+			period := suite.app.InflationKeeper.GetPeriod(suite.ctx)
 
 			if tc.changes {
 				newProvision, found := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
 				suite.Require().True(found)
 				expectedProvision := types.CalculateEpochMintProvision(
 					suite.app.InflationKeeper.GetParams(suite.ctx),
-					newPeriod,
+					period,
 					currentEpochPeriod,
 					bondedRatio,
 				)
 				suite.Require().Equal(expectedProvision, newProvision)
 				// mint provisions will change
 				suite.Require().NotEqual(newProvision.BigInt().Uint64(), originalProvision.BigInt().Uint64())
-				suite.Require().Equal(currentPeriod+1, newPeriod)
+				suite.Require().Equal(currentPeriod+1, period)
 			} else {
-				suite.Require().Equal(newPeriod, currentPeriod)
+				suite.Require().Equal(currentPeriod, period)
 			}
 		})
 	}

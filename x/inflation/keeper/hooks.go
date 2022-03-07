@@ -15,6 +15,15 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 // AfterEpochEnd mints and distributes coins at the end of each epoch end
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
+	skippedEpochs := k.GetSkippedEpochs(ctx)
+
+	// Skip inflation if it is disabled and increment number of skipped epochs
+	if !params.EnableInflation {
+		skippedEpochs++
+		k.SetSkippedEpochs(ctx, skippedEpochs)
+		return
+	}
+
 	expEpochID := k.GetEpochIdentifier(ctx)
 	if epochIdentifier != expEpochID {
 		return
@@ -34,7 +43,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// check if a period is over. If it's completed, update period, and epochMintProvision
 	period := k.GetPeriod(ctx)
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
-
 	newProvision := epochMintProvision
 
 	// current epoch number needs to be within range for the period
@@ -42,7 +50,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// 1 - 365 * 0 < 365 --- nothing to do here
 	// Given, epochNumber = 731, period = 1, epochPerPeriod = 365
 	// 731 - 1 * 365 > 365 --- a period has passed! we change the epochMintProvision and set a new period
-	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
+	if epochNumber-epochsPerPeriod*int64(period)-skippedEpochs > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
 		period = k.GetPeriod(ctx)
