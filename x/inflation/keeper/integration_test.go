@@ -9,9 +9,13 @@ import (
 	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
 )
 
-var _ = Describe("Integration", Ordered, func() {
+var _ = Describe("Inflation", Ordered, func() {
 	BeforeEach(func() {
 		s.SetupTest()
+
+		params := s.app.InflationKeeper.GetParams(s.ctx)
+		params.EnableInflation = true
+		s.app.InflationKeeper.SetParams(s.ctx, params)
 	})
 
 	Describe("Commiting a block", func() {

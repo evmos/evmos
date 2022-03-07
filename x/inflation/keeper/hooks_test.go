@@ -28,6 +28,10 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
 
+			params := suite.app.InflationKeeper.GetParams(suite.ctx)
+			params.EnableInflation = true
+			suite.app.InflationKeeper.SetParams(suite.ctx, params)
+
 			futureCtx := suite.ctx.WithBlockTime(time.Now().Add(time.Hour))
 			newHeight := suite.app.LastBlockHeight() + 1
 
@@ -150,9 +154,12 @@ func (suite *KeeperTestSuite) TestPeriodChangesAfterEpochEnd() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
+			params := suite.app.InflationKeeper.GetParams(suite.ctx)
+			params.EnableInflation = true
+			suite.app.InflationKeeper.SetParams(suite.ctx, params)
+
 			// Before hook
 			if !tc.enableInflation {
-				params := suite.app.InflationKeeper.GetParams(suite.ctx)
 				params.EnableInflation = false
 				suite.app.InflationKeeper.SetParams(suite.ctx, params)
 			}
