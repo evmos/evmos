@@ -23,6 +23,7 @@ Below is a list of public block explorers that support Evmos Mainnet and Testnet
 | -------------------- | -------- | ---------------------- |
 | Blockscout  | `evm`    | [evm.evmos.org](https://evm.evmos.org/)                       |
 | Mintscan   | `cosmos` | [explorer.evmos.org](https://explorer.evmos.org/) |
+| ATOMScan   | `cosmos` | [atomscan.com/evmos](https://atomscan.com/evmos) |
 :::
 ::: tab Testnet
 
