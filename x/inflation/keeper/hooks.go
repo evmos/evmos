@@ -21,6 +21,13 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	if !params.EnableInflation {
 		skippedEpochs++
 		k.SetSkippedEpochs(ctx, skippedEpochs)
+		k.Logger(ctx).Debug(
+			"skipping inflation mint and distribution",
+			"height", ctx.BlockHeight(),
+			"epoch-id", epochIdentifier,
+			"epoch-number", epochNumber,
+			"skipped-epochs", skippedEpochs,
+		)
 		return
 	}
 
