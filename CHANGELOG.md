@@ -37,6 +37,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## [v2.0.1] - 2022-03-06
+
+### Bug Fixes
+
+- (upgrade) [#\363](https://github.com/tharsis/evmos/pull/363) Don't use `GetParams` for upgrades.
+
 ## [v2.0.0] - 2022-03-06
 
 ### State Machine Breaking
