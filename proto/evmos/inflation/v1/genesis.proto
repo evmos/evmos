@@ -31,6 +31,6 @@ message Params {
   // inflation distribution of the minted denom
   InflationDistribution inflation_distribution = 3
     [ (gogoproto.nullable) = false ];
-  // parameter to enable inflation and halt increasing the epoch counter
+  // parameter to enable inflation and halt increasing the skipped_epochs
   bool enable_inflation = 4;
 }

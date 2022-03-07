@@ -13,6 +13,7 @@ var _ = Describe("Inflation", Ordered, func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
+		// enable Inflation
 		params := s.app.InflationKeeper.GetParams(s.ctx)
 		params.EnableInflation = true
 		s.app.InflationKeeper.SetParams(s.ctx, params)

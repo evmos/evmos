@@ -113,7 +113,7 @@ type Params struct {
 	ExponentialCalculation ExponentialCalculation `protobuf:"bytes,2,opt,name=exponential_calculation,json=exponentialCalculation,proto3" json:"exponential_calculation"`
 	// inflation distribution of the minted denom
 	InflationDistribution InflationDistribution `protobuf:"bytes,3,opt,name=inflation_distribution,json=inflationDistribution,proto3" json:"inflation_distribution"`
-	// parameter to enable inflation and halt increasing the epoch counter
+	// parameter to enable inflation and halt increasing the skipped_epochs
 	EnableInflation bool `protobuf:"varint,4,opt,name=enable_inflation,json=enableInflation,proto3" json:"enable_inflation,omitempty"`
 }
 

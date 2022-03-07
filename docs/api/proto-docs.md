@@ -1421,7 +1421,7 @@ Params holds parameters for the inflation module.
 | `mint_denom` | [string](#string) |  | type of coin to mint |
 | `exponential_calculation` | [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation) |  | variables to calculate exponential inflation |
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation distribution of the minted denom |
-| `enable_inflation` | [bool](#bool) |  | parameter to enable inflation and halt increasing the epoch counter |
+| `enable_inflation` | [bool](#bool) |  | parameter to enable inflation and halt increasing the skipped_epochs |
 
 
 
