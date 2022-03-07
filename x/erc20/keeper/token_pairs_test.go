@@ -102,7 +102,10 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 
 func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 	pair := types.NewTokenPair(tests.GenerateAddress(), evmtypes.DefaultEVMDenom, true, types.OWNER_MODULE)
+	id := pair.GetID()
 	suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+	suite.app.Erc20Keeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
+	suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, id)
 
 	testCases := []struct {
 		name     string
@@ -112,10 +115,10 @@ func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 	}{
 		{"nil id", nil, func() {}, false},
 		{"pair not found", []byte{}, func() {}, false},
-		{"valid id", pair.GetID(), func() {}, true},
+		{"valid id", id, func() {}, true},
 		{
 			"detete tokenpair",
-			pair.GetID(),
+			id,
 			func() {
 				suite.app.Erc20Keeper.DeleteTokenPair(suite.ctx, pair)
 			},
@@ -161,6 +164,7 @@ func (suite *KeeperTestSuite) TestIsERC20Registered() {
 	pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)
 	suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 	suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
+	suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
 
 	testCases := []struct {
 		name     string
@@ -171,11 +175,10 @@ func (suite *KeeperTestSuite) TestIsERC20Registered() {
 		{"nil erc20 address", common.Address{}, func() {}, false},
 		{"valid erc20 address", pair.GetERC20Contract(), func() {}, true},
 		{
-			"deleted erc20map",
+			"deleted erc20 map",
 			pair.GetERC20Contract(),
 			func() {
-				addr := pair.GetERC20Contract()
-				suite.app.Erc20Keeper.DeleteERC20Map(suite.ctx, addr)
+				suite.app.Erc20Keeper.DeleteTokenPair(suite.ctx, pair)
 			},
 			false,
 		},
@@ -201,14 +204,25 @@ func (suite *KeeperTestSuite) TestIsDenomRegistered() {
 	suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
 
 	testCases := []struct {
-		name  string
-		denom string
-		ok    bool
+		name     string
+		denom    string
+		malleate func()
+		ok       bool
 	}{
-		{"empty denom", "", false},
-		{"valid denom", pair.GetDenom(), true},
+		{"empty denom", "", func() {}, false},
+		{"valid denom", pair.GetDenom(), func() {}, true},
+		{
+			"deleted denom map",
+			pair.GetDenom(),
+			func() {
+				suite.app.Erc20Keeper.DeleteTokenPair(suite.ctx, pair)
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
+		tc.malleate()
+
 		found := suite.app.Erc20Keeper.IsDenomRegistered(suite.ctx, tc.denom)
 
 		if tc.ok {
