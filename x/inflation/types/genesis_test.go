@@ -3,7 +3,6 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -22,7 +21,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 	// Team Address needs to be set manually at Genesis
 	validParams := DefaultParams()
 
-	newGen := NewGenesisState(validParams, uint64(0), "day", 365, sdk.OneDec())
+	newGen := NewGenesisState(validParams, uint64(0), "day", 365, 0)
 
 	testCases := []struct {
 		name     string
@@ -72,7 +71,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			false,
 		},
 		{
-			"invalid genesis - zero epochsperPerid",
+			"invalid genesis - zero epochsPerPerid",
 			&GenesisState{
 				Params:          validParams,
 				Period:          uint64(5),

@@ -9,7 +9,8 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	evmos "github.com/tharsis/evmos/v2/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It performs a no-op if
@@ -21,7 +22,7 @@ func (k Keeper) OnRecvPacket(
 ) exported.Acknowledgement {
 	params := k.GetParams(ctx)
 
-	// short circuit in case claim is not active (no-op)
+	// short (no-op) circuit by returning original ACK in case the claim is not active
 	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return ack
 	}
@@ -60,6 +61,38 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
+
+	// NOTE: we know that the connected chains from the authorized IBC channels
+	// don't support ethereum keys (i.e `ethsecp256k1`). Thus, so we return an error,
+	// unless the destination channel from a connection to a chain that is EVM-compatible
+	// or supports ethereum keys (eg: Cronos, Injective).
+	if sender.Equals(recipient) && !params.IsEVMChannel(packet.DestinationChannel) {
+		switch {
+		// case 1: secp256k1 key from sender/recipient has no claimed actions -> error ACK to prevent funds from getting stuck
+		case senderRecordFound && !senderClaimsRecord.HasClaimedAny():
+			return channeltypes.NewErrorAcknowledgement(
+				sdkerrors.Wrapf(
+					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver,
+				).Error(),
+			)
+		default:
+			// case 2: sender/recipient has funds stuck -> error acknowledgement to prevent more transferred tokens from
+			// getting stuck while we implement IBC withdrawals
+			return channeltypes.NewErrorAcknowledgement(
+				sdkerrors.Wrapf(
+					evmos.ErrKeyTypeNotSupported,
+					"reverted transfer to unsupported address %s to prevent more funds from getting stuck",
+					data.Receiver,
+				).Error(),
+			)
+		}
+	}
+
+	// return original ACK in case the destination channel is not authorized
+	if !params.IsAuthorizedChannel(packet.DestinationChannel) {
+		return ack
+	}
+
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 
 	// handle the 4 cases for the recipient and sender claim records

@@ -13,7 +13,7 @@ import (
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
