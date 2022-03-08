@@ -32,3 +32,7 @@ A KMS can be configured using the following HSMs:
 ### Using a YubiHSM
   
 Detailed information on how to setup a KMS with YubiHSM2 can be found [here](https://github.com/iqlusioninc/tmkms/blob/master/README.yubihsm.md)
+
+### Using a Ledger device running the Tendermint app
+
+Detailed information on how to setup a KMS with Ledger Tendermint App can be found [here](kms_ledger.md)
