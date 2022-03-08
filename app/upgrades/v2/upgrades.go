@@ -7,6 +7,7 @@ import (
 
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 	erc20types "github.com/tharsis/evmos/v2/x/erc20/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v2
@@ -19,10 +20,11 @@ func CreateUpgradeHandler(
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
 
-		// migrate claims and ERC20 module, other modules are left as-is to
+		// migrate explicitly specified modules, other modules are left as-is to
 		// avoid running InitGenesis.
 		vm[claimstypes.ModuleName] = 1
 		vm[erc20types.ModuleName] = 1
+		vm[inflationtypes.ModuleName] = 1
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}

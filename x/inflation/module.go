@@ -43,9 +43,7 @@ func (AppModuleBasic) Name() string {
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
-func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 1
-}
+func (AppModuleBasic) ConsensusVersion() uint64 { return 2 }
 
 // RegisterInterfaces registers interfaces and implementations of the incentives
 // module.
@@ -145,7 +143,12 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	_ = keeper.NewMigrator(am.keeper)
+	migrator := keeper.NewMigrator(am.keeper)
+
+	// register v1 -> v2 migration
+	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // BeginBlock returns the begin blocker for the inflation module.
