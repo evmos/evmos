@@ -4,12 +4,22 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -26,9 +36,33 @@ type KeeperTestSuite struct {
 
 	app         *app.Evmos
 	queryClient types.QueryClient
+	address     common.Address
+	signer      keyring.Signer
+	validator   stakingtypes.Validator
+}
+
+var s *KeeperTestSuite
+
+func TestKeeperTestSuite(t *testing.T) {
+	s = new(KeeperTestSuite)
+	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper Suite")
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
+
+func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
+	// account key
+	priv, err := ethsecp256k1.GenerateKey()
+	require.NoError(t, err)
+	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
+	suite.signer = tests.NewSigner(priv)
+
 	// consensus key
 	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
 
@@ -69,8 +103,38 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
+	// Set Validator
+	valAddr := sdk.ValAddress(suite.address.Bytes())
+	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
+	require.NoError(t, err)
+	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
+	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
+	require.NoError(t, err)
+	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	suite.validator = validators[0]
 }
 
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
+// Commit commits and starts a new block with an updated context.
+func (suite *KeeperTestSuite) Commit() {
+	suite.CommitAfter(time.Second * 0)
+}
+
+// Commit commits a block at a given time.
+func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
+	_ = suite.app.Commit()
+	header := suite.ctx.BlockHeader()
+	header.Height += 1
+	header.Time = header.Time.Add(t)
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: header,
+	})
+
+	// update ctx
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+
+	// queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	// evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
+	// suite.queryClient = evm.NewQueryClient(queryHelper)
 }
