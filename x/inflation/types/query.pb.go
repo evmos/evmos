@@ -191,7 +191,7 @@ func (m *QueryEpochMintProvisionResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryEpochMintProvisionResponse proto.InternalMessageInfo
 
-// QuerySkippedEpochsRequest is the request type for the Query/Period RPC method.
+// QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
 type QuerySkippedEpochsRequest struct {
 }
 
@@ -228,9 +228,9 @@ func (m *QuerySkippedEpochsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QuerySkippedEpochsRequest proto.InternalMessageInfo
 
-// QuerySkippedEpochsResponse is the response type for the Query/Period RPC method.
+// QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
 type QuerySkippedEpochsResponse struct {
-	// period is the current minting per epoch provision value.
+	// number of epochs that the inflation module has been disabled.
 	SkippedEpochs uint64 `protobuf:"varint,1,opt,name=skipped_epochs,json=skippedEpochs,proto3" json:"skipped_epochs,omitempty"`
 }
 
@@ -422,7 +422,7 @@ type QueryClient interface {
 	Period(ctx context.Context, in *QueryPeriodRequest, opts ...grpc.CallOption) (*QueryPeriodResponse, error)
 	// EpochMintProvision retrieves current minting epoch provision value.
 	EpochMintProvision(ctx context.Context, in *QueryEpochMintProvisionRequest, opts ...grpc.CallOption) (*QueryEpochMintProvisionResponse, error)
-	// SkippedEpochs retrieves current minting epoch provision value.
+	// SkippedEpochs retrieves the total number of skipped epochs.
 	SkippedEpochs(ctx context.Context, in *QuerySkippedEpochsRequest, opts ...grpc.CallOption) (*QuerySkippedEpochsResponse, error)
 	// Params retrieves the total set of minting parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
@@ -478,7 +478,7 @@ type QueryServer interface {
 	Period(context.Context, *QueryPeriodRequest) (*QueryPeriodResponse, error)
 	// EpochMintProvision retrieves current minting epoch provision value.
 	EpochMintProvision(context.Context, *QueryEpochMintProvisionRequest) (*QueryEpochMintProvisionResponse, error)
-	// SkippedEpochs retrieves current minting epoch provision value.
+	// SkippedEpochs retrieves the total number of skipped epochs.
 	SkippedEpochs(context.Context, *QuerySkippedEpochsRequest) (*QuerySkippedEpochsResponse, error)
 	// Params retrieves the total set of minting parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)

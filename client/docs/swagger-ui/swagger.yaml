@@ -1609,6 +1609,11 @@ paths:
                           minted_denom that is to
 
                           be allocated to the community pool
+                  enable_inflation:
+                    type: boolean
+                    title: >-
+                      parameter to enable inflation and halt increasing the
+                      skipped_epochs
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -1653,6 +1658,47 @@ paths:
             description: >-
               QueryPeriodResponse is the response type for the Query/Period RPC
               method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /evmos/inflation/v1/skipped_epochs:
+    get:
+      summary: SkippedEpochs retrieves the total number of skipped epochs.
+      operationId: SkippedEpochs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              skipped_epochs:
+                type: string
+                format: uint64
+                description: number of epochs that the inflation module has been disabled.
+            description: >-
+              QuerySkippedEpochsResponse is the response type for the
+              Query/SkippedEpochs RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -28084,6 +28130,9 @@ definitions:
               that is to
 
               be allocated to the community pool
+      enable_inflation:
+        type: boolean
+        title: parameter to enable inflation and halt increasing the skipped_epochs
     description: Params holds parameters for the inflation module.
   evmos.inflation.v1.QueryEpochMintProvisionResponse:
     type: object
@@ -28149,6 +28198,11 @@ definitions:
                   minted_denom that is to
 
                   be allocated to the community pool
+          enable_inflation:
+            type: boolean
+            title: >-
+              parameter to enable inflation and halt increasing the
+              skipped_epochs
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   evmos.inflation.v1.QueryPeriodResponse:
     type: object
@@ -28158,6 +28212,16 @@ definitions:
         format: uint64
         description: period is the current minting per epoch provision value.
     description: QueryPeriodResponse is the response type for the Query/Period RPC method.
+  evmos.inflation.v1.QuerySkippedEpochsResponse:
+    type: object
+    properties:
+      skipped_epochs:
+        type: string
+        format: uint64
+        description: number of epochs that the inflation module has been disabled.
+    description: >-
+      QuerySkippedEpochsResponse is the response type for the
+      Query/SkippedEpochs RPC method.
   evmos.vesting.v1.QueryBalancesResponse:
     type: object
     properties:

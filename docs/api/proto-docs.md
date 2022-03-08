@@ -1524,7 +1524,7 @@ QueryPeriodResponse is the response type for the Query/Period RPC method.
 <a name="evmos.inflation.v1.QuerySkippedEpochsRequest"></a>
 
 ### QuerySkippedEpochsRequest
-QuerySkippedEpochsRequest is the request type for the Query/Period RPC method.
+QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
 
 
 
@@ -1534,12 +1534,12 @@ QuerySkippedEpochsRequest is the request type for the Query/Period RPC method.
 <a name="evmos.inflation.v1.QuerySkippedEpochsResponse"></a>
 
 ### QuerySkippedEpochsResponse
-QuerySkippedEpochsResponse is the response type for the Query/Period RPC method.
+QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `skipped_epochs` | [uint64](#uint64) |  | period is the current minting per epoch provision value. |
+| `skipped_epochs` | [uint64](#uint64) |  | number of epochs that the inflation module has been disabled. |
 
 
 
@@ -1561,7 +1561,7 @@ Query provides defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
-| `SkippedEpochs` | [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest) | [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse) | SkippedEpochs retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/skipped_epochs|
+| `SkippedEpochs` | [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest) | [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse) | SkippedEpochs retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/skipped_epochs|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
 
  <!-- end services -->
