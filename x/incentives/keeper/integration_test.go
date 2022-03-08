@@ -22,6 +22,12 @@ var _ = Describe("Distribution", Ordered, func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
+
+		// Enable Inflation
+		params := s.app.InflationKeeper.GetParams(s.ctx)
+		params.EnableInflation = true
+		s.app.InflationKeeper.SetParams(s.ctx, params)
+
 		moduleAcc = s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
 		participantAcc = sdk.AccAddress(s.address.Bytes())
 

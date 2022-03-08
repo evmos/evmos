@@ -117,6 +117,56 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestSkippedEPochs() {
+	var (
+		req    *types.QuerySkippedEpochsRequest
+		expRes *types.QuerySkippedEpochsResponse
+	)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"default skipped epochs",
+			func() {
+				req = &types.QuerySkippedEpochsRequest{}
+				expRes = &types.QuerySkippedEpochsResponse{}
+			},
+			true,
+		},
+		{
+			"set skipped epochs",
+			func() {
+				skippedEpochs := uint64(9)
+				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, skippedEpochs)
+				suite.Commit()
+
+				req = &types.QuerySkippedEpochsRequest{}
+				expRes = &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
+
+			res, err := suite.queryClient.SkippedEpochs(ctx, req)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	expParams := types.DefaultParams()

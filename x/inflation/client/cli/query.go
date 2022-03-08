@@ -24,6 +24,7 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(
 		GetPeriod(),
 		GetEpochMintProvision(),
+		GetSkippedEpochs(),
 		GetParams(),
 	)
 
@@ -80,6 +81,35 @@ func GetEpochMintProvision() *cobra.Command {
 			}
 
 			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.EpochMintProvision))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetSkippedEpochs implements a command to return the current inflation
+// period
+func GetSkippedEpochs() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "skipped-epochs",
+		Short: "Query the current number of skipped epochs",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QuerySkippedEpochsRequest{}
+			res, err := queryClient.SkippedEpochs(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintString(fmt.Sprintf("%v\n", res.SkippedEpochs))
 		},
 	}
 

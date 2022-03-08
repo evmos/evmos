@@ -8,8 +8,9 @@ for dir in $proto_dirs; do
 
   # generate swagger files (filter query files)
   query_file=$(find "${dir}" -maxdepth 1 \( -name 'query.proto' -o -name 'service.proto' \))
+  # TODO: migrate to `buf build`
   if [[ ! -z "$query_file" ]]; then
-    buf protoc  \
+    buf alpha protoc  \
     -I "proto" \
     -I "third_party/proto" \
     "$query_file" \

@@ -15,6 +15,22 @@ func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 // AfterEpochEnd mints and distributes coins at the end of each epoch end
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
+	skippedEpochs := k.GetSkippedEpochs(ctx)
+
+	// Skip inflation if it is disabled and increment number of skipped epochs
+	if !params.EnableInflation {
+		skippedEpochs++
+		k.SetSkippedEpochs(ctx, skippedEpochs)
+		k.Logger(ctx).Debug(
+			"skipping inflation mint and distribution",
+			"height", ctx.BlockHeight(),
+			"epoch-id", epochIdentifier,
+			"epoch-number", epochNumber,
+			"skipped-epochs", skippedEpochs,
+		)
+		return
+	}
+
 	expEpochID := k.GetEpochIdentifier(ctx)
 	if epochIdentifier != expEpochID {
 		return
@@ -31,18 +47,21 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		panic(err)
 	}
 
-	// check if a period is over. If it's completed, update period, and epochMintProvision
 	period := k.GetPeriod(ctx)
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
-
 	newProvision := epochMintProvision
 
-	// current epoch number needs to be within range for the period
-	// Given, epochNumber = 1, period = 0, epochPerPeriod = 365
-	// 1 - 365 * 0 < 365 --- nothing to do here
-	// Given, epochNumber = 731, period = 1, epochPerPeriod = 365
-	// 731 - 1 * 365 > 365 --- a period has passed! we change the epochMintProvision and set a new period
-	if epochNumber-epochsPerPeriod*int64(period) > epochsPerPeriod {
+	// If period is passed, update the period and epochMintProvision. A period is
+	// passed if the current epoch number surpasses the epochsPerPeriod for the
+	// current period. Skipped epochs are subtracted to only account for epochs
+	// where inflation minted tokens.
+	//
+	// Examples:
+	// Given, epochNumber = 1, period = 0, epochPerPeriod = 365, skippedEpochs = 0
+	//   => 1 - 365 * 0 - 0 < 365 --- nothing to do here
+	// Given, epochNumber = 741, period = 1, epochPerPeriod = 365, skippedEpochs = 10
+	//   => 741 - 1 * 365 - 10 > 365 --- a period has passed! we change the epochMintProvision and set a new period
+	if epochNumber-epochsPerPeriod*int64(period)-int64(skippedEpochs) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
 		period = k.GetPeriod(ctx)

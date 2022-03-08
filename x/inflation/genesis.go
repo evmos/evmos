@@ -32,6 +32,9 @@ func InitGenesis(
 	epochsPerPeriod := data.EpochsPerPeriod
 	k.SetEpochsPerPeriod(ctx, epochsPerPeriod)
 
+	skippedEpochs := data.SkippedEpochs
+	k.SetSkippedEpochs(ctx, skippedEpochs)
+
 	// Get bondedRatio
 	bondedRatio := k.BondedRatio(ctx)
 
@@ -52,5 +55,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		Period:          k.GetPeriod(ctx),
 		EpochIdentifier: k.GetEpochIdentifier(ctx),
 		EpochsPerPeriod: k.GetEpochsPerPeriod(ctx),
+		SkippedEpochs:   k.GetSkippedEpochs(ctx),
 	}
 }

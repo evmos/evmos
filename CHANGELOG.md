@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (erc20) [\#366](https://github.com/tharsis/evmos/issues/366) Delete ERC20 denom map when deleting pair.
 
+### Improvements
+
+- (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add enableInflation parameter.
+
 ## [v2.0.1] - 2022-03-06
 
 ### Bug Fixes

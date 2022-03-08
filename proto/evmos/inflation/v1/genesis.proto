@@ -17,6 +17,8 @@ message GenesisState {
   string epoch_identifier = 3;
   // number of epochs after which inflation is recalculated
   int64 epochs_per_period = 4;
+  // number of epochs that have passed while inflation is disabled
+  uint64 skipped_epochs = 5;
 }
 
 // Params holds parameters for the inflation module.
@@ -25,8 +27,10 @@ message Params {
   string mint_denom = 1;
   // variables to calculate exponential inflation
   ExponentialCalculation exponential_calculation = 2
-      [ (gogoproto.nullable) = false ];
+    [ (gogoproto.nullable) = false ];
   // inflation distribution of the minted denom
   InflationDistribution inflation_distribution = 3
-      [ (gogoproto.nullable) = false ];
+    [ (gogoproto.nullable) = false ];
+  // parameter to enable inflation and halt increasing the skipped_epochs
+  bool enable_inflation = 4;
 }

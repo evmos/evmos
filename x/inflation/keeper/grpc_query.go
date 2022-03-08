@@ -34,6 +34,16 @@ func (k Keeper) EpochMintProvision(
 	return &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}, nil
 }
 
+// SkippedEpochs returns the number of skipped Epochs of the inflation module.
+func (k Keeper) SkippedEpochs(
+	c context.Context,
+	_ *types.QuerySkippedEpochsRequest,
+) (*types.QuerySkippedEpochsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	skippedEpochs := k.GetSkippedEpochs(ctx)
+	return &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}, nil
+}
+
 // Params returns params of the mint module.
 func (k Keeper) Params(
 	c context.Context,

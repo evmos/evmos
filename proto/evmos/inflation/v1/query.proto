@@ -19,6 +19,11 @@ service Query {
       returns (QueryEpochMintProvisionResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/epoch_mint_provision";
   }
+  // SkippedEpochs retrieves the total number of skipped epochs.
+  rpc SkippedEpochs(QuerySkippedEpochsRequest)
+      returns (QuerySkippedEpochsResponse) {
+    option (google.api.http).get = "/evmos/inflation/v1/skipped_epochs";
+  }
 
   // Params retrieves the total set of minting parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
@@ -48,6 +53,17 @@ message QueryEpochMintProvisionResponse {
     (gogoproto.nullable) = false
   ];
 }
+
+
+// QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
+message QuerySkippedEpochsRequest {}
+
+// QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
+message QuerySkippedEpochsResponse {
+  // number of epochs that the inflation module has been disabled.
+  uint64 skipped_epochs = 1;
+}
+
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
 message QueryParamsRequest {}
