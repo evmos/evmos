@@ -20,6 +20,8 @@ import (
 // sender address for a receiver with a secp256k1 key
 var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, func() {
 
+	coin := sdk.NewCoin("aevmos", sdk.NewInt(100))
+
 	var (
 		sender   sdk.AccAddress
 		receiver sdk.AccAddress
@@ -33,13 +35,15 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		params.EnableWithdraw = false
 		s.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(s.chainB.GetContext(), params)
 
-		fmt.Printf("balance0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
+		fmt.Printf("balanceA0: %s \n", s.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
+		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
 
 		// Set sender
-		sender = s.chainA.SenderAccount.GetAddress()
+		sender = s.senderAcc
+		// sender = s.chainA.SenderAccount.GetAddress()
 
 		// Create receiver with secp256k1 address
-		receiver = s.chainB.SenderAccount.GetAddress()
+		receiver = s.senderAcc
 		// priv := secp256k1.GenPrivKey()
 		// receiverHash := common.BytesToAddress(priv.PubKey().Address().Bytes())
 		// receiver = sdk.AccAddress(receiverHash.Bytes())
@@ -47,23 +51,26 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		// s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
 
 		// Send coins from chainA to chainB over IBC
-		sendCoinsWithIBC(sender, receiver)
+		sendCoinfromAtoBWithIBC(sender, receiver, coin)
 
-		fmt.Printf("balance1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
+		fmt.Printf("balanceA1: %s \n", s.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
+		fmt.Printf("balanceB1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
 
 		// Activate IBC callback
 		params.EnableWithdraw = true
+		params.EnabledChannels = []string{"channel-0"}
 		s.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(s.chainB.GetContext(), params)
 	})
 
 	Context("to a secp256k1 receiver address with balance", func() {
 		It("transfers all receiver balances to the respective chains", func() {
 			// send coin from chainA to chainB
-			sendCoinsWithIBC(sender, receiver)
+			sendCoinfromAtoBWithIBC(sender, receiver, coin)
 
 			// receiver balance is 0
 			balances := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
-			fmt.Printf("balance2: %s \n", balances)
+			fmt.Printf("balanceA2: %s \n", s.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
+			fmt.Printf("balanceB2: %s \n", balances)
 			Expect(balances.IsZero()).To(BeTrue())
 
 			// sender balance is original receiver balance
@@ -72,11 +79,10 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 	})
 })
 
-func sendCoinsWithIBC(from, to sdk.AccAddress) {
+func sendCoinfromAtoBWithIBC(from, to sdk.AccAddress, coin sdk.Coin) {
 	path := s.path
 
 	// send coin from chainA to chainB
-	coin := sdk.NewCoin("aevmos", sdk.NewInt(100))
 	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, coin, from.String(), to.String(), timeoutHeight, 0)
 	_, err := s.chainA.SendMsgs(transferMsg)
 	s.Require().NoError(err) // message committed
