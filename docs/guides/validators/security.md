@@ -8,6 +8,23 @@ Learn about sentry nodes and HSMs to secure a validator {synopsis}
 
 Each validator candidate is encouraged to run its operations independently, as diverse setups increase the resilience of the network. Validator candidates should commence their setup phase now in order to be on time for launch.
 
+## Horcrux
+
+Horcrux is a [multi-party-computation (MPC)](https://en.wikipedia.org/wiki/Secure_multi-party_computation) signing service for Tendermint nodes
+
+Take your validator infrastructure to the next level of security and availability
+
+- Composed of a cluster of signer nodes in place of the [remote signer](https://docs.tendermint.com/master/nodes/remote-signer.html), enabling High Availability (HA) for block signing through fault tolerance.
+- Secure your validator private key by splitting it across multiple private signer nodes using threshold Ed25519 signatures
+- Add security and availability without sacrificing block sign performance.
+
+See documentation [here](https://github.com/strangelove-ventures/horcrux/blob/main/docs/migrating.md) to learn how to upgrade your validator infrastructure with Horcrux.
+
+## Tendermint KMS
+Tendermint KMS is a signature service with support for Hardware Security Modules (HSMs), such as YubiHSM2 and Ledger Nano . It’s intended to be run alongside Cosmos Validators, ideally on separate physical hosts, providing defense-in-depth for online validator signing keys, double signing protection, and functioning as a central signing service that can be used when operating multiple validators in several Cosmos Zones.
+
+For more details, please see [Tendermint KMS](../kms/kms.md)
+
 ## Key Management - HSM
 
 It is mission critical that an attacker cannot steal a validator's key. If this is possible, it puts the entire stake delegated to the compromised validator at risk. Hardware security modules are an important strategy for mitigating this risk.
