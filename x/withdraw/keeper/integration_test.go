@@ -6,15 +6,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/ethereum/go-ethereum/common"
-
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/tharsis/evmos/app"
 	"github.com/tharsis/evmos/x/withdraw/types"
@@ -37,18 +33,23 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		params.EnableWithdraw = false
 		s.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(s.chainB.GetContext(), params)
 
+		fmt.Printf("balance0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
+
 		// Set sender
 		sender = s.chainA.SenderAccount.GetAddress()
 
 		// Create receiver with secp256k1 address
-		priv := secp256k1.GenPrivKey()
-		receiverHash := common.BytesToAddress(priv.PubKey().Address().Bytes())
-		receiver = sdk.AccAddress(receiverHash.Bytes())
-		baseAcc := authtypes.NewBaseAccountWithAddress(receiver)
-		s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
+		receiver = s.chainB.SenderAccount.GetAddress()
+		// priv := secp256k1.GenPrivKey()
+		// receiverHash := common.BytesToAddress(priv.PubKey().Address().Bytes())
+		// receiver = sdk.AccAddress(receiverHash.Bytes())
+		// baseAcc := authtypes.NewBaseAccountWithAddress(receiver)
+		// s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
 
 		// Send coins from chainA to chainB over IBC
 		sendCoinsWithIBC(sender, receiver)
+
+		fmt.Printf("balance1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
 
 		// Activate IBC callback
 		params.EnableWithdraw = true
@@ -62,7 +63,7 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 
 			// receiver balance is 0
 			balances := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
-			fmt.Println(balances)
+			fmt.Printf("balance2: %s \n", balances)
 			Expect(balances.IsZero()).To(BeTrue())
 
 			// sender balance is original receiver balance
@@ -93,5 +94,4 @@ func sendCoinsWithIBC(from, to sdk.AccAddress) {
 	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, to.String())
 	_, err = s.chainB.SendMsgs(recvMsg)
 	s.Require().NoError(err) // message committed
-
 }
