@@ -10,7 +10,7 @@ Get started with your Ledger hardware wallet on Evmos {synopsis}
 
 - [Ledger device](https://shop.ledger.com/) {prereq}
 - [Install Ledger Live](https://www.ledger.com/ledger-live) {prereq}
-- [Intall Metamask](https://metamask.io) {prereq}
+- [Install Metamask](https://metamask.io) {prereq}
 
 ## Checklist
 
