@@ -9,7 +9,7 @@ can be modified via governance.
 
 | Key                      | Type                   | Default Value                                                                 |
 | ------------------------ | ---------------------- | ----------------------------------------------------------------------------- |
-| `MintDenom`              | string                 | `evm.DefaultEVMDenom` // “aevmos”                                            |
+| `MintDenom`              | string                 | `evm.DefaultEVMDenom` // “aevmos”                                             |
 | `ExponentialCalculation` | ExponentialCalculation | `A: sdk.NewDec(int64(300_000_000))`                                           |
 |                          |                        | `R: sdk.NewDecWithPrec(50, 2)`                                                |
 |                          |                        | `C: sdk.NewDec(int64(9_375_000))`                                             |
@@ -18,7 +18,7 @@ can be modified via governance.
 | `InflationDistribution`  | InflationDistribution  | `StakingRewards: sdk.NewDecWithPrec(533333334, 9)`  // 0.53 = 40% / (1 - 25%) |
 |                          |                        | `UsageIncentives: sdk.NewDecWithPrec(333333333, 9)` // 0.33 = 25% / (1 - 25%) |
 |                          |                        | `CommunityPool: sdk.NewDecWithPrec(133333333, 9)`  // 0.13 = 10% / (1 - 25%)  |
-
+| `EnableInflation`        | bool                   | `true`                                                                        |
 
 
 ## Mint Denom
@@ -50,3 +50,10 @@ calculated like this:
 stakingRewards = evmosTokenModelDistribution / (1 - teamVestingDistribution)
 0.5333333      = 40%                         / (1 - 25%)
 ```
+
+## Enable Inflation
+
+The `EnableInflation` parameter enables the daily inflation. If it is disabled,
+no tokens are minted and the number of skipped epochs increases for each passed
+epoch.
+
