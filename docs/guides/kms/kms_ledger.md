@@ -1,3 +1,7 @@
+<!--
+order: 2
+-->
+
 # Setting up Tendermint KMS + Ledger
 
 ::: danger Warning
