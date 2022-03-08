@@ -19,7 +19,7 @@ service Query {
       returns (QueryEpochMintProvisionResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/epoch_mint_provision";
   }
-  // SkippedEpochs retrieves current minting epoch provision value.
+  // SkippedEpochs retrieves the total number of skipped epochs.
   rpc SkippedEpochs(QuerySkippedEpochsRequest)
       returns (QuerySkippedEpochsResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/skipped_epochs";
@@ -55,12 +55,12 @@ message QueryEpochMintProvisionResponse {
 }
 
 
-// QuerySkippedEpochsRequest is the request type for the Query/Period RPC method.
+// QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
 message QuerySkippedEpochsRequest {}
 
-// QuerySkippedEpochsResponse is the response type for the Query/Period RPC method.
+// QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
 message QuerySkippedEpochsResponse {
-  // period is the current minting per epoch provision value.
+  // number of epochs that the inflation module has been disabled.
   uint64 skipped_epochs = 1;
 }
 
