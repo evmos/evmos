@@ -25,7 +25,7 @@ Tendermint KMS is a signature service with support for Hardware Security Modules
 
 For more details, please see [Tendermint KMS](../kms/kms.md)
 
-## Key Management - HSM
+## Hardware HSM
 
 It is mission critical that an attacker cannot steal a validator's key. If this is possible, it puts the entire stake delegated to the compromised validator at risk. Hardware security modules are an important strategy for mitigating this risk.
 
