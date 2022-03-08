@@ -39,9 +39,11 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 			ActionsCompleted:       claimsRecord.ActionsCompleted,
 		}
 		k.SetClaimsRecord(ctx, addr, cr)
+
+		numActions := sdk.NewInt(int64(len(claimsRecord.ActionsCompleted)))
 		for _, claimed := range claimsRecord.ActionsCompleted {
 			if !claimed {
-				sumClaims = sumClaims.Add(cr.InitialClaimableAmount)
+				sumClaims = sumClaims.Add(cr.InitialClaimableAmount.Quo(numActions))
 			}
 		}
 	}
