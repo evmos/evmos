@@ -424,7 +424,7 @@ type QueryClient interface {
 	EpochMintProvision(ctx context.Context, in *QueryEpochMintProvisionRequest, opts ...grpc.CallOption) (*QueryEpochMintProvisionResponse, error)
 	// SkippedEpochs retrieves the total number of skipped epochs.
 	SkippedEpochs(ctx context.Context, in *QuerySkippedEpochsRequest, opts ...grpc.CallOption) (*QuerySkippedEpochsResponse, error)
-	// Params retrieves the total set of minting parameters.
+	// Params retrieves the total set of inflation parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -480,7 +480,7 @@ type QueryServer interface {
 	EpochMintProvision(context.Context, *QueryEpochMintProvisionRequest) (*QueryEpochMintProvisionResponse, error)
 	// SkippedEpochs retrieves the total number of skipped epochs.
 	SkippedEpochs(context.Context, *QuerySkippedEpochsRequest) (*QuerySkippedEpochsResponse, error)
-	// Params retrieves the total set of minting parameters.
+	// Params retrieves the total set of inflation parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 
