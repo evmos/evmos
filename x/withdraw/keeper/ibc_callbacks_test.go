@@ -53,14 +53,9 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
-	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
+	err := suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-	suite.Require().NoError(err)
-
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
-	suite.Require().NoError(err)
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, suite.chainA.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
 	params := types.DefaultParams()

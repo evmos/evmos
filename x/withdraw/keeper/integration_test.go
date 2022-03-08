@@ -46,24 +46,26 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		receiver = sdk.AccAddress(receiverHash.Bytes())
 		baseAcc := authtypes.NewBaseAccountWithAddress(receiver)
 		s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
+		fmt.Println(s.chainB.App.(*app.Evmos).AccountKeeper.GetAccount(s.chainB.GetContext(), receiver))
+
 		fmt.Println(receiver.String())
 		// receiver = s.chainB.SenderAccount.GetAddress()
 
-		path := s.path
-		transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender.String(), receiver.String())
-		bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-		packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+		// path := s.path
+		// transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender.String(), receiver.String())
+		// bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+		// packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-		// send on endpointA
-		s.path.EndpointA.SendPacket(packet)
+		// // send on endpointA
+		// s.path.EndpointA.SendPacket(packet)
 
-		// receive on endpointB
-		err := path.EndpointB.RecvPacket(packet)
-		s.Require().NoError(err)
+		// // receive on endpointB
+		// err := path.EndpointB.RecvPacket(packet)
+		// s.Require().NoError(err)
 
-		balances := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
-		coins := sdk.NewCoins(sdk.NewCoin("ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E", sdk.NewInt(100)))
-		s.Require().Equal(coins, balances)
+		// balances := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
+		// coins := sdk.NewCoins(sdk.NewCoin("ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E", sdk.NewInt(100)))
+		// s.Require().Equal(coins, balances)
 
 		// Activate IBC callback
 		params.EnableWithdraw = true
@@ -81,8 +83,8 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 			s.Require().NoError(err) // message committed
 
 			// receive coin on chainB from chainA
-			fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData(coin.Denom, coin.Amount.String(), sender.String(), receiver.String())
-			packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), 2, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+			fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender.String(), receiver.String())
+			packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 			// get proof of packet commitment from chainA
 			err = path.EndpointB.UpdateClient()
