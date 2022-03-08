@@ -36,13 +36,13 @@ chain_id = "evmos_9001-1"
 reconnect = true # true is the default
 secret_key = "~/.tmkms/secret_connection.key"
 
-[[providers.ledgertm]]
+[[providers.ledger]]
 chain_ids = ["evmos_9001-1"]
 ```
 
 - Edit `addr` to point to your `evmosd` instance.
 - Adjust `chain-id` to match your `.evmosd/config/config.toml` settings.
-- `provider.ledgertm` has not additional parameters at the moment, however, it is important that you keep that header to enable the feature.
+- `provider.ledger` has not additional parameters at the moment, however, it is important that you keep that header to enable the feature.
 
 *Plug your Ledger device and open the Tendermint validator app.*
 
@@ -67,8 +67,8 @@ tmkms start -c ~/.tmkms/tmkms.toml
 The output should look similar to:
 
 ```text
-07:28:24 [INFO] tmkms 0.3.0 starting up...
-07:28:24 [INFO] [keyring:ledgertm:ledgertm] added validator key evmosvalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f
+07:28:24 [INFO] tmkms 0.11.0 starting up...
+07:28:24 [INFO] [keyring:ledger:ledger] added validator key evmosvalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f
 07:28:24 [INFO] KMS node ID: 1BC12314E2E1C29015B66017A397F170C6ECDE4A
 ```
 
