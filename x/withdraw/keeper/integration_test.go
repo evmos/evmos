@@ -39,11 +39,10 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
 
 		// Set sender
-		sender = s.senderAcc
-		// sender = s.chainA.SenderAccount.GetAddress()
+		sender = s.chainA.SenderAccount.GetAddress()
 
 		// Create receiver with secp256k1 address
-		receiver = s.senderAcc
+		receiver = s.chainB.SenderAccount.GetAddress()
 		// priv := secp256k1.GenPrivKey()
 		// receiverHash := common.BytesToAddress(priv.PubKey().Address().Bytes())
 		// receiver = sdk.AccAddress(receiverHash.Bytes())
