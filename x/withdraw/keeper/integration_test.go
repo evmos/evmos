@@ -46,26 +46,9 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		receiver = sdk.AccAddress(receiverHash.Bytes())
 		baseAcc := authtypes.NewBaseAccountWithAddress(receiver)
 		s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
-		fmt.Println(s.chainB.App.(*app.Evmos).AccountKeeper.GetAccount(s.chainB.GetContext(), receiver))
 
-		fmt.Println(receiver.String())
-		// receiver = s.chainB.SenderAccount.GetAddress()
-
-		// path := s.path
-		// transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender.String(), receiver.String())
-		// bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-		// packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
-
-		// // send on endpointA
-		// s.path.EndpointA.SendPacket(packet)
-
-		// // receive on endpointB
-		// err := path.EndpointB.RecvPacket(packet)
-		// s.Require().NoError(err)
-
-		// balances := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
-		// coins := sdk.NewCoins(sdk.NewCoin("ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E", sdk.NewInt(100)))
-		// s.Require().Equal(coins, balances)
+		// Send coins from chainA to chainB over IBC
+		sendCoinsWithIBC(sender, receiver)
 
 		// Activate IBC callback
 		params.EnableWithdraw = true
@@ -74,27 +57,8 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 
 	Context("to a secp256k1 receiver address with balance", func() {
 		It("transfers all receiver balances to the respective chains", func() {
-			path := s.path
-
 			// send coin from chainA to chainB
-			coin := sdk.NewCoin("aevmos", sdk.NewInt(100))
-			transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, coin, sender.String(), receiver.String(), timeoutHeight, 0)
-			_, err := s.chainA.SendMsgs(transferMsg)
-			s.Require().NoError(err) // message committed
-
-			// receive coin on chainB from chainA
-			fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender.String(), receiver.String())
-			packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
-
-			// get proof of packet commitment from chainA
-			err = path.EndpointB.UpdateClient()
-			s.Require().NoError(err)
-			packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
-			proof, proofHeight := path.EndpointA.QueryProof(packetKey)
-
-			recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, receiver.String())
-			_, err = s.chainB.SendMsgs(recvMsg)
-			s.Require().NoError(err) // message committed
+			sendCoinsWithIBC(sender, receiver)
 
 			// receiver balance is 0
 			balances := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
@@ -107,6 +71,27 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 	})
 })
 
-// func transferIBC() {
+func sendCoinsWithIBC(from, to sdk.AccAddress) {
+	path := s.path
 
-// }
+	// send coin from chainA to chainB
+	coin := sdk.NewCoin("aevmos", sdk.NewInt(100))
+	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, coin, from.String(), to.String(), timeoutHeight, 0)
+	_, err := s.chainA.SendMsgs(transferMsg)
+	s.Require().NoError(err) // message committed
+
+	// receive coin on chainB from chainA
+	fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData("aevmos", "100", from.String(), to.String())
+	packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+
+	// get proof of packet commitment from chainA
+	err = path.EndpointB.UpdateClient()
+	s.Require().NoError(err)
+	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
+	proof, proofHeight := path.EndpointA.QueryProof(packetKey)
+
+	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, to.String())
+	_, err = s.chainB.SendMsgs(recvMsg)
+	s.Require().NoError(err) // message committed
+
+}
