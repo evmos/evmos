@@ -52,11 +52,11 @@ func (suite *IBCTestingSuite) SetupTest() {
 	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainB.GetContext(), inflationtypes.ModuleName, suite.senderAcc, coins)
 	suite.Require().NoError(err)
 
-	// coins = sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(10)))
-	// err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
-	// suite.Require().NoError(err)
-	// err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, suite.senderAcc, coins)
-	// suite.Require().NoError(err)
+	coins = sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(10)))
+	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, transfertypes.GetEscrowAddress("transfer", "channel-0"), coins)
+	suite.Require().NoError(err)
 
 	params := types.DefaultParams()
 	params.EnableWithdraw = true
@@ -168,6 +168,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 				coins := suite.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(suite.chainA.GetContext(), suite.senderAcc)
 				suite.Require().Equal(coins[0].Amount, sdk.NewInt(10000))
+				suite.Require().Equal(coins[1].Amount, sdk.NewInt(10))
 			}
 		})
 	}
