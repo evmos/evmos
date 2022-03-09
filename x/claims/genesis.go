@@ -40,12 +40,11 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 		}
 		k.SetClaimsRecord(ctx, addr, cr)
 
-		numActions := sdk.NewInt(int64(len(claimsRecord.ActionsCompleted)))
-		for _, claimed := range claimsRecord.ActionsCompleted {
-			if !claimed {
-				sumClaims = sumClaims.Add(cr.InitialClaimableAmount.Quo(numActions))
-			}
-		}
+
+		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionVote, data.Params))
+		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionDelegate, data.Params))
+		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionEVM, data.Params))
+		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionIBCTransfer, data.Params))
 	}
 
 	if !sumClaims.Equal(totalEscrowed) {
