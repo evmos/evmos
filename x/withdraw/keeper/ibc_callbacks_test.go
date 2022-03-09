@@ -49,6 +49,9 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
+	// testapp := suite.chainA.App.(ibcgotesting.TestingApp)
+	// fmt.Println(testapp)
+
 	// coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	// err = suite.chainA.App.(*app.Evmos).BankKeeper.BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
 	// suite.Require().NoError(err)
@@ -58,7 +61,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params := claimstypes.DefaultParams()
 	params.AirdropStartTime = suite.chainA.GetContext().BlockTime()
 	params.EnableClaims = true
-	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 
 	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
 	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
