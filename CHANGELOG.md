@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (claims) [\#374](https://github.com/tharsis/evmos/pull/374) Fix balance invariant in Claims `InitGenesis`
 - (erc20) [\#366](https://github.com/tharsis/evmos/issues/366) Delete ERC20 denom map when deleting pair.
 
 ### Improvements
