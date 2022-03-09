@@ -1,6 +1,7 @@
 package ibctesting
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,6 +22,9 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
+
+// ChainIDPrefix defines the default chain ID prefix for Evmos test chains
+var ChainIDPrefix = "evmos_9000-"
 
 // NewTestChain initializes a new TestChain instance with a single validator set using a
 // generated private key. It also creates a sender account to be used for delivering transactions.
@@ -91,4 +95,9 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	coord.CommitBlock(chain)
 
 	return chain
+}
+
+// GetChainID returns the EIP155 compatible chainID used for the provided index.
+func GetChainID(index int) string {
+	return ChainIDPrefix + strconv.Itoa(index)
 }
