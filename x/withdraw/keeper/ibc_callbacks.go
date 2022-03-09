@@ -21,11 +21,11 @@ func (k Keeper) OnRecvPacket(
 ) exported.Acknowledgement {
 	logger := k.Logger(ctx)
 
-	// TODO: get params for list of enabled channels
-
 	params := k.GetParams(ctx)
+	claimsParams := k.claimsKeeper.GetParams(ctx)
+
 	// check channels from this chain (i.e destination)
-	if !params.EnableWithdraw || !params.IsChannelEnabled(packet.DestinationChannel) {
+	if !params.EnableWithdraw || !claimsParams.IsAuthorizedChannel(packet.DestinationChannel) {
 		// return original ACK if withdraw is disabled globally or per channel
 		return ack
 	}
