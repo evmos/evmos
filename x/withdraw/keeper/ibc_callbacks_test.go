@@ -49,15 +49,6 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
-	// testapp := suite.chainA.App.(ibcgotesting.TestingApp)
-	// fmt.Println(testapp)
-
-	// coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
-	// err = suite.chainA.App.(*app.Evmos).BankKeeper.BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
-	// suite.Require().NoError(err)
-	// err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, suite.chainA.SenderAccount.GetAddress(), coins)
-	// suite.Require().NoError(err)
-
 	params := claimstypes.DefaultParams()
 	params.AirdropStartTime = suite.chainA.GetContext().BlockTime()
 	params.EnableClaims = true
