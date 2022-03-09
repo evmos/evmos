@@ -60,13 +60,6 @@ func (k Keeper) OnRecvPacket(
 		)
 	}
 
-	if sender.Equals(recipient) {
-		// return the an error acknowledgement since the address the same
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver).Error(),
-		)
-	}
-
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
 
 	// NOTE: we know that the connected chains from the authorized IBC channels

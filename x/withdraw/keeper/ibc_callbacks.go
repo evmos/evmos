@@ -91,7 +91,6 @@ func (k Keeper) OnRecvPacket(
 	sender = recipient
 
 	// transfer the balance back to the sender address
-
 	var (
 		recipientStr        string
 		srcPort, srcChannel string
@@ -100,61 +99,20 @@ func (k Keeper) OnRecvPacket(
 	for _, coin := range balances {
 		// we only transfer IBC tokens back to their respective source chains
 		if strings.HasPrefix(coin.Denom, "ibc/") {
+			// TODO: recipient should have the bech32 prefix from the chain
 			recipientStr = data.Sender
 
-			ibcHexHash := strings.SplitN(coin.Denom, "/", 2)[1]
-			hash, err := transfertypes.ParseHexHash(ibcHexHash)
+			srcPort, srcChannel, err = k.GetIBCDenomSource(ctx, coin.Denom, data.Sender)
 			if err != nil {
-				return channeltypes.NewErrorAcknowledgement(
-					sdkerrors.Wrapf(
-						err,
-						"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", data.Sender,
-					).Error(),
-				)
+				return channeltypes.NewErrorAcknowledgement(err.Error())
 			}
-
-			denomTrace, found := k.transferKeeper.GetDenomTrace(ctx, hash)
-			if !found {
-				return channeltypes.NewErrorAcknowledgement(
-					sdkerrors.Wrapf(
-						transfertypes.ErrTraceNotFound,
-						"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", coin.Denom,
-					).Error(),
-				)
-			}
-
-			path := strings.Split(denomTrace.Path, "/")
-			if len(path)%2 != 0 {
-				return channeltypes.NewErrorAcknowledgement(
-					sdkerrors.Wrapf(
-						sdkerrors.ErrInvalidCoins,
-						"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
-					).Error(),
-				)
-			}
-
-			counterpartyPortID := path[0]
-			counterpartyChannelID := path[1]
-
-			channel, found := k.channelKeeper.GetChannel(ctx, counterpartyPortID, counterpartyChannelID)
-			if !found {
-				return channeltypes.NewErrorAcknowledgement(
-					sdkerrors.Wrapf(
-						channeltypes.ErrChannelNotFound,
-						"port ID %s, channel ID %s", counterpartyPortID, counterpartyChannelID,
-					).Error(),
-				)
-			}
-
-			srcPort = channel.Counterparty.PortId
-			srcChannel = channel.Counterparty.ChannelId
 
 		} else {
-			// send Evmos native tokens to Osmosis
+			// send Evmos native tokens to the source port and channel
 			recipientStr = data.Sender
-			// TODO: get Osmo source port and channels from IBC
-			srcPort = "transfer"
-			srcChannel = "channel-0"
+
+			srcPort = packet.SourcePort
+			srcChannel = packet.SourceChannel
 		}
 
 		// TODO: get the correct bech32 address of the source chain
@@ -202,4 +160,47 @@ func (k Keeper) OnRecvPacket(
 			data.Sender, sender, data.Receiver,
 		).Error(),
 	)
+}
+
+func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPort, srcChannel string, err error) {
+	ibcHexHash := strings.SplitN(denom, "/", 2)[1]
+	hash, err := transfertypes.ParseHexHash(ibcHexHash)
+	if err != nil {
+		return "", "", sdkerrors.Wrapf(
+			err,
+			"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
+		)
+	}
+
+	denomTrace, found := k.transferKeeper.GetDenomTrace(ctx, hash)
+	if !found {
+		return "", "", sdkerrors.Wrapf(
+			transfertypes.ErrTraceNotFound,
+			"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
+		)
+	}
+
+	path := strings.Split(denomTrace.Path, "/")
+	if len(path)%2 != 0 {
+		return "", "", sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidCoins,
+			"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
+		)
+	}
+
+	counterpartyPortID := path[0]
+	counterpartyChannelID := path[1]
+
+	channel, found := k.channelKeeper.GetChannel(ctx, counterpartyPortID, counterpartyChannelID)
+	if !found {
+		return "", "", sdkerrors.Wrapf(
+			channeltypes.ErrChannelNotFound,
+			"port ID %s, channel ID %s", counterpartyPortID, counterpartyChannelID,
+		)
+	}
+
+	srcPort = channel.Counterparty.PortId
+	srcChannel = channel.Counterparty.ChannelId
+
+	return srcPort, srcChannel, nil
 }
