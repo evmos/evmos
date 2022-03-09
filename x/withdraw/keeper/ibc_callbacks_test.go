@@ -9,7 +9,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
 	"github.com/tharsis/evmos/v2/app"
@@ -22,8 +21,8 @@ type IBCTestingSuite struct {
 	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	chainA *ibcgotesting.TestChain
-	chainB *ibcgotesting.TestChain
+	chainCosmos *ibcgotesting.TestChain
+	chainEvmos  *ibcgotesting.TestChain
 
 	path *ibcgotesting.Path
 }
@@ -40,31 +39,29 @@ func TestIBCTestingSuite(t *testing.T) {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
+	suite.coordinator = ibctesting.NewMixedCoordinator(suite.T(), 1, 1) // initializes 2 test chains
 
-	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewMixedCoordinator(suite.T(), 1, 1)   // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
-	suite.coordinator.CommitNBlocks(suite.chainA, 2)
-	suite.coordinator.CommitNBlocks(suite.chainB, 2)
+	suite.chainEvmos = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
+	suite.Require().NotNil(suite.chainEvmos)
+	suite.chainCosmos = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
+	suite.Require().NotNil(suite.chainCosmos)
 
-	// testapp := suite.chainA.App.(ibcgotesting.TestingApp)
-	// fmt.Println(testapp)
+	suite.coordinator.CommitNBlocks(suite.chainCosmos, 2)
+	suite.coordinator.CommitNBlocks(suite.chainEvmos, 2)
 
 	// coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
-	// err = suite.chainA.App.(*app.Evmos).BankKeeper.BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
+	// err = suite.chainCosmos.App.(*app.Evmos).BankKeeper.BankKeeper.MintCoins(suite.chainCosmos.GetContext(), inflationtypes.ModuleName, coins)
 	// suite.Require().NoError(err)
-	// err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, suite.chainA.SenderAccount.GetAddress(), coins)
+	// err = suite.chainCosmos.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainCosmos.GetContext(), inflationtypes.ModuleName, suite.chainCosmos.SenderAccount.GetAddress(), coins)
 	// suite.Require().NoError(err)
 
 	params := claimstypes.DefaultParams()
-	params.AirdropStartTime = suite.chainA.GetContext().BlockTime()
+	params.AirdropStartTime = suite.chainCosmos.GetContext().BlockTime()
 	params.EnableClaims = true
-	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+	suite.chainEvmos.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainEvmos.GetContext(), params)
 
-	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
+	suite.path = NewTransferPath(suite.chainCosmos, suite.chainEvmos) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.path)                               // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", suite.path.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.path.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.path.EndpointA.ChannelID)
@@ -72,13 +69,11 @@ func (suite *IBCTestingSuite) SetupTest() {
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
-func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
-	path := ibcgotesting.NewPath(chainA, chainB)
+func NewTransferPath(chainCosmos, chainEvmos *ibcgotesting.TestChain) *ibcgotesting.Path {
+	path := ibcgotesting.NewPath(chainCosmos, chainEvmos)
+	// override channel config
 	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
 	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
-
-	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
 	path.EndpointA.ChannelConfig.Version = "ics20-1"
 	path.EndpointB.ChannelConfig.Version = "ics20-1"
 
@@ -101,7 +96,7 @@ func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path 
 // 			suite.SetupTest()
 // 			path := suite.path
 
-// 			coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), suite.senderAcc, "aevmos")
+// 			coin := suite.chainEvmos.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainEvmos.GetContext(), suite.senderAcc, "aevmos")
 // 			suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 
 // 			transfer := transfertypes.NewFungibleTokenPacketData("testcoin", "10", suite.sender, suite.sender)
@@ -156,9 +151,9 @@ func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path 
 // 			suite.Require().NoError(err)
 
 // 			if tc.expPass {
-// 				coin = suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), suite.senderAcc, "aevmos")
+// 				coin = suite.chainEvmos.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainEvmos.GetContext(), suite.senderAcc, "aevmos")
 // 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
-// 				coins := suite.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(suite.chainA.GetContext(), suite.senderAcc)
+// 				coins := suite.chainCosmos.App.(*app.Evmos).BankKeeper.GetAllBalances(suite.chainCosmos.GetContext(), suite.senderAcc)
 // 				suite.Require().Equal(coins[0].Amount, sdk.NewInt(10000))
 // 				suite.Require().Equal(coins[1].Amount, sdk.NewInt(10))
 // 			}
