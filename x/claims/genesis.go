@@ -13,7 +13,8 @@ import (
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	totalEscrowed := sdk.ZeroInt()
-	sumClaims := sdk.ZeroInt()
+	sumUnclaimed := sdk.ZeroInt()
+	numActions := sdk.NewInt(4)
 
 	// ensure claim module account is set on genesis
 	if acc := k.GetModuleAccountAccount(ctx); acc == nil {
@@ -43,23 +44,24 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 			panic(fmt.Errorf("invalid actions completed length for address %s", claimsRecord.Address))
 		}
 
-		initialClaimablePerAction := claimsRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
+		initialClaimablePerAction := claimsRecord.InitialClaimableAmount.Quo(numActions)
 
 		for _, actionCompleted := range cr.ActionsCompleted {
 			if !actionCompleted {
 				// NOTE: only add the initial claimable amount per action for the ones that haven't been claimed
-				sumClaims = sumClaims.Add(initialClaimablePerAction)
+				sumUnclaimed = sumUnclaimed.Add(initialClaimablePerAction)
 			}
 		}
 
 		k.SetClaimsRecord(ctx, addr, cr)
 	}
 
-	if !sumClaims.Equal(totalEscrowed) {
+	// check for equal only for unclaimed actions
+	if !sumUnclaimed.Equal(totalEscrowed) {
 		panic(
 			fmt.Errorf(
-				"sum of claimable amount ≠ escrowed module account amount (%s ≠ %s)",
-				sumClaims, totalEscrowed,
+				"sum of unclaimed amount ≠ escrowed module account amount (%s ≠ %s)",
+				sumUnclaimed, totalEscrowed,
 			),
 		)
 	}
