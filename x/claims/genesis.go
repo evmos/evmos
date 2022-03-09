@@ -38,13 +38,21 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 			InitialClaimableAmount: claimsRecord.InitialClaimableAmount,
 			ActionsCompleted:       claimsRecord.ActionsCompleted,
 		}
+
+		if len(cr.ActionsCompleted) != len(types.Action_name)-1 {
+			panic(fmt.Errorf("invalid actions completed length for address %s", claimsRecord.Address))
+		}
+
+		initialClaimablePerAction := claimsRecord.InitialClaimableAmount.QuoRaw(int64(len(types.Action_name) - 1))
+
+		for _, actionCompleted := range cr.ActionsCompleted {
+			if !actionCompleted {
+				// NOTE: only add the initial claimable amount per action for the ones that haven't been claimed
+				sumClaims = sumClaims.Add(initialClaimablePerAction)
+			}
+		}
+
 		k.SetClaimsRecord(ctx, addr, cr)
-
-
-		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionVote, data.Params))
-		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionDelegate, data.Params))
-		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionEVM, data.Params))
-		sumClaims = sumClaims.Add(k.GetClaimableAmountForAction(ctx, cr, types.ActionIBCTransfer, data.Params))
 	}
 
 	if !sumClaims.Equal(totalEscrowed) {
