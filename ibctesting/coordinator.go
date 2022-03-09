@@ -11,6 +11,7 @@ var globalStartTime = time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)
 
 // NewCoordinator initializes Coordinator with N EVM TestChain's (Evmos apps)
 func NewEVMCoordinator(t *testing.T, n int) *ibctesting.Coordinator {
+	ibctesting.ChainIDPrefix = ChainIDPrefix
 	chains := make(map[string]*ibctesting.TestChain)
 	coord := &ibctesting.Coordinator{
 		T:           t,
@@ -19,7 +20,7 @@ func NewEVMCoordinator(t *testing.T, n int) *ibctesting.Coordinator {
 
 	ibctesting.DefaultTestingAppInit = DefaultTestingAppInit
 	for i := 1; i <= n; i++ {
-		chainID := GetChainID(i)
+		chainID := ibctesting.GetChainID(i)
 		chains[chainID] = NewTestChain(t, coord, chainID)
 	}
 	coord.Chains = chains
@@ -29,6 +30,7 @@ func NewEVMCoordinator(t *testing.T, n int) *ibctesting.Coordinator {
 
 // NewMixedCoordinator initializes Coordinator with N EVM TestChain's (Evmos apps) and M Cosmos chains (Simulation Apps)
 func NewMixedCoordinator(t *testing.T, nEVMChains, mCosmosChains int) *ibctesting.Coordinator {
+	ibctesting.ChainIDPrefix = ChainIDPrefix
 	chains := make(map[string]*ibctesting.TestChain)
 	coord := &ibctesting.Coordinator{
 		T:           t,
@@ -39,7 +41,8 @@ func NewMixedCoordinator(t *testing.T, nEVMChains, mCosmosChains int) *ibctestin
 	ibctesting.DefaultTestingAppInit = DefaultTestingAppInit
 
 	for i := 1; i <= nEVMChains; i++ {
-		chainID := GetChainID(i)
+		// TODO: fix chain IDs
+		chainID := ibctesting.GetChainID(i)
 		chains[chainID] = NewTestChain(t, coord, chainID)
 	}
 
