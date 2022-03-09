@@ -6,6 +6,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
@@ -33,6 +36,18 @@ type IBCTestingSuite struct {
 	senderAcc sdk.AccAddress
 }
 
+var s *IBCTestingSuite
+
+func TestIBCTestingSuite(t *testing.T) {
+	s = new(IBCTestingSuite)
+	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "IBC Testing Suite")
+
+}
+
 func (suite *IBCTestingSuite) SetupTest() {
 	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
 
@@ -51,6 +66,11 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.senderAcc, _ = sdk.AccAddressFromBech32(suite.sender)
 	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainB.GetContext(), inflationtypes.ModuleName, suite.senderAcc, coins)
 	suite.Require().NoError(err)
+
+	// Fund chainA sender
+	senderA := s.chainA.SenderAccount.GetAddress()
+	suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
+	suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, senderA, coins)
 
 	coins = sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(10)))
 	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
@@ -72,10 +92,6 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().Equal("07-tendermint-0", suite.path.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.path.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.path.EndpointA.ChannelID)
-}
-
-func TestIBCTestingSuite(t *testing.T) {
-	suite.Run(t, new(IBCTestingSuite))
 }
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
