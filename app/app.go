@@ -100,36 +100,36 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/app/ante"
+	v2 "github.com/tharsis/evmos/v2/app/upgrades/v2"
 
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/x/claims"
-	claimskeeper "github.com/tharsis/evmos/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/x/claims/types"
-
-	"github.com/tharsis/evmos/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/x/epochs/types"
-	"github.com/tharsis/evmos/x/erc20"
-	erc20client "github.com/tharsis/evmos/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/x/erc20/types"
-	"github.com/tharsis/evmos/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
-	"github.com/tharsis/evmos/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
-	"github.com/tharsis/evmos/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
-	"github.com/tharsis/evmos/x/withdraw"
-	withdrawkeeper "github.com/tharsis/evmos/x/withdraw/keeper"
-	withdrawtypes "github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/app/ante"
+	"github.com/tharsis/evmos/v2/x/claims"
+	claimskeeper "github.com/tharsis/evmos/v2/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/v2/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/v2/x/epochs/types"
+	"github.com/tharsis/evmos/v2/x/erc20"
+	erc20client "github.com/tharsis/evmos/v2/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/v2/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/v2/x/erc20/types"
+	"github.com/tharsis/evmos/v2/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/v2/x/incentives/client"
+	incentiveskeeper "github.com/tharsis/evmos/v2/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/inflation"
+	inflationkeeper "github.com/tharsis/evmos/v2/x/inflation/keeper"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/v2/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/withdraw"
+	withdrawkeeper "github.com/tharsis/evmos/v2/x/withdraw/keeper"
+	withdrawtypes "github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 func init() {
@@ -147,8 +147,6 @@ func init() {
 const (
 	// Name defines the application binary name
 	Name = "evmosd"
-	// latest software upgrade name
-	upgradeName = "Olympus-Mons-v0.4.1"
 )
 
 var (
@@ -671,9 +669,6 @@ func NewEvmos(
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.UpgradeKeeper.SetUpgradeHandler(upgradeName, func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return app.mm.RunMigrations(ctx, app.configurator, vm)
-	})
 	app.mm.RegisterServices(app.configurator)
 
 	// add test gRPC service for testing gRPC queries in isolation
@@ -733,6 +728,7 @@ func NewEvmos(
 
 	app.SetAnteHandler(ante.NewAnteHandler(options))
 	app.SetEndBlocker(app.EndBlocker)
+	app.setupUpgradeHandlers()
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -980,4 +976,12 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(withdrawtypes.ModuleName)
 	return paramsKeeper
+}
+
+func (app *Evmos) setupUpgradeHandlers() {
+	// v2 handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v2.UpgradeName,
+		v2.CreateUpgradeHandler(app.mm, app.configurator),
+	)
 }

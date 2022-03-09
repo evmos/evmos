@@ -13,10 +13,10 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
-	"github.com/tharsis/evmos/testutil"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2/testutil"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) SetupClaimTest() {

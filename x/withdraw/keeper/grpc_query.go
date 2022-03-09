@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 var _ types.QueryServer = Keeper{}

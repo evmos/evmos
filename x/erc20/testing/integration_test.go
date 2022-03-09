@@ -15,8 +15,8 @@ import (
 
 	"github.com/tharsis/ethermint/server/config"
 
-	"github.com/tharsis/evmos/testutil/network"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/testutil/network"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 // var _ = Describe("E2e", func() {
