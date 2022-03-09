@@ -9,9 +9,9 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
-	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {

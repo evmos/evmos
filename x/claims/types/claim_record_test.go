@@ -137,6 +137,45 @@ func TestClaimsRecordHasClaimedAll(t *testing.T) {
 	}
 }
 
+func TestClaimsRecordHasAny(t *testing.T) {
+	testCases := []struct {
+		name         string
+		claimsRecord ClaimsRecord
+		expBool      bool
+	}{
+		{
+			"false - empty",
+			ClaimsRecord{},
+			false,
+		},
+		{
+			"false - not claimed",
+			ClaimsRecord{
+				ActionsCompleted: []bool{false, false, false, false},
+			},
+			false,
+		},
+		{
+			"true - single action claimed",
+			ClaimsRecord{
+				ActionsCompleted: []bool{true, false, false, false},
+			},
+			true,
+		},
+		{
+			"true - all claimed",
+			ClaimsRecord{
+				ActionsCompleted: []bool{true, true, true, true},
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		require.True(t, tc.expBool == tc.claimsRecord.HasClaimedAny(), tc.name)
+	}
+}
+
 func TestClaimsRecordAddressValidate(t *testing.T) {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 

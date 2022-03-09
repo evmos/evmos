@@ -33,6 +33,16 @@ Allows users to query the current inflation epoch provisions value.
 evmosd query inflation epoch-mint-provisions [flags]
 ```
 
+**`skipped-epochs`**
+
+Allows users to query the current number of skipped epochs.
+
+```go
+evmosd query inflation skipped-epochs [flags]
+```
+
+
+
 **`params`**
 
 Allows users to query the current inflation parameters.
@@ -45,22 +55,6 @@ evmosd query inflation params [flags]
 
 The `tx gov submit-proposal` commands allow users to query create a proposal
 using the governance module CLI:
-
-**`register-incentive`**
-
-Allows users to submit a `RegisterIncentiveProposal`.
-
-```bash
-evmosd tx gov submit-proposal register-incentive [contract-address] [allocation] [epochs] [flags]
-```
-
-**`cancel-incentive`**
-
-Allows users to submit a `CanelIncentiveProposal`.
-
-```bash
-evmosd tx gov submit-proposal cancel-incentive [contract-address] [flags]
-```
 
 **`param-change`**
 
@@ -79,6 +73,8 @@ evmosd tx gov submit-proposal param-change [proposal-file] [flags]
 | `gRPC` | `evmos.inflation.v1.Query/Period`             | Gets current inflation period                 |
 | `gRPC` | `evmos.inflation.v1.Query/EpochMintProvision` | Gets current inflation epoch provisions value |
 | `gRPC` | `evmos.inflation.v1.Query/Params`             | Gets current inflation parameters             |
+| `gRPC` | `evmos.inflation.v1.Query/SkippedEpochs`      | Gets current number of skipped epochs         |
 | `GET`  | `/evmos/inflation/v1/period`                  | Gets current inflation period                 |
 | `GET`  | `/evmos/inflation/v1/epoch_mint_provision`    | Gets current inflation epoch provisions value |
+| `GET`  | `/evmos/inflation/v1/skipped_epochs`          | Gets current number of skipped epochs         |
 | `GET`  | `/evmos/inflation/v1/params`                  | Gets current inflation parameters             |

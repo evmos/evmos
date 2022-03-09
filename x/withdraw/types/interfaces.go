@@ -4,10 +4,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // BankKeeper defines the banking keeper that must be fulfilled when
@@ -39,4 +40,8 @@ type TransferKeeper interface {
 type ChannelKeeper interface {
 	transfertypes.ICS4Wrapper
 	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
+}
+
+type ClaimsKeeper interface {
+	GetParams(ctx sdk.Context) claimstypes.Params
 }

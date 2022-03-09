@@ -3,9 +3,14 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	incentivestypes "github.com/tharsis/evmos/x/incentives/types"
-	"github.com/tharsis/evmos/x/inflation/types"
+	ethermint "github.com/tharsis/ethermint/types"
+
+	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
+
+// 200M token at year 4 allocated to the team
+var teamAlloc = sdk.NewInt(200_000_000).Mul(ethermint.PowerReduction)
 
 // MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(ctx sdk.Context, coin sdk.Coin) error {
@@ -87,4 +92,16 @@ func (k Keeper) GetProportions(
 		coin.Denom,
 		coin.Amount.ToDec().Mul(distribution).TruncateInt(),
 	)
+}
+
+// BondedRatio the fraction of the staking tokens which are currently bonded
+// It doesn't consider team allocation for inflation
+func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
+	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
+	if !stakeSupply.IsPositive() || stakeSupply.LTE(teamAlloc) {
+		return sdk.ZeroDec()
+	}
+
+	stakeSupply = stakeSupply.Sub(teamAlloc)
+	return k.stakingKeeper.TotalBondedTokens(ctx).ToDec().QuoInt(stakeSupply)
 }
