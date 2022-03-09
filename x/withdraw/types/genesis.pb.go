@@ -27,6 +27,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type GenesisState struct {
 	// params defines all the paramaters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	// list of all registered Bech32 HRPs
+	Prefixes []Prefix `protobuf:"bytes,2,rep,name=prefixes,proto3" json:"prefixes"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -67,6 +69,13 @@ func (m *GenesisState) GetParams() Params {
 		return m.Params
 	}
 	return Params{}
+}
+
+func (m *GenesisState) GetPrefixes() []Prefix {
+	if m != nil {
+		return m.Prefixes
+	}
+	return nil
 }
 
 // Params holds parameters for the withdraw module.
@@ -115,29 +124,92 @@ func (m *Params) GetEnableWithdraw() bool {
 	return false
 }
 
+// Prefix represents the HRP of the source chain connected through an
+// IBC channel.
+type Prefix struct {
+	// source channel for the HRP
+	SourceChannel string `protobuf:"bytes,1,opt,name=source_channel,json=sourceChannel,proto3" json:"source_channel,omitempty"`
+	// Human Readible Prefix
+	Bech32HRP string `protobuf:"bytes,2,opt,name=bech32_hrp,json=bech32Hrp,proto3" json:"bech32_hrp,omitempty"`
+}
+
+func (m *Prefix) Reset()         { *m = Prefix{} }
+func (m *Prefix) String() string { return proto.CompactTextString(m) }
+func (*Prefix) ProtoMessage()    {}
+func (*Prefix) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd519519d2b9d615, []int{2}
+}
+func (m *Prefix) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Prefix) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Prefix.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Prefix) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Prefix.Merge(m, src)
+}
+func (m *Prefix) XXX_Size() int {
+	return m.Size()
+}
+func (m *Prefix) XXX_DiscardUnknown() {
+	xxx_messageInfo_Prefix.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Prefix proto.InternalMessageInfo
+
+func (m *Prefix) GetSourceChannel() string {
+	if m != nil {
+		return m.SourceChannel
+	}
+	return ""
+}
+
+func (m *Prefix) GetBech32HRP() string {
+	if m != nil {
+		return m.Bech32HRP
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "evmos.withdraw.v1.GenesisState")
 	proto.RegisterType((*Params)(nil), "evmos.withdraw.v1.Params")
+	proto.RegisterType((*Prefix)(nil), "evmos.withdraw.v1.Prefix")
 }
 
 func init() { proto.RegisterFile("evmos/withdraw/v1/genesis.proto", fileDescriptor_fd519519d2b9d615) }
 
 var fileDescriptor_fd519519d2b9d615 = []byte{
-	// 222 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4f, 0x2d, 0xcb, 0xcd,
-	0x2f, 0xd6, 0x2f, 0xcf, 0x2c, 0xc9, 0x48, 0x29, 0x4a, 0x2c, 0xd7, 0x2f, 0x33, 0xd4, 0x4f, 0x4f,
-	0xcd, 0x4b, 0x2d, 0xce, 0x2c, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x04, 0x2b, 0xd0,
-	0x83, 0x29, 0xd0, 0x2b, 0x33, 0x94, 0x12, 0x49, 0xcf, 0x4f, 0xcf, 0x07, 0xcb, 0xea, 0x83, 0x58,
-	0x10, 0x85, 0x4a, 0xee, 0x5c, 0x3c, 0xee, 0x10, 0x9d, 0xc1, 0x25, 0x89, 0x25, 0xa9, 0x42, 0xe6,
-	0x5c, 0x6c, 0x05, 0x89, 0x45, 0x89, 0xb9, 0xc5, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0xdc, 0x46, 0x92,
-	0x7a, 0x18, 0x26, 0xe9, 0x05, 0x80, 0x15, 0x38, 0xb1, 0x9c, 0xb8, 0x27, 0xcf, 0x10, 0x04, 0x55,
-	0xae, 0x64, 0xc8, 0xc5, 0x06, 0x11, 0x17, 0x52, 0xe7, 0xe2, 0x4f, 0xcd, 0x4b, 0x4c, 0xca, 0x49,
-	0x8d, 0x87, 0x69, 0x02, 0x9b, 0xc5, 0x11, 0xc4, 0x07, 0x11, 0x0e, 0x87, 0x8a, 0x3a, 0xb9, 0x9d,
-	0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c, 0x13, 0x1e, 0xcb, 0x31,
-	0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c, 0x43, 0x94, 0x4e, 0x7a, 0x66, 0x49, 0x46, 0x69,
-	0x92, 0x5e, 0x72, 0x7e, 0xae, 0x7e, 0x49, 0x46, 0x62, 0x51, 0x71, 0x66, 0xb1, 0x3e, 0xc4, 0xcb,
-	0x65, 0x46, 0xfa, 0x15, 0x08, 0x7f, 0x97, 0x54, 0x16, 0xa4, 0x16, 0x27, 0xb1, 0x81, 0xbd, 0x62,
-	0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x27, 0x15, 0x68, 0x56, 0x16, 0x01, 0x00, 0x00,
+	// 317 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x91, 0x31, 0x4b, 0x33, 0x31,
+	0x18, 0x80, 0xef, 0xfa, 0x7d, 0x1c, 0x6d, 0xb4, 0x15, 0x0f, 0x87, 0xea, 0x70, 0x2d, 0x05, 0xd1,
+	0xa1, 0x24, 0xb4, 0x1d, 0x1c, 0xdc, 0x4e, 0xd0, 0x8e, 0xe5, 0x1c, 0x04, 0x41, 0x4a, 0xee, 0x7c,
+	0xbd, 0x1c, 0xb4, 0x97, 0x90, 0xa4, 0xd7, 0xba, 0xfb, 0x03, 0xfc, 0x59, 0x1d, 0x3b, 0x3a, 0x15,
+	0xb9, 0xfe, 0x11, 0x69, 0xd2, 0xea, 0x20, 0x6e, 0xe1, 0xc9, 0xf3, 0xbc, 0x84, 0xbc, 0xa8, 0x05,
+	0xc5, 0x94, 0x2b, 0x32, 0xcf, 0x34, 0x7b, 0x96, 0x74, 0x4e, 0x8a, 0x1e, 0x49, 0x21, 0x07, 0x95,
+	0x29, 0x2c, 0x24, 0xd7, 0xdc, 0x3f, 0x36, 0x02, 0xde, 0x0b, 0xb8, 0xe8, 0x9d, 0x9d, 0xa4, 0x3c,
+	0xe5, 0xe6, 0x96, 0x6c, 0x4f, 0x56, 0xec, 0xbc, 0xb9, 0xe8, 0xf0, 0xce, 0xa6, 0xf7, 0x9a, 0x6a,
+	0xf0, 0xaf, 0x90, 0x27, 0xa8, 0xa4, 0x53, 0xd5, 0x74, 0xdb, 0xee, 0xe5, 0x41, 0xff, 0x14, 0xff,
+	0x1a, 0x85, 0x47, 0x46, 0x08, 0xff, 0x2f, 0xd7, 0x2d, 0x27, 0xda, 0xe9, 0xfe, 0x35, 0xaa, 0x0a,
+	0x09, 0x2f, 0xd9, 0x02, 0x54, 0xb3, 0xd2, 0xfe, 0xf7, 0x57, 0x6a, 0x94, 0x5d, 0xfa, 0x1d, 0x74,
+	0x7a, 0xc8, 0xb3, 0x43, 0xfd, 0x0b, 0x74, 0x04, 0x39, 0x8d, 0x27, 0x30, 0xde, 0x67, 0xe6, 0x21,
+	0xd5, 0xa8, 0x61, 0xf1, 0xc3, 0x8e, 0x76, 0x9e, 0x90, 0x67, 0x87, 0xf9, 0xe7, 0xa8, 0xa1, 0xf8,
+	0x4c, 0x26, 0x30, 0x4e, 0x18, 0xcd, 0x73, 0x98, 0x98, 0xa2, 0x16, 0xd5, 0x2d, 0xbd, 0xb1, 0xd0,
+	0xef, 0x22, 0x14, 0x43, 0xc2, 0x06, 0xfd, 0x31, 0x93, 0xa2, 0x59, 0xd9, 0x2a, 0x61, 0xbd, 0x5c,
+	0xb7, 0x6a, 0xa1, 0xa1, 0xc3, 0x68, 0x14, 0xd5, 0xac, 0x30, 0x94, 0x22, 0xbc, 0x5d, 0x96, 0x81,
+	0xbb, 0x2a, 0x03, 0xf7, 0xb3, 0x0c, 0xdc, 0xf7, 0x4d, 0xe0, 0xac, 0x36, 0x81, 0xf3, 0xb1, 0x09,
+	0x9c, 0xc7, 0x6e, 0x9a, 0x69, 0x36, 0x8b, 0x71, 0xc2, 0xa7, 0x44, 0x33, 0x2a, 0x55, 0xa6, 0x88,
+	0xdd, 0x47, 0xd1, 0x27, 0x8b, 0x9f, 0xa5, 0xe8, 0x57, 0x01, 0x2a, 0xf6, 0xcc, 0x3f, 0x0f, 0xbe,
+	0x02, 0x00, 0x00, 0xff, 0xff, 0x3f, 0xc8, 0xe0, 0x24, 0xb3, 0x01, 0x00, 0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -160,6 +232,20 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.Prefixes) > 0 {
+		for iNdEx := len(m.Prefixes) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Prefixes[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
 	{
 		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -206,6 +292,43 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *Prefix) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Prefix) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Prefix) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Bech32HRP) > 0 {
+		i -= len(m.Bech32HRP)
+		copy(dAtA[i:], m.Bech32HRP)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Bech32HRP)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.SourceChannel) > 0 {
+		i -= len(m.SourceChannel)
+		copy(dAtA[i:], m.SourceChannel)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.SourceChannel)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	offset -= sovGenesis(v)
 	base := offset
@@ -225,6 +348,12 @@ func (m *GenesisState) Size() (n int) {
 	_ = l
 	l = m.Params.Size()
 	n += 1 + l + sovGenesis(uint64(l))
+	if len(m.Prefixes) > 0 {
+		for _, e := range m.Prefixes {
+			l = e.Size()
+			n += 1 + l + sovGenesis(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -236,6 +365,23 @@ func (m *Params) Size() (n int) {
 	_ = l
 	if m.EnableWithdraw {
 		n += 2
+	}
+	return n
+}
+
+func (m *Prefix) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SourceChannel)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	l = len(m.Bech32HRP)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
 	}
 	return n
 }
@@ -305,6 +451,40 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Prefixes", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Prefixes = append(m.Prefixes, Prefix{})
+			if err := m.Prefixes[len(m.Prefixes)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -378,6 +558,120 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.EnableWithdraw = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Prefix) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Prefix: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Prefix: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceChannel", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceChannel = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Bech32HRP", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Bech32HRP = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipGenesis(dAtA[iNdEx:])
