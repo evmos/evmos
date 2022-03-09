@@ -55,7 +55,7 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		sender = s.chainA.SenderAccount.GetAddress()
 		s.chainA.GetSimApp().AccountKeeper.SetAccount(s.chainA.GetContext(), baseAcc)
 
-		// Set receiver with secp256k1 on Evmos chain
+		// TODO Set receiver with secp256k1 on Evmos chain
 		// s.chainB.SenderPrivKey = pk
 		// s.chainB.SenderAccount = baseAcc
 		receiver = s.chainB.SenderAccount.GetAddress()
