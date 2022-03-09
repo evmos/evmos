@@ -12,22 +12,22 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
-	"github.com/tharsis/evmos/ibctesting"
+	"github.com/tharsis/evmos/v2/ibctesting"
 
-	"github.com/tharsis/evmos/app"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
-	"github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/app"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 type IBCTestingSuite struct {
 	suite.Suite
-	coordinator *ibctesting.Coordinator
+	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	chainA *ibctesting.TestChain
-	chainB *ibctesting.TestChain
+	chainA *ibcgotesting.TestChain
+	chainB *ibcgotesting.TestChain
 
-	path *ibctesting.Path
+	path *ibcgotesting.Path
 
 	sender    string
 	senderAcc sdk.AccAddress
@@ -37,7 +37,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
 
 	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
+	suite.coordinator = ibctesting.NewEVMCoordinator(suite.T(), 2)      // initializes 2 test chains
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
@@ -60,7 +60,6 @@ func (suite *IBCTestingSuite) SetupTest() {
 
 	params := types.DefaultParams()
 	params.EnableWithdraw = true
-	params.EnabledChannels = []string{"channel-0"}
 	//	suite.chainA.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainA.GetContext(), params)
 	suite.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainB.GetContext(), params)
 
@@ -80,8 +79,8 @@ func TestIBCTestingSuite(t *testing.T) {
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
-func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
-	path := ibctesting.NewPath(chainA, chainB)
+func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
+	path := ibcgotesting.NewPath(chainA, chainB)
 	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
 	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
 

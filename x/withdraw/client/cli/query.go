@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 // GetQueryCmd returns the parent command for all withdraw CLI query commands.

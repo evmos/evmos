@@ -14,7 +14,7 @@ import (
 	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 var _ transfertypes.ICS4Wrapper = Keeper{}
@@ -24,9 +24,9 @@ type Keeper struct {
 	paramstore     paramtypes.Subspace
 	bankKeeper     types.BankKeeper
 	ics4Wrapper    transfertypes.ICS4Wrapper
-	channelKeeper  *channelkeeper.Keeper
-	transferKeeper *transferkeeper.Keeper
-	// transferKeeper types.TransferKeeper
+	channelKeeper  channelkeeper.Keeper  // TODO: use interface
+	transferKeeper transferkeeper.Keeper // TODO: use interface
+	claimsKeeper   types.ClaimsKeeper
 }
 
 // NewKeeper returns keeper
@@ -34,9 +34,9 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	bk types.BankKeeper,
 	ics4Wrapper transfertypes.ICS4Wrapper,
-	ck *channelkeeper.Keeper,
-	tk *transferkeeper.Keeper,
-	// tk types.TransferKeeper,
+	ck channelkeeper.Keeper, // TODO: use interface
+	tk transferkeeper.Keeper, // TODO: use interface
+	claimsKeeper types.ClaimsKeeper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -49,6 +49,7 @@ func NewKeeper(
 		ics4Wrapper:    ics4Wrapper,
 		channelKeeper:  ck,
 		transferKeeper: tk,
+		claimsKeeper:   claimsKeeper,
 	}
 }
 

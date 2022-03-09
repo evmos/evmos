@@ -250,6 +250,20 @@ paths:
                   claims_denom:
                     type: string
                     title: denom of claimable coin
+                  authorized_channels:
+                    type: array
+                    items:
+                      type: string
+                    description: >-
+                      list of authorized channel identifiers that can perform
+                      address attestations
+
+                      via IBC.
+                  evm_channels:
+                    type: array
+                    items:
+                      type: string
+                    title: list of channel identifiers from EVM compatible chains
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -1595,6 +1609,11 @@ paths:
                           minted_denom that is to
 
                           be allocated to the community pool
+                  enable_inflation:
+                    type: boolean
+                    title: >-
+                      parameter to enable inflation and halt increasing the
+                      skipped_epochs
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -1639,6 +1658,47 @@ paths:
             description: >-
               QueryPeriodResponse is the response type for the Query/Period RPC
               method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /evmos/inflation/v1/skipped_epochs:
+    get:
+      summary: SkippedEpochs retrieves the total number of skipped epochs.
+      operationId: SkippedEpochs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              skipped_epochs:
+                type: string
+                format: uint64
+                description: number of epochs that the inflation module has been disabled.
+            description: >-
+              QuerySkippedEpochsResponse is the response type for the
+              Query/SkippedEpochs RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1779,13 +1839,6 @@ paths:
                   enable_withdraw:
                     type: boolean
                     title: enable withdraw IBC middleware
-                  enabled_channels:
-                    type: array
-                    items:
-                      type: string
-                    title: >-
-                      list of enabled channels that can withdraw funds to sender
-                      account
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -26921,6 +26974,20 @@ definitions:
       claims_denom:
         type: string
         title: denom of claimable coin
+      authorized_channels:
+        type: array
+        items:
+          type: string
+        description: >-
+          list of authorized channel identifiers that can perform address
+          attestations
+
+          via IBC.
+      evm_channels:
+        type: array
+        items:
+          type: string
+        title: list of channel identifiers from EVM compatible chains
     description: Params defines the claims module's parameters.
   evmos.claims.v1.QueryClaimsRecordResponse:
     type: object
@@ -27034,6 +27101,20 @@ definitions:
           claims_denom:
             type: string
             title: denom of claimable coin
+          authorized_channels:
+            type: array
+            items:
+              type: string
+            description: >-
+              list of authorized channel identifiers that can perform address
+              attestations
+
+              via IBC.
+          evm_channels:
+            type: array
+            items:
+              type: string
+            title: list of channel identifiers from EVM compatible chains
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   evmos.claims.v1.QueryTotalUnclaimedResponse:
     type: object
@@ -28093,6 +28174,9 @@ definitions:
               that is to
 
               be allocated to the community pool
+      enable_inflation:
+        type: boolean
+        title: parameter to enable inflation and halt increasing the skipped_epochs
     description: Params holds parameters for the inflation module.
   evmos.inflation.v1.QueryEpochMintProvisionResponse:
     type: object
@@ -28158,6 +28242,11 @@ definitions:
                   minted_denom that is to
 
                   be allocated to the community pool
+          enable_inflation:
+            type: boolean
+            title: >-
+              parameter to enable inflation and halt increasing the
+              skipped_epochs
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   evmos.inflation.v1.QueryPeriodResponse:
     type: object
@@ -28167,6 +28256,16 @@ definitions:
         format: uint64
         description: period is the current minting per epoch provision value.
     description: QueryPeriodResponse is the response type for the Query/Period RPC method.
+  evmos.inflation.v1.QuerySkippedEpochsResponse:
+    type: object
+    properties:
+      skipped_epochs:
+        type: string
+        format: uint64
+        description: number of epochs that the inflation module has been disabled.
+    description: >-
+      QuerySkippedEpochsResponse is the response type for the
+      Query/SkippedEpochs RPC method.
   evmos.vesting.v1.QueryBalancesResponse:
     type: object
     properties:
@@ -28224,11 +28323,6 @@ definitions:
       enable_withdraw:
         type: boolean
         title: enable withdraw IBC middleware
-      enabled_channels:
-        type: array
-        items:
-          type: string
-        title: list of enabled channels that can withdraw funds to sender account
     description: Params holds parameters for the withdraw module.
   evmos.withdraw.v1.QueryParamsResponse:
     type: object
@@ -28240,11 +28334,6 @@ definitions:
           enable_withdraw:
             type: boolean
             title: enable withdraw IBC middleware
-          enabled_channels:
-            type: array
-            items:
-              type: string
-            title: list of enabled channels that can withdraw funds to sender account
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   ethermint.evm.v1.ChainConfig:
     type: object

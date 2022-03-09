@@ -19,9 +19,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/tharsis/evmos/x/withdraw/client/cli"
-	"github.com/tharsis/evmos/x/withdraw/keeper"
-	"github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/client/cli"
+	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 // type check to ensure the interface is properly implemented

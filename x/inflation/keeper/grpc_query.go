@@ -4,7 +4,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -32,6 +32,16 @@ func (k Keeper) EpochMintProvision(
 		return nil, status.Error(codes.NotFound, "epoch mint provision not found")
 	}
 	return &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}, nil
+}
+
+// SkippedEpochs returns the number of skipped Epochs of the inflation module.
+func (k Keeper) SkippedEpochs(
+	c context.Context,
+	_ *types.QuerySkippedEpochsRequest,
+) (*types.QuerySkippedEpochsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	skippedEpochs := k.GetSkippedEpochs(ctx)
+	return &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}, nil
 }
 
 // Params returns params of the mint module.
