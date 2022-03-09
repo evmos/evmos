@@ -33,12 +33,10 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
-
-	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)           // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
+	// TODO: change to Mixed Coordinator
+	suite.coordinator = ibctesting.NewEVMCoordinator(suite.T(), 2)      // initializes 2 test chains
+	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
+	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 
@@ -419,7 +417,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().True(resAck.Success())
+				suite.Require().True(resAck.Success(), string(resAck.Acknowledgement()))
 			},
 		},
 	}
