@@ -10,10 +10,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/withdraw/types"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 // The IBC Callback transfers all non-evmos balances from the receiver to the
@@ -38,10 +39,22 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		fmt.Printf("balanceA0: %s \n", s.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
 		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
 
-		// Set sender
+		// denom := s.chainA.App.(ibcgotesting.TestingApp).GetStakingKeeper().BondDenom(s.chainA.GetContext())
+		// coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(10000)))
+
+		// Get secp addresses
+		pk := secp256k1.GenPrivKey()
+		secpAddr := sdk.AccAddress(pk.PubKey().Address())
+		secpAddrEvmos := secpAddr.String()
+		secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
+		fmt.Println(secpAddrEvmos)
+		fmt.Println(secpAddrCosmos)
+
+		// Set sender with secp256k1 on Cosmos chain
 		sender = s.chainA.SenderAccount.GetAddress()
 
-		// Create receiver with secp256k1 address
+		// Set receiver with secp256k1 on Evmos chain
+		// s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), acc)
 		receiver = s.chainB.SenderAccount.GetAddress()
 		// priv := secp256k1.GenPrivKey()
 		// receiverHash := common.BytesToAddress(priv.PubKey().Address().Bytes())
@@ -57,7 +70,6 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 
 		// Activate IBC callback
 		params.EnableWithdraw = true
-		params.EnabledChannels = []string{"channel-0"}
 		s.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(s.chainB.GetContext(), params)
 	})
 
