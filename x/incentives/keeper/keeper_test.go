@@ -182,8 +182,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
 	// Deploy contracts
-	contract = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
-	contract2 = suite.DeployContract(erc20Name2, erc20Symbol2, erc20Decimals)
+	contract, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+	contract2, _ = suite.DeployContract(erc20Name2, erc20Symbol2, erc20Decimals)
 }
 
 // Commit commits and starts a new block with an updated context.
@@ -219,28 +219,31 @@ func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 }
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (suite *KeeperTestSuite) DeployContract(
-	name, symbol string,
-	decimals uint8,
-) common.Address {
+func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
-	contractCallArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
-	suite.Require().NoError(err)
+	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
+	if err != nil {
+		return common.Address{}, err
+	}
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, contractCallArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
 	})
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
 		GasCap: uint64(config.DefaultGasCap),
 	})
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
@@ -258,11 +261,17 @@ func (suite *KeeperTestSuite) DeployContract(
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
+	return crypto.CreateAddress(suite.address, nonce), nil
 }
 
 // MintERC20Token mints ERC20MinterBurnerDecimalsContract tokens..
