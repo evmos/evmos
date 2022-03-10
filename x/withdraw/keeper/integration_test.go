@@ -13,8 +13,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-
 	"github.com/tharsis/evmos/v2/app"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
@@ -41,15 +39,16 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		s.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(s.chainB.GetContext(), params)
 
 		// Set sender with secp256k1 on Cosmos chain and generate sender and receiver addresses from it
-		pk := secp256k1.GenPrivKey()
-		secpAddr = sdk.AccAddress(pk.PubKey().Address())
+		// pk := secp256k1.GenPrivKey()
+		secpAddr = s.chainA.SenderAccount.GetAddress()
 		secpAddrEvmos := secpAddr.String()
 		secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
-		baseAcc := authtypes.NewBaseAccountWithAddress(secpAddr)
-		s.chainA.GetSimApp().AccountKeeper.SetAccount(s.chainA.GetContext(), baseAcc)
 
 		sender = secpAddrCosmos
 		receiver = secpAddrEvmos
+
+		baseAcc := authtypes.NewBaseAccountWithAddress(secpAddr)
+		s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
 
 		// Fund chain A aacount
 		err := s.chainA.GetSimApp().BankKeeper.MintCoins(s.chainA.GetContext(), minttypes.ModuleName, coins)
@@ -61,7 +60,7 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), secpAddr))
 
 		// Send coins from chainA to chainB over IBC
-		sendCoinfromAtoBWithIBC(receiver, receiver, coin, 1)
+		sendCoinfromAtoBWithIBC(sender, receiver, coin, 1)
 
 		fmt.Printf("balanceA1: %s \n", s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), secpAddr))
 		fmt.Printf("balanceB1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), secpAddr))
