@@ -70,7 +70,7 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
 
 		// Send coins from chainA to chainB over IBC
-		sendCoinfromAtoBWithIBC(sender, receiver, coin)
+		sendCoinfromAtoBWithIBC(sender, receiver, coin, 1)
 
 		fmt.Printf("balanceA1: %s \n", s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
 		fmt.Printf("balanceB1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
@@ -83,10 +83,10 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 	Context("to a secp256k1 receiver address with balance", func() {
 		It("transfers all receiver balances to the respective chains", func() {
 			// send coin from chainA to chainB
-			sendCoinfromAtoBWithIBC(sender, receiver, coin)
+			sendCoinfromAtoBWithIBC(sender, receiver, coin, 2)
 
 			// sender balance is original receiver balance
-			balancesSender := s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), receiver)
+			balancesSender := s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), sender)
 			fmt.Printf("balanceA2: %s \n", balancesSender)
 			// Expect(balancesSender.IsZero()).To(BeTrue())
 
@@ -98,7 +98,7 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 	})
 })
 
-func sendCoinfromAtoBWithIBC(from, to sdk.AccAddress, coin sdk.Coin) {
+func sendCoinfromAtoBWithIBC(from, to sdk.AccAddress, coin sdk.Coin, seq uint64) {
 	path := s.path
 
 	// send coin from chainA to chainB
@@ -108,7 +108,7 @@ func sendCoinfromAtoBWithIBC(from, to sdk.AccAddress, coin sdk.Coin) {
 
 	// receive coin on chainB from chainA
 	fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData(coin.Denom, coin.Amount.String(), from.String(), to.String())
-	packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+	packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 	// get proof of packet commitment from chainA
 	err = path.EndpointB.UpdateClient()
