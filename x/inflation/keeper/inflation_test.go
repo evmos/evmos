@@ -103,6 +103,7 @@ func (suite *KeeperTestSuite) TestGetTotalSupplyAndInflationRate() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
+			// Mint coins to increase supply
 			coin := sdk.NewCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(tc.bankSupply, sdk.DefaultPowerReduction))
 			decCoin := sdk.NewDecCoinFromCoin(coin)
 			suite.app.InflationKeeper.MintCoins(suite.ctx, coin)

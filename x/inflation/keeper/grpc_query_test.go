@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestSkippedEPochs() {
+func (suite *KeeperTestSuite) TestSkippedEpochs() {
 	var (
 		req    *types.QuerySkippedEpochsRequest
 		expRes *types.QuerySkippedEpochsResponse
@@ -165,6 +165,35 @@ func (suite *KeeperTestSuite) TestSkippedEPochs() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestQueryTotalSupply() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+
+	// Mint coins to increase supply
+	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
+	mintCoin := sdk.NewCoin(mintDenom, sdk.TokensFromConsensusPower(int64(400_000_000), sdk.DefaultPowerReduction))
+	suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
+
+	expTotalSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, sdk.DefaultPowerReduction))
+
+	res, err := suite.queryClient.TotalSupply(ctx, &types.QueryTotalSupplyRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expTotalSupply, res.TotalSupply)
+}
+
+func (suite *KeeperTestSuite) TestQueryInflationRate() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+
+	// Mint coins to increase supply
+	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
+	mintCoin := sdk.NewCoin(mintDenom, sdk.TokensFromConsensusPower(int64(400_000_000), sdk.DefaultPowerReduction))
+	suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
+
+	expInflationRate := sdk.MustNewDecFromStr("154.687500000000000000")
+	res, err := suite.queryClient.InflationRate(ctx, &types.QueryInflationRateRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expInflationRate, res.InflationRate)
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
