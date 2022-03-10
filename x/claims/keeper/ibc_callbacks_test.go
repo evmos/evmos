@@ -412,11 +412,24 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"correct, same sender with EVM channel",
+			"correct, same sender with EVM channel, no claims record",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+			},
+		},
+		{
+			"correct, same sender with EVM channel, with claims record",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
