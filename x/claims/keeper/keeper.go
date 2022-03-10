@@ -92,6 +92,13 @@ func (k Keeper) GetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) (types.Cla
 	return claimsRecord, true
 }
 
+// HasClaimsRecord returns if the claims record is found in the store a
+// given address
+func (k Keeper) HasClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
+	return store.Has(addr)
+}
+
 // SetClaimsRecord sets a claim record for an address in store
 func (k Keeper) SetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress, claimsRecord types.ClaimsRecord) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
