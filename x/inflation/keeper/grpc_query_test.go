@@ -81,7 +81,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 				)
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
-					EpochMintProvision: defaultEpochMintProvision,
+					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
 				}
 			},
 			true,
@@ -94,7 +94,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 				suite.Commit()
 
 				req = &types.QueryEpochMintProvisionRequest{}
-				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}
+				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, epochMintProvision)}
 			},
 			true,
 		},

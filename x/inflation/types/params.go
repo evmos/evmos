@@ -7,7 +7,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	evm "github.com/tharsis/ethermint/x/evm/types"
+)
+
+var (
+	// DefaultClaimsDenom is aevmos
+	DefaultInflationDenom = "aevmos"
 )
 
 // Parameter store keys
@@ -40,7 +44,7 @@ func NewParams(
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom: evm.DefaultEVMDenom,
+		MintDenom: DefaultInflationDenom,
 		ExponentialCalculation: ExponentialCalculation{
 			A:             sdk.NewDec(int64(300_000_000)),
 			R:             sdk.NewDecWithPrec(50, 2), // 50%

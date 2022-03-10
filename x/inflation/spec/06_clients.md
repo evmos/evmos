@@ -25,12 +25,12 @@ Allows users to query the current inflation period.
 evmosd query inflation period [flags]
 ```
 
-**`epoch-mint-provisions`**
+**`epoch-mint-provision`**
 
 Allows users to query the current inflation epoch provisions value.
 
 ```go
-evmosd query inflation epoch-mint-provisions [flags]
+evmosd query inflation epoch-mint-provision [flags]
 ```
 
 **`skipped-epochs`**
