@@ -41,19 +41,18 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.EvmosChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCChain, 2)
 
+	// Mint coins locked on the evmos account generated with secp.
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-
-	// suite.sender = "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
-	// suite.senderAcc, _ = sdk.AccAddressFromBech32(suite.sender)
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.IBCChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
+	// Mint coins on the cosmos side which we'll use to unlock our aevmos
 	coins = sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(10)))
 	err = suite.IBCChain.GetSimApp().BankKeeper.MintCoins(suite.IBCChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.IBCChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCChain.GetContext(), minttypes.ModuleName, transfertypes.GetEscrowAddress("transfer", "channel-0"), coins)
+	err = suite.IBCChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCChain.GetContext(), minttypes.ModuleName, suite.IBCChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
 	params := types.DefaultParams()
@@ -102,24 +101,26 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			suite.SetupTest()
 			path := suite.path
 
-			sender := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, suite.IBCChain.SenderAccount.GetAddress())
+			// TODO Change IBCChain Bech32 to Cosmos prefix
+			// sender := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, suite.IBCChain.SenderAccount.GetAddress())
+			sender := suite.IBCChain.SenderAccount.GetAddress().String()
 			receiver := suite.IBCChain.SenderAccount.GetAddress().String()
 
-			coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress(), "aevmos")
-			suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
+			// Send IBC transaction of 10 testcoin
+			transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin("testcoin", sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
+			_, err := suite.IBCChain.SendMsgs(transferMsg)
+			suite.Require().NoError(err) // message committed
 
 			transfer := transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
-			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-			// send on endpointA
-			err := suite.path.EndpointA.SendPacket(packet)
-			suite.Require().NoError(err)
-
+			// Receive message on the evmos side, and send ack
 			err = suite.path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
 			// Recreate packets that were sent in the ibc_callback
+
+			// Coins locked
 			transfer2 := transfertypes.FungibleTokenPacketData{
 				Amount:   "10000",
 				Denom:    "aevmos",
@@ -137,6 +138,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				1677926229000000000,      // timeout timestamp disabled
 			)
 
+			// Coins transfered
 			transfer3 := transfertypes.FungibleTokenPacketData{
 				Amount:   "10",
 				Denom:    "transfer/channel-0/testcoin",
@@ -161,7 +163,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress(), "aevmos")
+				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress(), "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 				coins := suite.IBCChain.GetSimApp().BankKeeper.GetAllBalances(suite.IBCChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress())
 				suite.Require().Equal(coins[0].Amount, sdk.NewInt(10000))
