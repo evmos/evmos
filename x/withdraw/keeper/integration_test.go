@@ -27,8 +27,9 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 	coins := sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(1000)))
 
 	var (
-		sender   sdk.AccAddress
-		receiver sdk.AccAddress
+		secpAddr sdk.AccAddress
+		sender   string
+		receiver string
 	)
 
 	BeforeEach(func() {
@@ -39,42 +40,31 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 		params.EnableWithdraw = false
 		s.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(s.chainB.GetContext(), params)
 
-		// Get secp addresses
+		// Set sender with secp256k1 on Cosmos chain and generate sender and receiver addresses from it
 		pk := secp256k1.GenPrivKey()
-		secpAddr := sdk.AccAddress(pk.PubKey().Address())
-		baseAcc := authtypes.NewBaseAccountWithAddress(secpAddr)
-
+		secpAddr = sdk.AccAddress(pk.PubKey().Address())
 		secpAddrEvmos := secpAddr.String()
 		secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
-		fmt.Println(secpAddrEvmos)
-		fmt.Println(secpAddrCosmos)
-
-		// Set sender with secp256k1 on Cosmos chain
-		s.chainA.SenderPrivKey = pk
-		s.chainA.SenderAccount = baseAcc
-		sender = s.chainA.SenderAccount.GetAddress()
+		baseAcc := authtypes.NewBaseAccountWithAddress(secpAddr)
 		s.chainA.GetSimApp().AccountKeeper.SetAccount(s.chainA.GetContext(), baseAcc)
 
-		// TODO Set receiver with secp256k1 on Evmos chain
-		// TODO currently failing at 	if !sender.Equals(recipient) {
-		// s.chainB.SenderPrivKey = pk
-		// s.chainB.SenderAccount = baseAcc
-		receiver = s.chainB.SenderAccount.GetAddress()
-		// s.chainB.App.(*app.Evmos).AccountKeeper.SetAccount(s.chainB.GetContext(), baseAcc)
+		sender = secpAddrCosmos
+		receiver = secpAddrEvmos
 
+		// Fund chain A aacount
 		err := s.chainA.GetSimApp().BankKeeper.MintCoins(s.chainA.GetContext(), minttypes.ModuleName, coins)
 		s.Require().NoError(err)
-		err = s.chainA.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(s.chainA.GetContext(), minttypes.ModuleName, s.chainA.SenderAccount.GetAddress(), coins)
+		err = s.chainA.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(s.chainA.GetContext(), minttypes.ModuleName, secpAddr, coins)
 		s.Require().NoError(err)
 
-		fmt.Printf("balanceA0: %s \n", s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
-		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
+		fmt.Printf("balanceA0: %s \n", s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), secpAddr))
+		fmt.Printf("balanceB0: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), secpAddr))
 
 		// Send coins from chainA to chainB over IBC
-		sendCoinfromAtoBWithIBC(sender, receiver, coin, 1)
+		sendCoinfromAtoBWithIBC(receiver, receiver, coin, 1)
 
-		fmt.Printf("balanceA1: %s \n", s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), sender))
-		fmt.Printf("balanceB1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver))
+		fmt.Printf("balanceA1: %s \n", s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), secpAddr))
+		fmt.Printf("balanceB1: %s \n", s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), secpAddr))
 
 		// Activate IBC callback
 		params.EnableWithdraw = true
@@ -87,28 +77,28 @@ var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, fu
 			sendCoinfromAtoBWithIBC(sender, receiver, coin, 2)
 
 			// sender balance is original receiver balance
-			balancesSender := s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), sender)
+			balancesSender := s.chainA.GetSimApp().BankKeeper.GetAllBalances(s.chainA.GetContext(), secpAddr)
 			fmt.Printf("balanceA2: %s \n", balancesSender)
 			// Expect(balancesSender.IsZero()).To(BeTrue())
 
 			// receiver balance is 0
-			balancesReceiver := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), receiver)
+			balancesReceiver := s.chainB.App.(*app.Evmos).BankKeeper.GetAllBalances(s.chainB.GetContext(), secpAddr)
 			fmt.Printf("balanceB2: %s \n", balancesReceiver)
 			Expect(balancesReceiver.IsZero()).To(BeTrue())
 		})
 	})
 })
 
-func sendCoinfromAtoBWithIBC(from, to sdk.AccAddress, coin sdk.Coin, seq uint64) {
+func sendCoinfromAtoBWithIBC(from, to string, coin sdk.Coin, seq uint64) {
 	path := s.path
 
 	// send coin from chainA to chainB
-	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, coin, from.String(), to.String(), timeoutHeight, 0)
+	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, coin, from, to, timeoutHeight, 0)
 	_, err := s.chainA.SendMsgs(transferMsg)
 	s.Require().NoError(err) // message committed
 
 	// receive coin on chainB from chainA
-	fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData(coin.Denom, coin.Amount.String(), from.String(), to.String())
+	fungibleTokenPacket := transfertypes.NewFungibleTokenPacketData(coin.Denom, coin.Amount.String(), from, to)
 	packet := channeltypes.NewPacket(fungibleTokenPacket.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 	// get proof of packet commitment from chainA
@@ -117,7 +107,7 @@ func sendCoinfromAtoBWithIBC(from, to sdk.AccAddress, coin sdk.Coin, seq uint64)
 	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
 	proof, proofHeight := path.EndpointA.QueryProof(packetKey)
 
-	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, to.String())
+	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, to)
 	_, err = s.chainB.SendMsgs(recvMsg)
 	s.Require().NoError(err) // message committed
 }
