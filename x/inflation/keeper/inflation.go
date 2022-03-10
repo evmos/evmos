@@ -112,6 +112,11 @@ func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Dec {
 	mintDenom := types.DefaultParams().MintDenom
 	bankSupply := sdk.NewDecCoinFromCoin(k.bankKeeper.GetSupply(ctx, mintDenom)).Amount
 	teamAllocation := sdk.NewDecFromInt(teamAlloc)
+
+	// Note if you run a local node without vesting accounts return zero supply
+	if bankSupply.LTE(teamAllocation) {
+		bankSupply = teamAllocation
+	}
 	return bankSupply.Sub(teamAllocation)
 }
 
