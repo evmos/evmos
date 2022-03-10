@@ -14,6 +14,7 @@ import (
 
 	"github.com/tharsis/evmos/v2/ibctesting"
 
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/tharsis/evmos/v2/app"
 	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
@@ -24,8 +25,8 @@ type IBCTestingSuite struct {
 	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	chainA *ibcgotesting.TestChain
-	chainB *ibcgotesting.TestChain
+	EvmosChain *ibcgotesting.TestChain
+	IBCChain   *ibcgotesting.TestChain
 
 	path *ibcgotesting.Path
 
@@ -34,40 +35,33 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
-
-	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewEVMCoordinator(suite.T(), 2)      // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
-	suite.coordinator.CommitNBlocks(suite.chainA, 2)
-	suite.coordinator.CommitNBlocks(suite.chainB, 2)
+	suite.coordinator = ibctesting.NewMixedCoordinator(suite.T(), 1, 1)     // initializes 2 test chains
+	suite.EvmosChain = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
+	suite.IBCChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
+	suite.coordinator.CommitNBlocks(suite.EvmosChain, 2)
+	suite.coordinator.CommitNBlocks(suite.IBCChain, 2)
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
-	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
+	err := suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
 
-	suite.sender = "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
-	suite.senderAcc, _ = sdk.AccAddressFromBech32(suite.sender)
-	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainB.GetContext(), inflationtypes.ModuleName, suite.senderAcc, coins)
+	// suite.sender = "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	// suite.senderAcc, _ = sdk.AccAddressFromBech32(suite.sender)
+	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.IBCChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
 	coins = sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(10)))
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
+	err = suite.IBCChain.GetSimApp().BankKeeper.MintCoins(suite.IBCChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, transfertypes.GetEscrowAddress("transfer", "channel-0"), coins)
+	err = suite.IBCChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCChain.GetContext(), minttypes.ModuleName, transfertypes.GetEscrowAddress("transfer", "channel-0"), coins)
 	suite.Require().NoError(err)
 
 	params := types.DefaultParams()
 	params.EnableWithdraw = true
-	//	suite.chainA.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainA.GetContext(), params)
-	suite.chainB.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainB.GetContext(), params)
+	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-	params.EnableWithdraw = false
-	suite.chainA.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.chainA.GetContext(), params)
-
-	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
+	suite.path = NewTransferPath(suite.IBCChain, suite.EvmosChain) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.path)                            // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", suite.path.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.path.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.path.EndpointA.ChannelID)
@@ -108,25 +102,29 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			suite.SetupTest()
 			path := suite.path
 
-			coin := suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), suite.senderAcc, "aevmos")
+			sender := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, suite.IBCChain.SenderAccount.GetAddress())
+			receiver := suite.IBCChain.SenderAccount.GetAddress().String()
+
+			coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress(), "aevmos")
 			suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 
-			transfer := transfertypes.NewFungibleTokenPacketData("testcoin", "10", suite.sender, suite.sender)
+			transfer := transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 			// send on endpointA
-			suite.path.EndpointA.SendPacket(packet)
+			err := suite.path.EndpointA.SendPacket(packet)
+			suite.Require().NoError(err)
 
-			err := suite.path.RelayPacket(packet)
+			err = suite.path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
 			// Recreate packets that were sent in the ibc_callback
 			transfer2 := transfertypes.FungibleTokenPacketData{
 				Amount:   "10000",
 				Denom:    "aevmos",
-				Receiver: suite.sender,
-				Sender:   suite.sender,
+				Receiver: sender,
+				Sender:   receiver,
 			}
 			packet2 := channeltypes.NewPacket(
 				transfer2.GetBytes(),
@@ -142,8 +140,8 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			transfer3 := transfertypes.FungibleTokenPacketData{
 				Amount:   "10",
 				Denom:    "transfer/channel-0/testcoin",
-				Receiver: suite.sender,
-				Sender:   suite.sender,
+				Receiver: sender,
+				Sender:   receiver,
 			}
 			packet3 := channeltypes.NewPacket(
 				transfer3.GetBytes(),
@@ -163,11 +161,11 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			suite.Require().NoError(err)
 
 			if tc.expPass {
-				coin = suite.chainB.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainB.GetContext(), suite.senderAcc, "aevmos")
+				coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress(), "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
-				coins := suite.chainA.App.(*app.Evmos).BankKeeper.GetAllBalances(suite.chainA.GetContext(), suite.senderAcc)
+				coins := suite.IBCChain.GetSimApp().BankKeeper.GetAllBalances(suite.IBCChain.GetContext(), suite.IBCChain.SenderAccount.GetAddress())
 				suite.Require().Equal(coins[0].Amount, sdk.NewInt(10000))
-				suite.Require().Equal(coins[1].Amount, sdk.NewInt(10))
+				suite.Require().Equal(coins[2].Amount, sdk.NewInt(10))
 			}
 		})
 	}
