@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethermint "github.com/tharsis/ethermint/types"
@@ -113,10 +115,11 @@ func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Dec {
 	bankSupply := sdk.NewDecCoinFromCoin(k.bankKeeper.GetSupply(ctx, mintDenom)).Amount
 	teamAllocation := sdk.NewDecFromInt(teamAlloc)
 
-	// Note if you run a local node without vesting accounts return zero supply
-	if bankSupply.LTE(teamAllocation) {
-		bankSupply = teamAllocation
+	// Consider team allocation only on mainnet chain id
+	if !strings.HasPrefix(ctx.ChainID(), "evmos_9001-") {
+		teamAllocation = sdk.ZeroDec()
 	}
+
 	return bankSupply.Sub(teamAllocation)
 }
 
