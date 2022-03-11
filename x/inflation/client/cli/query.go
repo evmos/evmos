@@ -124,7 +124,7 @@ func GetSkippedEpochs() *cobra.Command {
 func GetTotalSupply() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "total-supply",
-		Short: "Query the current inflation epoch provisions value",
+		Short: "Query the current total supply of tokens in circulation",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -148,11 +148,11 @@ func GetTotalSupply() *cobra.Command {
 	return cmd
 }
 
-// GetInflationRate implements a command to return the current total supply
+// GetInflationRate implements a command to return the inflation rate
 func GetInflationRate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "inflation-rate",
-		Short: "Query the current inflation epoch provisions value",
+		Short: "Query the inflation rate of the current period",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

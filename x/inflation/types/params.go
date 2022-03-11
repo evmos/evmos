@@ -10,10 +10,7 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 )
 
-var (
-	// DefaultClaimsDenom is aevmos
-	DefaultInflationDenom = evm.DefaultEVMDenom
-)
+var DefaultInflationDenom = evm.DefaultEVMDenom
 
 // Parameter store keys
 var (
