@@ -124,8 +124,8 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Dec {
 	mintDenom := k.GetParams(ctx).MintDenom
 
-	totalSupply := sdk.NewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
-	teamAllocation := sdk.NewDecFromInt(teamAlloc)
+	totalSupply := k.bankKeeper.GetSupply(ctx, mintDenom).Amount.ToDec()
+	teamAllocation := teamAlloc.ToDec()
 
 	// Consider team allocation only on mainnet chain id
 	if k.isMainnetChainID(ctx) {
