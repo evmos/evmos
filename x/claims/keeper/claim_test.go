@@ -49,8 +49,9 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 	for _, tc := range testCases {
 		suite.SetupClaimTest()
 		action := types.ActionDelegate
-		amt := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, tc.claimsRecord, action, tc.params)
+		amt, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, tc.claimsRecord, action, tc.params)
 		suite.Require().Equal(tc.expAmt.Int64(), amt.Int64())
+		suite.Require().Equal(int64(0), remainder.Int64())
 	}
 }
 
@@ -124,7 +125,8 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	coins := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addr1)
 	suite.Require().Equal(coins, sdk.NewInt(1000))
 
-	coins = suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionVote, suite.app.ClaimsKeeper.GetParams(suite.ctx))
+	// FIXME: update
+	coins, _ = suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionVote, suite.app.ClaimsKeeper.GetParams(suite.ctx))
 	suite.Require().Equal(coins, sdk.NewInt(250)) // 1/4th of the claimable
 
 	_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionVote, params)
@@ -295,7 +297,8 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	suite.Require().True(coins3.IsZero())
 
 	// get rewards amount per action
-	coins4 := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecords[0], types.ActionDelegate, suite.app.ClaimsKeeper.GetParams(suite.ctx))
+	// FIXME: update
+	coins4, _ := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecords[0], types.ActionDelegate, suite.app.ClaimsKeeper.GetParams(suite.ctx))
 	suite.Require().Equal(sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), 25)).AmountOf(params.GetClaimsDenom()), coins4) // 2 = 10.Quo(4)
 
 	// get completed activities
@@ -325,7 +328,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 
 	// check that claimable for completed activity is 0
 	claimsRecord1, _ := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addrs[0])
-	bal4 := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord1, types.ActionEVM, params)
+	bal4, _ := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord1, types.ActionEVM, params)
 	suite.Require().Equal(bal4, sdk.NewInt(0))
 
 	// do rest of actions
@@ -378,7 +381,8 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 		{
 			fn: func() {
 				ctx := suite.ctx.WithBlockTime(airdropStartTime)
-				coins := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
+				// FIXME: update
+				coins, _ := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
 				suite.Require().Equal(claimsRecord.InitialClaimableAmount.Quo(sdk.NewInt(4)).String(), coins.String())
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionEVM, params)
@@ -390,7 +394,8 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 		{
 			fn: func() {
 				ctx := suite.ctx.WithBlockTime(airdropStartTime.Add(durationUntilDecay))
-				coins := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
+				// FIXME: update
+				coins, _ := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
 				suite.Require().Equal(claimsRecord.InitialClaimableAmount.Quo(sdk.NewInt(4)).String(), coins.String())
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionEVM, params)
@@ -408,7 +413,8 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 				claimablePercent := sdk.OneDec().Sub(decayPercent)
 
 				ctx := suite.ctx.WithBlockTime(blockTime)
-				coins := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
+				// FIXME: update
+				coins, _ := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
 
 				suite.Require().Equal(claimsRecord.InitialClaimableAmount.ToDec().Mul(claimablePercent).Quo(sdk.NewDec(4)).RoundInt().String(), coins.String())
 

@@ -103,10 +103,12 @@ func (k Keeper) ClaimsRecord(
 
 	claims := make([]types.Claim, len(actions))
 	for i, action := range actions {
+		claimableAmt, _ := k.GetClaimableAmountForAction(ctx, claimsRecord, action, params)
+
 		claims[i] = types.Claim{
 			Action:          action,
 			Completed:       claimsRecord.HasClaimedAction(action),
-			ClaimableAmount: k.GetClaimableAmountForAction(ctx, claimsRecord, action, params),
+			ClaimableAmount: claimableAmt,
 		}
 	}
 
