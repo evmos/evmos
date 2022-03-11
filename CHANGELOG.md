@@ -45,8 +45,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
+- (ibctesting) [\#388](https://github.com/tharsis/evmos/pull/388) Support Cosmos and EVM chains in IBC testing `Coordinator`.
 - (inflation) [\#383](https://github.com/tharsis/evmos/pull/383) Add gRPC endpoints for inflation rate and total supply
+- (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
 
 ## [v2.0.1] - 2022-03-06
 
