@@ -70,9 +70,9 @@ func (suite *IBCTestingSuite) SetupTest() {
 
 	suite.pathCosmos = NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
 	suite.coordinator.Setup(suite.pathCosmos)                           // clientID, connectionID, channelID filled
-	suite.Require().Equal("07-tendermint-1", suite.pathEVM.EndpointA.ClientID)
-	suite.Require().Equal("connection-1", suite.pathEVM.EndpointA.ConnectionID)
-	suite.Require().Equal("channel-2", suite.pathEVM.EndpointA.ChannelID)
+	suite.Require().Equal("07-tendermint-1", suite.pathCosmos.EndpointA.ClientID)
+	suite.Require().Equal("connection-1", suite.pathCosmos.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-1", suite.pathCosmos.EndpointA.ChannelID)
 }
 
 func TestIBCTestingSuite(t *testing.T) {
