@@ -37,6 +37,14 @@
         "url": "./tmp-swagger-gen/evmos/inflation/v1/query.swagger.json",
         "operationIds": {
           "rename": {
+            "TotalSupply": "InflationTotalSupply"
+          }
+        }
+      },
+      {
+        "url": "./tmp-swagger-gen/evmos/inflation/v1/query.swagger.json",
+        "operationIds": {
+          "rename": {
             "Params": "InflationParams"
           }
         }
