@@ -148,7 +148,7 @@ func GetTotalSupply() *cobra.Command {
 	return cmd
 }
 
-// GetInflationRate implements a command to return the inflation rate
+// GetInflationRate implements a command to return the inflation rate in %
 func GetInflationRate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "inflation-rate",
@@ -167,7 +167,7 @@ func GetInflationRate() *cobra.Command {
 				return err
 			}
 
-			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.InflationRate))
+			return clientCtx.PrintString(fmt.Sprintf("%s%%\n", res.InflationRate))
 		},
 	}
 

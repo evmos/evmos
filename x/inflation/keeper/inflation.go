@@ -116,11 +116,11 @@ func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Dec {
 	teamAllocation := sdk.NewDecFromInt(teamAlloc)
 
 	// Consider team allocation only on mainnet chain id
-	if !strings.HasPrefix(ctx.ChainID(), "evmos_9001-") {
-		teamAllocation = sdk.ZeroDec()
+	if strings.HasPrefix(ctx.ChainID(), "evmos_9001-") {
+		bankSupply = bankSupply.Sub(teamAllocation)
 	}
 
-	return bankSupply.Sub(teamAllocation)
+	return bankSupply
 }
 
 // GetInflationRate returns the inflation rate for the current period.
