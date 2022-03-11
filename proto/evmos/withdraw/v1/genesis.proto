@@ -9,10 +9,21 @@ option go_package = "github.com/tharsis/evmos/v2/x/withdraw/types";
 message GenesisState {
     // params defines all the paramaters of the module.
     Params params = 1 [ (gogoproto.nullable) = false ];
+    // list of all registered Bech32 HRPs
+    repeated Prefix prefixes = 2 [ (gogoproto.nullable) = false ];
 }
 
 // Params holds parameters for the withdraw module.
 message Params {
     // enable withdraw IBC middleware
     bool enable_withdraw = 1;
+}
+
+// Prefix represents the HRP of the source chain connected through an
+// IBC channel.
+message Prefix {
+    // source channel for the HRP
+    string source_channel = 1;
+    // Human Readible Prefix
+    string bech32_hrp = 2 [(gogoproto.customname) = "Bech32HRP"];
 }

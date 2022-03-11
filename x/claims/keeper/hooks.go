@@ -43,7 +43,12 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr 
 
 	_, err := k.ClaimCoinsForAction(ctx, voterAddr, claimsRecord, types.ActionVote, params)
 	if err != nil {
-		panic(err.Error())
+		k.Logger(ctx).Error(
+			"failed to claim Vote action",
+			"address", voterAddr.String(),
+			"error", err.Error(),
+		)
+		return
 	}
 }
 
@@ -57,7 +62,12 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 
 	_, err := k.ClaimCoinsForAction(ctx, delAddr, claimsRecord, types.ActionDelegate, params)
 	if err != nil {
-		panic(err.Error())
+		k.Logger(ctx).Error(
+			"failed to claim Delegation action",
+			"address", delAddr.String(),
+			"error", err.Error(),
+		)
+		return
 	}
 }
 
@@ -72,7 +82,12 @@ func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to
 
 	_, err := k.ClaimCoinsForAction(ctx, fromAddr, claimsRecord, types.ActionEVM, params)
 	if err != nil {
-		return err
+		k.Logger(ctx).Error(
+			"failed to claim EVM action",
+			"address", fromAddr.String(),
+			"error", err.Error(),
+		)
+		return nil
 	}
 
 	return nil

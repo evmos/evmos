@@ -25,6 +25,8 @@ func GetQueryCmd() *cobra.Command {
 		GetPeriod(),
 		GetEpochMintProvision(),
 		GetSkippedEpochs(),
+		GetTotalSupply(),
+		GetInflationRate(),
 		GetParams(),
 	)
 
@@ -64,7 +66,7 @@ func GetPeriod() *cobra.Command {
 // epoch provisions value.
 func GetEpochMintProvision() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "epoch-mint-provisions",
+		Use:   "epoch-mint-provision",
 		Short: "Query the current inflation epoch provisions value",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -110,6 +112,62 @@ func GetSkippedEpochs() *cobra.Command {
 			}
 
 			return clientCtx.PrintString(fmt.Sprintf("%v\n", res.SkippedEpochs))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTotalSupply implements a command to return the current total supply
+func GetTotalSupply() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "total-supply",
+		Short: "Query the current total supply of tokens in circulation",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryTotalSupplyRequest{}
+			res, err := queryClient.TotalSupply(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.TotalSupply))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetInflationRate implements a command to return the inflation rate in %
+func GetInflationRate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "inflation-rate",
+		Short: "Query the inflation rate of the current period",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryInflationRateRequest{}
+			res, err := queryClient.InflationRate(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintString(fmt.Sprintf("%s%%\n", res.InflationRate))
 		},
 	}
 

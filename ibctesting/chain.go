@@ -26,6 +26,10 @@ import (
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains
 var ChainIDPrefix = "evmos_9000-"
 
+func init() {
+	ibcgotesting.ChainIDPrefix = ChainIDPrefix
+}
+
 // NewTestChain initializes a new TestChain instance with a single validator set using a
 // generated private key. It also creates a sender account to be used for delivering transactions.
 //
