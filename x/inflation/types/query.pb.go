@@ -7,6 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -155,7 +156,7 @@ var xxx_messageInfo_QueryEpochMintProvisionRequest proto.InternalMessageInfo
 // Query/EpochMintProvision RPC method.
 type QueryEpochMintProvisionResponse struct {
 	// epoch_mint_provision is the current minting per epoch provision value.
-	EpochMintProvision github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=epoch_mint_provision,json=epochMintProvision,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"epoch_mint_provision"`
+	EpochMintProvision types.DecCoin `protobuf:"bytes,1,opt,name=epoch_mint_provision,json=epochMintProvision,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"epoch_mint_provision"`
 }
 
 func (m *QueryEpochMintProvisionResponse) Reset()         { *m = QueryEpochMintProvisionResponse{} }
@@ -190,6 +191,13 @@ func (m *QueryEpochMintProvisionResponse) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_QueryEpochMintProvisionResponse proto.InternalMessageInfo
+
+func (m *QueryEpochMintProvisionResponse) GetEpochMintProvision() types.DecCoin {
+	if m != nil {
+		return m.EpochMintProvision
+	}
+	return types.DecCoin{}
+}
 
 // QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
 type QuerySkippedEpochsRequest struct {
@@ -274,6 +282,165 @@ func (m *QuerySkippedEpochsResponse) GetSkippedEpochs() uint64 {
 	return 0
 }
 
+// QueryTotalSupplyRequest is the request type for the Query/TotalSupply RPC method.
+type QueryTotalSupplyRequest struct {
+}
+
+func (m *QueryTotalSupplyRequest) Reset()         { *m = QueryTotalSupplyRequest{} }
+func (m *QueryTotalSupplyRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryTotalSupplyRequest) ProtoMessage()    {}
+func (*QueryTotalSupplyRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_91b9f1b5d47c7fd7, []int{6}
+}
+func (m *QueryTotalSupplyRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryTotalSupplyRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryTotalSupplyRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryTotalSupplyRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTotalSupplyRequest.Merge(m, src)
+}
+func (m *QueryTotalSupplyRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryTotalSupplyRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTotalSupplyRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTotalSupplyRequest proto.InternalMessageInfo
+
+// QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
+type QueryTotalSupplyResponse struct {
+	// total amount of coins in circulation
+	TotalSupply types.DecCoin `protobuf:"bytes,1,opt,name=total_supply,json=totalSupply,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"total_supply"`
+}
+
+func (m *QueryTotalSupplyResponse) Reset()         { *m = QueryTotalSupplyResponse{} }
+func (m *QueryTotalSupplyResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryTotalSupplyResponse) ProtoMessage()    {}
+func (*QueryTotalSupplyResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_91b9f1b5d47c7fd7, []int{7}
+}
+func (m *QueryTotalSupplyResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryTotalSupplyResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryTotalSupplyResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryTotalSupplyResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTotalSupplyResponse.Merge(m, src)
+}
+func (m *QueryTotalSupplyResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryTotalSupplyResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTotalSupplyResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTotalSupplyResponse proto.InternalMessageInfo
+
+func (m *QueryTotalSupplyResponse) GetTotalSupply() types.DecCoin {
+	if m != nil {
+		return m.TotalSupply
+	}
+	return types.DecCoin{}
+}
+
+// QueryInflationRateRequest is the request type for the Query/InflationRate RPC method.
+type QueryInflationRateRequest struct {
+}
+
+func (m *QueryInflationRateRequest) Reset()         { *m = QueryInflationRateRequest{} }
+func (m *QueryInflationRateRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryInflationRateRequest) ProtoMessage()    {}
+func (*QueryInflationRateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_91b9f1b5d47c7fd7, []int{8}
+}
+func (m *QueryInflationRateRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInflationRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInflationRateRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInflationRateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInflationRateRequest.Merge(m, src)
+}
+func (m *QueryInflationRateRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInflationRateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInflationRateRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInflationRateRequest proto.InternalMessageInfo
+
+// QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
+type QueryInflationRateResponse struct {
+	// rate by which the total supply increases within one period
+	InflationRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=inflation_rate,json=inflationRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"inflation_rate"`
+}
+
+func (m *QueryInflationRateResponse) Reset()         { *m = QueryInflationRateResponse{} }
+func (m *QueryInflationRateResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryInflationRateResponse) ProtoMessage()    {}
+func (*QueryInflationRateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_91b9f1b5d47c7fd7, []int{9}
+}
+func (m *QueryInflationRateResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInflationRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInflationRateResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInflationRateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInflationRateResponse.Merge(m, src)
+}
+func (m *QueryInflationRateResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInflationRateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInflationRateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInflationRateResponse proto.InternalMessageInfo
+
 // QueryParamsRequest is the request type for the Query/Params RPC method.
 type QueryParamsRequest struct {
 }
@@ -282,7 +449,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_91b9f1b5d47c7fd7, []int{6}
+	return fileDescriptor_91b9f1b5d47c7fd7, []int{10}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -321,7 +488,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_91b9f1b5d47c7fd7, []int{7}
+	return fileDescriptor_91b9f1b5d47c7fd7, []int{11}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -364,6 +531,10 @@ func init() {
 	proto.RegisterType((*QueryEpochMintProvisionResponse)(nil), "evmos.inflation.v1.QueryEpochMintProvisionResponse")
 	proto.RegisterType((*QuerySkippedEpochsRequest)(nil), "evmos.inflation.v1.QuerySkippedEpochsRequest")
 	proto.RegisterType((*QuerySkippedEpochsResponse)(nil), "evmos.inflation.v1.QuerySkippedEpochsResponse")
+	proto.RegisterType((*QueryTotalSupplyRequest)(nil), "evmos.inflation.v1.QueryTotalSupplyRequest")
+	proto.RegisterType((*QueryTotalSupplyResponse)(nil), "evmos.inflation.v1.QueryTotalSupplyResponse")
+	proto.RegisterType((*QueryInflationRateRequest)(nil), "evmos.inflation.v1.QueryInflationRateRequest")
+	proto.RegisterType((*QueryInflationRateResponse)(nil), "evmos.inflation.v1.QueryInflationRateResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "evmos.inflation.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "evmos.inflation.v1.QueryParamsResponse")
 }
@@ -371,39 +542,50 @@ func init() {
 func init() { proto.RegisterFile("evmos/inflation/v1/query.proto", fileDescriptor_91b9f1b5d47c7fd7) }
 
 var fileDescriptor_91b9f1b5d47c7fd7 = []byte{
-	// 509 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0x31, 0x6f, 0x13, 0x31,
-	0x18, 0xcd, 0xa1, 0x90, 0xc1, 0x50, 0x06, 0x13, 0x21, 0x38, 0xaa, 0x4b, 0x74, 0x82, 0x52, 0x55,
-	0x8a, 0x4d, 0xd3, 0x85, 0xb9, 0x80, 0x98, 0x10, 0x25, 0x6c, 0x2c, 0xe1, 0x9a, 0x98, 0x8b, 0xd5,
-	0xc6, 0x76, 0xef, 0x73, 0x4e, 0x74, 0x60, 0x81, 0x3f, 0x80, 0xc4, 0xc6, 0x9f, 0xe0, 0x6f, 0x74,
-	0xac, 0x04, 0x03, 0x62, 0xa8, 0x50, 0xc2, 0x0f, 0x41, 0xf7, 0x9d, 0x53, 0x12, 0xc5, 0xd7, 0xc2,
-	0x94, 0xe4, 0x7b, 0xcf, 0xef, 0x7b, 0xe7, 0xf7, 0x2e, 0x24, 0x12, 0xf9, 0x58, 0x03, 0x97, 0xea,
-	0xed, 0x61, 0x62, 0xa5, 0x56, 0x3c, 0xdf, 0xe6, 0x47, 0x13, 0x91, 0x1d, 0x33, 0x93, 0x69, 0xab,
-	0x29, 0x45, 0x9c, 0x9d, 0xe3, 0x2c, 0xdf, 0x0e, 0x9b, 0xa9, 0x4e, 0x35, 0xc2, 0xbc, 0xf8, 0x56,
-	0x32, 0xc3, 0xf5, 0x54, 0xeb, 0xf4, 0x50, 0xf0, 0xc4, 0x48, 0x9e, 0x28, 0xa5, 0x2d, 0xf2, 0xc1,
-	0xa1, 0x6d, 0xcf, 0x9e, 0x54, 0x28, 0x01, 0xd2, 0x31, 0xe2, 0x26, 0xa1, 0x2f, 0x8b, 0xc5, 0x7b,
-	0x22, 0x93, 0x7a, 0xd8, 0x13, 0x47, 0x13, 0x01, 0x36, 0xee, 0x90, 0x9b, 0x4b, 0x53, 0x30, 0x5a,
-	0x81, 0xa0, 0xb7, 0x48, 0xc3, 0xe0, 0xe4, 0x76, 0xd0, 0x0e, 0x36, 0xeb, 0x3d, 0xf7, 0x2b, 0x6e,
-	0x93, 0x08, 0xe9, 0x4f, 0x8d, 0x1e, 0x8c, 0x9e, 0x4b, 0x65, 0xf7, 0x32, 0x9d, 0x4b, 0x90, 0x5a,
-	0xcd, 0x05, 0x3f, 0x06, 0xa4, 0x55, 0x49, 0x71, 0xea, 0x6f, 0x48, 0x53, 0x14, 0x68, 0x7f, 0x2c,
-	0x95, 0xed, 0x9b, 0x39, 0x8e, 0xbb, 0xae, 0xef, 0xb2, 0x93, 0xb3, 0x56, 0xed, 0xe7, 0x59, 0x6b,
-	0x23, 0x95, 0x76, 0x34, 0xd9, 0x67, 0x03, 0x3d, 0xe6, 0x03, 0x0d, 0xc5, 0xe3, 0x95, 0x1f, 0x1d,
-	0x18, 0x1e, 0x70, 0x7b, 0x6c, 0x04, 0xb0, 0x27, 0x62, 0xd0, 0xa3, 0x62, 0x65, 0x53, 0x7c, 0x97,
-	0xdc, 0x41, 0x13, 0xaf, 0x0e, 0xa4, 0x31, 0x62, 0x88, 0x5e, 0x60, 0x6e, 0xf1, 0x31, 0x09, 0x7d,
-	0xa0, 0x33, 0x77, 0x9f, 0xdc, 0x80, 0x12, 0xe8, 0xa3, 0x30, 0xb8, 0x2b, 0x58, 0x83, 0x45, 0xfa,
-	0xdf, 0xeb, 0x4c, 0xb2, 0x64, 0x7c, 0x2e, 0xfd, 0x62, 0x7e, 0x9d, 0x6e, 0xea, 0x34, 0x1f, 0x91,
-	0x86, 0xc1, 0x09, 0x6a, 0x5d, 0xeb, 0x86, 0x6c, 0x35, 0x76, 0x56, 0x9e, 0xd9, 0xad, 0x17, 0x8f,
-	0xdf, 0x73, 0xfc, 0xee, 0xf7, 0x3a, 0xb9, 0x8a, 0x8a, 0xf4, 0x3d, 0x69, 0x94, 0x21, 0xd1, 0x0d,
-	0xdf, 0xe9, 0xd5, 0x6c, 0xc3, 0x07, 0x97, 0xf2, 0x4a, 0x7b, 0x71, 0xfc, 0xe1, 0xdb, 0xef, 0xcf,
-	0x57, 0xd6, 0x69, 0xc8, 0x3d, 0x2d, 0x2a, 0x93, 0xa7, 0x5f, 0x03, 0x42, 0x57, 0x23, 0xa5, 0xdd,
-	0xca, 0x1d, 0x95, 0x15, 0x09, 0x77, 0xfe, 0xeb, 0x8c, 0xf3, 0xf8, 0x10, 0x3d, 0x6e, 0xd1, 0x4d,
-	0x9f, 0x47, 0x5f, 0x9b, 0xe8, 0x97, 0x80, 0xac, 0x2d, 0x45, 0x4c, 0x3b, 0x95, 0x8b, 0x7d, 0x3d,
-	0x09, 0xd9, 0xbf, 0xd2, 0x9d, 0xc5, 0x2d, 0xb4, 0x78, 0x8f, 0xc6, 0x3e, 0x8b, 0xcb, 0x9d, 0xc2,
-	0x34, 0x31, 0xe1, 0x8b, 0xd2, 0x5c, 0xac, 0xd6, 0x45, 0x69, 0x2e, 0x95, 0xed, 0x92, 0x34, 0xcb,
-	0x92, 0x3d, 0x3b, 0x99, 0x46, 0xc1, 0xe9, 0x34, 0x0a, 0x7e, 0x4d, 0xa3, 0xe0, 0xd3, 0x2c, 0xaa,
-	0x9d, 0xce, 0xa2, 0xda, 0x8f, 0x59, 0x54, 0x7b, 0xdd, 0x59, 0x78, 0xeb, 0xec, 0x28, 0xc9, 0x40,
-	0x82, 0xd3, 0xc9, 0xbb, 0xfc, 0xdd, 0x82, 0x18, 0xbe, 0x80, 0xfb, 0x0d, 0xfc, 0x73, 0xd9, 0xf9,
-	0x13, 0x00, 0x00, 0xff, 0xff, 0xd9, 0x37, 0xcd, 0x6f, 0xe8, 0x04, 0x00, 0x00,
+	// 679 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x95, 0xb1, 0x6f, 0xd3, 0x4e,
+	0x14, 0xc7, 0xe3, 0x9f, 0xfa, 0x0b, 0xe2, 0x4a, 0x3b, 0x1c, 0x15, 0xb4, 0xa6, 0x72, 0x22, 0x0b,
+	0x4a, 0xd5, 0x92, 0x3b, 0x92, 0x2e, 0xcc, 0x2d, 0x08, 0x31, 0x20, 0x8a, 0x0b, 0x0b, 0x4b, 0xe4,
+	0x24, 0x87, 0x73, 0x6a, 0xe2, 0xbb, 0xfa, 0x2e, 0x16, 0x19, 0x58, 0x40, 0x62, 0xae, 0x60, 0xe3,
+	0x1f, 0x40, 0x62, 0xe1, 0xdf, 0xe8, 0x58, 0x89, 0x05, 0x31, 0x14, 0x94, 0xf0, 0x87, 0x20, 0x9f,
+	0xcf, 0xa9, 0x8d, 0x9d, 0x34, 0x0c, 0x4c, 0x49, 0xde, 0x7b, 0xf7, 0x7d, 0xdf, 0x7b, 0x79, 0x1f,
+	0x1b, 0x58, 0x24, 0xec, 0x33, 0x81, 0xa9, 0xff, 0xb2, 0xe7, 0x4a, 0xca, 0x7c, 0x1c, 0xd6, 0xf1,
+	0xd1, 0x80, 0x04, 0x43, 0xc4, 0x03, 0x26, 0x19, 0x84, 0x2a, 0x8f, 0x26, 0x79, 0x14, 0xd6, 0xcd,
+	0x15, 0x8f, 0x79, 0x4c, 0xa5, 0x71, 0xf4, 0x2d, 0xae, 0x34, 0xd7, 0x3d, 0xc6, 0xbc, 0x1e, 0xc1,
+	0x2e, 0xa7, 0xd8, 0xf5, 0x7d, 0x26, 0x55, 0xbd, 0xd0, 0x59, 0xab, 0xcd, 0x44, 0xd4, 0xa8, 0xe5,
+	0x0a, 0x82, 0xc3, 0x7a, 0x8b, 0x48, 0xb7, 0x8e, 0xdb, 0x8c, 0xfa, 0x3a, 0x5f, 0x2d, 0xf0, 0xe1,
+	0x11, 0x9f, 0x08, 0xaa, 0x15, 0xec, 0x15, 0x00, 0x9f, 0x46, 0xc6, 0xf6, 0x49, 0x40, 0x59, 0xc7,
+	0x21, 0x47, 0x03, 0x22, 0xa4, 0x5d, 0x03, 0x57, 0x33, 0x51, 0xc1, 0x99, 0x2f, 0x08, 0xbc, 0x06,
+	0xca, 0x5c, 0x45, 0x56, 0x8d, 0xaa, 0xb1, 0xb9, 0xe0, 0xe8, 0x5f, 0x76, 0x15, 0x58, 0xaa, 0xfc,
+	0x01, 0x67, 0xed, 0xee, 0x63, 0xea, 0xcb, 0xfd, 0x80, 0x85, 0x54, 0x50, 0xe6, 0x27, 0x82, 0x9f,
+	0x0c, 0x50, 0x99, 0x5a, 0xa2, 0xd5, 0xdf, 0x1a, 0x60, 0x85, 0x44, 0xe9, 0x66, 0x9f, 0xfa, 0xb2,
+	0xc9, 0x93, 0x02, 0xd5, 0x6c, 0xb1, 0xb1, 0x8e, 0xe2, 0xcb, 0xa2, 0xe8, 0xb2, 0x48, 0x5f, 0x16,
+	0xdd, 0x27, 0xed, 0x3d, 0x46, 0xfd, 0xdd, 0x9d, 0x93, 0xb3, 0x4a, 0xe9, 0xf3, 0x8f, 0xca, 0xb6,
+	0x47, 0x65, 0x77, 0xd0, 0x42, 0x6d, 0xd6, 0xc7, 0x7a, 0x38, 0xf1, 0x47, 0x4d, 0x74, 0x0e, 0xb1,
+	0x1c, 0x72, 0x22, 0x92, 0x33, 0xc2, 0x81, 0x24, 0xe7, 0xc6, 0xbe, 0x01, 0xd6, 0x94, 0xd1, 0x83,
+	0x43, 0xca, 0x39, 0xe9, 0x28, 0xbf, 0x22, 0xb9, 0xc6, 0x1e, 0x30, 0x8b, 0x92, 0xfa, 0x02, 0xb7,
+	0xc0, 0xb2, 0x88, 0x13, 0x4d, 0x25, 0x2c, 0xf4, 0x98, 0x96, 0x44, 0xba, 0xdc, 0x5e, 0x03, 0xd7,
+	0x95, 0xc8, 0x33, 0x26, 0xdd, 0xde, 0xc1, 0x80, 0xf3, 0xde, 0x30, 0xd1, 0x3f, 0x36, 0xc0, 0x6a,
+	0x3e, 0xa7, 0xe5, 0x25, 0xb8, 0x22, 0xa3, 0x70, 0x53, 0xa8, 0xf8, 0xbf, 0x1b, 0xcb, 0xa2, 0x3c,
+	0xef, 0x3e, 0x99, 0xc7, 0xa3, 0x64, 0x87, 0x1c, 0x57, 0x92, 0xc4, 0xaf, 0xd0, 0xf3, 0xf8, 0x23,
+	0xa9, 0x0d, 0x3f, 0x07, 0xcb, 0x93, 0xcd, 0x6b, 0x06, 0xae, 0x24, 0xca, 0xf2, 0xe5, 0x5d, 0x14,
+	0x99, 0xfa, 0x7e, 0x56, 0xd9, 0x98, 0xcf, 0x94, 0xb3, 0x44, 0xd3, 0xf2, 0xe7, 0x2b, 0xeb, 0x06,
+	0x6e, 0x7f, 0xf2, 0xd7, 0x3c, 0x49, 0x56, 0x56, 0x47, 0xb5, 0x87, 0x7b, 0xa0, 0xcc, 0x55, 0x44,
+	0x8f, 0xcb, 0x44, 0x79, 0xf4, 0x50, 0x7c, 0x66, 0x77, 0x21, 0xf2, 0xe5, 0xe8, 0xfa, 0xc6, 0xbb,
+	0x4b, 0xe0, 0x7f, 0xa5, 0x08, 0x5f, 0x83, 0x72, 0x0c, 0x02, 0xdc, 0x28, 0x3a, 0x9d, 0xe7, 0xc7,
+	0xbc, 0x7d, 0x61, 0x5d, 0x6c, 0xcf, 0xb6, 0xdf, 0x7c, 0xfd, 0xf5, 0xe1, 0xbf, 0x75, 0x68, 0xe2,
+	0x02, 0x52, 0x63, 0xba, 0xe0, 0x17, 0x03, 0xc0, 0x3c, 0x36, 0xb0, 0x31, 0xb5, 0xc7, 0x54, 0x0c,
+	0xcd, 0x9d, 0xbf, 0x3a, 0xa3, 0x3d, 0xde, 0x55, 0x1e, 0xb7, 0xe0, 0x66, 0x91, 0xc7, 0x22, 0x60,
+	0xe1, 0x47, 0x03, 0x2c, 0x65, 0x10, 0x81, 0xb5, 0xa9, 0x8d, 0x8b, 0x38, 0x33, 0xd1, 0xbc, 0xe5,
+	0xda, 0xe2, 0x96, 0xb2, 0x78, 0x13, 0xda, 0x45, 0x16, 0xb3, 0x4c, 0xc2, 0xf7, 0x06, 0x58, 0x4c,
+	0xe1, 0x05, 0xb7, 0xa7, 0xf6, 0xca, 0x03, 0x6a, 0xde, 0x99, 0xaf, 0x58, 0xdb, 0xda, 0x54, 0xb6,
+	0x6c, 0x58, 0x2d, 0xb2, 0x95, 0x66, 0x59, 0x4d, 0x2c, 0x03, 0xd1, 0x8c, 0x89, 0x15, 0x91, 0x38,
+	0x63, 0x62, 0x85, 0x6c, 0xce, 0x9e, 0x58, 0x96, 0x5a, 0xb5, 0xff, 0x8a, 0x89, 0x59, 0xfb, 0x9f,
+	0x86, 0x71, 0xd6, 0xfe, 0x67, 0xf0, 0xbc, 0x60, 0xff, 0x63, 0x2c, 0x1f, 0x9e, 0x8c, 0x2c, 0xe3,
+	0x74, 0x64, 0x19, 0x3f, 0x47, 0x96, 0x71, 0x3c, 0xb6, 0x4a, 0xa7, 0x63, 0xab, 0xf4, 0x6d, 0x6c,
+	0x95, 0x5e, 0xd4, 0x52, 0x0f, 0x10, 0xd9, 0x75, 0x03, 0x41, 0x85, 0xd6, 0x09, 0x1b, 0xf8, 0x55,
+	0x4a, 0x4c, 0x3d, 0x4b, 0x5a, 0x65, 0xf5, 0xca, 0xdb, 0xf9, 0x1d, 0x00, 0x00, 0xff, 0xff, 0xec,
+	0x35, 0x01, 0x55, 0x9e, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -424,6 +606,10 @@ type QueryClient interface {
 	EpochMintProvision(ctx context.Context, in *QueryEpochMintProvisionRequest, opts ...grpc.CallOption) (*QueryEpochMintProvisionResponse, error)
 	// SkippedEpochs retrieves the total number of skipped epochs.
 	SkippedEpochs(ctx context.Context, in *QuerySkippedEpochsRequest, opts ...grpc.CallOption) (*QuerySkippedEpochsResponse, error)
+	// TotalSupply retrieves the total number of skipped epochs.
+	TotalSupply(ctx context.Context, in *QueryTotalSupplyRequest, opts ...grpc.CallOption) (*QueryTotalSupplyResponse, error)
+	// InflationRate retrieves the inflation rate of the current period.
+	InflationRate(ctx context.Context, in *QueryInflationRateRequest, opts ...grpc.CallOption) (*QueryInflationRateResponse, error)
 	// Params retrieves the total set of minting parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
@@ -463,6 +649,24 @@ func (c *queryClient) SkippedEpochs(ctx context.Context, in *QuerySkippedEpochsR
 	return out, nil
 }
 
+func (c *queryClient) TotalSupply(ctx context.Context, in *QueryTotalSupplyRequest, opts ...grpc.CallOption) (*QueryTotalSupplyResponse, error) {
+	out := new(QueryTotalSupplyResponse)
+	err := c.cc.Invoke(ctx, "/evmos.inflation.v1.Query/TotalSupply", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) InflationRate(ctx context.Context, in *QueryInflationRateRequest, opts ...grpc.CallOption) (*QueryInflationRateResponse, error) {
+	out := new(QueryInflationRateResponse)
+	err := c.cc.Invoke(ctx, "/evmos.inflation.v1.Query/InflationRate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
 	out := new(QueryParamsResponse)
 	err := c.cc.Invoke(ctx, "/evmos.inflation.v1.Query/Params", in, out, opts...)
@@ -480,6 +684,10 @@ type QueryServer interface {
 	EpochMintProvision(context.Context, *QueryEpochMintProvisionRequest) (*QueryEpochMintProvisionResponse, error)
 	// SkippedEpochs retrieves the total number of skipped epochs.
 	SkippedEpochs(context.Context, *QuerySkippedEpochsRequest) (*QuerySkippedEpochsResponse, error)
+	// TotalSupply retrieves the total number of skipped epochs.
+	TotalSupply(context.Context, *QueryTotalSupplyRequest) (*QueryTotalSupplyResponse, error)
+	// InflationRate retrieves the inflation rate of the current period.
+	InflationRate(context.Context, *QueryInflationRateRequest) (*QueryInflationRateResponse, error)
 	// Params retrieves the total set of minting parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
@@ -496,6 +704,12 @@ func (*UnimplementedQueryServer) EpochMintProvision(ctx context.Context, req *Qu
 }
 func (*UnimplementedQueryServer) SkippedEpochs(ctx context.Context, req *QuerySkippedEpochsRequest) (*QuerySkippedEpochsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SkippedEpochs not implemented")
+}
+func (*UnimplementedQueryServer) TotalSupply(ctx context.Context, req *QueryTotalSupplyRequest) (*QueryTotalSupplyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TotalSupply not implemented")
+}
+func (*UnimplementedQueryServer) InflationRate(ctx context.Context, req *QueryInflationRateRequest) (*QueryInflationRateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InflationRate not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
@@ -559,6 +773,42 @@ func _Query_SkippedEpochs_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_TotalSupply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTotalSupplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).TotalSupply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/evmos.inflation.v1.Query/TotalSupply",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).TotalSupply(ctx, req.(*QueryTotalSupplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_InflationRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryInflationRateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).InflationRate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/evmos.inflation.v1.Query/InflationRate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).InflationRate(ctx, req.(*QueryInflationRateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryParamsRequest)
 	if err := dec(in); err != nil {
@@ -592,6 +842,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SkippedEpochs",
 			Handler:    _Query_SkippedEpochs_Handler,
+		},
+		{
+			MethodName: "TotalSupply",
+			Handler:    _Query_TotalSupply_Handler,
+		},
+		{
+			MethodName: "InflationRate",
+			Handler:    _Query_InflationRate_Handler,
 		},
 		{
 			MethodName: "Params",
@@ -697,11 +955,11 @@ func (m *QueryEpochMintProvisionResponse) MarshalToSizedBuffer(dAtA []byte) (int
 	var l int
 	_ = l
 	{
-		size := m.EpochMintProvision.Size()
-		i -= size
-		if _, err := m.EpochMintProvision.MarshalTo(dAtA[i:]); err != nil {
+		size, err := m.EpochMintProvision.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
 			return 0, err
 		}
+		i -= size
 		i = encodeVarintQuery(dAtA, i, uint64(size))
 	}
 	i--
@@ -757,6 +1015,118 @@ func (m *QuerySkippedEpochsResponse) MarshalToSizedBuffer(dAtA []byte) (int, err
 		i--
 		dAtA[i] = 0x8
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryTotalSupplyRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryTotalSupplyRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryTotalSupplyRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryTotalSupplyResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryTotalSupplyResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryTotalSupplyResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.TotalSupply.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInflationRateRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInflationRateRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInflationRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInflationRateResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInflationRateResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInflationRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.InflationRate.Size()
+		i -= size
+		if _, err := m.InflationRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -886,6 +1256,46 @@ func (m *QuerySkippedEpochsResponse) Size() (n int) {
 	if m.SkippedEpochs != 0 {
 		n += 1 + sovQuery(uint64(m.SkippedEpochs))
 	}
+	return n
+}
+
+func (m *QueryTotalSupplyRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryTotalSupplyResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.TotalSupply.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryInflationRateRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryInflationRateResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.InflationRate.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
@@ -1117,7 +1527,7 @@ func (m *QueryEpochMintProvisionResponse) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EpochMintProvision", wireType)
 			}
-			var byteLen int
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowQuery
@@ -1127,15 +1537,15 @@ func (m *QueryEpochMintProvisionResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthQuery
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthQuery
 			}
@@ -1265,6 +1675,273 @@ func (m *QuerySkippedEpochsResponse) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryTotalSupplyRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryTotalSupplyRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryTotalSupplyRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryTotalSupplyResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryTotalSupplyResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryTotalSupplyResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalSupply", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalSupply.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInflationRateRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInflationRateRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInflationRateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInflationRateResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInflationRateResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInflationRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InflationRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipQuery(dAtA[iNdEx:])

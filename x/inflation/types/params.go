@@ -10,6 +10,8 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 )
 
+var DefaultInflationDenom = evm.DefaultEVMDenom
+
 // Parameter store keys
 var (
 	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
@@ -40,7 +42,7 @@ func NewParams(
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom: evm.DefaultEVMDenom,
+		MintDenom: DefaultInflationDenom,
 		ExponentialCalculation: ExponentialCalculation{
 			A:             sdk.NewDec(int64(300_000_000)),
 			R:             sdk.NewDecWithPrec(50, 2), // 50%
