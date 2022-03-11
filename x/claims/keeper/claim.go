@@ -131,6 +131,12 @@ func (k Keeper) ClaimCoinsForAction(
 		k.SetClaimsRecord(ctx, addr, claimsRecord)
 	}
 
+	k.Logger(ctx).Info(
+		"claimed action",
+		"address", addr.String(),
+		"action", action.String(),
+	)
+
 	return claimableAmount, nil
 }
 
