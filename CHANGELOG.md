@@ -45,7 +45,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add enableInflation parameter.
+- (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
+- (inflation) [\#383](https://github.com/tharsis/evmos/pull/383) Add gRPC endpoints for inflation rate and total supply
 
 ## [v2.0.1] - 2022-03-06
 

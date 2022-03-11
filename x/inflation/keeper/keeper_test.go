@@ -23,7 +23,7 @@ import (
 	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
-var denomMint = evm.DefaultEVMDenom
+var denomMint = types.DefaultInflationDenom
 
 type KeeperTestSuite struct {
 	suite.Suite

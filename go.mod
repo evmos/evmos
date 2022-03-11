@@ -17,13 +17,13 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.4.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tharsis/ethermint v0.11.0
 	go.opencensus.io v0.23.0
-	google.golang.org/genproto v0.0.0-20220307174427-659dce7fcb03
+	google.golang.org/genproto v0.0.0-20220310185008-1973136f34c6
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
 )
