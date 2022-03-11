@@ -250,8 +250,8 @@ github.com/cosmos/gorocksdb v1.2.0 h1:d0l3jJG8M4hBouIZq0mDUHZ+zjOx044J3nGRskwTb4
 github.com/cosmos/gorocksdb v1.2.0/go.mod h1:aaKvKItm514hKfNJpUJXnnOWeBnk2GL4+Qw9NHizILw=
 github.com/cosmos/iavl v0.17.3 h1:s2N819a2olOmiauVa0WAhoIJq9EhSXE9HDBAoR9k+8Y=
 github.com/cosmos/iavl v0.17.3/go.mod h1:prJoErZFABYZGDHka1R6Oay4z9PrNeFFiMKHDAMOi4w=
-github.com/cosmos/ibc-go/v3 v3.0.0-rc1 h1:5yDwMTKrBD1WJL5p/PPMalmJEOlng0OS0uX0WfFvgcw=
-github.com/cosmos/ibc-go/v3 v3.0.0-rc1/go.mod h1:Mb+1NXiPOLd+CPFlOC6BKeAUaxXlhuWenMmRiUiSmwY=
+github.com/cosmos/ibc-go/v3 v3.0.0-rc2 h1:ttolImqsdf/KOGUSU3ok5yaf9rIMdTaaNNCwuBnHfNQ=
+github.com/cosmos/ibc-go/v3 v3.0.0-rc2/go.mod h1:Mb+1NXiPOLd+CPFlOC6BKeAUaxXlhuWenMmRiUiSmwY=
 github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76 h1:DdzS1m6o/pCqeZ8VOAit/gyATedRgjvkVI+UCrLpyuU=
 github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76/go.mod h1:0mkLWIoZuQ7uBoospo5Q9zIpqq6rYCPJDSUdeCJvPM8=
 github.com/cosmos/ledger-cosmos-go v0.11.1 h1:9JIYsGnXP613pb2vPjFeMMjBI5lEDsEaF6oYorTy6J4=
@@ -1092,8 +1092,8 @@ github.com/tendermint/tm-db v0.6.7 h1:fE00Cbl0jayAoqlExN6oyQJ7fR/ZtoVOmvPJ//+shu
 github.com/tendermint/tm-db v0.6.7/go.mod h1:byQDzFkZV1syXr/ReXS808NxA2xvyuuVgXOJ/088L6I=
 github.com/tharsis/cosmos-sdk v0.45.2-0.20220306021140-2de5a020cedb h1:3Wd7W+Nr2uuKMmz/w8x7zi6RBjb89NvJgWS9HrcyibA=
 github.com/tharsis/cosmos-sdk v0.45.2-0.20220306021140-2de5a020cedb/go.mod h1:XXS/asyCqWNWkx2rW6pSuen+EVcpAFxq6khrhnZgHaQ=
-github.com/tharsis/ethermint v0.11.0 h1:GmmNTlXWILOTst9A0auVGAFEtiH4mNJDFdkvrOcBw60=
-github.com/tharsis/ethermint v0.11.0/go.mod h1:7+Bxa0NMFiNR6WTwGmy2nhZcGLAxwTWhYa1SSkX6NpE=
+github.com/tharsis/ethermint v0.6.1-0.20220311103116-50e093a6d29c h1:BVZUlc8yjFAXLwtT8qH4Lao+tkJqJ6ztKGOTUEQfFic=
+github.com/tharsis/ethermint v0.6.1-0.20220311103116-50e093a6d29c/go.mod h1:8iNHw8Z/8S/0cVN9QCtE/gWi2i6wfseB7cudH+70LXw=
 github.com/tidwall/gjson v1.6.7/go.mod h1:zeFuBCIqD4sN/gmqBzZ4j7Jd6UcA2Fc56x7QFsv+8fI=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/pretty v1.0.2/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
