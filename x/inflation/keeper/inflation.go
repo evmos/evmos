@@ -96,15 +96,26 @@ func (k Keeper) GetProportions(
 	)
 }
 
+func (k Keeper) isMainnetChainID(ctx sdk.Context) bool {
+	return strings.Contains(ctx.ChainID(), "evmos_9001-")
+}
+
 // BondedRatio the fraction of the staking tokens which are currently bonded
 // It doesn't consider team allocation for inflation
 func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
-	if !stakeSupply.IsPositive() || stakeSupply.LTE(teamAlloc) {
+
+	isMainnet := k.isMainnetChainID(ctx)
+
+	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
 		return sdk.ZeroDec()
 	}
 
-	stakeSupply = stakeSupply.Sub(teamAlloc)
+	// don't count team allocation in bonded ratio's stake supple
+	if isMainnet {
+		stakeSupply = stakeSupply.Sub(teamAlloc)
+	}
+
 	return k.stakingKeeper.TotalBondedTokens(ctx).ToDec().QuoInt(stakeSupply)
 }
 
@@ -112,15 +123,15 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 // allocation in the first year
 func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Dec {
 	mintDenom := types.DefaultParams().MintDenom
-	bankSupply := sdk.NewDecCoinFromCoin(k.bankKeeper.GetSupply(ctx, mintDenom)).Amount
+	totalSupply := sdk.NewDecCoinFromCoin(k.bankKeeper.GetSupply(ctx, mintDenom)).Amount
 	teamAllocation := sdk.NewDecFromInt(teamAlloc)
 
 	// Consider team allocation only on mainnet chain id
-	if strings.HasPrefix(ctx.ChainID(), "evmos_9001-") {
-		bankSupply = bankSupply.Sub(teamAllocation)
+	if k.isMainnetChainID(ctx) {
+		totalSupply = totalSupply.Sub(teamAllocation)
 	}
 
-	return bankSupply
+	return totalSupply
 }
 
 // GetInflationRate returns the inflation rate for the current period.
