@@ -28,7 +28,7 @@ type IBCTestingSuite struct {
 
 	// testing chains used for convenience and readability
 	chainA      *ibcgotesting.TestChain // Evmos chain A
-	chainB      *ibcgotesting.TestChain // EVM chain B
+	chainB      *ibcgotesting.TestChain // Evmos chain B
 	chainCosmos *ibcgotesting.TestChain // Cosmos chain
 
 	pathEVM    *ibcgotesting.Path // chainA (Evmos) <-->  chainB (Evmos)
@@ -36,7 +36,7 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	suite.coordinator = ibctesting.NewMixedCoordinator(suite.T(), 2, 1) // initializes 2 EVM test chains and 1 Cosmos Chain
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2, 1) // initializes 2 Evmos test chains and 1 Cosmos Chain
 	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
 	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
 	suite.chainCosmos = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))
@@ -62,12 +62,17 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
 	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 
-	suite.pathEVM = NewTransferPath(suite.chainA, suite.chainB)         // clientID, connectionID, channelID empty
-	suite.pathCosmos = NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathEVM)                              // clientID, connectionID, channelID filled
+	suite.pathEVM = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathEVM)                      // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", suite.pathEVM.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathEVM.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathEVM.EndpointA.ChannelID)
+
+	suite.pathCosmos = NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathCosmos)                           // clientID, connectionID, channelID filled
+	suite.Require().Equal("07-tendermint-1", suite.pathEVM.EndpointA.ClientID)
+	suite.Require().Equal("connection-1", suite.pathEVM.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-2", suite.pathEVM.EndpointA.ChannelID)
 }
 
 func TestIBCTestingSuite(t *testing.T) {
