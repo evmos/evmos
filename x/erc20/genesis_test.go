@@ -32,6 +32,7 @@ func TestGenesisTestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisTestSuite))
 }
 
+
 func (suite *GenesisTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
@@ -86,7 +87,9 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		},
 		{
 			"custom genesis",
-			types.NewGenesisState(types.DefaultParams(), []types.TokenPair{
+			types.NewGenesisState(
+				types.DefaultParams(), 
+				[]types.TokenPair{
 				{
 					Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 					Denom:         "coin",
@@ -129,5 +132,20 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 }
 
 func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
-	// genesisState := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
+	suite.genesis.TokenPairs = []types.TokenPair{
+		{
+			Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+			Denom:         "coin",
+			Enabled:       true,
+			ContractOwner: types.OWNER_MODULE,
+		},
+	}
+
+
+	erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, suite.genesis)
+	// tokenPair, found := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx, )
+
+	genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
+	suite.Require().Equal(genesisExported.Params, suite.genesis.Params)
+	suite.Require().Equal(genesisExported.TokenPair, suite.genesis.TokenPair)
 }
