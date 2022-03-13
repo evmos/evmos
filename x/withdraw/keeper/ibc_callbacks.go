@@ -77,43 +77,37 @@ func (k Keeper) OnRecvPacket(
 	// get the recipient account
 	account := k.accountKeeper.GetAccount(ctx, recipient)
 
-	// balance == 0  -> don't withdraw, success ACK
-
-	// case 1: sender ≠ recipient
-	if !sender.Equals(recipient) {
-		switch {
-		// 1.a: no recipient account or no pubkey -> no way to determine the type of address
-		// ==> return success ACK
-		case account == nil,
-			account.GetPubKey() == nil,
-			// 1.b: pubkey is eth_secp256k1 (valid ethereum address) or other supported keys
-			// ==> return success ACK
-			account.GetPubKey().Type() == ethsecp256k1.KeyType,
-			account.GetPubKey().Type() == (&multisig.LegacyAminoPubKey{}).Type(),
-			account.GetPubKey().Type() == (&ed25519.PubKey{}).Type():
-			return ack
-		default:
-			// 1.c: pubkey not eth_secp256k1 ==> error ACK
-			logger.Debug(
-				"rejected IBC transfer to 'secp256k1' key address",
-				"sender", data.Sender, "recipient", data.Receiver,
-			)
-			return channeltypes.NewErrorAcknowledgement(
-				sdkerrors.Wrapf(evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver).Error(),
-			)
-		}
-	}
-
-	// case 2: sender address = recipient address
-
 	// NOTE: check if the recipient pubkey is a supported key, if it is,
 	// return the original ACK
+
+	// 1.a. no recipient account or no pubkey -> no way to determine the type of address
+	// ==> return success ACK
 	if account != nil &&
 		account.GetPubKey() != nil &&
+		// 1.b: pubkey is eth_secp256k1 (valid ethereum address) or other supported keys
+		// ==> return success ACK
 		(account.GetPubKey().Type() == ethsecp256k1.KeyType ||
 			account.GetPubKey().Type() == (&multisig.LegacyAminoPubKey{}).Type() ||
 			account.GetPubKey().Type() == (&ed25519.PubKey{}).Type()) {
 		return ack
+	}
+
+	// case 2: sender ≠ recipient and and recipient key type is not supported
+	// Because the destination channel is authorized and not from an EVM chain,
+	// only the secp256k1 keys are supported in the destination
+
+	if !sender.Equals(recipient) {
+		logger.Debug(
+			"rejected IBC transfer to 'secp256k1' key address",
+			"sender", data.Sender,
+			"recipient", data.Receiver,
+			"source-channel", packet.SourceChannel,
+			"destination-channel", packet.DestinationChannel,
+		)
+
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver).Error(),
+		)
 	}
 
 	// transfer the balance back to the sender address
@@ -150,6 +144,9 @@ func (k Keeper) OnRecvPacket(
 
 		// Native tokens will be transferred to the authorized source chain to unstuck them
 
+		// NOTE: should we get the timeout from the channel consensus state?
+		timeout := uint64(ctx.BlockTime().Add(time.Hour).UnixNano())
+
 		// Withdraw the tokens to the bech32 prefixed address of the source chain
 		err = k.transferKeeper.SendTransfer(
 			ctx,
@@ -159,7 +156,7 @@ func (k Keeper) OnRecvPacket(
 			recipient,                // transfer recipient is now the sender
 			data.Sender,              // transfer sender is now the recipient
 			clienttypes.ZeroHeight(), // timeout height disabled
-			uint64(ctx.BlockTime().Add(time.Hour).UnixNano()), // timeout timestamp is one hour // TODO: get timestamp from consensus state
+			timeout,                  // timeout timestamp is one hour from now
 		)
 
 		if err != nil {
@@ -208,9 +205,14 @@ func (k Keeper) OnRecvPacket(
 	)
 }
 
+// GetIBCDenomSource
 func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPort, srcChannel string, err error) {
-	ibcHexHash := strings.SplitN(denom, "/", 2)[1]
-	hash, err := transfertypes.ParseHexHash(ibcHexHash)
+	ibcDenom := strings.SplitN(denom, "/", 2)
+	if len(ibcDenom) < 2 {
+		return "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
+	}
+
+	hash, err := transfertypes.ParseHexHash(ibcDenom[1])
 	if err != nil {
 		return "", "", sdkerrors.Wrapf(
 			err,
@@ -229,7 +231,7 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 	path := strings.Split(denomTrace.Path, "/")
 	if len(path)%2 != 0 {
 		return "", "", sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidCoins,
+			transfertypes.ErrInvalidDenomForTransfer,
 			"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
 		)
 	}
