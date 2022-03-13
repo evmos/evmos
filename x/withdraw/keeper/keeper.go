@@ -22,6 +22,7 @@ var _ transfertypes.ICS4Wrapper = Keeper{}
 // Keeper struct
 type Keeper struct {
 	paramstore     paramtypes.Subspace
+	accountKeeper  types.AccountKeeper
 	bankKeeper     types.BankKeeper
 	ics4Wrapper    transfertypes.ICS4Wrapper
 	channelKeeper  channelkeeper.Keeper  // TODO: use interface
@@ -32,6 +33,7 @@ type Keeper struct {
 // NewKeeper returns keeper
 func NewKeeper(
 	ps paramtypes.Subspace,
+	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ics4Wrapper transfertypes.ICS4Wrapper,
 	ck channelkeeper.Keeper, // TODO: use interface
@@ -45,6 +47,7 @@ func NewKeeper(
 
 	return &Keeper{
 		paramstore:     ps,
+		accountKeeper:  ak,
 		bankKeeper:     bk,
 		ics4Wrapper:    ics4Wrapper,
 		channelKeeper:  ck,
