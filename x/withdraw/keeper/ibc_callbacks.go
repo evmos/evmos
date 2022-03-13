@@ -31,8 +31,13 @@ func (k Keeper) OnRecvPacket(
 	claimsParams := k.claimsKeeper.GetParams(ctx)
 
 	// check channels from this chain (i.e destination)
-	if !params.EnableWithdraw || !claimsParams.IsAuthorizedChannel(packet.DestinationChannel) {
-		// return original ACK if withdraw is disabled globally or per channel
+	if !params.EnableWithdraw ||
+		!claimsParams.IsAuthorizedChannel(packet.DestinationChannel) ||
+		claimsParams.IsEVMChannel(packet.DestinationPort) {
+		// return original ACK if:
+		// - withdraw is disabled globally
+		// - channel is not authorized
+		// - channel is an EVM channel
 		return ack
 	}
 
@@ -72,9 +77,6 @@ func (k Keeper) OnRecvPacket(
 	// get the recipient account
 	account := k.accountKeeper.GetAccount(ctx, recipient)
 
-	// case 2.a: recipient pubkey not secp256k1 -> don't withdraw, success ACK
-	// case 2.b: no recipient account, no pubkey,
-
 	// balance == 0  -> don't withdraw, success ACK
 
 	// case 1: sender ≠ recipient
@@ -104,8 +106,8 @@ func (k Keeper) OnRecvPacket(
 
 	// case 2: sender address = recipient address
 
-	// NOTE: here we need to check if the recipient is an ethereum account, if it is,
-	// then we need to return the original ACK
+	// NOTE: check if the recipient pubkey is a supported key, if it is,
+	// return the original ACK
 	if account != nil &&
 		account.GetPubKey() != nil &&
 		(account.GetPubKey().Type() == ethsecp256k1.KeyType ||
