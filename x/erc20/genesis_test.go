@@ -70,19 +70,16 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		name         string
 		genesisState types.GenesisState
 		malleate     func()
-		expPanic     bool
 	}{
 		{
 			"empty genesis",
 			types.GenesisState{},
 			func() {},
-			false,
 		},
 		{
 			"default genesis",
 			*types.DefaultGenesisState(),
 			func() {},
-			false,
 		},
 		{
 			"custom genesis",
@@ -100,32 +97,23 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 				acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, types.ModuleName)
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			},
-			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		tc.malleate()
 
-		if tc.expPanic {
-			suite.Require().Panics(
-				func() {
-					erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
-				},
-			)
-		} else {
-			suite.Require().NotPanics(func() {
-				erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
-			})
-			params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+		suite.Require().NotPanics(func() {
+			erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
+		})
+		params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 
-			tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
-			suite.Require().Equal(tc.genesisState.Params, params)
-			if len(tokenPairs) > 0 {
-				suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs)
-			} else {
-				suite.Require().Len(tc.genesisState.TokenPairs, 0)
-			}
+		tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+		suite.Require().Equal(tc.genesisState.Params, params)
+		if len(tokenPairs) > 0 {
+			suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs)
+		} else {
+			suite.Require().Len(tc.genesisState.TokenPairs, 0)
 		}
 	}
 }
@@ -135,17 +123,14 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 	testGenCases := []struct {
 		name         string
 		genesisState types.GenesisState
-		expPanic     bool
 	}{
 		{
 			"empty genesis",
 			types.GenesisState{},
-			false,
 		},
 		{
 			"default genesis",
 			*types.DefaultGenesisState(),
-			false,
 		},
 		{
 			"custom genesis",
@@ -159,38 +144,24 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 						ContractOwner: types.OWNER_MODULE,
 					},
 				}),
-			false,
 		},
 	}
 
 	for _, tc := range testGenCases {
-		//1. initiate a genesis that will be exported
 		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
+		suite.Require().NotPanics(func() {
 
-		if tc.expPanic {
-			suite.Require().Panics(
-				func() {
-					erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
-				},
-			)
-		} else {
-			suite.Require().NotPanics(func() {
-				//2. export genesis
-				genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
-				//test for exported and keeper params
-				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-				suite.Require().Equal(genesisExported.Params, params)
+			genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
+			params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+			suite.Require().Equal(genesisExported.Params, params)
 
-				//if []tokenPair in not an empty array
-				//test for equality of token pairs
-				tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
-				if len(tokenPairs) > 0 {
-					suite.Require().Equal(genesisExported.TokenPairs, tokenPairs)
-				} else {
-					//check for length 0
-					suite.Require().Len(genesisExported.TokenPairs, 0)
-				}
-			})
-		}
+			tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+			if len(tokenPairs) > 0 {
+				suite.Require().Equal(genesisExported.TokenPairs, tokenPairs)
+			} else {
+				suite.Require().Len(genesisExported.TokenPairs, 0)
+			}
+		})
+		// }
 	}
 }
