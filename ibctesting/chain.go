@@ -1,7 +1,6 @@
 package ibctesting
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -99,9 +98,4 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	coord.CommitBlock(chain)
 
 	return chain
-}
-
-// GetChainID returns the EIP155 compatible chainID used for the provided index.
-func GetChainID(index int) string {
-	return ChainIDPrefix + strconv.Itoa(index)
 }

@@ -11,13 +11,3 @@ const (
 	// RouterKey to be used for message routing
 	RouterKey = ModuleName
 )
-
-// prefix bytes for the withdraw module persistent store
-const (
-	prefixBech32HRP = iota + 1
-)
-
-// KVStore key prefixes
-var (
-	KeyPrefixBech32HRP = []byte{prefixBech32HRP}
-)

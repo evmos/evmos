@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 
@@ -35,9 +36,9 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 1)          // initializes 2 test chains
-	suite.EvmosChain = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
-	suite.IBCChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 1)            // initializes 2 test chains
+	suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
+	suite.IBCChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))   // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.EvmosChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCChain, 2)
 
@@ -90,6 +91,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 	var (
 		sender   string
 		receiver string
+		timeout  uint64
 	)
 
 	testcoinDenomtrace := transfertypes.DenomTrace{
@@ -135,7 +137,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 					"transfer",
 					"channel-0",
 					clienttypes.ZeroHeight(), // timeout height disabled
-					1677926229000000000,      // timeout timestamp disabled
+					timeout,                  // timeout timestamp disabled
 				)
 
 				// Coins transfered
@@ -153,7 +155,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 					"transfer",
 					"channel-0",
 					clienttypes.ZeroHeight(), // timeout height disabled
-					1677926229000000000,      // timeout timestamp disabled
+					timeout,                  // timeout timestamp disabled
 				)
 
 				// Relay both packets that were sent in the ibc_callback
@@ -194,7 +196,6 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 				coins := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, testcoinIbcdenom)
-				fmt.Println(coins)
 				suite.Require().Equal(coins.Amount, sdk.NewInt(10))
 			},
 		},
@@ -213,7 +214,6 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 				coins := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, testcoinIbcdenom)
-				fmt.Println(coins)
 				suite.Require().Equal(coins.Amount, sdk.NewInt(10))
 			},
 		},
@@ -229,6 +229,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin("testcoin", sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
 			_, err := suite.IBCChain.SendMsgs(transferMsg)
 			suite.Require().NoError(err) // message committed
+			timeout = uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour).Add(time.Second * 10).UnixNano())
 
 			transfer := transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
 			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)

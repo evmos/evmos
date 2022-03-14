@@ -142,7 +142,6 @@
 - [evmos/withdraw/v1/genesis.proto](#evmos/withdraw/v1/genesis.proto)
     - [GenesisState](#evmos.withdraw.v1.GenesisState)
     - [Params](#evmos.withdraw.v1.Params)
-    - [Prefix](#evmos.withdraw.v1.Prefix)
   
 - [evmos/withdraw/v1/query.proto](#evmos/withdraw/v1/query.proto)
     - [QueryParamsRequest](#evmos.withdraw.v1.QueryParamsRequest)
@@ -1834,7 +1833,6 @@ GenesisState defines the withdraw module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.withdraw.v1.Params) |  | params defines all the paramaters of the module. |
-| `prefixes` | [Prefix](#evmos.withdraw.v1.Prefix) | repeated | list of all registered Bech32 HRPs |
 
 
 
@@ -1850,23 +1848,6 @@ Params holds parameters for the withdraw module.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_withdraw` | [bool](#bool) |  | enable withdraw IBC middleware |
-
-
-
-
-
-
-<a name="evmos.withdraw.v1.Prefix"></a>
-
-### Prefix
-Prefix represents the HRP of the source chain connected through an
-IBC channel.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `source_channel` | [string](#string) |  | source channel for the HRP |
-| `bech32_hrp` | [string](#string) |  | Human Readible Prefix |
 
 
 
