@@ -12,6 +12,7 @@ parent:
 The `x/inflation` module mints new Evmos tokens and allocates them in daily
 epochs according to the [Evmos Token
 Model](https://evmos.blog/the-evmos-token-model-edc07014978b) distribution to
+
 * Staking Rewards `40%`,
 * Team Vesting `25%`,
 * Usage Incentives: `25%`,

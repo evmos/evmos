@@ -5,7 +5,6 @@ bounty.
 
 See the policy for more details on submissions and rewards, and see "Example Vulnerabilities" (below) for examples of the kinds of bugs the team is most interested in.
 
-
 ## Guidelines
 
 We require that all researchers:
