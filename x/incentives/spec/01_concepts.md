@@ -4,7 +4,6 @@ order: 1
 
 # Concepts
 
-
 ## Incentive
 
 The purpose of the `x/incentives` module is to provide incentives to users who interact with smart contracts. An incentive allows users to earn rewards up to `rewards = k * sum(tx fees)`, where `k` defines a reward scaler parameter that caps the incentives allocated to a single user by multiplying it with the sum of transaction fees that they’ve spent in the current epoch.
