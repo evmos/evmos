@@ -18,7 +18,6 @@ import (
 // The IBC Callback transfers all non-evmos balances from the receiver to the
 // sender address for a receiver with a secp256k1 key
 var _ = Describe("Performing a IBC transfer with enabled callback ", Ordered, func() {
-
 	coin := sdk.NewCoin("testcoin", sdk.NewInt(10))
 
 	var (
@@ -78,6 +77,6 @@ func sendCoinfromAtoBWithIBC(sender, receiver string, coin sdk.Coin, seq uint64)
 	proof, proofHeight := path.EndpointA.QueryProof(packetKey)
 
 	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, receiver)
-	_, err = s.EvmosChain.SendMsgsWithAccount(s.EvmosChain.SenderPrivKey, s.IBCChain.SenderAccount, recvMsg)
+	_, err = s.EvmosChain.SendMsgs(recvMsg)
 	s.Require().NoError(err) // message committed
 }
