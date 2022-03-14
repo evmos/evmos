@@ -81,7 +81,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 				)
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
-					EpochMintProvision: defaultEpochMintProvision,
+					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
 				}
 			},
 			true,
@@ -94,7 +94,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 				suite.Commit()
 
 				req = &types.QueryEpochMintProvisionRequest{}
-				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}
+				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, epochMintProvision)}
 			},
 			true,
 		},
@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestSkippedEPochs() {
+func (suite *KeeperTestSuite) TestSkippedEpochs() {
 	var (
 		req    *types.QuerySkippedEpochsRequest
 		expRes *types.QuerySkippedEpochsResponse
@@ -165,6 +165,37 @@ func (suite *KeeperTestSuite) TestSkippedEPochs() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestQueryTotalSupply() {
+	// Team allocation is only set on mainnet
+	ctx := sdk.WrapSDKContext(suite.ctx)
+
+	// Mint coins to increase supply
+	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
+	mintCoin := sdk.NewCoin(mintDenom, sdk.TokensFromConsensusPower(int64(400_000_000), sdk.DefaultPowerReduction))
+	suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
+
+	// team allocation is zero if not on mainnet
+	expTotalSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(400_000_000, sdk.DefaultPowerReduction))
+
+	res, err := suite.queryClient.TotalSupply(ctx, &types.QueryTotalSupplyRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expTotalSupply, res.TotalSupply)
+}
+
+func (suite *KeeperTestSuite) TestQueryInflationRate() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+
+	// Mint coins to increase supply
+	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
+	mintCoin := sdk.NewCoin(mintDenom, sdk.TokensFromConsensusPower(int64(400_000_000), sdk.DefaultPowerReduction))
+	suite.app.InflationKeeper.MintCoins(suite.ctx, mintCoin)
+
+	expInflationRate := sdk.MustNewDecFromStr("77.343750000000000000")
+	res, err := suite.queryClient.InflationRate(ctx, &types.QueryInflationRateRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expInflationRate, res.InflationRate)
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {

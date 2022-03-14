@@ -490,6 +490,7 @@ func NewEvmos(
 
 	app.WithdrawKeeper = *withdrawkeeper.NewKeeper(
 		app.GetSubspace(withdrawtypes.ModuleName),
+		app.AccountKeeper,
 		app.BankKeeper,
 		app.ClaimsKeeper.Hooks(), // TODO: verify ics4 wrapper
 		app.IBCKeeper.ChannelKeeper, app.TransferKeeper, app.ClaimsKeeper,
@@ -712,16 +713,16 @@ func NewEvmos(
 	app.SetBeginBlocker(app.BeginBlocker)
 
 	options := ante.HandlerOptions{
-		AccountKeeper:    app.AccountKeeper,
-		BankKeeper:       app.BankKeeper,
-		EvmKeeper:        app.EvmKeeper,
-		StakingKeeper:    app.StakingKeeper,
-		FeegrantKeeper:   app.FeeGrantKeeper,
-		IBCChannelKeeper: app.IBCKeeper.ChannelKeeper,
-		FeeMarketKeeper:  app.FeeMarketKeeper,
-		SignModeHandler:  encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:   SigVerificationGasConsumer,
-		Cdc:              appCodec,
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		EvmKeeper:       app.EvmKeeper,
+		StakingKeeper:   app.StakingKeeper,
+		FeegrantKeeper:  app.FeeGrantKeeper,
+		IBCKeeper:       app.IBCKeeper,
+		FeeMarketKeeper: app.FeeMarketKeeper,
+		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:  SigVerificationGasConsumer,
+		Cdc:             appCodec,
 	}
 
 	if err := options.Validate(); err != nil {

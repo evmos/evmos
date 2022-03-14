@@ -1516,11 +1516,15 @@ paths:
             type: object
             properties:
               epoch_mint_provision:
-                type: string
-                format: byte
                 description: >-
                   epoch_mint_provision is the current minting per epoch
                   provision value.
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
             description: |-
               QueryEpochMintProvisionResponse is the response type for the
               Query/EpochMintProvision RPC method.
@@ -1548,9 +1552,49 @@ paths:
                       format: byte
       tags:
         - Query
+  /evmos/inflation/v1/inflation_rate:
+    get:
+      summary: InflationRate retrieves the inflation rate of the current period.
+      operationId: InflationRate
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              inflation_rate:
+                type: string
+                title: rate by which the total supply increases within one period
+            description: >-
+              QueryInflationRateResponse is the response type for the
+              Query/InflationRate RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /evmos/inflation/v1/params:
     get:
-      summary: Params retrieves the total set of inflation parameters.
+      summary: Params retrieves the total set of minting parameters.
       operationId: InflationParams
       responses:
         '200':
@@ -1699,6 +1743,60 @@ paths:
             description: >-
               QuerySkippedEpochsResponse is the response type for the
               Query/SkippedEpochs RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /evmos/inflation/v1/total_supply:
+    get:
+      summary: TotalSupply retrieves the total number of skipped epochs.
+      operationId: InflationTotalSupply
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              total_supply:
+                title: total amount of coins in circulation
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: >-
+              QueryTotalSupplyResponse is the response type for the
+              Query/TotalSupply RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -28182,12 +28280,25 @@ definitions:
     type: object
     properties:
       epoch_mint_provision:
-        type: string
-        format: byte
         description: epoch_mint_provision is the current minting per epoch provision value.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
     description: |-
       QueryEpochMintProvisionResponse is the response type for the
       Query/EpochMintProvision RPC method.
+  evmos.inflation.v1.QueryInflationRateResponse:
+    type: object
+    properties:
+      inflation_rate:
+        type: string
+        title: rate by which the total supply increases within one period
+    description: >-
+      QueryInflationRateResponse is the response type for the
+      Query/InflationRate RPC method.
   evmos.inflation.v1.QueryParamsResponse:
     type: object
     properties:
@@ -28266,6 +28377,25 @@ definitions:
     description: >-
       QuerySkippedEpochsResponse is the response type for the
       Query/SkippedEpochs RPC method.
+  evmos.inflation.v1.QueryTotalSupplyResponse:
+    type: object
+    properties:
+      total_supply:
+        title: total amount of coins in circulation
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          DecCoin defines a token with a denomination and a decimal amount.
+
+          NOTE: The amount field is an Dec which implements the custom method
+          signatures required by gogoproto.
+    description: >-
+      QueryTotalSupplyResponse is the response type for the Query/TotalSupply
+      RPC method.
   evmos.vesting.v1.QueryBalancesResponse:
     type: object
     properties:

@@ -72,11 +72,12 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			suite.ensureHooksSet()
 
 			// Deploy Contract
-			contractAddr := suite.DeployContract(denomCoin, "COIN", erc20Decimals)
+			contractAddr, err := suite.DeployContract(denomCoin, "COIN", erc20Decimals)
+			suite.Require().NoError(err)
 			suite.Commit()
 
 			// Register Incentive
-			_, err := suite.app.IncentivesKeeper.RegisterIncentive(
+			_, err = suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
 				contractAddr,
 				mintAllocations,

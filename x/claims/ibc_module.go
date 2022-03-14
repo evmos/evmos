@@ -63,10 +63,11 @@ func (im IBCModule) OnChanOpenTry(
 func (im IBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
-	channelID string,
+	channelID,
+	counterpartyChannelID,
 	counterpartyVersion string,
 ) error {
-	return im.app.OnChanOpenAck(ctx, portID, channelID, counterpartyVersion)
+	return im.app.OnChanOpenAck(ctx, portID, channelID, counterpartyChannelID, counterpartyVersion)
 }
 
 // OnChanOpenConfirm implements the IBCModule interface.
