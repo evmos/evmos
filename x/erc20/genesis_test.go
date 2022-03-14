@@ -32,7 +32,6 @@ func TestGenesisTestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisTestSuite))
 }
 
-
 func (suite *GenesisTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
@@ -88,15 +87,15 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		{
 			"custom genesis",
 			types.NewGenesisState(
-				types.DefaultParams(), 
+				types.DefaultParams(),
 				[]types.TokenPair{
-				{
-					Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-					Denom:         "coin",
-					Enabled:       true,
-					ContractOwner: types.OWNER_MODULE,
-				},
-			}),
+					{
+						Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+						Denom:         "coin",
+						Enabled:       true,
+						ContractOwner: types.OWNER_MODULE,
+					},
+				}),
 			func() {
 				acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, types.ModuleName)
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
@@ -132,20 +131,66 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 }
 
 func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
-	suite.genesis.TokenPairs = []types.TokenPair{
+
+	testGenCases := []struct {
+		name         string
+		genesisState types.GenesisState
+		expPanic     bool
+	}{
 		{
-			Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-			Denom:         "coin",
-			Enabled:       true,
-			ContractOwner: types.OWNER_MODULE,
+			"empty genesis",
+			types.GenesisState{},
+			false,
+		},
+		{
+			"default genesis",
+			*types.DefaultGenesisState(),
+			false,
+		},
+		{
+			"custom genesis",
+			types.NewGenesisState(
+				types.DefaultParams(),
+				[]types.TokenPair{
+					{
+						Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
+						Denom:         "coin",
+						Enabled:       true,
+						ContractOwner: types.OWNER_MODULE,
+					},
+				}),
+			false,
 		},
 	}
 
+	for _, tc := range testGenCases {
+		//1. initiate a genesis that will be exported
+		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 
-	erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, suite.genesis)
-	// tokenPair, found := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx, )
+		if tc.expPanic {
+			suite.Require().Panics(
+				func() {
+					erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
+				},
+			)
+		} else {
+			suite.Require().NotPanics(func() {
+				//2. export genesis
+				genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
+				//test for exported and keeper params
+				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+				suite.Require().Equal(genesisExported.Params, params)
 
-	genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
-	suite.Require().Equal(genesisExported.Params, suite.genesis.Params)
-	suite.Require().Equal(genesisExported.TokenPair, suite.genesis.TokenPair)
+				//if []tokenPair in not an empty array
+				//test for equality of token pairs
+				tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+				if len(tokenPairs) > 0 {
+					suite.Require().Equal(genesisExported.TokenPairs, tokenPairs)
+				} else {
+					//check for length 0
+					suite.Require().Len(genesisExported.TokenPairs, 0)
+				}
+			})
+		}
+	}
 }
