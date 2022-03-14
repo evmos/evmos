@@ -26,4 +26,4 @@ jobs:
         run: |
           make build-docs
         # Check only if there are differences in the source code
-        if: "env.GIT_DIFF"
+        if: env.GIT_DIFF
