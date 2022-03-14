@@ -9,9 +9,11 @@ import (
 
 // UpdateParams updates the module parameters EnableERC20 and EnableEMVHook
 // values to true.
-func UpdateParams(ctx sdk.Context, paramstore *paramtypes.Subspace) error {
-	ps := paramstore.WithKeyTable(types.ParamKeyTable())
-	paramstore = &ps
+func UpdateParams(ctx sdk.Context, paramstore paramtypes.Subspace) error {
+	if !paramstore.HasKeyTable() {
+		paramstore = paramstore.WithKeyTable(types.ParamKeyTable())
+	}
+
 	paramstore.Set(ctx, types.ParamStoreKeyEnableErc20, true)
 	paramstore.Set(ctx, types.ParamStoreKeyEnableEVMHook, true)
 	return nil

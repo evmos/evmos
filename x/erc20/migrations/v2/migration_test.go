@@ -25,7 +25,8 @@ func TestUpdateParams(t *testing.T) {
 	paramstore := paramtypes.NewSubspace(
 		encCfg.Marshaler, encCfg.Amino, erc20Key, tErc20Key, "erc20",
 	)
-	require.False(t, paramstore.HasKeyTable())
+	paramstore = paramstore.WithKeyTable(erc20types.ParamKeyTable())
+	require.True(t, paramstore.HasKeyTable())
 
 	// check no params
 	require.False(t, paramstore.Has(ctx, erc20types.ParamStoreKeyEnableErc20))
