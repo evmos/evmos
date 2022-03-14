@@ -35,9 +35,9 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 1)          // initializes 2 test chains
-	suite.EvmosChain = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
-	suite.IBCChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 1)            // initializes 2 test chains
+	suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
+	suite.IBCChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))   // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.EvmosChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCChain, 2)
 
@@ -86,7 +86,6 @@ func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path 
 }
 
 func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
-
 	var (
 		sender   string
 		receiver string

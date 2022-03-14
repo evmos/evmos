@@ -11,7 +11,7 @@ The `x/incentives` module keeps the following objects in state:
 | State Object    | Description                                   | Key                                                    | Value               | Store |
 | --------------- | --------------------------------------------- | ------------------------------------------------------ | ------------------- | ----- |
 | Incentive       | Incentive bytecode                            | `[]byte{1} + []byte(contract)`                         | `[]byte{incentive}` | KV    |
-| GasMeter        | Incentive id bytecode by erc20 contract bytes | `[]byte{2} + []byte(contract) + []byte(participant)  ` | `[]byte{gasMeter}`  | KV    |
+| GasMeter        | Incentive id bytecode by erc20 contract bytes | `[]byte{2} + []byte(contract) + []byte(participant)` | `[]byte{gasMeter}`  | KV    |
 | AllocationMeter | Total allocation bytes by denom bytes         | `[]byte{3} + []byte(denom)`                            | `[]byte{sdk.Dec}`   | KV    |
 
 ### Incentive

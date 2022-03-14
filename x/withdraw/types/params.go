@@ -19,7 +19,6 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params instance
 func NewParams(
 	enableWithdraw bool,
-	enabledChannels ...string,
 ) Params {
 	return Params{
 		EnableWithdraw: enableWithdraw,
