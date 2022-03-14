@@ -1290,19 +1290,7 @@ Unsupported. This endpoint always returns `false`
 
 ```json
 // Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"miner_start","params":["0x10000"],"id":1}' -H "Content-Type: application/json" http://localhost:8545
-
-// Result
-{"jsonrpc":"2.0","id":1,"result":false}
-```
-
-#### Parameters
-
-- Hex Number of threads
-
-```json
-// Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"miner_start","params":["0x1"],"id":1}' -H "Content-Type: application/json" http://localhost:8545
+curl -X POST --data '{"jsonrpc":"2.0","method":"miner_setGasLimit","params":["0x10000"],"id":1}' -H "Content-Type: application/json" http://localhost:8545
 
 // Result
 {"jsonrpc":"2.0","id":1,"result":false}
