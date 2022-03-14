@@ -5,6 +5,7 @@ order: 5
 # Hooks
 
 ## Hooks
+
 ```go
   // the first block whose timestamp is after the duration is counted as the end of the epoch
   AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64)

@@ -18,12 +18,12 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - uses: technote-space/get-diff-action@v6.0.1
-        id: git_diff
         with:
           PATTERNS: |
-            docs/*
-          SUFFIX_FILTER: |
-            .md
+            docs/**/*.md
+            x/**/*.md
       - name: Install dependencies and build docs 🧱
         run: |
           make build-docs
+        # Check only if there are differences in the source code
+        if: env.GIT_DIFF
