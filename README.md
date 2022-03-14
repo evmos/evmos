@@ -67,7 +67,7 @@ The following chat channels and forums are a great spot to ask questions about E
 
 - [Evmos Twitter](https://twitter.com/EvmosOrg)
 - [Evmos Discord](https://discord.gg/evmos)
-- [Evmos Forum](https://forum.cosmos.network/c/ethermint)
+- [Evmos Forum](https://commonwealth.im/evmos)
 - [Tharsis Twitter](https://twitter.com/TharsisHQ)
 
 ## Contributing
