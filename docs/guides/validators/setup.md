@@ -64,7 +64,7 @@ evmosd tx staking create-validator \
 ```
 
 ::: tip
-When specifying commission parameters, the `commission-max-change-rate` is used to measure % _point_ change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
+When specifying commission parameters, the `commission-max-change-rate` is used to measure % *point* change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
 :::
 
 ::: tip
@@ -101,7 +101,7 @@ evmosd gentx \
 ```
 
 ::: tip
-When specifying commission parameters, the `commission-max-change-rate` is used to measure % _point_ change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
+When specifying commission parameters, the `commission-max-change-rate` is used to measure % *point* change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
 :::
 
 You can then submit your `gentx` on the [launch repository](https://github.com/cosmos/launch). These `gentx` will be used to form the final genesis file.
@@ -131,7 +131,7 @@ __Note__: The `commission-rate` value must adhere to the following invariants:
 
 - Must be between 0 and the validator's `commission-max-rate`
 - Must not exceed the validator's `commission-max-change-rate` which is maximum
-  % point change rate **per day**. In other words, a validator can only change
+  % point change rate __per day__. In other words, a validator can only change
   its commission once per day and within `commission-max-change-rate` bounds.
 
 ## View Validator Description

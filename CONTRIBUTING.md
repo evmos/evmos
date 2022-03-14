@@ -9,11 +9,11 @@
 * [Testing](#testing)
 * [Updating Documentation](#updating_doc)
 * [Branching Model and Release](#braching_model_and_release)
-  * [PR Targeting](#pr_targeting)
-  * [Pull Requests](#pull_requests)
-  * [Process for reviewing PRs](#reviewing_prs)
-  * [Pull Merge Procedure](#pull_merge_procedure)
-  * [Release Procedure](#release_procedure)
+    * [PR Targeting](#pr_targeting)
+    * [Pull Requests](#pull_requests)
+    * [Process for reviewing PRs](#reviewing_prs)
+    * [Pull Merge Procedure](#pull_merge_procedure)
+    * [Release Procedure](#release_procedure)
 
 ## <span id="general_procedure">General Procedure</span>
 
@@ -203,7 +203,7 @@ All PRs require two Reviews before merge. When reviewing PRs, please use the fol
 2. Create the release candidate branch `rc/v*` (going forward known as `RC`) and ensure it's protected against pushing
    from anyone except the release manager/coordinator. No PRs targeting this branch should be merged unless exceptional
    circumstances arise.
-3. On the `RC` branch, prepare a new version section in the `CHANGELOG.md`. All links must be link-ified:   
+3. On the `RC` branch, prepare a new version section in the `CHANGELOG.md`. All links must be link-ified:
    `$ python ./scripts/linkify_changelog.py CHANGELOG.md`  
    Copy the entries into a `RELEASE_CHANGELOG.md`. This is needed so the bot knows which entries to add to the release
    page on github.
