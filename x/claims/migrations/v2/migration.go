@@ -7,8 +7,11 @@ import (
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
-func MigrateStore(ctx sdk.Context, paramstore paramtypes.Subspace) error {
-	paramstore.WithKeyTable(types.ParamKeyTable())
+// MigrateStore adds the new parameters AuthorizedChannels and EVMChannels
+// to the claims paramstore.
+func MigrateStore(ctx sdk.Context, paramstore *paramtypes.Subspace) error {
+	ps := paramstore.WithKeyTable(types.ParamKeyTable())
+	paramstore = &ps
 	paramstore.Set(ctx, types.ParamStoreKeyAuthorizedChannels, types.DefaultAuthorizedChannels)
 	paramstore.Set(ctx, types.ParamStoreKeyEVMChannels, types.DefaultEVMChannels)
 	return nil

@@ -22,16 +22,28 @@ func TestStoreMigration(t *testing.T) {
 	paramstore := paramtypes.NewSubspace(
 		encCfg.Marshaler, encCfg.Amino, claimsKey, tClaimsKey, "claims",
 	)
+	require.False(t, paramstore.HasKeyTable())
 
 	// check no params
 	require.False(t, paramstore.Has(ctx, claimstypes.ParamStoreKeyEVMChannels))
 	require.False(t, paramstore.Has(ctx, claimstypes.ParamStoreKeyAuthorizedChannels))
 
 	// Run migrations
-	err := v2.MigrateStore(ctx, paramstore)
+	err := v2.MigrateStore(ctx, &paramstore)
 	require.NoError(t, err)
 
 	// Make sure the new params are set
 	require.True(t, paramstore.Has(ctx, claimstypes.ParamStoreKeyAuthorizedChannels))
 	require.True(t, paramstore.Has(ctx, claimstypes.ParamStoreKeyEVMChannels))
+
+	var authorizedChannels, evmChannels []string
+
+	require.NotPanics(t, func() {
+		paramstore.Get(ctx, claimstypes.ParamStoreKeyAuthorizedChannels, &authorizedChannels)
+		paramstore.Get(ctx, claimstypes.ParamStoreKeyEVMChannels, &evmChannels)
+	})
+
+	// check that the values are the expected ones
+	require.Equal(t, claimstypes.DefaultAuthorizedChannels, authorizedChannels)
+	require.Equal(t, claimstypes.DefaultEVMChannels, evmChannels)
 }

@@ -40,6 +40,8 @@ var (
 	ParamStoreKeyEVMChannels        = []byte("EVMChannels")
 )
 
+var _ paramtypes.ParamSet = &Params{}
+
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
