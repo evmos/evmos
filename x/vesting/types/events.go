@@ -1,6 +1,6 @@
 package types
 
-// erc20 events
+// vesting events
 const (
 	EventTypeCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	EventTypeClawback                     = "clawback"
