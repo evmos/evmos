@@ -9,11 +9,11 @@ Use the evmosjs library for connecting clients to Evmos {synopsis}
 [`evmosjs`](https://github.com/tharsis/evmosjs) is a JavaScript and TypeScript client library for [Evmos](https://github.com/tharsis/evmos) and [Ethermint](https://github.com/tharsis/ethermint) nodes.
 
 ::: tip
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 This documentation page is currently under work in progress.
 
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 :::
 
 ## Cosmjs

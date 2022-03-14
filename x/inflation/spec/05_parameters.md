@@ -20,7 +20,6 @@ can be modified via governance.
 |                          |                        | `CommunityPool: sdk.NewDecWithPrec(133333333, 9)`  // 0.13 = 10% / (1 - 25%)  |
 | `EnableInflation`        | bool                   | `true`                                                                        |
 
-
 ## Mint Denom
 
 The `MintDenom` parameter sets the denomination in which new coins are minted.
@@ -56,4 +55,3 @@ stakingRewards = evmosTokenModelDistribution / (1 - teamVestingDistribution)
 The `EnableInflation` parameter enables the daily inflation. If it is disabled,
 no tokens are minted and the number of skipped epochs increases for each passed
 epoch.
-

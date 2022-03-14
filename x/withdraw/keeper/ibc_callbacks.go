@@ -196,12 +196,13 @@ func (k Keeper) OnRecvPacket(
 
 	// return error acknowledgement so that the counterparty chain can revert the
 	// transfer
-	return channeltypes.NewErrorAcknowledgement(
-		sdkerrors.Wrapf(
-			evmos.ErrKeyTypeNotSupported,
-			"reverted IBC transfer from %s (%s) to recipient %s",
-			data.Sender, sender, data.Receiver,
-		).Error(),
-	)
-	// return ack
+	// return channeltypes.NewErrorAcknowledgement(
+	// 	sdkerrors.Wrapf(
+	// 		types.ErrKeyTypeNotSupported,
+	// 		"reverted IBC transfer from %s (%s) to recipient %s",
+	// 		data.Sender, sender, data.Receiver,
+	// 	).Error(),
+	// )
+
+	return ack
 }

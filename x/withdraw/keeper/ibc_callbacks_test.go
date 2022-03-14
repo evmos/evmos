@@ -87,7 +87,6 @@ func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path 
 }
 
 func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
-
 	var (
 		sender   string
 		receiver string

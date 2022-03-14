@@ -14,7 +14,6 @@ can obtain the full list by using the `evmosd -h` command.
 
 ### Queries
 
-
 The `query` commands allow users to query `inflation` state.
 
 **`period`**
