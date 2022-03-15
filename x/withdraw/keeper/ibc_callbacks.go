@@ -93,8 +93,8 @@ func (k Keeper) OnRecvPacket(
 	// initiate the withdraw logic
 
 	// transfer the balance back to the sender address
-	srcPort := packet.SourcePort
-	srcChannel := packet.SourceChannel
+	destPort := packet.DestinationPort
+	destChannel := packet.DestinationChannel
 	balances := sdk.Coins{}
 
 	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
@@ -106,12 +106,12 @@ func (k Keeper) OnRecvPacket(
 		switch strings.HasPrefix(coin.Denom, "ibc/") {
 		case true:
 			// IBC vouchers, obtain the source port and channel from the denom path
-			srcPort, srcChannel, err = k.GetIBCDenomSelfIdentifiers(ctx, coin.Denom, data.Sender)
+			destPort, destChannel, err = k.GetIBCDenomSelfIdentifiers(ctx, coin.Denom, data.Sender)
 		default:
 			// Native tokens, use the source port and channel to transfer the EVMOS and
 			// other converted ERC20 coin denoms to the authorized source chain
-			srcPort = packet.SourcePort
-			srcChannel = packet.SourceChannel
+			destPort = packet.DestinationPort
+			destChannel = packet.DestinationChannel
 		}
 
 		if err != nil {
@@ -122,8 +122,8 @@ func (k Keeper) OnRecvPacket(
 			return true // stop iteration
 		}
 
-		// NOTE: only withdraw the IBC tokens from the source channel
-		if packet.SourcePort != srcPort || packet.SourceChannel != srcChannel {
+		// NOTE: only withdraw the IBC tokens from the enabled destination channel
+		if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
 			// continue
 			return false
 		}
@@ -140,7 +140,7 @@ func (k Keeper) OnRecvPacket(
 			recipient,                 // transfer recipient is now the sender
 			data.Sender,               // transfer sender is now the recipient
 			clienttypes.ZeroHeight(),  // timeout height disabled
-			timeout,                   // timeout timestamp is one hour from now
+			timeout,                   // timeout timestamp is 4 hours from now
 		)
 
 		if err != nil {

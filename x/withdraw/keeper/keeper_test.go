@@ -153,6 +153,25 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 			false,
 			"transfer", "channel-204",
 		},
+		{
+			"success - ibcATOM (via Osmosis)",
+			"ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-0/transfer/channel-0",
+					BaseDenom: "uatom",
+				}
+				fmt.Println(denomTrace.IBCDenom())
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-204"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
+			},
+			false,
+			"transfer", "channel-204",
+		},
 	}
 
 	for _, tc := range testCases {

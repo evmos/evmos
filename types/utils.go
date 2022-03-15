@@ -11,8 +11,20 @@ import (
 // IsSupportedKey returns true if the pubkey type is supported by the chain
 // (i.e eth_secp256k1, amino multisig, ed25519)
 func IsSupportedKey(pubkey cryptotypes.PubKey) bool {
-	switch pubkey.(type) {
-	case *ethsecp256k1.PubKey, *ed25519.PubKey, multisig.PubKey:
+	switch pubkey := pubkey.(type) {
+	case *ethsecp256k1.PubKey, *ed25519.PubKey:
+		return true
+	case multisig.PubKey:
+		if len(pubkey.GetPubKeys()) == 0 {
+			return false
+		}
+
+		for _, pk := range pubkey.GetPubKeys() {
+			if !IsSupportedKey(pk) {
+				return false
+			}
+		}
+
 		return true
 	default:
 		return false
