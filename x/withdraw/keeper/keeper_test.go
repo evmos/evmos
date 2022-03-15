@@ -155,7 +155,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 		},
 		{
 			"success - ibcATOM (via Osmosis)",
-			"ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+			"ibc/6CDD4663F2F09CD62285E2D45891FC149A3568E316CE3EBBE201A71A78A69388",
 			func() {
 				denomTrace := transfertypes.DenomTrace{
 					Path:      "transfer/channel-0/transfer/channel-0",
