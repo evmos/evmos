@@ -1,28 +1,21 @@
 package v2
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
-type ClaimsKeeper interface {
-	GetParams(ctx sdk.Context) types.Params
-	SetParams(ctx sdk.Context, params types.Params)
-}
-
-func UpdateParams(ctx sdk.Context, k ClaimsKeeper) error {
-	claimsParams := types.Params{
-		EnableClaims:       true,
-		AirdropStartTime:   time.Date(2022, time.March, 3, 18, 0, 0, 0, time.UTC),
-		DurationUntilDecay: (2592000 * time.Second) + (time.Hour * 24 * 14), // add 2 weeks
-		DurationOfDecay:    5184000 * time.Second,
-		ClaimsDenom:        "aevmos",
-		AuthorizedChannels: types.DefaultAuthorizedChannels,
-		EVMChannels:        types.DefaultEVMChannels,
+// MigrateStore adds the new parameters AuthorizedChannels and EVMChannels
+// to the claims paramstore.
+func MigrateStore(ctx sdk.Context, paramstore *paramtypes.Subspace) error {
+	if !paramstore.HasKeyTable() {
+		ps := paramstore.WithKeyTable(types.ParamKeyTable())
+		paramstore = &ps
 	}
-	k.SetParams(ctx, claimsParams)
+
+	paramstore.Set(ctx, types.ParamStoreKeyAuthorizedChannels, types.DefaultAuthorizedChannels)
+	paramstore.Set(ctx, types.ParamStoreKeyEVMChannels, types.DefaultEVMChannels)
 	return nil
 }
