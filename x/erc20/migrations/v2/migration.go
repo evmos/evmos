@@ -2,19 +2,20 @@ package v2
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
-type ERC20Keeper interface {
-	GetParams(ctx sdk.Context) types.Params
-	SetParams(ctx sdk.Context, params types.Params)
-}
+// UpdateParams updates the module parameters EnableERC20 and EnableEMVHook
+// values to true.
+func UpdateParams(ctx sdk.Context, paramstore *paramtypes.Subspace) error {
+	if !paramstore.HasKeyTable() {
+		ps := paramstore.WithKeyTable(types.ParamKeyTable())
+		paramstore = &ps
+	}
 
-func UpdateParams(ctx sdk.Context, k ERC20Keeper) error {
-	params := k.GetParams(ctx)
-	params.EnableErc20 = true
-	params.EnableEVMHook = true
-	k.SetParams(ctx, params)
+	paramstore.Set(ctx, types.ParamStoreKeyEnableErc20, true)
+	paramstore.Set(ctx, types.ParamStoreKeyEnableEVMHook, true)
 	return nil
 }
