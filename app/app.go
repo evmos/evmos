@@ -422,11 +422,6 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
 		authtypes.FeeCollectorName,
 	)
-	app.ClaimsKeeper = *claimskeeper.NewKeeper(
-		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper,
-	)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -479,13 +474,23 @@ func NewEvmos(
 
 	// Create Transfer Keepers
 
-	// NOTE: since the transfer keeper is the last layer of the stack,
-	// we use the ChannelKeeper as the ICS4 wrapper
+	// SendPacket, since it is originating from the application to core IBC:
+	// transferKeeper.SendPacket -> claim.SendPacket -> withdraw.SendPacket -> channel.SendPacket
+
+	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
+	// channel.RecvPacket -> withdraw.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimsKeeper.Hooks(), // claims IBC middleware
+		app.ClaimsKeeper.Hooks(), // claims IBC middleware // FIXME: not defined
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+	)
+
+	app.ClaimsKeeper = *claimskeeper.NewKeeper(
+		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
+		&app.WithdrawKeeper, // FIXME: not defined
 	)
 
 	app.WithdrawKeeper = *withdrawkeeper.NewKeeper(
@@ -493,7 +498,9 @@ func NewEvmos(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper
-		app.IBCKeeper.ChannelKeeper, app.TransferKeeper, app.ClaimsKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.TransferKeeper, // FIXME:
+		app.ClaimsKeeper,
 	)
 
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
