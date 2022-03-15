@@ -15,6 +15,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
@@ -118,6 +119,14 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 
 	srcPort = channel.Counterparty.PortId
 	srcChannel = channel.Counterparty.ChannelId
+
+	// check if the source channel is invalid
+	// NOTE: optimistic handshakes could cause unforeseen issues
+	if err := host.ChannelIdentifierValidator(srcChannel); err != nil {
+		return "", "", sdkerrors.Wrap(
+			channeltypes.ErrInvalidChannelIdentifier, err.Error(),
+		)
+	}
 
 	return srcPort, srcChannel, nil
 }

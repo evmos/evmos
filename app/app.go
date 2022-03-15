@@ -492,7 +492,7 @@ func NewEvmos(
 		app.GetSubspace(withdrawtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.ClaimsKeeper.Hooks(), // TODO: verify ics4 wrapper
+		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper
 		app.IBCKeeper.ChannelKeeper, app.TransferKeeper, app.ClaimsKeeper,
 	)
 

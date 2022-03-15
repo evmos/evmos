@@ -4,8 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -13,8 +11,6 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
-
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 
 	evmos "github.com/tharsis/evmos/v2/types"
 )
@@ -74,41 +70,27 @@ func (k Keeper) OnRecvPacket(
 		)
 	}
 
-	// get the recipient account
-	account := k.accountKeeper.GetAccount(ctx, recipient)
-
-	// NOTE: check if the recipient pubkey is a supported key, if it is,
-	// return the original ACK
-
-	// 1.a. no recipient account or no pubkey -> no way to determine the type of address
-	// ==> return success ACK
-	if account != nil &&
-		account.GetPubKey() != nil &&
-		// 1.b: pubkey is eth_secp256k1 (valid ethereum address) or other supported keys
-		// ==> return success ACK
-		(account.GetPubKey().Type() == ethsecp256k1.KeyType ||
-			account.GetPubKey().Type() == (&multisig.LegacyAminoPubKey{}).Type() ||
-			account.GetPubKey().Type() == (&ed25519.PubKey{}).Type()) {
+	// case 1: sender ≠ recipient.
+	// Withdraw is only possible for addresses in which the sender = recipient.
+	// Continue to the next IBC middleware by returning the original ACK.
+	if !sender.Equals(recipient) {
 		return ack
 	}
 
-	// case 2: sender ≠ recipient and and recipient key type is not supported
-	// Because the destination channel is authorized and not from an EVM chain,
-	// only the secp256k1 keys are supported in the destination
+	// get the recipient account
+	account := k.accountKeeper.GetAccount(ctx, recipient)
 
-	if !sender.Equals(recipient) {
-		logger.Debug(
-			"rejected IBC transfer to 'secp256k1' key address",
-			"sender", data.Sender,
-			"recipient", data.Receiver,
-			"source-channel", packet.SourceChannel,
-			"destination-channel", packet.DestinationChannel,
-		)
-
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver).Error(),
-		)
+	// Case 2. recipient pubkey is a supported key (eth_secp256k1, amino multisig, ed25519)
+	// ==> Continue and return success ACK as the funds are not stuck on chain
+	if account != nil &&
+		account.GetPubKey() != nil &&
+		evmos.IsSupportedKey(account.GetPubKey()) {
+		return ack
 	}
+
+	// NOTE: Since destination channel is authorized and not from an EVM chain, we know that
+	// only secp256k1 keys are supported in the source chain. This means that we can now
+	// initiate the withdraw logic
 
 	// transfer the balance back to the sender address
 	srcPort := packet.SourcePort
@@ -121,42 +103,44 @@ func (k Keeper) OnRecvPacket(
 			return false
 		}
 
-		// we only transfer IBC tokens back to their respective source chains
-		if strings.HasPrefix(coin.Denom, "ibc/") {
+		switch strings.HasPrefix(coin.Denom, "ibc/") {
+		case true:
+			// IBC vouchers, obtain the source port and channel from the denom path
 			srcPort, srcChannel, err = k.GetIBCDenomSource(ctx, coin.Denom, data.Sender)
-			if err != nil {
-				logger.Error(
-					"failed to get the IBC full denom path of source chain",
-					"error", err.Error(),
-				)
-				return true // stop iteration
-			}
-
-			// NOTE: only withdraw the IBC tokens from the source channel
-			if packet.SourcePort != srcPort || packet.SourceChannel != srcChannel {
-				// reset to the original values
-				srcPort = packet.SourcePort
-				srcChannel = packet.SourceChannel
-				// continue
-				return false
-			}
+		default:
+			// Native tokens, use the source port and channel to transfer the EVMOS and
+			// other converted ERC20 coin denoms to the authorized source chain
+			srcPort = packet.SourcePort
+			srcChannel = packet.SourceChannel
 		}
 
-		// Native tokens will be transferred to the authorized source chain to unstuck them
+		if err != nil {
+			logger.Error(
+				"failed to get the IBC full denom path of source chain",
+				"error", err.Error(),
+			)
+			return true // stop iteration
+		}
 
-		// NOTE: should we get the timeout from the channel consensus state?
-		timeout := uint64(ctx.BlockTime().Add(time.Hour).UnixNano())
+		// NOTE: only withdraw the IBC tokens from the source channel
+		if packet.SourcePort != srcPort || packet.SourceChannel != srcChannel {
+			// continue
+			return false
+		}
+
+		// NOTE: Don't use the consensus state because it may become unreliable if updates slow down
+		timeout := uint64(ctx.BlockTime().Add(4 * time.Hour).UnixNano())
 
 		// Withdraw the tokens to the bech32 prefixed address of the source chain
 		err = k.transferKeeper.SendTransfer(
 			ctx,
-			srcPort,                  // packet destination port is now the source
-			srcChannel,               // packet destination channel is now the source
-			coin,                     // balances + transfer amount
-			recipient,                // transfer recipient is now the sender
-			data.Sender,              // transfer sender is now the recipient
-			clienttypes.ZeroHeight(), // timeout height disabled
-			timeout,                  // timeout timestamp is one hour from now
+			packet.DestinationPort,    // packet destination port is now the source
+			packet.DestinationChannel, // packet destination channel is now the source
+			coin,                      // balance of the coin
+			recipient,                 // transfer recipient is now the sender
+			data.Sender,               // transfer sender is now the recipient
+			clienttypes.ZeroHeight(),  // timeout height disabled
+			timeout,                   // timeout timestamp is one hour from now
 		)
 
 		if err != nil {

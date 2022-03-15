@@ -6,8 +6,6 @@ import (
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
-
-
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	expParams := types.DefaultParams()
