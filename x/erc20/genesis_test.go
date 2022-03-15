@@ -69,17 +69,14 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 	testCases := []struct {
 		name         string
 		genesisState types.GenesisState
-		malleate     func()
 	}{
 		{
 			"empty genesis",
 			types.GenesisState{},
-			func() {},
 		},
 		{
 			"default genesis",
 			*types.DefaultGenesisState(),
-			func() {},
 		},
 		{
 			"custom genesis",
@@ -93,15 +90,10 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 						ContractOwner: types.OWNER_MODULE,
 					},
 				}),
-			func() {
-				acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, types.ModuleName)
-				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
-			},
 		},
 	}
 
 	for _, tc := range testCases {
-		tc.malleate()
 
 		suite.Require().NotPanics(func() {
 			erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
