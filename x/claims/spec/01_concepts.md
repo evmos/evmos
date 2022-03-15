@@ -56,6 +56,8 @@ If the user deploys or interacts with a smart contract (via an application or wa
 
 ### IBC Transfer Action
 
+If a user submits an IBC transfer to a recipient on a counterparty chain or receives an IBC transfer from a counterparty chain, the corresponding proportion will be airdropped to the user's balance submitting or receiving the transfer.
+
 ## Claim Records
 
 A Claims Records is the metadata of claim data per address. It keeps track of all the actions performed by the the user as well as the total amount of tokens allocated to them. All users that have an address with a corresponding `ClaimRecord` are eligible to claim the airdrop.
