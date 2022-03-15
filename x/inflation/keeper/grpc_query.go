@@ -4,7 +4,7 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -31,7 +31,46 @@ func (k Keeper) EpochMintProvision(
 	if !found {
 		return nil, status.Error(codes.NotFound, "epoch mint provision not found")
 	}
-	return &types.QueryEpochMintProvisionResponse{EpochMintProvision: epochMintProvision}, nil
+
+	mintDenom := k.GetParams(ctx).MintDenom
+	coin := sdk.NewDecCoinFromDec(mintDenom, epochMintProvision)
+
+	return &types.QueryEpochMintProvisionResponse{EpochMintProvision: coin}, nil
+}
+
+// SkippedEpochs returns the number of skipped Epochs of the inflation module.
+func (k Keeper) SkippedEpochs(
+	c context.Context,
+	_ *types.QuerySkippedEpochsRequest,
+) (*types.QuerySkippedEpochsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	skippedEpochs := k.GetSkippedEpochs(ctx)
+	return &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}, nil
+}
+
+// InflationRate returns the number of skipped Epochs of the inflation module.
+func (k Keeper) InflationRate(
+	c context.Context,
+	_ *types.QueryInflationRateRequest,
+) (*types.QueryInflationRateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	inflationRate := k.GetInflationRate(ctx)
+
+	return &types.QueryInflationRateResponse{InflationRate: inflationRate}, nil
+}
+
+// TotalSupply returns the number of skipped Epochs of the inflation module.
+func (k Keeper) TotalSupply(
+	c context.Context,
+	_ *types.QueryTotalSupplyRequest,
+) (*types.QueryTotalSupplyResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	totalSupply := k.GetTotalSupply(ctx)
+
+	mintDenom := k.GetParams(ctx).MintDenom
+	coin := sdk.NewDecCoinFromDec(mintDenom, totalSupply)
+
+	return &types.QueryTotalSupplyResponse{TotalSupply: coin}, nil
 }
 
 // Params returns params of the mint module.

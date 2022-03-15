@@ -34,7 +34,7 @@ linters:
     - unparam
     - unused
     - varcheck
-    - nolintlint
+    # - nolintlint
     - asciicheck
     # - exhaustive
     - exportloopref

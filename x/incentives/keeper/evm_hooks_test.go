@@ -9,7 +9,7 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/x/incentives/types"
+	"github.com/tharsis/evmos/v2/x/incentives/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
@@ -72,11 +72,12 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			suite.ensureHooksSet()
 
 			// Deploy Contract
-			contractAddr := suite.DeployContract(denomCoin, "COIN", erc20Decimals)
+			contractAddr, err := suite.DeployContract(denomCoin, "COIN", erc20Decimals)
+			suite.Require().NoError(err)
 			suite.Commit()
 
 			// Register Incentive
-			_, err := suite.app.IncentivesKeeper.RegisterIncentive(
+			_, err = suite.app.IncentivesKeeper.RegisterIncentive(
 				suite.ctx,
 				contractAddr,
 				mintAllocations,

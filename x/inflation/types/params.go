@@ -8,14 +8,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"gopkg.in/yaml.v2"
 )
+
+var DefaultInflationDenom = evm.DefaultEVMDenom
 
 // Parameter store keys
 var (
-	KeyMintDenom              = []byte("KeyMintDenom")
-	KeyExponentialCalculation = []byte("KeyExponentialCalculation")
-	KeyInflationDistribution  = []byte("KeyInflationDistribution")
+	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
+	ParamStoreKeyExponentialCalculation = []byte("ParamStoreKeyExponentialCalculation")
+	ParamStoreKeyInflationDistribution  = []byte("ParamStoreKeyInflationDistribution")
+	ParamStoreKeyEnableInflation        = []byte("ParamStoreKeyEnableInflation")
 )
 
 // ParamTable for inflation module
@@ -27,18 +29,20 @@ func NewParams(
 	mintDenom string,
 	exponentialCalculation ExponentialCalculation,
 	inflationDistribution InflationDistribution,
+	enableInflation bool,
 ) Params {
 	return Params{
 		MintDenom:              mintDenom,
 		ExponentialCalculation: exponentialCalculation,
 		InflationDistribution:  inflationDistribution,
+		EnableInflation:        enableInflation,
 	}
 }
 
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom: evm.DefaultEVMDenom,
+		MintDenom: DefaultInflationDenom,
 		ExponentialCalculation: ExponentialCalculation{
 			A:             sdk.NewDec(int64(300_000_000)),
 			R:             sdk.NewDecWithPrec(50, 2), // 50%
@@ -51,21 +55,17 @@ func DefaultParams() Params {
 			UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
 			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 		},
+		EnableInflation: true,
 	}
-}
-
-// String implements the Stringer interface.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
 }
 
 // Implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
-		paramtypes.NewParamSetPair(KeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair(ParamStoreKeyMintDenom, &p.MintDenom, validateMintDenom),
+		paramtypes.NewParamSetPair(ParamStoreKeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
+		paramtypes.NewParamSetPair(ParamStoreKeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableInflation, &p.EnableInflation, validateBool),
 	}
 }
 
@@ -153,6 +153,15 @@ func validateInflationDistribution(i interface{}) error {
 	return nil
 }
 
+func validateBool(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
 func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
@@ -160,5 +169,9 @@ func (p Params) Validate() error {
 	if err := validateExponentialCalculation(p.ExponentialCalculation); err != nil {
 		return err
 	}
-	return validateInflationDistribution(p.InflationDistribution)
+	if err := validateInflationDistribution(p.InflationDistribution); err != nil {
+		return err
+	}
+
+	return validateBool(p.EnableInflation)
 }

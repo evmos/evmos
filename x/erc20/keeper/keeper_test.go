@@ -7,6 +7,9 @@ import (
 	"testing"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -38,9 +41,9 @@ import (
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/contracts"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 type KeeperTestSuite struct {
@@ -56,6 +59,17 @@ type KeeperTestSuite struct {
 	ethSigner        ethtypes.Signer
 	signer           keyring.Signer
 	mintFeeCollector bool
+}
+
+var s *KeeperTestSuite
+
+func TestKeeperTestSuite(t *testing.T) {
+	s = new(KeeperTestSuite)
+	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper Suite")
 }
 
 // Test helpers
@@ -104,7 +118,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		// Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "evmos_9000-1",
+				ChainId:         "evmos_9001-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simapp.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -114,7 +128,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9000-1",
+		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: suite.consAddress.Bytes(),
 
@@ -179,25 +193,32 @@ func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 	suite.Require().NoError(err)
 }
 
-func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimals uint8) common.Address {
+// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
+func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
 
 	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
 	})
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
 		GasCap: uint64(config.DefaultGasCap),
 	})
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
@@ -215,11 +236,17 @@ func (suite *KeeperTestSuite) DeployContract(name string, symbol string, decimal
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	suite.Require().NoError(err)
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
+	return crypto.CreateAddress(suite.address, nonce), nil
 }
 
 func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol string) common.Address {
@@ -264,6 +291,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 	suite.Require().Empty(rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce)
 }
+
 func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name string, symbol string) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
@@ -420,8 +448,4 @@ func (suite *KeeperTestSuite) TransferERC20Token(contractAddr, from, to common.A
 	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
 	suite.Require().NoError(err)
 	return suite.sendTx(contractAddr, from, transferData)
-}
-
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
 }

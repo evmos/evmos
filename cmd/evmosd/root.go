@@ -38,9 +38,9 @@ import (
 	servercfg "github.com/tharsis/ethermint/server/config"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 
-	"github.com/tharsis/evmos/app"
-	cmdcfg "github.com/tharsis/evmos/cmd/config"
-	evmoskr "github.com/tharsis/evmos/crypto/keyring"
+	"github.com/tharsis/evmos/v2/app"
+	cmdcfg "github.com/tharsis/evmos/v2/cmd/config"
+	evmoskr "github.com/tharsis/evmos/v2/crypto/keyring"
 )
 
 const (
@@ -70,6 +70,12 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
+
+			// Disable ledger temporarily
+			useLedger, _ := cmd.Flags().GetBool(flags.FlagUseLedger)
+			if useLedger {
+				return errors.New("--ledger flag passed: Ledger device is currently not supported")
+			}
 
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {

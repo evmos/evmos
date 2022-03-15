@@ -10,11 +10,11 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
 
-| Network Chain ID | Description                       | Site                                                                       | Version                                               |
-| ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- |
-| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.x.x`](https://github.com/tharsis/evmos/releases) |
-| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases) |
-| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/tharsis/evmos/releases) |
+| Testnet Chain ID | Description                       | Site                                                                       | Version                                               |   Status  |
+| ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- | --- |
+| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.x`](https://github.com/tharsis/evmos/releases) |  `Live`   |
+| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases) |  `Stale`   |
+| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/tharsis/evmos/releases) | `Stale`    |
 
 ## Install `evmosd`
 
@@ -136,7 +136,7 @@ evmosd tx staking create-validator \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
-  --gas-prices="0.025aevmos" \
+  --gas-prices="0.025atevmos" \
   --from=<key_name>
 ```
 
@@ -150,7 +150,9 @@ evmosd start
 
 ## Upgrading Your Node
 
-> NOTE: These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet.
+::: tip
+These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet version.
+:::
 
 ### Reset Data
 

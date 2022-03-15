@@ -6,13 +6,12 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "evmos/claims/v1/claims.proto";
 
-option go_package = "github.com/tharsis/evmos/x/claims/types";
+option go_package = "github.com/tharsis/evmos/v2/x/claims/types";
 
 // GenesisState defines the claims module's genesis state.
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
-
   // list of claim records with the corresponding airdrop recipient
   repeated ClaimsRecordAddress claims_records = 2
       [ (gogoproto.nullable) = false ];
@@ -33,4 +32,9 @@ message Params {
       [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
   // denom of claimable coin
   string claims_denom = 5;
+  // list of authorized channel identifiers that can perform address attestations
+  // via IBC.
+  repeated string authorized_channels = 6;
+  // list of channel identifiers from EVM compatible chains
+  repeated string evm_channels = 7 [(gogoproto.customname) = "EVMChannels"];
 }

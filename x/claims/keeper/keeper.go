@@ -12,7 +12,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // Keeper struct
@@ -90,6 +90,13 @@ func (k Keeper) GetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) (types.Cla
 	k.cdc.MustUnmarshal(bz, &claimsRecord)
 
 	return claimsRecord, true
+}
+
+// HasClaimsRecord returns if the claims record is found in the store a
+// given address
+func (k Keeper) HasClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
+	return store.Has(addr)
 }
 
 // SetClaimsRecord sets a claim record for an address in store

@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/tharsis/evmos/x/erc20/keeper"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/x/erc20/keeper"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 // InitGenesis import module genesis
@@ -19,6 +19,7 @@ func InitGenesis(
 
 	// ensure erc20 module account is set on genesis
 	if acc := accountKeeper.GetModuleAccount(ctx, types.ModuleName); acc == nil {
+		// NOTE: shouldn't occur
 		panic("the erc20 module account has not been set")
 	}
 

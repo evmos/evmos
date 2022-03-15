@@ -9,9 +9,9 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
-	vestingtypes "github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {
@@ -98,7 +98,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"balance zero, vesting account is ignored",
+			"balance non zero, vesting account is ignored",
 			0,
 			func() {
 				bAcc := authtypes.NewBaseAccount(addr, nil, 0, 0)
@@ -116,7 +116,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"balance non zero",
+			"balance non zero, base account",
 			amount,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
@@ -130,7 +130,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"balance non zero not claim denom",
+			"balance non zero, not claim denom",
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))

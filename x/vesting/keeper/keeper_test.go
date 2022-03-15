@@ -35,9 +35,9 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/contracts"
+	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 var (
@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// Set Context
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9000-1",
+		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: suite.consAddress.Bytes(),
 

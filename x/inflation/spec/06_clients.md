@@ -14,7 +14,6 @@ can obtain the full list by using the `evmosd -h` command.
 
 ### Queries
 
-
 The `query` commands allow users to query `inflation` state.
 
 **`period`**
@@ -25,12 +24,36 @@ Allows users to query the current inflation period.
 evmosd query inflation period [flags]
 ```
 
-**`epoch-mint-provisions`**
+**`epoch-mint-provision`**
 
 Allows users to query the current inflation epoch provisions value.
 
 ```go
-evmosd query inflation epoch-mint-provisions [flags]
+evmosd query inflation epoch-mint-provision [flags]
+```
+
+**`skipped-epochs`**
+
+Allows users to query the current number of skipped epochs.
+
+```go
+evmosd query inflation skipped-epochs [flags]
+```
+
+**`total-supply`**
+
+Allows users to query the total supply of tokens in circulation.
+
+```go
+evmosd query inflation total-supply [flags]
+```
+
+**`inflation-rate`**
+
+Allows users to query the inflation rate of the current period.
+
+```go
+evmosd query inflation inflation-rate [flags]
 ```
 
 **`params`**
@@ -45,22 +68,6 @@ evmosd query inflation params [flags]
 
 The `tx gov submit-proposal` commands allow users to query create a proposal
 using the governance module CLI:
-
-**`register-incentive`**
-
-Allows users to submit a `RegisterIncentiveProposal`.
-
-```bash
-evmosd tx gov submit-proposal register-incentive [contract-address] [allocation] [epochs] [flags]
-```
-
-**`cancel-incentive`**
-
-Allows users to submit a `CanelIncentiveProposal`.
-
-```bash
-evmosd tx gov submit-proposal cancel-incentive [contract-address] [flags]
-```
 
 **`param-change`**
 
@@ -79,6 +86,12 @@ evmosd tx gov submit-proposal param-change [proposal-file] [flags]
 | `gRPC` | `evmos.inflation.v1.Query/Period`             | Gets current inflation period                 |
 | `gRPC` | `evmos.inflation.v1.Query/EpochMintProvision` | Gets current inflation epoch provisions value |
 | `gRPC` | `evmos.inflation.v1.Query/Params`             | Gets current inflation parameters             |
+| `gRPC` | `evmos.inflation.v1.Query/SkippedEpochs`      | Gets current number of skipped epochs         |
+| `gRPC` | `evmos.inflation.v1.Query/TotalSupply`        | Gets current total supply                     |
+| `gRPC` | `evmos.inflation.v1.Query/InflationRate`      | Gets current inflation rate                   |
 | `GET`  | `/evmos/inflation/v1/period`                  | Gets current inflation period                 |
 | `GET`  | `/evmos/inflation/v1/epoch_mint_provision`    | Gets current inflation epoch provisions value |
+| `GET`  | `/evmos/inflation/v1/skipped_epochs`          | Gets current number of skipped epochs         |
+| `GET`  | `/evmos/inflation/v1/total_supply`          | Gets current total supply                     |
+| `GET`  | `/evmos/inflation/v1/inflation_rate`          | Gets current inflation rate                   |
 | `GET`  | `/evmos/inflation/v1/params`                  | Gets current inflation parameters             |

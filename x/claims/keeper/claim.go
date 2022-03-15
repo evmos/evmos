@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // GetClaimableAmountForAction returns claimable amount for a specific action done by an address
@@ -130,6 +130,12 @@ func (k Keeper) ClaimCoinsForAction(
 	} else {
 		k.SetClaimsRecord(ctx, addr, claimsRecord)
 	}
+
+	k.Logger(ctx).Info(
+		"claimed action",
+		"address", addr.String(),
+		"action", action.String(),
+	)
 
 	return claimableAmount, nil
 }

@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"context"
-	"math"
+	"strconv"
 	"time"
 
 	"github.com/armon/go-metrics"
@@ -13,7 +13,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -130,11 +130,17 @@ func (k Keeper) CreateClawbackVestingAccount(
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.StoreKey),
-		),
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
+				sdk.NewAttribute(types.AttributeKeyCoins, vestingCoins.String()),
+				sdk.NewAttribute(types.AttributeKeyStartTime, msg.StartTime.String()),
+				sdk.NewAttribute(types.AttributeKeyMerge, strconv.FormatBool(msg.Merge)),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
+			),
+		},
 	)
 
 	return &types.MsgCreateClawbackVestingAccountResponse{}, nil
@@ -187,6 +193,17 @@ func (k Keeper) Clawback(
 		return nil, err
 	}
 
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
+				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
+			),
+		},
+	)
+
 	return &types.MsgClawbackResponse{}, nil
 }
 
@@ -225,97 +242,22 @@ func (k Keeper) addGrant(
 }
 
 // transferClawback transfers unvested tokens in a ClawbackVestingAccount to
-// dest. Future vesting events are removed. Unstaked tokens are simply sent.
-// Unbonding and staked tokens are transferred with their staking state intact.
-// Account state is updated to reflect the removals.
+// dest address, updates the lockup schedule and removes future vesting events.
 func (k Keeper) transferClawback(
 	ctx sdk.Context,
 	va types.ClawbackVestingAccount,
 	dest sdk.AccAddress,
 ) error {
-	// Compute the clawback based on the account state only, and update account
+	// Compute clawback amount, unlock unvested tokens and remove future vesting events
 	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
 	if toClawBack.IsZero() {
 		return nil
 	}
-	addr := updatedAcc.GetAddress()
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
-
-	// Compute the clawback based on bank balance and delegation, and update account
-	encumbered := updatedAcc.GetVestingCoins(ctx.BlockTime())
-	bondedAmt := k.GetDelegatorBonded(ctx, addr)
-	unbondingAmt := k.GetDelegatorUnbonding(ctx, addr)
-	bonded := sdk.NewCoins(sdk.NewCoin(bondDenom, bondedAmt))
-	unbonding := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondingAmt))
-	unbonded := k.bankKeeper.GetAllBalances(ctx, addr)
-	updatedAcc, toClawBack = updatedAcc.UpdateDelegation(encumbered, toClawBack, bonded, unbonding, unbonded)
-
-	// Write now now so that the bank module sees unvested tokens are unlocked.
-	// Note that all store writes are aborted if there is a panic, so there is
-	// no danger in writing incomplete results.
 	k.accountKeeper.SetAccount(ctx, &updatedAcc)
 
-	// Now that future vesting events (and associated lockup) are removed,
-	// the balance of the account is unlocked and can be freely transferred.
+	// Transfer clawback
+	addr := updatedAcc.GetAddress()
 	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
-	toXfer := types.CoinsMin(toClawBack, spendable)
-	err := k.bankKeeper.SendCoins(ctx, addr, dest, toXfer)
-	if err != nil {
-		return err // shouldn't happen, given spendable check
-	}
-	toClawBack = toClawBack.Sub(toXfer)
-
-	// We need to traverse the staking data structures to update the vesting
-	// account bookkeeping, and to recover more funds if necessary. Staking is the
-	// only way unvested tokens should be missing from the bank balance.
-
-	// If we need more, transfer UnbondingDelegations.
-	want := toClawBack.AmountOf(bondDenom)
-	unbondings := k.stakingKeeper.GetUnbondingDelegations(ctx, addr, math.MaxUint16)
-	for _, unbonding := range unbondings {
-		valAddr, err := sdk.ValAddressFromBech32(unbonding.ValidatorAddress)
-		if err != nil {
-			panic(err)
-		}
-		transferred := k.TransferUnbonding(ctx, addr, dest, valAddr, want)
-		want = want.Sub(transferred)
-		if !want.IsPositive() {
-			break
-		}
-	}
-
-	// If we need more, transfer Delegations.
-	if want.IsPositive() {
-		delegations := k.stakingKeeper.GetDelegatorDelegations(ctx, addr, math.MaxUint16)
-		for _, delegation := range delegations {
-			validatorAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
-			if err != nil {
-				panic(err) // shouldn't happen
-			}
-			validator, found := k.stakingKeeper.GetValidator(ctx, validatorAddr)
-			if !found {
-				// validator has been removed
-				continue
-			}
-			wantShares, err := validator.SharesFromTokensTruncated(want)
-			if err != nil {
-				// validator has no tokens
-				continue
-			}
-			transferredShares := k.TransferDelegation(ctx, addr, dest, delegation.GetValidatorAddr(), wantShares)
-			// to be conservative in what we're clawing back, round transferred shares up
-			transferred := validator.TokensFromSharesRoundUp(transferredShares).RoundInt()
-			want = want.Sub(transferred)
-			if !want.IsPositive() {
-				// Could be slightly negative, due to rounding?
-				// Don't think so, due to the precautions above.
-				break
-			}
-		}
-	}
-
-	// If we've transferred everything and still haven't transferred the desired
-	// clawback amount, then the account must have most some unvested tokens from
-	// slashing.
-	return nil
+	transferAmt := types.CoinsMin(toClawBack, spendable)
+	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
 }

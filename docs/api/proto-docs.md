@@ -109,10 +109,16 @@
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
     - [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest)
     - [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse)
+    - [QueryInflationRateRequest](#evmos.inflation.v1.QueryInflationRateRequest)
+    - [QueryInflationRateResponse](#evmos.inflation.v1.QueryInflationRateResponse)
     - [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse)
     - [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest)
     - [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse)
+    - [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest)
+    - [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse)
+    - [QueryTotalSupplyRequest](#evmos.inflation.v1.QueryTotalSupplyRequest)
+    - [QueryTotalSupplyResponse](#evmos.inflation.v1.QueryTotalSupplyResponse)
   
     - [Query](#evmos.inflation.v1.Query)
   
@@ -256,6 +262,8 @@ Params defines the claims module's parameters.
 | `duration_until_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration until decay of claimable tokens begin |
 | `duration_of_decay` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration of the token claim decay period |
 | `claims_denom` | [string](#string) |  | denom of claimable coin |
+| `authorized_channels` | [string](#string) | repeated | list of authorized channel identifiers that can perform address attestations via IBC. |
+| `evm_channels` | [string](#string) | repeated | list of channel identifiers from EVM compatible chains |
 
 
 
@@ -1399,6 +1407,7 @@ GenesisState defines the inflation module's genesis state.
 | `period` | [uint64](#uint64) |  | amount of past periods, based on the epochs per period param |
 | `epoch_identifier` | [string](#string) |  | inflation epoch identifier |
 | `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
+| `skipped_epochs` | [uint64](#uint64) |  | number of epochs that have passed while inflation is disabled |
 
 
 
@@ -1416,6 +1425,7 @@ Params holds parameters for the inflation module.
 | `mint_denom` | [string](#string) |  | type of coin to mint |
 | `exponential_calculation` | [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation) |  | variables to calculate exponential inflation |
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation distribution of the minted denom |
+| `enable_inflation` | [bool](#bool) |  | parameter to enable inflation and halt increasing the skipped_epochs |
 
 
 
@@ -1458,7 +1468,32 @@ Query/EpochMintProvision RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epoch_mint_provision` | [bytes](#bytes) |  | epoch_mint_provision is the current minting per epoch provision value. |
+| `epoch_mint_provision` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | epoch_mint_provision is the current minting per epoch provision value. |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryInflationRateRequest"></a>
+
+### QueryInflationRateRequest
+QueryInflationRateRequest is the request type for the Query/InflationRate RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryInflationRateResponse"></a>
+
+### QueryInflationRateResponse
+QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `inflation_rate` | [string](#string) |  | rate by which the total supply increases within one period |
 
 
 
@@ -1514,6 +1549,56 @@ QueryPeriodResponse is the response type for the Query/Period RPC method.
 
 
 
+
+<a name="evmos.inflation.v1.QuerySkippedEpochsRequest"></a>
+
+### QuerySkippedEpochsRequest
+QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QuerySkippedEpochsResponse"></a>
+
+### QuerySkippedEpochsResponse
+QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `skipped_epochs` | [uint64](#uint64) |  | number of epochs that the inflation module has been disabled. |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryTotalSupplyRequest"></a>
+
+### QueryTotalSupplyRequest
+QueryTotalSupplyRequest is the request type for the Query/TotalSupply RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryTotalSupplyResponse"></a>
+
+### QueryTotalSupplyResponse
+QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `total_supply` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | total amount of coins in circulation |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1530,6 +1615,9 @@ Query provides defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
+| `SkippedEpochs` | [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest) | [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse) | SkippedEpochs retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/skipped_epochs|
+| `TotalSupply` | [QueryTotalSupplyRequest](#evmos.inflation.v1.QueryTotalSupplyRequest) | [QueryTotalSupplyResponse](#evmos.inflation.v1.QueryTotalSupplyResponse) | TotalSupply retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/total_supply|
+| `InflationRate` | [QueryInflationRateRequest](#evmos.inflation.v1.QueryInflationRateRequest) | [QueryInflationRateResponse](#evmos.inflation.v1.QueryInflationRateResponse) | InflationRate retrieves the inflation rate of the current period. | GET|/evmos/inflation/v1/inflation_rate|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
 
  <!-- end services -->

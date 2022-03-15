@@ -5,8 +5,8 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/contracts"
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/contracts"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
@@ -23,7 +23,7 @@ func (suite *KeeperTestSuite) TestQueryERC20() {
 		},
 		{
 			"ok",
-			func() { contract = suite.DeployContract("coin", "token", erc20Decimals) },
+			func() { contract, _ = suite.DeployContract("coin", "token", erc20Decimals) },
 			true,
 		},
 	}
@@ -66,7 +66,8 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.SetupTest() // reset
 
 		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-		contract := suite.DeployContract("coin", "token", erc20Decimals)
+		contract, err := suite.DeployContract("coin", "token", erc20Decimals)
+		suite.Require().NoError(err)
 		account := tests.GenerateAddress()
 
 		res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, tc.method, account)

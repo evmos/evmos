@@ -6,41 +6,44 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
-
-	"github.com/tharsis/evmos/ibctesting"
-
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
-	"github.com/tharsis/evmos/app"
-	"github.com/tharsis/evmos/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/x/inflation/types"
+
+	"github.com/tharsis/evmos/v2/app"
+	"github.com/tharsis/evmos/v2/ibctesting"
+	"github.com/tharsis/evmos/v2/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 type IBCTestingSuite struct {
 	suite.Suite
-	coordinator *ibctesting.Coordinator
+	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	chainA *ibctesting.TestChain
-	chainB *ibctesting.TestChain
+	chainA      *ibcgotesting.TestChain // Evmos chain A
+	chainB      *ibcgotesting.TestChain // Evmos chain B
+	chainCosmos *ibcgotesting.TestChain // Cosmos chain
 
-	path *ibctesting.Path
+	pathEVM    *ibcgotesting.Path // chainA (Evmos) <-->  chainB (Evmos)
+	pathCosmos *ibcgotesting.Path // chainA (Evmos) <--> chainCosmos
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2, 1) // initializes 2 Evmos test chains and 1 Cosmos Chain
+	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
+	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
+	suite.chainCosmos = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))
 
-	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)         // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2)) // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
+	suite.coordinator.CommitNBlocks(suite.chainCosmos, 2)
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
@@ -59,11 +62,17 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
 	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 
-	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
-	suite.Require().Equal("07-tendermint-0", suite.path.EndpointA.ClientID)
-	suite.Require().Equal("connection-0", suite.path.EndpointA.ConnectionID)
-	suite.Require().Equal("channel-0", suite.path.EndpointA.ChannelID)
+	suite.pathEVM = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathEVM)                      // clientID, connectionID, channelID filled
+	suite.Require().Equal("07-tendermint-0", suite.pathEVM.EndpointA.ClientID)
+	suite.Require().Equal("connection-0", suite.pathEVM.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-0", suite.pathEVM.EndpointA.ChannelID)
+
+	suite.pathCosmos = NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathCosmos)                           // clientID, connectionID, channelID filled
+	suite.Require().Equal("07-tendermint-1", suite.pathCosmos.EndpointA.ClientID)
+	suite.Require().Equal("connection-1", suite.pathCosmos.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-1", suite.pathCosmos.EndpointA.ChannelID)
 }
 
 func TestIBCTestingSuite(t *testing.T) {
@@ -72,8 +81,8 @@ func TestIBCTestingSuite(t *testing.T) {
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
-func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
-	path := ibctesting.NewPath(chainA, chainB)
+func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
+	path := ibcgotesting.NewPath(chainA, chainB)
 	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
 	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
 
@@ -170,7 +179,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
-			path := suite.path
+			path := suite.pathEVM
 
 			tc.malleate(tc.claimableAmount)
 
@@ -179,7 +188,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 			// send on endpointA
-			suite.path.EndpointA.SendPacket(packet)
+			path.EndpointA.SendPacket(packet)
 
 			// receive on endpointB
 			err := path.EndpointB.RecvPacket(packet)
@@ -264,7 +273,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
-			path := suite.path
+			path := suite.pathEVM
 
 			tc.malleate(tc.claimableAmount)
 
@@ -272,11 +281,11 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-			// // send on endpointA
-			err := suite.path.EndpointA.SendPacket(packet)
+			// send on endpointA
+			err := path.EndpointA.SendPacket(packet)
 			suite.Require().NoError(err)
 
-			err = suite.path.RelayPacket(packet)
+			err = path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
 			if tc.expPass {
@@ -296,12 +305,20 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 }
 
 func (suite *KeeperTestSuite) TestReceive() {
-	sender := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
-	receiver := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	pk := secp256k1.GenPrivKey()
+	secpAddr := sdk.AccAddress(pk.PubKey().Address())
+	secpAddrEvmos := secpAddr.String()
+	secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
+	senderStr := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	receiverStr := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	sender, err := sdk.AccAddressFromBech32(senderStr)
+	suite.Require().NoError(err)
+	receiver, err := sdk.AccAddressFromBech32(receiverStr)
+	suite.Require().NoError(err)
 
 	disabledTimeoutTimestamp := uint64(0)
 	timeoutHeight = clienttypes.NewHeight(0, 100)
-	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, "port", "channel", "port2", "channel2", timeoutHeight, disabledTimeoutTimestamp)
+	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, disabledTimeoutTimestamp)
 	ack := ibcmock.MockAcknowledgement
 
 	testCases := []struct {
@@ -309,7 +326,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		test func()
 	}{
 		{
-			"params disabled",
+			"fail - params disabled",
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
@@ -320,7 +337,18 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"non ics20 packet",
+			"fail - params, channel not authorized",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-100", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().Equal(ack, resAck)
+			},
+		},
+		{
+			"fail - non ics20 packet",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 				expectedAck := channeltypes.NewErrorAcknowledgement(err.Error())
@@ -329,44 +357,149 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"invalid sender",
+			"fail - invalid sender",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos", receiver)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "evmos", receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
 			},
 		},
 		{
-			"invalid sender",
+			"fail - invalid sender 2",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", receiver)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
 			},
 		},
 		{
-			"invalid recipient",
+			"fail - invalid recipient",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", receiver, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", receiverStr, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
 			},
 		},
 		{
-			"correct",
+			"fail - sender and receiver address is the same (no claim record)",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, "port", "channel", "port2", "channel2", timeoutHeight, 0)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+			},
+		},
+		{
+			"fail - sender and receiver address are the same (with claim record)",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+			},
+		},
+		{
+			"case 1: sender ≠ recipient",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is merged to the recipient
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 2: same sender ≠ recipient, sender claims record found",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is migrated
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 3: same sender ≠ recipient, recipient claims record found",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is not deleted
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 3: same sender with EVM channel, with claims record",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is not deleted
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
+			},
+		},
+		{
+			"case 4: sender different than recipient, no claims records",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultAuthorizedChannels[0], timeoutHeight, 0)
+
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+			},
+		},
+		{
+			"case 4: same sender with EVM channel, no claims record",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
@@ -385,7 +518,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 func (suite *KeeperTestSuite) TestAck() {
 	disabledTimeoutTimestamp := uint64(0)
 	timeoutHeight = clienttypes.NewHeight(0, 100)
-	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, "port", "channel", "port2", "channel2", timeoutHeight, disabledTimeoutTimestamp)
+	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, disabledTimeoutTimestamp)
 	ack := ibcmock.MockAcknowledgement
 
 	testCases := []struct {

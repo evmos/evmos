@@ -16,17 +16,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - uses: actions/setup-go@v2
         with:
           go-version: 1.17
       - uses: technote-space/get-diff-action@v6.0.1
         id: git_diff
         with:
-          SUFFIX_FILTER: |
-            .go
-            .mod
-            .sum
+          PATTERNS: |
+            **/**.go
+            go.mod
+            go.sum
       - run: |
           make build
-        if: "env.GIT_DIFF != ''"
+        if: env.GIT_DIFF

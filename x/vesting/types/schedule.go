@@ -40,6 +40,34 @@ func ReadSchedule(
 	return coins
 }
 
+// ReadPastPeriodCount returns the amount of passed periods before read time
+func ReadPastPeriodCount(
+	startTime, endTime int64,
+	periods []sdkvesting.Period,
+	readTime int64,
+) int {
+	passedPeriods := 0
+	if readTime <= startTime {
+		return passedPeriods
+	}
+	if readTime >= endTime {
+		return len(periods)
+	}
+
+	time := startTime
+
+	for _, period := range periods {
+		if readTime < time+period.Length {
+			// we're reading before the next event
+			break
+		}
+		passedPeriods++
+		time += period.Length
+	}
+
+	return passedPeriods
+}
+
 // DisjunctPeriods returns the union of two vesting period schedules. The
 // returned schedule is the union of the vesting events, with simultaneous
 // events combined into a single event. Input schedules P and Q are defined by

@@ -7,7 +7,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/x/claims/keeper"
+	"github.com/tharsis/evmos/v2/x/claims/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCModule{}
@@ -63,10 +63,11 @@ func (im IBCModule) OnChanOpenTry(
 func (im IBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
-	channelID string,
+	channelID,
+	counterpartyChannelID,
 	counterpartyVersion string,
 ) error {
-	return im.app.OnChanOpenAck(ctx, portID, channelID, counterpartyVersion)
+	return im.app.OnChanOpenAck(ctx, portID, channelID, counterpartyChannelID, counterpartyVersion)
 }
 
 // OnChanOpenConfirm implements the IBCModule interface.

@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/tharsis/evmos/x/inflation/types"
+	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestSetGetEpochIdentifier() {
@@ -77,6 +77,44 @@ func (suite *KeeperTestSuite) TestSetGetEpochsPerPeriod() {
 				suite.Require().Equal(expEpochsPerPeriod, epochsPerPeriod, tc.name)
 			} else {
 				suite.Require().Equal(defaultEpochsPerPeriod, epochsPerPeriod, tc.name)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestSetGetSkippedEpochs() {
+	defaultSkippedEpochs := types.DefaultGenesisState().SkippedEpochs
+	expSkippedepochs := uint64(20)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		ok       bool
+	}{
+		{
+			"default skipped epoch",
+			func() {},
+			false,
+		},
+		{
+			"skipped epoch set",
+			func() {
+				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, expSkippedepochs)
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			epochsPerPeriod := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
+			if tc.ok {
+				suite.Require().Equal(expSkippedepochs, epochsPerPeriod, tc.name)
+			} else {
+				suite.Require().Equal(defaultSkippedEpochs, epochsPerPeriod, tc.name)
 			}
 		})
 	}

@@ -10,8 +10,8 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/testutil"
-	"github.com/tharsis/evmos/x/vesting/types"
+	"github.com/tharsis/evmos/v2/testutil"
+	"github.com/tharsis/evmos/v2/x/vesting/types"
 )
 
 var (
@@ -23,8 +23,10 @@ var (
 	addr4          = sdk.AccAddress(tests.GenerateAddress().Bytes())
 	lockupPeriods  = []sdkvesting.Period{{Length: 5000, Amount: balances}}
 	vestingPeriods = []sdkvesting.Period{
-		{Length: 2000, Amount: quarter}, {Length: 2000, Amount: quarter},
-		{Length: 2000, Amount: quarter}, {Length: 2000, Amount: quarter},
+		{Length: 2000, Amount: quarter},
+		{Length: 2000, Amount: quarter},
+		{Length: 2000, Amount: quarter},
+		{Length: 2000, Amount: quarter},
 	}
 )
 

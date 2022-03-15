@@ -57,16 +57,18 @@ module.exports = {
       binary: 'evmosd',
       testnet_denom: 'tEvmos',
       testnet_ticker: 'tEVMOS',
-      rpc_url: 'http://localhost:8545/',
-      rpc_url_testnet: 'https://ethereum.rpc.evmos.dev',
+      rpc_url: 'https://eth.bd.evmos.org:8545',
+      rpc_url_testnet: 'https://eth.bd.evmos.dev:8545',
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v1.0.0',
-      version_number: '1',
+      latest_version: 'v2.0.1',
+      version_number: '2',
       testnet_version_number: '3',
       testnet_evm_explorer_url: 'https://evm.evmos.dev',
+      evm_explorer_url: 'https://evm.evmos.org',
       testnet_cosmos_explorer_url: 'https://explorer.evmos.dev/',
+      cosmos_explorer_url: 'https://www.mintscan.io/evmos',
     },
     logo: {
       src: '/evmos-black.svg',
@@ -157,6 +159,31 @@ module.exports = {
             },
           ]
         },
+        // {
+        //   title: 'Clients',
+        //   children: [
+        //     {
+        //       title: 'APIs',
+        //       directory: false,
+        //       path: '/clients/apis'
+        //     },
+        //     {
+        //       title: 'Evmosjs',
+        //       directory: false,
+        //       path: '/clients/evmosjs'
+        //     },
+        //   ]
+        // },
+        {
+          title: 'Mainnet',
+          children: [
+            {
+              title: 'Join Mainnet',
+              directory: false,
+              path: '/mainnet/join'
+            },
+          ]
+        },
         {
           title: 'Testnet',
           children: [
@@ -194,12 +221,25 @@ module.exports = {
             },
             {
               title: 'Blockscout (EVM)',
-              path: 'https://evm.evmos.dev'
+              path: 'https://evm.evmos.org'
             },
             {
               title: 'Mintscan (Cosmos)',
-              path: 'https://explorer.evmos.dev/'
+              path: 'https://www.mintscan.io/evmos/'
             },
+          ]
+        },
+        {
+          title: 'Ecosystem',
+          children: [
+            {
+              title: 'Awesome Evmos',
+              path: 'https://github.com/tharsis/awesome'
+            },
+            {
+              title: 'Evmos Space',
+              path: 'https://evmos.space/'
+            }
           ]
         },
         {

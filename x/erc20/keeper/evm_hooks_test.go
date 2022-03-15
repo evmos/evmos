@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/x/erc20/types"
+	"github.com/tharsis/evmos/v2/x/erc20/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the erc20 hook is already set
@@ -72,7 +72,8 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 			suite.ensureHooksSet()
 
-			contractAddr := suite.DeployContract("coin", "token", erc20Decimals)
+			contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
+			suite.Require().NoError(err)
 			suite.Commit()
 
 			tc.malleate(contractAddr)

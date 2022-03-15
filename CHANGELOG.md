@@ -35,6 +35,65 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- (claims) [\#381](https://github.com/tharsis/evmos/pull/381) Fix claim migration and deletion for EVM chains via IBC attestation.
+- (claims) [\#374](https://github.com/tharsis/evmos/pull/374) Fix balance invariant in Claims `InitGenesis`
+- (erc20) [\#366](https://github.com/tharsis/evmos/issues/366) Delete ERC20 denom map when deleting pair.
+
+### Improvements
+
+- (ibctesting) [\#388](https://github.com/tharsis/evmos/pull/388) Support Cosmos and EVM chains in IBC testing `Coordinator`.
+- (inflation) [\#383](https://github.com/tharsis/evmos/pull/383) Add gRPC endpoints for inflation rate and total supply
+- (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
+
+## [v2.0.1] - 2022-03-06
+
+### Bug Fixes
+
+- (upgrade) [#\363](https://github.com/tharsis/evmos/pull/363) Don't use `GetParams` for upgrades.
+
+## [v2.0.0] - 2022-03-06
+
+### State Machine Breaking
+
+- (claims) Restrict claiming to a list of authorized IBC channels.
+
+### Improvements
+
+- (deps) [\#360](https://github.com/tharsis/evmos/pull/360) Bump Ethermint to [`v0.11.0`](https://github.com/tharsis/ethermint/releases/tag/v0.11.0)
+- (deps) [\#282](https://github.com/tharsis/evmos/pull/282) Bump IBC go to [`v3.0.0-rc1`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0-rc1)
+
+### Bug Fixes
+
+- (erc20) [\#337](https://github.com/tharsis/evmos/pull/337) Ignore errors in ERC20 module's EVM hook.
+- (erc20) [\#336](https://github.com/tharsis/evmos/pull/336) Return `nil` for disabled ERC20 module or ERC20 EVM hook.
+
+## [v1.1.2] - 2022-03-06
+
+### Bug Fixes
+
+- (app) [\#354](https://github.com/tharsis/evmos/pull/354) Add v2 version upgrade logic
+
+## [v1.1.1] - 2022-03-04
+
+### Improvements
+
+- (deps) [\#345](https://github.com/tharsis/evmos/pull/345) Bump Ethermint to [`v0.10.2`](https://github.com/tharsis/ethermint/releases/tag/v0.10.2)
+
+### Bug Fixes
+
+- (app) [\#341](https://github.com/tharsis/evmos/pull/341) Return error when `--ledger` flag is passed in CLI
+
+## [v1.1.0] - 2022-03-02
+
+### Bug Fixes
+
+- (ante) [\#318](https://github.com/tharsis/evmos/pull/318) Add authz check in vesting and min commission `AnteHandler` decorators.
+- (vesting) [\#317](https://github.com/tharsis/evmos/pull/317) Fix clawback for vested coins.
+
 ## [v1.0.0] - 2022-02-28
 
 ### State Machine Breaking

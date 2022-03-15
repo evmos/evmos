@@ -9,7 +9,8 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/x/claims/types"
+	evmos "github.com/tharsis/evmos/v2/types"
+	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It performs a no-op if
@@ -19,9 +20,10 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
+	logger := k.Logger(ctx)
 	params := k.GetParams(ctx)
 
-	// short circuit in case claim is not active (no-op)
+	// short (no-op) circuit by returning original ACK in case the claim is not active
 	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return ack
 	}
@@ -60,13 +62,48 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
+
+	sameAddress := sender.Equals(recipient)
+	fromEVMChain := params.IsEVMChannel(packet.DestinationChannel)
+
+	// NOTE: we know that the connected chains from the authorized IBC channels
+	// don't support ethereum keys (i.e `ethsecp256k1`). Thus, so we return an error,
+	// unless the destination channel from a connection to a chain that is EVM-compatible
+	// or supports ethereum keys (eg: Cronos, Injective).
+	if sameAddress && !fromEVMChain {
+		switch {
+		// case 1: secp256k1 key from sender/recipient has no claimed actions -> error ACK to prevent funds from getting stuck
+		case senderRecordFound && !senderClaimsRecord.HasClaimedAny():
+			return channeltypes.NewErrorAcknowledgement(
+				sdkerrors.Wrapf(
+					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver,
+				).Error(),
+			)
+		default:
+			// case 2: sender/recipient has funds stuck -> error acknowledgement to prevent more transferred tokens from
+			// getting stuck while we implement IBC withdrawals
+			return channeltypes.NewErrorAcknowledgement(
+				sdkerrors.Wrapf(
+					evmos.ErrKeyTypeNotSupported,
+					"reverted transfer to unsupported address %s to prevent more funds from getting stuck",
+					data.Receiver,
+				).Error(),
+			)
+		}
+	}
+
+	// return original ACK in case the destination channel is not authorized
+	if !params.IsAuthorizedChannel(packet.DestinationChannel) {
+		return ack
+	}
+
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 
 	// handle the 4 cases for the recipient and sender claim records
 
 	switch {
-	case senderRecordFound && recipientRecordFound:
-		// 1. Both sender and recipient have a claims record
+	case senderRecordFound && recipientRecordFound && !sameAddress:
+		// 1. Both sender and recipient (distinct addresses) have a claims record
 		// Merge sender's record with the recipient's record and
 		// claim actions that have been completed by one or the other
 		recipientClaimsRecord, err = k.MergeClaimsRecords(ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
@@ -77,16 +114,31 @@ func (k Keeper) OnRecvPacket(
 		// update the recipient's record with the new merged one, while deleting the
 		// sender's record
 		k.SetClaimsRecord(ctx, recipient, recipientClaimsRecord)
+		// only delete if sender != recipient
 		k.DeleteClaimsRecord(ctx, sender)
+		logger.Debug(
+			"merged sender and receiver claims records",
+			"sender", data.Sender,
+			"receiver", data.Receiver,
+			"total-claimable", senderClaimsRecord.InitialClaimableAmount.Add(recipientClaimsRecord.InitialClaimableAmount).String(),
+		)
 	case senderRecordFound && !recipientRecordFound:
 		// 2. Only the sender has a claims record.
 		// Migrate the sender record to the recipient address
 		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
 		k.DeleteClaimsRecord(ctx, sender)
 
+		logger.Debug(
+			"migrated sender claims record to receiver",
+			"sender", data.Sender,
+			"receiver", data.Receiver,
+			"total-claimable", senderClaimsRecord.InitialClaimableAmount.String(),
+		)
+
 		// claim IBC action
 		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
-	case !senderRecordFound && recipientRecordFound:
+	case !senderRecordFound && recipientRecordFound,
+		sameAddress && fromEVMChain && recipientRecordFound:
 		// 3. Only the recipient has a claims record.
 		// Only claim IBC transfer action
 		_, err = k.ClaimCoinsForAction(ctx, recipient, recipientClaimsRecord, types.ActionIBCTransfer, params)

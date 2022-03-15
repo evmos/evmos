@@ -23,6 +23,7 @@ type BankKeeper interface {
 	MintCoins(ctx sdk.Context, name string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, name string, amt sdk.Coins) error
 	HasSupply(ctx sdk.Context, denom string) bool
+	GetSupply(ctx sdk.Context, denom string) sdk.Coin
 }
 
 // DistrKeeper defines the contract needed to be fulfilled for distribution keeper
@@ -34,4 +35,6 @@ type DistrKeeper interface {
 type StakingKeeper interface {
 	// BondedRatio the fraction of the staking tokens which are currently bonded
 	BondedRatio(ctx sdk.Context) sdk.Dec
+	StakingTokenSupply(ctx sdk.Context) sdk.Int
+	TotalBondedTokens(ctx sdk.Context) sdk.Int
 }

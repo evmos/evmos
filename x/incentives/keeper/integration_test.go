@@ -9,8 +9,39 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	types "github.com/tharsis/evmos/x/incentives/types"
+	types "github.com/tharsis/evmos/v2/x/incentives/types"
 )
+
+var _ = Describe("Performing EVM transactions", Ordered, func() {
+
+	BeforeEach(func() {
+		s.SetupTest()
+
+		params := s.app.Erc20Keeper.GetParams(s.ctx)
+		params.EnableEVMHook = false
+		s.app.Erc20Keeper.SetParams(s.ctx, params)
+	})
+
+	// Epoch mechanism for triggering allocation and distribution
+	Context("with the ERC20 module disabled", func() {
+		It("should be successful", func() {
+			_, err := s.DeployContract("coin", "token", erc20Decimals)
+			Expect(err).To(BeNil())
+		})
+	})
+
+	Context("with the ERC20 module enabled", func() {
+		BeforeEach(func() {
+			params := s.app.Erc20Keeper.GetParams(s.ctx)
+			params.EnableEVMHook = true
+			s.app.Erc20Keeper.SetParams(s.ctx, params)
+		})
+		It("should be successful", func() {
+			_, err := s.DeployContract("coin", "token", erc20Decimals)
+			Expect(err).To(BeNil())
+		})
+	})
+})
 
 var _ = Describe("Distribution", Ordered, func() {
 	var (
@@ -22,14 +53,22 @@ var _ = Describe("Distribution", Ordered, func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
+
+		// Enable Inflation
+		params := s.app.InflationKeeper.GetParams(s.ctx)
+		params.EnableInflation = true
+		s.app.InflationKeeper.SetParams(s.ctx, params)
+
 		moduleAcc = s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
 		participantAcc = sdk.AccAddress(s.address.Bytes())
 
 		// Deploy contract
-		contractAddr = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+		var err error
+		contractAddr, err = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+		s.Require().NoError(err)
 
 		// Create incentive
-		_, err := s.app.IncentivesKeeper.RegisterIncentive(
+		_, err = s.app.IncentivesKeeper.RegisterIncentive(
 			s.ctx,
 			contractAddr,
 			mintAllocations,
@@ -60,7 +99,6 @@ var _ = Describe("Distribution", Ordered, func() {
 			It("should allocate mint tokens to the usage incentives module", func() {
 				balance := s.app.BankKeeper.GetBalance(s.ctx, moduleAcc, denomMint)
 				Expect(balance.IsZero()).ToNot(BeTrue())
-
 			})
 			It("should not reset the participants gas meter", func() {
 				gm, _ := s.app.IncentivesKeeper.GetGasMeter(s.ctx, contractAddr, s.address)
