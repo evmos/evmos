@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   golangci:
     name: Run golangci-lint
@@ -27,7 +28,8 @@ jobs:
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
         # Check only if there are differences in the source code
-        if: "env.GIT_DIFF"
+        if: env.GIT_DIFF
+
   markdown-lint:
     name: Run markdown-lint
     runs-on: ubuntu-latest
@@ -43,3 +45,24 @@ jobs:
       - uses: articulate/actions-markdownlint@v1.1.0
         # Check only if there are differences in the source code
         if: env.GIT_DIFF
+
+  solhint:
+    name: Run solhint-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Checkout the repo"
+        uses: actions/checkout@v3
+      - name: "Grab the changed files' names"
+        uses: technote-space/get-diff-action@v6.0.1
+        with:
+          PATTERNS: |
+            **/**.sol
+      - name: "Run solhint"
+        uses: contractshark/inject-solhint-ci@4.0.0
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          solhint_input: "**/*.sol"
+        # Check only if there are differences in the source code
+        if: "env.GIT_DIFF"
