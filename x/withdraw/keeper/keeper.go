@@ -75,15 +75,15 @@ func (k Keeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capabili
 // GetIBCDenomSource returns the source port and channel of the IBC denomination.
 // It returns an error if the the denomination is invalid or if the denom trace or source channel
 // is not found on the store.
-func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPort, srcChannel string, err error) {
+func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPort, srcChannel, dstPort, dstChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {
-		return "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
+		return "", "", "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(ibcDenom[1])
 	if err != nil {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", "", "", sdkerrors.Wrapf(
 			err,
 			"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
@@ -91,7 +91,7 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 
 	denomTrace, found := k.transferKeeper.GetDenomTrace(ctx, hash)
 	if !found {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", "", "", sdkerrors.Wrapf(
 			transfertypes.ErrTraceNotFound,
 			"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
@@ -99,7 +99,7 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 
 	path := strings.Split(denomTrace.Path, "/")
 	if len(path)%2 != 0 {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", "", "", sdkerrors.Wrapf(
 			transfertypes.ErrInvalidDenomForTransfer,
 			"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
 		)
@@ -110,7 +110,7 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 
 	channel, found := k.channelKeeper.GetChannel(ctx, counterpartyPortID, counterpartyChannelID)
 	if !found {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", "", "", sdkerrors.Wrapf(
 			channeltypes.ErrChannelNotFound,
 			"port ID %s, channel ID %s", counterpartyPortID, counterpartyChannelID,
 		)
@@ -119,5 +119,5 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 	srcPort = channel.Counterparty.PortId
 	srcChannel = channel.Counterparty.ChannelId
 
-	return srcPort, srcChannel, nil
+	return srcPort, srcChannel, counterpartyPortID, counterpartyChannelID, nil
 }

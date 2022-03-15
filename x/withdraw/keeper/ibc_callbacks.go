@@ -111,8 +111,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// transfer the balance back to the sender address
-	srcPort := packet.SourcePort
-	srcChannel := packet.SourceChannel
+
 	balances := sdk.Coins{}
 
 	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
@@ -123,7 +122,7 @@ func (k Keeper) OnRecvPacket(
 
 		// we only transfer IBC tokens back to their respective source chains
 		if strings.HasPrefix(coin.Denom, "ibc/") {
-			srcPort, srcChannel, err = k.GetIBCDenomSource(ctx, coin.Denom, data.Sender)
+			srcPort, srcChannel, dstPort, dstChannel, err := k.GetIBCDenomSource(ctx, coin.Denom, data.Sender)
 			if err != nil {
 				logger.Error(
 					"failed to get the IBC full denom path of source chain",
@@ -133,10 +132,8 @@ func (k Keeper) OnRecvPacket(
 			}
 
 			// NOTE: only withdraw the IBC tokens from the source channel
-			if packet.SourcePort != srcPort || packet.SourceChannel != srcChannel {
-				// reset to the original values
-				srcPort = packet.SourcePort
-				srcChannel = packet.SourceChannel
+			if packet.SourcePort != srcPort || packet.SourceChannel != srcChannel ||
+				dstPort != packet.DestinationPort || dstChannel != packet.DestinationChannel {
 				// continue
 				return false
 			}
@@ -145,18 +142,18 @@ func (k Keeper) OnRecvPacket(
 		// Native tokens will be transferred to the authorized source chain to unstuck them
 
 		// NOTE: should we get the timeout from the channel consensus state?
-		timeout := uint64(ctx.BlockTime().Add(time.Hour).UnixNano())
+		timeout := uint64(ctx.BlockTime().Add(time.Hour * 24).UnixNano())
 
 		// Withdraw the tokens to the bech32 prefixed address of the source chain
 		err = k.transferKeeper.SendTransfer(
 			ctx,
-			srcPort,                  // packet destination port is now the source
-			srcChannel,               // packet destination channel is now the source
-			coin,                     // balances + transfer amount
-			recipient,                // transfer recipient is now the sender
-			data.Sender,              // transfer sender is now the recipient
-			clienttypes.ZeroHeight(), // timeout height disabled
-			timeout,                  // timeout timestamp is one hour from now
+			packet.DestinationPort,    // packet destination port is now the source
+			packet.DestinationChannel, // packet destination channel is now the source
+			coin,                      // balances + transfer amount
+			recipient,                 // transfer recipient is now the sender
+			data.Sender,               // transfer sender is now the recipient
+			clienttypes.ZeroHeight(),  // timeout height disabled
+			timeout,                   // timeout timestamp is one hour from now
 		)
 
 		if err != nil {
