@@ -73,10 +73,12 @@ func (k Keeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capabili
 	return k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
 }
 
-// GetIBCDenomSource returns the source port and channel of the IBC denomination.
-// It returns an error if the the denomination is invalid or if the denom trace or source channel
-// is not found on the store.
-func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPort, srcChannel string, err error) {
+// GetIBCDenomSource returns the self port and channel of the IBC denomination (i.e port and channel on Evmos for the voucher).
+// It returns an error if:
+// - the the denomination is invalid
+// - the denom trace or source channel are not found on the store
+// - self port or channel ID are invalid
+func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string) (selfPort, selfChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {
 		return "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
@@ -117,16 +119,26 @@ func (k Keeper) GetIBCDenomSource(ctx sdk.Context, denom, sender string) (srcPor
 		)
 	}
 
-	srcPort = channel.Counterparty.PortId
-	srcChannel = channel.Counterparty.ChannelId
+	selfPort = channel.Counterparty.PortId
+	selfChannel = channel.Counterparty.ChannelId
 
-	// check if the source channel is invalid
-	// NOTE: optimistic handshakes could cause unforeseen issues
-	if err := host.ChannelIdentifierValidator(srcChannel); err != nil {
-		return "", "", sdkerrors.Wrap(
-			channeltypes.ErrInvalidChannelIdentifier, err.Error(),
+	// NOTE: optimistic handshakes could cause unforeseen issues.
+	// Safety check: verify that the self port and channel are valid
+	if err := host.PortIdentifierValidator(selfPort); err != nil {
+		// shouldn't occur
+		return "", "", sdkerrors.Wrapf(
+			host.ErrInvalidID,
+			"invalid port ID '%s': %s", selfPort, err.Error(),
 		)
 	}
 
-	return srcPort, srcChannel, nil
+	if err := host.ChannelIdentifierValidator(selfChannel); err != nil {
+		// shouldn't occur
+		return "", "", sdkerrors.Wrapf(
+			channeltypes.ErrInvalidChannelIdentifier,
+			"channel ID '%s': %s", selfChannel, err.Error(),
+		)
+	}
+
+	return selfPort, selfChannel, nil
 }

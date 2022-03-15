@@ -106,7 +106,7 @@ func (k Keeper) OnRecvPacket(
 		switch strings.HasPrefix(coin.Denom, "ibc/") {
 		case true:
 			// IBC vouchers, obtain the source port and channel from the denom path
-			srcPort, srcChannel, err = k.GetIBCDenomSource(ctx, coin.Denom, data.Sender)
+			srcPort, srcChannel, err = k.GetIBCDenomSelfIdentifiers(ctx, coin.Denom, data.Sender)
 		default:
 			// Native tokens, use the source port and channel to transfer the EVMOS and
 			// other converted ERC20 coin denoms to the authorized source chain

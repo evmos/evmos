@@ -161,7 +161,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 
 			tc.malleate()
 
-			srcPort, srcChannel, err := suite.app.WithdrawKeeper.GetIBCDenomSource(suite.ctx, tc.denom, address)
+			srcPort, srcChannel, err := suite.app.WithdrawKeeper.GetIBCDenomSelfIdentifiers(suite.ctx, tc.denom, address)
 			if tc.expError {
 				suite.Require().Error(err)
 			} else {
