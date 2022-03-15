@@ -29,7 +29,6 @@ For Evmos, the `ClawbackVestingAccount` is used to allocate tokens to core team 
 6. **[Events](06_events.md)**
 7. **[Clients](07_clients.md)**
 
-
 ## References
 
 - SDK vesting specification: [https://docs.cosmos.network/master/modules/auth/05_vesting.html](https://docs.cosmos.network/master/modules/auth/05_vesting.html)
