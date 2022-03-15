@@ -59,10 +59,9 @@ jobs:
           PATTERNS: |
             **/**.sol
       - name: "Run solhint"
-        uses: contractshark/inject-solhint-ci@1.0.0+0
+        uses: contractshark/inject-solhint-ci@1.0.0+alpha
         with:
           github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
           solhint_input: "**/*.sol"
         # Check only if there are differences in the source code
         if: "env.GIT_DIFF"
