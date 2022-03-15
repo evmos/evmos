@@ -472,7 +472,7 @@ func NewEvmos(
 		),
 	)
 
-	// Create Transfer Keepers
+	// Create Transfer Stack
 
 	// SendPacket, since it is originating from the application to core IBC:
 	// transferKeeper.SendPacket -> claim.SendPacket -> withdraw.SendPacket -> channel.SendPacket
@@ -480,35 +480,40 @@ func NewEvmos(
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
 	// channel.RecvPacket -> withdraw.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimsKeeper.Hooks(), // claims IBC middleware // FIXME: not defined
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
-	)
-
 	app.ClaimsKeeper = *claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-		&app.WithdrawKeeper, // FIXME: not defined
+	)
+
+	app.TransferKeeper = ibctransferkeeper.NewKeeper(
+		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.ClaimsKeeper.Hooks(), // ICS4 Wrapper: claims IBC middleware // FIXME: not defined
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 
 	app.WithdrawKeeper = *withdrawkeeper.NewKeeper(
 		app.GetSubspace(withdrawtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.IBCKeeper.ChannelKeeper, // ICS4 Wrapper
 		app.IBCKeeper.ChannelKeeper,
-		app.TransferKeeper, // FIXME:
+		app.TransferKeeper,
 		app.ClaimsKeeper,
 	)
 
+	// Set the ICS4 wrappers
+	app.WithdrawKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
+	app.ClaimsKeeper.SetICS4Wrapper(app.WithdrawKeeper)
+	// NOTE: ICS4 wrapper for Transfer Keeper already set
+
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
-	// transfer stack contains:
-	// Withdraw Middleware -> Airdrop Claim Middleware -> Transfer -> SendPacket
+	// transfer stack contains (from top to bottom):
+	// - Withdraw Middleware
+	// - Airdrop Claims Middleware
+	// - Transfer
 
-	// create from bottom to top of stack
+	// create IBC module from bottom to top of stack
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)

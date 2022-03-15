@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
@@ -24,7 +24,7 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	stakingKeeper types.StakingKeeper
 	distrKeeper   types.DistrKeeper
-	ics4Wrapper   transfertypes.ICS4Wrapper
+	ics4Wrapper   porttypes.ICS4Wrapper
 }
 
 // NewKeeper returns keeper
@@ -36,7 +36,6 @@ func NewKeeper(
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
-	ics4Wrapper transfertypes.ICS4Wrapper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -51,8 +50,17 @@ func NewKeeper(
 		bankKeeper:    bk,
 		stakingKeeper: sk,
 		distrKeeper:   dk,
-		ics4Wrapper:   ics4Wrapper,
 	}
+}
+
+// SetICS4Wrapper sets the ICS4 wrapper to the keeper.
+// It panics if already set
+func (k *Keeper) SetICS4Wrapper(ics4Wrapper porttypes.ICS4Wrapper) {
+	if k.ics4Wrapper != nil {
+		panic("ICS4 wrapper already set")
+	}
+
+	k.ics4Wrapper = ics4Wrapper
 }
 
 // Logger returns logger
