@@ -1,6 +1,8 @@
 package types
 
 import (
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -25,6 +27,7 @@ type AccountKeeper interface {
 
 // TransferKeeper defines the expected IBC transfer keeper.
 type TransferKeeper interface {
+	GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool)
 	SendTransfer(
 		ctx sdk.Context,
 		sourcePort,
@@ -37,11 +40,13 @@ type TransferKeeper interface {
 	) error
 }
 
+// ChannelKeeper defines the expected IBC channel keeper.
 type ChannelKeeper interface {
 	transfertypes.ICS4Wrapper
 	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
 }
 
+// ClaimsKeeper defines the expected claims keeper.
 type ClaimsKeeper interface {
 	GetParams(ctx sdk.Context) claimstypes.Params
 }

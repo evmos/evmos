@@ -11,9 +11,7 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	transferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
@@ -29,8 +27,8 @@ type Keeper struct {
 	accountKeeper  types.AccountKeeper
 	bankKeeper     types.BankKeeper
 	ics4Wrapper    transfertypes.ICS4Wrapper
-	channelKeeper  channelkeeper.Keeper  // TODO: use interface
-	transferKeeper transferkeeper.Keeper // TODO: use interface
+	channelKeeper  types.ChannelKeeper
+	transferKeeper types.TransferKeeper
 	claimsKeeper   types.ClaimsKeeper
 }
 
@@ -40,8 +38,8 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ics4Wrapper transfertypes.ICS4Wrapper,
-	ck channelkeeper.Keeper, // TODO: use interface
-	tk transferkeeper.Keeper, // TODO: use interface
+	ck types.ChannelKeeper,
+	tk types.TransferKeeper,
 	claimsKeeper types.ClaimsKeeper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
@@ -102,6 +100,7 @@ func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string
 
 	path := strings.Split(denomTrace.Path, "/")
 	if len(path)%2 != 0 {
+		// safety check: shouldn't occur
 		return "", "", sdkerrors.Wrapf(
 			transfertypes.ErrInvalidDenomForTransfer,
 			"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
