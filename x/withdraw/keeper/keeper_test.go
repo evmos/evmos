@@ -161,7 +161,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 					Path:      "transfer/channel-0/transfer/channel-0",
 					BaseDenom: "uatom",
 				}
-				fmt.Println(denomTrace.IBCDenom())
+
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
 
 				channel := channeltypes.Channel{
