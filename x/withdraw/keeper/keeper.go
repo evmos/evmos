@@ -13,6 +13,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
@@ -26,7 +27,7 @@ type Keeper struct {
 	paramstore     paramtypes.Subspace
 	accountKeeper  types.AccountKeeper
 	bankKeeper     types.BankKeeper
-	ics4Wrapper    transfertypes.ICS4Wrapper
+	ics4Wrapper    porttypes.ICS4Wrapper
 	channelKeeper  types.ChannelKeeper
 	transferKeeper types.TransferKeeper
 	claimsKeeper   types.ClaimsKeeper
@@ -37,7 +38,7 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	ics4Wrapper transfertypes.ICS4Wrapper,
+	ics4Wrapper porttypes.ICS4Wrapper,
 	ck types.ChannelKeeper,
 	tk types.TransferKeeper,
 	claimsKeeper types.ClaimsKeeper,
@@ -69,6 +70,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // It calls the underlying SendPacket function directly to move down the middleware stack.
 func (k Keeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI) error {
 	return k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+}
+
+// WriteAcknowledgement implements the ICS4Wrapper interface from the transfer module.
+// It calls the underlying WriteAcknowledgement function directly to move down the middleware stack.
+func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI, ack exported.Acknowledgement) error {
+	return k.ics4Wrapper.WriteAcknowledgement(ctx, channelCap, packet, ack)
 }
 
 // GetIBCDenomSource returns the self port and channel of the IBC denomination (i.e port and channel on Evmos for the voucher).

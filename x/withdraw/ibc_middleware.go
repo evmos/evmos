@@ -10,18 +10,18 @@ import (
 	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
 )
 
-var _ porttypes.IBCModule = &IBCModule{}
+var _ porttypes.Middleware = &IBCMiddleware{}
 
-// IBCModule implements the ICS26 callbacks for the transfer middleware given
+// IBCMiddleware implements the ICS26 callbacks for the transfer middleware given
 // the claim keeper and the underlying application.
-type IBCModule struct {
+type IBCMiddleware struct {
 	keeper keeper.Keeper
 	app    porttypes.IBCModule
 }
 
-// NewIBCModule creates a new IBCModule given the keeper and underlying application
-func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
-	return IBCModule{
+// NewIBCMiddleware creates a new IBCModule given the keeper and underlying application
+func NewIBCMiddleware(k keeper.Keeper, app porttypes.IBCModule) IBCMiddleware {
+	return IBCMiddleware{
 		keeper: k,
 		app:    app,
 	}
@@ -29,7 +29,7 @@ func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
 
 // OnChanOpenInit implements the IBCModule interface
 // It calls the underlying app's OnChanOpenInit callback.
-func (im IBCModule) OnChanOpenInit(
+func (im IBCMiddleware) OnChanOpenInit(
 	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
@@ -44,7 +44,7 @@ func (im IBCModule) OnChanOpenInit(
 
 // OnChanOpenTry implements the IBCModule interface.
 // It calls the underlying app's OnChanOpenTry callback.
-func (im IBCModule) OnChanOpenTry(
+func (im IBCMiddleware) OnChanOpenTry(
 	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
@@ -60,7 +60,7 @@ func (im IBCModule) OnChanOpenTry(
 
 // OnChanOpenAck implements the IBCModule interface.
 // It calls the underlying app's OnChanOpenAck callback.
-func (im IBCModule) OnChanOpenAck(
+func (im IBCMiddleware) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
 	channelID,
@@ -72,7 +72,7 @@ func (im IBCModule) OnChanOpenAck(
 
 // OnChanOpenConfirm implements the IBCModule interface.
 // It calls the underlying app's OnChanOpenConfirm callback.
-func (im IBCModule) OnChanOpenConfirm(
+func (im IBCMiddleware) OnChanOpenConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
@@ -81,7 +81,7 @@ func (im IBCModule) OnChanOpenConfirm(
 }
 
 // OnChanCloseInit implements the IBCModule interface
-func (im IBCModule) OnChanCloseInit(
+func (im IBCMiddleware) OnChanCloseInit(
 	ctx sdk.Context,
 	portID,
 	channelID string,
@@ -90,7 +90,7 @@ func (im IBCModule) OnChanCloseInit(
 }
 
 // OnChanCloseConfirm implements the IBCModule interface
-func (im IBCModule) OnChanCloseConfirm(
+func (im IBCMiddleware) OnChanCloseConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
@@ -100,7 +100,7 @@ func (im IBCModule) OnChanCloseConfirm(
 
 // OnRecvPacket implements the IBCModule interface.
 // If fees are not enabled, this callback will default to the ibc-core packet callback
-func (im IBCModule) OnRecvPacket(
+func (im IBCMiddleware) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
@@ -117,7 +117,7 @@ func (im IBCModule) OnRecvPacket(
 
 // OnAcknowledgementPacket implements the IBCModule interface
 // If fees are not enabled, this callback will default to the ibc-core packet callback
-func (im IBCModule) OnAcknowledgementPacket(
+func (im IBCMiddleware) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
@@ -128,10 +128,29 @@ func (im IBCModule) OnAcknowledgementPacket(
 
 // OnTimeoutPacket implements the IBCModule interface
 // If fees are not enabled, this callback will default to the ibc-core packet callback
-func (im IBCModule) OnTimeoutPacket(
+func (im IBCMiddleware) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
 	return im.app.OnTimeoutPacket(ctx, packet, relayer)
+}
+
+// SendPacket implements the ICS4 Wrapper interface
+func (im IBCMiddleware) SendPacket(
+	ctx sdk.Context,
+	chanCap *capabilitytypes.Capability,
+	packet exported.PacketI,
+) error {
+	return im.keeper.SendPacket(ctx, chanCap, packet)
+}
+
+// WriteAcknowledgement implements the ICS4 Wrapper interface
+func (im IBCMiddleware) WriteAcknowledgement(
+	ctx sdk.Context,
+	chanCap *capabilitytypes.Capability,
+	packet exported.PacketI,
+	ack exported.Acknowledgement,
+) error {
+	return im.keeper.WriteAcknowledgement(ctx, chanCap, packet, ack)
 }

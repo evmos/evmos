@@ -506,7 +506,7 @@ func NewEvmos(
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCModule(app.ClaimsKeeper, transferStack)
-	transferStack = withdraw.NewIBCModule(app.WithdrawKeeper, transferStack)
+	transferStack = withdraw.NewIBCMiddleware(app.WithdrawKeeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
