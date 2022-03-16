@@ -33,7 +33,6 @@ jobs:
         continue-on-error: true
         id: slither
         with:
-          slither-config: "slither.config.json"
           sarif: slither.sarif
           target: contracts/
           slither-args: "--solc-remaps @openzeppelin=node_modules/@openzeppelin"
