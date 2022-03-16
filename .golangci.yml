@@ -97,7 +97,7 @@ linters-settings:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
     - name: add-constant
       severity: warning
-      disabled: false
+      disabled: true
       arguments:
         - maxLitCount: "3"
           allowStrs: '""'
@@ -106,7 +106,7 @@ linters-settings:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#atomic
     - name: argument-limit
       severity: warning
-      disabled: false
+      disabled: true
       arguments: [4]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#atomic
     - name: atomic
@@ -118,7 +118,7 @@ linters-settings:
       disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
     - name: bare-return
-      severity: warning
+      severity: error
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#blank-imports
     - name: blank-imports
@@ -131,7 +131,7 @@ linters-settings:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#call-to-gc
     - name: call-to-gc
       severity: warning
-      disabled: false
+      disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#cognitive-complexity
     - name: cognitive-complexity
       severity: warning
@@ -143,7 +143,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#confusing-results
     - name: confusing-results
-      severity: warning
+      severity: error
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#constant-logical-expr
     - name: constant-logical-expr
@@ -151,7 +151,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-as-argument
     - name: context-as-argument
-      severity: warning
+      severity: error
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-keys-type
     - name: context-keys-type
@@ -170,8 +170,6 @@ linters-settings:
     - name: defer
       severity: warning
       disabled: false
-      arguments:
-        - ["call-chain", "loop"]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#dot-imports
     - name: dot-imports
       severity: warning
@@ -186,7 +184,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#empty-block
     - name: empty-block
-      severity: warning
+      severity: error
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#empty-lines
     - name: empty-lines

@@ -30,8 +30,15 @@ func (suite *ScheduleTestSuite) TestReadSchedule() {
 		time int64
 		want int64
 	}{
-		{0, 0}, {100, 0}, {105, 0}, {110, 10}, {120, 10}, {130, 30},
-		{150, 30}, {170, 70}, {180, 70},
+		{0, 0},
+		{100, 0},
+		{105, 0},
+		{110, 10},
+		{120, 10},
+		{130, 30},
+		{150, 30},
+		{170, 70},
+		{180, 70},
 	}
 	for _, tc := range testCases {
 		gotCoins := ReadSchedule(100, 170, periods, total, tc.time)
@@ -46,8 +53,15 @@ func (suite *ScheduleTestSuite) TestReadPastPeriodCount() {
 		time     int64
 		expCount int
 	}{
-		{0, 0}, {100, 0}, {105, 0}, {110, 1}, {120, 1}, {130, 2},
-		{150, 2}, {170, 3}, {180, 3},
+		{0, 0},
+		{100, 0},
+		{105, 0},
+		{110, 1},
+		{120, 1},
+		{130, 2},
+		{150, 2},
+		{170, 3},
+		{180, 3},
 	}
 	for _, tc := range testCases {
 		count := ReadPastPeriodCount(100, 170, periods, tc.time)
