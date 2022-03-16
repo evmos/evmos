@@ -86,16 +86,35 @@ func (suite *KeeperTestSuite) TestGetTotalSupplyAndInflationRate() {
 	testCases := []struct {
 		name             string
 		bankSupply       int64
+		malleate         func()
 		expInflationRate sdk.Dec
 	}{
 		{
+			"no mint provision",
+			400_000_000,
+			func() {
+				suite.app.InflationKeeper.SetEpochMintProvision(suite.ctx, sdk.ZeroDec())
+			},
+			sdk.ZeroDec(),
+		},
+		{
+			"no epochs per period",
+			400_000_000,
+			func() {
+				suite.app.InflationKeeper.SetEpochsPerPeriod(suite.ctx, 0)
+			},
+			sdk.ZeroDec(),
+		},
+		{
 			"high supply",
 			800_000_000,
+			func() {},
 			sdk.MustNewDecFromStr("51.562500000000000000"),
 		},
 		{
 			"low supply",
 			400_000_000,
+			func() {},
 			sdk.MustNewDecFromStr("154.687500000000000000"),
 		},
 	}
@@ -105,6 +124,7 @@ func (suite *KeeperTestSuite) TestGetTotalSupplyAndInflationRate() {
 
 			// Team allocation is only set on mainnet
 			suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
+			tc.malleate()
 
 			// Mint coins to increase supply
 			coin := sdk.NewCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(tc.bankSupply, sdk.DefaultPowerReduction))
