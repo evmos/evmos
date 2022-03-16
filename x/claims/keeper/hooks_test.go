@@ -13,10 +13,8 @@ import (
 
 func (suite *KeeperTestSuite) TestAfterProposalVote() {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	claimRecord := types.ClaimsRecord{
-		InitialClaimableAmount: sdk.NewInt(1000),
-		ActionsCompleted:       []bool{false, false, false, false},
-	}
+	claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+
 	testCases := []struct {
 		name string
 		test func()
@@ -243,7 +241,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = true
-				params.AirdropStartTime = time.Now().UTC().UTC()
+				params.AirdropStartTime = time.Now().UTC()
 				params.DurationUntilDecay = time.Hour
 				params.DurationOfDecay = time.Hour
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)

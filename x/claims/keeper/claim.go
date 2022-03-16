@@ -192,6 +192,11 @@ func (k Keeper) MergeClaimsRecords(
 		}
 	}
 
+	// safety check to prevent error while sending coins from the module escrow balance to the recipient
+	if claimableAmt.IsZero() {
+		return mergedRecord, nil
+	}
+
 	claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: claimableAmt}}
 
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, claimedCoins); err != nil {
