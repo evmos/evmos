@@ -2,6 +2,7 @@ package types
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -24,7 +25,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"custom params",
-			NewParams(true),
+			NewParams(true, time.Hour),
 			false,
 		},
 	}
