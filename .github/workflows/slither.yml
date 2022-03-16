@@ -24,8 +24,8 @@ jobs:
         with:
           PATTERNS: |
             **/*.sol
-      - name: Install tools
-        run: make contract-tools
+      # - name: Install tools
+      #   run: make contract-tools
       - name: Node dependencies Install
         run: cd contracts && yarn
       - name: Run Slither Action
