@@ -31,7 +31,7 @@ func (k Keeper) OnRecvPacket(
 	// check channels from this chain (i.e destination)
 	if !params.EnableWithdraw ||
 		!claimsParams.IsAuthorizedChannel(packet.DestinationChannel) ||
-		claimsParams.IsEVMChannel(packet.DestinationPort) {
+		claimsParams.IsEVMChannel(packet.DestinationChannel) {
 		// return original ACK if:
 		// - withdraw is disabled globally
 		// - channel is not authorized
