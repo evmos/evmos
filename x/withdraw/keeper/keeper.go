@@ -30,7 +30,7 @@ type Keeper struct {
 	ics4Wrapper    porttypes.ICS4Wrapper
 	channelKeeper  types.ChannelKeeper
 	transferKeeper types.TransferKeeper
-	claimsKeeper   types.ClaimsKeeper
+	claimsKeeper   *types.ClaimsKeeper
 }
 
 // NewKeeper returns keeper
@@ -53,7 +53,7 @@ func NewKeeper(
 		bankKeeper:     bk,
 		channelKeeper:  ck,
 		transferKeeper: tk,
-		claimsKeeper:   claimsKeeper,
+		claimsKeeper:   &claimsKeeper,
 	}
 }
 
@@ -154,5 +154,5 @@ func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string
 		)
 	}
 
-	return selfPort, selfChannel, nil
+	return counterpartyPortID, counterpartyChannelID, nil
 }

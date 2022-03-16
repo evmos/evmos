@@ -24,7 +24,8 @@ func (k Keeper) OnRecvPacket(
 	logger := k.Logger(ctx)
 
 	params := k.GetParams(ctx)
-	claimsParams := k.claimsKeeper.GetParams(ctx)
+	claimsKeeper := *k.claimsKeeper
+	claimsParams := claimsKeeper.GetParams(ctx)
 
 	// check channels from this chain (i.e destination)
 	if !params.EnableWithdraw ||
@@ -178,13 +179,5 @@ func (k Keeper) OnRecvPacket(
 		"source-channel", packet.SourceChannel,
 	)
 
-	// return error acknowledgement so that the counterparty chain can revert the
-	// transfer
-	return channeltypes.NewErrorAcknowledgement(
-		sdkerrors.Wrapf(
-			evmos.ErrKeyTypeNotSupported,
-			"reverted IBC transfer from %s (%s) to recipient %s",
-			data.Sender, sender, data.Receiver,
-		).Error(),
-	)
+	return ack
 }
