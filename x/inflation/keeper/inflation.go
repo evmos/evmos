@@ -143,7 +143,7 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 	}
 
 	epp := k.GetEpochsPerPeriod(ctx)
-	if epochMintProvision.IsZero() {
+	if epp == 0 {
 		return sdk.ZeroDec()
 	}
 

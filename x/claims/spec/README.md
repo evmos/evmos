@@ -20,7 +20,7 @@ For the Evmos Rektdrop, users are required to claim their airdrop by participati
 * 25% is claimed by staking
 * 25% is claimed by voting in governance
 * 25% is claimed by using the EVM (deploy or interact with contract, transfer EVMOS through a web3 wallet)
-* 25% is claimed by by sending or receiving an IBC transfer
+* 25% is claimed by sending or receiving an IBC transfer
 
 Furthermore, these claimable assets 'expire' if not claimed. Users have two months (`DurationUntilDecay`) to claim their full airdrop amount. After two months, the reward amount available will decline over 1 month (`DurationOfDecay`) in real time, until it hits `0%` at 3 months from launch (`DurationUntilDecay + DurationOfDecay`).
 

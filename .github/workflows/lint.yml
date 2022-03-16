@@ -38,6 +38,7 @@ jobs:
         with:
           PATTERNS: |
             docs/**/*.md
+            x/**/*.md
             README.md
       - uses: articulate/actions-markdownlint@v1.1.0
         # Check only if there are differences in the source code
