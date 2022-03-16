@@ -28,6 +28,7 @@ jobs:
         run: make contract-tools
       - name: Node dependencies Install
         run: cd contracts && npm i
+      - run: ls contracts/node_modules
       - name: Run Slither Action
         uses: crytic/slither-action@v0.1.0
         continue-on-error: true
@@ -35,7 +36,7 @@ jobs:
         with:
           sarif: slither.sarif
           target: contracts/
-          slither-args: "--solc-remaps @openzeppelin=node_modules/@openzeppelin"
+          slither-args: --solc-remaps @openzeppelin=node_modules/@openzeppelin
         # if: "env.GIT_DIFF"
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v1
