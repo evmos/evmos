@@ -146,7 +146,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 			},
 			true,
 			true,
@@ -163,7 +163,10 @@ func (suite *KeeperTestSuite) TestReceive() {
 			tc.malleate()
 
 			// Fund receiver account with aevmos and ibc coin
-			coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(1000)))
+			coins := sdk.NewCoins(
+				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+			)
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
 
 			ack := suite.app.WithdrawKeeper.OnRecvPacket(suite.ctx, packet, expAck)

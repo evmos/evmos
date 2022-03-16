@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -24,6 +25,11 @@ import (
 	"github.com/tharsis/evmos/v2/app"
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
+)
+
+var (
+	ibcAtomDenom = "ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701"
+	ibcOsmoDenom = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
 )
 
 type KeeperTestSuite struct {
@@ -76,6 +82,18 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
+	// Set Cosmos Channel
+	channel := channeltypes.Channel{
+		Counterparty: channeltypes.NewCounterparty("transfer", claimstypes.DefaultAuthorizedChannels[1]),
+	}
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
+
+	// Set Next Sequence Send
+	suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, "transfer", "channel-0", 1)
+
+	// TODO Set capability
+	suite.app.ScopedIBCKeeper.ClaimCapability(suite.ctx, capabilitytypes.NewCapability(0), "port")
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -83,6 +101,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
+
 	address := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 
 	testCases := []struct {
@@ -128,7 +147,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 		},
 		{
 			"success - ATOM",
-			"ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701",
+			ibcAtomDenom,
 			func() {
 				denomTrace := transfertypes.DenomTrace{
 					Path:      "transfer/channel-3",
@@ -146,7 +165,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 		},
 		{
 			"success - OSMO",
-			"ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518",
+			ibcOsmoDenom,
 			func() {
 				denomTrace := transfertypes.DenomTrace{
 					Path:      "transfer/channel-0",
