@@ -148,7 +148,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 			},
-			true, // TODO is this correct?
+			true,
 			true,
 		},
 	}
@@ -176,9 +176,11 @@ func (suite *KeeperTestSuite) TestReceive() {
 			}
 
 			// Check withdrawal
+			balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
 			if tc.expWithdraw {
-				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
 				suite.Require().True(balances.IsZero())
+			} else {
+				suite.Require().Equal(coins, balances)
 			}
 		})
 	}
