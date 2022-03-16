@@ -153,8 +153,8 @@
 <a name="evmos.claims.v1.Claim"></a>
 
 ### Claim
-Claim marks defines the action, completed flag and the remaining claimable
-amount for a given user. This is only used during client queries.
+Claim defines the action, completed flag and the remaining claimable amount
+for a given user. This is only used during client queries.
 
 
 | Field | Type | Label | Description |
@@ -188,7 +188,7 @@ completed actions to claim the tokens.
 <a name="evmos.claims.v1.ClaimsRecordAddress"></a>
 
 ### ClaimsRecordAddress
-ClaimsRecordAddress is the metadata of claims data per address
+ClaimsRecordAddress is the claims metadata per address that is used at Genesis.
 
 
 | Field | Type | Label | Description |
@@ -236,7 +236,7 @@ Action defines the list of available actions to claim the airdrop tokens.
 <a name="evmos.claims.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the claims module's genesis state.
+GenesisState define the claims module's genesis state.
 
 
 | Field | Type | Label | Description |
@@ -295,7 +295,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
+| `address` | [string](#string) |  | address defines the user to query claims record for |
 
 
 
@@ -312,7 +312,7 @@ method.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
-| `claims` | [Claim](#evmos.claims.v1.Claim) | repeated |  |
+| `claims` | [Claim](#evmos.claims.v1.Claim) | repeated | the claims of the user |
 
 
 
@@ -344,7 +344,7 @@ RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated |  |
+| `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated | claims defines all claims records |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -397,7 +397,7 @@ RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins define the unclaimed coins |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins defines the unclaimed coins |
 
 
 
@@ -419,7 +419,7 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claims/v1/total_unclaimed|
 | `Params` | [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse) | Params returns the claims module parameters | GET|/evmos/claims/v1/params|
-| `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all the claims record | GET|/evmos/claims/v1/claims_records|
+| `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all claims records | GET|/evmos/claims/v1/claims_records|
 | `ClaimsRecord` | [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest) | [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse) | ClaimsRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_records/{address}|
 
  <!-- end services -->
