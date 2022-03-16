@@ -84,7 +84,8 @@ func (k Keeper) ClaimsRecords(
 }
 
 // ClaimsRecord returns the initial claimable amount per user and the claims per
-// action
+// action. Claimable amount per action will be 0 if claiming is disabled, before
+// the start time, or after end time.
 func (k Keeper) ClaimsRecord(
 	c context.Context,
 	req *types.QueryClaimsRecordRequest,

@@ -19,12 +19,10 @@ func (k Keeper) GetClaimableAmountForAction(
 		return sdk.ZeroInt()
 	}
 
-	airdropEndTime := params.AirdropEndTime()
-
 	// Safety check: the entire airdrop has completed
 	// NOTE: This shouldn't occur since at the end of the airdrop, the EnableClaims
 	// param is disabled.
-	if ctx.BlockTime().After(airdropEndTime) {
+	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return sdk.ZeroInt()
 	}
 
@@ -60,6 +58,7 @@ func (k Keeper) GetClaimableAmountForAction(
 }
 
 // GetUserTotalClaimable returns claimable amount for a specific action done by an address
+// at a given block time
 func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
 	totalClaimable := sdk.ZeroInt()
 
@@ -92,8 +91,8 @@ func (k Keeper) ClaimCoinsForAction(
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
 
-	// If we are before the start time or claims are disabled, do nothing.
-	if !params.EnableClaims || ctx.BlockTime().Before(params.AirdropStartTime) {
+	// If we are before the start time, after end time, or claims are disabled, do nothing.
+	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return sdk.ZeroInt(), nil
 	}
 
