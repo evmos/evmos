@@ -22,6 +22,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
 	"github.com/tharsis/evmos/v2/app"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
@@ -67,6 +68,15 @@ func (suite *KeeperTestSuite) SetupTest() {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.WithdrawKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	params := claimstypes.DefaultParams()
+	params.AirdropStartTime = suite.ctx.BlockTime()
+	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = params.GetClaimsDenom()
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
 }
 
 func TestKeeperTestSuite(t *testing.T) {
