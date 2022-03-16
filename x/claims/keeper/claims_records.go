@@ -42,6 +42,8 @@ func (k Keeper) DeleteClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) {
 	store.Delete(addr)
 }
 
+// IterateClaimsRecords iterates over all claims records and performs a
+// callback.
 func (k Keeper) IterateClaimsRecords(ctx sdk.Context, handlerFn func(addr sdk.AccAddress, cr types.ClaimsRecord) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixClaimsRecords)
