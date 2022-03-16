@@ -142,7 +142,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			false,
 		},
 		{
-			"withdraw - same sender with EVM channel, no claims record",
+			"withdraw",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -162,8 +162,9 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 			tc.malleate()
 
-			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(1000))))
-			fmt.Println(suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr))
+			// Fund receiver account with aevmos and ibc coin
+			coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(1000)))
+			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
 
 			ack := suite.app.WithdrawKeeper.OnRecvPacket(suite.ctx, packet, expAck)
 
