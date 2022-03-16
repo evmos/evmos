@@ -33,7 +33,7 @@ jobs:
         continue-on-error: true
         id: slither
         with:
-          slither-config: contracts/slither.config.json
+          slither-config: "slither.config.json"
           sarif: slither.sarif
           target: contracts/
         # if: "env.GIT_DIFF"
