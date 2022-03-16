@@ -485,8 +485,6 @@ func NewEvmos(
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
 	// channel.RecvPacket -> withdraw.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
-	// app.IBCKeeper.ChannelKeeper =
-
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware

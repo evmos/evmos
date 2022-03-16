@@ -1842,12 +1842,13 @@ GenesisState defines the withdraw module's genesis state.
 <a name="evmos.withdraw.v1.Params"></a>
 
 ### Params
-Params holds parameters for the withdraw module.
+Params holds parameters for the withdraw module
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_withdraw` | [bool](#bool) |  | enable withdraw IBC middleware |
+| `packet_timeout_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration added to timeout timestamp for balances withdrawn via IBC packets |
 
 
 

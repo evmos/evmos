@@ -1937,6 +1937,12 @@ paths:
                   enable_withdraw:
                     type: boolean
                     title: enable withdraw IBC middleware
+                  packet_timeout_duration:
+                    type: string
+                    title: >-
+                      duration added to timeout timestamp for balances withdrawn
+                      via IBC packets
+                title: Params holds parameters for the withdraw module
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -28453,7 +28459,12 @@ definitions:
       enable_withdraw:
         type: boolean
         title: enable withdraw IBC middleware
-    description: Params holds parameters for the withdraw module.
+      packet_timeout_duration:
+        type: string
+        title: >-
+          duration added to timeout timestamp for balances withdrawn via IBC
+          packets
+    title: Params holds parameters for the withdraw module
   evmos.withdraw.v1.QueryParamsResponse:
     type: object
     properties:
@@ -28464,6 +28475,12 @@ definitions:
           enable_withdraw:
             type: boolean
             title: enable withdraw IBC middleware
+          packet_timeout_duration:
+            type: string
+            title: >-
+              duration added to timeout timestamp for balances withdrawn via IBC
+              packets
+        title: Params holds parameters for the withdraw module
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   ethermint.evm.v1.ChainConfig:
     type: object
