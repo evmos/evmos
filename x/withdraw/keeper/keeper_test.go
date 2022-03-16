@@ -69,14 +69,13 @@ func (suite *KeeperTestSuite) SetupTest() {
 	types.RegisterQueryServer(queryHelper, suite.app.WithdrawKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
-	params := claimstypes.DefaultParams()
-	params.AirdropStartTime = suite.ctx.BlockTime()
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	claimsParams := claimstypes.DefaultParams()
+	claimsParams.AirdropStartTime = suite.ctx.BlockTime()
+	suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = params.GetClaimsDenom()
+	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
 }
 
 func TestKeeperTestSuite(t *testing.T) {

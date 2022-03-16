@@ -15,7 +15,9 @@ import (
 	evmos "github.com/tharsis/evmos/v2/types"
 )
 
-// OnRecvPacket performs an IBC receive callback.
+// OnRecvPacket performs an IBC receive callback. It returns the tokens that
+// users transferred to their Cosmos secp256k1 address instead of the Ethereum
+// ethsecp256k1 address.
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
