@@ -50,5 +50,5 @@ func validateBool(i interface{}) error {
 
 // Validate checks that the fields have valid values
 func (p Params) Validate() error {
-	return nil
+	return validateBool(p.EnableWithdraw)
 }
