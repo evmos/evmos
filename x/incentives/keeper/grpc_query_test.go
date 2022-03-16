@@ -94,9 +94,19 @@ func (suite *KeeperTestSuite) TestIncentive() {
 		expPass  bool
 	}{
 		{
-			"invalid contract address",
+			"empty contract address",
 			func() {
 				req = &types.QueryIncentiveRequest{}
+				expRes = &types.QueryIncentiveResponse{}
+			},
+			false,
+		},
+		{
+			"invalid contract address",
+			func() {
+				req = &types.QueryIncentiveRequest{
+					Contract: "1234",
+				}
 				expRes = &types.QueryIncentiveResponse{}
 			},
 			false,
@@ -159,6 +169,16 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 			"no gas meter registered",
 			func() {
 				req = &types.QueryGasMetersRequest{}
+				expRes = &types.QueryGasMetersResponse{Pagination: &query.PageResponse{}}
+			},
+			false,
+		},
+		{
+			"invalid contract address",
+			func() {
+				req = &types.QueryGasMetersRequest{
+					Contract: "123",
+				}
 				expRes = &types.QueryGasMetersResponse{Pagination: &query.PageResponse{}}
 			},
 			false,
@@ -242,7 +262,18 @@ func (suite *KeeperTestSuite) TestGasMeter() {
 			false,
 		},
 		{
-			"invalid participant address",
+			"blank participant address",
+			func() {
+				req = &types.QueryGasMeterRequest{
+					Contract:    contract.String(),
+					Participant: "  ",
+				}
+				expRes = &types.QueryGasMeterResponse{}
+			},
+			false,
+		},
+		{
+			"invalid participant hex address",
 			func() {
 				req = &types.QueryGasMeterRequest{
 					Contract:    contract.String(),
