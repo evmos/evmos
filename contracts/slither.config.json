@@ -1,6 +1,6 @@
 {
     "solc_remaps": [
-        "@openzeppelin/=contracts/node_modules/@openzeppelin/"
+        "@openzeppelin/=node_modules/@openzeppelin/"
     ],
     "exclude_informational": false,
     "exclude_low": false,
