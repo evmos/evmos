@@ -26,6 +26,8 @@ jobs:
             **/*.sol
       - name: Install tools
         run: make contract-tools
+      - name: Node dependencies Install
+        run: cd contracts && npm i
       - name: Run Slither Action
         uses: crytic/slither-action@v0.1.0
         continue-on-error: true
