@@ -64,8 +64,8 @@ func (Action) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_a7153f2307523893, []int{0}
 }
 
-// Claim marks defines the action, completed flag and the remaining claimable
-// amount for a given user. This is only used during client queries.
+// Claim defines the action, completed flag and the remaining claimable amount
+// for a given user. This is only used during client queries.
 type Claim struct {
 	// action enum
 	Action Action `protobuf:"varint,1,opt,name=action,proto3,enum=evmos.claims.v1.Action" json:"action,omitempty"`
@@ -122,7 +122,7 @@ func (m *Claim) GetCompleted() bool {
 	return false
 }
 
-// ClaimsRecordAddress is the metadata of claims data per address
+// ClaimsRecordAddress is the claims metadata per address that is used at Genesis.
 type ClaimsRecordAddress struct {
 	// bech32 or hex address of claim user
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`

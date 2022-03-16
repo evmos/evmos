@@ -73,7 +73,7 @@ var xxx_messageInfo_QueryTotalUnclaimedRequest proto.InternalMessageInfo
 // QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
 // RPC method.
 type QueryTotalUnclaimedResponse struct {
-	// coins define the unclaimed coins
+	// coins defines the unclaimed coins
 	Coins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=coins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"coins"`
 }
 
@@ -250,6 +250,7 @@ func (m *QueryClaimsRecordsRequest) GetPagination() *query.PageRequest {
 // QueryClaimsRecordsResponse is the response type for the Query/ClaimsRecords
 // RPC method.
 type QueryClaimsRecordsResponse struct {
+	// claims defines all claims records
 	Claims []ClaimsRecordAddress `protobuf:"bytes,1,rep,name=claims,proto3" json:"claims"`
 	// pagination defines the pagination in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -305,6 +306,7 @@ func (m *QueryClaimsRecordsResponse) GetPagination() *query.PageResponse {
 // QueryClaimsRecordRequest is the request type for the Query/ClaimsRecord RPC
 // method.
 type QueryClaimsRecordRequest struct {
+	// address defines the user to query claims record for
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -353,7 +355,8 @@ func (m *QueryClaimsRecordRequest) GetAddress() string {
 type QueryClaimsRecordResponse struct {
 	// total initial claimable amount for the user
 	InitialClaimableAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,1,opt,name=initial_claimable_amount,json=initialClaimableAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"initial_claimable_amount"`
-	Claims                 []Claim                                `protobuf:"bytes,2,rep,name=claims,proto3" json:"claims"`
+	// the claims of the user
+	Claims []Claim `protobuf:"bytes,2,rep,name=claims,proto3" json:"claims"`
 }
 
 func (m *QueryClaimsRecordResponse) Reset()         { *m = QueryClaimsRecordResponse{} }
@@ -471,7 +474,7 @@ type QueryClient interface {
 	TotalUnclaimed(ctx context.Context, in *QueryTotalUnclaimedRequest, opts ...grpc.CallOption) (*QueryTotalUnclaimedResponse, error)
 	// Params returns the claims module parameters
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// ClaimsRecords returns all the claims record
+	// ClaimsRecords returns all claims records
 	ClaimsRecords(ctx context.Context, in *QueryClaimsRecordsRequest, opts ...grpc.CallOption) (*QueryClaimsRecordsResponse, error)
 	// ClaimsRecord returns the claims record for a given address
 	ClaimsRecord(ctx context.Context, in *QueryClaimsRecordRequest, opts ...grpc.CallOption) (*QueryClaimsRecordResponse, error)
@@ -527,7 +530,7 @@ type QueryServer interface {
 	TotalUnclaimed(context.Context, *QueryTotalUnclaimedRequest) (*QueryTotalUnclaimedResponse, error)
 	// Params returns the claims module parameters
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// ClaimsRecords returns all the claims record
+	// ClaimsRecords returns all claims records
 	ClaimsRecords(context.Context, *QueryClaimsRecordsRequest) (*QueryClaimsRecordsResponse, error)
 	// ClaimsRecord returns the claims record for a given address
 	ClaimsRecord(context.Context, *QueryClaimsRecordRequest) (*QueryClaimsRecordResponse, error)

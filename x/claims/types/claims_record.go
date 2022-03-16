@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewClaimsRecord creates a new claim record instance
+// NewClaimsRecord creates a new claims record instance
 func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {
 	return ClaimsRecord{
 		InitialClaimableAmount: initialClaimableAmt,
@@ -57,8 +57,8 @@ func (cr ClaimsRecord) HasClaimedAction(action Action) bool {
 	}
 }
 
-// HasClaimedAny returns true if the user has claimed at least one reward from the
-// available actions
+// HasClaimedAny returns true if the user has claimed at least one reward from
+// the available actions
 func (cr ClaimsRecord) HasClaimedAny() bool {
 	for _, completed := range cr.ActionsCompleted {
 		if completed {
