@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
@@ -26,21 +27,23 @@ type IBCTestingSuite struct {
 	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	chainA *ibcgotesting.TestChain
-	chainB *ibcgotesting.TestChain
+	chainA      *ibcgotesting.TestChain // Evmos chain A
+	chainB      *ibcgotesting.TestChain // Evmos chain B
+	chainCosmos *ibcgotesting.TestChain // Cosmos chain
 
-	path *ibcgotesting.Path
+	pathEVM    *ibcgotesting.Path // chainA (Evmos) <-->  chainB (Evmos)
+	pathCosmos *ibcgotesting.Path // chainA (Evmos) <--> chainCosmos
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	ibcgotesting.DefaultTestingAppInit = app.SetupTestingApp
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2, 1) // initializes 2 Evmos test chains and 1 Cosmos Chain
+	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
+	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
+	suite.chainCosmos = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))
 
-	ibcgotesting.ChainIDPrefix = "evmos_9000-"
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)           // initializes 2 test chains
-	suite.chainA = suite.coordinator.GetChain(ibcgotesting.GetChainID(1)) // convenience and readability
-	suite.chainB = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
+	suite.coordinator.CommitNBlocks(suite.chainCosmos, 2)
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
@@ -59,11 +62,17 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
 	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 
-	suite.path = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.path)                      // clientID, connectionID, channelID filled
-	suite.Require().Equal("07-tendermint-0", suite.path.EndpointA.ClientID)
-	suite.Require().Equal("connection-0", suite.path.EndpointA.ConnectionID)
-	suite.Require().Equal("channel-0", suite.path.EndpointA.ChannelID)
+	suite.pathEVM = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathEVM)                      // clientID, connectionID, channelID filled
+	suite.Require().Equal("07-tendermint-0", suite.pathEVM.EndpointA.ClientID)
+	suite.Require().Equal("connection-0", suite.pathEVM.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-0", suite.pathEVM.EndpointA.ChannelID)
+
+	suite.pathCosmos = NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathCosmos)                           // clientID, connectionID, channelID filled
+	suite.Require().Equal("07-tendermint-1", suite.pathCosmos.EndpointA.ClientID)
+	suite.Require().Equal("connection-1", suite.pathCosmos.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-1", suite.pathCosmos.EndpointA.ChannelID)
 }
 
 func TestIBCTestingSuite(t *testing.T) {
@@ -170,7 +179,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
-			path := suite.path
+			path := suite.pathEVM
 
 			tc.malleate(tc.claimableAmount)
 
@@ -179,7 +188,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 			// send on endpointA
-			suite.path.EndpointA.SendPacket(packet)
+			path.EndpointA.SendPacket(packet)
 
 			// receive on endpointB
 			err := path.EndpointB.RecvPacket(packet)
@@ -264,7 +273,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
-			path := suite.path
+			path := suite.pathEVM
 
 			tc.malleate(tc.claimableAmount)
 
@@ -272,11 +281,11 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-			// // send on endpointA
-			err := suite.path.EndpointA.SendPacket(packet)
+			// send on endpointA
+			err := path.EndpointA.SendPacket(packet)
 			suite.Require().NoError(err)
 
-			err = suite.path.RelayPacket(packet)
+			err = path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
 			if tc.expPass {

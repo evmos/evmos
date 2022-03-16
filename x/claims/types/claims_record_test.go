@@ -41,6 +41,11 @@ func TestClaimsRecordValidate(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"success - valid instance with constructor",
+			NewClaimsRecord(sdk.OneInt()),
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -50,6 +55,45 @@ func TestClaimsRecordValidate(t *testing.T) {
 		} else {
 			require.NoError(t, err, tc.name)
 		}
+	}
+}
+
+func TestClaimAction(t *testing.T) {
+	testCases := []struct {
+		name         string
+		claimsRecord ClaimsRecord
+		action       Action
+		expClaimed   bool
+	}{
+		{
+			"fail - empty",
+			ClaimsRecord{},
+			ActionEVM,
+			false,
+		},
+		{
+			"fail - unspecified action",
+			NewClaimsRecord(sdk.OneInt()),
+			ActionUnspecified,
+			false,
+		},
+		{
+			"fail - invalid action",
+			NewClaimsRecord(sdk.OneInt()),
+			Action(10),
+			false,
+		},
+		{
+			"success - valid instance with constructor",
+			NewClaimsRecord(sdk.OneInt()),
+			ActionEVM,
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc.claimsRecord.ClaimAction(tc.action)
+		require.Equal(t, tc.expClaimed, tc.claimsRecord.HasClaimedAction(tc.action))
 	}
 }
 

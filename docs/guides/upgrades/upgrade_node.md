@@ -85,6 +85,7 @@ cp $GOPATH/bin/evmosd ~/.evmosd/cosmovisor/genesis/bin
 ```
 
 To check that you did this correctly, ensure your versions of cosmovisor and evmosd are the same:
+
 ```
 cosmovisor version
 evmosd version
@@ -100,13 +101,12 @@ It is possible to have Cosmovisor automatically download the new binary. To do t
 echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=true" >> ~/.profile
 ```
 
-
 #### Download Genesis File
 
 You can now download the "genesis" file for the chain. It is pre-filled with the entire genesis state and gentxs.
 
 ```bash
-$ curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/genesis.json > ~/.evmosd/config/genesis.json
+curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/genesis.json > ~/.evmosd/config/genesis.json
 ```
 
 We recommend using `sha256sum` to check the hash of the genesis.
@@ -204,6 +204,7 @@ systemctl status evmosd
 #### Update Cosmosvisor to V2
 
 If you're not yet on the latest V1 release (`v1.1.2`) please upgrade your current version first:
+
 ```bash
 cd $HOME/evmos
 git pull
@@ -215,8 +216,8 @@ systemctl start evmosd.service
 cd $HOME
 ```
 
-
 If you are on the latest V1 release (`v1.1.2`) and you want evmosd to upgrade automatically from V1 to V2, do the following steps prior to the upgrade height:
+
 ```bash
 mkdir -p ~/.evmosd/cosmovisor/upgrades/v2/bin
 cd $HOME/evmos
@@ -252,7 +253,6 @@ cd $HOME/.evmosd/config
 cp -f genesis.json new_genesis.json
 mv new_genesis.json genesis.json
 ```
-
 
 #### Export State
 

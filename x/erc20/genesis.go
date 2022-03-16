@@ -19,6 +19,7 @@ func InitGenesis(
 
 	// ensure erc20 module account is set on genesis
 	if acc := accountKeeper.GetModuleAccount(ctx, types.ModuleName); acc == nil {
+		// NOTE: shouldn't occur
 		panic("the erc20 module account has not been set")
 	}
 

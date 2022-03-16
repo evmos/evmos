@@ -50,7 +50,7 @@ following custom configuration:
 ```toml
 pruning = "custom"
 pruning-keep-recent = "100"
-pruning-keep-every = "2"
+pruning-keep-every = "0"
 pruning-interval = "10"
 ```
 

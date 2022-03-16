@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -64,6 +65,13 @@ func (k Keeper) Incentive(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if strings.TrimSpace(req.Contract) == "" {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"contract address is empty",
+		)
+	}
+
 	// check if the contract is a hex address
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
@@ -91,6 +99,13 @@ func (k Keeper) GasMeters(
 ) (*types.QueryGasMetersResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if strings.TrimSpace(req.Contract) == "" {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"contract address is empty",
+		)
 	}
 
 	// check if the contract is a hex address
@@ -145,7 +160,7 @@ func (k Keeper) GasMeter(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if len(req.Contract) == 0 {
+	if strings.TrimSpace(req.Contract) == "" {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			"contract address is empty",
@@ -160,7 +175,7 @@ func (k Keeper) GasMeter(
 		)
 	}
 
-	if len(req.Participant) == 0 {
+	if strings.TrimSpace(req.Participant) == "" {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			"participant address is empty",

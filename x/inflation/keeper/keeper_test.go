@@ -23,7 +23,7 @@ import (
 	"github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
-var denomMint = evm.DefaultEVMDenom
+var denomMint = types.DefaultInflationDenom
 
 type KeeperTestSuite struct {
 	suite.Suite
@@ -60,7 +60,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// setup context
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9000-1",
+		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: suite.consAddress.Bytes(),
 

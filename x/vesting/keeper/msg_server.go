@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/armon/go-metrics"
@@ -129,11 +130,17 @@ func (k Keeper) CreateClawbackVestingAccount(
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.StoreKey),
-		),
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
+				sdk.NewAttribute(types.AttributeKeyCoins, vestingCoins.String()),
+				sdk.NewAttribute(types.AttributeKeyStartTime, msg.StartTime.String()),
+				sdk.NewAttribute(types.AttributeKeyMerge, strconv.FormatBool(msg.Merge)),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
+			),
+		},
 	)
 
 	return &types.MsgCreateClawbackVestingAccountResponse{}, nil
@@ -185,6 +192,17 @@ func (k Keeper) Clawback(
 	if err := k.transferClawback(ctx, *va, dest); err != nil {
 		return nil, err
 	}
+
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
+				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
+			),
+		},
+	)
 
 	return &types.MsgClawbackResponse{}, nil
 }

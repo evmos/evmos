@@ -109,12 +109,16 @@
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
     - [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest)
     - [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse)
+    - [QueryInflationRateRequest](#evmos.inflation.v1.QueryInflationRateRequest)
+    - [QueryInflationRateResponse](#evmos.inflation.v1.QueryInflationRateResponse)
     - [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse)
     - [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest)
     - [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse)
     - [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest)
     - [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse)
+    - [QueryTotalSupplyRequest](#evmos.inflation.v1.QueryTotalSupplyRequest)
+    - [QueryTotalSupplyResponse](#evmos.inflation.v1.QueryTotalSupplyResponse)
   
     - [Query](#evmos.inflation.v1.Query)
   
@@ -149,8 +153,8 @@
 <a name="evmos.claims.v1.Claim"></a>
 
 ### Claim
-Claim marks defines the action, completed flag and the remaining claimable
-amount for a given user. This is only used during client queries.
+Claim defines the action, completed flag and the remaining claimable amount
+for a given user. This is only used during client queries.
 
 
 | Field | Type | Label | Description |
@@ -184,7 +188,7 @@ completed actions to claim the tokens.
 <a name="evmos.claims.v1.ClaimsRecordAddress"></a>
 
 ### ClaimsRecordAddress
-ClaimsRecordAddress is the metadata of claims data per address
+ClaimsRecordAddress is the claims metadata per address that is used at Genesis.
 
 
 | Field | Type | Label | Description |
@@ -232,7 +236,7 @@ Action defines the list of available actions to claim the airdrop tokens.
 <a name="evmos.claims.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the claims module's genesis state.
+GenesisState define the claims module's genesis state.
 
 
 | Field | Type | Label | Description |
@@ -291,7 +295,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
+| `address` | [string](#string) |  | address defines the user to query claims record for |
 
 
 
@@ -308,7 +312,7 @@ method.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
-| `claims` | [Claim](#evmos.claims.v1.Claim) | repeated |  |
+| `claims` | [Claim](#evmos.claims.v1.Claim) | repeated | the claims of the user |
 
 
 
@@ -340,7 +344,7 @@ RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated |  |
+| `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated | claims defines all claims records |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -393,7 +397,7 @@ RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins define the unclaimed coins |
+| `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins defines the unclaimed coins |
 
 
 
@@ -415,7 +419,7 @@ Query defines the gRPC querier service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `TotalUnclaimed` | [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest) | [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse) | TotalUnclaimed queries the total unclaimed tokens from the airdrop | GET|/evmos/claims/v1/total_unclaimed|
 | `Params` | [QueryParamsRequest](#evmos.claims.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse) | Params returns the claims module parameters | GET|/evmos/claims/v1/params|
-| `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all the claims record | GET|/evmos/claims/v1/claims_records|
+| `ClaimsRecords` | [QueryClaimsRecordsRequest](#evmos.claims.v1.QueryClaimsRecordsRequest) | [QueryClaimsRecordsResponse](#evmos.claims.v1.QueryClaimsRecordsResponse) | ClaimsRecords returns all claims records | GET|/evmos/claims/v1/claims_records|
 | `ClaimsRecord` | [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest) | [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse) | ClaimsRecord returns the claims record for a given address | GET|/evmos/claims/v1/claims_records/{address}|
 
  <!-- end services -->
@@ -1464,7 +1468,32 @@ Query/EpochMintProvision RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `epoch_mint_provision` | [bytes](#bytes) |  | epoch_mint_provision is the current minting per epoch provision value. |
+| `epoch_mint_provision` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | epoch_mint_provision is the current minting per epoch provision value. |
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryInflationRateRequest"></a>
+
+### QueryInflationRateRequest
+QueryInflationRateRequest is the request type for the Query/InflationRate RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryInflationRateResponse"></a>
+
+### QueryInflationRateResponse
+QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `inflation_rate` | [string](#string) |  | rate by which the total supply increases within one period |
 
 
 
@@ -1545,6 +1574,31 @@ QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC 
 
 
 
+
+<a name="evmos.inflation.v1.QueryTotalSupplyRequest"></a>
+
+### QueryTotalSupplyRequest
+QueryTotalSupplyRequest is the request type for the Query/TotalSupply RPC method.
+
+
+
+
+
+
+<a name="evmos.inflation.v1.QueryTotalSupplyResponse"></a>
+
+### QueryTotalSupplyResponse
+QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `total_supply` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | total amount of coins in circulation |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1562,6 +1616,8 @@ Query provides defines the gRPC querier service.
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
 | `SkippedEpochs` | [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest) | [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse) | SkippedEpochs retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/skipped_epochs|
+| `TotalSupply` | [QueryTotalSupplyRequest](#evmos.inflation.v1.QueryTotalSupplyRequest) | [QueryTotalSupplyResponse](#evmos.inflation.v1.QueryTotalSupplyResponse) | TotalSupply retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/total_supply|
+| `InflationRate` | [QueryInflationRateRequest](#evmos.inflation.v1.QueryInflationRateRequest) | [QueryInflationRateResponse](#evmos.inflation.v1.QueryInflationRateResponse) | InflationRate retrieves the inflation rate of the current period. | GET|/evmos/inflation/v1/inflation_rate|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
 
  <!-- end services -->
