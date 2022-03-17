@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -33,9 +34,6 @@ type IBCTestingSuite struct {
 	path        *ibcgotesting.Path
 	path2       *ibcgotesting.Path
 	pathOutside *ibcgotesting.Path
-
-	sender    string
-	senderAcc sdk.AccAddress
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
@@ -102,6 +100,37 @@ func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path 
 	return path
 }
 
+func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, chain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
+	// Send IBC transaction of 10 testcoin
+	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
+	_, err := chain.SendMsgs(transferMsg)
+	suite.Require().NoError(err) // message committed
+	transfer := transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver)
+	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+	// Receive message on the evmos side, and send ack
+	err = path.RelayPacket(packet)
+	suite.Require().NoError(err)
+}
+
+func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {
+	transfer := transfertypes.FungibleTokenPacketData{
+		Amount:   amount,
+		Denom:    denom,
+		Receiver: sender,
+		Sender:   receiver,
+	}
+	return channeltypes.NewPacket(
+		transfer.GetBytes(),
+		seq,
+		srcPort,
+		srcChannel,
+		dstPort,
+		dstChannel,
+		clienttypes.ZeroHeight(), // timeout height disabled
+		timeout,                  // timeout timestamp disabled
+	)
+}
+
 func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 	var (
 		sender   string
@@ -136,42 +165,11 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			},
 			func() {
 				// Recreate packets that were sent in the ibc_callback
+				packet2 := CreatePacket("10000", "aevmos", sender, receiver,
+					"transfer", "channel-0", "transfer", "channel-0", 1, timeout)
 
-				// Coins locked
-				transfer2 := transfertypes.FungibleTokenPacketData{
-					Amount:   "10000",
-					Denom:    "aevmos",
-					Receiver: sender,
-					Sender:   receiver,
-				}
-				packet2 := channeltypes.NewPacket(
-					transfer2.GetBytes(),
-					1,
-					"transfer",
-					"channel-0",
-					"transfer",
-					"channel-0",
-					clienttypes.ZeroHeight(), // timeout height disabled
-					timeout,                  // timeout timestamp disabled
-				)
-
-				// Coins transfered
-				transfer3 := transfertypes.FungibleTokenPacketData{
-					Amount:   "10",
-					Denom:    "transfer/channel-0/testcoin",
-					Receiver: sender,
-					Sender:   receiver,
-				}
-				packet3 := channeltypes.NewPacket(
-					transfer3.GetBytes(),
-					2,
-					"transfer",
-					"channel-0",
-					"transfer",
-					"channel-0",
-					clienttypes.ZeroHeight(), // timeout height disabled
-					timeout,                  // timeout timestamp disabled
-				)
+				packet3 := CreatePacket("10", "transfer/channel-0/testcoin", sender, receiver,
+					"transfer", "channel-0", "transfer", "channel-0", 2, timeout)
 
 				// Relay both packets that were sent in the ibc_callback
 				err := suite.path.RelayPacket(packet2)
@@ -239,19 +237,8 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			path := suite.path
 
 			tc.malleate()
-
-			// Send IBC transaction of 10 testcoin
-			transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin("testcoin", sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
-			_, err := suite.IBCChain.SendMsgs(transferMsg)
-			suite.Require().NoError(err) // message committed
-			timeout = uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * 10).UnixNano())
-
-			transfer := transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
-			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
-
-			// Receive message on the evmos side, and send ack
-			err = suite.path.RelayPacket(packet)
-			suite.Require().NoError(err)
+			suite.SendAndReceiveMessage(path, suite.IBCChain, "testcoin", 10, sender, receiver, 1)
+			timeout = uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
 			tc.test()
 		})
@@ -283,74 +270,27 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 
 	sender := suite.IBCChain.SenderAccount.GetAddress().String()
 	receiver := suite.IBCChain.SenderAccount.GetAddress().String()
-
 	pathCosmos := suite.path
 	pathExtra := suite.path2
 
-	// Send an IBC Coin to the wallet
-	transferMsg := transfertypes.NewMsgTransfer(pathExtra.EndpointA.ChannelConfig.PortID, pathExtra.EndpointA.ChannelID, sdk.NewCoin("testcoin2", sdk.NewInt(10)), suite.IBCChain2.SenderAccount.GetAddress().String(), receiver, timeoutHeight, 0)
-	_, err := suite.IBCChain2.SendMsgs(transferMsg)
-	suite.Require().NoError(err) // message committed
-	transfer := transfertypes.NewFungibleTokenPacketData("testcoin2", "10", suite.IBCChain2.SenderAccount.GetAddress().String(), receiver)
-	packet := channeltypes.NewPacket(transfer.GetBytes(), 1, pathExtra.EndpointA.ChannelConfig.PortID, pathExtra.EndpointA.ChannelID, pathExtra.EndpointB.ChannelConfig.PortID, pathExtra.EndpointB.ChannelID, timeoutHeight, 0)
-	// Receive message on the evmos side, and send ack
-	err = pathExtra.RelayPacket(packet)
-	suite.Require().NoError(err)
+	suite.SendAndReceiveMessage(pathExtra, suite.IBCChain2, "testcoin2", 10, suite.IBCChain2.SenderAccount.GetAddress().String(), receiver, 1)
 
 	params.EnableWithdraw = true
 	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-	// Send IBC transaction of 10 testcoin
-	transferMsg = transfertypes.NewMsgTransfer(pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, sdk.NewCoin("testcoin", sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
-	_, err = suite.IBCChain.SendMsgs(transferMsg)
-	suite.Require().NoError(err) // message committed
-	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * 10).UnixNano())
-	transfer = transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
-	packet = channeltypes.NewPacket(transfer.GetBytes(), 1, pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, pathCosmos.EndpointB.ChannelConfig.PortID, pathCosmos.EndpointB.ChannelID, timeoutHeight, 0)
-
-	// Receive message on the evmos side, and send ack
-	err = pathCosmos.RelayPacket(packet)
-	suite.Require().NoError(err)
+	suite.SendAndReceiveMessage(pathCosmos, suite.IBCChain, "testcoin", 10, sender, receiver, 1)
+	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
 	// Recreate packets that were sent in the ibc_callback
 	// Coins locked
-	transfer2 := transfertypes.FungibleTokenPacketData{
-		Amount:   "10000",
-		Denom:    "aevmos",
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	packet2 := channeltypes.NewPacket(
-		transfer2.GetBytes(),
-		1,
-		"transfer",
-		"channel-0",
-		"transfer",
-		"channel-0",
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
-	)
+	packet2 := CreatePacket("10000", "aevmos", sender, receiver,
+		"transfer", "channel-0", "transfer", "channel-0", 1, timeout)
 
-	// Coins transfered
-	transfer3 := transfertypes.FungibleTokenPacketData{
-		Amount:   "10",
-		Denom:    "transfer/channel-0/testcoin",
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	packet3 := channeltypes.NewPacket(
-		transfer3.GetBytes(),
-		2,
-		"transfer",
-		"channel-0",
-		"transfer",
-		"channel-0",
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
-	)
+	packet3 := CreatePacket("10", "transfer/channel-0/testcoin", sender, receiver,
+		"transfer", "channel-0", "transfer", "channel-0", 2, timeout)
 
 	// Relay both packets that were sent in the ibc_callback
-	err = suite.path.RelayPacket(packet2)
+	err := suite.path.RelayPacket(packet2)
 	suite.Require().NoError(err)
 	err = suite.path.RelayPacket(packet3)
 	suite.Require().NoError(err)
@@ -377,33 +317,11 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 
 	// Send IBC transaction of 10 testcoin
-	transferMsg = transfertypes.NewMsgTransfer(pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, sdk.NewCoin("testcoin", sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
-	_, err = suite.IBCChain.SendMsgs(transferMsg)
-	suite.Require().NoError(err) // message committed
-	timeout = uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * 10).UnixNano())
-	transfer = transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
-	packet = channeltypes.NewPacket(transfer.GetBytes(), 2, pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, pathCosmos.EndpointB.ChannelConfig.PortID, pathCosmos.EndpointB.ChannelID, timeoutHeight, 0)
-	// Receive message on the evmos side, and send ack
-	err = pathCosmos.RelayPacket(packet)
-	suite.Require().NoError(err)
+	suite.SendAndReceiveMessage(pathCosmos, suite.IBCChain, "testcoin", 10, sender, receiver, 2)
+	timeout = uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
-	// Coins transfered
-	transfer4 := transfertypes.FungibleTokenPacketData{
-		Amount:   "10",
-		Denom:    "transfer/channel-0/testcoin",
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	packet4 := channeltypes.NewPacket(
-		transfer4.GetBytes(),
-		3,
-		"transfer",
-		"channel-0",
-		"transfer",
-		"channel-0",
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
-	)
+	packet4 := CreatePacket("10", "transfer/channel-0/testcoin", sender, receiver,
+		"transfer", "channel-0", "transfer", "channel-0", 3, timeout)
 
 	err = pathCosmos.RelayPacket(packet4)
 	suite.Require().NoError(err)
@@ -455,22 +373,14 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	pathCosmos := suite.path
 	pathOutside := suite.pathOutside
 
-	// Send an IBC Coin to the wallet
-	transferMsg := transfertypes.NewMsgTransfer(pathOutside.EndpointA.ChannelConfig.PortID, pathOutside.EndpointA.ChannelID, sdk.NewCoin("testcoin2", sdk.NewInt(10)), suite.IBCChain2.SenderAccount.GetAddress().String(), receiver, timeoutHeight, 0)
-	_, err := suite.IBCChain2.SendMsgs(transferMsg)
-	suite.Require().NoError(err) // message committed
-	transfer := transfertypes.NewFungibleTokenPacketData("testcoin2", "10", suite.IBCChain2.SenderAccount.GetAddress().String(), receiver)
-	packet := channeltypes.NewPacket(transfer.GetBytes(), 1, pathOutside.EndpointA.ChannelConfig.PortID, pathOutside.EndpointA.ChannelID, pathOutside.EndpointB.ChannelConfig.PortID, pathOutside.EndpointB.ChannelID, timeoutHeight, 0)
-	// Receive message on the evmos side, and send ack
-	err = pathOutside.RelayPacket(packet)
-	suite.Require().NoError(err)
+	suite.SendAndReceiveMessage(pathOutside, suite.IBCChain2, "testcoin2", 10, suite.IBCChain2.SenderAccount.GetAddress().String(), receiver, 1)
 
-	// // Send IBC transaction of 10 testcoin
-	transferMsg = transfertypes.NewMsgTransfer(pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, sdk.NewCoin(testcoin2Ibcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
-	_, err = suite.IBCChain.SendMsgs(transferMsg)
+	// Send IBC transaction of 10 testcoin
+	transferMsg := transfertypes.NewMsgTransfer(pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, sdk.NewCoin(testcoin2Ibcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
+	_, err := suite.IBCChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
-	transfer = transfertypes.NewFungibleTokenPacketData("transfer/channel-1/testcoin2", "10", sender, receiver)
-	packet = channeltypes.NewPacket(transfer.GetBytes(), 1, pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, pathCosmos.EndpointB.ChannelConfig.PortID, pathCosmos.EndpointB.ChannelID, timeoutHeight, 0)
+	transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-1/testcoin2", "10", sender, receiver)
+	packet := channeltypes.NewPacket(transfer.GetBytes(), 1, pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, pathCosmos.EndpointB.ChannelConfig.PortID, pathCosmos.EndpointB.ChannelID, timeoutHeight, 0)
 	// Receive message on the evmos side, and send ack
 	err = pathCosmos.RelayPacket(packet)
 	suite.Require().NoError(err)
@@ -478,74 +388,21 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	params.EnableWithdraw = true
 	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-	// Send IBC transaction of 10 testcoin
-	transferMsg = transfertypes.NewMsgTransfer(pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, sdk.NewCoin("testcoin", sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
-	_, err = suite.IBCChain.SendMsgs(transferMsg)
-	suite.Require().NoError(err) // message committed
-	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * 10).UnixNano())
-	transfer = transfertypes.NewFungibleTokenPacketData("testcoin", "10", sender, receiver)
-	packet = channeltypes.NewPacket(transfer.GetBytes(), 2, pathCosmos.EndpointA.ChannelConfig.PortID, pathCosmos.EndpointA.ChannelID, pathCosmos.EndpointB.ChannelConfig.PortID, pathCosmos.EndpointB.ChannelID, timeoutHeight, 0)
-
-	// Receive message on the evmos side, and send ack
-	err = pathCosmos.RelayPacket(packet)
-	suite.Require().NoError(err)
+	suite.SendAndReceiveMessage(pathCosmos, suite.IBCChain, "testcoin", 10, sender, receiver, 2)
+	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
 	// Recreate packets that were sent in the ibc_callback
 	// Coins locked
-	transfer2 := transfertypes.FungibleTokenPacketData{
-		Amount:   "10000",
-		Denom:    "aevmos",
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	packet2 := channeltypes.NewPacket(
-		transfer2.GetBytes(),
-		1,
-		"transfer",
-		"channel-0",
-		"transfer",
-		"channel-0",
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
-	)
+	packet2 := CreatePacket("10000", "aevmos", sender, receiver,
+		"transfer", "channel-0", "transfer", "channel-0", 1, timeout)
 
-	// Coins transfered
-	transfer3 := transfertypes.FungibleTokenPacketData{
-		Amount:   "10",
-		Denom:    "transfer/channel-0/testcoin",
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	packet3 := channeltypes.NewPacket(
-		transfer3.GetBytes(),
-		2,
-		"transfer",
-		"channel-0",
-		"transfer",
-		"channel-0",
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
-	)
+	packet3 := CreatePacket("10", "transfer/channel-0/testcoin", sender, receiver,
+		"transfer", "channel-0", "transfer", "channel-0", 2, timeout)
 
-	// Coins transfered
-	transfer4 := transfertypes.FungibleTokenPacketData{
-		Amount:   "10",
-		Denom:    "transfer/channel-0/transfer/channel-1/testcoin2",
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	packet4 := channeltypes.NewPacket(
-		transfer4.GetBytes(),
-		3,
-		"transfer",
-		"channel-0",
-		"transfer",
-		"channel-0",
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
-	)
+	packet4 := CreatePacket("10", "transfer/channel-0/transfer/channel-1/testcoin2", sender, receiver,
+		"transfer", "channel-0", "transfer", "channel-0", 3, timeout)
 
-	// Relay both packets that were sent in the ibc_callback
+	// Relay packets that were sent in the ibc_callback
 	err = suite.path.RelayPacket(packet2)
 	suite.Require().NoError(err)
 	err = suite.path.RelayPacket(packet3)
