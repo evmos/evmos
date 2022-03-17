@@ -6,16 +6,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/v2/testutil"
-	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
+
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestReceive() {
@@ -172,7 +173,8 @@ func (suite *KeeperTestSuite) TestReceive() {
 				// TODO Set capability
 				name := host.ChannelCapabilityPath(transfertypes.PortID, cosmosCounterpartyChannel)
 				capability, _ := suite.app.ScopedTransferKeeper.NewCapability(suite.ctx, name)
-				suite.app.TransferKeeper.ClaimCapability(suite.ctx, capability, name)
+				suite.app.ScopedTransferKeeper.AuthenticateCapability(suite.ctx, capability, name)
+				// suite.app.TransferKeeper.ClaimCapability(suite.ctx, capability, name)
 
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosDenom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)

@@ -86,12 +86,12 @@ func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytype
 	return k.ics4Wrapper.WriteAcknowledgement(ctx, channelCap, packet, ack)
 }
 
-// GetIBCDenomSource returns the self port and channel of the IBC denomination (i.e port and channel on Evmos for the voucher).
+// GetIBCDenomDestinationIdentifiers returns the destination port and channel of the IBC denomination (i.e port and channel on Evmos for the voucher).
 // It returns an error if:
 // - the the denomination is invalid
 // - the denom trace or source channel are not found on the store
 // - self port or channel ID are invalid
-func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string) (counterpartyPort, counterpartyChannel string, err error) {
+func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender string) (destinationPort, destinationChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {
 		return "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
@@ -122,14 +122,14 @@ func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string
 		)
 	}
 
-	counterpartyPortID := path[0]
-	counterpartyChannelID := path[1]
+	destinationPort = path[0]
+	destinationChannel = path[1]
 
-	channel, found := k.channelKeeper.GetChannel(ctx, counterpartyPortID, counterpartyChannelID)
+	channel, found := k.channelKeeper.GetChannel(ctx, destinationPort, destinationChannel)
 	if !found {
 		return "", "", sdkerrors.Wrapf(
 			channeltypes.ErrChannelNotFound,
-			"port ID %s, channel ID %s", counterpartyPortID, counterpartyChannelID,
+			"port ID %s, channel ID %s", destinationPort, destinationChannel,
 		)
 	}
 
@@ -154,5 +154,5 @@ func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string
 		)
 	}
 
-	return counterpartyPort, counterpartyChannel, nil
+	return destinationPort, destinationChannel, nil
 }
