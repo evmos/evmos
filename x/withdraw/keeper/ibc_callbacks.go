@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -133,8 +132,6 @@ func (k Keeper) OnRecvPacket(
 
 		// NOTE: Don't use the consensus state because it may become unreliable if updates slow down
 		timeout := uint64(ctx.BlockTime().Add(4 * time.Hour).UnixNano())
-
-		fmt.Println(packet.DestinationChannel)
 
 		// Withdraw the tokens to the bech32 prefixed address of the source chain
 		err = k.transferKeeper.SendTransfer(

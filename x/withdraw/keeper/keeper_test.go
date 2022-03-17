@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -83,17 +82,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
-	// Set Cosmos Channel
-	channel := channeltypes.Channel{
-		Counterparty: channeltypes.NewCounterparty("transfer", claimstypes.DefaultAuthorizedChannels[1]),
-	}
-	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
-
-	// Set Next Sequence Send
-	suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, "transfer", "channel-0", 1)
-
-	// TODO Set capability
-	suite.app.ScopedIBCKeeper.ClaimCapability(suite.ctx, capabilitytypes.NewCapability(0), "port")
 }
 
 func TestKeeperTestSuite(t *testing.T) {

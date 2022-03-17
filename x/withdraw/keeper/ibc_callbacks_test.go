@@ -8,6 +8,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/v2/testutil"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
@@ -142,15 +143,52 @@ func (suite *KeeperTestSuite) TestReceive() {
 			false,
 		},
 		{
-			"withdraw",
+			"withdraw - send uatom from cosmos to evmos",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+
+				// Setup Atom IBC relayer
+				cosmosDenom := "uatom"
+				cosmosSourceChannel := "channel-292"
+				cosmosDestChannel := claimstypes.DefaultAuthorizedChannels[1]
+				path := fmt.Sprintf("%s/%s", transfertypes.PortID, cosmosDestChannel)
+
+				// Set Denom Trace
+				denomTrace := transfertypes.DenomTrace{
+					Path:      path,
+					BaseDenom: cosmosDenom,
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				// Set Cosmos Channel
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty(transfertypes.PortID, cosmosSourceChannel),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, cosmosDestChannel, channel)
+
+				// Set Next Sequence Send
+				suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, cosmosDestChannel, 1)
+
+				// TODO Set capability
+				capability := suite.app.IBCKeeper.PortKeeper.BindPort(suite.ctx, transfertypes.PortID)
+				suite.app.ScopedIBCKeeper.ClaimCapability(suite.ctx, capability, path)
+
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosDenom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, cosmosSourceChannel, transfertypes.PortID, cosmosDestChannel, timeoutHeight, 0)
 			},
 			true,
 			true,
 		},
+		// {
+		// 	"withdraw",
+		// 	func() {
+		// 		transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+		// 		bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+		// 		packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+		// 	},
+		// 	true,
+		// 	true,
+		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
