@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/v2/testutil"
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
@@ -149,8 +150,8 @@ func (suite *KeeperTestSuite) TestReceive() {
 				// Setup Atom IBC relayer
 				cosmosDenom := "uatom"
 				cosmosSourceChannel := "channel-292"
-				cosmosDestChannel := claimstypes.DefaultAuthorizedChannels[1]
-				path := fmt.Sprintf("%s/%s", transfertypes.PortID, cosmosDestChannel)
+				cosmosCounterpartyChannel := claimstypes.DefaultAuthorizedChannels[1]
+				path := fmt.Sprintf("%s/%s", transfertypes.PortID, cosmosCounterpartyChannel)
 
 				// Set Denom Trace
 				denomTrace := transfertypes.DenomTrace{
@@ -163,18 +164,19 @@ func (suite *KeeperTestSuite) TestReceive() {
 				channel := channeltypes.Channel{
 					Counterparty: channeltypes.NewCounterparty(transfertypes.PortID, cosmosSourceChannel),
 				}
-				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, cosmosDestChannel, channel)
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, cosmosCounterpartyChannel, channel)
 
 				// Set Next Sequence Send
-				suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, cosmosDestChannel, 1)
+				suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, cosmosCounterpartyChannel, 1)
 
 				// TODO Set capability
-				capability := suite.app.IBCKeeper.PortKeeper.BindPort(suite.ctx, transfertypes.PortID)
-				suite.app.ScopedIBCKeeper.ClaimCapability(suite.ctx, capability, path)
+				name := host.ChannelCapabilityPath(transfertypes.PortID, cosmosCounterpartyChannel)
+				capability, _ := suite.app.ScopedTransferKeeper.NewCapability(suite.ctx, name)
+				suite.app.TransferKeeper.ClaimCapability(suite.ctx, capability, name)
 
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosDenom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, cosmosSourceChannel, transfertypes.PortID, cosmosDestChannel, timeoutHeight, 0)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, cosmosSourceChannel, transfertypes.PortID, cosmosCounterpartyChannel, timeoutHeight, 0)
 			},
 			true,
 			true,

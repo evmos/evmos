@@ -91,7 +91,7 @@ func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytype
 // - the the denomination is invalid
 // - the denom trace or source channel are not found on the store
 // - self port or channel ID are invalid
-func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string) (selfPort, selfChannel string, err error) {
+func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string) (counterpartyPort, counterpartyChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {
 		return "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
@@ -133,26 +133,26 @@ func (k Keeper) GetIBCDenomSelfIdentifiers(ctx sdk.Context, denom, sender string
 		)
 	}
 
-	selfPort = channel.Counterparty.PortId
-	selfChannel = channel.Counterparty.ChannelId
+	sourcePort := channel.Counterparty.PortId
+	sourceChannel := channel.Counterparty.ChannelId
 
 	// NOTE: optimistic handshakes could cause unforeseen issues.
-	// Safety check: verify that the self port and channel are valid
-	if err := host.PortIdentifierValidator(selfPort); err != nil {
+	// Safety check: verify that the source port and channel are valid
+	if err := host.PortIdentifierValidator(sourcePort); err != nil {
 		// shouldn't occur
 		return "", "", sdkerrors.Wrapf(
 			host.ErrInvalidID,
-			"invalid port ID '%s': %s", selfPort, err.Error(),
+			"invalid port ID '%s': %s", sourcePort, err.Error(),
 		)
 	}
 
-	if err := host.ChannelIdentifierValidator(selfChannel); err != nil {
+	if err := host.ChannelIdentifierValidator(sourceChannel); err != nil {
 		// shouldn't occur
 		return "", "", sdkerrors.Wrapf(
 			channeltypes.ErrInvalidChannelIdentifier,
-			"channel ID '%s': %s", selfChannel, err.Error(),
+			"channel ID '%s': %s", sourceChannel, err.Error(),
 		)
 	}
 
-	return selfPort, selfChannel, nil
+	return counterpartyPort, counterpartyChannel, nil
 }
