@@ -263,12 +263,12 @@ type Evmos struct {
 
 	// Evmos keepers
 	InflationKeeper  inflationkeeper.Keeper
-	ClaimsKeeper     claimskeeper.Keeper
+	ClaimsKeeper     *claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
-	WithdrawKeeper   withdrawkeeper.Keeper
+	WithdrawKeeper   *withdrawkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -423,6 +423,11 @@ func NewEvmos(
 		authtypes.FeeCollectorName,
 	)
 
+	app.ClaimsKeeper = claimskeeper.NewKeeper(
+		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
+	)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	// NOTE: Distr, Slashing and Claim must be created before calling the Hooks method to avoid returning a Keeper without its table generated
@@ -480,11 +485,6 @@ func NewEvmos(
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
 	// channel.RecvPacket -> withdraw.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
-	app.ClaimsKeeper = *claimskeeper.NewKeeper(
-		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-	)
-
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
@@ -492,7 +492,7 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 
-	app.WithdrawKeeper = *withdrawkeeper.NewKeeper(
+	app.WithdrawKeeper = withdrawkeeper.NewKeeper(
 		app.GetSubspace(withdrawtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -517,8 +517,8 @@ func NewEvmos(
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
-	transferStack = claims.NewIBCModule(app.ClaimsKeeper, transferStack)
-	transferStack = withdraw.NewIBCMiddleware(app.WithdrawKeeper, transferStack)
+	transferStack = claims.NewIBCModule(*app.ClaimsKeeper, transferStack)
+	transferStack = withdraw.NewIBCMiddleware(*app.WithdrawKeeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -571,9 +571,9 @@ func NewEvmos(
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		claims.NewAppModule(appCodec, app.ClaimsKeeper),
+		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		withdraw.NewAppModule(app.WithdrawKeeper),
+		withdraw.NewAppModule(*app.WithdrawKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that

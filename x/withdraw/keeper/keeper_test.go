@@ -22,7 +22,13 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
 	"github.com/tharsis/evmos/v2/app"
+	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
+)
+
+var (
+	ibcAtomDenom = "ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701"
+	ibcOsmoDenom = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
 )
 
 type KeeperTestSuite struct {
@@ -67,21 +73,31 @@ func (suite *KeeperTestSuite) SetupTest() {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.WithdrawKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	claimsParams := claimstypes.DefaultParams()
+	claimsParams.AirdropStartTime = suite.ctx.BlockTime()
+	suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams)
+
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
 }
 
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
 
-func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
+func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
+
 	address := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 
 	testCases := []struct {
-		name                      string
-		denom                     string
-		malleate                  func()
-		expError                  bool
-		expSrcPort, expSrcChannel string
+		name                                      string
+		denom                                     string
+		malleate                                  func()
+		expError                                  bool
+		expDestinationPort, expDestinationChannel string
 	}{
 		{
 			"invalid native denom",
@@ -119,7 +135,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 		},
 		{
 			"success - ATOM",
-			"ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701",
+			ibcAtomDenom,
 			func() {
 				denomTrace := transfertypes.DenomTrace{
 					Path:      "transfer/channel-3",
@@ -133,11 +149,11 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-3", channel)
 			},
 			false,
-			"transfer", "channel-292",
+			"transfer", "channel-3",
 		},
 		{
 			"success - OSMO",
-			"ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518",
+			ibcOsmoDenom,
 			func() {
 				denomTrace := transfertypes.DenomTrace{
 					Path:      "transfer/channel-0",
@@ -151,7 +167,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
 			},
 			false,
-			"transfer", "channel-204",
+			"transfer", "channel-0",
 		},
 		{
 			"success - ibcATOM (via Osmosis)",
@@ -170,7 +186,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
 			},
 			false,
-			"transfer", "channel-204",
+			"transfer", "channel-0",
 		},
 	}
 
@@ -180,13 +196,13 @@ func (suite *KeeperTestSuite) TestGetIBCDenomSource() {
 
 			tc.malleate()
 
-			srcPort, srcChannel, err := suite.app.WithdrawKeeper.GetIBCDenomSelfIdentifiers(suite.ctx, tc.denom, address)
+			destinationPort, destinationChannel, err := suite.app.WithdrawKeeper.GetIBCDenomDestinationIdentifiers(suite.ctx, tc.denom, address)
 			if tc.expError {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
-				suite.Require().Equal(tc.expSrcPort, srcPort)
-				suite.Require().Equal(tc.expSrcChannel, srcChannel)
+				suite.Require().Equal(tc.expDestinationPort, destinationPort)
+				suite.Require().Equal(tc.expDestinationChannel, destinationChannel)
 			}
 		})
 	}

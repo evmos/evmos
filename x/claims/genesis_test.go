@@ -157,11 +157,11 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 
 			if tc.expPanic {
 				suite.Require().Panics(func() {
-					claims.InitGenesis(suite.ctx, suite.app.ClaimsKeeper, tc.genesis)
+					claims.InitGenesis(suite.ctx, *suite.app.ClaimsKeeper, tc.genesis)
 				})
 			} else {
 				suite.Require().NotPanics(func() {
-					claims.InitGenesis(suite.ctx, suite.app.ClaimsKeeper, tc.genesis)
+					claims.InitGenesis(suite.ctx, *suite.app.ClaimsKeeper, tc.genesis)
 				})
 
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
@@ -194,7 +194,7 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
-	claims.InitGenesis(suite.ctx, suite.app.ClaimsKeeper, suite.genesis)
+	claims.InitGenesis(suite.ctx, *suite.app.ClaimsKeeper, suite.genesis)
 
 	claimsRecord, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, acc2)
 	suite.Require().True(found)
@@ -206,7 +206,7 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 	claimableAmount := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionIBCTransfer, suite.genesis.Params)
 	suite.Require().Equal(claimableAmount, sdk.NewInt(100))
 
-	genesisExported := claims.ExportGenesis(suite.ctx, suite.app.ClaimsKeeper)
+	genesisExported := claims.ExportGenesis(suite.ctx, *suite.app.ClaimsKeeper)
 	suite.Require().Equal(genesisExported.Params, suite.genesis.Params)
 	suite.Require().Equal(genesisExported.ClaimsRecords, suite.genesis.ClaimsRecords)
 }

@@ -14,7 +14,9 @@ import (
 	evmos "github.com/tharsis/evmos/v2/types"
 )
 
-// OnRecvPacket performs an IBC receive callback.
+// OnRecvPacket performs an IBC receive callback. It returns the tokens that
+// users transferred to their Cosmos secp256k1 address instead of the Ethereum
+// ethsecp256k1 address.
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -105,7 +107,7 @@ func (k Keeper) OnRecvPacket(
 		switch strings.HasPrefix(coin.Denom, "ibc/") {
 		case true:
 			// IBC vouchers, obtain the source port and channel from the denom path
-			destPort, destChannel, err = k.GetIBCDenomSelfIdentifiers(ctx, coin.Denom, data.Sender)
+			destPort, destChannel, err = k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, data.Sender)
 		default:
 			// Native tokens, use the source port and channel to transfer the EVMOS and
 			// other converted ERC20 coin denoms to the authorized source chain
