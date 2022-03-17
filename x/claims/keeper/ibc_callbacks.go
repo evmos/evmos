@@ -144,7 +144,7 @@ func (k Keeper) OnRecvPacket(
 		_, err = k.ClaimCoinsForAction(ctx, recipient, recipientClaimsRecord, types.ActionIBCTransfer, params)
 	case !senderRecordFound && !recipientRecordFound:
 		// 4. Neither the sender or recipient have a claims record.
-		// Perform a no-op by returning the  original success acknowledgement
+		// Perform a no-op by returning the original success acknowledgement
 		return ack
 	}
 
