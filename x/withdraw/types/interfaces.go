@@ -17,7 +17,6 @@ import (
 // creating a x/withdraw keeper.
 type BankKeeper interface {
 	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 }
 
 // AccountKeeper defines the expected account keeper
@@ -42,7 +41,6 @@ type TransferKeeper interface {
 
 // ChannelKeeper defines the expected IBC channel keeper.
 type ChannelKeeper interface {
-	transfertypes.ICS4Wrapper
 	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
 }
 

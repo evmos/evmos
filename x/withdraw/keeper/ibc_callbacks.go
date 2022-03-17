@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"strings"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -131,7 +130,7 @@ func (k Keeper) OnRecvPacket(
 		}
 
 		// NOTE: Don't use the consensus state because it may become unreliable if updates slow down
-		timeout := uint64(ctx.BlockTime().Add(4 * time.Hour).UnixNano())
+		timeout := uint64(ctx.BlockTime().Add(params.PacketTimeoutDuration).UnixNano())
 
 		// Withdraw the tokens to the bech32 prefixed address of the source chain
 		err = k.transferKeeper.SendTransfer(

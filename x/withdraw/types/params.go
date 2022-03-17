@@ -2,13 +2,15 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // Parameter store key
 var (
-	ParamStoreKeyEnableWithdraw = []byte("EnableWithdraw")
+	ParamStoreKeyEnableWithdraw        = []byte("EnableWithdraw")
+	ParamStoreKeyPacketTimeoutDuration = []byte("PacketTimeoutDuration")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -18,17 +20,19 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params instance
 func NewParams(
-	enableWithdraw bool,
+	enableWithdraw bool, timeoutDuration time.Duration,
 ) Params {
 	return Params{
-		EnableWithdraw: enableWithdraw,
+		EnableWithdraw:        enableWithdraw,
+		PacketTimeoutDuration: timeoutDuration,
 	}
 }
 
 // DefaultParams defines the default params for the withdraw module
 func DefaultParams() Params {
 	return Params{
-		EnableWithdraw: true,
+		EnableWithdraw:        true,
+		PacketTimeoutDuration: 4 * time.Hour,
 	}
 }
 
@@ -36,6 +40,7 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableWithdraw, &p.EnableWithdraw, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyPacketTimeoutDuration, &p.PacketTimeoutDuration, validateDuration),
 	}
 }
 
@@ -48,7 +53,24 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
+func validateDuration(i interface{}) error {
+	duration, ok := i.(time.Duration)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if duration < 0 {
+		return fmt.Errorf("packet timout duration cannot be negative")
+	}
+
+	return nil
+}
+
 // Validate checks that the fields have valid values
 func (p Params) Validate() error {
+	if err := validateDuration(p.PacketTimeoutDuration); err != nil {
+		return err
+	}
+
 	return validateBool(p.EnableWithdraw)
 }
