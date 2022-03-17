@@ -164,6 +164,18 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				receiver = suite.IBCChain.SenderAccount.GetAddress().String()
 			},
 			func() {
+				senderAcc, err := sdk.AccAddressFromBech32(sender)
+				suite.Require().NoError(err)
+				receiverAcc, err := sdk.AccAddressFromBech32(receiver)
+				suite.Require().NoError(err)
+
+				// Aevmos were escrowed
+				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), transfertypes.GetEscrowAddress("transfer", "channel-0"), "aevmos")
+				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
+				// ibccoins were burn
+				coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, testcoinIbcdenom)
+				suite.Require().Equal(coin.Amount, sdk.NewInt(0))
+
 				// Recreate packets that were sent in the ibc_callback
 				packet2 := CreatePacket("10000", "aevmos", sender, receiver,
 					"transfer", "channel-0", "transfer", "channel-0", 1, timeout)
@@ -172,17 +184,12 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 					"transfer", "channel-0", "transfer", "channel-0", 2, timeout)
 
 				// Relay both packets that were sent in the ibc_callback
-				err := suite.path.RelayPacket(packet2)
+				err = suite.path.RelayPacket(packet2)
 				suite.Require().NoError(err)
 				err = suite.path.RelayPacket(packet3)
 				suite.Require().NoError(err)
 
-				senderAcc, err := sdk.AccAddressFromBech32(sender)
-				suite.Require().NoError(err)
-				receiverAcc, err := sdk.AccAddressFromBech32(receiver)
-				suite.Require().NoError(err)
-
-				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
+				coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 				coin = suite.IBCChain.GetSimApp().BankKeeper.GetBalance(suite.IBCChain.GetContext(), receiverAcc, aevmosIbcdenom)
 				suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
@@ -250,6 +257,8 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 // Send IBC-Coin1 From IBC-Chain1 to Evmos
 // Aevmos, IBC-Coin1 should be on IBC-Chain1 balance
 // IBC-Coin2 should remain on the EvmosChain
+// Send IBC-Coin1 From IBC-Chain1 to Evmos
+// No changes on balance should occur
 func (suite *IBCTestingSuite) TestTwoChains() {
 	suite.SetupTest()
 	testcoin2Denomtrace := transfertypes.DenomTrace{
