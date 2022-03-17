@@ -172,7 +172,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				// Aevmos were escrowed
 				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), transfertypes.GetEscrowAddress("transfer", "channel-0"), "aevmos")
 				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
-				// ibccoins were burn
+				// ibccoins were burned
 				coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, testcoinIbcdenom)
 				suite.Require().Equal(coin.Amount, sdk.NewInt(0))
 
