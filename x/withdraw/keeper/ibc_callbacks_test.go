@@ -12,6 +12,7 @@ import (
 	host "github.com/cosmos/ibc-go/modules/core/24-host"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
@@ -163,18 +164,25 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 				// Set Cosmos Channel
 				channel := channeltypes.Channel{
-					Counterparty: channeltypes.NewCounterparty(transfertypes.PortID, cosmosSourceChannel),
+					State:          channeltypes.INIT,
+					Ordering:       channeltypes.UNORDERED,
+					Counterparty:   channeltypes.NewCounterparty(transfertypes.PortID, cosmosSourceChannel),
+					ConnectionHops: []string{cosmosSourceChannel},
 				}
 				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, cosmosCounterpartyChannel, channel)
 
 				// Set Next Sequence Send
 				suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, cosmosCounterpartyChannel, 1)
 
-				// TODO Set capability
+				// Set connection. TODO: ConnectionEnd should use clientID
+				suite.app.IBCKeeper.ConnectionKeeper.SetConnection(suite.ctx, cosmosSourceChannel, connectiontypes.ConnectionEnd{})
+
+				// Todo: Set Client
+
+				// Set capability
 				name := host.ChannelCapabilityPath(transfertypes.PortID, cosmosCounterpartyChannel)
 				capability, _ := suite.app.ScopedTransferKeeper.NewCapability(suite.ctx, name)
-				suite.app.ScopedTransferKeeper.AuthenticateCapability(suite.ctx, capability, name)
-				// suite.app.TransferKeeper.ClaimCapability(suite.ctx, capability, name)
+				suite.app.ScopedIBCKeeper.ClaimCapability(suite.ctx, capability, name)
 
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosDenom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
