@@ -9,11 +9,11 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/v2/testutil"
 
-	host "github.com/cosmos/ibc-go/modules/core/24-host"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 
@@ -148,7 +148,6 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"withdraw - send uatom from cosmos to evmos",
 			func() {
-
 				// Setup Atom IBC relayer
 				cosmosDenom := "uatom"
 				cosmosSourceChannel := "channel-292"
