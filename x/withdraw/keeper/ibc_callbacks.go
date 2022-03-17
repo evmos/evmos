@@ -23,8 +23,7 @@ func (k Keeper) OnRecvPacket(
 	logger := k.Logger(ctx)
 
 	params := k.GetParams(ctx)
-	claimsKeeper := *k.claimsKeeper
-	claimsParams := claimsKeeper.GetParams(ctx)
+	claimsParams := k.claimsKeeper.GetParams(ctx)
 
 	// check channels from this chain (i.e destination)
 	if !params.EnableWithdraw ||
