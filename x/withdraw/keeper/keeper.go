@@ -86,11 +86,11 @@ func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytype
 	return k.ics4Wrapper.WriteAcknowledgement(ctx, channelCap, packet, ack)
 }
 
-// GetIBCDenomDestinationIdentifiers returns the destination port and channel of the IBC denomination (i.e port and channel on Evmos for the voucher).
-// It returns an error if:
+// GetIBCDenomDestinationIdentifiers returns the destination port and channel of the IBC denomination,
+// i.e port and channel on Evmos for the voucher. It returns an error if:
 // - the the denomination is invalid
-// - the denom trace or source channel are not found on the store
-// - self port or channel ID are invalid
+// - the denom trace is not found on the store
+// - destination port or channel ID are invalid
 func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender string) (destinationPort, destinationChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {
@@ -125,32 +125,21 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	destinationPort = path[0]
 	destinationChannel = path[1]
 
-	channel, found := k.channelKeeper.GetChannel(ctx, destinationPort, destinationChannel)
-	if !found {
-		return "", "", sdkerrors.Wrapf(
-			channeltypes.ErrChannelNotFound,
-			"port ID %s, channel ID %s", destinationPort, destinationChannel,
-		)
-	}
-
-	sourcePort := channel.Counterparty.PortId
-	sourceChannel := channel.Counterparty.ChannelId
-
 	// NOTE: optimistic handshakes could cause unforeseen issues.
-	// Safety check: verify that the source port and channel are valid
-	if err := host.PortIdentifierValidator(sourcePort); err != nil {
+	// Safety check: verify that the destination port and channel are valid
+	if err := host.PortIdentifierValidator(destinationPort); err != nil {
 		// shouldn't occur
 		return "", "", sdkerrors.Wrapf(
 			host.ErrInvalidID,
-			"invalid port ID '%s': %s", sourcePort, err.Error(),
+			"invalid port ID '%s': %s", destinationPort, err.Error(),
 		)
 	}
 
-	if err := host.ChannelIdentifierValidator(sourceChannel); err != nil {
+	if err := host.ChannelIdentifierValidator(destinationChannel); err != nil {
 		// shouldn't occur
 		return "", "", sdkerrors.Wrapf(
 			channeltypes.ErrInvalidChannelIdentifier,
-			"channel ID '%s': %s", sourceChannel, err.Error(),
+			"channel ID '%s': %s", destinationChannel, err.Error(),
 		)
 	}
 
