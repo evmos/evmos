@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/stretchr/testify/mock"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/evmos/v2/testutil"
 
@@ -13,11 +14,12 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 func (suite *KeeperTestSuite) TestReceive() {
@@ -178,10 +180,17 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 				// Todo: Set Client
 
-				// Set capability
-				name := host.ChannelCapabilityPath(transfertypes.PortID, cosmosCounterpartyChannel)
-				capability, _ := suite.app.ScopedTransferKeeper.NewCapability(suite.ctx, name)
-				suite.app.ScopedIBCKeeper.ClaimCapability(suite.ctx, capability, name)
+				mockedKeeper := &TransferKeeper{
+					Keeper: suite.app.BankKeeper,
+				}
+
+				mockedKeeper.On("GetDenomTrace", mock.Anything).Return(denomTrace, true)
+				mockedKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+
+				suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockedKeeper, suite.app.ClaimsKeeper)
 
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosDenom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -220,7 +229,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 			ack := suite.app.WithdrawKeeper.OnRecvPacket(suite.ctx, packet, expAck)
 
-			// Check ackknowledgement
+			// Check acknowledgement
 			if tc.ackSuccess {
 				suite.Require().Equal(expAck, ack)
 			} else {

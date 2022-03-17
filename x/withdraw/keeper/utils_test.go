@@ -6,6 +6,7 @@ import (
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
@@ -23,6 +24,7 @@ var _ types.TransferKeeper = &TransferKeeper{}
 // that describes an object that the code I am testing relies on.
 type TransferKeeper struct {
 	mock.Mock
+	bankkeeper.Keeper
 }
 
 func (m *TransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
@@ -41,6 +43,12 @@ func (m *TransferKeeper) SendTransfer(
 	timeoutTimestamp uint64,
 ) error {
 	args := m.Called(sourcePort, sourceChannel, token)
+
+	err := m.SendCoinsFromAccountToModule(ctx, sender, transfertypes.ModuleName, sdk.Coins{token})
+	if err != nil {
+		return err
+	}
+
 	return args.Error(0)
 }
 
