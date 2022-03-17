@@ -125,6 +125,14 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	destinationPort = path[0]
 	destinationChannel = path[1]
 
+	_, found = k.channelKeeper.GetChannel(ctx, destinationPort, destinationChannel)
+	if !found {
+		return "", "", sdkerrors.Wrapf(
+			channeltypes.ErrChannelNotFound,
+			"port ID %s, channel ID %s", destinationPort, destinationChannel,
+		)
+	}
+
 	// NOTE: optimistic handshakes could cause unforeseen issues.
 	// Safety check: verify that the destination port and channel are valid
 	if err := host.PortIdentifierValidator(destinationPort); err != nil {
