@@ -133,98 +133,81 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			1,
 			true,
 		},
-		// {
-		// 	"correct execution - Merge Transfer",
-		// 	func(claimableAmount int64) {
-		// 		amt := sdk.NewInt(claimableAmount)
-		// 		coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt.MulRaw(2)))
+		{
+			"correct execution - Merge Transfer",
+			func(claimableAmount int64) {
+				amt := sdk.NewInt(claimableAmount)
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt.Add(amt.QuoRaw(2))))
 
-		// 		suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, false, true, false}})
-		// 		suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, true, false, false}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, false, true, false}})
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, true, false, false}})
 
-		// 		// update the escrowed account balance to maintain the invariant
-		// 		err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 		err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	4,
-		// 	4,
-		// 	true,
-		// },
-		// {
-		// 	"correct execution - Claimed transfer",
-		// 	func(claimableAmount int64) {
-		// 		amt := sdk.NewInt(claimableAmount)
-		// 		coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
+				// update the escrowed account balance to maintain the invariant
+				err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+			},
+			4,
+			4,
+			true,
+		},
+		{
+			"correct execution - Claimed transfer",
+			func(claimableAmount int64) {
+				amt := sdk.NewInt(claimableAmount)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
+			},
+			4,
+			0,
+			true,
+		},
+		{
+			"correct execution - Recipient Claimable transfer",
+			func(claimableAmount int64) {
+				amt := sdk.NewInt(claimableAmount)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, false, false, false}})
 
-		// 		suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
-
-		// 		// update the escrowed account balance to maintain the invariant
-		// 		err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 		err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	4,
-		// 	0,
-		// 	true,
-		// },
-		// {
-		// 	"correct execution - Recipient Claimable transfer",
-		// 	func(claimableAmount int64) {
-		// 		amt := sdk.NewInt(claimableAmount)
-		// 		coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
-
-		// 		suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{}})
-
-		// 		// update the escrowed account balance to maintain the invariant
-		// 		err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 		err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	4,
-		// 	1,
-		// 	true,
-		// },
-		// {
-		// 	"correct execution - Recipient Claimed transfer",
-		// 	func(claimableAmount int64) {
-		// 		amt := sdk.NewInt(claimableAmount)
-		// 		suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
-
-		// 		coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
-
-		// 		// update the escrowed account balance to maintain the invariant
-		// 		err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 		err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-		// 		suite.Require().NoError(err)
-		// 	},
-		// 	4,
-		// 	0,
-		// 	true,
-		// },
-		// {
-		// 	"Disabled by params",
-		// 	func(_ int64) {
-		// 		params := types.DefaultParams()
-		// 		suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
-		// 		suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
-		// 	},
-		// 	0,
-		// 	0,
-		// 	false,
-		// },
-		// {
-		// 	"No claim record",
-		// 	func(claimableAmount int64) {
-		// 	},
-		// 	0,
-		// 	0,
-		// 	false,
-		// },
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
+				// update the escrowed account balance to maintain the invariant
+				err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+			},
+			4,
+			1,
+			true,
+		},
+		{
+			"correct execution - Recipient Claimed transfer",
+			func(claimableAmount int64) {
+				amt := sdk.NewInt(claimableAmount)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
+			},
+			4,
+			0,
+			true,
+		},
+		{
+			"Disabled by params",
+			func(_ int64) {
+				params := types.DefaultParams()
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+			},
+			0,
+			0,
+			false,
+		},
+		{
+			"No claim record",
+			func(claimableAmount int64) {
+			},
+			0,
+			0,
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
