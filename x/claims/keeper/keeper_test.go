@@ -17,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -38,6 +39,7 @@ type KeeperTestSuite struct {
 	queryClient types.QueryClient
 	address     common.Address
 	signer      keyring.Signer
+	ethSigner   ethtypes.Signer
 	validator   stakingtypes.Validator
 }
 
@@ -64,7 +66,9 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.signer = tests.NewSigner(priv)
 
 	// consensus key
-	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
+	privCons, err := ethsecp256k1.GenerateKey()
+	require.NoError(t, err)
+	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
 
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
@@ -106,7 +110,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
+	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
 	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
@@ -114,6 +118,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
 	suite.validator = validators[0]
+
+	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 }
 
 // Commit commits and starts a new block with an updated context.
