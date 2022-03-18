@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
@@ -12,11 +13,18 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
 	evmos "github.com/tharsis/evmos/v2/types"
+	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It returns the tokens that
 // users transferred to their Cosmos secp256k1 address instead of the Ethereum
-// ethsecp256k1 address.
+// ethsecp256k1 address. The expected behavior is as follows:
+//
+// First transfer from authorized source chain:
+// - sends back IBC tokens which originated from the source chain
+// - sends over all Evmos native tokens
+// Second transfer from a different authorized source chain:
+// - only sends back IBC tokens which originated from the source chain
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -71,6 +79,17 @@ func (k Keeper) OnRecvPacket(
 		)
 	}
 
+	// return error ACK if the address is in the deny list
+	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(
+				types.ErrBlockedAddress,
+				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
+				data.Sender, data.Receiver,
+			).Error(),
+		)
+	}
+
 	// case 1: sender ≠ recipient.
 	// Withdraw is only possible for addresses in which the sender = recipient.
 	// Continue to the next IBC middleware by returning the original ACK.
@@ -80,6 +99,12 @@ func (k Keeper) OnRecvPacket(
 
 	// get the recipient account
 	account := k.accountKeeper.GetAccount(ctx, recipient)
+
+	// withdraw is not supported for vesting accounts
+	_, isVestingAcc := account.(vestexported.VestingAccount)
+	if isVestingAcc {
+		return ack
+	}
 
 	// Case 2. recipient pubkey is a supported key (eth_secp256k1, amino multisig, ed25519)
 	// ==> Continue and return success ACK as the funds are not stuck on chain
@@ -100,7 +125,7 @@ func (k Keeper) OnRecvPacket(
 
 	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
 		if coin.IsZero() {
-			// continue
+			// safety check: continue
 			return false
 		}
 

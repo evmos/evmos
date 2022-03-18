@@ -17,6 +17,7 @@ import (
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
+	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
@@ -123,12 +124,40 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			false,
 		},
 		{
+			"fail - case: receiver address is in deny list",
+			func() {
+				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
+
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, blockedAddr.String())
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			false,
+			false,
+		},
+		{
 			"continue - case 1: sender and receiver address are not the same",
 			func() {
 				pk1 := secp256k1.GenPrivKey()
 				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
 
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, otherSecpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			true,
+			false,
+		},
+		{
+			"continue - receiver is a vesting account",
+			func() {
+				// Set vesting account
+				bacc := authtypes.NewBaseAccount(ethsecpAddr, nil, 0, 0)
+				acc := vestingtypes.NewClawbackVestingAccount(bacc, ethsecpAddr, nil, suite.ctx.BlockTime(), nil, nil)
+
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", ethsecpAddrCosmos, ethsecpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
@@ -148,6 +177,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			true,
 			false,
 		},
+
 		{
 			"withdraw - send uatom from cosmos to evmos",
 			func() {
@@ -244,6 +274,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			// Check acknowledgement
 			if tc.ackSuccess {
+				suite.Require().True(ack.Success(), string(ack.Acknowledgement()))
 				suite.Require().Equal(expAck, ack)
 			} else {
 				suite.Require().False(ack.Success(), string(ack.Acknowledgement()))

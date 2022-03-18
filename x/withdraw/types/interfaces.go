@@ -17,6 +17,7 @@ import (
 // creating a x/withdraw keeper.
 type BankKeeper interface {
 	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
+	BlockedAddr(addr sdk.AccAddress) bool
 }
 
 // AccountKeeper defines the expected account keeper
