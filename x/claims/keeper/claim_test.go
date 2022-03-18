@@ -350,6 +350,165 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestMergeClaimRecords() {
+	recipient := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
+	params := types.Params{
+		EnableClaims:       true,
+		AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+		DurationUntilDecay: 2 * time.Hour,
+		DurationOfDecay:    time.Hour,
+		ClaimsDenom:        types.DefaultClaimsDenom,
+	}
+
+	testCases := []struct {
+		name string
+		test func()
+	}{
+		{
+			"case 4: actions not completed",
+			func() {
+				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+
+				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(100))}
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+
+				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().NoError(err)
+
+				// only IBC action should be claimed
+				expectedRecord := types.NewClaimsRecord(sdk.NewInt(400))
+				expectedRecord.ClaimAction(types.ActionIBCTransfer)
+				suite.Require().Equal(expectedRecord, mergedRecord)
+
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(100)))
+
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+				suite.Require().Equal(expBalance, balance)
+			},
+		},
+		{
+			"case 3: sender completed action",
+			func() {
+				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+				senderClaimsRecord.ClaimAction(types.ActionVote)
+				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+
+				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(150))}
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+
+				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().NoError(err)
+
+				// Vote and IBC actions should be claimed
+				expectedRecord := types.NewClaimsRecord(sdk.NewInt(400))
+				expectedRecord.ClaimAction(types.ActionVote)
+				expectedRecord.ClaimAction(types.ActionIBCTransfer)
+
+				suite.Require().Equal(expectedRecord, mergedRecord)
+
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(150)))
+
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+				suite.Require().Equal(expBalance, balance)
+			},
+		},
+		{
+			"case 2: recipient completed all actions, but IBC transfer",
+			func() {
+				senderClaimsRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(200),
+					ActionsCompleted:       []bool{false, false, false, false},
+				}
+				recipientClaimsRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(200),
+					ActionsCompleted:       []bool{true, true, true, false},
+				}
+
+				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+
+				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().NoError(err)
+
+				expectedRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(400),
+					ActionsCompleted:       []bool{true, true, true, true},
+				}
+
+				suite.Require().Equal(expectedRecord, mergedRecord)
+
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250)))
+
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+				suite.Require().Equal(expBalance, balance)
+			},
+		},
+		{
+			"case 1: sender and recipient completed all",
+			func() {
+				senderClaimsRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(200),
+					ActionsCompleted:       []bool{true, true, true, true},
+				}
+				recipientClaimsRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(200),
+					ActionsCompleted:       []bool{true, true, true, true},
+				}
+
+				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+
+				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().NoError(err)
+
+				expectedRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(400),
+					ActionsCompleted:       []bool{true, true, true, true},
+				}
+
+				suite.Require().Equal(expectedRecord, mergedRecord)
+
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+				suite.Require().Equal(expBalance, balance)
+			},
+		},
+		{
+			"fail: error when transferring from escrow account",
+			func() {
+				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+
+				_, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().Error(err)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.test()
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 	suite.SetupClaimTest()
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
@@ -843,145 +1002,5 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.NewInt(100),
 				"balance incorrect. test: %s", tc.name)
 		}
-	}
-}
-
-func (suite *KeeperTestSuite) TestMergeClaimRecords() {
-	suite.SetupClaimTest()
-
-	airdropStartTime := time.Now().UTC()
-	durationUntilDecay := time.Hour
-	durationOfDecay := time.Hour * 4
-
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
-
-	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
-	params.AirdropStartTime = airdropStartTime
-	params.DurationUntilDecay = durationUntilDecay
-	params.DurationOfDecay = durationOfDecay
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
-
-	var claimsRecord types.ClaimsRecord
-
-	t := []struct {
-		fn func()
-	}{
-		{
-			fn: func() {
-				senderClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{false, false, false, false},
-				}
-				recipientClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{false, false, false, false},
-				}
-
-				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, addr1, senderClaimsRecord, recipientClaimsRecord, params)
-				expectedRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(8),
-					ActionsCompleted:       []bool{false, false, false, true},
-				}
-
-				suite.Require().NoError(err)
-				suite.Require().Equal(expectedRecord, mergedRecord)
-
-				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
-				// Only claim merged ibc. Since nothing was claimed.
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2)}, balances)
-			},
-		},
-		{
-			fn: func() {
-				senderClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{true, false, false, false},
-				}
-				recipientClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{false, false, false, false},
-				}
-
-				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, addr1, senderClaimsRecord, recipientClaimsRecord, params)
-				expectedRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(8),
-					ActionsCompleted:       []bool{true, false, false, true},
-				}
-
-				suite.Require().NoError(err)
-				suite.Require().Equal(expectedRecord, mergedRecord)
-
-				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
-				// Claim merged ibc. Claim 1 for recipient
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2+1)}, balances)
-			},
-		},
-		{
-			fn: func() {
-				senderClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{false, false, false, false},
-				}
-				recipientClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{true, true, true, false},
-				}
-
-				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, addr1, senderClaimsRecord, recipientClaimsRecord, params)
-				expectedRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(8),
-					ActionsCompleted:       []bool{true, true, true, true},
-				}
-
-				suite.Require().NoError(err)
-				suite.Require().Equal(expectedRecord, mergedRecord)
-
-				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
-				// Claim merged ibc. Claim the 3 unclaimed from sender
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2+3)}, balances)
-			},
-		},
-		{
-			fn: func() {
-				senderClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{true, true, true, false},
-				}
-				recipientClaimsRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(4),
-					ActionsCompleted:       []bool{true, true, true, false},
-				}
-
-				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, addr1, senderClaimsRecord, recipientClaimsRecord, params)
-				expectedRecord := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(8),
-					ActionsCompleted:       []bool{true, true, true, true},
-				}
-
-				suite.Require().NoError(err)
-				suite.Require().Equal(expectedRecord, mergedRecord)
-
-				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, addr1)
-				// Only claim merged ibc. Everything else was already claimed.
-				suite.Require().Equal(sdk.Coins{sdk.NewInt64Coin("aevmos", 2)}, balances)
-			},
-		},
-	}
-
-	for _, test := range t {
-		suite.SetupClaimTest()
-
-		suite.app.ClaimsKeeper.SetParams(suite.ctx, types.Params{
-			AirdropStartTime:   airdropStartTime,
-			DurationUntilDecay: durationUntilDecay,
-			DurationOfDecay:    durationOfDecay,
-			EnableClaims:       true,
-			ClaimsDenom:        params.GetClaimsDenom(),
-		})
-
-		suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr1, nil, 0, 0))
-		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr1, claimsRecord)
-
-		test.fn()
 	}
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
+var actions = []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
+
 // GetClaimableAmountForAction returns claimable amount for a specific action done by an address
 func (k Keeper) GetClaimableAmountForAction(
 	ctx sdk.Context,
@@ -157,26 +159,25 @@ func (k Keeper) MergeClaimsRecords(
 
 	// iterate over all the available actions and claim the amount if
 	// the recipient or sender has completed an action but the other hasn't
-	for i := int32(1); i < int32(len(types.Action_value)); i++ {
-		senderCompleted := senderClaimsRecord.ActionsCompleted[i-1]
-		recipientCompleted := recipientClaimsRecord.ActionsCompleted[i-1]
 
-		action := types.Action(i)
+	for _, action := range actions {
+		senderCompleted := senderClaimsRecord.HasClaimedAction(action)
+		recipientCompleted := recipientClaimsRecord.HasClaimedAction(action)
 
 		switch {
 		case senderCompleted && recipientCompleted:
 			// both sender and recipient completed the action. No-op
-			mergedRecord.ActionsCompleted[i-1] = true
+			mergedRecord.ClaimAction(action)
 		case recipientCompleted && !senderCompleted:
 			// claim action for sender since the recipient completed it
 			amt := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amt)
-			mergedRecord.ActionsCompleted[i-1] = true
+			mergedRecord.ClaimAction(action)
 		case !recipientCompleted && senderCompleted:
 			// claim action for recipient since the sender completed it
 			amt := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amt)
-			mergedRecord.ActionsCompleted[i-1] = true
+			mergedRecord.ClaimAction(action)
 		case !senderCompleted && !recipientCompleted:
 			// Neither sender or recipient completed the action.
 			if action != types.ActionIBCTransfer {
@@ -188,7 +189,7 @@ func (k Keeper) MergeClaimsRecords(
 			amtIBCRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			amtIBCSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amtIBCRecipient).Add(amtIBCSender)
-			mergedRecord.ActionsCompleted[i-1] = true
+			mergedRecord.ClaimAction(action)
 		}
 	}
 
@@ -200,7 +201,7 @@ func (k Keeper) MergeClaimsRecords(
 	claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: claimableAmt}}
 
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, claimedCoins); err != nil {
-		return mergedRecord, err
+		return types.ClaimsRecord{}, err
 	}
 
 	return mergedRecord, nil
