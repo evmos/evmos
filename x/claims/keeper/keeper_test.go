@@ -140,7 +140,7 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	// update ctx
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
-	// queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	// evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
-	// suite.queryClient = evm.NewQueryClient(queryHelper)
+	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, suite.app.ClaimsKeeper)
+	suite.queryClient = types.NewQueryClient(queryHelper)
 }

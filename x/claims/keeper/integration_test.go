@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -27,6 +29,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
@@ -37,19 +40,21 @@ import (
 // s.app.ClaimsKeeper.SetParams(s.ctx, params)
 
 var _ = Describe("Check amount claimed depending on claim time", Ordered, func() {
-	params := types.DefaultParams()
 	claimsAddr := s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
+	distrAddr := s.app.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
+	stakeDenom := stakingtypes.DefaultParams().BondDenom
+	claimsDenom := types.DefaultClaimsDenom
 
 	claimValue := int64(math.Pow10(5) * 10)
 	actionValue := int64(claimValue / 4)
 	claimsAmount := claimValue * 10
 	initBalanceAmount := int64(math.Pow10(5) * 2)
 	initEvmBalanceAmount := int64(math.Pow10(18))
+	delegationValue := int64(math.Pow10(5) * 2)
 
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	initBalance := sdk.NewCoins(
-		sdk.NewCoin(stakeDenom, sdk.NewInt(initBalanceAmount)),
-		sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(initBalanceAmount)),
+		sdk.NewCoin(stakeDenom, sdk.NewInt(delegationValue)),
+		sdk.NewCoin(claimsDenom, sdk.NewInt(initBalanceAmount)),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(initEvmBalanceAmount)),
 	)
 
@@ -58,33 +63,36 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 	addr0 := sdk.AccAddress(priv0.PubKey().Address().Bytes())
 	addr1 := sdk.AccAddress(priv1.PubKey().Address().Bytes())
 
-	delegationValue := sdk.NewInt(1)
-	delegationAmount := sdk.NewCoins(sdk.NewCoin(stakeDenom, delegationValue))
-
 	var (
 		claimsRecord1 types.ClaimsRecord
+		params        types.Params
 	)
 
 	BeforeEach(func() {
 		s.SetupTest()
 
-		params := s.app.ClaimsKeeper.GetParams(s.ctx)
+		params = s.app.ClaimsKeeper.GetParams(s.ctx)
 		params.EnableClaims = true
 		params.AirdropStartTime = s.ctx.BlockTime()
 		s.app.ClaimsKeeper.SetParams(s.ctx, params)
 
-		coins := sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), sdk.NewInt(claimsAmount)))
-
+		coins := sdk.NewCoins(sdk.NewCoin(claimsDenom, sdk.NewInt(claimsAmount)))
 		err := s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 		s.Require().NoError(err)
 		err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 		s.Require().NoError(err)
 
-		balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, params.GetClaimsDenom())
+		// For refunding lefover gas cost - fee collector account
+		// coins = sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(2000000)))
+		// err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
+		// s.Require().NoError(err)
+		// err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, coins)
+		// s.Require().NoError(err)
+
+		balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, claimsDenom)
 		Expect(balanceClaims.Amount.Uint64()).To(Equal(uint64(claimsAmount)))
 
 		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr0, initBalance)
-		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr1, delegationAmount)
 		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr1, initBalance)
 
 		claimsRecord1 = types.NewClaimsRecord(sdk.NewInt(claimValue))
@@ -93,41 +101,69 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, addr1)
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
-		balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+		balance := s.app.BankKeeper.GetBalance(s.ctx, addr0, claimsDenom)
 		Expect(balance.Amount.Uint64()).To(Equal(uint64(initBalanceAmount)))
+
+		balance = s.app.BankKeeper.GetBalance(s.ctx, addr0, stakeDenom)
+		Expect(balance.Amount.Uint64()).To(Equal(uint64(delegationValue)))
+
+		balance = s.app.BankKeeper.GetBalance(s.ctx, addr0, evmtypes.DefaultEVMDenom)
+		Expect(balance.Amount.Uint64()).To(Equal(uint64(initEvmBalanceAmount)))
+
+		balance = s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
+		Expect(balance.Amount.Uint64()).To(Equal(uint64(initBalanceAmount)))
+
+		poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
+		Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(0)))
 
 		s.Commit()
 	})
 
-	Context("Claim amount claimed before decay duration  ", func() {
+	Context("Claiming before decay duration", func() {
 
-		It("Successfully claim action ActionDelegate", func() {
-			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+		It("Claimed action ActionDelegate successfully", func() {
+			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
 
 			delegate(priv1, 1)
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
 			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionValue + int64(prebalance.Amount.Uint64()) - 1)))
 		})
 
-		// It("Successfully claim action ActionVote", func() {
-		// 	govProposal(priv0)
+		It("Claim action ActionEVM successfully", func() {
+			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
 
-		// 	prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+			sendEthToSelf(priv1)
 
-		// 	govVote(priv1, 1)
-
-		// 	balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
-		// 	Expect(balance.Amount.Uint64()).To(Equal(uint64(actionValue + int64(prebalance.Amount.Uint64()))))
-		// })
-
-		It("Successfully claim action ActionEVM", func() {
-			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
-
-			performEthTx(priv1)
-
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
 			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionValue + int64(prebalance.Amount.Uint64()))))
+		})
+
+		It("Claimed action ActionDelegate and clawed back unclaimed", func() {
+			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
+
+			delegate(priv1, 1)
+
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
+			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionValue + int64(prebalance.Amount.Uint64()) - 1)))
+
+			duration := time.Until(params.AirdropEndTime()) + 10
+			s.CommitAfter(duration)
+
+			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, claimsDenom)
+			Expect(finalBalance.Amount.Uint64()).To(Equal(balance.Amount.Uint64()))
+
+			// The unclaimed amount goes to the community pool
+			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
+			Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(claimsAmount - actionValue)))
+		})
+
+		It("Claimed action ActionVote successfully", func() {
+			govProposal(priv0)
+			// prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+			// govVote(priv1, 1)
+			// balance := s.app.BankKeeper.GetBalance(s.ctx, addr1, params.GetClaimsDenom())
+			// Expect(balance.Amount.Uint64()).To(Equal(uint64(actionValue + int64(prebalance.Amount.Uint64()))))
 		})
 
 		// It("Successfully claim action ActionIBCTransfer", func() {
@@ -141,14 +177,10 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 	})
 
 	Context("Check amount claimed at 1/2 decay duration  ", func() {
-		// cliffDuration := time.Duration(cliffLength)
-		// s.CommitAfter(cliffDuration * time.Second)
 
 	})
 
 	Context("Check amount clawed back after decay duration  ", func() {
-		// check community pool
-		// balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 	})
 })
 
@@ -163,31 +195,15 @@ func delegate(priv *ethsecp256k1.PrivKey, amount int64) {
 	deliverTx(priv, delegateMsg)
 }
 
-// type CustomProposal struct {
-// 	govtypes.TextProposal
-// }
-
-// func (m CustomProposal) GetDescription() string { return m.Description }
-// func (m CustomProposal) GetTitle() string       { return m.Title }
-// func (m CustomProposal) ProposalRoute() string  { return "gov" }
-// func (m CustomProposal) ProposalType() string   { return "Text" }
-// func (m CustomProposal) ValidateBasic() error   { return nil }
-// func (m CustomProposal) String() string         { return m.Title + m.Description }
-
 func govProposal(priv *ethsecp256k1.PrivKey) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	// proposal := govtypes.TextProposal{"Title", "Description"}
-	// content := CustomProposal{TextProposal: proposal}
-	// banktypes.Metadata
-	// tx := NewRegisterCoinProposal(tc.title, tc.description, tc.metadata)
-
+	contractAddress := deployContract(priv)
 	content := incentivestypes.NewRegisterIncentiveProposal(
 		"test",
 		"description",
-		tests.GenerateAddress().String(),
-		sdk.DecCoins{sdk.NewDecCoinFromDec(types.DefaultClaimsDenom, sdk.NewDecWithPrec(0, 2))},
-		10,
+		contractAddress.String(),
+		sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+		1,
 	)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(1000)))
@@ -205,16 +221,46 @@ func govVote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
 	deliverTx(priv, voteMsg)
 }
 
-func performEthTx(priv *ethsecp256k1.PrivKey) {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	addr := sdk.AccAddress(priv.PubKey().Address().Bytes())
+func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
 	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(addr.Bytes())
+	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
 	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
+	performEthTx(priv, msgEthereumTx)
+}
 
+func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
+	chainID := s.app.EvmKeeper.ChainID()
+	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
+	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+	input := common.Hex2Bytes("0x600b61000e600039600b6000f30061222260005260206000f3")
+
+	msgEthereumTx := evmtypes.NewTxContract(chainID, nonce, nil, 53000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), input, &ethtypes.AccessList{})
+	msgEthereumTx.From = from.String()
+
+	performEthTx(priv, msgEthereumTx)
+
+	// err := msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
+	// s.Require().NoError(err)
+
+	// ctx := sdk.WrapSDKContext(s.ctx)
+	// rsp, err := s.app.EvmKeeper.EthereumTx(ctx, msgEthereumTx)
+	// s.Require().NoError(err)
+	// s.Require().Empty(rsp.VmError)
+
+	s.CommitAfter(time.Minute)
+
+	contractAddress := crypto.CreateAddress(from, nonce)
+	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
+	s.Require().NotEmpty(acc)
+	s.Require().True(acc.IsContract())
+	return contractAddress
+}
+
+func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
 	s.Require().NoError(err)
 
@@ -242,7 +288,6 @@ func performEthTx(priv *ethsecp256k1.PrivKey) {
 
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
-	fmt.Println("---res---", res.GetLog())
 	Expect(res.IsOK()).To(Equal(true))
 }
 
