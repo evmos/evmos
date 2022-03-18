@@ -429,7 +429,6 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 		DurationOfDecay:    time.Hour,
 		ClaimsDenom:        types.DefaultClaimsDenom,
 	}
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 	testCases := []struct {
 		name string
@@ -450,9 +449,13 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
-				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
-				params.DurationUntilDecay = 30 * time.Minute
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				params := types.Params{
+					EnableClaims:       true,
+					AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+					DurationUntilDecay: 30 * time.Minute,
+					DurationOfDecay:    time.Hour,
+					ClaimsDenom:        types.DefaultClaimsDenom,
+				}
 
 				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
 				suite.Require().NoError(err)
@@ -464,11 +467,11 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				suite.Require().Equal(expectedRecord, mergedRecord)
 
-				initialCommunityPoolCoins = initialCommunityPoolCoins.Add(sdk.NewDecCoin(params.ClaimsDenom, sdk.NewInt(25)))
+				initialCommunityPoolCoins = initialCommunityPoolCoins.Add(sdk.NewDecCoin(params.ClaimsDenom, sdk.NewInt(50)))
 				funds := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
 				suite.Require().Equal(initialCommunityPoolCoins.String(), funds.String())
 
-				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(25)))
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(50)))
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
 				suite.Require().Equal(expBalance.String(), balance.String())
 			},
@@ -612,8 +615,13 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
 				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
 
-				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
-				params.DurationUntilDecay = 30 * time.Minute
+				params := types.Params{
+					EnableClaims:       true,
+					AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+					DurationUntilDecay: 30 * time.Minute,
+					DurationOfDecay:    time.Hour,
+					ClaimsDenom:        types.DefaultClaimsDenom,
+				}
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(50))}
@@ -631,6 +639,8 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+
+			suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 			tc.test()
 		})
