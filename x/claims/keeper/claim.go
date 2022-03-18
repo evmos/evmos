@@ -115,7 +115,7 @@ func (k Keeper) ClaimCoinsForAction(
 		return sdk.ZeroInt(), err
 	}
 
-	claimsRecord.ClaimAction(action)
+	claimsRecord.MarkClaimed(action)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -141,9 +141,13 @@ func (k Keeper) ClaimCoinsForAction(
 	return claimableAmount, nil
 }
 
-// MergeClaimsRecords merges two claim records from the
-// sender and recipient of the IBC transfer while claiming the
-// amount for the all the sender actions on behalf of the recipient.
+// MergeClaimsRecords merges two independent claim records (sender and recipient)
+// into a new instance by adding the initial the initial claimable amount from
+// both records. This method additionally:
+// - Always claims the IBC action, assuming both record haven't claimed it.
+// - Marks an action as claimed for the new instance by performing an XOR operation between
+// the 2 provided records:
+// `merged completed action = sender completed action XOR recipient completed action`
 func (k Keeper) MergeClaimsRecords(
 	ctx sdk.Context,
 	recipient sdk.AccAddress,
@@ -166,18 +170,19 @@ func (k Keeper) MergeClaimsRecords(
 
 		switch {
 		case senderCompleted && recipientCompleted:
-			// both sender and recipient completed the action. No-op
-			mergedRecord.ClaimAction(action)
+			// Both sender and recipient completed the action.
+			// Only mark the action as completed
+			mergedRecord.MarkClaimed(action)
 		case recipientCompleted && !senderCompleted:
 			// claim action for sender since the recipient completed it
 			amt := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amt)
-			mergedRecord.ClaimAction(action)
+			mergedRecord.MarkClaimed(action)
 		case !recipientCompleted && senderCompleted:
 			// claim action for recipient since the sender completed it
 			amt := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amt)
-			mergedRecord.ClaimAction(action)
+			mergedRecord.MarkClaimed(action)
 		case !senderCompleted && !recipientCompleted:
 			// Neither sender or recipient completed the action.
 			if action != types.ActionIBCTransfer {
@@ -189,7 +194,7 @@ func (k Keeper) MergeClaimsRecords(
 			amtIBCRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			amtIBCSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimableAmt = claimableAmt.Add(amtIBCRecipient).Add(amtIBCSender)
-			mergedRecord.ClaimAction(action)
+			mergedRecord.MarkClaimed(action)
 		}
 	}
 

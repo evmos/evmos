@@ -14,7 +14,7 @@ func (suite *KeeperTestSuite) TestsClaimsRecords() {
 
 	cr1 := types.NewClaimsRecord(sdk.NewInt(1000))
 	cr2 := types.NewClaimsRecord(sdk.NewInt(200))
-	cr2.ClaimAction(types.ActionDelegate)
+	cr2.MarkClaimed(types.ActionDelegate)
 
 	expRecords := []types.ClaimsRecordAddress{
 		{

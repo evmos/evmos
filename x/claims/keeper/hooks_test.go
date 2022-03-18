@@ -48,7 +48,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 				}
 
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
-				claimRecord.ClaimAction(types.ActionVote)
+				claimRecord.MarkClaimed(types.ActionVote)
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
@@ -180,7 +180,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				}
 
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
-				claimRecord.ClaimAction(types.ActionDelegate)
+				claimRecord.MarkClaimed(types.ActionDelegate)
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -311,7 +311,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				}
 
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
-				claimRecord.ClaimAction(types.ActionEVM)
+				claimRecord.MarkClaimed(types.ActionEVM)
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)

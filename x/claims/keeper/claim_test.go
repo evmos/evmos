@@ -384,7 +384,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				// only IBC action should be claimed
 				expectedRecord := types.NewClaimsRecord(sdk.NewInt(400))
-				expectedRecord.ClaimAction(types.ActionIBCTransfer)
+				expectedRecord.MarkClaimed(types.ActionIBCTransfer)
 				suite.Require().Equal(expectedRecord, mergedRecord)
 
 				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(100)))
@@ -397,7 +397,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 			"case 3: sender completed action",
 			func() {
 				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
-				senderClaimsRecord.ClaimAction(types.ActionVote)
+				senderClaimsRecord.MarkClaimed(types.ActionVote)
 				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
@@ -413,8 +413,8 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 				// Vote and IBC actions should be claimed
 				expectedRecord := types.NewClaimsRecord(sdk.NewInt(400))
-				expectedRecord.ClaimAction(types.ActionVote)
-				expectedRecord.ClaimAction(types.ActionIBCTransfer)
+				expectedRecord.MarkClaimed(types.ActionVote)
+				expectedRecord.MarkClaimed(types.ActionIBCTransfer)
 
 				suite.Require().Equal(expectedRecord, mergedRecord)
 
