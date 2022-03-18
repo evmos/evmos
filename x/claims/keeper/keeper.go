@@ -65,13 +65,13 @@ func (k Keeper) GetModuleAccountAccount(ctx sdk.Context) authtypes.ModuleAccount
 }
 
 // GetModuleAccountAddress gets the airdrop coin balance of module account
-func (k Keeper) GetModuleAccountAddress(ctx sdk.Context) sdk.AccAddress {
+func (k Keeper) GetModuleAccountAddress() sdk.AccAddress {
 	return k.accountKeeper.GetModuleAddress(types.ModuleName)
 }
 
 // GetModuleAccountBalances gets the balances of module account that escrows the
 // airdrop tokens
 func (k Keeper) GetModuleAccountBalances(ctx sdk.Context) sdk.Coins {
-	moduleAccAddr := k.GetModuleAccountAddress(ctx)
+	moduleAccAddr := k.GetModuleAccountAddress()
 	return k.bankKeeper.GetAllBalances(ctx, moduleAccAddr)
 }

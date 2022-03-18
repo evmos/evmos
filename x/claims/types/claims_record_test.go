@@ -92,7 +92,7 @@ func TestClaimAction(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc.claimsRecord.ClaimAction(tc.action)
+		tc.claimsRecord.MarkClaimed(tc.action)
 		require.Equal(t, tc.expClaimed, tc.claimsRecord.HasClaimedAction(tc.action))
 	}
 }

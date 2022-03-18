@@ -65,7 +65,7 @@ func (k Keeper) IterateClaimsRecords(ctx sdk.Context, handlerFn func(addr sdk.Ac
 	}
 }
 
-// GetClaimsRecords get claimables for genesis export
+// GetClaimsRecords get claim record instances for genesis export
 func (k Keeper) GetClaimsRecords(ctx sdk.Context) []types.ClaimsRecordAddress {
 	claimsRecords := []types.ClaimsRecordAddress{}
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, cr types.ClaimsRecord) (stop bool) {
