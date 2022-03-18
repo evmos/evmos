@@ -118,8 +118,8 @@ func (k Keeper) ClaimCoinsForAction(
 		return sdk.ZeroInt(), err
 	}
 
-	// fund community pool if remainder is positive
-	if remainderAmount.IsPositive() {
+	// fund community pool if remainder is not 0
+	if !remainderAmount.IsZero() {
 		escrowAddr := k.GetModuleAccountAddress()
 
 		if err := k.distrKeeper.FundCommunityPool(ctx, remainderCoins, escrowAddr); err != nil {
@@ -234,7 +234,7 @@ func (k Keeper) MergeClaimsRecords(
 	escrowAddr := k.GetModuleAccountAddress()
 
 	if err := k.distrKeeper.FundCommunityPool(ctx, remainderCoins, escrowAddr); err != nil {
-		return mergedRecord, err
+		return types.ClaimsRecord{}, err
 	}
 
 	return mergedRecord, nil
