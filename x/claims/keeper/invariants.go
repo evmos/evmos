@@ -39,7 +39,7 @@ func (k Keeper) ClaimsInvariant() sdk.Invariant {
 			return false
 		})
 
-		moduleAccAddr := k.GetModuleAccountAddress(ctx)
+		moduleAccAddr := k.GetModuleAccountAddress()
 		balance := k.bankKeeper.GetBalance(ctx, moduleAccAddr, params.ClaimsDenom)
 
 		isInvariantBroken := !expectedUnclaimed.Equal(balance.Amount.ToDec())

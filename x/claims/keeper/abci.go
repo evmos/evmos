@@ -57,7 +57,7 @@ func (k Keeper) EndAirdrop(ctx sdk.Context, params types.Params) error {
 func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	moduleAccAddr := k.GetModuleAccountAddress(ctx)
+	moduleAccAddr := k.GetModuleAccountAddress()
 	balances := k.bankKeeper.GetAllBalances(ctx, moduleAccAddr)
 
 	if balances.IsZero() {
