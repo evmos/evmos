@@ -155,7 +155,7 @@ func (k Keeper) MergeClaimsRecords(
 	recipientClaimsRecord types.ClaimsRecord,
 	params types.Params,
 ) (mergedRecord types.ClaimsRecord, err error) {
-	claimableAmt := sdk.ZeroInt()
+	claimedAmt := sdk.ZeroInt()
 
 	// new total is the sum of the sender and recipient claims records amounts
 	totalClaimableAmt := senderClaimsRecord.InitialClaimableAmount.Add(recipientClaimsRecord.InitialClaimableAmount)
@@ -176,12 +176,12 @@ func (k Keeper) MergeClaimsRecords(
 		case recipientCompleted && !senderCompleted:
 			// claim action for sender since the recipient completed it
 			amt := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
-			claimableAmt = claimableAmt.Add(amt)
+			claimedAmt = claimedAmt.Add(amt)
 			mergedRecord.MarkClaimed(action)
 		case !recipientCompleted && senderCompleted:
 			// claim action for recipient since the sender completed it
 			amt := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
-			claimableAmt = claimableAmt.Add(amt)
+			claimedAmt = claimedAmt.Add(amt)
 			mergedRecord.MarkClaimed(action)
 		case !senderCompleted && !recipientCompleted:
 			// Neither sender or recipient completed the action.
@@ -193,17 +193,17 @@ func (k Keeper) MergeClaimsRecords(
 			// claim IBC action for both sender and recipient
 			amtIBCRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			amtIBCSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
-			claimableAmt = claimableAmt.Add(amtIBCRecipient).Add(amtIBCSender)
+			claimedAmt = claimedAmt.Add(amtIBCRecipient).Add(amtIBCSender)
 			mergedRecord.MarkClaimed(action)
 		}
 	}
 
 	// safety check to prevent error while sending coins from the module escrow balance to the recipient
-	if claimableAmt.IsZero() {
+	if claimedAmt.IsZero() {
 		return mergedRecord, nil
 	}
 
-	claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: claimableAmt}}
+	claimedCoins := sdk.Coins{{Denom: params.ClaimsDenom, Amount: claimedAmt}}
 
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, claimedCoins); err != nil {
 		return types.ClaimsRecord{}, err
