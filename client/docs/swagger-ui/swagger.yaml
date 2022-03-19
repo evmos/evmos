@@ -6,7 +6,7 @@ info:
 paths:
   /evmos/claims/v1/claims_records:
     get:
-      summary: ClaimsRecords returns all the claims record
+      summary: ClaimsRecords returns all claims records
       operationId: ClaimsRecords
       responses:
         '200':
@@ -30,9 +30,10 @@ paths:
                       items:
                         type: boolean
                       title: slice of the available actions completed
-                  title: >-
-                    ClaimsRecordAddress is the metadata of claims data per
-                    address
+                  description: >-
+                    ClaimsRecordAddress is the claims metadata per address that
+                    is used at Genesis.
+                title: claims defines all claims records
               pagination:
                 description: pagination defines the pagination in the response.
                 type: object
@@ -181,11 +182,11 @@ paths:
                       type: string
                       title: claimable token amount for the action. Zero if completed
                   description: >-
-                    Claim marks defines the action, completed flag and the
-                    remaining claimable
+                    Claim defines the action, completed flag and the remaining
+                    claimable amount
 
-                    amount for a given user. This is only used during client
-                    queries.
+                    for a given user. This is only used during client queries.
+                title: the claims of the user
             description: >-
               QueryClaimsRecordResponse is the response type for the
               Query/ClaimsRecord RPC
@@ -215,6 +216,7 @@ paths:
                       format: byte
       parameters:
         - name: address
+          description: address defines the user to query claims record for
           in: path
           required: true
           type: string
@@ -256,9 +258,9 @@ paths:
                       type: string
                     description: >-
                       list of authorized channel identifiers that can perform
-                      address attestations
+                      address
 
-                      via IBC.
+                      attestations via IBC.
                   evm_channels:
                     type: array
                     items:
@@ -318,7 +320,7 @@ paths:
                     method
 
                     signatures required by gogoproto.
-                title: coins define the unclaimed coins
+                title: coins defines the unclaimed coins
             description: >-
               QueryTotalUnclaimedResponse is the response type for the
               Query/TotalUnclaimed
@@ -27041,9 +27043,11 @@ definitions:
       claimable_amount:
         type: string
         title: claimable token amount for the action. Zero if completed
-    description: |-
-      Claim marks defines the action, completed flag and the remaining claimable
-      amount for a given user. This is only used during client queries.
+    description: >-
+      Claim defines the action, completed flag and the remaining claimable
+      amount
+
+      for a given user. This is only used during client queries.
   evmos.claims.v1.ClaimsRecordAddress:
     type: object
     properties:
@@ -27058,7 +27062,9 @@ definitions:
         items:
           type: boolean
         title: slice of the available actions completed
-    title: ClaimsRecordAddress is the metadata of claims data per address
+    description: >-
+      ClaimsRecordAddress is the claims metadata per address that is used at
+      Genesis.
   evmos.claims.v1.Params:
     type: object
     properties:
@@ -27082,11 +27088,9 @@ definitions:
         type: array
         items:
           type: string
-        description: >-
+        description: |-
           list of authorized channel identifiers that can perform address
-          attestations
-
-          via IBC.
+          attestations via IBC.
       evm_channels:
         type: array
         items:
@@ -27130,10 +27134,11 @@ definitions:
               type: string
               title: claimable token amount for the action. Zero if completed
           description: >-
-            Claim marks defines the action, completed flag and the remaining
-            claimable
+            Claim defines the action, completed flag and the remaining claimable
+            amount
 
-            amount for a given user. This is only used during client queries.
+            for a given user. This is only used during client queries.
+        title: the claims of the user
     description: >-
       QueryClaimsRecordResponse is the response type for the Query/ClaimsRecord
       RPC
@@ -27158,7 +27163,10 @@ definitions:
               items:
                 type: boolean
               title: slice of the available actions completed
-          title: ClaimsRecordAddress is the metadata of claims data per address
+          description: >-
+            ClaimsRecordAddress is the claims metadata per address that is used
+            at Genesis.
+        title: claims defines all claims records
       pagination:
         description: pagination defines the pagination in the response.
         type: object
@@ -27209,11 +27217,9 @@ definitions:
             type: array
             items:
               type: string
-            description: >-
+            description: |-
               list of authorized channel identifiers that can perform address
-              attestations
-
-              via IBC.
+              attestations via IBC.
           evm_channels:
             type: array
             items:
@@ -27237,7 +27243,7 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
-        title: coins define the unclaimed coins
+        title: coins defines the unclaimed coins
     description: >-
       QueryTotalUnclaimedResponse is the response type for the
       Query/TotalUnclaimed

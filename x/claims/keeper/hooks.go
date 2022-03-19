@@ -48,7 +48,6 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr 
 			"address", voterAddr.String(),
 			"error", err.Error(),
 		)
-		return
 	}
 }
 
@@ -67,7 +66,6 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 			"address", delAddr.String(),
 			"error", err.Error(),
 		)
-		return
 	}
 }
 
@@ -87,7 +85,6 @@ func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to
 			"address", fromAddr.String(),
 			"error", err.Error(),
 		)
-		return nil
 	}
 
 	return nil
