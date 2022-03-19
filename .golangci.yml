@@ -267,7 +267,7 @@ linters-settings:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#line-length-limit
     - name: line-length-limit
       severity: warning
-      disabled: false
+      disabled: true
       arguments: [120]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#max-public-structs
     - name: max-public-structs
@@ -388,12 +388,12 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-parameter
     - name: unused-parameter
-      severity: error
-      disabled: false
+      severity: warning
+      disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-receiver
     - name: unused-receiver
-      severity: error
-      disabled: false
+      severity: warning
+      disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#useless-break
     - name: useless-break
       severity: error

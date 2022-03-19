@@ -93,7 +93,7 @@ func validateIBC(metadata banktypes.Metadata) error {
 		return nil
 	}
 
-	if len(denomSplit) != 2 || denomSplit[0] != ibctransfertypes.DenomPrefix {
+	if denomSplit[0] != ibctransfertypes.DenomPrefix {
 		// NOTE: should be unaccessible (covered on ValidateIBCDenom)
 		return fmt.Errorf("invalid metadata. %s denomination should be prefixed with the format 'ibc/", metadata.Base)
 	}
@@ -114,7 +114,7 @@ func validateIBC(metadata banktypes.Metadata) error {
 func ValidateErc20Denom(denom string) error {
 	denomSplit := strings.SplitN(denom, "/", 2)
 
-	if len(denomSplit) != 2 || denomSplit[0] != ModuleName {
+	if denomSplit[0] != ModuleName {
 		return fmt.Errorf("invalid denom. %s denomination should be prefixed with the format 'erc20/", denom)
 	}
 

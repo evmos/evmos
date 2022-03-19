@@ -37,10 +37,10 @@ func NewMsgCreateClawbackVestingAccount(
 }
 
 // Route returns the name of the module
-func (msg MsgCreateClawbackVestingAccount) Route() string { return RouterKey }
+func (MsgCreateClawbackVestingAccount) Route() string { return RouterKey }
 
 // Type returns the the action
-func (msg MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateClawbackVestingAccount }
+func (MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateClawbackVestingAccount }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
@@ -55,7 +55,10 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	lockupCoins := sdk.NewCoins()
 	for i, period := range msg.LockupPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidRequest,
+				"invalid period length of %d in period %d, length must be greater than 0", period.Length, i,
+			)
 		}
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
@@ -63,7 +66,10 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	vestingCoins := sdk.NewCoins()
 	for i, period := range msg.VestingPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidRequest,
+				"invalid period length of %d in period %d, length must be greater than 0", period.Length, i,
+			)
 		}
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
@@ -72,7 +78,9 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
 		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidRequest, "vesting and lockup schedules must have same total coins",
+		)
 	}
 
 	return nil
@@ -107,10 +115,10 @@ func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 }
 
 // Route returns the message route for a MsgClawback.
-func (msg MsgClawback) Route() string { return RouterKey }
+func (MsgClawback) Route() string { return RouterKey }
 
 // Type returns the message type for a MsgClawback.
-func (msg MsgClawback) Type() string { return TypeMsgClawback }
+func (MsgClawback) Type() string { return TypeMsgClawback }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgClawback) ValidateBasic() error {

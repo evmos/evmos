@@ -34,11 +34,7 @@ func (tp TokenPair) Validate() error {
 		return err
 	}
 
-	if err := ethermint.ValidateAddress(tp.Erc20Address); err != nil {
-		return err
-	}
-
-	return nil
+	return ethermint.ValidateAddress(tp.Erc20Address)
 }
 
 // IsNativeCoin returns true if the owner of the ERC20 contract is the

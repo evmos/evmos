@@ -168,11 +168,12 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
 	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
-	// Remove all unvested periods from the schdule
+	// Remove all unvested periods from the schedule
 	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
 	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
 
-	newVestingEnd := va.GetStartTime()
+	startTime := va.GetStartTime()
+	newVestingEnd := startTime
 	for _, period := range newVestingPeriods {
 		newVestingEnd += period.Length
 	}
@@ -186,13 +187,20 @@ func (va ClawbackVestingAccount) ComputeClawback(
 			Amount: totalVested,
 		},
 	}
-	_, newLockingEnd, newLockupPeriods := ConjunctPeriods(va.GetStartTime(), va.GetStartTime(), va.LockupPeriods, capPeriods)
+
+	_, newLockingEnd, newLockupPeriods := ConjunctPeriods(
+		startTime,
+		startTime,
+		va.LockupPeriods,
+		capPeriods,
+	)
 
 	// Now construct the new account state
-	va.OriginalVesting = totalVested
-	va.EndTime = Max64(newVestingEnd, newLockingEnd)
-	va.LockupPeriods = newLockupPeriods
-	va.VestingPeriods = newVestingPeriods
+
+	va.OriginalVesting = totalVested                 // nolint: revive
+	va.EndTime = Max64(newVestingEnd, newLockingEnd) // nolint: revive
+	va.LockupPeriods = newLockupPeriods              // nolint: revive
+	va.VestingPeriods = newVestingPeriods            // nolint: revive
 
 	return va, totalUnvested
 }

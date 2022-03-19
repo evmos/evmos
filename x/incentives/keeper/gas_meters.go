@@ -64,7 +64,7 @@ func (k Keeper) IterateIncentiveGasMeters(
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		contract, userAddress := types.SplitGasMeterKey(iterator.Key())
+		_, userAddress := types.SplitGasMeterKey(iterator.Key())
 		gas := sdk.BigEndianToUint64(iterator.Value())
 		gm := types.GasMeter{
 			Contract:      contract.String(),

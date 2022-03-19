@@ -5,22 +5,20 @@ import (
 	"strings"
 )
 
+// ValidateEpochIdentifierInterface checks if the identifier is blank
 func ValidateEpochIdentifierInterface(i interface{}) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	if err := ValidateEpochIdentifierString(v); err != nil {
-		return err
-	}
 
-	return nil
+	return ValidateEpochIdentifierString(v)
 }
 
+// ValidateEpochIdentifierString checks if the identifier is blank
 func ValidateEpochIdentifierString(s string) error {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return fmt.Errorf("blank epoch identifier: %s", s)
+	if strings.TrimSpace(s) == "" {
+		return fmt.Errorf("blank epoch identifier")
 	}
 	return nil
 }

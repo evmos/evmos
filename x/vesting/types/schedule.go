@@ -76,15 +76,15 @@ func ReadPastPeriodCount(
 func DisjunctPeriods(
 	startP, startQ int64,
 	periodsP, periodsQ []sdkvesting.Period,
-) (int64, int64, []sdkvesting.Period) {
+) (startTime, endTime int64, mergedPeriods []sdkvesting.Period) {
 	timeP := startP // time of last merged p event, next p event is relative to this time
 	timeQ := startQ // time of last merged q event, next q event is relative to this time
 	iP := 0         // p indexes before this have been merged
 	iQ := 0         // q indexes before this have been merged
 	lenP := len(periodsP)
 	lenQ := len(periodsQ)
-	startTime := Min64(startP, startQ) // we pick the earlier time
-	time := startTime                  // time of last merged event, or the start time
+	startTime = Min64(startP, startQ) // we pick the earlier time
+	time := startTime                 // time of last merged event, or the start time
 	merged := []sdkvesting.Period{}
 
 	// emit adds an output period and updates the last event time
@@ -281,5 +281,5 @@ func AlignSchedules(
 		endQ += period.Length
 	}
 	endTime = Max64(endP, endQ)
-	return
+	return startTime, endTime
 }

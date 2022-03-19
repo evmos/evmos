@@ -14,5 +14,7 @@ const (
 
 // errors
 var (
-	ErrKeyTypeNotSupported = sdkerrors.Register(RootCodespace, codeKeyTypeNotSupported, "key type 'secp256k1' not supported")
+	ErrKeyTypeNotSupported = sdkerrors.Register(
+		RootCodespace, codeKeyTypeNotSupported, "key type 'secp256k1' not supported",
+	)
 )

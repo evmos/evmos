@@ -67,7 +67,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 	// The vesting and lockup schedules must describe the same total amount.
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if !(vestingCoins.IsAllLTE(lockupCoins) && lockupCoins.IsAllLTE(vestingCoins)) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest,
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidRequest,
 			"lockup and vesting amounts must be equal",
 		)
 	}
@@ -83,14 +84,27 @@ func (k Keeper) CreateClawbackVestingAccount(
 		vestingAcc, isClawback = acc.(*types.ClawbackVestingAccount)
 		switch {
 		case !msg.Merge && isClawback:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists; consider using --merge", msg.ToAddress)
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidRequest,
+				"account %s already exists; consider using --merge", msg.ToAddress,
+			)
 		case !msg.Merge && !isClawback:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidRequest,
+				"account %s already exists", msg.ToAddress,
+			)
 		case msg.Merge && !isClawback:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "account %s must be a clawback vesting account", msg.ToAddress)
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrNotSupported,
+				"account %s must be a clawback vesting account", msg.ToAddress,
+			)
 		case msg.FromAddress != vestingAcc.FunderAddress:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, vestingAcc.FunderAddress)
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidRequest,
+				"account %s can only accept grants from account %s", msg.ToAddress, vestingAcc.FunderAddress,
+			)
 		}
+
 		k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 		ak.SetAccount(ctx, vestingAcc)
 
@@ -171,7 +185,7 @@ func (k Keeper) Clawback(
 		)
 	}
 
-	// Chech if account exists
+	// Check if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)
@@ -180,12 +194,17 @@ func (k Keeper) Clawback(
 	// Check if account has a clawback account
 	va, ok := acc.(*types.ClawbackVestingAccount)
 	if !ok {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress,
+		)
 	}
 
 	// Check if account funder is same as in msg
 	if va.FunderAddress != msg.FunderAddress {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidRequest,
+			"clawback can only be requested by original funder %s", va.FunderAddress,
+		)
 	}
 
 	// Perform clawback transfer
@@ -223,12 +242,23 @@ func (k Keeper) addGrant(
 	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
 
 	// modify schedules for the new grant
-	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime, va.LockupPeriods, grantLockupPeriods)
-	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime,
-		va.GetVestingPeriods(), grantVestingPeriods)
+	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(
+		va.GetStartTime(),
+		grantStartTime,
+		va.LockupPeriods,
+		grantLockupPeriods,
+	)
+	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(
+		va.GetStartTime(),
+		grantStartTime,
+		va.GetVestingPeriods(),
+		grantVestingPeriods,
+	)
+
 	if newLockupStart != newVestingStart {
 		panic("bad start time calculation")
 	}
+
 	va.StartTime = time.Unix(newLockupStart, 0)
 	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
 	va.LockupPeriods = newLockupPeriods
@@ -253,11 +283,13 @@ func (k Keeper) transferClawback(
 	if toClawBack.IsZero() {
 		return nil
 	}
+
 	k.accountKeeper.SetAccount(ctx, &updatedAcc)
 
 	// Transfer clawback
 	addr := updatedAcc.GetAddress()
 	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
 	transferAmt := types.CoinsMin(toClawBack, spendable)
+
 	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
 }
