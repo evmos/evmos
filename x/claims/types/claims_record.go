@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewClaimsRecord creates a new claim record instance
+// NewClaimsRecord creates a new claims record instance
 func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {
 	return ClaimsRecord{
 		InitialClaimableAmount: initialClaimableAmt,
@@ -30,9 +30,9 @@ func (cr ClaimsRecord) Validate() error {
 	return nil
 }
 
-// ClaimAction marks the given action as completed. It performs a no-op if the
+// MarkClaimed marks the given action as completed (i.e claimed). It performs a no-op if the
 // action is invalid or if the ActionsCompleted slice has an invalid length.
-func (cr *ClaimsRecord) ClaimAction(action Action) {
+func (cr *ClaimsRecord) MarkClaimed(action Action) {
 	switch {
 	case len(cr.ActionsCompleted) != len(Action_value)-1:
 		return
@@ -57,8 +57,8 @@ func (cr ClaimsRecord) HasClaimedAction(action Action) bool {
 	}
 }
 
-// HasClaimedAny returns true if the user has claimed at least one reward from the
-// available actions
+// HasClaimedAny returns true if the user has claimed at least one reward from
+// the available actions
 func (cr ClaimsRecord) HasClaimedAny() bool {
 	for _, completed := range cr.ActionsCompleted {
 		if completed {
