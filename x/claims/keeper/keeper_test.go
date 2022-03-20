@@ -25,7 +25,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
-
+	evm "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/v3/app"
 	"github.com/tharsis/evmos/v3/x/claims/types"
 )
@@ -35,12 +35,13 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app         *app.Evmos
-	queryClient types.QueryClient
-	address     common.Address
-	signer      keyring.Signer
-	ethSigner   ethtypes.Signer
-	validator   stakingtypes.Validator
+	app            *app.Evmos
+	queryClient    types.QueryClient
+	queryClientEvm evm.QueryClient
+	address        common.Address
+	signer         keyring.Signer
+	ethSigner      ethtypes.Signer
+	validator      stakingtypes.Validator
 }
 
 var s *KeeperTestSuite
@@ -100,6 +101,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	types.RegisterQueryServer(queryHelper, suite.app.ClaimsKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
+	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
+	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime().UTC()
 	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
@@ -129,8 +134,10 @@ func (suite *KeeperTestSuite) Commit() {
 
 // Commit commits a block at a given time.
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()
+	suite.app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: header.Height})
+	_ = suite.app.Commit()
+
 	header.Height += 1
 	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
@@ -143,4 +150,8 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.ClaimsKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
+	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 }
