@@ -1,157 +1,165 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "title": "Evmos Chain - gRPC Gateway docs",
-      "description": "A REST interface for state queries and transactions",
-      "version": "1.0.0"
-    },
-    "apis": [
-      {
-        "url": "./tmp-swagger-gen/evmos/claims/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "ClaimsParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/evmos/epochs/v1/query.swagger.json"
-      },
-      {
-        "url": "./tmp-swagger-gen/evmos/erc20/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "ERC20Params"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/evmos/incentives/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "IncentivesParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/evmos/inflation/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "InflationParams",
-            "TotalSupply": "InflationTotalSupply"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/evmos/vesting/v1/query.swagger.json"
-      },
-      {
-        "url": "./tmp-swagger-gen/ethermint/evm/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "EvmParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/ethermint/feemarket/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "FeeMarketParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/ibc/applications/transfer/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "TransferParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/ibc/core/client/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "ClientParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/ibc/core/connection/v1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "ConnectionParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/ibc/core/channel/v1/query.swagger.json"
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/auth/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Account": "AuthAccount",
-            "Params": "AuthParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/authz/v1beta1/query.swagger.json"
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/bank/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Balance": "BankBalance",
-            "Params": "BankParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/distribution/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "DistributionParams",
-            "DelegatorValidators": "DistDelegatorValidators"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/feegrant/v1beta1/query.swagger.json"
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/evidence/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "EvidenceParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/gov/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "GovParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/slashing/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "SlashingParams"
-          }
-        }
-      },
-      {
-        "url": "./tmp-swagger-gen/cosmos/staking/v1beta1/query.swagger.json",
-        "operationIds": {
-          "rename": {
-            "Params": "StakingParams"
-          }
+  "swagger": "2.0",
+  "info": {
+    "title": "Evmos Chain - gRPC Gateway docs",
+    "description": "A REST interface for state queries and transactions",
+    "version": "1.0.0"
+  },
+  "apis": [
+    {
+      "url": "./tmp-swagger-gen/evmos/claims/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ClaimsParams"
         }
       }
-    ]
-  }
+    },
+    {
+      "url": "./tmp-swagger-gen/evmos/epochs/v1/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/evmos/erc20/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ERC20Params"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/evmos/incentives/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "IncentivesParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/evmos/inflation/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "InflationParams",
+          "TotalSupply": "InflationTotalSupply"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/evmos/vesting/v1/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/evmos/withdraw/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "WithdrawParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ethermint/evm/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "EvmParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ethermint/feemarket/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "FeeMarketParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ibc/applications/transfer/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "TransferParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ibc/core/client/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ClientParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ibc/core/connection/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ConnectionParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/ibc/core/channel/v1/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/auth/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Account": "AuthAccount",
+          "Params": "AuthParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/authz/v1beta1/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/bank/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Balance": "BankBalance",
+          "Params": "BankParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/distribution/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "DistributionParams",
+          "DelegatorValidators": "DistDelegatorValidators"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/feegrant/v1beta1/query.swagger.json"
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/evidence/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "EvidenceParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/gov/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "GovParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/slashing/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "SlashingParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/staking/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "StakingParams"
+        }
+      }
+    }
+  ]
+}
