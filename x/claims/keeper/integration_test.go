@@ -170,6 +170,16 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionV + int64(prebalance.Amount.Uint64()))))
 			totalClaimed += actionV
 		})
+
+		It("did not clawback to the community pool", func() {
+			// ensure community pool doesn't have the fund
+			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
+			Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(0)))
+
+			// ensure module account has the escrow fund minus what was claimed
+			balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, claimsDenom)
+			Expect(balanceClaims.Amount.Uint64()).To(Equal(uint64(totalClaimsAmount - totalClaimed)))
+		})
 	})
 
 	Context("claiming at 2/3 decay duration", func() {
