@@ -72,13 +72,14 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 	)
 
 	var (
-		priv0         *ethsecp256k1.PrivKey
-		privs         []*ethsecp256k1.PrivKey
-		addr0         sdk.AccAddress
-		claimsRecords []types.ClaimsRecord
-		params        types.Params
-		proposalId    uint64
-		totalClaimed  int64
+		priv0              *ethsecp256k1.PrivKey
+		privs              []*ethsecp256k1.PrivKey
+		addr0              sdk.AccAddress
+		claimsRecords      []types.ClaimsRecord
+		params             types.Params
+		proposalId         uint64
+		totalClaimed       int64
+		remainderUnclaimed int64
 	)
 
 	BeforeAll(func() {
@@ -184,9 +185,11 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 
 	Context("claiming at 2/3 decay duration", func() {
 		var actionV int64
+		var unclaimedV int64
 
 		BeforeAll(func() {
 			actionV = actionValue / 3
+			unclaimedV = actionValue - actionV
 			duration := params.DecayStartTime().Sub(s.ctx.BlockHeader().Time)
 			s.CommitAfter(duration)
 			duration = params.GetDurationOfDecay() * 2 / 3
@@ -205,6 +208,7 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionV + int64(prebalance.Amount.Uint64()) - 1)))
 			totalClaimed += actionV
+			remainderUnclaimed += unclaimedV
 		})
 
 		It("can claim ActionEVM", func() {
@@ -214,9 +218,11 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionV + int64(prebalance.Amount.Uint64()))))
 			totalClaimed += actionV
+			remainderUnclaimed += unclaimedV
 
 			sendEthToSelf(privs[2])
 			totalClaimed += actionV
+			remainderUnclaimed += unclaimedV
 		})
 
 		It("can claim ActionVote", func() {
@@ -226,6 +232,7 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, params.GetClaimsDenom())
 			Expect(balance.Amount.Uint64()).To(Equal(uint64(actionV + int64(prebalance.Amount.Uint64()))))
 			totalClaimed += actionV
+			remainderUnclaimed += unclaimedV
 		})
 
 		It("cannot claim ActionDelegate a second time", func() {
@@ -255,11 +262,11 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 		It("did not clawback to the community pool", func() {
 			// ensure community pool doesn't have the fund
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(0)))
+			Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(remainderUnclaimed)))
 
 			// ensure module account has the escrow fund minus what was claimed
 			balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, claimsDenom)
-			Expect(balanceClaims.Amount.Uint64()).To(Equal(uint64(totalClaimsAmount - totalClaimed)))
+			Expect(balanceClaims.Amount.Uint64()).To(Equal(uint64(totalClaimsAmount - totalClaimed - remainderUnclaimed)))
 		})
 	})
 
@@ -271,11 +278,11 @@ var _ = Describe("Check amount claimed depending on claim time", Ordered, func()
 
 			// ensure module account has the unclaimed amount before airdrop ends
 			moduleBalance := s.app.ClaimsKeeper.GetModuleAccountBalances(s.ctx)
-			Expect(moduleBalance.AmountOf(claimsDenom).Uint64()).To(Equal(uint64(totalClaimsAmount - totalClaimed)))
+			Expect(moduleBalance.AmountOf(claimsDenom).Uint64()).To(Equal(uint64(totalClaimsAmount - totalClaimed - remainderUnclaimed)))
 
 			// ensure community pool has 0 funds before airdrop ends
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(0)))
+			Expect(poolBalance.Amount.Uint64()).To(Equal(uint64(remainderUnclaimed)))
 
 			s.Commit()
 		})
