@@ -77,6 +77,56 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 			},
 			true,
 		},
+		{
+			"invariant NOT broken - single claim record",
+			func() {
+				addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+				cr := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, false},
+				}
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
+
+				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
+				// update the escrowed account balance to maintain the invariant
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+				suite.app.Commit()
+			},
+			false,
+		},
+		{
+			"invariant NOT broken - multiple claim records",
+			func() {
+				addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+				addr2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+				cr := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, false},
+				}
+				cr2 := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(200),
+					ActionsCompleted:       []bool{true, false, true, false},
+				}
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr2, cr2)
+
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr2))
+
+				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(200))}
+				// update the escrowed account balance to maintain the invariant
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+				suite.app.Commit()
+			},
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
