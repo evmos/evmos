@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
@@ -74,9 +75,14 @@ func (k Keeper) OnRecvPacket(
 	// get the recipient account
 	account := k.accountKeeper.GetAccount(ctx, recipient)
 
-	// withdraw is not supported for vesting accounts
+	// withdraw is not supported for vesting or module accounts
 	_, isVestingAcc := account.(vestexported.VestingAccount)
 	if isVestingAcc {
+		return ack
+	}
+
+	_, isModuleAccount := account.(authtypes.ModuleAccountI)
+	if isModuleAccount {
 		return ack
 	}
 

@@ -17,7 +17,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	numActions := sdk.NewInt(4)
 
 	// ensure claim module account is set on genesis
-	if acc := k.GetModuleAccountAccount(ctx); acc == nil {
+	if acc := k.GetModuleAccount(ctx); acc == nil {
 		panic("the claim module account has not been set")
 	}
 

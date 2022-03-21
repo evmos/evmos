@@ -28,7 +28,7 @@ type TransferKeeper struct {
 }
 
 func (m *TransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
-	args := m.Called(denomTraceHash)
+	args := m.Called(mock.Anything, denomTraceHash)
 	return args.Get(0).(transfertypes.DenomTrace), args.Bool(1)
 }
 
@@ -42,7 +42,7 @@ func (m *TransferKeeper) SendTransfer(
 	timeoutHeight clienttypes.Height,
 	timeoutTimestamp uint64,
 ) error {
-	args := m.Called(sourcePort, sourceChannel, token)
+	args := m.Called(mock.Anything, sourcePort, sourceChannel, token, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 
 	err := m.SendCoinsFromAccountToModule(ctx, sender, transfertypes.ModuleName, sdk.Coins{token})
 	if err != nil {
