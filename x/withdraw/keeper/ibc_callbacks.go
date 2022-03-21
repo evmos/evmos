@@ -120,7 +120,8 @@ func (k Keeper) OnRecvPacket(
 				return true // stop iteration
 			}
 
-			// NOTE: only withdraw the IBC tokens from the enabled destination channel
+			// NOTE: only withdraw the IBC tokens from the source chain connected through our
+			// authorized destination channel
 			if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
 				// continue
 				return false

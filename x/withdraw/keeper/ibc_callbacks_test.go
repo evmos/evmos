@@ -263,16 +263,16 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Mock the Transferkeeper to always return nil on SendTransfer(), as this
 			// method requires a successfull handshake with the counterparty chain.
 			// This, however, exceeds the requirements of the unit tests.
-			mockedKeeper := &TransferKeeper{
+			mockTransferKeeper := &MockTransferKeeper{
 				Keeper: suite.app.BankKeeper,
 			}
 
-			mockedKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
-			mockedKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+			mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
-			suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockedKeeper, suite.app.ClaimsKeeper)
+			suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with aevmos and ibc coin
 			coins := sdk.NewCoins(
