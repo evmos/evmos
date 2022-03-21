@@ -15,7 +15,7 @@ type Module struct {
 	app porttypes.IBCModule
 }
 
-// NewModule creates a new Module given the keeper and underlying application
+// NewModule creates a new IBC Module boilerplate given the underlying IBC app
 func NewModule(app porttypes.IBCModule) *Module {
 	return &Module{
 		app: app,
@@ -49,8 +49,7 @@ func (im Module) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (version string, err error) {
-	return im.app.OnChanOpenTry(ctx, order, connectionHops, portID, channelID,
-		chanCap, counterparty, counterpartyVersion)
+	return im.app.OnChanOpenTry(ctx, order, connectionHops, portID, channelID, chanCap, counterparty, counterpartyVersion)
 }
 
 // OnChanOpenAck implements the Module interface.
@@ -76,6 +75,7 @@ func (im Module) OnChanOpenConfirm(
 }
 
 // OnChanCloseInit implements the Module interface
+// It calls the underlying app's OnChanCloseInit callback.
 func (im Module) OnChanCloseInit(
 	ctx sdk.Context,
 	portID,
@@ -84,7 +84,8 @@ func (im Module) OnChanCloseInit(
 	return im.app.OnChanCloseInit(ctx, portID, channelID)
 }
 
-// OnChanCloseConfirm implements the Module interface
+// OnChanCloseConfirm implements the Module interface.
+// It calls the underlying app's OnChanCloseConfirm callback.
 func (im Module) OnChanCloseConfirm(
 	ctx sdk.Context,
 	portID,
@@ -94,6 +95,7 @@ func (im Module) OnChanCloseConfirm(
 }
 
 // OnRecvPacket implements the Module interface.
+// It calls the underlying app's OnRecvPacket callback.
 func (im Module) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -102,7 +104,8 @@ func (im Module) OnRecvPacket(
 	return im.app.OnRecvPacket(ctx, packet, relayer)
 }
 
-// OnAcknowledgementPacket implements the Module interface
+// OnAcknowledgementPacket implements the Module interface.
+// It calls the underlying app's OnAcknowledgementPacket callback.
 func (im Module) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -112,7 +115,8 @@ func (im Module) OnAcknowledgementPacket(
 	return im.app.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
 }
 
-// OnTimeoutPacket implements the Module interface
+// OnTimeoutPacket implements the Module interface.
+// It calls the underlying app's OnTimeoutPacket callback.
 func (im Module) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
