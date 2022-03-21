@@ -30,13 +30,10 @@ type TransferKeeper interface {
 	GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool)
 	SendTransfer(
 		ctx sdk.Context,
-		sourcePort,
-		sourceChannel string,
+		sourcePort, sourceChannel string,
 		token sdk.Coin,
-		sender sdk.AccAddress,
-		receiver string,
-		timeoutHeight clienttypes.Height,
-		timeoutTimestamp uint64,
+		sender sdk.AccAddress, receiver string,
+		timeoutHeight clienttypes.Height, timeoutTimestamp uint64,
 	) error
 }
 
