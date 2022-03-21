@@ -13,6 +13,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
+	"github.com/tharsis/evmos/v2/ibc"
 	evmos "github.com/tharsis/evmos/v2/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
@@ -47,12 +48,10 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	sender, recipient, senderBech32, err := evmos.GetTransferSenderRecipient(packet)
+	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
-
-	recipientBech32 := recipient.String()
 
 	// return error ACK if the address is in the deny list
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
