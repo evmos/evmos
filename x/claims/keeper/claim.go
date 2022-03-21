@@ -9,7 +9,8 @@ import (
 
 var actions = []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 
-// GetClaimableAmountForAction returns claimable amount for a specific action done by an address
+// GetClaimableAmountForAction returns claimable amount for a specific action
+// done by an address
 func (k Keeper) GetClaimableAmountForAction(
 	ctx sdk.Context,
 	claimsRecord types.ClaimsRecord,
@@ -17,7 +18,8 @@ func (k Keeper) GetClaimableAmountForAction(
 	params types.Params,
 ) sdk.Int {
 	// return zero if there are no coins to claim
-	if claimsRecord.InitialClaimableAmount.IsNil() || claimsRecord.InitialClaimableAmount.IsZero() {
+	if claimsRecord.InitialClaimableAmount.IsNil() ||
+		claimsRecord.InitialClaimableAmount.IsZero() {
 		return sdk.ZeroInt()
 	}
 
@@ -28,6 +30,7 @@ func (k Keeper) GetClaimableAmountForAction(
 		return sdk.ZeroInt()
 	}
 
+	// if action already completed, nothing is claimable
 	if claimsRecord.HasClaimedAction(action) {
 		return sdk.ZeroInt()
 	}
@@ -81,7 +84,8 @@ func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.
 	return totalClaimable
 }
 
-// ClaimCoinsForAction remove claimable amount entry and transfer it to user's account
+// ClaimCoinsForAction removes the claimable amount entry from a claims record
+// and transfers it to the user's account
 func (k Keeper) ClaimCoinsForAction(
 	ctx sdk.Context,
 	addr sdk.AccAddress,
@@ -93,18 +97,10 @@ func (k Keeper) ClaimCoinsForAction(
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
 
-	// If we are before the start time, after end time, or claims are disabled, do nothing.
-	if !params.IsClaimsActive(ctx.BlockTime()) {
-		return sdk.ZeroInt(), nil
-	}
-
-	// if action already completed, nothing is claimable
-	if claimsRecord.HasClaimedAction(action) {
-		return sdk.ZeroInt(), nil
-	}
-
+	// Get claimable amount and check if
+	// - we are before the start time, after end time, or claims are disabled, do nothing.
+	// - action already completed, nothing is claimable
 	claimableAmount := k.GetClaimableAmountForAction(ctx, claimsRecord, action, params)
-
 	if claimableAmount.IsZero() {
 		return sdk.ZeroInt(), nil
 	}
