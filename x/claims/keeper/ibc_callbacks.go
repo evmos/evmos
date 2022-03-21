@@ -47,7 +47,7 @@ func (k Keeper) OnRecvPacket(
 		case senderRecordFound && !senderClaimsRecord.HasClaimedAny():
 			return channeltypes.NewErrorAcknowledgement(
 				sdkerrors.Wrapf(
-					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipient,
+					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
 				).Error(),
 			)
 		default:
