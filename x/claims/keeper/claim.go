@@ -188,15 +188,15 @@ func (k Keeper) MergeClaimsRecords(
 			mergedRecord.MarkClaimed(action)
 		case recipientCompleted && !senderCompleted:
 			// claim action for sender since the recipient completed it
-			amt, reminder := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
+			amt, remainder := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimedAmt = claimedAmt.Add(amt)
-			remainderAmt = remainderAmt.Add(reminder)
+			remainderAmt = remainderAmt.Add(remainder)
 			mergedRecord.MarkClaimed(action)
 		case !recipientCompleted && senderCompleted:
 			// claim action for recipient since the sender completed it
-			amt, reminder := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
+			amt, remainder := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
 			claimedAmt = claimedAmt.Add(amt)
-			remainderAmt = remainderAmt.Add(reminder)
+			remainderAmt = remainderAmt.Add(remainder)
 			mergedRecord.MarkClaimed(action)
 		case !senderCompleted && !recipientCompleted:
 			// Neither sender or recipient completed the action.
@@ -206,10 +206,10 @@ func (k Keeper) MergeClaimsRecords(
 			}
 
 			// claim IBC action for both sender and recipient
-			amtIBCRecipient, reminderRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
-			amtIBCSender, reminderSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
+			amtIBCRecipient, remainderRecipient := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
+			amtIBCSender, remainderSender := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimedAmt = claimedAmt.Add(amtIBCRecipient).Add(amtIBCSender)
-			remainderAmt = remainderAmt.Add(reminderRecipient).Add(reminderSender)
+			remainderAmt = remainderAmt.Add(remainderRecipient).Add(remainderSender)
 			mergedRecord.MarkClaimed(action)
 		}
 	}
