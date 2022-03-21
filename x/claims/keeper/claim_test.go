@@ -38,17 +38,20 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 		claimsRecord types.ClaimsRecord
 		params       types.Params
 		expAmt       sdk.Int
+		expRemainder sdk.Int
 	}{
 		{
 			"zero initial claimable amount",
 			types.ClaimsRecord{InitialClaimableAmount: sdk.ZeroInt()},
 			types.Params{},
 			sdk.ZeroInt(),
+			sdk.ZeroInt(),
 		},
 		{
 			"claims not active",
 			types.ClaimsRecord{InitialClaimableAmount: sdk.OneInt()},
 			types.Params{},
+			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 		},
 		{
@@ -58,6 +61,7 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 				EnableClaims:     true,
 				AirdropStartTime: suite.ctx.BlockTime(),
 			},
+			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 		},
 		{
@@ -70,6 +74,7 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 				DurationOfDecay:    time.Hour,
 			},
 			sdk.NewInt(25),
+			sdk.ZeroInt(),
 		},
 		{
 			"during decay",
@@ -81,6 +86,7 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 				DurationOfDecay:    time.Hour,
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
+			sdk.NewInt(25),
 			sdk.NewInt(25),
 		},
 		{
@@ -94,6 +100,7 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
 			sdk.NewInt(12),
+			sdk.NewInt(13),
 		},
 	}
 
@@ -102,8 +109,9 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 			suite.SetupTest() // reset
 
 			action := types.ActionDelegate
-			amt := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, tc.claimsRecord, action, tc.params)
+			amt, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, tc.claimsRecord, action, tc.params)
 			suite.Require().Equal(tc.expAmt.Int64(), amt.Int64())
+			suite.Require().Equal(tc.expRemainder.Int64(), remainder.Int64())
 		})
 	}
 }
@@ -188,6 +196,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 		action          types.Action
 		params          types.Params
 		expAmt          sdk.Int
+		expClawedBack   sdk.Int
 		expError        bool
 		expDeleteRecord bool
 	}{
@@ -198,6 +207,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			types.ActionUnspecified,
 			types.Params{},
 			sdk.ZeroInt(),
+			sdk.ZeroInt(),
 			true,
 			false,
 		},
@@ -207,6 +217,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			types.ClaimsRecord{},
 			types.ActionDelegate,
 			types.Params{},
+			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 			false,
 			false,
@@ -224,13 +235,14 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
 			sdk.ZeroInt(),
+			sdk.ZeroInt(),
 			false,
 			false,
 		},
 		{
 			"zero - claimable amount is 0",
 			func() {},
-			types.NewClaimsRecord(sdk.NewInt(0)),
+			types.NewClaimsRecord(sdk.ZeroInt()),
 			types.ActionVote,
 			types.Params{
 				EnableClaims:       true,
@@ -239,6 +251,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 				DurationOfDecay:    time.Hour,
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
+			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 			false,
 			false,
@@ -262,6 +275,30 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
 			sdk.ZeroInt(),
+			sdk.ZeroInt(),
+			true,
+			false,
+		},
+		{
+			"failed - error during community pool fund",
+			func() {
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(25)))
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+			},
+			types.NewClaimsRecord(sdk.NewInt(200)),
+			types.ActionVote,
+			types.Params{
+				EnableClaims:       true,
+				AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+				DurationUntilDecay: 30 * time.Minute,
+				DurationOfDecay:    time.Hour,
+				ClaimsDenom:        types.DefaultClaimsDenom,
+			},
+			sdk.ZeroInt(),
+			sdk.ZeroInt(),
 			true,
 			false,
 		},
@@ -284,6 +321,30 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
 			sdk.NewInt(50),
+			sdk.ZeroInt(),
+			false,
+			false,
+		},
+		{
+			"success - claim single action during decay",
+			func() {
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(50)))
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+			},
+			types.NewClaimsRecord(sdk.NewInt(200)),
+			types.ActionVote,
+			types.Params{
+				EnableClaims:       true,
+				AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+				DurationUntilDecay: 30 * time.Minute,
+				DurationOfDecay:    time.Hour,
+				ClaimsDenom:        types.DefaultClaimsDenom,
+			},
+			sdk.NewInt(25),
+			sdk.NewInt(25),
 			false,
 			false,
 		},
@@ -309,6 +370,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 				ClaimsDenom:        types.DefaultClaimsDenom,
 			},
 			sdk.NewInt(50),
+			sdk.ZeroInt(),
 			false,
 			true,
 		},
@@ -321,6 +383,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			tc.malleate()
 
 			initialBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, types.DefaultClaimsDenom)
+			initialCommunityPoolCoins := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
 
 			amt, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr, tc.claimsRecord, tc.action, tc.params)
 			if tc.expError {
@@ -338,6 +401,12 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			expBalance := initialBalance.Add(sdk.NewCoin(types.DefaultClaimsDenom, amt))
 			postClaimBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, types.DefaultClaimsDenom)
 			suite.Require().Equal(expBalance, postClaimBalance)
+
+			if !tc.expClawedBack.IsZero() {
+				initialCommunityPoolCoins = initialCommunityPoolCoins.Add(sdk.NewDecCoin(tc.params.ClaimsDenom, tc.expClawedBack))
+				funds := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				suite.Require().Equal(initialCommunityPoolCoins.String(), funds.String())
+			}
 
 			if tc.expDeleteRecord {
 				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
@@ -365,6 +434,48 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 		name string
 		test func()
 	}{
+		{
+			"case 4: actions not completed - during decay",
+			func() {
+				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+
+				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+				initialCommunityPoolCoins := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(100))}
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+
+				params := types.Params{
+					EnableClaims:       true,
+					AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+					DurationUntilDecay: 30 * time.Minute,
+					DurationOfDecay:    time.Hour,
+					ClaimsDenom:        types.DefaultClaimsDenom,
+				}
+
+				mergedRecord, err := suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().NoError(err)
+
+				expectedRecord := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(400),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
+
+				suite.Require().Equal(expectedRecord, mergedRecord)
+
+				initialCommunityPoolCoins = initialCommunityPoolCoins.Add(sdk.NewDecCoin(params.ClaimsDenom, sdk.NewInt(50)))
+				funds := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				suite.Require().Equal(initialCommunityPoolCoins.String(), funds.String())
+
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(50)))
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
+				suite.Require().Equal(expBalance.String(), balance.String())
+			},
+		},
 		{
 			"case 4: actions not completed",
 			func() {
@@ -498,11 +609,38 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 				suite.Require().Error(err)
 			},
 		},
+		{
+			"fail: not enough funds to transfer to community pool",
+			func() {
+				senderClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+				recipientClaimsRecord := types.NewClaimsRecord(sdk.NewInt(200))
+
+				params := types.Params{
+					EnableClaims:       true,
+					AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+					DurationUntilDecay: 30 * time.Minute,
+					DurationOfDecay:    time.Hour,
+					ClaimsDenom:        types.DefaultClaimsDenom,
+				}
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(50))}
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				suite.Require().NoError(err)
+
+				_, err = suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+				suite.Require().Error(err)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+
+			suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 			tc.test()
 		})
@@ -545,8 +683,9 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	coins := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addr1)
 	suite.Require().Equal(sdk.ZeroInt().String(), coins.String())
 
-	coins = suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionVote, params)
-	suite.Require().Equal(sdk.ZeroInt().String(), coins.String()) // 1/4th of the claimable
+	coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionVote, params)
+	suite.Require().Equal(sdk.ZeroInt().String(), coins.String())
+	suite.Require().Equal(sdk.ZeroInt().String(), remainder.String())
 
 	claimedAmount, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionVote, params)
 	suite.Require().NoError(err)
@@ -719,8 +858,9 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	suite.Require().True(coins3.IsZero())
 
 	// get rewards amount per action
-	coins4 := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecords[0], types.ActionDelegate, suite.app.ClaimsKeeper.GetParams(suite.ctx))
+	coins4, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecords[0], types.ActionDelegate, suite.app.ClaimsKeeper.GetParams(suite.ctx))
 	suite.Require().Equal(sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), 25)).AmountOf(params.GetClaimsDenom()), coins4) // 2 = 10.Quo(4)
+	suite.Require().Equal(sdk.ZeroInt(), remainder)
 
 	// get completed activities
 	claimsRecord, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addrs[0])
@@ -749,8 +889,9 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 
 	// check that claimable for completed activity is 0
 	claimsRecord1, _ := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addrs[0])
-	bal4 := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord1, types.ActionEVM, params)
-	suite.Require().Equal(bal4, sdk.NewInt(0))
+	bal4, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord1, types.ActionEVM, params)
+	suite.Require().Equal(sdk.ZeroInt(), bal4)
+	suite.Require().Equal(sdk.ZeroInt(), remainder)
 
 	// do rest of actions
 	_, err = suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addrs[0], claimsRecord, types.ActionIBCTransfer, params)
@@ -776,7 +917,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 
 	coins2 = suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addrs[1])
 	suite.Require().NoError(err)
-	suite.Require().Equal(coins2, sdk.NewInt(0))
+	suite.Require().Equal(coins2, sdk.ZeroInt())
 }
 
 func (suite *KeeperTestSuite) TestClaimOfDecayed() {
@@ -802,8 +943,10 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 		{
 			fn: func() {
 				ctx := suite.ctx.WithBlockTime(airdropStartTime)
-				coins := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
+
+				coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
 				suite.Require().Equal(claimsRecord.InitialClaimableAmount.Quo(sdk.NewInt(4)).String(), coins.String())
+				suite.Require().Equal(sdk.ZeroInt(), remainder)
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionEVM, params)
 				suite.Require().NoError(err)
@@ -814,8 +957,10 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 		{
 			fn: func() {
 				ctx := suite.ctx.WithBlockTime(airdropStartTime.Add(durationUntilDecay))
-				coins := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
+
+				coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
 				suite.Require().Equal(claimsRecord.InitialClaimableAmount.Quo(sdk.NewInt(4)).String(), coins.String())
+				suite.Require().Equal(sdk.ZeroInt(), remainder)
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionEVM, params)
 				suite.Require().NoError(err)
@@ -832,9 +977,11 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 				claimablePercent := sdk.OneDec().Sub(decayPercent)
 
 				ctx := suite.ctx.WithBlockTime(blockTime)
-				coins := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
+
+				coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
 
 				suite.Require().Equal(claimsRecord.InitialClaimableAmount.ToDec().Mul(claimablePercent).Quo(sdk.NewDec(4)).RoundInt().String(), coins.String())
+				suite.Require().Equal(sdk.NewInt(13).String(), remainder.String())
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(ctx, addr1, claimsRecord, types.ActionEVM, params)
 				suite.Require().NoError(err)
@@ -896,7 +1043,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 
 	// ensure community pool doesn't have the fund
 	bal := suite.app.BankKeeper.GetBalance(ctx, distrModuleAddr, params.GetClaimsDenom())
-	suite.Require().Equal(bal.Amount, sdk.NewInt(0))
+	suite.Require().Equal(bal.Amount, sdk.ZeroInt())
 
 	// claim some amount from airdrop
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
@@ -918,13 +1065,13 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 	// Make sure no one can claim after airdrop ends
 	claimedCoinsAfter, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(ctx, addr1, claimsRecord, types.ActionDelegate, params)
 	suite.Require().Error(err)
-	suite.Require().Equal(claimedCoinsAfter, sdk.NewInt(0))
+	suite.Require().Equal(claimedCoinsAfter, sdk.ZeroInt())
 
 	// ensure claim is disabled and the module account is empty
 	params = suite.app.ClaimsKeeper.GetParams(ctx)
 	suite.Require().False(params.EnableClaims)
 	coins = suite.app.ClaimsKeeper.GetModuleAccountBalances(ctx)
-	suite.Require().Equal(coins.AmountOf(params.GetClaimsDenom()), sdk.NewInt(0))
+	suite.Require().Equal(coins.AmountOf(params.GetClaimsDenom()), sdk.ZeroInt())
 
 	// ensure community pool has the unclaimed escrow amount
 	bal = suite.app.BankKeeper.GetBalance(ctx, distrModuleAddr, params.GetClaimsDenom())

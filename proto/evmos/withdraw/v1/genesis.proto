@@ -1,0 +1,24 @@
+syntax = "proto3";
+package evmos.withdraw.v1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/tharsis/evmos/v2/x/withdraw/types";
+
+// GenesisState defines the withdraw module's genesis state.
+message GenesisState {
+    // params defines all the paramaters of the module.
+    Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// Params holds parameters for the withdraw module
+message Params {
+    // enable withdraw IBC middleware
+    bool enable_withdraw = 1;
+    // duration added to timeout timestamp for balances withdrawn via IBC packets
+    google.protobuf.Duration packet_timeout_duration = 2 [
+        (gogoproto.nullable) = false,
+        (gogoproto.stdduration) = true
+    ];
+}
