@@ -66,5 +66,5 @@ ignore:
   - "**/*.pb.gw.go"
   - "x/**/module.go"
   - "scripts"
-  - "ibctesting"
+  - "ibc/testing"
   - "version"
