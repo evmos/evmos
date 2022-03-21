@@ -29,7 +29,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	secpAddrEvmos := secpAddr.String()
 	secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
 
-	// ethecp256k1 account
+	// ethsecp256k1 account
 	ethPk, err := ethsecp256k1.GenerateKey()
 	suite.Require().Nil(err)
 	ethsecpAddr := sdk.AccAddress(ethPk.PubKey().Address())
