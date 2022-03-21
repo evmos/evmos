@@ -24,24 +24,40 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (sender, recipient s
 	}
 
 	// validate the sender bech32 address from the counterparty chain
-	bech32Prefix := strings.Split(data.Sender, "1")[0]
-	if bech32Prefix == data.Sender {
-		return nil, nil, "", sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender: %s", data.Sender)
+	// and change the bech32 human readable prefix (HRP) of the sender to `evmos`
+	sender, err = GetEvmosAddressFromBech32(data.Sender)
+	if err != nil {
+		return nil, nil, "", sdkerrors.Wrap(err, "invalid sender")
 	}
 
-	senderBz, err := sdk.GetFromBech32(data.Sender, bech32Prefix)
+	// validate the recipient bech32 address from the counterparty chain
+	// and change the bech32 human readable prefix (HRP) of the recipient to `evmos`
+	recipient, err = GetEvmosAddressFromBech32(data.Receiver)
 	if err != nil {
-		return nil, nil, "", sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender %s, %s", data.Sender, err.Error())
-	}
-
-	// change the bech32 human readable prefix (HRP) of the sender to `evmos1`
-	sender = sdk.AccAddress(senderBz)
-
-	// obtain the evmos recipient address
-	recipient, err = sdk.AccAddressFromBech32(data.Receiver)
-	if err != nil {
-		return nil, nil, "", sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address %s", err.Error())
+		return nil, nil, "", sdkerrors.Wrap(err, "invalid recipient")
 	}
 
 	return sender, recipient, data.Sender, nil
+}
+
+// GetEvmosAddressFromBech32 returns the sdk.Account address of given address,
+// while also changing bech32 human readable prefix (HRP) to `evmos`.
+// The function fails if the provided address is invalid.
+func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
+	bech32Prefix := strings.SplitN(address, "1", 2)[0]
+	if bech32Prefix == address {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid bech32 address: %s", address)
+	}
+
+	addressBz, err := sdk.GetFromBech32(address, bech32Prefix)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid address %s, %s", address, err.Error())
+	}
+
+	// safety check: shouldn't happen
+	if err := sdk.VerifyAddressFormat(addressBz); err != nil {
+		return nil, err
+	}
+
+	return sdk.AccAddress(addressBz), nil
 }

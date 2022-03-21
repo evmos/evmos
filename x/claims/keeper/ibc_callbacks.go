@@ -154,12 +154,8 @@ func (k Keeper) OnAcknowledgementPacket(
 		return nil
 	}
 
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-	}
-
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
+	//  get the sender address from the packet's transfer data
+	sender, _, _, err := evmos.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return err
 	}
