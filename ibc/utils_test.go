@@ -120,7 +120,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		sender, recipient, _, err := GetTransferSenderRecipient(tc.packet)
+		sender, recipient, _, _, err := GetTransferSenderRecipient(tc.packet)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
