@@ -41,8 +41,9 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (sender, recipient s
 }
 
 // GetEvmosAddressFromBech32 returns the sdk.Account address of given address,
-// while also changing bech32 human readable prefix (HRP) to `evmos`.
-// The function fails if the provided address is invalid.
+// while also changing bech32 human readable prefix (HRP) to the value set on
+// the global sdk.Config (eg: `evmos`).
+// The function fails if the provided bech32 address is invalid.
 func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
 	bech32Prefix := strings.SplitN(address, "1", 2)[0]
 	if bech32Prefix == address {
