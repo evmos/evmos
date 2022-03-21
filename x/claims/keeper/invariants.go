@@ -13,8 +13,8 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	ir.RegisterRoute(types.ModuleName, "claims-invariant", k.ClaimsInvariant())
 }
 
-// ClaimsInvariant checks that the escrowed balance amount reflects all the
-// unclaimed held in claims records
+// ClaimsInvariant checks that the total amount of all unclaimed coins held in
+// claims records is equal to the escrowed balance held in the claims module account
 func (k Keeper) ClaimsInvariant() sdk.Invariant {
 	return func(ctx sdk.Context) (msg string, broken bool) {
 		expectedUnclaimed := sdk.ZeroDec()
@@ -26,7 +26,6 @@ func (k Keeper) ClaimsInvariant() sdk.Invariant {
 		}
 
 		// iterate over all the claim records and sum the unclaimed amounts
-
 		k.IterateClaimsRecords(ctx, func(_ sdk.AccAddress, cr types.ClaimsRecord) bool {
 			// IMPORTANT: use Dec to prevent truncation errors
 			initialClaimablePerAction := cr.InitialClaimableAmount.ToDec().Quo(numActions)
