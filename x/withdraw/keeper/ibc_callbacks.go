@@ -46,38 +46,12 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// unmarshal packet data to obtain the sender and recipient
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+	sender, recipient, senderBech32, err := evmos.GetTransferSenderRecipient(packet)
+	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
-	// validate the sender bech32 address from the counterparty chain
-	bech32Prefix := strings.Split(data.Sender, "1")[0]
-	if bech32Prefix == data.Sender {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender: %s", data.Sender).Error(),
-		)
-	}
-
-	senderBz, err := sdk.GetFromBech32(data.Sender, bech32Prefix)
-	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender %s, %s", data.Sender, err.Error()).Error(),
-		)
-	}
-
-	// change the bech32 human readable prefix (HRP) of the sender to `evmos1`
-	sender := sdk.AccAddress(senderBz)
-
-	// obtain the evmos recipient address
-	recipient, err := sdk.AccAddressFromBech32(data.Receiver)
-	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address %s", err.Error()).Error(),
-		)
-	}
+	recipientBech32 := recipient.String()
 
 	// return error ACK if the address is in the deny list
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
@@ -85,7 +59,7 @@ func (k Keeper) OnRecvPacket(
 			sdkerrors.Wrapf(
 				types.ErrBlockedAddress,
 				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
-				data.Sender, data.Receiver,
+				senderBech32, recipientBech32,
 			).Error(),
 		)
 	}
@@ -129,29 +103,27 @@ func (k Keeper) OnRecvPacket(
 			return false
 		}
 
-		switch strings.HasPrefix(coin.Denom, "ibc/") {
-		case true:
+		if strings.HasPrefix(coin.Denom, "ibc/") {
 			// IBC vouchers, obtain the source port and channel from the denom path
-			destPort, destChannel, err = k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, data.Sender)
-		default:
+			destPort, destChannel, err = k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, senderBech32)
+			if err != nil {
+				logger.Error(
+					"failed to get the IBC full denom path of source chain",
+					"error", err.Error(),
+				)
+				return true // stop iteration
+			}
+
+			// NOTE: only withdraw the IBC tokens from the enabled destination channel
+			if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
+				// continue
+				return false
+			}
+		} else {
 			// Native tokens, use the source port and channel to transfer the EVMOS and
 			// other converted ERC20 coin denoms to the authorized source chain
 			destPort = packet.DestinationPort
 			destChannel = packet.DestinationChannel
-		}
-
-		if err != nil {
-			logger.Error(
-				"failed to get the IBC full denom path of source chain",
-				"error", err.Error(),
-			)
-			return true // stop iteration
-		}
-
-		// NOTE: only withdraw the IBC tokens from the enabled destination channel
-		if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
-			// continue
-			return false
 		}
 
 		// NOTE: Don't use the consensus state because it may become unreliable if updates slow down
@@ -164,7 +136,7 @@ func (k Keeper) OnRecvPacket(
 			packet.DestinationChannel, // packet destination channel is now the source
 			coin,                      // balance of the coin
 			recipient,                 // transfer recipient is now the sender
-			data.Sender,               // transfer sender is now the recipient
+			senderBech32,              // transfer sender is now the recipient
 			clienttypes.ZeroHeight(),  // timeout height disabled
 			timeout,                   // timeout timestamp is 4 hours from now
 		)
@@ -177,11 +149,12 @@ func (k Keeper) OnRecvPacket(
 		return false
 	})
 
+	// check error from the iteration above
 	if err != nil {
 		logger.Error(
 			"failed to withdraw IBC vouchers",
-			"sender", data.Sender,
-			"receiver", data.Receiver,
+			"sender", senderBech32,
+			"receiver", recipientBech32,
 			"source-port", packet.SourcePort,
 			"source-channel", packet.SourceChannel,
 			"error", err.Error(),
@@ -190,18 +163,36 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(
 				err,
-				"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", data.Sender,
+				"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
 			).Error(),
 		)
 	}
 
-	logger.Debug(
+	amtStr := balances.String()
+
+	logger.Info(
 		"balances withdrawn to sender address",
-		"sender", data.Sender,
-		"receiver", data.Receiver,
-		"balances", balances.String(),
+		"sender", senderBech32,
+		"receiver", recipientBech32,
+		"amount", amtStr,
 		"source-port", packet.SourcePort,
 		"source-channel", packet.SourceChannel,
+		"dest-port", packet.DestinationPort,
+		"dest-channel", packet.DestinationChannel,
+	)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeWithdraw,
+			sdk.NewAttribute(sdk.AttributeKeySender, senderBech32),
+			sdk.NewAttribute(transfertypes.AttributeKeyReceiver, recipientBech32),
+			sdk.NewAttribute(channeltypes.AttributeKeySrcPort, packet.SourcePort),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amtStr),
+			sdk.NewAttribute(channeltypes.AttributeKeySrcChannel, packet.SourceChannel),
+			sdk.NewAttribute(channeltypes.AttributeKeySrcPort, packet.SourcePort),
+			sdk.NewAttribute(channeltypes.AttributeKeyDstPort, packet.DestinationPort),
+			sdk.NewAttribute(channeltypes.AttributeKeyDstChannel, packet.DestinationChannel),
+		),
 	)
 
 	// return original acknowledgement
