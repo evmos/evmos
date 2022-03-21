@@ -28,7 +28,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the claims module's genesis state.
+// GenesisState define the claims module's genesis state.
 type GenesisState struct {
 	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
@@ -95,8 +95,8 @@ type Params struct {
 	DurationOfDecay time.Duration `protobuf:"bytes,4,opt,name=duration_of_decay,json=durationOfDecay,proto3,stdduration" json:"duration_of_decay"`
 	// denom of claimable coin
 	ClaimsDenom string `protobuf:"bytes,5,opt,name=claims_denom,json=claimsDenom,proto3" json:"claims_denom,omitempty"`
-	// list of authorized channel identifiers that can perform address attestations
-	// via IBC.
+	// list of authorized channel identifiers that can perform address
+	// attestations via IBC.
 	AuthorizedChannels []string `protobuf:"bytes,6,rep,name=authorized_channels,json=authorizedChannels,proto3" json:"authorized_channels,omitempty"`
 	// list of channel identifiers from EVM compatible chains
 	EVMChannels []string `protobuf:"bytes,7,rep,name=evm_channels,json=evmChannels,proto3" json:"evm_channels,omitempty"`

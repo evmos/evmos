@@ -13,7 +13,7 @@ import (
 var _ porttypes.Middleware = &IBCMiddleware{}
 
 // IBCMiddleware implements the ICS26 callbacks for the transfer middleware given
-// the claim keeper and the underlying application.
+// the withdraw keeper and the underlying application.
 type IBCMiddleware struct {
 	keeper keeper.Keeper
 	app    porttypes.IBCModule

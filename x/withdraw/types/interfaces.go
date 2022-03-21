@@ -17,6 +17,7 @@ import (
 // creating a x/withdraw keeper.
 type BankKeeper interface {
 	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
+	BlockedAddr(addr sdk.AccAddress) bool
 }
 
 // AccountKeeper defines the expected account keeper
@@ -29,13 +30,10 @@ type TransferKeeper interface {
 	GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool)
 	SendTransfer(
 		ctx sdk.Context,
-		sourcePort,
-		sourceChannel string,
+		sourcePort, sourceChannel string,
 		token sdk.Coin,
-		sender sdk.AccAddress,
-		receiver string,
-		timeoutHeight clienttypes.Height,
-		timeoutTimestamp uint64,
+		sender sdk.AccAddress, receiver string,
+		timeoutHeight clienttypes.Height, timeoutTimestamp uint64,
 	) error
 }
 

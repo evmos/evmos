@@ -17,6 +17,8 @@ import (
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 
 	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
+	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
+	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
 	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
@@ -28,7 +30,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	secpAddrEvmos := secpAddr.String()
 	secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
 
-	// ethecp256k1 account
+	// ethsecp256k1 account
 	ethPk, err := ethsecp256k1.GenerateKey()
 	suite.Require().Nil(err)
 	ethsecpAddr := sdk.AccAddress(ethPk.PubKey().Address())
@@ -123,12 +125,53 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			false,
 		},
 		{
+			"fail - case: receiver address is in deny list",
+			func() {
+				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
+
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, blockedAddr.String())
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			false,
+			false,
+		},
+		{
 			"continue - case 1: sender and receiver address are not the same",
 			func() {
 				pk1 := secp256k1.GenPrivKey()
 				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
 
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, otherSecpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			true,
+			false,
+		},
+		{
+			"continue - receiver is a vesting account",
+			func() {
+				// Set vesting account
+				bacc := authtypes.NewBaseAccount(ethsecpAddr, nil, 0, 0)
+				acc := vestingtypes.NewClawbackVestingAccount(bacc, ethsecpAddr, nil, suite.ctx.BlockTime(), nil, nil)
+
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", ethsecpAddrCosmos, ethsecpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			true,
+			false,
+		},
+		{
+			"continue - receiver is a module account",
+			func() {
+				incentivesAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, incentivestypes.ModuleName)
+				suite.Require().NotNil(incentivesAcc)
+				addr := incentivesAcc.GetAddress().String()
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", addr, addr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
@@ -220,16 +263,16 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Mock the Transferkeeper to always return nil on SendTransfer(), as this
 			// method requires a successfull handshake with the counterparty chain.
 			// This, however, exceeds the requirements of the unit tests.
-			mockedKeeper := &TransferKeeper{
+			mockTransferKeeper := &MockTransferKeeper{
 				Keeper: suite.app.BankKeeper,
 			}
 
-			mockedKeeper.On("GetDenomTrace", mock.Anything).Return(denomTrace, true)
-			mockedKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+			mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
-			suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockedKeeper, suite.app.ClaimsKeeper)
+			suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with aevmos and ibc coin
 			coins := sdk.NewCoins(
@@ -244,6 +287,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			// Check acknowledgement
 			if tc.ackSuccess {
+				suite.Require().True(ack.Success(), string(ack.Acknowledgement()))
 				suite.Require().Equal(expAck, ack)
 			} else {
 				suite.Require().False(ack.Success(), string(ack.Acknowledgement()))

@@ -14,25 +14,23 @@ import (
 	"github.com/tharsis/evmos/v2/x/withdraw/types"
 )
 
-/*
-  Test objects
-*/
+var _ types.TransferKeeper = &MockTransferKeeper{}
 
-var _ types.TransferKeeper = &TransferKeeper{}
-
-// TransferKeeper is a mocked object that implements an interface
-// that describes an object that the code I am testing relies on.
-type TransferKeeper struct {
+// MockTransferKeeper defines a mocked object that implements the TransferKeeper
+// interface. It's used on tests to abstract the complexity of IBC transfers.
+// NOTE: Bank keeper logic is not mocked since we want to test that balance has
+// been updated for sender and recipient.
+type MockTransferKeeper struct {
 	mock.Mock
 	bankkeeper.Keeper
 }
 
-func (m *TransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
-	args := m.Called(denomTraceHash)
+func (m *MockTransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
+	args := m.Called(mock.Anything, denomTraceHash)
 	return args.Get(0).(transfertypes.DenomTrace), args.Bool(1)
 }
 
-func (m *TransferKeeper) SendTransfer(
+func (m *MockTransferKeeper) SendTransfer(
 	ctx sdk.Context,
 	sourcePort,
 	sourceChannel string,
@@ -42,7 +40,7 @@ func (m *TransferKeeper) SendTransfer(
 	timeoutHeight clienttypes.Height,
 	timeoutTimestamp uint64,
 ) error {
-	args := m.Called(sourcePort, sourceChannel, token)
+	args := m.Called(mock.Anything, sourcePort, sourceChannel, token, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 
 	err := m.SendCoinsFromAccountToModule(ctx, sender, transfertypes.ModuleName, sdk.Coins{token})
 	if err != nil {

@@ -63,7 +63,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	params := types.DefaultParams()
-	params.AirdropStartTime = suite.ctx.BlockTime()
+	params.AirdropStartTime = suite.ctx.BlockTime().UTC()
 	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
