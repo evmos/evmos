@@ -125,7 +125,6 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		// prune empty accounts from the airdrop
 		if balances == nil || balances.IsZero() {
 			k.accountKeeper.RemoveAccount(ctx, acc)
-			// TODO: update bank module to allow clearing the empty balance state
 			accPruned++
 			return false
 		}
@@ -135,17 +134,11 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		// ******CLAWBACK PROPOSED FRAMEWORK******
-		// Send ALL unclaimed airdropped coins back to the community pool
+		// Send all unclaimed airdropped coins back to the community pool
 		// and prune those inactive wallets from current state.
-
-		// When sequence number is 0, _and_ from an airdrop account,
-		// clawback all the claim denomination coins to community pool.
-		//
-		// NOTE:
-		// "Unclaimed" tokens are defined as being in wallets which have a Sequence Number = 0,
-		// which means the address has NOT performed a single action during the airdrop claim window.
-
+		// "Unclaimed" tokens are defined as being in wallets which have a sequence
+		// number = 0, which means the address has NOT performed a single action
+		// during the airdrop claim window.
 		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{clawbackCoin}, addr); err != nil {
 			logger.Debug(
 				"not enough balance to clawback account",

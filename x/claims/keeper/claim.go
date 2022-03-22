@@ -7,8 +7,6 @@ import (
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
-var actions = []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
-
 // ClaimCoinsForAction removes the claimable amount entry from a claims record
 // and transfers it to the user's account
 func (k Keeper) ClaimCoinsForAction(
@@ -103,6 +101,7 @@ func (k Keeper) MergeClaimsRecords(
 
 	// iterate over all the available actions and claim the amount if
 	// the recipient or sender has completed an action but the other hasn't
+	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 	for _, action := range actions {
 		senderCompleted := senderClaimsRecord.HasClaimedAction(action)
 		recipientCompleted := recipientClaimsRecord.HasClaimedAction(action)
@@ -201,8 +200,8 @@ func (k Keeper) GetClaimableAmountForAction(
 	}
 
 	// NOTE: use len(actions)-1 as we don't consider the Unspecified Action
-	actionsAmt := int64(len(types.Action_name) - 1)
-	initialClaimablePerAction := claimsRecord.InitialClaimableAmount.QuoRaw(actionsAmt)
+	actionsCount := int64(len(types.Action_name) - 1)
+	initialClaimablePerAction := claimsRecord.InitialClaimableAmount.QuoRaw(actionsCount)
 
 	// return full claim amount if the elapsed time <= decay start time
 	decayStartTime := params.DecayStartTime()
@@ -224,24 +223,4 @@ func (k Keeper) GetClaimableAmountForAction(
 	claimableCoins = initialClaimablePerAction.ToDec().Mul(claimableRatio).RoundInt()
 	remainder = initialClaimablePerAction.Sub(claimableCoins)
 	return claimableCoins, remainder
-}
-
-// GetUserTotalClaimable returns claimable amount for a specific action done by
-// an address at a given block time
-func (k Keeper) GetUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
-	totalClaimable := sdk.ZeroInt()
-
-	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
-	if !found {
-		return sdk.ZeroInt()
-	}
-
-	params := k.GetParams(ctx)
-
-	for _, action := range actions {
-		claimableForAction, _ := k.GetClaimableAmountForAction(ctx, claimsRecord, action, params)
-		totalClaimable = totalClaimable.Add(claimableForAction)
-	}
-
-	return totalClaimable
 }

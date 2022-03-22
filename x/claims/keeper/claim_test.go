@@ -180,7 +180,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 
 			tc.malleate()
 
-			amt := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addr)
+			amt := suite.getUserTotalClaimable(suite.ctx, addr)
 			suite.Require().Equal(tc.expAmt.Int64(), amt.Int64())
 		})
 	}
@@ -680,7 +680,7 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 	suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr1, claimsRecord)
 
-	coins := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addr1)
+	coins := suite.getUserTotalClaimable(suite.ctx, addr1)
 	suite.Require().Equal(sdk.ZeroInt().String(), coins.String())
 
 	coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionVote, params)
@@ -745,7 +745,7 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 
 	suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr1, claimsRecord)
 
-	coins1 := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addr1)
+	coins1 := suite.getUserTotalClaimable(suite.ctx, addr1)
 	suite.Require().Equal(coins1, claimsRecord.InitialClaimableAmount)
 
 	_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr1, claimsRecord, types.ActionEVM, params)
@@ -792,7 +792,7 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 
 	// test claim records set
 	for i := 0; i < len(addrs); i++ {
-		coins := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addrs[i])
+		coins := suite.getUserTotalClaimable(suite.ctx, addrs[i])
 		suite.Require().Equal(coins, claimsRecords[i].InitialClaimableAmount)
 	}
 
@@ -848,13 +848,13 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addrs[i], claimsRecords[i])
 	}
 
-	coins1 := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addrs[0])
+	coins1 := suite.getUserTotalClaimable(suite.ctx, addrs[0])
 	suite.Require().Equal(coins1, claimsRecords[0].InitialClaimableAmount)
 
-	coins2 := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addrs[1])
+	coins2 := suite.getUserTotalClaimable(suite.ctx, addrs[1])
 	suite.Require().Equal(coins2, claimsRecords[1].InitialClaimableAmount)
 
-	coins3 := suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, sdk.AccAddress(tests.GenerateAddress().Bytes()))
+	coins3 := suite.getUserTotalClaimable(suite.ctx, sdk.AccAddress(tests.GenerateAddress().Bytes()))
 	suite.Require().True(coins3.IsZero())
 
 	// get rewards amount per action
@@ -904,7 +904,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	suite.Require().Equal(bal1.AmountOf(params.GetClaimsDenom()), sdk.NewInt(100))
 
 	// get claimable after withdrawing all
-	coins1 = suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addrs[0])
+	coins1 = suite.getUserTotalClaimable(suite.ctx, addrs[0])
 	suite.Require().NoError(err)
 	suite.Require().True(coins1.IsZero())
 
@@ -915,7 +915,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	coins := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAccAddr, params.GetClaimsDenom())
 	suite.Require().Equal(coins, sdk.NewInt64Coin(params.GetClaimsDenom(), 0))
 
-	coins2 = suite.app.ClaimsKeeper.GetUserTotalClaimable(suite.ctx, addrs[1])
+	coins2 = suite.getUserTotalClaimable(suite.ctx, addrs[1])
 	suite.Require().NoError(err)
 	suite.Require().Equal(coins2, sdk.ZeroInt())
 }
@@ -1150,4 +1150,25 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 				"balance incorrect. test: %s", tc.name)
 		}
 	}
+}
+
+// GetUserTotalClaimable returns claimable amount for a specific action done by
+// an address at a given block time
+func (suite *KeeperTestSuite) getUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
+	totalClaimable := sdk.ZeroInt()
+
+	claimsRecord, found := suite.app.ClaimsKeeper.GetClaimsRecord(ctx, addr)
+	if !found {
+		return sdk.ZeroInt()
+	}
+
+	params := suite.app.ClaimsKeeper.GetParams(ctx)
+
+	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
+	for _, action := range actions {
+		claimableForAction, _ := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, action, params)
+		totalClaimable = totalClaimable.Add(claimableForAction)
+	}
+
+	return totalClaimable
 }

@@ -82,7 +82,13 @@ The user receives an IBC transfer from a counterparty chain. If the transfer is 
 4. Check if the claims is allowed:
    - global parameter is enabled
    - current block time is before the end of the claims period
-5. TODO: return for NON EVM channel
+5. Check if package is from a sent NON EVM channel and sender and recipient
+	address are the same. If a packet is sent from a non-EVM chain, the sender
+	addresss is not an ethereum key (i.e. `ethsecp256k1`). Thus, if
+	`sameAddress` is true, the recipient address must be a non-ethereum key as
+	well, which is not supported on Evmos. To prevent funds getting stuck,
+	return an error, unless the destination channel from a connection to a chain
+	is EVM-compatible or supports ethereum keys (eg: Cronos, Injective).
 6. Check if destination channel is authorized to perform the IBC claim. Without this authorization the claiming process is vulerable to attacks.
 7. Handle one of four cases by comparing sender and recipient addresses with each other and checking if either addresses have a claims record (i.e allocation) for the airdrop. To compare both addresses, the sender address's bech32 human readable prefix (HRP) is replaced with `evmos1`.
    1. both sender and recipient are distinct and have a claims record -> merge sender's record with the recipient's record and claim actions that have been completed by one or the other

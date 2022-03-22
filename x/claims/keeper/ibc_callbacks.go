@@ -100,10 +100,12 @@ func (k Keeper) OnRecvPacket(
 	sameAddress := sender.Equals(recipient)
 	fromEVMChain := params.IsEVMChannel(packet.DestinationChannel)
 
-	// NOTE: The connected chains from the authorized IBC channels
-	// don't support ethereum keys (i.e `ethsecp256k1`). Thus, return an error,
-	// unless the destination channel from a connection to a chain is EVM-compatible
-	// or supports ethereum keys (eg: Cronos, Injective).
+	// If the packet is sent from a non-EVM chain, the sender addresss is not an
+	// ethereum key (i.e. `ethsecp256k1`). Thus, if `sameAddress` is true, the
+	// recipient address must be a non-ethereum key as well, which is not
+	// supported on Evmos. To prevent funds getting stuck, return an error, unless
+	// the destination channel from a connection to a chain is EVM-compatible or
+	// supports ethereum keys (eg: Cronos, Injective).
 	if sameAddress && !fromEVMChain {
 		switch {
 		// case 1: secp256k1 key from sender/recipient has no claimed actions
