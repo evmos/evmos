@@ -24,11 +24,8 @@ func (suite *KeeperTestSuite) SetupClaimTest() {
 	suite.SetupTest()
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 
-	coins := sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), sdk.NewInt(10000000)))
-
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-	suite.Require().NoError(err)
-	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(10000000)))
+	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 	suite.Require().NoError(err)
 }
 
