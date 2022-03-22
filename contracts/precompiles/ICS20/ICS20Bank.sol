@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.9;
 
-import "./ICS20Transfer.sol";
-import "./IICS20Bank.sol";
-import "../core/IBCHandler.sol";
-import "../core/IBCHost.sol";
-import "../core/types/App.sol";
+import "./ICS20.sol";
 
-contract ICS20TransferBank is ICS20Transfer {
+interface IICS20Bank {
+    function transferFrom(address from, address to, string calldata id, uint256 amount) external;
+    function mint(address account, string calldata id, uint256 amount) external;
+    function burn(address account, string calldata id, uint256 amount) external;
+}
+
+contract ICS20Bank is ICS20 {
     IICS20Bank bank;
 
     constructor(IBCHost host_, IBCHandler ibcHandler_, IICS20Bank bank_) ICS20Transfer(host_, ibcHandler_) {
