@@ -10,7 +10,8 @@ import (
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
-// EndBlocker checks if the airdrop claiming period has ended
+// EndBlocker checks if the airdrop claiming period has ended in order to
+// process the clawback of unclaimed tokens
 func (k Keeper) EndBlocker(ctx sdk.Context) {
 	params := k.GetParams(ctx)
 
@@ -19,20 +20,19 @@ func (k Keeper) EndBlocker(ctx sdk.Context) {
 		return
 	}
 
-	// check if the time to claim the airdrop tokens has passed
+	// check if the time to claim airdrop tokens has passed
 	elapsedAirdropTime := ctx.BlockTime().Sub(params.AirdropStartTime)
 	if elapsedAirdropTime <= params.DurationUntilDecay+params.DurationOfDecay {
 		return
 	}
 
-	// clawback all the remaining tokens to the community pool and
 	if err := k.EndAirdrop(ctx, params); err != nil {
 		panic(err)
 	}
 }
 
-// EndAirdrop transfers the unclaimed tokens from the airdrop to the community pool,
-// then clears the state by removing all the entries
+// EndAirdrop transfers the unclaimed tokens from the airdrop to the community
+// pool, removes all claims records from state and disables the claims.
 func (k Keeper) EndAirdrop(ctx sdk.Context, params types.Params) error {
 	logger := k.Logger(ctx)
 	logger.Info("beginning EndAirdrop logic")
@@ -42,18 +42,19 @@ func (k Keeper) EndAirdrop(ctx sdk.Context, params types.Params) error {
 	}
 
 	// transfer unclaimed tokens from accounts to community pool and clean up the
-	// claim record state
+	// claims record state
 	k.ClawbackEmptyAccounts(ctx, params.ClaimsDenom)
 
-	// set the EnableClaims param to false so that we don't have to compute duration every block
+	// set the EnableClaims param to false so that we don't have to compute
+	// duration every block
 	params.EnableClaims = false
 	k.SetParams(ctx, params)
 	logger.Info("end EndAirdrop logic")
 	return nil
 }
 
-// ClawbackEscrowedTokens transfers all the escrowed airdrop tokens on the ModuleAccount
-// to the community pool.
+// ClawbackEscrowedTokens transfers all the escrowed airdrop tokens on the
+// ModuleAccount to the community pool
 func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
@@ -77,10 +78,10 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	return nil
 }
 
-// ClawbackEmptyAccounts performs the a clawback off all the allocated tokens from airdrop
-// recipient accounts with a sequence number of 0 (i.e the account hasn't performed a single tx
-// during the claim window).
-// Once the account is clawbacked, the claim record is deleted from state.
+// ClawbackEmptyAccounts performs the clawback of all allocated tokens
+// from airdrop recipient accounts with a sequence number of 0 (i.e the account
+// hasn't performed a single tx during the claim window).
+// Once the account is clawbacked, the claims record is deleted from state.
 func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
@@ -89,7 +90,7 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	accClawbacked := int64(0)
 
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
-		// delete claim record once the account balance is clawed back
+		// delete claims record once the account balance is clawed back
 		defer k.DeleteClaimsRecord(ctx, addr)
 
 		acc := k.accountKeeper.GetAccount(ctx, addr)
@@ -124,7 +125,6 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		// prune empty accounts from the airdrop
 		if balances == nil || balances.IsZero() {
 			k.accountKeeper.RemoveAccount(ctx, acc)
-			// TODO: update bank module to allow clearing the empty balance state
 			accPruned++
 			return false
 		}
@@ -134,17 +134,11 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		// When sequence number is 0, _and_ from an airdrop account,
-		// clawback all the claim denomination coins to community pool.
-		//
-		// NOTE:
-		// "Unclaimed" tokens are defined as being in wallets which have a Sequence Number = 0,
-		// which means the address has NOT performed a single action during the airdrop claim window.
-
-		// ******CLAWBACK PROPOSED FRAMEWORK******
-		// TLDR -- Send ALL unclaimed airdropped coins back to the community pool
+		// Send all unclaimed airdropped coins back to the community pool
 		// and prune those inactive wallets from current state.
-
+		// "Unclaimed" tokens are defined as being in wallets which have a sequence
+		// number = 0, which means the address has NOT performed a single action
+		// during the airdrop claim window.
 		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{clawbackCoin}, addr); err != nil {
 			logger.Debug(
 				"not enough balance to clawback account",

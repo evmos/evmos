@@ -82,7 +82,7 @@ func (cr ClaimsRecord) HasClaimedAll() bool {
 	return true
 }
 
-// NewClaimsRecordAddress creates a new claim record instance
+// NewClaimsRecordAddress creates a new claims record instance
 func NewClaimsRecordAddress(address sdk.AccAddress, initialClaimableAmt sdk.Int) ClaimsRecordAddress {
 	return ClaimsRecordAddress{
 		Address:                address.String(),

@@ -34,7 +34,7 @@ func (gs GenesisState) Validate() error {
 
 	for _, claimsRecord := range gs.ClaimsRecords {
 		if seenClaims[claimsRecord.Address] {
-			return fmt.Errorf("duplicated claim record entry %s", claimsRecord.Address)
+			return fmt.Errorf("duplicated claims record entry %s", claimsRecord.Address)
 		}
 		if err := claimsRecord.Validate(); err != nil {
 			return err
