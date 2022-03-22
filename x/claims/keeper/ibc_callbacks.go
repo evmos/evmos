@@ -32,6 +32,17 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
+	// return error ACK for blocked sender and recipient addresses
+	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(
+				sdkerrors.ErrUnauthorized,
+				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
+				senderBech32, recipientBech32,
+			).Error(),
+		)
+	}
+
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
 
 	sameAddress := sender.Equals(recipient)
