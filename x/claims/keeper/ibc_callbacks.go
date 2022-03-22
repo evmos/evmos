@@ -32,6 +32,17 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
+	// return error ACK for blocked sender and recipient addresses
+	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
+		return channeltypes.NewErrorAcknowledgement(
+			sdkerrors.Wrapf(
+				sdkerrors.ErrUnauthorized,
+				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
+				senderBech32, recipientBech32,
+			).Error(),
+		)
+	}
+
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
 
 	sameAddress := sender.Equals(recipient)
@@ -153,12 +164,7 @@ func (k Keeper) OnAcknowledgementPacket(
 		return nil
 	}
 
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-	}
-
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
+	sender, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return err
 	}
