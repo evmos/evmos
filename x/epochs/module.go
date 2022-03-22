@@ -20,9 +20,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/tharsis/evmos/v2/x/epochs/client/cli"
-	"github.com/tharsis/evmos/v2/x/epochs/keeper"
-	"github.com/tharsis/evmos/v2/x/epochs/types"
+	"github.com/tharsis/evmos/v3/x/epochs/client/cli"
+	"github.com/tharsis/evmos/v3/x/epochs/keeper"
+	"github.com/tharsis/evmos/v3/x/epochs/types"
 )
 
 var (

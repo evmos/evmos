@@ -4,7 +4,7 @@ package evmos.withdraw.v1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/tharsis/evmos/v2/x/withdraw/types";
+option go_package = "github.com/tharsis/evmos/v3/x/withdraw/types";
 
 // GenesisState defines the withdraw module's genesis state.
 message GenesisState {
