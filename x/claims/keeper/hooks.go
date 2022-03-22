@@ -33,6 +33,9 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
+// AfterProposalVote is called after a vote on a proposal is cast. Once the vote
+// is successfully included, the claimable amount for the user's claims record
+// vote action is claimed and the transferred to the user address.
 func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
 	params := k.GetParams(ctx)
 
@@ -51,6 +54,10 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr 
 	}
 }
 
+// AfterDelegationModified is called after a delegation is modified. Once a user
+// delegates their EVMOS tokens to a validator, the claimable amount for the
+// user's claims record delegation action is claimed and transferred to the user
+// address.
 func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	params := k.GetParams(ctx)
 
@@ -69,6 +76,10 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 	}
 }
 
+// AfterEVMStateTransition implements the ethermint evm PostTxProcessing hook.
+// After a EVM state transition is successfully processed, the claimable amount
+// for the users's claims record evm action is claimed and transferred to the
+// user address.
 func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
 	params := k.GetParams(ctx)
 	fromAddr := sdk.AccAddress(from.Bytes())
@@ -117,7 +128,6 @@ func (h Hooks) AfterProposalInactive(ctx sdk.Context, proposalID uint64) {}
 func (h Hooks) AfterProposalActive(ctx sdk.Context, proposalID uint64)   {}
 
 // staking hooks
-
 func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress)   {}
 func (h Hooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {}
 func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
@@ -145,8 +155,10 @@ func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, f
 
 // IBC callbacks and transfer handlers
 
-// SendPacket implements the ICS4Wrapper interface from the transfer module.
-// It calls the underlying SendPacket function directly to move down the middleware stack.
+// SendPacket implements the ICS4Wrapper interface from the transfer module. It
+// calls the underlying SendPacket function directly to move down the middleware
+// stack. Without SendPacket, this module would be skipped, when sending packages
+// from the transferKeeper to core IBC.
 func (h Hooks) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI) error {
 	return h.k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
 }

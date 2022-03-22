@@ -41,3 +41,18 @@ type GenesisState struct {
 	ClaimsRecords []ClaimsRecordAddress `protobuf:"bytes,2,rep,name=claims_records,json=claimsRecords,proto3" json:"claims_records"`
 }
 ```
+
+## Invariants
+
+The `x/claims` module registers an [`Invariant`](https://docs.cosmos.network/master/building-modules/invariants.html#invariants) to ensure that a property is true at any given time. These functions are useful to detect bugs early on and act upon them to limit their potential consequences (e.g. by halting the chain).
+
+### ClaimsInvariant
+
+The `ClaimsInvariant` checks that the total amount of all unclaimed coins held
+in claims records is equal to the escrowed balance held in the claims module
+account. This is important to ensure that there are sufficient coins to claim for all claims records.
+
+```go
+balance := k.bankKeeper.GetBalance(ctx, moduleAccAddr, params.ClaimsDenom)
+isInvariantBroken := !expectedUnclaimed.Equal(balance.Amount.ToDec())
+```

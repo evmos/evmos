@@ -154,7 +154,7 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 			true,
 		},
 		{
-			"claim record not found for address",
+			"claims record not found for address",
 			func() {
 				req = &types.QueryClaimsRecordRequest{
 					Address: addr.String(),
