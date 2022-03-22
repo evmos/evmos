@@ -65,14 +65,15 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// case 1: sender ≠ recipient.
-	// Withdraw is only possible for addresses in which the sender = recipient.
-	// Continue to the next IBC middleware by returning the original ACK.
+	// Withdraw is only possible for addresses in which the sender = recipient
+	// (i.e transferring to your own account in Evmos).
 	if !sender.Equals(recipient) {
+		// Continue to the next IBC middleware by returning the original ACK.
 		return ack
 	}
 
-	// get the recipient account
-	account := k.accountKeeper.GetAccount(ctx, recipient)
+	// get the sender account
+	account := k.accountKeeper.GetAccount(ctx, sender)
 
 	// withdraw is not supported for vesting or module accounts
 	_, isVestingAcc := account.(vestexported.VestingAccount)
@@ -85,7 +86,7 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// Case 2. recipient pubkey is a supported key (eth_secp256k1, amino multisig, ed25519)
+	// Case 2. sender pubkey is a supported key (eth_secp256k1, amino multisig, ed25519)
 	// ==> Continue and return success ACK as the funds are not stuck on chain
 	if account != nil &&
 		account.GetPubKey() != nil &&
@@ -102,7 +103,10 @@ func (k Keeper) OnRecvPacket(
 	destChannel := packet.DestinationChannel
 	balances := sdk.Coins{}
 
-	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
+	// iterate over all the tokens owned by the address (i.e sender balance) and
+	// transfer them to the original sender address in the source chain (if
+	// applicable, see cases for IBC vouchers below).
+	k.bankKeeper.IterateAccountBalances(ctx, sender, func(coin sdk.Coin) (stop bool) {
 		if coin.IsZero() {
 			// safety check: continue
 			return false
@@ -141,8 +145,8 @@ func (k Keeper) OnRecvPacket(
 			packet.DestinationPort,    // packet destination port is now the source
 			packet.DestinationChannel, // packet destination channel is now the source
 			coin,                      // balance of the coin
-			recipient,                 // transfer recipient is now the sender
-			senderBech32,              // transfer sender is now the recipient
+			sender,                    // sender is the address in the Evmos chain
+			senderBech32,              // transfer to your own account address on the source chain
 			clienttypes.ZeroHeight(),  // timeout height disabled
 			timeout,                   // timeout timestamp is 4 hours from now
 		)
@@ -172,6 +176,11 @@ func (k Keeper) OnRecvPacket(
 				"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
 			).Error(),
 		)
+	}
+
+	if balances.IsZero() {
+		// short circuit in case the user doesn't have any balance
+		return ack
 	}
 
 	amtStr := balances.String()
