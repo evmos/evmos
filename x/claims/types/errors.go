@@ -6,6 +6,6 @@ import (
 
 // errors
 var (
-	ErrClaimsRecordNotFound = sdkerrors.Register(ModuleName, 2, "claim record not found")
+	ErrClaimsRecordNotFound = sdkerrors.Register(ModuleName, 2, "claims record not found")
 	ErrInvalidAction        = sdkerrors.Register(ModuleName, 3, "invalid claim action type")
 )

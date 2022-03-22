@@ -7,7 +7,7 @@ import (
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
 
-// GetClaimsRecord returns the claim record for a specific address
+// GetClaimsRecord returns the claims record for a specific address
 func (k Keeper) GetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) (types.ClaimsRecord, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 
@@ -29,14 +29,14 @@ func (k Keeper) HasClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) bool {
 	return store.Has(addr)
 }
 
-// SetClaimsRecord sets a claim record for an address in store
+// SetClaimsRecord sets a claims record for an address in store
 func (k Keeper) SetClaimsRecord(ctx sdk.Context, addr sdk.AccAddress, claimsRecord types.ClaimsRecord) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 	bz := k.cdc.MustMarshal(&claimsRecord)
 	store.Set(addr, bz)
 }
 
-// DeleteClaimsRecord deletes a claim record from the store
+// DeleteClaimsRecord deletes a claims record from the store
 func (k Keeper) DeleteClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixClaimsRecords)
 	store.Delete(addr)
@@ -65,7 +65,7 @@ func (k Keeper) IterateClaimsRecords(ctx sdk.Context, handlerFn func(addr sdk.Ac
 	}
 }
 
-// GetClaimsRecords get claim record instances for genesis export
+// GetClaimsRecords get claims record instances for genesis export
 func (k Keeper) GetClaimsRecords(ctx sdk.Context) []types.ClaimsRecordAddress {
 	claimsRecords := []types.ClaimsRecordAddress{}
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, cr types.ClaimsRecord) (stop bool) {
