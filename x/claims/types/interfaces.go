@@ -13,6 +13,7 @@ type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	BlockedAddr(address sdk.AccAddress) bool
 }
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)

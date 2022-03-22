@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
@@ -18,9 +19,9 @@ import (
 
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/v2/app"
-	"github.com/tharsis/evmos/v2/ibctesting"
+	ibctesting "github.com/tharsis/evmos/v2/ibc/testing"
+	"github.com/tharsis/evmos/v2/testutil"
 	"github.com/tharsis/evmos/v2/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
 )
 
 type IBCTestingSuite struct {
@@ -50,16 +51,14 @@ func (suite *IBCTestingSuite) SetupTest() {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
 
-	err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
+	err := testutil.FundModuleAccount(suite.chainB.App.(*app.Evmos).BankKeeper, suite.chainB.GetContext(), types.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-	suite.Require().NoError(err)
+
 	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), addr, claimsRecord)
 
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
+	err = testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
-	suite.Require().NoError(err)
+
 	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), addr, claimsRecord)
 
 	params := types.DefaultParams()
@@ -68,14 +67,14 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
 	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 
-	suite.pathEVM = NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathEVM)                      // clientID, connectionID, channelID filled
+	suite.pathEVM = ibctesting.NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathEVM)                                 // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", suite.pathEVM.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathEVM.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathEVM.EndpointA.ChannelID)
 
-	suite.pathCosmos = NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathCosmos)                           // clientID, connectionID, channelID filled
+	suite.pathCosmos = ibctesting.NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
+	suite.coordinator.Setup(suite.pathCosmos)                                      // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-1", suite.pathCosmos.EndpointA.ClientID)
 	suite.Require().Equal("connection-1", suite.pathCosmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-1", suite.pathCosmos.EndpointA.ChannelID)
@@ -86,19 +85,6 @@ func TestIBCTestingSuite(t *testing.T) {
 }
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
-
-func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
-	path := ibcgotesting.NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
-	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
-
-	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointA.ChannelConfig.Version = "ics20-1"
-	path.EndpointB.ChannelConfig.Version = "ics20-1"
-
-	return path
-}
 
 func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 	sender := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
@@ -124,9 +110,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.NewClaimsRecord(amt))
 
 				// update the escrowed account balance to maintain the invariant
-				err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.chainB.App.(*app.Evmos).BankKeeper, suite.chainB.GetContext(), types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			4,
@@ -143,9 +127,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, true, false, false}})
 
 				// update the escrowed account balance to maintain the invariant
-				err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.chainB.App.(*app.Evmos).BankKeeper, suite.chainB.GetContext(), types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			4,
@@ -170,9 +152,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
 				// update the escrowed account balance to maintain the invariant
-				err := suite.chainB.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.chainB.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainB.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.chainB.App.(*app.Evmos).BankKeeper, suite.chainB.GetContext(), types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			4,
@@ -264,9 +244,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.NewClaimsRecord(amt))
 				// update the escrowed account balance to maintain the invariant
-				err := suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			4,
@@ -281,9 +259,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.NewClaimsRecord(amt))
 				// update the escrowed account balance to maintain the invariant
-				err := suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			4,
@@ -299,9 +275,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
 
 				// update the escrowed account balance to maintain the invariant
-				err := suite.chainA.App.(*app.Evmos).BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.chainA.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.chainA.GetContext(), inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			4,
@@ -448,6 +422,18 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
+			"fail - blocked recipient (deny list)",
+			func() {
+				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, blockedAddr.String())
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+			},
+		},
+		{
 			"fail - sender and receiver address is the same (no claim record)",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
@@ -486,6 +472,23 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 				// check that the record is merged to the recipient
 				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 1 fail: not enough funds on escrow account",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(10000000000)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(10000000000)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
@@ -536,6 +539,24 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 				// check that the record is not deleted
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
+			},
+		},
+		{
+			"case 3 fail: not enough funds on escrow account",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(1000000000000000)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+
+				var ack channeltypes.Acknowledgement
+				transfertypes.ModuleCdc.MustUnmarshalJSON(resAck.Acknowledgement(), &ack)
+				suite.Require().False(resAck.Success(), ack.String())
+
+				// check that the record is not deleted
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
 		{
@@ -595,14 +616,21 @@ func (suite *KeeperTestSuite) TestAck() {
 			},
 		},
 		{
-			"non ics20 packet",
+			"invalid ACK",
 			func() {
-				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, []byte{3})
+				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, []byte{})
 				suite.Require().Error(err)
 			},
 		},
 		{
-			"error Ack",
+			"non ics20 packet",
+			func() {
+				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				suite.Require().Error(err)
+			},
+		},
+		{
+			"no-op: error Ack",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 				ack := transfertypes.NewErrorAcknowledgement(err)
@@ -610,10 +638,29 @@ func (suite *KeeperTestSuite) TestAck() {
 				suite.Require().NoError(err)
 			},
 		},
+		{
+			"error - claim IBC action with no escrowed funds",
+			func() {
+				addr, err := sdk.AccAddressFromBech32("evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v")
+				suite.Require().NoError(err)
+
+				mockpacket.Data = transfertypes.ModuleCdc.MustMarshalJSON(
+					&transfertypes.FungibleTokenPacketData{
+						Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+					},
+				)
+
+				cr := types.NewClaimsRecord(sdk.NewInt(200))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
+				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				suite.Require().Error(err)
+			},
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupClaimTest() // reset
+			suite.SetupTest() // reset
 
 			tc.test()
 		})

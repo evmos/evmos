@@ -274,11 +274,12 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.Require().True(found)
 			suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
-			// Fund receiver account with aevmos and ibc coin
+			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			coins := sdk.NewCoins(
 				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
 				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 			)
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
 
