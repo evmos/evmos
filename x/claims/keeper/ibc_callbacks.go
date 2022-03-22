@@ -41,11 +41,6 @@ func (k Keeper) OnAcknowledgementPacket(
 		return nil
 	}
 
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-	}
-
 	sender, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return err
