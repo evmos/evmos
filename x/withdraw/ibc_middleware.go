@@ -29,7 +29,8 @@ func NewIBCMiddleware(k keeper.Keeper, app porttypes.IBCModule) IBCMiddleware {
 }
 
 // OnRecvPacket implements the IBCModule interface.
-// If fees are not enabled, this callback will default to the ibc-core packet callback
+// If the acknowledgement fails, this callback will default to the ibc-core
+// packet callback.
 func (im IBCMiddleware) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,

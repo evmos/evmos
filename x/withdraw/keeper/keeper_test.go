@@ -29,6 +29,7 @@ import (
 var (
 	ibcAtomDenom = "ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701"
 	ibcOsmoDenom = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
+	erc20Denom   = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"
 )
 
 type KeeperTestSuite struct {
@@ -81,7 +82,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -89,7 +89,6 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
-
 	address := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 
 	testCases := []struct {
