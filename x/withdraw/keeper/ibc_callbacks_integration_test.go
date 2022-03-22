@@ -14,7 +14,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
-	"github.com/tharsis/evmos/v2/ibctesting"
+	ibctesting "github.com/tharsis/evmos/v2/ibc/testing"
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/tharsis/evmos/v2/app"
@@ -76,9 +76,9 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params.EnableWithdraw = true
 	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-	suite.pathOsmosisEvmos = NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
-	suite.pathCosmosEvmos = NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
-	suite.pathOsmosisCosmos = NewTransferPath(suite.IBCCosmosChain, suite.IBCOsmosisChain)
+	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
+	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
+	suite.pathOsmosisCosmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.IBCOsmosisChain)
 	suite.coordinator.Setup(suite.pathOsmosisEvmos) // clientID, connectionID, channelID filled
 	suite.coordinator.Setup(suite.pathCosmosEvmos)
 	suite.coordinator.Setup(suite.pathOsmosisCosmos)
@@ -92,19 +92,6 @@ func TestIBCTestingSuite(t *testing.T) {
 }
 
 var timeoutHeight = clienttypes.NewHeight(1000, 1000)
-
-func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
-	path := ibcgotesting.NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
-	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
-
-	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointA.ChannelConfig.Version = "ics20-1"
-	path.EndpointB.ChannelConfig.Version = "ics20-1"
-
-	return path
-}
 
 func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, chain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
 	// Send IBC transaction of 10 uosmo
@@ -258,12 +245,12 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 	}
 }
 
-// Send IBC-Coin2 from IBC-Chain2 to Evmos
+// Send uatom from Cosmos to Evmos
 // Enable Withdraw
-// Send IBC-Coin1 From IBC-Chain1 to Evmos
-// Aevmos, IBC-Coin1 should be on IBC-Chain1 balance
-// IBC-Coin2 should remain on the EvmosChain
-// Send IBC-Coin1 From IBC-Chain1 to Evmos
+// Send uosmo From Osmosis to Evmos
+// Aevmos, uosmo should be on Osmosis balance
+// ibc/uatom should remain on the EvmosChain
+// Send uosmo From Osmosis to Evmos
 // No changes on balance should occur
 func (suite *IBCTestingSuite) TestTwoChains() {
 	suite.SetupTest()
@@ -359,11 +346,11 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 
 }
 
-// Send IBC-Coin1 from IBC-Chain1 to IBC-Chain2
-// Send IBC-Coin1 From IBC-Chain2 to Evmos
+// Send uatom from Cosmos to Osmosis
+// Send ibc/uatom From Osmosis to Evmos
 // Enable Withdraw
-// Send IBC-Coin2 from IBC-Chain2 to Evmos
-// Aevmos, IBC-Coin1 and IBC-Coin2 should be on IBC-Chain2 balance
+// Send uosmo from Osmosis to Evmos
+// Aevmos, uosmo and ibc/uatom should be on Osmosis balance
 func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	suite.SetupTest()
 	uatomDenomtrace := transfertypes.DenomTrace{
@@ -412,10 +399,10 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 		"transfer", "channel-0", "transfer", "channel-0", 1, timeout)
 
 	packet3 := CreatePacket("10", "transfer/channel-0/uosmo", sender, receiver,
-		"transfer", "channel-0", "transfer", "channel-0", 2, timeout)
+		"transfer", "channel-0", "transfer", "channel-0", 3, timeout)
 
 	packet4 := CreatePacket("10", "transfer/channel-0/transfer/channel-1/uatom", sender, receiver,
-		"transfer", "channel-0", "transfer", "channel-0", 3, timeout)
+		"transfer", "channel-0", "transfer", "channel-0", 2, timeout)
 
 	// Relay packets that were sent in the ibc_callback
 	err = pathOsmosisEvmos.RelayPacket(packet2)
