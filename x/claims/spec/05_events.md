@@ -16,7 +16,8 @@ The `x/claims` module emits the following events:
 
 ## Merge Claims Records
 
-| Type                   | Attribute Key     | Attribute Value                                                         |
-| ---------------------- | ----------------- | ----------------------------------------------------------------------- |
-| `merge_claims_records` | `"recipient"`     | `{recipient.String()}`                                                  |
-| `merge_claims_records` | `"claimed_coins"` | `{claimed_coins.String()}`                                              |
+| Type                   | Attribute Key                 | Attribute Value             |
+| ---------------------- | ----------------------------- | --------------------------- |
+| `merge_claims_records` | `"recipient"`                 | `{recipient.String()}`      |
+| `merge_claims_records` | `"claimed_coins"`             | `{claimed_coins.String()}`  |
+| `merge_claims_records` | `"fund_community_pool_coins"` | `{remainderCoins.String()}` |

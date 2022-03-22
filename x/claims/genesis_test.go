@@ -203,8 +203,9 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 		ActionsCompleted:       []bool{false, false, false, false},
 	})
 
-	claimableAmount := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionIBCTransfer, suite.genesis.Params)
-	suite.Require().Equal(claimableAmount, sdk.NewInt(100))
+	claimableAmount, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionIBCTransfer, suite.genesis.Params)
+	suite.Require().Equal(sdk.NewInt(100), claimableAmount)
+	suite.Require().Equal(sdk.ZeroInt(), remainder)
 
 	genesisExported := claims.ExportGenesis(suite.ctx, suite.app.ClaimsKeeper)
 	suite.Require().Equal(genesisExported.Params, suite.genesis.Params)

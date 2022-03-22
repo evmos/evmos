@@ -1,14 +1,13 @@
 package keeper
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
+	"github.com/tharsis/evmos/v2/ibc"
 	evmos "github.com/tharsis/evmos/v2/types"
 	"github.com/tharsis/evmos/v2/x/claims/types"
 )
@@ -89,37 +88,11 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// unmarshal packet data to obtain the sender and recipient
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-		return channeltypes.NewErrorAcknowledgement(err.Error())
-	}
-
 	// Get bech32 address from the counterparty and change the bech32 human
 	// readable prefix (HRP) of the sender to `evmos1`
-	bech32Prefix := strings.Split(data.Sender, "1")[0]
-	if bech32Prefix == data.Sender {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender: %s", data.Sender).Error(),
-		)
-	}
-
-	senderBz, err := sdk.GetFromBech32(data.Sender, bech32Prefix)
+	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender %s, %s", data.Sender, err.Error()).Error(),
-		)
-	}
-
-	sender := sdk.AccAddress(senderBz)
-
-	// obtain the evmos recipient address
-	recipient, err := sdk.AccAddressFromBech32(data.Receiver)
-	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address %s", err.Error()).Error(),
-		)
+		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
@@ -138,7 +111,7 @@ func (k Keeper) OnRecvPacket(
 		case senderRecordFound && !senderClaimsRecord.HasClaimedAny():
 			return channeltypes.NewErrorAcknowledgement(
 				sdkerrors.Wrapf(
-					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", data.Receiver,
+					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
 				).Error(),
 			)
 		// case 2: sender/recipient has funds stuck -> return error acknowledgement
@@ -149,7 +122,7 @@ func (k Keeper) OnRecvPacket(
 				sdkerrors.Wrapf(
 					evmos.ErrKeyTypeNotSupported,
 					"reverted transfer to unsupported address %s to prevent more funds from getting stuck",
-					data.Receiver,
+					recipientBech32,
 				).Error(),
 			)
 		}
@@ -180,8 +153,8 @@ func (k Keeper) OnRecvPacket(
 		k.DeleteClaimsRecord(ctx, sender)
 		logger.Debug(
 			"merged sender and receiver claims records",
-			"sender", data.Sender,
-			"receiver", data.Receiver,
+			"sender", senderBech32,
+			"receiver", recipientBech32,
 			"total-claimable", senderClaimsRecord.InitialClaimableAmount.Add(recipientClaimsRecord.InitialClaimableAmount).String(),
 		)
 
@@ -193,8 +166,8 @@ func (k Keeper) OnRecvPacket(
 
 		logger.Debug(
 			"migrated sender claims record to receiver",
-			"sender", data.Sender,
-			"receiver", data.Receiver,
+			"sender", senderBech32,
+			"receiver", recipientBech32,
 			"total-claimable", senderClaimsRecord.InitialClaimableAmount.String(),
 		)
 

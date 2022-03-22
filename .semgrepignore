@@ -13,6 +13,9 @@ vendor/
 .tox/
 *.min.js
 
+# Ignore proto
+*.proto
+
 # Common test paths
 test/
 tests/
