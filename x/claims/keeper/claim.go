@@ -128,6 +128,14 @@ func (k Keeper) MergeClaimsRecords(
 		return types.ClaimsRecord{}, err
 	}
 
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeMergeClaimsRecords,
+			sdk.NewAttribute(types.AttributeKeyRecipient, recipient.String()),
+			sdk.NewAttribute(types.AttributeKeyClaimedCoins, claimedCoins.String()),
+		),
+	})
+
 	return mergedRecord, nil
 }
 

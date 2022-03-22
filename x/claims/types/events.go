@@ -2,7 +2,10 @@ package types
 
 // claim module event types
 const (
-	EventTypeClaim = "claim"
+	EventTypeClaim              = "claim"
+	EventTypeMergeClaimsRecords = "merge_claims_records"
 
-	AttributeKeyActionType = "action"
+	AttributeKeyActionType   = "action"
+	AttributeKeyRecipient    = "recipient"
+	AttributeKeyClaimedCoins = "claimed_coins"
 )

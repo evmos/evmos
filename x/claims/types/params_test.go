@@ -79,7 +79,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"success - constructor",
-			NewParams(true, time.Unix(0, 0), "tevmos", DefaultDurationOfDecay, DefaultDurationUntilDecay, DefaultAuthorizedChannels, DefaultEVMChannels),
+			NewParams(true, "tevmos", time.Unix(0, 0), DefaultDurationOfDecay, DefaultDurationUntilDecay, DefaultAuthorizedChannels, DefaultEVMChannels),
 			false,
 		},
 	}
