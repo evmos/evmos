@@ -103,7 +103,7 @@ func (k Keeper) ClaimsRecord(
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
 	if !found {
-		return nil, status.Errorf(codes.NotFound, "claim record for address '%s'", req.Address)
+		return nil, status.Errorf(codes.NotFound, "claims record for address '%s'", req.Address)
 	}
 
 	params := k.GetParams(ctx)
