@@ -11,7 +11,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	"github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
 // Keeper struct

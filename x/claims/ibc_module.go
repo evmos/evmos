@@ -6,8 +6,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v2/ibc"
-	"github.com/tharsis/evmos/v2/x/claims/keeper"
+	"github.com/tharsis/evmos/v3/ibc"
+	"github.com/tharsis/evmos/v3/x/claims/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCModule{}

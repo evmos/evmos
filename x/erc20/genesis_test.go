@@ -16,9 +16,9 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/v2/app"
-	"github.com/tharsis/evmos/v2/x/erc20"
-	"github.com/tharsis/evmos/v2/x/erc20/types"
+	"github.com/tharsis/evmos/v3/app"
+	"github.com/tharsis/evmos/v3/x/erc20"
+	"github.com/tharsis/evmos/v3/x/erc20/types"
 )
 
 type GenesisTestSuite struct {
