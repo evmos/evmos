@@ -83,7 +83,7 @@ The user receives an IBC transfer from a counterparty chain. If the transfer is 
    - global parameter is enabled
    - current block time is before the end of the claims period
 5. TODO: return for NON EVM channel
-6. Check if destination channel is authorized to perform the IBC claim.
+6. Check if destination channel is authorized to perform the IBC claim. Without this authorization the claiming process is vulerable to attacks.
 7. Handle one of four cases by comparing sender and recipient addresses with each other and checking if either addresses have a claims record (i.e allocation) for the airdrop. To compare both addresses, the sender address's bech32 human readable prefix (HRP) is replaced with `evmos1`.
    1. both sender and recipient are distinct and have a claims record -> merge sender's record with the recipient's record and claim actions that have been completed by one or the other
    2. only the sender has a claims record -> migrate the sender record to the recipient address and claim IBC action
