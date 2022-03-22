@@ -16,9 +16,9 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/v2/app"
-	"github.com/tharsis/evmos/v2/x/erc20"
-	"github.com/tharsis/evmos/v2/x/erc20/types"
+	"github.com/tharsis/evmos/v3/app"
+	"github.com/tharsis/evmos/v3/x/erc20"
+	"github.com/tharsis/evmos/v3/x/erc20/types"
 )
 
 type GenesisTestSuite struct {
@@ -111,7 +111,6 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 }
 
 func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
-
 	testGenCases := []struct {
 		name         string
 		genesisState types.GenesisState
@@ -142,7 +141,6 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 	for _, tc := range testGenCases {
 		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 		suite.Require().NotPanics(func() {
-
 			genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
 			params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 			suite.Require().Equal(genesisExported.Params, params)

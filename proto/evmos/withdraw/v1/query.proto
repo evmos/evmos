@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "evmos/withdraw/v1/genesis.proto";
 
-option go_package = "github.com/tharsis/evmos/v2/x/withdraw/types";
+option go_package = "github.com/tharsis/evmos/v3/x/withdraw/types";
 
 // Query defines the gRPC querier service.
 service Query {
