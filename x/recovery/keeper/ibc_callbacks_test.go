@@ -294,7 +294,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().False(ack.Success(), string(ack.Acknowledgement()))
 			}
 
-			// Check recoveryal
+			// Check recovery
 			balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
 			if tc.expRecovery {
 				suite.Require().True(balances.IsZero())
