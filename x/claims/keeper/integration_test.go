@@ -23,10 +23,10 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v2/app"
-	"github.com/tharsis/evmos/v2/testutil"
-	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
-	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	"github.com/tharsis/evmos/v3/app"
+	"github.com/tharsis/evmos/v3/testutil"
+	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
+	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -35,8 +35,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tharsis/ethermint/server/config"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v2/contracts"
-	"github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v3/contracts"
+	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
 var _ = Describe("Claiming", Ordered, func() {
@@ -322,7 +322,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			Expect(moduleBalance.AmountOf(claimsDenom).IsZero()).To(BeTrue())
 
 			// The unclaimed amount goes to the community pool
-			// including any dust coins given for performing the claim
+			// including any dust amounts coins were given for performing the claim
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
 			Expect(poolBalance).To(Equal(totalClaimsAmount.Sub(totalClaimed).Add(sdk.NewCoin(claimsDenom, initClaimsAmount))))
 		})
