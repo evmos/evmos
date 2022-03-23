@@ -88,10 +88,6 @@ var _ = Describe("Claiming", Ordered, func() {
 		params.AirdropStartTime = s.ctx.BlockTime()
 		s.app.ClaimsKeeper.SetParams(s.ctx, params)
 
-		inflationParams := s.app.InflationKeeper.GetParams(s.ctx)
-		inflationParams.EnableInflation = false
-		s.app.InflationKeeper.SetParams(s.ctx, inflationParams)
-
 		// mint coins for claiming and send them to the claims module
 		coins := sdk.NewCoins(totalClaimsAmount)
 
@@ -326,8 +322,9 @@ var _ = Describe("Claiming", Ordered, func() {
 			Expect(moduleBalance.AmountOf(claimsDenom).IsZero()).To(BeTrue())
 
 			// The unclaimed amount goes to the community pool
+			// including any dust coins given for performing the claim
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance).To(Equal(totalClaimsAmount.Sub(totalClaimed)))
+			Expect(poolBalance).To(Equal(totalClaimsAmount.Sub(totalClaimed).Add(sdk.NewCoin(claimsDenom, initClaimsAmount))))
 		})
 	})
 })
