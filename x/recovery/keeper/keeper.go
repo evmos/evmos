@@ -101,7 +101,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	if err != nil {
 		return "", "", sdkerrors.Wrapf(
 			err,
-			"failed to recovery IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
+			"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
 	}
 
@@ -109,7 +109,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	if !found {
 		return "", "", sdkerrors.Wrapf(
 			transfertypes.ErrTraceNotFound,
-			"failed to recovery IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
+			"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
 	}
 

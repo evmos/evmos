@@ -123,7 +123,7 @@ func (k Keeper) OnRecvPacket(
 				return true // stop iteration
 			}
 
-			// NOTE: only recovery the IBC tokens from the source chain connected through our
+			// NOTE: only recover the IBC tokens from the source chain connected through our
 			// authorized destination channel
 			if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
 				// continue
@@ -162,7 +162,7 @@ func (k Keeper) OnRecvPacket(
 	// check error from the iteration above
 	if err != nil {
 		logger.Error(
-			"failed to recovery IBC vouchers",
+			"failed to recover IBC vouchers",
 			"sender", senderBech32,
 			"receiver", recipientBech32,
 			"source-port", packet.SourcePort,
@@ -173,7 +173,7 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(
 				err,
-				"failed to recovery IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
+				"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
 			).Error(),
 		)
 	}
@@ -186,7 +186,7 @@ func (k Keeper) OnRecvPacket(
 	amtStr := balances.String()
 
 	logger.Info(
-		"balances recoveryn to sender address",
+		"balances recovered to sender address",
 		"sender", senderBech32,
 		"receiver", recipientBech32,
 		"amount", amtStr,

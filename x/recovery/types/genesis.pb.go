@@ -77,7 +77,7 @@ func (m *GenesisState) GetParams() Params {
 type Params struct {
 	// enable recovery IBC middleware
 	EnableRecovery bool `protobuf:"varint,1,opt,name=enable_recovery,json=enableRecovery,proto3" json:"enable_recovery,omitempty"`
-	// duration added to timeout timestamp for balances recoveryn via IBC packets
+	// duration added to timeout timestamp for balances recovered via IBC packets
 	PacketTimeoutDuration time.Duration `protobuf:"bytes,2,opt,name=packet_timeout_duration,json=packetTimeoutDuration,proto3,stdduration" json:"packet_timeout_duration"`
 }
 

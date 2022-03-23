@@ -1665,7 +1665,7 @@ Params holds parameters for the recovery module
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_recovery` | [bool](#bool) |  | enable recovery IBC middleware |
-| `packet_timeout_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration added to timeout timestamp for balances recoveryn via IBC packets |
+| `packet_timeout_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration added to timeout timestamp for balances recovered via IBC packets |
 
 
 

@@ -1942,7 +1942,7 @@ paths:
                   packet_timeout_duration:
                     type: string
                     title: >-
-                      duration added to timeout timestamp for balances recoveryn
+                      duration added to timeout timestamp for balances recovered
                       via IBC packets
                 title: Params holds parameters for the recovery module
             description: >-
@@ -28468,7 +28468,7 @@ definitions:
       packet_timeout_duration:
         type: string
         title: >-
-          duration added to timeout timestamp for balances recoveryn via IBC
+          duration added to timeout timestamp for balances recovered via IBC
           packets
     title: Params holds parameters for the recovery module
   evmos.recovery.v1.QueryParamsResponse:
@@ -28484,7 +28484,7 @@ definitions:
           packet_timeout_duration:
             type: string
             title: >-
-              duration added to timeout timestamp for balances recoveryn via IBC
+              duration added to timeout timestamp for balances recovered via IBC
               packets
         title: Params holds parameters for the recovery module
     description: QueryParamsResponse is the response type for the Query/Params RPC method.

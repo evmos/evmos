@@ -16,7 +16,7 @@ message GenesisState {
 message Params {
     // enable recovery IBC middleware
     bool enable_recovery = 1;
-    // duration added to timeout timestamp for balances recoveryn via IBC packets
+    // duration added to timeout timestamp for balances recovered via IBC packets
     google.protobuf.Duration packet_timeout_duration = 2 [
         (gogoproto.nullable) = false,
         (gogoproto.stdduration) = true
