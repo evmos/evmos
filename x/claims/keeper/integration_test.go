@@ -48,13 +48,13 @@ var _ = Describe("Claiming", Ordered, func() {
 
 	actionValue := sdk.NewInt(int64(math.Pow10(5) * 10))
 	claimValue := actionValue.MulRaw(4)
-	totalClaimsAmount := sdk.NewCoin(types.DefaultClaimsDenom, claimValue.MulRaw(int64(accountCount)))
+	totalClaimsAmount := sdk.NewCoin(claimsDenom, claimValue.MulRaw(int64(accountCount)))
 
 	// account initial balances
 	initClaimsAmount := sdk.NewInt(int64(math.Pow10(5) * 2))
 	initEvmAmount := sdk.NewInt(int64(math.Pow10(18) * 2))
 	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
-	delegateAmount := sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(1))
+	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
 		sdk.NewCoin(claimsDenom, initClaimsAmount),
@@ -127,14 +127,12 @@ var _ = Describe("Claiming", Ordered, func() {
 		s.Commit()
 
 		proposalId = govProposal(priv0)
-		totalClaimed = sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(0))
-		remainderUnclaimed = sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(0))
 	})
 
 	Context("before decay duration", func() {
 		var actionV sdk.Coin
 		BeforeAll(func() {
-			actionV = sdk.NewCoin(types.DefaultClaimsDenom, actionValue)
+			actionV = sdk.NewCoin(claimsDenom, actionValue)
 		})
 
 		It("can claim ActionDelegate", func() {
@@ -143,7 +141,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			delegate(privs[0], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
-			totalClaimed = totalClaimed.Add(actionV)
 		})
 
 		It("can claim ActionEVM", func() {
@@ -152,7 +149,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			sendEthToSelf(privs[0])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
-			totalClaimed = totalClaimed.Add(actionV)
 		})
 
 		It("can claim ActionVote", func() {
@@ -161,7 +157,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			vote(privs[1], proposalId)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
-			totalClaimed = totalClaimed.Add(actionV)
 		})
 
 		It("can claim ActionIBCTransfer", Pending, func() {
@@ -170,7 +165,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			performIbcTransfer(privs[2])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
-			totalClaimed = totalClaimed.Add(actionV)
 		})
 
 		It("did not clawback to the community pool", func() {
@@ -180,6 +174,7 @@ var _ = Describe("Claiming", Ordered, func() {
 
 			// ensure module account has the escrow fund minus what was claimed
 			balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, claimsDenom)
+			totalClaimed = sdk.NewCoin(claimsDenom, actionV.Amount.MulRaw(3))
 			Expect(balanceClaims).To(Equal(totalClaimsAmount.Sub(totalClaimed)))
 		})
 	})
@@ -189,8 +184,8 @@ var _ = Describe("Claiming", Ordered, func() {
 		var unclaimedV sdk.Coin
 
 		BeforeAll(func() {
-			actionV = sdk.NewCoin(types.DefaultClaimsDenom, actionValue.QuoRaw(3))
-			unclaimedV = sdk.NewCoin(types.DefaultClaimsDenom, actionValue.Sub(actionV.Amount))
+			actionV = sdk.NewCoin(claimsDenom, actionValue.QuoRaw(3))
+			unclaimedV = sdk.NewCoin(claimsDenom, actionValue.Sub(actionV.Amount))
 			duration := params.DecayStartTime().Sub(s.ctx.BlockHeader().Time)
 			s.CommitAfter(duration)
 			duration = params.GetDurationOfDecay() * 2 / 3
@@ -208,8 +203,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			delegate(privs[1], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
-			totalClaimed = totalClaimed.Add(actionV)
-			remainderUnclaimed = remainderUnclaimed.Add(unclaimedV)
 		})
 
 		It("can claim ActionEVM", func() {
@@ -218,12 +211,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			sendEthToSelf(privs[1])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
-			totalClaimed = totalClaimed.Add(actionV)
-			remainderUnclaimed = remainderUnclaimed.Add(unclaimedV)
 
 			sendEthToSelf(privs[2])
-			totalClaimed = totalClaimed.Add(actionV)
-			remainderUnclaimed = remainderUnclaimed.Add(unclaimedV)
 		})
 
 		It("can claim ActionVote", func() {
@@ -232,8 +221,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			vote(privs[0], proposalId)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
-			totalClaimed = totalClaimed.Add(actionV)
-			remainderUnclaimed = remainderUnclaimed.Add(unclaimedV)
 		})
 
 		It("cannot claim ActionDelegate a second time", func() {
@@ -261,6 +248,9 @@ var _ = Describe("Claiming", Ordered, func() {
 		})
 
 		It("did not clawback to the community pool", func() {
+			remainderUnclaimed = sdk.NewCoin(claimsDenom, unclaimedV.Amount.MulRaw(4))
+			totalClaimed = totalClaimed.Add(sdk.NewCoin(claimsDenom, actionV.Amount.MulRaw(4)))
+
 			// ensure community pool doesn't have the fund
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
 			Expect(poolBalance).To(Equal(remainderUnclaimed))
@@ -295,7 +285,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			Expect(balance).To(Equal(prebalance.Sub(delegateAmount)))
 		})
 
-		It("final balances", func() {
+		It("cannot clawback already claimed actions", func() {
 			addr := getAddr(privs[0])
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			claimed := actionValue.MulRaw(2).Add(actionValue.QuoRaw(3))
