@@ -57,7 +57,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-func (b AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var genesisState types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &genesisState); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
@@ -70,7 +70,7 @@ func (b AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEnc
 // endpoints
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {}
 
-func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *runtime.ServeMux) {
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *runtime.ServeMux) {
 	if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
 		panic(err)
 	}
@@ -103,22 +103,22 @@ func (AppModule) Name() string {
 	return types.ModuleName
 }
 
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
+func (AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 // NewHandler returns nil withdraw module doesn't expose tx gRPC endpoints
-func (am AppModule) NewHandler() sdk.Handler {
+func (AppModule) NewHandler() sdk.Handler {
 	return nil
 }
 
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, nil)
+	return sdk.NewRoute(types.RouterKey, am.NewHandler())
 }
 
-func (am AppModule) QuerierRoute() string {
+func (AppModule) QuerierRoute() string {
 	return ""
 }
 
-func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
+func (AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 	return nil
 }
 
@@ -126,10 +126,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
+func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
 }
 
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
@@ -146,20 +146,20 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
-func (am AppModule) GenerateGenesisState(input *module.SimulationState) {
+func (AppModule) GenerateGenesisState(_ *module.SimulationState) {
 }
 
-func (am AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
+func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
 }
 
-func (am AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
+func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{}
 }
 
-func (am AppModule) RegisterStoreDecoder(decoderRegistry sdk.StoreDecoderRegistry) {
+func (AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
 }
 
-func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
+func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
 	return []simtypes.WeightedOperation{}
 }
