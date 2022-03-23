@@ -1,22 +1,22 @@
 syntax = "proto3";
-package evmos.withdraw.v1;
+package evmos.recovery.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/tharsis/evmos/v3/x/withdraw/types";
+option go_package = "github.com/tharsis/evmos/v3/x/recovery/types";
 
-// GenesisState defines the withdraw module's genesis state.
+// GenesisState defines the recovery module's genesis state.
 message GenesisState {
     // params defines all the paramaters of the module.
     Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// Params holds parameters for the withdraw module
+// Params holds parameters for the recovery module
 message Params {
-    // enable withdraw IBC middleware
-    bool enable_withdraw = 1;
-    // duration added to timeout timestamp for balances withdrawn via IBC packets
+    // enable recovery IBC middleware
+    bool enable_recovery = 1;
+    // duration added to timeout timestamp for balances recovered via IBC packets
     google.protobuf.Duration packet_timeout_duration = 2 [
         (gogoproto.nullable) = false,
         (gogoproto.stdduration) = true

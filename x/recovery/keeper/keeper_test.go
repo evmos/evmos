@@ -23,7 +23,7 @@ import (
 
 	"github.com/tharsis/evmos/v3/app"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 var (
@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.WithdrawKeeper)
+	types.RegisterQueryServer(queryHelper, suite.app.RecoveryKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	claimsParams := claimstypes.DefaultParams()
@@ -195,7 +195,7 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 
 			tc.malleate()
 
-			destinationPort, destinationChannel, err := suite.app.WithdrawKeeper.GetIBCDenomDestinationIdentifiers(suite.ctx, tc.denom, address)
+			destinationPort, destinationChannel, err := suite.app.RecoveryKeeper.GetIBCDenomDestinationIdentifiers(suite.ctx, tc.denom, address)
 			if tc.expError {
 				suite.Require().Error(err)
 			} else {

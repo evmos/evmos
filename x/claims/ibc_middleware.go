@@ -2,6 +2,7 @@ package claims
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
@@ -10,18 +11,18 @@ import (
 	"github.com/tharsis/evmos/v3/x/claims/keeper"
 )
 
-var _ porttypes.IBCModule = &IBCModule{}
+var _ porttypes.Middleware = &IBCMiddleware{}
 
-// IBCModule implements the ICS26 callbacks for the transfer middleware given
+// IBCMiddleware implements the ICS26 callbacks for the transfer middleware given
 // the claim keeper and the underlying application.
-type IBCModule struct {
+type IBCMiddleware struct {
 	*ibc.Module
 	keeper keeper.Keeper
 }
 
-// NewIBCModule creates a new IBCModule given the keeper and underlying application
-func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
-	return IBCModule{
+// NewIBCMiddleware creates a new IBCMiddleware given the keeper and underlying application
+func NewIBCMiddleware(k keeper.Keeper, app porttypes.IBCModule) IBCMiddleware {
+	return IBCMiddleware{
 		Module: ibc.NewModule(app),
 		keeper: k,
 	}
@@ -29,7 +30,7 @@ func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
 
 // OnRecvPacket implements the IBCModule interface.
 // If fees are not enabled, this callback will default to the ibc-core packet callback.
-func (im IBCModule) OnRecvPacket(
+func (im IBCMiddleware) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
@@ -46,7 +47,7 @@ func (im IBCModule) OnRecvPacket(
 
 // OnAcknowledgementPacket implements the IBCModule interface
 // If fees are not enabled, this callback will default to the ibc-core packet callback.
-func (im IBCModule) OnAcknowledgementPacket(
+func (im IBCMiddleware) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
@@ -57,4 +58,23 @@ func (im IBCModule) OnAcknowledgementPacket(
 	}
 
 	return im.keeper.OnAcknowledgementPacket(ctx, packet, acknowledgement)
+}
+
+// SendPacket implements the ICS4 Wrapper interface
+func (im IBCMiddleware) SendPacket(
+	ctx sdk.Context,
+	chanCap *capabilitytypes.Capability,
+	packet exported.PacketI,
+) error {
+	return im.keeper.SendPacket(ctx, chanCap, packet)
+}
+
+// WriteAcknowledgement implements the ICS4 Wrapper interface
+func (im IBCMiddleware) WriteAcknowledgement(
+	ctx sdk.Context,
+	chanCap *capabilitytypes.Capability,
+	packet exported.PacketI,
+	ack exported.Acknowledgement,
+) error {
+	return im.keeper.WriteAcknowledgement(ctx, chanCap, packet, ack)
 }

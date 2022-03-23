@@ -1,10 +1,10 @@
-package withdraw
+package recovery
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v3/x/withdraw/keeper"
-	"github.com/tharsis/evmos/v3/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/recovery/keeper"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 // InitGenesis import module genesis
