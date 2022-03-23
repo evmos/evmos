@@ -434,14 +434,14 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"fail - sender and receiver address is the same (no claim record)",
+			"pass - sender and receiver address is the same (no claim record) - attempt recovery",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().False(resAck.Success())
+				suite.Require().True(resAck.Success())
 			},
 		},
 		{
