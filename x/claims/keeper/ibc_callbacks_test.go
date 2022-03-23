@@ -581,7 +581,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().True(resAck.Success())
+				suite.Require().True(resAck.Success(), string(resAck.Acknowledgement()))
 			},
 		},
 	}

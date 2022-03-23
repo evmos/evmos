@@ -35,6 +35,7 @@ keyring_test_cosmos
 secret.yml
 artifacts/*
 tmp-swagger-gen
+github.com/
 # vue/
 
 # Local docker volume mappings

@@ -5,9 +5,11 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 )
 
 var (
@@ -142,8 +144,10 @@ func ValidateChannels(i interface{}) error {
 	}
 
 	for _, channel := range channels {
-		if !channeltypes.IsValidChannelID(channel) {
-			return fmt.Errorf("invalid channel id %s", channel)
+		if err := host.ChannelIdentifierValidator(channel); err != nil {
+			return sdkerrors.Wrap(
+				channeltypes.ErrInvalidChannelIdentifier, err.Error(),
+			)
 		}
 	}
 

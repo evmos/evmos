@@ -100,13 +100,13 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
 
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app/ante"
+	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
@@ -127,6 +127,9 @@ import (
 	"github.com/tharsis/evmos/v3/x/vesting"
 	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
 	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v3/x/withdraw"
+	withdrawkeeper "github.com/tharsis/evmos/v3/x/withdraw/keeper"
+	withdrawtypes "github.com/tharsis/evmos/v3/x/withdraw/types"
 )
 
 func init() {
@@ -185,6 +188,7 @@ var (
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
+		withdraw.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -204,7 +208,8 @@ var (
 
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
+		distrtypes.ModuleName:      true,
+		incentivestypes.ModuleName: true,
 	}
 )
 
@@ -259,11 +264,12 @@ type Evmos struct {
 
 	// Evmos keepers
 	InflationKeeper  inflationkeeper.Keeper
-	ClaimsKeeper     claimskeeper.Keeper
+	ClaimsKeeper     *claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
+	WithdrawKeeper   *withdrawkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -417,10 +423,10 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
 		authtypes.FeeCollectorName,
 	)
-	app.ClaimsKeeper = *claimskeeper.NewKeeper(
+
+	app.ClaimsKeeper = claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// register the staking hooks
@@ -472,19 +478,48 @@ func NewEvmos(
 		),
 	)
 
-	// Create Transfer Keepers
+	// Create Transfer Stack
 
-	// NOTE: since the transfer keeper is the last layer of the stack,
-	// we use the ChannelKeeper as the ICS4 wrapper
+	// SendPacket, since it is originating from the application to core IBC:
+	// transferKeeper.SendPacket -> claim.SendPacket -> withdraw.SendPacket -> channel.SendPacket
+
+	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
+	// channel.RecvPacket -> withdraw.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimsKeeper.Hooks(), // claims IBC middleware
+		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
+
+	app.WithdrawKeeper = withdrawkeeper.NewKeeper(
+		app.GetSubspace(withdrawtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.TransferKeeper,
+		app.ClaimsKeeper,
+	)
+
+	// Set the ICS4 wrappers for claims and withdraw middlewares
+	app.WithdrawKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
+	app.ClaimsKeeper.SetICS4Wrapper(app.WithdrawKeeper)
+	// NOTE: ICS4 wrapper for Transfer Keeper already set
+
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
-	transferStack := claims.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
+
+	// transfer stack contains (from top to bottom):
+	// - Withdraw Middleware
+	// - Airdrop Claims Middleware
+	// - Transfer
+
+	// create IBC module from bottom to top of stack
+	var transferStack porttypes.IBCModule
+
+	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = claims.NewIBCModule(*app.ClaimsKeeper, transferStack)
+	transferStack = withdraw.NewIBCMiddleware(*app.WithdrawKeeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -537,8 +572,9 @@ func NewEvmos(
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		claims.NewAppModule(appCodec, app.ClaimsKeeper),
+		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		withdraw.NewAppModule(*app.WithdrawKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -574,6 +610,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
+		withdrawtypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -605,6 +642,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
+		withdrawtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -639,6 +677,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
+		withdrawtypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -951,6 +990,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
+	paramsKeeper.Subspace(withdrawtypes.ModuleName)
 	return paramsKeeper
 }
 
