@@ -22,9 +22,8 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	}
 
 	// prohibit denominations that contain the evm denom
-	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
-	if strings.Contains(coinMetadata.Base, evmDenom) {
-		return nil, sdkerrors.Wrapf(types.ErrEVMDenom, "cannot register the EVM denomination %s", evmDenom)
+	if strings.Contains(coinMetadata.Base, "evm") {
+		return nil, sdkerrors.Wrapf(types.ErrEVMDenom, "cannot register the EVM denomination %s", coinMetadata.Base)
 	}
 
 	// check if the denomination already registered
