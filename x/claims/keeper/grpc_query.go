@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -103,7 +103,7 @@ func (k Keeper) ClaimsRecord(
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, addr)
 	if !found {
-		return nil, status.Errorf(codes.NotFound, "claim record for address '%s'", req.Address)
+		return nil, status.Errorf(codes.NotFound, "claims record for address '%s'", req.Address)
 	}
 
 	params := k.GetParams(ctx)

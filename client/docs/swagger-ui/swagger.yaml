@@ -1922,10 +1922,10 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/withdraw/v1/params:
+  /evmos/recovery/v1/params:
     get:
-      summary: Params retrieves the total set of withdraw parameters.
-      operationId: WithdrawParams
+      summary: Params retrieves the total set of recovery parameters.
+      operationId: RecoveryParams
       responses:
         '200':
           description: A successful response.
@@ -1936,15 +1936,15 @@ paths:
                 description: params defines the parameters of the module.
                 type: object
                 properties:
-                  enable_withdraw:
+                  enable_recovery:
                     type: boolean
-                    title: enable withdraw IBC middleware
+                    title: enable recovery IBC middleware
                   packet_timeout_duration:
                     type: string
                     title: >-
-                      duration added to timeout timestamp for balances withdrawn
+                      duration added to timeout timestamp for balances recovered
                       via IBC packets
-                title: Params holds parameters for the withdraw module
+                title: Params holds parameters for the recovery module
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -28459,34 +28459,34 @@ definitions:
     description: |-
       QueryBalancesResponse is the response type for the Query/Balances RPC
       method.
-  evmos.withdraw.v1.Params:
+  evmos.recovery.v1.Params:
     type: object
     properties:
-      enable_withdraw:
+      enable_recovery:
         type: boolean
-        title: enable withdraw IBC middleware
+        title: enable recovery IBC middleware
       packet_timeout_duration:
         type: string
         title: >-
-          duration added to timeout timestamp for balances withdrawn via IBC
+          duration added to timeout timestamp for balances recovered via IBC
           packets
-    title: Params holds parameters for the withdraw module
-  evmos.withdraw.v1.QueryParamsResponse:
+    title: Params holds parameters for the recovery module
+  evmos.recovery.v1.QueryParamsResponse:
     type: object
     properties:
       params:
         description: params defines the parameters of the module.
         type: object
         properties:
-          enable_withdraw:
+          enable_recovery:
             type: boolean
-            title: enable withdraw IBC middleware
+            title: enable recovery IBC middleware
           packet_timeout_duration:
             type: string
             title: >-
-              duration added to timeout timestamp for balances withdrawn via IBC
+              duration added to timeout timestamp for balances recovered via IBC
               packets
-        title: Params holds parameters for the withdraw module
+        title: Params holds parameters for the recovery module
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   ethermint.evm.v1.ChainConfig:
     type: object

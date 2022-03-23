@@ -1,4 +1,4 @@
-package withdraw
+package recovery
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -7,14 +7,14 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v2/ibc"
-	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
+	"github.com/tharsis/evmos/v3/ibc"
+	"github.com/tharsis/evmos/v3/x/recovery/keeper"
 )
 
 var _ porttypes.Middleware = &IBCMiddleware{}
 
 // IBCMiddleware implements the ICS26 callbacks for the transfer middleware given
-// the withdraw keeper and the underlying application.
+// the recovery keeper and the underlying application.
 type IBCMiddleware struct {
 	*ibc.Module
 	keeper keeper.Keeper

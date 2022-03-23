@@ -8,7 +8,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	"github.com/tharsis/evmos/v2/testutil"
+	"github.com/tharsis/evmos/v3/testutil"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
@@ -16,11 +16,11 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 
-	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
-	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
-	vestingtypes "github.com/tharsis/evmos/v2/x/vesting/types"
-	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
-	"github.com/tharsis/evmos/v2/x/withdraw/types"
+	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
+	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/tharsis/evmos/v3/x/recovery/keeper"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
+	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestOnRecvPacket() {
@@ -58,9 +58,9 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		{
 			"continue - params disabled",
 			func() {
-				params := suite.app.WithdrawKeeper.GetParams(suite.ctx)
-				params.EnableWithdraw = false
-				suite.app.WithdrawKeeper.SetParams(suite.ctx, params)
+				params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
+				params.EnableRecovery = false
+				suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
 			},
 			true,
 			false,
@@ -192,7 +192,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			false,
 		},
 		{
-			"withdraw - send uatom from cosmos to evmos",
+			"recovery - send uatom from cosmos to evmos",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -202,7 +202,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			true,
 		},
 		{
-			"withdraw - send ibc/uosmo from cosmos to evmos",
+			"recovery - send ibc/uosmo from cosmos to evmos",
 			func() {
 				denom = ibcOsmoDenom
 
@@ -214,7 +214,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			true,
 		},
 		{
-			"withdraw - send uosmo from osmosis to evmos",
+			"recovery - send uosmo from osmosis to evmos",
 			func() {
 				// Setup Osmosis <=> Evmos IBC relayer
 				denom = "uosmo"
@@ -235,9 +235,9 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.SetupTest() // reset
 
 			// Enable Withdraw
-			params := suite.app.WithdrawKeeper.GetParams(suite.ctx)
-			params.EnableWithdraw = true
-			suite.app.WithdrawKeeper.SetParams(suite.ctx, params)
+			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
+			params.EnableRecovery = true
+			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
 
 			tc.malleate()
 
@@ -272,7 +272,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
-			suite.app.WithdrawKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
+			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			coins := sdk.NewCoins(
@@ -284,7 +284,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
 
 			// Perform IBC callback
-			ack := suite.app.WithdrawKeeper.OnRecvPacket(suite.ctx, packet, expAck)
+			ack := suite.app.RecoveryKeeper.OnRecvPacket(suite.ctx, packet, expAck)
 
 			// Check acknowledgement
 			if tc.ackSuccess {
@@ -294,7 +294,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().False(ack.Success(), string(ack.Acknowledgement()))
 			}
 
-			// Check withdrawal
+			// Check recoveryal
 			balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
 			if tc.expWithdraw {
 				suite.Require().True(balances.IsZero())

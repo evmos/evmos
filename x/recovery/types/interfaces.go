@@ -10,11 +10,11 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
-	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
+	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
 )
 
 // BankKeeper defines the banking keeper that must be fulfilled when
-// creating a x/withdraw keeper.
+// creating a x/recovery keeper.
 type BankKeeper interface {
 	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
 	BlockedAddr(addr sdk.AccAddress) bool

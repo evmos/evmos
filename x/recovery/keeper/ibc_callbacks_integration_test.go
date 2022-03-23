@@ -14,13 +14,13 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
-	ibctesting "github.com/tharsis/evmos/v2/ibc/testing"
+	ibctesting "github.com/tharsis/evmos/v3/ibc/testing"
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/tharsis/evmos/v2/app"
-	claimtypes "github.com/tharsis/evmos/v2/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
-	"github.com/tharsis/evmos/v2/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/app"
+	claimtypes "github.com/tharsis/evmos/v3/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 type IBCTestingSuite struct {
@@ -73,8 +73,8 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
 
 	params := types.DefaultParams()
-	params.EnableWithdraw = true
-	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	params.EnableRecovery = true
+	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
 	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
@@ -197,8 +197,8 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				receiver = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 
 				params := types.DefaultParams()
-				params.EnableWithdraw = false
-				suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+				params.EnableRecovery = false
+				suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 			},
 			func() {
 				senderAcc, err := sdk.AccAddressFromBech32(sender)
@@ -267,8 +267,8 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	aevmosIbcdenom := aevmosDenomtrace.IBCDenom()
 
 	params := types.DefaultParams()
-	params.EnableWithdraw = false
-	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	params.EnableRecovery = false
+	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	sender := suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 	receiver := suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
@@ -277,8 +277,8 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 
 	suite.SendAndReceiveMessage(pathCosmosEvmos, suite.IBCCosmosChain, "uatom", 10, suite.IBCCosmosChain.SenderAccount.GetAddress().String(), receiver, 1)
 
-	params.EnableWithdraw = true
-	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	params.EnableRecovery = true
+	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	suite.SendAndReceiveMessage(pathOsmosisEvmos, suite.IBCOsmosisChain, "uosmo", 10, sender, receiver, 1)
 	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
@@ -302,7 +302,7 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	receiverAcc, err := sdk.AccAddressFromBech32(receiver)
 	suite.Require().NoError(err)
 
-	// Aevmos was withdrawn from user address
+	// Aevmos was recovered from user address
 	coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 
@@ -310,11 +310,11 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, uatomIbcdenom)
 	suite.Require().Equal(coin, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)))
 
-	// Aevmos was withdrawn from user address and is available on IBCOsmosisChain
+	// Aevmos was recovered from user address and is available on IBCOsmosisChain
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
 
-	// Coins used for withdraw were recovered
+	// Coins used for recovery were recovered
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 
@@ -328,7 +328,7 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	err = pathOsmosisEvmos.RelayPacket(packet4)
 	suite.Require().NoError(err)
 
-	// Aevmos was withdrawn from user address
+	// Aevmos was recovered from user address
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 
@@ -336,14 +336,13 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, uatomIbcdenom)
 	suite.Require().Equal(coin, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)))
 
-	// Aevmos was withdrawn from user address and is available on IBCOsmosisChain
+	// Aevmos was recovered from user address and is available on IBCOsmosisChain
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
 
-	// Coins used for withdraw were recovered
+	// Coins used for recovery were recovered
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
-
 }
 
 // Send uatom from Cosmos to Osmosis
@@ -366,8 +365,8 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	aevmosIbcdenom := aevmosDenomtrace.IBCDenom()
 
 	params := types.DefaultParams()
-	params.EnableWithdraw = false
-	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	params.EnableRecovery = false
+	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	sender := suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 	receiver := suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
@@ -387,8 +386,8 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	err = pathOsmosisEvmos.RelayPacket(packet)
 	suite.Require().NoError(err)
 
-	params.EnableWithdraw = true
-	suite.EvmosChain.App.(*app.Evmos).WithdrawKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	params.EnableRecovery = true
+	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	suite.SendAndReceiveMessage(pathOsmosisEvmos, suite.IBCOsmosisChain, "uosmo", 10, sender, receiver, 2)
 	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
@@ -417,7 +416,7 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	receiverAcc, err := sdk.AccAddressFromBech32(receiver)
 	suite.Require().NoError(err)
 
-	// Aevmos was withdrawn from user address
+	// Aevmos was recovered from user address
 	coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 
@@ -425,11 +424,11 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), senderAcc, uatomIbcdenom)
 	suite.Require().Equal(coin, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)))
 
-	// Aevmos was withdrawn from user address and is available on IBCOsmosisChain
+	// Aevmos was recovered from user address and is available on IBCOsmosisChain
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
 
-	// Coins used for withdraw were recovered
+	// Coins used for recovery were recovered
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 }
