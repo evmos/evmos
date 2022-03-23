@@ -59,7 +59,7 @@ Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/t
 
 ```bash
 sudo apt install -y unzip wget
-wget https://github.com/tharsis/testnets/raw/main/evmos_9000-3/genesis.zip -P ~/.evmosd/config/
+wget -P ~/.evmosd/config https://github.com/tharsis/testnets/raw/main/evmos_9000-3/genesis.zip
 cd ~/.evmosd/config
 unzip genesis.zip
 rm genesis.zip
