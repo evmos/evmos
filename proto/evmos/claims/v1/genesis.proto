@@ -6,7 +6,7 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "evmos/claims/v1/claims.proto";
 
-option go_package = "github.com/tharsis/evmos/v2/x/claims/types";
+option go_package = "github.com/tharsis/evmos/v3/x/claims/types";
 
 // GenesisState define the claims module's genesis state.
 message GenesisState {

@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
 // MigrateStore adds the new parameters AuthorizedChannels and EVMChannels

@@ -17,7 +17,7 @@ import (
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v2/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/withdraw/types"
 )
 
 var _ transfertypes.ICS4Wrapper = Keeper{}

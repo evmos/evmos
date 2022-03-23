@@ -7,8 +7,8 @@ import (
 
 	ethermint "github.com/tharsis/ethermint/types"
 
-	incentivestypes "github.com/tharsis/evmos/v2/x/incentives/types"
-	"github.com/tharsis/evmos/v2/x/inflation/types"
+	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/tharsis/evmos/v3/x/inflation/types"
 )
 
 // 200M token at year 4 allocated to the team

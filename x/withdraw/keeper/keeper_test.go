@@ -21,9 +21,9 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
-	"github.com/tharsis/evmos/v2/app"
-	claimstypes "github.com/tharsis/evmos/v2/x/claims/types"
-	"github.com/tharsis/evmos/v2/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/app"
+	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/tharsis/evmos/v3/x/withdraw/types"
 )
 
 var (

@@ -18,10 +18,10 @@ import (
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/v2/app"
-	ibctesting "github.com/tharsis/evmos/v2/ibc/testing"
-	"github.com/tharsis/evmos/v2/testutil"
-	"github.com/tharsis/evmos/v2/x/claims/types"
+	"github.com/tharsis/evmos/v3/app"
+	ibctesting "github.com/tharsis/evmos/v3/ibc/testing"
+	"github.com/tharsis/evmos/v3/testutil"
+	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
 type IBCTestingSuite struct {

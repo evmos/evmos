@@ -65,8 +65,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // NewParams creates a new Params object
 func NewParams(
 	enableClaim bool,
-	airdropStartTime time.Time,
 	claimsDenom string,
+	airdropStartTime time.Time,
 	durationUntilDecay,
 	durationOfDecay time.Duration,
 	authorizedChannels,
@@ -74,10 +74,10 @@ func NewParams(
 ) Params {
 	return Params{
 		EnableClaims:       enableClaim,
+		ClaimsDenom:        claimsDenom,
 		AirdropStartTime:   airdropStartTime,
 		DurationUntilDecay: durationUntilDecay,
 		DurationOfDecay:    durationOfDecay,
-		ClaimsDenom:        claimsDenom,
 		AuthorizedChannels: authorizedChannels,
 		EVMChannels:        evmChannels,
 	}
@@ -88,10 +88,10 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EnableClaims:       true,
+		ClaimsDenom:        DefaultClaimsDenom,
 		AirdropStartTime:   time.Time{},
 		DurationUntilDecay: DefaultDurationUntilDecay,
 		DurationOfDecay:    DefaultDurationOfDecay,
-		ClaimsDenom:        DefaultClaimsDenom,
 		AuthorizedChannels: DefaultAuthorizedChannels,
 		EVMChannels:        DefaultEVMChannels,
 	}

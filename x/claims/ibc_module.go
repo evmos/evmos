@@ -6,8 +6,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v2/ibc"
-	"github.com/tharsis/evmos/v2/x/claims/keeper"
+	"github.com/tharsis/evmos/v3/ibc"
+	"github.com/tharsis/evmos/v3/x/claims/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCModule{}
@@ -28,7 +28,7 @@ func NewIBCModule(k keeper.Keeper, app porttypes.IBCModule) IBCModule {
 }
 
 // OnRecvPacket implements the IBCModule interface.
-// If fees are not enabled, this callback will default to the ibc-core packet callback
+// If fees are not enabled, this callback will default to the ibc-core packet callback.
 func (im IBCModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -45,7 +45,7 @@ func (im IBCModule) OnRecvPacket(
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
-// If fees are not enabled, this callback will default to the ibc-core packet callback
+// If fees are not enabled, this callback will default to the ibc-core packet callback.
 func (im IBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,

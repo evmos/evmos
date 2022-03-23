@@ -3,8 +3,8 @@ package withdraw
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v2/x/withdraw/keeper"
-	"github.com/tharsis/evmos/v2/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/withdraw/keeper"
+	"github.com/tharsis/evmos/v3/x/withdraw/types"
 )
 
 // InitGenesis import module genesis

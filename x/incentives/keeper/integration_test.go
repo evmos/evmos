@@ -9,11 +9,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	types "github.com/tharsis/evmos/v2/x/incentives/types"
+	types "github.com/tharsis/evmos/v3/x/incentives/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
-
 	BeforeEach(func() {
 		s.SetupTest()
 

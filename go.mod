@@ -1,4 +1,4 @@
-module github.com/tharsis/evmos/v2
+module github.com/tharsis/evmos/v3
 
 go 1.17
 
@@ -23,7 +23,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tharsis/ethermint v0.11.0
 	go.opencensus.io v0.23.0
-	google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e
+	google.golang.org/genproto v0.0.0-20220322021311-435b647f9ef2
 	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.28.0
 )
@@ -137,7 +137,7 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/zondax/hid v0.9.0 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
-	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
+	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
 	golang.org/x/net v0.0.0-20211208012354-db4efeb81f4b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect

@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/v2/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v2/x/inflation/types"
+	"github.com/tharsis/evmos/v3/x/claims/types"
+	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {
@@ -154,7 +154,7 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 			true,
 		},
 		{
-			"claim record not found for address",
+			"claims record not found for address",
 			func() {
 				req = &types.QueryClaimsRecordRequest{
 					Address: addr.String(),
