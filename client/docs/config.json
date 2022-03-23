@@ -46,10 +46,10 @@
       "url": "./tmp-swagger-gen/evmos/vesting/v1/query.swagger.json"
     },
     {
-      "url": "./tmp-swagger-gen/evmos/withdraw/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/evmos/recovery/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "WithdrawParams"
+          "Params": "RecoveryParams"
         }
       }
     },

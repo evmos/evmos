@@ -14,7 +14,7 @@ import (
 )
 
 // BankKeeper defines the banking keeper that must be fulfilled when
-// creating a x/withdraw keeper.
+// creating a x/recovery keeper.
 type BankKeeper interface {
 	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
 	BlockedAddr(addr sdk.AccAddress) bool

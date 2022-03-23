@@ -1,4 +1,4 @@
-package withdraw
+package recovery
 
 import (
 	"context"
@@ -19,9 +19,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/tharsis/evmos/v3/x/withdraw/client/cli"
-	"github.com/tharsis/evmos/v3/x/withdraw/keeper"
-	"github.com/tharsis/evmos/v3/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/recovery/client/cli"
+	"github.com/tharsis/evmos/v3/x/recovery/keeper"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 // type check to ensure the interface is properly implemented
@@ -38,7 +38,7 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec performs a no-op as the withdraw doesn't support Amino encoding
+// RegisterLegacyAminoCodec performs a no-op as the recovery doesn't support Amino encoding
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
@@ -46,12 +46,12 @@ func (AppModuleBasic) ConsensusVersion() uint64 {
 	return 1
 }
 
-// RegisterInterfaces registers interfaces and implementations of the withdraw
+// RegisterInterfaces registers interfaces and implementations of the recovery
 // module.
 func (AppModuleBasic) RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the withdraw
+// DefaultGenesis returns default genesis state as raw bytes for the recovery
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
@@ -66,7 +66,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return genesisState.Validate()
 }
 
-// RegisterRESTRoutes performs a no-op as the withdraw module doesn't expose REST
+// RegisterRESTRoutes performs a no-op as the recovery module doesn't expose REST
 // endpoints
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {}
 
@@ -76,10 +76,10 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *runt
 	}
 }
 
-// GetTxCmd returns the root tx command for the withdraw module.
+// GetTxCmd returns the root tx command for the recovery module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
 
-// GetQueryCmd returns no root query command for the withdraw module.
+// GetQueryCmd returns no root query command for the recovery module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
@@ -105,7 +105,7 @@ func (AppModule) Name() string {
 
 func (AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
-// NewHandler returns nil withdraw module doesn't expose tx gRPC endpoints
+// NewHandler returns nil recovery module doesn't expose tx gRPC endpoints
 func (AppModule) NewHandler() sdk.Handler {
 	return nil
 }

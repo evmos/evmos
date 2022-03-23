@@ -124,12 +124,12 @@ import (
 	"github.com/tharsis/evmos/v3/x/inflation"
 	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
 	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/tharsis/evmos/v3/x/recovery"
+	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
+	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
 	"github.com/tharsis/evmos/v3/x/vesting"
 	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
 	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
-	"github.com/tharsis/evmos/v3/x/withdraw"
-	withdrawkeeper "github.com/tharsis/evmos/v3/x/withdraw/keeper"
-	withdrawtypes "github.com/tharsis/evmos/v3/x/withdraw/types"
 )
 
 func init() {
@@ -188,7 +188,7 @@ var (
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
-		withdraw.AppModuleBasic{},
+		recovery.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -269,7 +269,7 @@ type Evmos struct {
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
-	WithdrawKeeper   *withdrawkeeper.Keeper
+	RecoveryKeeper   *recoverykeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -481,10 +481,10 @@ func NewEvmos(
 	// Create Transfer Stack
 
 	// SendPacket, since it is originating from the application to core IBC:
-	// transferKeeper.SendPacket -> claim.SendPacket -> withdraw.SendPacket -> channel.SendPacket
+	// transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> channel.SendPacket
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
-	// channel.RecvPacket -> withdraw.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+	// channel.RecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
@@ -493,8 +493,8 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
 
-	app.WithdrawKeeper = withdrawkeeper.NewKeeper(
-		app.GetSubspace(withdrawtypes.ModuleName),
+	app.RecoveryKeeper = recoverykeeper.NewKeeper(
+		app.GetSubspace(recoverytypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,
@@ -502,15 +502,15 @@ func NewEvmos(
 		app.ClaimsKeeper,
 	)
 
-	// Set the ICS4 wrappers for claims and withdraw middlewares
-	app.WithdrawKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
-	app.ClaimsKeeper.SetICS4Wrapper(app.WithdrawKeeper)
+	// Set the ICS4 wrappers for claims and recovery middlewares
+	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
+	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
 	// NOTE: ICS4 wrapper for Transfer Keeper already set
 
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
 	// transfer stack contains (from top to bottom):
-	// - Withdraw Middleware
+	// - Recovery Middleware
 	// - Airdrop Claims Middleware
 	// - Transfer
 
@@ -519,7 +519,7 @@ func NewEvmos(
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCModule(*app.ClaimsKeeper, transferStack)
-	transferStack = withdraw.NewIBCMiddleware(*app.WithdrawKeeper, transferStack)
+	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -574,7 +574,7 @@ func NewEvmos(
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		withdraw.NewAppModule(*app.WithdrawKeeper),
+		recovery.NewAppModule(*app.RecoveryKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -610,7 +610,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
-		withdrawtypes.ModuleName,
+		recoverytypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -642,7 +642,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
-		withdrawtypes.ModuleName,
+		recoverytypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -677,7 +677,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
-		withdrawtypes.ModuleName,
+		recoverytypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -990,7 +990,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
-	paramsKeeper.Subspace(withdrawtypes.ModuleName)
+	paramsKeeper.Subspace(recoverytypes.ModuleName)
 	return paramsKeeper
 }
 
