@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v3/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 // GetParams returns the total set of incentives parameters.

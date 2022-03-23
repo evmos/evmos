@@ -122,6 +122,16 @@
   
     - [Query](#evmos.inflation.v1.Query)
   
+- [evmos/recovery/v1/genesis.proto](#evmos/recovery/v1/genesis.proto)
+    - [GenesisState](#evmos.recovery.v1.GenesisState)
+    - [Params](#evmos.recovery.v1.Params)
+  
+- [evmos/recovery/v1/query.proto](#evmos/recovery/v1/query.proto)
+    - [QueryParamsRequest](#evmos.recovery.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.recovery.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.recovery.v1.Query)
+  
 - [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
     - [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest)
     - [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse)
@@ -138,16 +148,6 @@
   
 - [evmos/vesting/v1/vesting.proto](#evmos/vesting/v1/vesting.proto)
     - [ClawbackVestingAccount](#evmos.vesting.v1.ClawbackVestingAccount)
-  
-- [evmos/withdraw/v1/genesis.proto](#evmos/withdraw/v1/genesis.proto)
-    - [GenesisState](#evmos.withdraw.v1.GenesisState)
-    - [Params](#evmos.withdraw.v1.Params)
-  
-- [evmos/withdraw/v1/query.proto](#evmos/withdraw/v1/query.proto)
-    - [QueryParamsRequest](#evmos.withdraw.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#evmos.withdraw.v1.QueryParamsResponse)
-  
-    - [Query](#evmos.withdraw.v1.Query)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -1634,6 +1634,104 @@ Query provides defines the gRPC querier service.
 
 
 
+<a name="evmos/recovery/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/recovery/v1/genesis.proto
+
+
+
+<a name="evmos.recovery.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the recovery module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.recovery.v1.Params) |  | params defines all the paramaters of the module. |
+
+
+
+
+
+
+<a name="evmos.recovery.v1.Params"></a>
+
+### Params
+Params holds parameters for the recovery module
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_recovery` | [bool](#bool) |  | enable recovery IBC middleware |
+| `packet_timeout_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration added to timeout timestamp for balances recovered via IBC packets |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/recovery/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/recovery/v1/query.proto
+
+
+
+<a name="evmos.recovery.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.recovery.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.recovery.v1.Params) |  | params defines the parameters of the module. |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.recovery.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `Params` | [QueryParamsRequest](#evmos.recovery.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.recovery.v1.QueryParamsResponse) | Params retrieves the total set of recovery parameters. | GET|/evmos/recovery/v1/params|
+
+ <!-- end services -->
+
+
+
 <a name="evmos/vesting/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1812,104 +1910,6 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
  <!-- end enums -->
 
  <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="evmos/withdraw/v1/genesis.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## evmos/withdraw/v1/genesis.proto
-
-
-
-<a name="evmos.withdraw.v1.GenesisState"></a>
-
-### GenesisState
-GenesisState defines the withdraw module's genesis state.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.withdraw.v1.Params) |  | params defines all the paramaters of the module. |
-
-
-
-
-
-
-<a name="evmos.withdraw.v1.Params"></a>
-
-### Params
-Params holds parameters for the withdraw module
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `enable_withdraw` | [bool](#bool) |  | enable withdraw IBC middleware |
-| `packet_timeout_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration added to timeout timestamp for balances withdrawn via IBC packets |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
-<a name="evmos/withdraw/v1/query.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## evmos/withdraw/v1/query.proto
-
-
-
-<a name="evmos.withdraw.v1.QueryParamsRequest"></a>
-
-### QueryParamsRequest
-QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
-
-<a name="evmos.withdraw.v1.QueryParamsResponse"></a>
-
-### QueryParamsResponse
-QueryParamsResponse is the response type for the Query/Params RPC method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.withdraw.v1.Params) |  | params defines the parameters of the module. |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
-
-<a name="evmos.withdraw.v1.Query"></a>
-
-### Query
-Query defines the gRPC querier service.
-
-| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
-| ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#evmos.withdraw.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.withdraw.v1.QueryParamsResponse) | Params retrieves the total set of withdraw parameters. | GET|/evmos/withdraw/v1/params|
 
  <!-- end services -->
 

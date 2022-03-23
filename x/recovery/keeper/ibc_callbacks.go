@@ -15,7 +15,7 @@ import (
 
 	"github.com/tharsis/evmos/v3/ibc"
 	evmos "github.com/tharsis/evmos/v3/types"
-	"github.com/tharsis/evmos/v3/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It returns the tokens that
@@ -38,11 +38,11 @@ func (k Keeper) OnRecvPacket(
 	claimsParams := k.claimsKeeper.GetParams(ctx)
 
 	// check channels from this chain (i.e destination)
-	if !params.EnableWithdraw ||
+	if !params.EnableRecovery ||
 		!claimsParams.IsAuthorizedChannel(packet.DestinationChannel) ||
 		claimsParams.IsEVMChannel(packet.DestinationChannel) {
 		// return original ACK if:
-		// - withdraw is disabled globally
+		// - recovery is disabled globally
 		// - channel is not authorized
 		// - channel is an EVM channel
 		return ack
@@ -65,7 +65,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// case 1: sender ≠ recipient.
-	// Withdraw is only possible for addresses in which the sender = recipient
+	// Recovery is only possible for addresses in which the sender = recipient
 	// (i.e transferring to your own account in Evmos).
 	if !sender.Equals(recipient) {
 		// Continue to the next IBC middleware by returning the original ACK.
@@ -75,7 +75,7 @@ func (k Keeper) OnRecvPacket(
 	// get the sender account
 	account := k.accountKeeper.GetAccount(ctx, sender)
 
-	// withdraw is not supported for vesting or module accounts
+	// recovery is not supported for vesting or module accounts
 	_, isVestingAcc := account.(vestexported.VestingAccount)
 	if isVestingAcc {
 		return ack
@@ -96,7 +96,7 @@ func (k Keeper) OnRecvPacket(
 
 	// NOTE: Since destination channel is authorized and not from an EVM chain, we know that
 	// only secp256k1 keys are supported in the source chain. This means that we can now
-	// initiate the withdraw logic
+	// initiate the recovery logic
 
 	// transfer the balance back to the sender address
 	destPort := packet.DestinationPort
@@ -123,7 +123,7 @@ func (k Keeper) OnRecvPacket(
 				return true // stop iteration
 			}
 
-			// NOTE: only withdraw the IBC tokens from the source chain connected through our
+			// NOTE: only recover the IBC tokens from the source chain connected through our
 			// authorized destination channel
 			if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
 				// continue
@@ -139,7 +139,7 @@ func (k Keeper) OnRecvPacket(
 		// NOTE: Don't use the consensus state because it may become unreliable if updates slow down
 		timeout := uint64(ctx.BlockTime().Add(params.PacketTimeoutDuration).UnixNano())
 
-		// Withdraw the tokens to the bech32 prefixed address of the source chain
+		// Recovery the tokens to the bech32 prefixed address of the source chain
 		err = k.transferKeeper.SendTransfer(
 			ctx,
 			packet.DestinationPort,    // packet destination port is now the source
@@ -162,7 +162,7 @@ func (k Keeper) OnRecvPacket(
 	// check error from the iteration above
 	if err != nil {
 		logger.Error(
-			"failed to withdraw IBC vouchers",
+			"failed to recover IBC vouchers",
 			"sender", senderBech32,
 			"receiver", recipientBech32,
 			"source-port", packet.SourcePort,
@@ -173,7 +173,7 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(
 				err,
-				"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
+				"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
 			).Error(),
 		)
 	}
@@ -186,7 +186,7 @@ func (k Keeper) OnRecvPacket(
 	amtStr := balances.String()
 
 	logger.Info(
-		"balances withdrawn to sender address",
+		"balances recovered to sender address",
 		"sender", senderBech32,
 		"receiver", recipientBech32,
 		"amount", amtStr,
@@ -198,7 +198,7 @@ func (k Keeper) OnRecvPacket(
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeWithdraw,
+			types.EventTypeRecovery,
 			sdk.NewAttribute(sdk.AttributeKeySender, senderBech32),
 			sdk.NewAttribute(transfertypes.AttributeKeyReceiver, recipientBech32),
 			sdk.NewAttribute(channeltypes.AttributeKeySrcPort, packet.SourcePort),

@@ -17,7 +17,7 @@ import (
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v3/x/withdraw/types"
+	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
 var _ transfertypes.ICS4Wrapper = Keeper{}
@@ -101,7 +101,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	if err != nil {
 		return "", "", sdkerrors.Wrapf(
 			err,
-			"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
+			"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
 	}
 
@@ -109,7 +109,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	if !found {
 		return "", "", sdkerrors.Wrapf(
 			transfertypes.ErrTraceNotFound,
-			"failed to withdraw IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
+			"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
 	}
 
