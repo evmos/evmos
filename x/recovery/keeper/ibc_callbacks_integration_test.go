@@ -241,6 +241,31 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 				suite.Require().Equal(coins.Amount, sdk.NewInt(10))
 			},
 		},
+		{
+			"Sender has claims",
+			func() {
+				sender = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
+				receiver = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
+				senderAcc, err := sdk.AccAddressFromBech32(sender)
+				suite.Require().NoError(err)
+
+				amt := sdk.NewInt(int64(100))
+				suite.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.EvmosChain.GetContext(), senderAcc, claimtypes.NewClaimsRecord(amt))
+			},
+			func() {
+				senderAcc, err := sdk.AccAddressFromBech32(sender)
+				suite.Require().NoError(err)
+				receiverAcc, err := sdk.AccAddressFromBech32(receiver)
+				suite.Require().NoError(err)
+
+				// Check that aevmos were not recovered
+				coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
+				suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(10000)))
+				// Check that uosmo were not deposited since sender has a claims record (with nothing claimed)
+				coins := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
+				suite.Require().Equal(coins.Amount, sdk.NewInt(0))
+			},
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
