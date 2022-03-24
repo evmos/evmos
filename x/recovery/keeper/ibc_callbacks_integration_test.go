@@ -120,14 +120,15 @@ var (
 	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
-func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, chain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
-	// Send IBC transaction of 10 uosmo
+func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
+	// Send coin from A to B
 	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
-	_, err := chain.SendMsgs(transferMsg)
+	_, err := origin.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
+	// Recreate the packet that was sent
 	transfer := transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver)
 	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
-	// Receive message on the evmos side, and send ack
+	// Receive message on the counterparty side, and send ack
 	err = path.RelayPacket(packet)
 	suite.Require().NoError(err)
 }
@@ -351,7 +352,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 // Send uosmo From Osmosis to Evmos
 // Aevmos, uosmo should be on Osmosis balance
 // ibc/uatom should remain on the EvmosChain
-// Send uosmo From Osmosis to Evmos
+// Repeat transaction send uosmo From Osmosis to Evmos
 // No changes on balance should occur
 func (suite *IBCTestingSuite) TestTwoChains() {
 	suite.SetupTest()
@@ -395,6 +396,8 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	// Aevmos was recovered from user address
 	coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
+	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
+	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
 
 	// Check that the atoms were not retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, uatomIbcdenom)
@@ -403,16 +406,10 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	// Check that the uosmo were retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(0))
-
-	// Aevmos was recovered from user address and is available on IBCOsmosisChain
-	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
-
-	// Coins used for recovery were recovered
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 
-	// Send IBC transaction of 10 uosmo
+	// Repeat transaction: Send IBC transaction of 10 uosmo
 	suite.SendAndReceiveMessage(pathOsmosisEvmos, suite.IBCOsmosisChain, "uosmo", 10, sender, receiver, 2)
 	timeout = uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
@@ -425,6 +422,8 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	// Aevmos was recovered from user address
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
+	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
+	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
 
 	// Check that the atoms were not retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, uatomIbcdenom)
@@ -433,14 +432,9 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	// Check that the uosmo were retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(0))
-
-	// Aevmos was recovered from user address and is available on IBCOsmosisChain
-	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
-
-	// Coins used for recovery were recovered
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
+
 }
 
 // Send uatom from Cosmos to Osmosis
@@ -467,7 +461,7 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 
 	suite.SendAndReceiveMessage(pathOsmosisCosmos, suite.IBCCosmosChain, "uatom", 10, suite.IBCCosmosChain.SenderAccount.GetAddress().String(), receiver, 1)
 
-	// Send IBC transaction of 10 uosmo
+	// Send IBC transaction of 10 ibc/uatom
 	transferMsg := transfertypes.NewMsgTransfer(pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
 	_, err = suite.IBCOsmosisChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
@@ -509,24 +503,18 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	// Aevmos was recovered from user address
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
+	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
+	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
 
 	// Check that the uosmo were retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(0))
+	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
+	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 
 	// Check that the ibc/uatom were retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uatomOsmoIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(0))
-
-	// Check that the ibc/uatom were retrieved and are available on IBCOsmosisChain
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), senderAcc, uatomIbcdenom)
 	suite.Require().Equal(coin, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)))
-
-	// Aevmos was recovered from user address and is available on IBCOsmosisChain
-	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-	suite.Require().Equal(coin.Amount, sdk.NewInt(10000))
-
-	// Coins used for recovery were recovered
-	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
-	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 }
