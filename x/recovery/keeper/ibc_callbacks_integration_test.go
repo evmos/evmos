@@ -210,7 +210,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			},
 		},
 		{
-			"Disabled params",
+			"No recovery: Disabled params",
 			func() {
 				sender = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 				receiver = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
@@ -232,7 +232,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			},
 		},
 		{
-			"Different Addresses",
+			"No recovery: Different Addresses",
 			func() {
 				sender = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 				receiver = suite.EvmosChain.SenderAccount.GetAddress().String()
@@ -250,7 +250,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 			},
 		},
 		{
-			"revert execution: Sender has unclaimed claims",
+			"No recovery: Sender has unclaimed claims",
 			func() {
 				sender = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 				receiver = suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
@@ -354,7 +354,7 @@ func (suite *IBCTestingSuite) TestOnReceiveWithdraw() {
 // ibc/uatom should remain on the EvmosChain
 // Repeat transaction send uosmo From Osmosis to Evmos
 // No changes on balance should occur
-func (suite *IBCTestingSuite) TestTwoChains() {
+func (suite *IBCTestingSuite) TestTwoChainsNotRecoverNonNativeCoin() {
 	suite.SetupTest()
 
 	params := types.DefaultParams()
@@ -366,13 +366,13 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	pathOsmosisEvmos := suite.pathOsmosisEvmos
 	pathCosmosEvmos := suite.pathCosmosEvmos
 
-  // Send uatom from Cosmos to Evmos
+	// Send uatom from Cosmos to Evmos
 	suite.SendAndReceiveMessage(pathCosmosEvmos, suite.IBCCosmosChain, "uatom", 10, suite.IBCCosmosChain.SenderAccount.GetAddress().String(), receiver, 1)
 
 	params.EnableRecovery = true
 	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-  // Send uosmo from Osmosis to Evmos
+	// Send uosmo from Osmosis to Evmos
 	suite.SendAndReceiveMessage(pathOsmosisEvmos, suite.IBCOsmosisChain, "uosmo", 10, sender, receiver, 1)
 	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
