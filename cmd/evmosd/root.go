@@ -38,9 +38,9 @@ import (
 	servercfg "github.com/tharsis/ethermint/server/config"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 
-	"github.com/tharsis/evmos/v3/app"
-	cmdcfg "github.com/tharsis/evmos/v3/cmd/config"
-	evmoskr "github.com/tharsis/evmos/v3/crypto/keyring"
+	"github.com/AstraProtocol/astraos/v1/app"
+	cmdcfg "github.com/AstraProtocol/astraos/v1/cmd/config"
+	evmoskr "github.com/AstraProtocol/astraos/v1/crypto/keyring"
 )
 
 const (
