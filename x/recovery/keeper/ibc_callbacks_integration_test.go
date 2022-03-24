@@ -111,6 +111,12 @@ var (
 		BaseDenom: "aevmos",
 	}
 	aevmosIbcdenom = aevmosDenomtrace.IBCDenom()
+
+	uatomOsmoDenomtrace = transfertypes.DenomTrace{
+		Path:      "transfer/channel-0/transfer/channel-1",
+		BaseDenom: "uatom",
+	}
+	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
 func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, chain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
@@ -392,6 +398,10 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 
 	sender := suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
 	receiver := suite.IBCOsmosisChain.SenderAccount.GetAddress().String()
+	senderAcc, err := sdk.AccAddressFromBech32(sender)
+	suite.Require().NoError(err)
+	receiverAcc, err := sdk.AccAddressFromBech32(receiver)
+	suite.Require().NoError(err)
 
 	pathOsmosisEvmos := suite.pathOsmosisEvmos
 	pathOsmosisCosmos := suite.pathOsmosisCosmos
@@ -400,13 +410,17 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 
 	// Send IBC transaction of 10 uosmo
 	transferMsg := transfertypes.NewMsgTransfer(pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
-	_, err := suite.IBCOsmosisChain.SendMsgs(transferMsg)
+	_, err = suite.IBCOsmosisChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
 	transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-1/uatom", "10", sender, receiver)
 	packet := channeltypes.NewPacket(transfer.GetBytes(), 1, pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, pathOsmosisEvmos.EndpointA.ChannelID, pathOsmosisEvmos.EndpointB.ChannelConfig.PortID, pathOsmosisEvmos.EndpointB.ChannelID, timeoutHeight, 0)
 	// Receive message on the evmos side, and send ack
 	err = pathOsmosisEvmos.RelayPacket(packet)
 	suite.Require().NoError(err)
+
+	// Check that the ibc/uatom are available
+	coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uatomOsmoIbcdenom)
+	suite.Require().Equal(coin.Amount, sdk.NewInt(10))
 
 	params.EnableRecovery = true
 	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
@@ -433,20 +447,19 @@ func (suite *IBCTestingSuite) TestTwoChainsSendNonNativeCoin() {
 	err = pathOsmosisEvmos.RelayPacket(packet4)
 	suite.Require().NoError(err)
 
-	senderAcc, err := sdk.AccAddressFromBech32(sender)
-	suite.Require().NoError(err)
-	receiverAcc, err := sdk.AccAddressFromBech32(receiver)
-	suite.Require().NoError(err)
-
 	// Aevmos was recovered from user address
-	coin := suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
+	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), senderAcc, "aevmos")
 	suite.Require().Equal(coin, sdk.NewCoin("aevmos", sdk.NewInt(0)))
 
 	// Check that the uosmo were retrieved
 	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
 	suite.Require().Equal(coin.Amount, sdk.NewInt(0))
 
-	// Check that the uatom were not retrieved
+	// Check that the ibc/uatom were retrieved
+	coin = suite.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(suite.EvmosChain.GetContext(), receiverAcc, uatomOsmoIbcdenom)
+	suite.Require().Equal(coin.Amount, sdk.NewInt(0))
+
+	// Check that the ibc/uatom were retrieved and are available on IBCOsmosisChain
 	coin = suite.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(suite.IBCOsmosisChain.GetContext(), senderAcc, uatomIbcdenom)
 	suite.Require().Equal(coin, sdk.NewCoin(uatomIbcdenom, sdk.NewInt(10)))
 
