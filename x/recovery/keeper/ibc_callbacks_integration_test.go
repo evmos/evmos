@@ -366,11 +366,13 @@ func (suite *IBCTestingSuite) TestTwoChains() {
 	pathOsmosisEvmos := suite.pathOsmosisEvmos
 	pathCosmosEvmos := suite.pathCosmosEvmos
 
+  // Send uatom from Cosmos to Evmos
 	suite.SendAndReceiveMessage(pathCosmosEvmos, suite.IBCCosmosChain, "uatom", 10, suite.IBCCosmosChain.SenderAccount.GetAddress().String(), receiver, 1)
 
 	params.EnableRecovery = true
 	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
+  // Send uosmo from Osmosis to Evmos
 	suite.SendAndReceiveMessage(pathOsmosisEvmos, suite.IBCOsmosisChain, "uosmo", 10, sender, receiver, 1)
 	timeout := uint64(suite.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 
