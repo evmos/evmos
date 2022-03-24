@@ -122,17 +122,9 @@ func (k Keeper) OnRecvPacket(
 					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
 				).Error(),
 			)
-		// case 2: sender/recipient has funds stuck -> return error acknowledgement
-		// to prevent more transferred tokens from getting stuck while we implement
-		// IBC withdrawals
+		// case 2: sender/recipient has funds stuck -> return ack to trigger withdrawal
 		default:
-			return channeltypes.NewErrorAcknowledgement(
-				sdkerrors.Wrapf(
-					evmos.ErrKeyTypeNotSupported,
-					"reverted transfer to unsupported address %s to prevent more funds from getting stuck",
-					recipientBech32,
-				).Error(),
-			)
+			return ack
 		}
 	}
 
