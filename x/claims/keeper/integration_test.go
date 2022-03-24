@@ -56,7 +56,6 @@ var _ = Describe("Claiming", Ordered, func() {
 	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
-		sdk.NewCoin(stakeDenom, initStakeAmount),
 		sdk.NewCoin(claimsDenom, initClaimsAmount),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, initEvmAmount),
 	)
@@ -155,14 +154,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			vote(privs[1], proposalId)
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV)))
-		})
-
-		It("can claim ActionIBCTransfer", Pending, func() {
-			addr := getAddr(privs[2])
-			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			performIbcTransfer(privs[2])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
 		})
@@ -499,8 +490,4 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	res := s.app.BaseApp.DeliverTx(req)
 	Expect(res.IsOK()).To(Equal(true))
 	return res
-}
-
-func performIbcTransfer(priv *ethsecp256k1.PrivKey) {
-
 }
