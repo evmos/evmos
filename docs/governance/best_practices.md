@@ -1,23 +1,10 @@
----
+<!--
 order: 3
----
+-->
 
-# Best Practices for Drafting a Proposal
+# Best Practices
 
-There are currently three types of proposals supported by Evmos:
-
-- [**Community Pool Spend**](./community-pool-spend) - Proposal to spend funds from the community pool on
-  an important project.
-- [**Parameter Change**](./params-change) - Proposal to change a core on-chain parameter.
-- **Text** - Proposal to agree to a certain strategy, plan, commitment,
-  future upgrade or other statement. Text proposals are exclusively a
-  signalling mechanism and focal point for future coordination -
-  they do not directly cause any changes.
-
-You'll first want to determine which kind of proposal you are making. Be sure to
-review all details of your specific proposal type.
-
-## Engage directly with the voting community and seek feedback
+## Community Outreach
 
 Engagement is likely to be critical to the success of a proposal. The degree to which you engage with Evmos community should be relative to the potential impact that your proposal may have on the stakeholders. This guide does not cover all ways of engaging: you could bring your idea to a podcast or a hackathon, host an AMA on [Reddit](https://www.reddit.com/r/evmos) or host a Q&A (questions & answers). We encourage you to experiment and use your strengths to introduce proposal ideas and gather feedback.
 
@@ -31,11 +18,13 @@ In the first stage of this strategy, you should engage people (ideally experts) 
 
 You should be able engaging with key stakeholders (eg. a large validator operator) with a few short sentences to measure their support. Here's an example:
 
-"We are considering a proposal for funding to work on `project`. We think it will help the Hub to `outcome`. Timeline is `x`, and we're asking for `y` amount. Do you think that this is a proposal that `large validator` may support?"
+> "We are considering a proposal for funding to work on (project). We think it will help Evmos to (outcome). Timeline is (x), and we're asking for (y) amount. Do you think that this is a proposal that (large validator) may support?"
 
 **Why a large validator?** They tend to be the de facto decision-makers on Evmos, since their delegators also delegate their voting power. If you can establish a base layer of off-chain support, you can be more confident that it's worth proceeding to the next stage.
 
+::: tip
 **Note:** many will likely hesitate to commit support, and that's okay. It will be important to reassure these stakeholders that this isn't a binding a commitment. You're just canvasing the community to get a feel for whether it's worthwhile to proceed. It's also an opportunity to connect with new people and to answer their questions about what it is you're working on. It will be important for them to clearly understand why you think what you're proposing will be valuable to Evmos, and if possible, why it will be valuable to them as long-term stakeholders.
+:::
 
 If you're already confident about your idea, [skip to Stage 2](#stage-2-your-draft-proposal).
 
@@ -78,11 +67,11 @@ Assume that many people will stop reading at this point. However it is important
 #### Parameter-Change
 
 1. Problem/Value - generally the problem or value that's motivating the parameter change(s)
-1. Solution - generally how changing the parameter(s) will address the problem or improve the network
+2. Solution - generally how changing the parameter(s) will address the problem or improve the network
    - the beneficiaries of the change(s) (ie. who will these changes impact and how?)
       - voters should understand the importance of the change(s) in a simple way
-1. Risks & Benefits - clearly describe how making this/these change(s) may expose stakeholders to new benefits and/or risks
-1. Supplementary materials - optional materials eg. models, graphs, tables, research, signed petition, etc
+3. Risks & Benefits - clearly describe how making this/these change(s) may expose stakeholders to new benefits and/or risks
+4. Supplementary materials - optional materials eg. models, graphs, tables, research, signed petition, etc
 
 #### Community-Spend Proposal
 
@@ -92,20 +81,20 @@ Assume that many people will stop reading at this point. However it is important
    - brief mission statment for your organization/business (if applicable) eg. website
    - past work you've done eg. include your Github
    - some sort of proof of who you are eg. Keybase
-1. Problem - generally what you're solving and/or opportunity you're addressing
+2. Problem - generally what you're solving and/or opportunity you're addressing
    - past, present (and possibly a prediction of the future without this work being done)
-1. Solution - generally how you're proposing to deliver the solution
+3. Solution - generally how you're proposing to deliver the solution
    - your plan to fix the problem or deliver value
    - the beneficiaries of this plan (ie. who will your plan impact and how?)
      - follow the "as a user" template ie. write a short user story about the problem you are trying to solve and how users will interact with what you're proposing to deliver (eg. benefits and functionality from a user’s perspective)
      - voters should understand the value of what you're providing in a simple way
    - your reasons for selecting this plan
    - your motivation for delivering this solution/value
-1. Funding - amount and denomination proposed eg. 5000 EVMOS
+4. Funding - amount and denomination proposed eg. 5000 EVMOS
    - the entity controlling the account receiving the funding
    - consider an itemized breakdown of funding per major deliverable
    - consider outlining how the funds will be spent
-1. Deliverables and timeline - the specifics of what you're delivering and how, and what to expect
+5. Deliverables and timeline - the specifics of what you're delivering and how, and what to expect
    - what are the specific deliverables? (be detailed)
    - when will each of these be delivered?
    - will there be a date at which the project will be considered failed if the deliverables have not been met?
@@ -118,8 +107,8 @@ Assume that many people will stop reading at this point. However it is important
      - how can the community observe your progress?
      - how can the community provide feedback?
    - how should the quality of deliverables be assessed? eg. metrics
-1. Relationships and disclosures
-   - have you received or applied for grants or funding? for similar work? eg. from the Interchain Foundation
+5. Relationships and disclosures
+   - have you received or applied for grants or funding? for similar work? eg. from the Evmos Foundation
    - how will you and/or your organization benefit?
    - do you see this work continuing in the future and is there a plan?
    - what are the risks involved with this work?
@@ -127,35 +116,18 @@ Assume that many people will stop reading at this point. However it is important
 
 ### Begin with a well-considered draft proposal
 
-The ideal format for a proposal is as a Markdown file (ie. `.md`) in a github repo. Markdown
+The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMd](https://hackmd.io/). Markdown
 is a simple and accessible format for writing plain text files that is easy to
-learn. See the [Github Markdown
-Guide](https://guides.github.com/features/mastering-markdown/) for details on
+learn. See the [Github Markdown Guide](https://guides.github.com/features/mastering-markdown/) for details on
 writing markdown files.
-
-If you don't have a [Github](http://github.com/) account already, register one. Then fork this
-repository, draft your proposal in the `proposals` directory, and make a
-pull-request back to this repository. For more details on using Github, see the
-[Github Forking Guide](https://guides.github.com/activities/forking/). If you
-need help using Github, don't be afraid to ask someone!
-
-If you really don't want to deal with Github, you can always draft a proposal in
-Word or Google Docs, or directly in the forums, or otherwise. However Markdown
-on Github is the ultimate standard for distributed collaboration on text files.
 
 ### Engage the community with your draft proposal
 
-1. Post a draft of your proposal as a topic in the 'governance' category of the [Cosmos forum][forum]. Ideally this should contain a link to this repository, either directly to your proposal if it has been merged, or else to a pull-request containing your proposal if it has not been merged yet.
+1. Post a discussion in the Commonwealth [Evmos community](https://commonwealth.im/evmos). Ideally this should contain a link to this repository, either directly to your proposal if it has been merged, or else to a pull-request containing your proposal if it has not been merged yet.
 2. Directly engage key members of the community for feedback. These could be large contributors, those likely to be most impacted by the proposal, and entities with high stake-backing (eg. high-ranked validators; large stakers).
-3. Engage with the Cosmos Governance Working Group (GWG). These are people focused on Cosmos governance--they won't write your proposal, but will provide feedback and recommend resources to support your work. Members can be contacted on the [forum][forum] (they use the tag 'GWG' in posts) and in [Telegram](https://t.me/hubgov).
-4. Target members of the community in a semi-public way before bringing the draft to a full public audience. The burden of public scrutiny in a semi-anonymized environment (eg. Twitter) can be stressful and overwhelming without establishing support. Solicit opinions in places with people who have established reputations first. For example, there is a private Telegram group called Cosmos Network VIP (ask for an invite [on the forum][forum] if you are or would like to be a Cosmos contributor).
-5. Alert the entire community to the draft proposal via
-   - Twitter, tagging accounts such as the All in Bits [Cosmos account](https://twitter.com/cosmos), the [Cosmos GWG](https://twitter.com/CosmosGov), and Today in Cosmos [@adriana_kalpa](https://twitter.com/adriana_kalpa)
-   - [Telegram](https://t.me/cosmosproject), [Adriana](https://t.me/adriana_KalpaTech) (All in Bits)
+3. Target members of the community in a semi-public way before bringing the draft to a full public audience. The burden of public scrutiny in a semi-anonymized environment (eg. Twitter) can be stressful and overwhelming without establishing support. Solicit opinions in places with people who have established reputations first.
 
 ### Submit your proposal to the testnet
-
-I intend to expand this [guide to include testnet instructions](submitting.md#submitting-your-proposal-to-the-testnet).
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
 
@@ -171,11 +143,11 @@ See the [submitting guide](./submitting.md) for more on submitting proposals.
 
 ### The Deposit Period
 
-The deposit period currently lasts 14 days. If you submitted your transaction with the minimum deposit (512 EVMOS), your proposal will immediately enter the voting period. If you didn't submit the minimum deposit amount (currently 512 EVMOS), then this may be an opportunity for others to show their support by contributing (and risking) their ATOMs as a bond for your proposal. You can request contributions openly and also contact stakeholders directly (particularly stakeholders who are enthusiastic about your proposal). Remember that each contributor is risking their funds, and you can [read more about the conditions for burning deposits here](./process.md#burned-deposits).
+The deposit period currently lasts 14 days. If you submitted your transaction with the minimum deposit (512 EVMOS), your proposal will immediately enter the voting period. If you didn't submit the minimum deposit amount (currently 512 EVMOS), then this may be an opportunity for others to show their support by contributing (and risking) their EVMOS as a bond for your proposal. You can request contributions openly and also contact stakeholders directly (particularly stakeholders who are enthusiastic about your proposal). Remember that each contributor is risking their funds, and you can [read more about the conditions for burning deposits here](./process.md#burned-deposits).
 
-This is a stage where proposals may begin to get broader attention. Most popular explorers currently display proposals that are in the deposit period, but due to proposal spamming, this may change. [Hubble](https://hubble.figment.network/cosmos/chains/cosmoshub-3/governance), for example, only displays proposals that have 10% or more of the minimum deposit, so 51.2 EVMOS or more.
+This is a stage where proposals may begin to get broader attention. Most popular explorers currently display proposals that are in the deposit period, but due to proposal spamming, this may change.
 
-A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the so-called 'crypto Twitter' Cosmos community to prepare validators to vote (eg. tag [@cosmosvalidator](https://twitter.com/cosmosvalidator)) and EVMOS-holders that are staking (eg. tag [@cosmos](https://twitter.com/cosmos), [@adriana_kalpa](https://twitter.com/adriana_kalpa)).
+A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Evmos community to prepare validators to vote and EVMOS-holders that are staking.
 
 ### The Voting Period
 
@@ -186,5 +158,3 @@ At this point you'll want to track which validator has voted and which has not. 
 3. they are prepared to vote.
 
 Remember that any voter may change their vote at any time before the voting period ends. That historically doesn't happen often, but there may be an opportunity to convince a voter to change their vote. The biggest risk is that stakeholders won't vote at all (for a number of reasons). Validator operators tend to need multiple reminders to vote. How you choose to contact validator operators, how often, and what you say is up to you--remember that no validator is obligated to vote, and that operators are likely occupied by competing demands for their attention. Take care not to stress any potential relationship with validator operators.
-
-   [forum]: https://forum.cosmos.network/c/governance

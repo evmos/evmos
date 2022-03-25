@@ -106,7 +106,7 @@ func TestGetEvmosAddressFromBech32(t *testing.T) {
 		},
 		{
 			"osmosis address",
-			"osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
+			"osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld",
 			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			false,
 		},
