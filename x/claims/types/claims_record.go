@@ -8,7 +8,7 @@ import (
 )
 
 // IBCTriggerAmt is the amount required to trigger a merge/migration of claims records
-var IBCTriggerAmt = sdk.NewInt(3940000000)
+var IBCTriggerAmt = "63743"
 
 // NewClaimsRecord creates a new claims record instance
 func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {

@@ -45,20 +45,20 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (
 }
 
 // GetTransferAmount returns the amount from an ICS20 FungibleTokenPacketData.
-func GetTransferAmount(packet channeltypes.Packet) (
-	amount sdk.Int,
-	err error,
-) {
+func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 	// unmarshal packet data to obtain the sender and recipient
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdk.ZeroInt(), sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+		return "", sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 	}
 
-	amount, ok := sdk.NewIntFromString(data.Amount)
-	if !ok {
-		return sdk.ZeroInt(), sdkerrors.Wrap(err, "invalid amount")
+	if data.Amount == "" {
+		return "", sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "empty amount")
 	}
 
-	return amount, nil
+	if _, ok := sdk.NewIntFromString(data.Amount); !ok {
+		return "", sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "invalid amount")
+	}
+
+	return data.Amount, nil
 }

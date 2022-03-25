@@ -89,7 +89,7 @@ var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 	sender := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
 	receiver := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
-	triggerAmt := types.IBCTriggerAmt.String()
+	triggerAmt := types.IBCTriggerAmt
 
 	senderAddr, err := sdk.AccAddressFromBech32(sender)
 	suite.Require().NoError(err)
@@ -354,7 +354,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, disabledTimeoutTimestamp)
 	ack := ibcmock.MockAcknowledgement
 
-	triggerAmt := types.IBCTriggerAmt.String()
+	triggerAmt := types.IBCTriggerAmt
 
 	testCases := []struct {
 		name string

@@ -143,7 +143,7 @@ func (k Keeper) OnRecvPacket(
 	// They require a merge or migration of claims records. To prevent this
 	// happening by accident, they are only executed, when the sender transfers
 	// the specified IBCTriggerAmt.
-	if amt.Equal(types.IBCTriggerAmt) {
+	if amt == types.IBCTriggerAmt {
 		switch {
 		case senderRecordFound && recipientRecordFound && !sameAddress:
 			// case 1: both sender and recipient are distinct and have a claims record
