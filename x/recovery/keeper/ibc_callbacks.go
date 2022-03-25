@@ -48,7 +48,7 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	sender, recipient, senderBech32, recipientBech32, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}

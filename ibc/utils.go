@@ -19,30 +19,46 @@ import (
 func GetTransferSenderRecipient(packet channeltypes.Packet) (
 	sender, recipient sdk.AccAddress,
 	senderBech32, recipientBech32 string,
-	amount sdk.Int,
 	err error,
 ) {
 	// unmarshal packet data to obtain the sender and recipient
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return nil, nil, "", "", sdk.ZeroInt(), sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+		return nil, nil, "", "", sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 	}
 
 	// validate the sender bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the sender to `evmos`
 	sender, err = evmos.GetEvmosAddressFromBech32(data.Sender)
 	if err != nil {
-		return nil, nil, "", "", sdk.ZeroInt(), sdkerrors.Wrap(err, "invalid sender")
+		return nil, nil, "", "", sdkerrors.Wrap(err, "invalid sender")
 	}
 
 	// validate the recipient bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the recipient to `evmos`
 	recipient, err = evmos.GetEvmosAddressFromBech32(data.Receiver)
 	if err != nil {
-		return nil, nil, "", "", sdk.ZeroInt(), sdkerrors.Wrap(err, "invalid recipient")
+		return nil, nil, "", "", sdkerrors.Wrap(err, "invalid recipient")
 	}
 
-	amount, _ = sdk.NewIntFromString(data.Amount)
+	return sender, recipient, data.Sender, data.Receiver, nil
+}
 
-	return sender, recipient, data.Sender, data.Receiver, amount, nil
+// GetTransferAmount returns the amount from an ICS20 FungibleTokenPacketData.
+func GetTransferAmount(packet channeltypes.Packet) (
+	amount sdk.Int,
+	err error,
+) {
+	// unmarshal packet data to obtain the sender and recipient
+	var data transfertypes.FungibleTokenPacketData
+	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		return sdk.ZeroInt(), sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+	}
+
+	amount, ok := sdk.NewIntFromString(data.Amount)
+	if !ok {
+		return sdk.ZeroInt(), sdkerrors.Wrap(err, "invalid amount")
+	}
+
+	return amount, nil
 }

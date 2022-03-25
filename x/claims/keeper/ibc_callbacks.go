@@ -41,7 +41,7 @@ func (k Keeper) OnAcknowledgementPacket(
 		return nil
 	}
 
-	sender, _, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (k Keeper) OnRecvPacket(
 
 	// Get bech32 address from the counterparty and change the bech32 human
 	// readable prefix (HRP) of the sender to `evmos1`
-	sender, recipient, senderBech32, recipientBech32, amt, err := ibc.GetTransferSenderRecipient(packet)
+	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
@@ -134,6 +134,10 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
+	amt, err := ibc.GetTransferAmount(packet)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err.Error())
+	}
 
 	// Cases with SenderRecordFound.
 	// They require a merge or migration of claims records. To prevent this
