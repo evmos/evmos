@@ -23,12 +23,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 		packet       channeltypes.Packet
 		expSender    string
 		expRecipient string
+		expAmount    sdk.Int
 		expError     bool
 	}{
 		{
 			"empty packet",
 			channeltypes.Packet{},
-			"", "",
+			"", "", sdk.ZeroInt(),
 			true,
 		},
 		{
@@ -36,7 +37,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			channeltypes.Packet{
 				Data: ibctesting.MockFailPacketData,
 			},
-			"", "",
+			"", "", sdk.ZeroInt(),
 			true,
 		},
 		{
@@ -46,7 +47,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					&transfertypes.FungibleTokenPacketData{},
 				),
 			},
-			"", "",
+			"", "", sdk.ZeroInt(),
 			true,
 		},
 		{
@@ -56,10 +57,11 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1",
 						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Amount:   "123456",
 					},
 				),
 			},
-			"", "",
+			"", "", sdk.ZeroInt(),
 			true,
 		},
 		{
@@ -69,10 +71,11 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
 						Receiver: "evmos1",
+						Amount:   "123456",
 					},
 				),
 			},
-			"", "",
+			"", "", sdk.ZeroInt(),
 			true,
 		},
 		{
@@ -82,11 +85,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
 						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Amount:   "123456",
 					},
 				),
 			},
 			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			"evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			sdk.NewInt(123456),
 			false,
 		},
 		{
@@ -96,11 +101,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 						Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+						Amount:   "123456",
 					},
 				),
 			},
 			"evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			sdk.NewInt(123456),
 			false,
 		},
 		{
@@ -110,23 +117,26 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
 						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Amount:   "123456",
 					},
 				),
 			},
 			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			"evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			sdk.NewInt(123456),
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
-		sender, recipient, _, _, err := GetTransferSenderRecipient(tc.packet)
+		sender, recipient, _, _, amt, err := GetTransferSenderRecipient(tc.packet)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
 			require.NoError(t, err, tc.name)
 			require.Equal(t, tc.expSender, sender.String())
 			require.Equal(t, tc.expRecipient, recipient.String())
+			require.Equal(t, tc.expAmount, amt)
 		}
 	}
 }

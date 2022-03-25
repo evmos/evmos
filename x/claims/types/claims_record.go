@@ -7,6 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// amount to trigger a merge/migration of claims records
+var IBCTriggerAmt = sdk.NewInt(3940000000)
+
 // NewClaimsRecord creates a new claims record instance
 func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {
 	return ClaimsRecord{

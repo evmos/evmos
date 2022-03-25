@@ -41,7 +41,7 @@ func (k Keeper) OnAcknowledgementPacket(
 		return nil
 	}
 
-	sender, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, _, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (k Keeper) OnRecvPacket(
 
 	// Get bech32 address from the counterparty and change the bech32 human
 	// readable prefix (HRP) of the sender to `evmos1`
-	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
+	sender, recipient, senderBech32, recipientBech32, amt, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
@@ -114,16 +114,16 @@ func (k Keeper) OnRecvPacket(
 	// supports ethereum keys (eg: Cronos, Injective).
 	if sameAddress && !fromEVMChain {
 		switch {
-		// case 1: secp256k1 key from sender/recipient has no claimed actions
-		// -> return error acknowledgement to prevent funds from getting stuck
 		case senderRecordFound && !senderClaimsRecord.HasClaimedAny():
+			// secp256k1 key from sender/recipient has no claimed actions
+			// -> return error acknowledgement to prevent funds from getting stuck
 			return channeltypes.NewErrorAcknowledgement(
 				sdkerrors.Wrapf(
 					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
 				).Error(),
 			)
-		// case 2: sender/recipient has funds stuck -> return ack to trigger withdrawal
 		default:
+			// sender/recipient has funds stuck -> return ack to trigger withdrawal
 			return ack
 		}
 	}
@@ -135,50 +135,55 @@ func (k Keeper) OnRecvPacket(
 
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 
-	// Handle four cases of comparing recipient and sender addresses and checking
-	// for claims records
-	switch {
-	case senderRecordFound && recipientRecordFound && !sameAddress:
-		// case 1: both sender and recipient are distinct and have a claims record
-		// -> merge sender's record with the recipient's record and claim actions that
-		// have already been claimed by one or the other
-		recipientClaimsRecord, err = k.MergeClaimsRecords(ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
-		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(err.Error())
+	// Cases with SenderRecordFound.
+	// They require a merge or migration of claims records. To prevent this
+	// happening by accident, they are only executed, when the sender transfers
+	// the specified IBCTriggerAmt.
+	if amt.Equal(types.IBCTriggerAmt) {
+		switch {
+		case senderRecordFound && recipientRecordFound && !sameAddress:
+			// case 1: both sender and recipient are distinct and have a claims record
+			// -> merge sender's record with the recipient's record and claim actions that
+			// have already been claimed by one or the other
+			recipientClaimsRecord, err = k.MergeClaimsRecords(ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
+			if err != nil {
+				return channeltypes.NewErrorAcknowledgement(err.Error())
+			}
+
+			// update the recipient's record with the new merged one and delete the
+			// sender's record
+			k.SetClaimsRecord(ctx, recipient, recipientClaimsRecord)
+			k.DeleteClaimsRecord(ctx, sender)
+			logger.Debug(
+				"merged sender and receiver claims records",
+				"sender", senderBech32,
+				"receiver", recipientBech32,
+				"total-claimable", senderClaimsRecord.InitialClaimableAmount.Add(recipientClaimsRecord.InitialClaimableAmount).String(),
+			)
+
+		case senderRecordFound && !recipientRecordFound:
+			// case 2: only the sender has a claims record
+			// -> migrate the sender record to the recipient address and claim IBC action
+			k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
+			k.DeleteClaimsRecord(ctx, sender)
+
+			logger.Debug(
+				"migrated sender claims record to receiver",
+				"sender", senderBech32,
+				"receiver", recipientBech32,
+				"total-claimable", senderClaimsRecord.InitialClaimableAmount.String(),
+			)
+
+			_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
 		}
+	}
 
-		// update the recipient's record with the new merged one and delete the
-		// sender's record
-		k.SetClaimsRecord(ctx, recipient, recipientClaimsRecord)
-		k.DeleteClaimsRecord(ctx, sender)
-		logger.Debug(
-			"merged sender and receiver claims records",
-			"sender", senderBech32,
-			"receiver", recipientBech32,
-			"total-claimable", senderClaimsRecord.InitialClaimableAmount.Add(recipientClaimsRecord.InitialClaimableAmount).String(),
-		)
-
-	case senderRecordFound && !recipientRecordFound:
-		// case 2: only the sender has a claims record
-		// -> migrate the sender record to the recipient address and claim IBC action
-		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
-		k.DeleteClaimsRecord(ctx, sender)
-
-		logger.Debug(
-			"migrated sender claims record to receiver",
-			"sender", senderBech32,
-			"receiver", recipientBech32,
-			"total-claimable", senderClaimsRecord.InitialClaimableAmount.String(),
-		)
-
-		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
-
+	// Cases without SenderRecordFound
+	switch {
 	case !senderRecordFound && recipientRecordFound,
-		// case 3: only the recipient has a claims record
-		// -> only claim IBC transfer action
 		sameAddress && fromEVMChain && recipientRecordFound:
+		// case 3: only the recipient has a claims record -> only claim IBC transfer action
 		_, err = k.ClaimCoinsForAction(ctx, recipient, recipientClaimsRecord, types.ActionIBCTransfer, params)
-
 	case !senderRecordFound && !recipientRecordFound:
 		// case 4: neither the sender or recipient have a claims record
 		// -> perform a no-op by returning the original success acknowledgement
