@@ -89,9 +89,13 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	accPruned := int64(0)
 	accClawbacked := int64(0)
 
+	var addresses []sdk.AccAddress
+
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
-		// delete claims record once the account balance is clawed back
-		defer k.DeleteClaimsRecord(ctx, addr)
+		// NOTE: we cannot delete the record while iterating over it
+		defer func() {
+			addresses = append(addresses, addr)
+		}()
 
 		acc := k.accountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
@@ -153,6 +157,11 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 
 		return false
 	})
+
+	// delete claims record once the account balance is clawed back
+	for _, addr := range addresses {
+		k.DeleteClaimsRecord(ctx, addr)
+	}
 
 	logger.Info(
 		"clawed back funds into community pool",
