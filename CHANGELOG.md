@@ -61,6 +61,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (claims) [\#385](https://github.com/tharsis/evmos/pull/385) Add claims invariant.
 - (inflation) [\#383](https://github.com/tharsis/evmos/pull/383) Add gRPC endpoints for inflation rate and total supply
 - (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
+- (claims) [\#432](https://github.com/tharsis/evmos/pull/432) Add IBC trigger amount to claims merge/migrate IBC callbacks.
 
 ## [v2.0.1] - 2022-03-06
 

@@ -89,6 +89,7 @@ var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 	sender := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
 	receiver := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
+	triggerAmt := types.IBCTriggerAmt
 
 	senderAddr, err := sdk.AccAddressFromBech32(sender)
 	suite.Require().NoError(err)
@@ -196,7 +197,7 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
@@ -353,6 +354,8 @@ func (suite *KeeperTestSuite) TestReceive() {
 	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, disabledTimeoutTimestamp)
 	ack := ibcmock.MockAcknowledgement
 
+	triggerAmt := types.IBCTriggerAmt
+
 	testCases := []struct {
 		name string
 		test func()
@@ -460,7 +463,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"case 1: sender ≠ recipient",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
@@ -476,9 +479,26 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 1 fail: not enough funds on escrow account",
+			"case 1 - continue: sender ≠ recipient, but wrong triggerAmt",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 1 - fail: not enough funds on escrow account",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
@@ -495,7 +515,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 		{
 			"case 2: same sender ≠ recipient, sender claims record found",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
@@ -507,6 +527,23 @@ func (suite *KeeperTestSuite) TestReceive() {
 				// check that the record is migrated
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 2 - continue: same sender ≠ recipient, sender claims record found, but wrong triggerAmt",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is migrated
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
 		{
