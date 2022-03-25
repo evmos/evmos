@@ -471,7 +471,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 				suite.Require().True(resAck.Success())
 
 				// check that the record is merged to the recipient
-				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
@@ -505,7 +505,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 				suite.Require().True(resAck.Success())
 
 				// check that the record is migrated
-				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
