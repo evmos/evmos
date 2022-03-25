@@ -4,7 +4,7 @@ order: 4
 
 # Hooks
 
-The `x/claims` module implements transaction hooks for each of the four actions  from the `x/staking`, `x/gov` and  `x/evm` modules. It also implements an IBC Middleware in order to claim the IBC transfer action and to claim the tokens for Evmos and Osmosis users by migrating the claims record to the recipient address.
+The `x/claims` module implements transaction hooks for each of the four actions  from the `x/staking`, `x/gov` and  `x/evm` modules. It also implements an IBC Middleware in order to claim the IBC transfer action and to claim the tokens for Cosmos Hub and Osmosis users by migrating the claims record to the recipient address.
 
 ## Governance Hook - Vote Action
 
@@ -75,7 +75,7 @@ The user submits an IBC transfer to a recipient in the destination chain. Once t
 
 ### Receive
 
-The user receives an IBC transfer from a counterparty chain. If the transfer is successful, the claimable amount corresponding to the IBC transfer action is transferred to the user address. Additionally, if the sender address is Evmos or Osmosis address with an airdrop allocation, the `ClaimsRecord` is merged with the recipient's claims record.
+The user receives an IBC transfer from a counterparty chain. If the transfer is successful, the claimable amount corresponding to the IBC transfer action is transferred to the user address. Additionally, if the sender address is Cosmos Hub or Osmosis address with an airdrop allocation, the `ClaimsRecord` is merged with the recipient's claims record.
 
 1. The user receives an packet containing an IBC transfer data.
 2. The transfer is processed by the IBC ICS20 Transfer app module

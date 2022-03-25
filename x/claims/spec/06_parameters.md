@@ -13,7 +13,7 @@ The `x/claims` module contains the parameters described below. All parameters ca
 | `AirdropStartTime`   | `time.Time`     | `time.Time{}` // empty                                      |
 | `DurationUntilDecay` | `time.Duration` | `2629800000000000` // 1 month                               |
 | `DurationOfDecay`    | `time.Duration` | `5259600000000000` // 2 months                              |
-| `AuthorizedChannels` | `[]string`      | `[]string{"channel-0", "channel-3"}` // Osmosis, Evmos |
+| `AuthorizedChannels` | `[]string`      | `[]string{"channel-0", "channel-3"}` // Osmosis, Cosmos Hub |
 | `EVMChannels`        | `[]string`      | `[]string{"channel-2"}` // Injective                        |
 
 ## Enable claim
