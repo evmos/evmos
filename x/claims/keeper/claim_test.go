@@ -187,15 +187,14 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	testCases := []struct {
-		name            string
-		malleate        func()
-		claimsRecord    types.ClaimsRecord
-		action          types.Action
-		params          types.Params
-		expAmt          sdk.Int
-		expClawedBack   sdk.Int
-		expError        bool
-		expDeleteRecord bool
+		name          string
+		malleate      func()
+		claimsRecord  types.ClaimsRecord
+		action        types.Action
+		params        types.Params
+		expAmt        sdk.Int
+		expClawedBack sdk.Int
+		expError      bool
 	}{
 		{
 			"fail - unspecified action",
@@ -206,7 +205,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 			true,
-			false,
 		},
 		{
 			"zero - claims inactive",
@@ -216,7 +214,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			types.Params{},
 			sdk.ZeroInt(),
 			sdk.ZeroInt(),
-			false,
 			false,
 		},
 		{
@@ -234,7 +231,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 			false,
-			false,
 		},
 		{
 			"zero - claimable amount is 0",
@@ -250,7 +246,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			},
 			sdk.ZeroInt(),
 			sdk.ZeroInt(),
-			false,
 			false,
 		},
 		{
@@ -274,7 +269,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 			true,
-			false,
 		},
 		{
 			"failed - error during community pool fund",
@@ -297,7 +291,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.ZeroInt(),
 			sdk.ZeroInt(),
 			true,
-			false,
 		},
 		{
 			"success - claim single action",
@@ -320,7 +313,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.NewInt(50),
 			sdk.ZeroInt(),
 			false,
-			false,
 		},
 		{
 			"success - claim single action during decay",
@@ -342,7 +334,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			},
 			sdk.NewInt(25),
 			sdk.NewInt(25),
-			false,
 			false,
 		},
 		{
@@ -369,7 +360,6 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.NewInt(50),
 			sdk.ZeroInt(),
 			false,
-			true,
 		},
 	}
 
@@ -405,13 +395,9 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 				suite.Require().Equal(initialCommunityPoolCoins.String(), funds.String())
 			}
 
-			if tc.expDeleteRecord {
-				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
-			} else {
-				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
-				suite.Require().True(found)
-				suite.Require().True(cr.HasClaimedAction(tc.action))
-			}
+			cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
+			suite.Require().True(found)
+			suite.Require().True(cr.HasClaimedAction(tc.action))
 		})
 	}
 }
