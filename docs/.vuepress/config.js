@@ -110,6 +110,16 @@ module.exports = {
           ]
         },
         {
+          title: 'Governance',
+          children: [
+            {
+              title: 'Evmos Governance',
+              directory: true,
+              path: '/governance'
+            },
+          ]
+        },
+        {
           title: 'Guides',
           children: [
             {
