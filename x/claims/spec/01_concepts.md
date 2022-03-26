@@ -6,7 +6,7 @@ order: 1
 
 ## Rektdrop
 
-The Evmos [Rektdrop](https://evmos.blog/the-evmos-rektdrop-abbe931ba823) is the genesis airdrop for the EVMOS token to Evmos, Osmosis and Ethereum users.
+The Evmos [Rektdrop](https://evmos.blog/the-evmos-rektdrop-abbe931ba823) is the genesis airdrop for the EVMOS token to Cosmos Hub, Osmosis and Ethereum users.
 
 > The end goal of Evmos is to bring together the Cosmos and Ethereum community and thus the Rektdrop has been designed to reward past participation in both networks under this theme of “getting rekt”.
 
@@ -70,11 +70,11 @@ As described in the [Action](#action) section, a user must submit transactions t
 
 Evmos shares the coin type (`60`) and key derivation (Ethereum `secp256k1`) with Ethereum. This allows users (EOA accounts) that have been allocated EVMOS tokens to directly claim their tokens using their preferred web3 wallet.
 
-### Evmos and Osmosis Users
+### Cosmos Hub and Osmosis Users
 
-Evmos and Osmosis users who use the default Tendermint `secp256k1` keys, need to perform a "cross-chain attestation" of their Evmos address.
+Cosmos Hub and Osmosis users who use the default Tendermint `secp256k1` keys, need to perform a "cross-chain attestation" of their Evmos address.
 
-This can be done by submitting an IBC transfer from Evmos and Osmosis, which is signed by the addresses, that have been allocated the tokens.
+This can be done by submitting an IBC transfer from Cosmos Hub and Osmosis, which is signed by the addresses, that have been allocated the tokens.
 
 The recipient Evmos address of this IBC transfer is the address, that the tokens will be airdropped to.
 
