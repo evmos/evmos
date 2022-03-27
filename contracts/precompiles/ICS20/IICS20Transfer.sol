@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.9;
 
-import "../core/IBCModule.sol";
-
 interface IICS20Transfer is IModuleCallbacks {
 
     function sendTransfer(
@@ -44,13 +42,5 @@ interface IICS20Transfer is IModuleCallbacks {
         address indexed receiver,
         uint64 indexed timeoutHeight
     );
-
-
-    struct FungibleTokenPacketData {
-        string denom;
-        uint256 amount;
-        address sender;
-        address receiver;
-    }
 }
 
