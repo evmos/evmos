@@ -1,0 +1,42 @@
+package types
+
+import "fmt"
+
+// NewGenesisState creates a new genesis state.
+func NewGenesisState(
+	params Params,
+	fees []FeeContract,
+) GenesisState {
+	return GenesisState{
+		Params: params,
+		Fees:   fees,
+	}
+}
+
+// DefaultGenesisState sets default evm genesis state with empty accounts and
+// default params and chain config values.
+func DefaultGenesisState() *GenesisState {
+	return &GenesisState{
+		Params: DefaultParams(),
+	}
+}
+
+// Validate performs basic genesis state validation returning an error upon any
+// failure.
+func (gs GenesisState) Validate() error {
+	seenContractIn := make(map[string]bool)
+	for _, in := range gs.Fees {
+		// only one incentive per contract
+		if seenContractIn[in.Contract] {
+			return fmt.Errorf("contract duplicated on genesis '%s'", in.Contract)
+		}
+
+		if err := in.Validate(); err != nil {
+			return err
+		}
+
+		seenContractIn[in.Contract] = true
+	}
+
+	return gs.Params.Validate()
+}

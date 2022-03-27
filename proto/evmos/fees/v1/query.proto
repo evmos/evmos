@@ -1,0 +1,64 @@
+syntax = "proto3";
+package evmos.fees.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/fees/v1/genesis.proto";
+import "evmos/fees/v1/fees.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // FeesContracts retrieves registered fees
+  rpc FeesContracts(QueryFeesContractsRequest) returns (QueryFeesContractsResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/fees";
+  }
+
+  // FeesContract retrieves a registered fee
+  rpc FeesContract(QueryFeesContractRequest) returns (QueryFeesContractResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/fees/{contract}";
+  }
+
+  // Params retrieves the fees module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/params";
+  }
+}
+
+// QueryFeesContractsRequest is the request type for the Query/FeesContracts RPC
+// method.
+message QueryFeesContractsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryFeesContractsResponse is the response type for the Query/FeesContracts RPC
+// method.
+message QueryFeesContractsResponse {
+  repeated FeeContract fees = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryFeesContractRequest is the request type for the Query/FeesContract RPC method.
+message QueryFeesContractRequest {
+  // contract identifier is the hex contract address of a contract
+  string contract = 1;
+}
+
+// QueryFeesContractResponse is the response type for the Query/FeesContract RPC
+// method.
+message QueryFeesContractResponse {
+    FeeContract fees = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC
+// method.
+message QueryParamsResponse {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}

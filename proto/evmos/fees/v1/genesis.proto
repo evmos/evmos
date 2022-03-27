@@ -1,0 +1,28 @@
+syntax = "proto3";
+package evmos.fees.v1;
+import "evmos/fees/v1/fees.proto";
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+  // module parameters
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  // active fees
+  repeated FeeContract fees = 2 [ (gogoproto.nullable) = false ];
+}
+
+// Params defines the fees module params
+message Params {
+  // parameter to enable fees
+  bool enable_fees = 1;
+  // identifier for the epochs module hooks
+  string fees_contract_epoch_identifier = 3;
+  // scaling factor for capping rewards
+  string reward_scaler = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}

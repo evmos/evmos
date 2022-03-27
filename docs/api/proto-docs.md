@@ -70,6 +70,25 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
+- [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
+    - [CancelContractProposal](#evmos.fees.v1.CancelContractProposal)
+    - [FeeContract](#evmos.fees.v1.FeeContract)
+    - [RegisterContractProposal](#evmos.fees.v1.RegisterContractProposal)
+  
+- [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
+    - [GenesisState](#evmos.fees.v1.GenesisState)
+    - [Params](#evmos.fees.v1.Params)
+  
+- [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
+    - [QueryFeesContractRequest](#evmos.fees.v1.QueryFeesContractRequest)
+    - [QueryFeesContractResponse](#evmos.fees.v1.QueryFeesContractResponse)
+    - [QueryFeesContractsRequest](#evmos.fees.v1.QueryFeesContractsRequest)
+    - [QueryFeesContractsResponse](#evmos.fees.v1.QueryFeesContractsResponse)
+    - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.fees.v1.Query)
+  
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [GasMeter](#evmos.incentives.v1.GasMeter)
@@ -938,6 +957,244 @@ Msg defines the erc20 Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
 | `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/fees.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/fees.proto
+
+
+
+<a name="evmos.fees.v1.CancelContractProposal"></a>
+
+### CancelContractProposal
+CancelContractProposal is a Content type to cancel a contract fee
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `contract` | [string](#string) |  | contract address |
+
+
+
+
+
+
+<a name="evmos.fees.v1.FeeContract"></a>
+
+### FeeContract
+FeeContract defines an instance that organizes fee distribution conditions for the owner of a
+given smart contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract address |
+| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
+| `epochs` | [uint32](#uint32) |  | number of remaining epochs TODO we don't need this |
+| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time |
+
+
+
+
+
+
+<a name="evmos.fees.v1.RegisterContractProposal"></a>
+
+### RegisterContractProposal
+RegisterContractProposal is a type to register a contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  | title of the proposal |
+| `description` | [string](#string) |  | proposal description |
+| `contract` | [string](#string) |  | contract address |
+| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
+| `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/genesis.proto
+
+
+
+<a name="evmos.fees.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
+| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) | repeated | active fees |
+
+
+
+
+
+
+<a name="evmos.fees.v1.Params"></a>
+
+### Params
+Params defines the fees module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_fees` | [bool](#bool) |  | parameter to enable fees |
+| `fees_contract_epoch_identifier` | [string](#string) |  | identifier for the epochs module hooks |
+| `reward_scaler` | [string](#string) |  | scaling factor for capping rewards |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/query.proto
+
+
+
+<a name="evmos.fees.v1.QueryFeesContractRequest"></a>
+
+### QueryFeesContractRequest
+QueryFeesContractRequest is the request type for the Query/FeesContract RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeesContractResponse"></a>
+
+### QueryFeesContractResponse
+QueryFeesContractResponse is the response type for the Query/FeesContract RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) |  |  |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeesContractsRequest"></a>
+
+### QueryFeesContractsRequest
+QueryFeesContractsRequest is the request type for the Query/FeesContracts RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeesContractsResponse"></a>
+
+### QueryFeesContractsResponse
+QueryFeesContractsResponse is the response type for the Query/FeesContracts RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.fees.v1.Params) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.fees.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `FeesContracts` | [QueryFeesContractsRequest](#evmos.fees.v1.QueryFeesContractsRequest) | [QueryFeesContractsResponse](#evmos.fees.v1.QueryFeesContractsResponse) | FeesContracts retrieves registered fees | GET|/evmos/fees/v1/fees|
+| `FeesContract` | [QueryFeesContractRequest](#evmos.fees.v1.QueryFeesContractRequest) | [QueryFeesContractResponse](#evmos.fees.v1.QueryFeesContractResponse) | FeesContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract}|
+| `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
 
  <!-- end services -->
 
