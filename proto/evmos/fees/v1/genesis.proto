@@ -18,11 +18,4 @@ message GenesisState {
 message Params {
   // parameter to enable fees
   bool enable_fees = 1;
-  // identifier for the epochs module hooks
-  string fees_contract_epoch_identifier = 3;
-  // scaling factor for capping rewards
-  string reward_scaler = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
 }

@@ -1,9 +1,6 @@
 package types
 
 import (
-	"fmt"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 )
@@ -23,26 +20,13 @@ func (i FeeContract) Validate() error {
 		return err
 	}
 
-	if i.Allocations.IsZero() {
-		return fmt.Errorf("allocations cannot be empty: %s", i.Allocations)
+	if err := ethermint.ValidateAddress(i.Owner); err != nil {
+		return err
 	}
 
-	for _, al := range i.Allocations {
-		if err := sdk.ValidateDenom(al.Denom); err != nil {
-			return err
-		}
-		if err := validateAmount(al.Amount); err != nil {
-			return err
-		}
+	if err := ethermint.ValidateAddress(i.WithdrawAddress); err != nil {
+		return err
 	}
 
-	if i.Epochs == 0 {
-		return fmt.Errorf("epoch cannot be 0")
-	}
 	return nil
-}
-
-// IsActive returns true if the FeeContract has remaining Epochs
-func (i FeeContract) IsActive() bool {
-	return i.Epochs > 0
 }

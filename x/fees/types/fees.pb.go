@@ -5,23 +5,19 @@ package types
 
 import (
 	fmt "fmt"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
-	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
-var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -34,13 +30,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type FeeContract struct {
 	// contract address
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
-	// denoms and percentage of rewards to be allocated
-	Allocations github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=allocations,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"allocations"`
-	// number of remaining epochs
-	// TODO we don't need this
-	Epochs uint32 `protobuf:"varint,3,opt,name=epochs,proto3" json:"epochs,omitempty"`
-	// distribution start time
-	StartTime time.Time `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time"`
+	// deployment transaction hash
+	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	// account receiving the fees
+	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
 }
 
 func (m *FeeContract) Reset()         { *m = FeeContract{} }
@@ -83,210 +76,44 @@ func (m *FeeContract) GetContract() string {
 	return ""
 }
 
-func (m *FeeContract) GetAllocations() github_com_cosmos_cosmos_sdk_types.DecCoins {
+func (m *FeeContract) GetOwner() string {
 	if m != nil {
-		return m.Allocations
-	}
-	return nil
-}
-
-func (m *FeeContract) GetEpochs() uint32 {
-	if m != nil {
-		return m.Epochs
-	}
-	return 0
-}
-
-func (m *FeeContract) GetStartTime() time.Time {
-	if m != nil {
-		return m.StartTime
-	}
-	return time.Time{}
-}
-
-// RegisterContractProposal is a type to register a contract
-type RegisterContractProposal struct {
-	// title of the proposal
-	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	// proposal description
-	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// contract address
-	Contract string `protobuf:"bytes,3,opt,name=contract,proto3" json:"contract,omitempty"`
-	// denoms and percentage of rewards to be allocated
-	Allocations github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=allocations,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"allocations"`
-	// number of remaining epochs
-	Epochs uint32 `protobuf:"varint,5,opt,name=epochs,proto3" json:"epochs,omitempty"`
-}
-
-func (m *RegisterContractProposal) Reset()         { *m = RegisterContractProposal{} }
-func (m *RegisterContractProposal) String() string { return proto.CompactTextString(m) }
-func (*RegisterContractProposal) ProtoMessage()    {}
-func (*RegisterContractProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1527b6d4bf16c067, []int{1}
-}
-func (m *RegisterContractProposal) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *RegisterContractProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_RegisterContractProposal.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *RegisterContractProposal) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RegisterContractProposal.Merge(m, src)
-}
-func (m *RegisterContractProposal) XXX_Size() int {
-	return m.Size()
-}
-func (m *RegisterContractProposal) XXX_DiscardUnknown() {
-	xxx_messageInfo_RegisterContractProposal.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RegisterContractProposal proto.InternalMessageInfo
-
-func (m *RegisterContractProposal) GetTitle() string {
-	if m != nil {
-		return m.Title
+		return m.Owner
 	}
 	return ""
 }
 
-func (m *RegisterContractProposal) GetDescription() string {
+func (m *FeeContract) GetWithdrawAddress() string {
 	if m != nil {
-		return m.Description
-	}
-	return ""
-}
-
-func (m *RegisterContractProposal) GetContract() string {
-	if m != nil {
-		return m.Contract
-	}
-	return ""
-}
-
-func (m *RegisterContractProposal) GetAllocations() github_com_cosmos_cosmos_sdk_types.DecCoins {
-	if m != nil {
-		return m.Allocations
-	}
-	return nil
-}
-
-func (m *RegisterContractProposal) GetEpochs() uint32 {
-	if m != nil {
-		return m.Epochs
-	}
-	return 0
-}
-
-// CancelContractProposal is a Content type to cancel a contract fee
-type CancelContractProposal struct {
-	// title of the proposal
-	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	// proposal description
-	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// contract address
-	Contract string `protobuf:"bytes,3,opt,name=contract,proto3" json:"contract,omitempty"`
-}
-
-func (m *CancelContractProposal) Reset()         { *m = CancelContractProposal{} }
-func (m *CancelContractProposal) String() string { return proto.CompactTextString(m) }
-func (*CancelContractProposal) ProtoMessage()    {}
-func (*CancelContractProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1527b6d4bf16c067, []int{2}
-}
-func (m *CancelContractProposal) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *CancelContractProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_CancelContractProposal.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *CancelContractProposal) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CancelContractProposal.Merge(m, src)
-}
-func (m *CancelContractProposal) XXX_Size() int {
-	return m.Size()
-}
-func (m *CancelContractProposal) XXX_DiscardUnknown() {
-	xxx_messageInfo_CancelContractProposal.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CancelContractProposal proto.InternalMessageInfo
-
-func (m *CancelContractProposal) GetTitle() string {
-	if m != nil {
-		return m.Title
-	}
-	return ""
-}
-
-func (m *CancelContractProposal) GetDescription() string {
-	if m != nil {
-		return m.Description
-	}
-	return ""
-}
-
-func (m *CancelContractProposal) GetContract() string {
-	if m != nil {
-		return m.Contract
+		return m.WithdrawAddress
 	}
 	return ""
 }
 
 func init() {
 	proto.RegisterType((*FeeContract)(nil), "evmos.fees.v1.FeeContract")
-	proto.RegisterType((*RegisterContractProposal)(nil), "evmos.fees.v1.RegisterContractProposal")
-	proto.RegisterType((*CancelContractProposal)(nil), "evmos.fees.v1.CancelContractProposal")
 }
 
 func init() { proto.RegisterFile("evmos/fees/v1/fees.proto", fileDescriptor_1527b6d4bf16c067) }
 
 var fileDescriptor_1527b6d4bf16c067 = []byte{
-	// 421 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x93, 0xb1, 0x6e, 0xdb, 0x30,
-	0x10, 0x86, 0x25, 0xdb, 0x09, 0x12, 0x0a, 0x59, 0x84, 0x20, 0x10, 0x8c, 0x42, 0x12, 0x3c, 0x09,
-	0x28, 0x4a, 0xc2, 0xf1, 0xd6, 0xd1, 0x2e, 0x3a, 0x17, 0x42, 0xa7, 0x2e, 0x05, 0xc5, 0x5c, 0x64,
-	0xa2, 0xb2, 0x4e, 0xd0, 0x31, 0x42, 0x3b, 0xf6, 0x0d, 0xf2, 0x08, 0x9d, 0xfb, 0x24, 0x19, 0x33,
-	0x76, 0x6a, 0x0a, 0x7b, 0xe9, 0x3b, 0x74, 0x29, 0x44, 0xca, 0x85, 0xbb, 0x64, 0xf4, 0x44, 0xfe,
-	0xfc, 0x49, 0xfc, 0x77, 0x1f, 0x71, 0x2c, 0x82, 0x6e, 0x83, 0x24, 0x6e, 0x01, 0x48, 0x74, 0x73,
-	0xbb, 0xf2, 0xa6, 0x45, 0x83, 0xe1, 0x85, 0x75, 0xb8, 0x3d, 0xe9, 0xe6, 0xd3, 0xcb, 0x12, 0x4b,
-	0xb4, 0x8e, 0xe8, 0x77, 0xee, 0xd2, 0x34, 0x29, 0x11, 0xcb, 0x0a, 0x84, 0x55, 0xc5, 0xdd, 0xad,
-	0x30, 0x7a, 0x03, 0x64, 0xe4, 0xa6, 0x19, 0x2e, 0xc4, 0x0a, 0xa9, 0x0f, 0x28, 0x24, 0x81, 0xe8,
-	0xe6, 0x05, 0x18, 0x39, 0x17, 0x0a, 0x75, 0xed, 0xfc, 0xd9, 0x1f, 0x9f, 0x05, 0x6f, 0x01, 0x56,
-	0x58, 0x9b, 0x56, 0x2a, 0x13, 0x4e, 0xd9, 0x99, 0x1a, 0xf6, 0x91, 0x9f, 0xfa, 0xd9, 0x79, 0xfe,
-	0x4f, 0x87, 0xc4, 0x02, 0x59, 0x55, 0xa8, 0xa4, 0xd1, 0x58, 0x53, 0x34, 0x4a, 0xc7, 0x59, 0x70,
-	0xfd, 0x82, 0xbb, 0x04, 0xde, 0x27, 0xf0, 0x21, 0x81, 0xbf, 0x01, 0xb5, 0x42, 0x5d, 0x2f, 0x17,
-	0x0f, 0x3f, 0x13, 0xef, 0xfb, 0x53, 0xf2, 0xb2, 0xd4, 0x66, 0x7d, 0x57, 0x70, 0x85, 0x1b, 0x31,
-	0x54, 0xe4, 0x96, 0x57, 0x74, 0xf3, 0x49, 0x98, 0x2f, 0x0d, 0xd0, 0xfe, 0x0d, 0xe5, 0x87, 0x29,
-	0xe1, 0x15, 0x3b, 0x85, 0x06, 0xd5, 0x9a, 0xa2, 0x71, 0xea, 0x67, 0x17, 0xf9, 0xa0, 0xc2, 0x15,
-	0x63, 0x64, 0x64, 0x6b, 0x3e, 0xf6, 0x1d, 0x47, 0x93, 0xd4, 0xcf, 0x82, 0xeb, 0x29, 0x77, 0x38,
-	0xf8, 0x1e, 0x07, 0x7f, 0xbf, 0xc7, 0xb1, 0x3c, 0xeb, 0x2b, 0xb9, 0x7f, 0x4a, 0xfc, 0xfc, 0xdc,
-	0xbe, 0xeb, 0x9d, 0xd9, 0xd7, 0x11, 0x8b, 0x72, 0x28, 0x35, 0x19, 0x68, 0xf7, 0x08, 0xde, 0xb5,
-	0xd8, 0x20, 0xc9, 0x2a, 0xbc, 0x64, 0x27, 0x46, 0x9b, 0x0a, 0x06, 0x0e, 0x4e, 0x84, 0x29, 0x0b,
-	0x6e, 0x80, 0x54, 0xab, 0x9b, 0xbe, 0xbe, 0x68, 0x64, 0xbd, 0xc3, 0xa3, 0xff, 0x10, 0x8e, 0x9f,
-	0x47, 0x38, 0x39, 0x32, 0xc2, 0x93, 0x43, 0x84, 0xaf, 0x27, 0xbf, 0xbf, 0x25, 0xde, 0xac, 0x65,
-	0x57, 0x2b, 0x59, 0x2b, 0xa8, 0x8e, 0x01, 0xc0, 0x65, 0x2e, 0x97, 0x0f, 0xdb, 0xd8, 0x7f, 0xdc,
-	0xc6, 0xfe, 0xaf, 0x6d, 0xec, 0xdf, 0xef, 0x62, 0xef, 0x71, 0x17, 0x7b, 0x3f, 0x76, 0xb1, 0xf7,
-	0x21, 0x3b, 0xe8, 0xd2, 0xac, 0x65, 0x4b, 0x9a, 0x84, 0x1b, 0x91, 0x6e, 0x21, 0x3e, 0xbb, 0x39,
-	0xb1, 0xbd, 0x16, 0xa7, 0xf6, 0x93, 0x17, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0x5d, 0x2f, 0xbc,
-	0x23, 0x42, 0x03, 0x00, 0x00,
+	// 255 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x3c, 0x90, 0x41, 0x4e, 0xb4, 0x40,
+	0x10, 0x85, 0xe1, 0xff, 0xa3, 0x51, 0x8c, 0xd1, 0x90, 0x59, 0x10, 0x16, 0xad, 0x71, 0x35, 0x6e,
+	0xa8, 0x90, 0x39, 0x81, 0x63, 0xe2, 0x01, 0x5c, 0xba, 0x31, 0x0d, 0xd4, 0x00, 0x46, 0x28, 0xd2,
+	0x55, 0xd3, 0xe8, 0x2d, 0x3c, 0x96, 0xcb, 0x59, 0xba, 0x34, 0x70, 0x11, 0x33, 0xdd, 0xa3, 0xab,
+	0x7e, 0xef, 0x7d, 0x2f, 0xe9, 0xca, 0x8b, 0x12, 0xb4, 0x1d, 0x31, 0x6c, 0x10, 0x19, 0x6c, 0xee,
+	0xde, 0x6c, 0x30, 0x24, 0x14, 0x9f, 0x3b, 0x92, 0xb9, 0xc4, 0xe6, 0xe9, 0xa2, 0xa6, 0x9a, 0x1c,
+	0x81, 0xbd, 0xf2, 0xa5, 0xf4, 0xaa, 0x26, 0xaa, 0x5f, 0x11, 0x9c, 0x2b, 0xb6, 0x1b, 0x90, 0xb6,
+	0x43, 0x16, 0xdd, 0x0d, 0x87, 0x82, 0x2a, 0x89, 0xf7, 0x1f, 0x14, 0x9a, 0x11, 0x6c, 0x5e, 0xa0,
+	0xe8, 0x1c, 0x4a, 0x6a, 0x7b, 0xcf, 0x6f, 0x5e, 0xa2, 0xb3, 0x07, 0xc4, 0x7b, 0xea, 0xc5, 0xe8,
+	0x52, 0xe2, 0x34, 0x3a, 0x29, 0x0f, 0x3a, 0x09, 0xaf, 0xc3, 0xe5, 0xe9, 0xe3, 0x9f, 0x8f, 0x17,
+	0xd1, 0x11, 0x8d, 0x3d, 0x9a, 0xe4, 0x9f, 0x03, 0xde, 0xc4, 0xb7, 0xd1, 0xe5, 0xd8, 0x4a, 0x53,
+	0x19, 0x3d, 0x3e, 0xeb, 0xaa, 0x32, 0xc8, 0x9c, 0xfc, 0x77, 0x85, 0x8b, 0xdf, 0xfc, 0xce, 0xc7,
+	0xeb, 0xf5, 0xe7, 0xa4, 0xc2, 0xdd, 0xa4, 0xc2, 0xef, 0x49, 0x85, 0x1f, 0xb3, 0x0a, 0x76, 0xb3,
+	0x0a, 0xbe, 0x66, 0x15, 0x3c, 0x2d, 0xeb, 0x56, 0x9a, 0x6d, 0x91, 0x95, 0xd4, 0x81, 0x34, 0xda,
+	0x70, 0xcb, 0xe0, 0x87, 0xb1, 0x2b, 0x78, 0xf3, 0xeb, 0xc8, 0xfb, 0x80, 0x5c, 0x1c, 0xbb, 0xb3,
+	0x57, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x34, 0x61, 0x30, 0x46, 0x38, 0x01, 0x00, 0x00,
 }
 
 func (m *FeeContract) Marshal() (dAtA []byte, err error) {
@@ -309,144 +136,24 @@ func (m *FeeContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartTime):])
-	if err1 != nil {
-		return 0, err1
-	}
-	i -= n1
-	i = encodeVarintFees(dAtA, i, uint64(n1))
-	i--
-	dAtA[i] = 0x22
-	if m.Epochs != 0 {
-		i = encodeVarintFees(dAtA, i, uint64(m.Epochs))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Allocations) > 0 {
-		for iNdEx := len(m.Allocations) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Allocations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintFees(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x12
-		}
-	}
-	if len(m.Contract) > 0 {
-		i -= len(m.Contract)
-		copy(dAtA[i:], m.Contract)
-		i = encodeVarintFees(dAtA, i, uint64(len(m.Contract)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *RegisterContractProposal) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *RegisterContractProposal) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *RegisterContractProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Epochs != 0 {
-		i = encodeVarintFees(dAtA, i, uint64(m.Epochs))
-		i--
-		dAtA[i] = 0x28
-	}
-	if len(m.Allocations) > 0 {
-		for iNdEx := len(m.Allocations) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Allocations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintFees(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x22
-		}
-	}
-	if len(m.Contract) > 0 {
-		i -= len(m.Contract)
-		copy(dAtA[i:], m.Contract)
-		i = encodeVarintFees(dAtA, i, uint64(len(m.Contract)))
+	if len(m.WithdrawAddress) > 0 {
+		i -= len(m.WithdrawAddress)
+		copy(dAtA[i:], m.WithdrawAddress)
+		i = encodeVarintFees(dAtA, i, uint64(len(m.WithdrawAddress)))
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.Description) > 0 {
-		i -= len(m.Description)
-		copy(dAtA[i:], m.Description)
-		i = encodeVarintFees(dAtA, i, uint64(len(m.Description)))
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintFees(dAtA, i, uint64(len(m.Owner)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Title) > 0 {
-		i -= len(m.Title)
-		copy(dAtA[i:], m.Title)
-		i = encodeVarintFees(dAtA, i, uint64(len(m.Title)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *CancelContractProposal) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *CancelContractProposal) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *CancelContractProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
 	if len(m.Contract) > 0 {
 		i -= len(m.Contract)
 		copy(dAtA[i:], m.Contract)
 		i = encodeVarintFees(dAtA, i, uint64(len(m.Contract)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Description) > 0 {
-		i -= len(m.Description)
-		copy(dAtA[i:], m.Description)
-		i = encodeVarintFees(dAtA, i, uint64(len(m.Description)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Title) > 0 {
-		i -= len(m.Title)
-		copy(dAtA[i:], m.Title)
-		i = encodeVarintFees(dAtA, i, uint64(len(m.Title)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -474,65 +181,11 @@ func (m *FeeContract) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovFees(uint64(l))
 	}
-	if len(m.Allocations) > 0 {
-		for _, e := range m.Allocations {
-			l = e.Size()
-			n += 1 + l + sovFees(uint64(l))
-		}
-	}
-	if m.Epochs != 0 {
-		n += 1 + sovFees(uint64(m.Epochs))
-	}
-	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.StartTime)
-	n += 1 + l + sovFees(uint64(l))
-	return n
-}
-
-func (m *RegisterContractProposal) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Title)
+	l = len(m.Owner)
 	if l > 0 {
 		n += 1 + l + sovFees(uint64(l))
 	}
-	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovFees(uint64(l))
-	}
-	l = len(m.Contract)
-	if l > 0 {
-		n += 1 + l + sovFees(uint64(l))
-	}
-	if len(m.Allocations) > 0 {
-		for _, e := range m.Allocations {
-			l = e.Size()
-			n += 1 + l + sovFees(uint64(l))
-		}
-	}
-	if m.Epochs != 0 {
-		n += 1 + sovFees(uint64(m.Epochs))
-	}
-	return n
-}
-
-func (m *CancelContractProposal) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Title)
-	if l > 0 {
-		n += 1 + l + sovFees(uint64(l))
-	}
-	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovFees(uint64(l))
-	}
-	l = len(m.Contract)
+	l = len(m.WithdrawAddress)
 	if l > 0 {
 		n += 1 + l + sovFees(uint64(l))
 	}
@@ -608,143 +261,7 @@ func (m *FeeContract) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Allocations", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Allocations = append(m.Allocations, types.DecCoin{})
-			if err := m.Allocations[len(m.Allocations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Epochs", wireType)
-			}
-			m.Epochs = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Epochs |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StartTime", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.StartTime, dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipFees(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthFees
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *RegisterContractProposal) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowFees
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: RegisterContractProposal: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RegisterContractProposal: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -772,43 +289,11 @@ func (m *RegisterContractProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Title = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Description = string(dAtA[iNdEx:postIndex])
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field WithdrawAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -836,206 +321,7 @@ func (m *RegisterContractProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Contract = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Allocations", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Allocations = append(m.Allocations, types.DecCoin{})
-			if err := m.Allocations[len(m.Allocations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Epochs", wireType)
-			}
-			m.Epochs = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Epochs |= uint32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipFees(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthFees
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *CancelContractProposal) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowFees
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: CancelContractProposal: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CancelContractProposal: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Title = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Description = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFees
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFees
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFees
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Contract = string(dAtA[iNdEx:postIndex])
+			m.WithdrawAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

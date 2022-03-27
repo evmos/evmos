@@ -1,0 +1,59 @@
+syntax = "proto3";
+package evmos.fees.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
+
+// Msg defines the fees Msg service.
+service Msg {
+  // RegisterFeeContract
+  rpc RegisterFeeContract(MsgRegisterFeeContract) returns (MsgRegisterFeeContractResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/tx/register_fee_contract";
+  };
+  // CancelFeeContract
+  rpc CancelFeeContract(MsgCancelFeeContract) returns (MsgCancelFeeContractResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/tx/cancel_fee_contract";
+  };
+  // UpdateFeeContract
+  rpc UpdateFeeContract(MsgUpdateFeeContract) returns (MsgUpdateFeeContractResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/tx/update_fee_contract";
+  };
+}
+
+// MsgRegisterFeesContract defines a message that registers a FeeContract.
+message MsgRegisterFeeContract {
+  option (gogoproto.equal) = false;
+  // contract address
+  string contract = 1;
+  // deployment transaction hash
+  string deployment_hash = 2;
+  // contract owner
+  string from_address = 3;
+  // account receiving the fees
+  string withdraw_address = 4;
+}
+
+// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type.
+message MsgRegisterFeeContractResponse {}
+
+// CancelContractProposal is a Content type to cancel a contract fee
+message MsgCancelFeeContract {
+  option (gogoproto.equal) = false;
+  string contract = 1;
+  string from_address = 2;
+}
+
+message MsgCancelFeeContractResponse {}
+
+// UpdateContractProposal is a Content type to cancel a contract fee
+message MsgUpdateFeeContract {
+  option (gogoproto.equal) = false;
+  string contract = 1;
+  string from_address = 2;
+  string withdraw_address = 3;
+}
+
+message MsgUpdateFeeContractResponse {}

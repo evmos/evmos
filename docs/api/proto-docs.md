@@ -71,9 +71,7 @@
     - [Msg](#evmos.erc20.v1.Msg)
   
 - [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
-    - [CancelContractProposal](#evmos.fees.v1.CancelContractProposal)
     - [FeeContract](#evmos.fees.v1.FeeContract)
-    - [RegisterContractProposal](#evmos.fees.v1.RegisterContractProposal)
   
 - [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
     - [GenesisState](#evmos.fees.v1.GenesisState)
@@ -88,6 +86,16 @@
     - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
   
     - [Query](#evmos.fees.v1.Query)
+  
+- [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
+    - [MsgCancelFeeContract](#evmos.fees.v1.MsgCancelFeeContract)
+    - [MsgCancelFeeContractResponse](#evmos.fees.v1.MsgCancelFeeContractResponse)
+    - [MsgRegisterFeeContract](#evmos.fees.v1.MsgRegisterFeeContract)
+    - [MsgRegisterFeeContractResponse](#evmos.fees.v1.MsgRegisterFeeContractResponse)
+    - [MsgUpdateFeeContract](#evmos.fees.v1.MsgUpdateFeeContract)
+    - [MsgUpdateFeeContractResponse](#evmos.fees.v1.MsgUpdateFeeContractResponse)
+  
+    - [Msg](#evmos.fees.v1.Msg)
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
@@ -969,23 +977,6 @@ Msg defines the erc20 Msg service.
 
 
 
-<a name="evmos.fees.v1.CancelContractProposal"></a>
-
-### CancelContractProposal
-CancelContractProposal is a Content type to cancel a contract fee
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `title` | [string](#string) |  | title of the proposal |
-| `description` | [string](#string) |  | proposal description |
-| `contract` | [string](#string) |  | contract address |
-
-
-
-
-
-
 <a name="evmos.fees.v1.FeeContract"></a>
 
 ### FeeContract
@@ -996,28 +987,8 @@ given smart contract
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract` | [string](#string) |  | contract address |
-| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
-| `epochs` | [uint32](#uint32) |  | number of remaining epochs TODO we don't need this |
-| `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time |
-
-
-
-
-
-
-<a name="evmos.fees.v1.RegisterContractProposal"></a>
-
-### RegisterContractProposal
-RegisterContractProposal is a type to register a contract
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `title` | [string](#string) |  | title of the proposal |
-| `description` | [string](#string) |  | proposal description |
-| `contract` | [string](#string) |  | contract address |
-| `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
-| `epochs` | [uint32](#uint32) |  | number of remaining epochs |
+| `owner` | [string](#string) |  | deployment transaction hash |
+| `withdraw_address` | [string](#string) |  | account receiving the fees |
 
 
 
@@ -1065,8 +1036,6 @@ Params defines the fees module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
-| `fees_contract_epoch_identifier` | [string](#string) |  | identifier for the epochs module hooks |
-| `reward_scaler` | [string](#string) |  | scaling factor for capping rewards |
 
 
 
@@ -1195,6 +1164,115 @@ Query defines the gRPC querier service.
 | `FeesContracts` | [QueryFeesContractsRequest](#evmos.fees.v1.QueryFeesContractsRequest) | [QueryFeesContractsResponse](#evmos.fees.v1.QueryFeesContractsResponse) | FeesContracts retrieves registered fees | GET|/evmos/fees/v1/fees|
 | `FeesContract` | [QueryFeesContractRequest](#evmos.fees.v1.QueryFeesContractRequest) | [QueryFeesContractResponse](#evmos.fees.v1.QueryFeesContractResponse) | FeesContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/tx.proto
+
+
+
+<a name="evmos.fees.v1.MsgCancelFeeContract"></a>
+
+### MsgCancelFeeContract
+CancelContractProposal is a Content type to cancel a contract fee
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  |  |
+| `from_address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgCancelFeeContractResponse"></a>
+
+### MsgCancelFeeContractResponse
+
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgRegisterFeeContract"></a>
+
+### MsgRegisterFeeContract
+MsgRegisterFeesContract defines a message that registers a FeeContract.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract address |
+| `deployment_hash` | [string](#string) |  | deployment transaction hash |
+| `from_address` | [string](#string) |  | contract owner |
+| `withdraw_address` | [string](#string) |  | account receiving the fees |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgRegisterFeeContractResponse"></a>
+
+### MsgRegisterFeeContractResponse
+MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type.
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgUpdateFeeContract"></a>
+
+### MsgUpdateFeeContract
+UpdateContractProposal is a Content type to cancel a contract fee
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  |  |
+| `from_address` | [string](#string) |  |  |
+| `withdraw_address` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgUpdateFeeContractResponse"></a>
+
+### MsgUpdateFeeContractResponse
+
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.fees.v1.Msg"></a>
+
+### Msg
+Msg defines the fees Msg service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `RegisterFeeContract` | [MsgRegisterFeeContract](#evmos.fees.v1.MsgRegisterFeeContract) | [MsgRegisterFeeContractResponse](#evmos.fees.v1.MsgRegisterFeeContractResponse) | RegisterFeeContract | GET|/evmos/fees/v1/tx/register_fee_contract|
+| `CancelFeeContract` | [MsgCancelFeeContract](#evmos.fees.v1.MsgCancelFeeContract) | [MsgCancelFeeContractResponse](#evmos.fees.v1.MsgCancelFeeContractResponse) | CancelFeeContract | GET|/evmos/fees/v1/tx/cancel_fee_contract|
+| `UpdateFeeContract` | [MsgUpdateFeeContract](#evmos.fees.v1.MsgUpdateFeeContract) | [MsgUpdateFeeContractResponse](#evmos.fees.v1.MsgUpdateFeeContractResponse) | UpdateFeeContract | GET|/evmos/fees/v1/tx/update_fee_contract|
 
  <!-- end services -->
 

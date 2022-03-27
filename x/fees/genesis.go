@@ -24,7 +24,7 @@ func InitGenesis(
 
 	for _, incentive := range data.Fees {
 		// Set Incentives
-		k.SetFeeContract(ctx, incentive)
+		k.SetFee(ctx, incentive)
 	}
 }
 

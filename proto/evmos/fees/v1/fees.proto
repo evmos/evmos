@@ -11,46 +11,8 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 message FeeContract {
   // contract address
   string contract = 1;
-  // denoms and percentage of rewards to be allocated
-  repeated cosmos.base.v1beta1.DecCoin allocations = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
-  ];
-  // number of remaining epochs
-  // TODO we don't need this
-  uint32 epochs = 3;
-  // distribution start time
-  google.protobuf.Timestamp start_time = 4 [
-    (gogoproto.stdtime) = true,
-    (gogoproto.nullable) = false
-  ];
-}
-
-// RegisterContractProposal is a type to register a contract
-message RegisterContractProposal {
-  option (gogoproto.equal) = false;
-  // title of the proposal
-  string title = 1;
-  // proposal description
-  string description = 2;
-  // contract address
-  string contract = 3;
-  // denoms and percentage of rewards to be allocated
-  repeated cosmos.base.v1beta1.DecCoin allocations = 4 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
-  ];
-  // number of remaining epochs
-  uint32 epochs = 5;
-}
-
-// CancelContractProposal is a Content type to cancel a contract fee
-message CancelContractProposal {
-  option (gogoproto.equal) = false;
-  // title of the proposal
-  string title = 1;
-  // proposal description
-  string description = 2;
-  // contract address
-  string contract = 3;
+  // deployment transaction hash
+  string owner = 2;
+  // account receiving the fees
+  string withdraw_address = 3;
 }

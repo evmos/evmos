@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -14,8 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/encoding"
@@ -24,7 +21,6 @@ import (
 	"github.com/tharsis/evmos/v3/app"
 	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/fees/types"
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
 	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -101,6 +97,7 @@ var _ = Describe("Fees", Ordered, func() {
 
 	Context("ctx", func() {
 		var contractAddress common.Address
+		var txHash common.Hash
 		BeforeAll(func() {
 			// fmt.Println("----distrAddr", distrAddr)
 		})
@@ -108,67 +105,47 @@ var _ = Describe("Fees", Ordered, func() {
 		It("deploy contract", func() {
 			fmt.Println("test")
 			// addr := getAddr(privs[0])
-			contractAddress = deployContract(privs[0])
+			contractAddress, txHash = deployContract(privs[0])
 			fmt.Println("---contractAddress", contractAddress)
 		})
 
 		It("interact with contract", func() {
 			// addr := getAddr(privs[0])
 			contractInteract(privs[1], &contractAddress)
+		})
+
+		It("send registration message", func() {
+			registerFeeContract(privs[1], &contractAddress, txHash)
+			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
+			Expect(isRegistered).To(Equal(true))
+
+			owner := sdk.AccAddress(privs[1].PubKey().Address().Bytes())
+			Expect(fee.Contract).To(Equal(contractAddress.Hex()))
+			Expect(fee.Owner).To(Equal(owner.String()))
+			Expect(fee.WithdrawAddress).To(Equal(owner.String()))
 			Expect(true).To(Equal(false))
 		})
 	})
 })
 
+func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address, deploymentHash common.Hash) {
+	fromAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
+
+	msg := types.NewMsgRegisterFeeContract(fromAddress, contractAddress.String(), deploymentHash.Hex(), fromAddress)
+
+	res := deliverTx(priv, msg)
+	s.Commit()
+	registerEvent := res.GetEvents()[4]
+	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterFeeContract))
+	Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
+	Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
+}
+
 func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
 	return sdk.AccAddress(priv.PubKey().Address().Bytes())
 }
 
-func delegate(priv *ethsecp256k1.PrivKey, delegateAmount sdk.Coin) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	val, err := sdk.ValAddressFromBech32(s.validator.OperatorAddress)
-	s.Require().NoError(err)
-
-	delegateMsg := stakingtypes.NewMsgDelegate(accountAddress, val, delegateAmount)
-	deliverTx(priv, delegateMsg)
-}
-
-func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	contractAddress := deployContract(priv)
-	content := incentivestypes.NewRegisterIncentiveProposal(
-		"test",
-		"description",
-		contractAddress.String(),
-		sdk.DecCoins{sdk.NewDecCoinFromDec(evmtypes.DefaultEVMDenom, sdk.NewDecWithPrec(5, 2))},
-		1000,
-	)
-
-	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
-	msg, err := govtypes.NewMsgSubmitProposal(content, deposit, accountAddress)
-	s.Require().NoError(err)
-
-	res := deliverTx(priv, msg)
-	submitEvent := res.GetEvents()[4]
-	Expect(submitEvent.Type).To(Equal("submit_proposal"))
-	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
-
-	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
-	s.Require().NoError(err)
-
-	return proposalId
-}
-
-func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	voteMsg := govtypes.NewMsgVote(accountAddress, proposalID, 2)
-	deliverTx(priv, voteMsg)
-}
-
-func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
+func deployContract(priv *ethsecp256k1.PrivKey) (common.Address, common.Hash) {
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
@@ -198,14 +175,20 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	msgEthereumTx := evmtypes.NewTxContract(chainID, nonce, nil, gasLimit, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 
-	performEthTx(priv, msgEthereumTx)
+	res := performEthTx(priv, msgEthereumTx)
 	s.Commit()
+
+	fmt.Println("contract deploy", res.GetLog())
+
+	// registerEvent := res.GetEvents()[4]
+	// Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterFeeContract))
+	// Expect(string(registerEvent.Attributes[0].Key)).To(Equal(types.AttributeKeyContract))
 
 	contractAddress := crypto.CreateAddress(from, nonce)
 	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
 	s.Require().NotEmpty(acc)
 	s.Require().True(acc.IsContract())
-	return contractAddress
+	return contractAddress, common.Hash{}
 }
 
 func contractInteract(priv *ethsecp256k1.PrivKey, contractAddr *common.Address) {
@@ -244,7 +227,7 @@ func contractInteract(priv *ethsecp256k1.PrivKey, contractAddr *common.Address) 
 	s.Commit()
 }
 
-func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) {
+func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseDeliverTx {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
 	s.Require().NoError(err)
@@ -274,6 +257,7 @@ func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
+	return res
 }
 
 func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {

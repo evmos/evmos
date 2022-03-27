@@ -3,7 +3,9 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	// govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // ModuleCdc references the global fees module codec. Note, the codec
@@ -15,9 +17,13 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 
 // RegisterInterfaces register implementations
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+
 	registry.RegisterImplementations(
-		(*govtypes.Content)(nil),
-		&RegisterContractProposal{},
-		&CancelContractProposal{},
+		(*sdk.Msg)(nil),
+		&MsgRegisterFeeContract{},
+		&MsgCancelFeeContract{},
+		&MsgUpdateFeeContract{},
 	)
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

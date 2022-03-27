@@ -26,27 +26,27 @@ func (k Keeper) GetAllFees(ctx sdk.Context) []types.FeeContract {
 	return fees
 }
 
-// // IterateIncentives iterates over all registered `Incentives` and performs a
-// // callback.
-// func (k Keeper) IterateIncentives(
-// 	ctx sdk.Context,
-// 	handlerFn func(incentive types.Incentive) (stop bool),
-// ) {
-// 	store := ctx.KVStore(k.storeKey)
-// 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixIncentive)
-// 	defer iterator.Close()
+// IterateFees iterates over all registered `FeeContracts` and performs a
+// callback.
+func (k Keeper) IterateFees(
+	ctx sdk.Context,
+	handlerFn func(fee types.FeeContract) (stop bool),
+) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFee)
+	defer iterator.Close()
 
-// 	for ; iterator.Valid(); iterator.Next() {
-// 		var incentive types.Incentive
-// 		k.cdc.MustUnmarshal(iterator.Value(), &incentive)
+	for ; iterator.Valid(); iterator.Next() {
+		var fee types.FeeContract
+		k.cdc.MustUnmarshal(iterator.Value(), &fee)
 
-// 		if handlerFn(incentive) {
-// 			break
-// 		}
-// 	}
-// }
+		if handlerFn(fee) {
+			break
+		}
+	}
+}
 
-// GetIncentive - get registered incentive from the identifier
+// GetFee - get registered fee from the identifier
 func (k Keeper) GetFee(
 	ctx sdk.Context,
 	contract common.Address,
@@ -57,29 +57,28 @@ func (k Keeper) GetFee(
 		return types.FeeContract{}, false
 	}
 
-	var incentive types.FeeContract
-	k.cdc.MustUnmarshal(bz, &incentive)
-	return incentive, true
+	var fee types.FeeContract
+	k.cdc.MustUnmarshal(bz, &fee)
+	return fee, true
 }
 
-// SetFeeContract stores a fee
-func (k Keeper) SetFeeContract(ctx sdk.Context, incentive types.FeeContract) {
+// SetFee stores a fee
+func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
-	key := common.HexToAddress(incentive.Contract)
-	bz := k.cdc.MustMarshal(&incentive)
+	key := common.HexToAddress(fee.Contract)
+	bz := k.cdc.MustMarshal(&fee)
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteIncentiveAndUpdateAllocationMeters removes an incentive and updates the
-// percentage of incentives allocated to each denomination.
-func (k Keeper) DeleteContract(ctx sdk.Context, incentive types.FeeContract) {
+// DeleteFee removes a fee
+func (k Keeper) DeleteFee(ctx sdk.Context, fee types.FeeContract) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
-	key := common.HexToAddress(incentive.Contract)
+	key := common.HexToAddress(fee.Contract)
 	store.Delete(key.Bytes())
 }
 
-// IsContractRegistered - check if registered Incentive is registered
-func (k Keeper) IsContractRegistered(
+// IsFeeRegistered - check if registered FeeContract is registered
+func (k Keeper) IsFeeRegistered(
 	ctx sdk.Context,
 	contract common.Address,
 ) bool {

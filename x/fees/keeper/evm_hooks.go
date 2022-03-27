@@ -33,7 +33,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, owner common.Address, contract 
 	}
 
 	// If theres no fees registered for the contract, do nothing
-	if contract == nil || !h.k.IsContractRegistered(ctx, *contract) {
+	if contract == nil || !h.k.IsFeeRegistered(ctx, *contract) {
 		return nil
 	}
 
