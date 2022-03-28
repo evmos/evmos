@@ -1,9 +1,9 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math"
 	"math/big"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -33,9 +33,9 @@ import (
 )
 
 var _ = Describe("Fees", Ordered, func() {
-	// distrAddr := s.app.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
-	denom := types.DefaultFeesDenom
+	// denom := types.DefaultFeesDenom
 	claimsDenom := claimstypes.DefaultClaimsDenom
+	evmDenom := evmtypes.DefaultEVMDenom
 	accountCount := 4
 
 	// account initial balances
@@ -44,13 +44,7 @@ var _ = Describe("Fees", Ordered, func() {
 		sdk.NewCoin(claimsDenom, initAmount),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, initAmount),
 	)
-
-	// account for creating the governance proposals
-	initAmount0 := sdk.NewInt(int64(math.Pow10(18) * 2))
-	initBalance0 := sdk.NewCoins(
-		sdk.NewCoin(claimsDenom, initAmount0),
-	)
-	totalAmount := sdk.NewCoin(claimsDenom, initAmount.Add(initAmount0))
+	totalAmount := sdk.NewCoin(claimsDenom, initAmount.MulRaw(int64(accountCount)))
 
 	var (
 		priv0  *ethsecp256k1.PrivKey
@@ -72,10 +66,9 @@ var _ = Describe("Fees", Ordered, func() {
 		err := testutil.FundModuleAccount(s.app.BankKeeper, s.ctx, inflationtypes.ModuleName, coins)
 		s.Require().NoError(err)
 
-		// fund testing accounts and create claim records
 		priv0, _ = ethsecp256k1.GenerateKey()
 		addr0 = getAddr(priv0)
-		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr0, initBalance0)
+		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr0, initBalance)
 
 		for i := 0; i < accountCount; i++ {
 			priv, _ := ethsecp256k1.GenerateKey()
@@ -86,7 +79,7 @@ var _ = Describe("Fees", Ordered, func() {
 			s.app.AccountKeeper.SetAccount(s.ctx, acc)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance.Amount).To(Equal(initAmount0))
+			Expect(balance.Amount).To(Equal(initAmount))
 		}
 
 		s.Commit()
@@ -95,29 +88,37 @@ var _ = Describe("Fees", Ordered, func() {
 	Context("ctx", func() {
 		var contractAddress common.Address
 		var txHash common.Hash
-		var priv *ethsecp256k1.PrivKey
-		var owner sdk.AccAddress
 		BeforeAll(func() {
-			contractAddress, txHash = deployContract(privs[0])
-			priv = privs[1]
-			owner = sdk.AccAddress(priv.PubKey().Address().Bytes())
+			contractAddress, txHash = deployContract(priv0)
 		})
 
 		It("send registration message", func() {
-			registerFeeContract(priv, &contractAddress, txHash)
+			registerFeeContract(priv0, &contractAddress, txHash)
 			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 			Expect(isRegistered).To(Equal(true))
 			Expect(fee.Contract).To(Equal(contractAddress.Hex()))
-			Expect(fee.Owner).To(Equal(owner.String()))
-			Expect(fee.WithdrawAddress).To(Equal(owner.String()))
+			Expect(fee.Owner).To(Equal(addr0.String()))
+			Expect(fee.WithdrawAddress).To(Equal(addr0.String()))
 		})
 
 		It("interact with contract", func() {
-			preBalance := s.app.BankKeeper.GetBalance(s.ctx, owner, denom)
-			contractInteract(privs[1], &contractAddress)
-			balance := s.app.BankKeeper.GetBalance(s.ctx, owner, denom)
-			Expect(balance).To(Equal(preBalance))
-			Expect(true).To(Equal(false))
+			preBalance := s.app.BankKeeper.GetBalance(s.ctx, addr0, evmDenom)
+			cfg, _ := s.app.EvmKeeper.EVMConfig(s.ctx)
+			res := contractInteract(privs[0], &contractAddress)
+
+			registerEvent := res.GetEvents()[14]
+			Expect(registerEvent.Type).To(Equal("ethereum_tx"))
+			Expect(string(registerEvent.Attributes[3].Key)).To(Equal("txGasUsed"))
+			gasUsed, err := strconv.ParseInt(string(registerEvent.Attributes[3].Value), 10, 64)
+			s.Require().NoError(err)
+
+			feeDistribution := new(big.Int).Mul(big.NewInt(gasUsed), cfg.BaseFee)
+			receivedFee := new(big.Int).Mul(feeDistribution, big.NewInt(int64(params.DeveloperPercentage)))
+			receivedFee = new(big.Int).Quo(receivedFee, big.NewInt(100))
+			receivedCoins := sdk.NewCoin(evmDenom, sdk.NewIntFromBigInt(receivedFee))
+
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr0, evmDenom)
+			Expect(balance).To(Equal(preBalance.Add(receivedCoins)))
 		})
 	})
 })
@@ -172,8 +173,6 @@ func deployContract(priv *ethsecp256k1.PrivKey) (common.Address, common.Hash) {
 	res := performEthTx(priv, msgEthereumTx)
 	s.Commit()
 
-	fmt.Println("contract deploy", res.GetEvents())
-
 	ethereumTx := res.GetEvents()[10]
 	Expect(ethereumTx.Type).To(Equal("ethereum_tx"))
 	Expect(string(ethereumTx.Attributes[1].Key)).To(Equal("ethereumTxHash"))
@@ -187,34 +186,11 @@ func deployContract(priv *ethsecp256k1.PrivKey) (common.Address, common.Hash) {
 }
 
 func contractInteract(priv *ethsecp256k1.PrivKey, contractAddr *common.Address) abci.ResponseDeliverTx {
-	// amount := big.NewInt(100)
-
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
-
-	// ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", contractAddr, amount)
-	// s.Require().NoError(err)
-
-	// data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
-	// args, err := json.Marshal(&evm.TransactionArgs{
-	// 	From: &s.address,
-	// 	Data: (*hexutil.Bytes)(&data),
-	// })
-	// s.Require().NoError(err)
 	data := make([]byte, 0)
-	// args := make([]byte, 0)
 	gasLimit := uint64(100000)
-
-	// ctx := sdk.WrapSDKContext(s.ctx)
-	// res, err := s.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-	// 	Args:   args,
-	// 	GasCap: uint64(config.DefaultGasCap),
-	// })
-	// fmt.Println("--err--", err)
-	// s.Require().NoError(err)
-	// gasLimit := res.Gas
-
 	msgEthereumTx := evmtypes.NewTx(chainID, nonce, contractAddr, nil, gasLimit, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 

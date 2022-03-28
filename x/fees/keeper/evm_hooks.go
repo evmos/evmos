@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,7 +27,6 @@ func (k Keeper) Hooks() Hooks {
 // interaction with an incentivized contract, the owner's GasUsed is
 // added to its gasMeter.
 func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *common.Address, receipt *ethtypes.Receipt, cfg *evmtypes.EVMConfig) error {
-	fmt.Println("---PostTxProcessing", from, contract, receipt.GasUsed)
 	// check if the fees are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableFees {
@@ -62,10 +60,9 @@ func (h Hooks) addFeesToOwner(
 	fees *big.Int,
 	denom string,
 ) error {
-	fmt.Println("--addFeesToOwner", contract, withdrawAddr, fees)
-
 	// TODO - use fee module denom or cfg.Params.EvmDenom?
-	// denom := h.k.GetParams(ctx).FeesDenom
+	// if we use fee module denom, we need to mint the coins
+	// denom = h.k.GetParams(ctx).FeesDenom
 	coins := sdk.Coins{sdk.NewCoin(denom, sdk.NewIntFromBigInt(fees))}
 	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, withdrawAddr, coins)
 	if err != nil {
