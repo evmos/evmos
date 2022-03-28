@@ -24,10 +24,10 @@ import (
 // ethsecp256k1 address. The expected behavior is as follows:
 //
 // First transfer from authorized source chain:
-// - sends back IBC tokens which originated from the source chain
-// - sends over all Evmos native tokens
+//  - sends back IBC tokens which originated from the source chain
+//  - sends over all Evmos native tokens
 // Second transfer from a different authorized source chain:
-// - only sends back IBC tokens which originated from the source chain
+//  - only sends back IBC tokens which originated from the source chain
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -38,23 +38,23 @@ func (k Keeper) OnRecvPacket(
 	params := k.GetParams(ctx)
 	claimsParams := k.claimsKeeper.GetParams(ctx)
 
-	// Check channels from this chain (i.e destination).
-	// Return original ACK if:
-	// - recovery is disabled globally
-	// - channel is not authorized
-	// - channel is an EVM channel
+	// Check and return original ACK if:
+	//  - recovery is disabled globally
+	//  - channel is not authorized
+	//  - channel is an EVM channel
 	if !params.EnableRecovery ||
 		!claimsParams.IsAuthorizedChannel(packet.DestinationChannel) ||
 		claimsParams.IsEVMChannel(packet.DestinationChannel) {
 		return ack
 	}
 
+	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 
-	// return error ACK if the address is in the deny list
+	// return error ACK if the address is on the deny list
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(
@@ -65,15 +65,15 @@ func (k Keeper) OnRecvPacket(
 		)
 	}
 
-	// Check if sender == recipient, as recovery is only possible for transfers to
-	// a sender's own account in Evmos
+	// Check if sender != recipient, as recovery is only possible for transfers to
+	// a sender's own account on Evmos (sender == recipient)
 	if !sender.Equals(recipient) {
 		// Continue to the next IBC middleware by returning the original ACK.
 		return ack
 	}
 
-	// get the sender account
-	account := k.accountKeeper.GetAccount(ctx, sender)
+	// get the recipient/sender account
+	account := k.accountKeeper.GetAccount(ctx, recipient)
 
 	// recovery is not supported for vesting or module accounts
 	if _, isVestingAcc := account.(vestexported.VestingAccount); isVestingAcc {
@@ -84,7 +84,7 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// Check if sender pubkey is a supported key (eth_secp256k1, amino multisig,
+	// Check if recipient pubkey is a supported key (eth_secp256k1, amino multisig,
 	// ed25519). Continue and return success ACK as the funds are not stuck on
 	// chain for supported keys
 	if account != nil && account.GetPubKey() != nil &&
@@ -92,10 +92,9 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// Perform Recovery to transfer the balance back to the sender address.
+	// Perform recovery to transfer the balance back to the sender bech32 address.
 	// NOTE: Since destination channel is authorized and not from an EVM chain, we
-	// know that only secp256k1 keys are supported in the source chain. This means
-	// that we can now initiate the recovery logic
+	// know that only secp256k1 keys are supported in the source chain.
 	destPort := packet.DestinationPort
 	destChannel := packet.DestinationChannel
 	balances := sdk.Coins{}
@@ -103,7 +102,7 @@ func (k Keeper) OnRecvPacket(
 	// iterate over all tokens owned by the address (i.e sender balance) and
 	// transfer them to the original sender address in the source chain (if
 	// applicable, see cases for IBC vouchers below).
-	k.bankKeeper.IterateAccountBalances(ctx, sender, func(coin sdk.Coin) (stop bool) {
+	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
 		if coin.IsZero() {
 			// safety check: continue
 			return false
@@ -120,15 +119,15 @@ func (k Keeper) OnRecvPacket(
 				return true // stop iteration
 			}
 
-			// NOTE: only recover the IBC tokens from the source chain connected through our
-			// authorized destination channel
+			// NOTE: only recover the IBC tokens from the source chain connected
+			// through our authorized destination channel
 			if packet.DestinationPort != destPort || packet.DestinationChannel != destChannel {
 				// continue
 				return false
 			}
 		} else {
-			// Native tokens, use the source port and channel to transfer the EVMOS and
-			// other converted ERC20 coin denoms to the authorized source chain
+			// Native tokens, use the source port and channel to transfer the EVMOS
+			// and other converted ERC20 coin denoms to the authorized source chain
 			destPort = packet.DestinationPort
 			destChannel = packet.DestinationChannel
 		}
@@ -142,7 +141,7 @@ func (k Keeper) OnRecvPacket(
 			packet.DestinationPort,    // packet destination port is now the source
 			packet.DestinationChannel, // packet destination channel is now the source
 			coin,                      // balance of the coin
-			sender,                    // sender is the address in the Evmos chain
+			recipient,                 // recipient is the address in the Evmos chain
 			senderBech32,              // transfer to your own account address on the source chain
 			clienttypes.ZeroHeight(),  // timeout height disabled
 			timeout,                   // timeout timestamp is 4 hours from now
@@ -198,7 +197,6 @@ func (k Keeper) OnRecvPacket(
 			types.EventTypeRecovery,
 			sdk.NewAttribute(sdk.AttributeKeySender, senderBech32),
 			sdk.NewAttribute(transfertypes.AttributeKeyReceiver, recipientBech32),
-			sdk.NewAttribute(channeltypes.AttributeKeySrcPort, packet.SourcePort),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amtStr),
 			sdk.NewAttribute(channeltypes.AttributeKeySrcChannel, packet.SourceChannel),
 			sdk.NewAttribute(channeltypes.AttributeKeySrcPort, packet.SourcePort),
@@ -211,8 +209,9 @@ func (k Keeper) OnRecvPacket(
 	return ack
 }
 
-// GetIBCDenomDestinationIdentifiers returns the destination port and channel of the IBC denomination,
-// i.e port and channel on Evmos for the voucher. It returns an error if:
+// GetIBCDenomDestinationIdentifiers returns the destination port and channel of
+// the IBC denomination, i.e port and channel on Evmos for the voucher. It
+// returns an error if:
 //  - the denomination is invalid
 //  - the denom trace is not found on the store
 //  - destination port or channel ID are invalid
