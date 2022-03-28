@@ -6,12 +6,18 @@ import "../lib/strings.sol";
 
 abstract contract ICS20 is IICS20Transfer, ICS20Bank
 {
-    mapping(string => address) channelEscrowAddresses;
+    /*
+    * Channel Escrow Address is a mapping that maps the channel address to the escrow address.
+    */
+    mapping(string => address) channelEscrowAddresses; 
 
     constructor(string memory denom_) {
-        _denom = denom_;
+        _denom = denom_; // Setting a denomination for the ICS20
     }
 
+    /*
+    * Send transaction 
+    */
     function sendTx (
         string calldata denom,
         uint64 amount,
@@ -21,34 +27,49 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
         uint64 timeoutHeight
     ) public 
     {
+         // Check if sender is on source chain
         if (!denom.toSlice().startsWith(_makeDenomPrefix(sourcePort, sourceChannel))) 
-        { // sender is source chain
+        { 
             require(_transferFrom(_msgSender(), _getEscrowAddress(sourceChannel), denom, amount));
         } 
         else 
         {
-            require(_burn(_msgSender(), denom, amount));
+            // Burn the tokens from sender if not
+            require(_burn(_msgSender(), denom, amount)); 
         }
-
-        emit Transfer(denom, amount, _msgSender(), receiver, sourcePort, sourceChannel, timeoutHeight);
+        
+        // Emit the transfer event with correct parameters
+        emit Transfer(denom, amount, _msgSender(), receiver, sourcePort, sourceChannel, timeoutHeight); 
     }
 
-    function onRecvPacket(Packet.Data calldata packet) external virtual override returns (bytes memory acknowledgement) {
-        FungibleTokenPacketData.Data memory data = FungibleTokenPacketData.decode(packet.data);
-        strings.slice memory denom = data.denom.toSlice();
+    /*
+    * Recieve transaction from another ICS20
+    */
+    function onRecvTx(Packet.Data calldata packet) external virtual override returns (bytes memory acknowledgement) {
+        // Fetches data structure from library, FungibleTokenPacketData
+        FungibleTokenPacketData.Data memory data = FungibleTokenPacketData.decode(packet.data); 
+
+        // Get denom of reciever chain
+        strings.slice memory denom = data.denom.toSlice(); //
         strings.slice memory trimedDenom = data.denom.toSlice().beyond(
             _makeDenomPrefix(packet.source_port, packet.source_channel)
         );
-        if (!denom.equals(trimedDenom)) { // receiver is source chain
+        if (!denom.equals(trimedDenom)) { 
+            // Check if receiver is source chain
             return _newAcknowledgement(
                 _transferFrom(_getEscrowAddress(packet.destination_channel), data.receiver.toAddress(), trimedDenom.toString(), data.amount)
             );
+
         } else {
             string memory prefixedDenom = _makeDenomPrefix(packet.destination_port, packet.destination_channel).concat(denom);
             return _newAcknowledgement(
                 _mint(data.receiver.toAddress(), prefixedDenom, data.amount)
             );
         }}
+
+    /*
+    Internal function interfaces
+    */
 
     function _transferFrom(address sender, address receiver, string memory denom, uint256 amount) virtual internal returns (bool);
         
@@ -66,9 +87,9 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
     function _newAcknowledgement(bool success) virtual internal pure returns (bytes memory) {
         bytes memory acknowledgement = new bytes(1);
         if (success) {
-            acknowledgement[0] = 0x01;
+            acknowledgement[0] = 0x01; // Successful acknowledgement
         } else {
-            acknowledgement[0] = 0x00;
+            acknowledgement[0] = 0x00; // Failed acknowledgement
         }
         return acknowledgement;
     }
