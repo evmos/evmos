@@ -104,7 +104,7 @@ func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to
 // ________________________________________________________________________________________
 
 // evm hook
-func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
+func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt, cfg *evmtypes.EVMConfig) error {
 	return h.k.AfterEVMStateTransition(ctx, from, to, receipt)
 }
 

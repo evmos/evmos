@@ -18,4 +18,8 @@ message GenesisState {
 message Params {
   // parameter to enable fees
   bool enable_fees = 1;
+  string fees_denom = 2;
+  uint64 developer_percentage = 3;
+  // TODO remove; we only need developer_percentage
+  uint64 validator_percentage = 4;
 }

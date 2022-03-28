@@ -26,7 +26,7 @@ func DefaultGenesisState() *GenesisState {
 func (gs GenesisState) Validate() error {
 	seenContractIn := make(map[string]bool)
 	for _, in := range gs.Fees {
-		// only one incentive per contract
+		// only one fee per contract
 		if seenContractIn[in.Contract] {
 			return fmt.Errorf("contract duplicated on genesis '%s'", in.Contract)
 		}

@@ -1036,6 +1036,9 @@ Params defines the fees module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
+| `fees_denom` | [string](#string) |  |  |
+| `developer_percentage` | [uint64](#uint64) |  |  |
+| `validator_percentage` | [uint64](#uint64) |  |  |
 
 
 
