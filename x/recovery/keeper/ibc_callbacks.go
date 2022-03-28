@@ -88,9 +88,7 @@ func (k Keeper) OnRecvPacket(
 
 	// Case 2. sender pubkey is a supported key (eth_secp256k1, amino multisig, ed25519)
 	// ==> Continue and return success ACK as the funds are not stuck on chain
-	if account != nil &&
-		account.GetPubKey() != nil &&
-		evmos.IsSupportedKey(account.GetPubKey()) {
+	if account != nil && evmos.IsSupportedKey(account.GetPubKey()) {
 		return ack
 	}
 

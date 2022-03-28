@@ -26,6 +26,11 @@ func TestIsSupportedKeys(t *testing.T) {
 		isSupported bool
 	}{
 		{
+			"nil key",
+			nil,
+			false,
+		},
+		{
 			"ethsecp256k1 key",
 			&ethsecp256k1.PubKey{},
 			true,
