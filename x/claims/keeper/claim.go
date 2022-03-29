@@ -103,8 +103,8 @@ func (k Keeper) MergeClaimsRecords(
 		// Safety check: the sender record cannot have any claimed actions, as
 		//  - the sender is not an evmos address and can't claim vote, delegation or evm actions
 		//  - the first attempt to perform an ibc callback from the senders account will merge/migrate the entire claims record
-		if senderCompleted := senderClaimsRecord.HasClaimedAction(action); senderCompleted {
-			return types.ClaimsRecord{}, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "non-evmos sender must not have claimed action: %v", action)
+		if senderClaimsRecord.HasClaimedAction(action) {
+			return types.ClaimsRecord{}, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "non-evmos sender must not have claimed action: %v", action)
 		}
 
 		recipientCompleted := recipientClaimsRecord.HasClaimedAction(action)
