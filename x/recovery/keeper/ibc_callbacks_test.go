@@ -318,21 +318,36 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 	evmosChannel := claimstypes.DefaultAuthorizedChannels[1]
 	path := fmt.Sprintf("%s/%s", transfertypes.PortID, evmosChannel)
 
+	var mockTransferKeeper *MockTransferKeeper
 	expAck := ibcmock.MockAcknowledgement
 	testCases := []struct {
 		name     string
-		malleate func(mockTransferKeeper *MockTransferKeeper)
+		malleate func()
 	}{
 		{
 			"Fail to retrieve ibc denom trace",
-			func(mockTransferKeeper *MockTransferKeeper) {
+			func() {
 				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(transfertypes.DenomTrace{}, false)
 				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			},
 		},
 		{
+			"invalid ibc denom trace",
+			func() {
+				// Set Denom Trace
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "badpath",
+					BaseDenom: denom,
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			},
+		},
+
+		{
 			"Fail to send transfer",
-			func(mockTransferKeeper *MockTransferKeeper) {
+			func() {
 				// Set Denom Trace
 				denomTrace := transfertypes.DenomTrace{
 					Path:      path,
@@ -356,11 +371,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 			transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
 			packet := channeltypes.NewPacket(transfer.GetBytes(), 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 
-			mockTransferKeeper := &MockTransferKeeper{
+			mockTransferKeeper = &MockTransferKeeper{
 				Keeper: suite.app.BankKeeper,
 			}
 
-			tc.malleate(mockTransferKeeper)
+			tc.malleate()
 			// mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(transfertypes.DenomTrace{}, false)
 			// mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
