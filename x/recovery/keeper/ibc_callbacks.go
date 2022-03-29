@@ -106,8 +106,9 @@ func (k Keeper) OnRecvPacket(
 		}
 
 		if strings.HasPrefix(coin.Denom, "ibc/") {
+			var destPort, destChannel string
 			// IBC vouchers, obtain the destination port and channel from the denom path
-			destPort, destChannel, err := k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, senderBech32)
+			destPort, destChannel, err = k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, senderBech32)
 			if err != nil {
 				logger.Error(
 					"failed to get the IBC full denom path of source chain",
