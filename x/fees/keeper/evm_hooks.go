@@ -26,7 +26,7 @@ func (k Keeper) Hooks() Hooks {
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the owner's GasUsed is
 // added to its gasMeter.
-func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *common.Address, receipt *ethtypes.Receipt, cfg *evmtypes.EVMConfig) error {
+func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *common.Address, receipt *ethtypes.Receipt) error {
 	// check if the fees are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableFees {
@@ -35,6 +35,11 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *
 
 	// If theres no fees registered for the contract, do nothing
 	if contract == nil || !h.k.IsFeeRegistered(ctx, *contract) {
+		return nil
+	}
+	cfg, err := h.k.evmKeeper.EVMConfig(ctx)
+	// TODO do something with the error?
+	if err != nil {
 		return nil
 	}
 

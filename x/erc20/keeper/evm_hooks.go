@@ -35,7 +35,6 @@ func (h Hooks) PostTxProcessing(
 	from common.Address,
 	to *common.Address,
 	receipt *ethtypes.Receipt,
-	cfg *evmtypes.EVMConfig,
 ) error {
 	params := h.k.GetParams(ctx)
 	if !params.EnableErc20 || !params.EnableEVMHook {
