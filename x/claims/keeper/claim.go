@@ -99,30 +99,23 @@ func (k Keeper) MergeClaimsRecords(
 	// the recipient or sender has completed an action but the other hasn't
 	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 	for _, action := range actions {
-		senderCompleted := senderClaimsRecord.HasClaimedAction(action)
+
+		// Safety check: the sender record cannot have any claimed actions, as
+		//  - the sender is not an evmos address and can't claim vote, delegation or evm actions
+		//  - the first attempt to perform an ibc callback from the senders account will merge/migrate the entire claims record
+		if senderClaimsRecord.HasClaimedAction(action) {
+			return types.ClaimsRecord{}, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "non-evmos sender must not have claimed action: %v", action)
+		}
+
 		recipientCompleted := recipientClaimsRecord.HasClaimedAction(action)
 
-		switch {
-		case senderCompleted && recipientCompleted:
-			// Both sender and recipient completed the action.
-			// Only mark the action as completed
-			mergedRecord.MarkClaimed(action)
-
-		case recipientCompleted && !senderCompleted:
+		if recipientCompleted {
 			// claim action for sender since the recipient completed it
 			amt, remainder := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimedAmt = claimedAmt.Add(amt)
 			remainderAmt = remainderAmt.Add(remainder)
 			mergedRecord.MarkClaimed(action)
-
-		case !recipientCompleted && senderCompleted:
-			// claim action for recipient since the sender completed it
-			amt, remainder := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
-			claimedAmt = claimedAmt.Add(amt)
-			remainderAmt = remainderAmt.Add(remainder)
-			mergedRecord.MarkClaimed(action)
-
-		case !senderCompleted && !recipientCompleted:
+		} else {
 			// Neither sender or recipient completed the action.
 			if action != types.ActionIBCTransfer {
 				// No-op if the action is not IBC transfer

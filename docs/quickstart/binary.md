@@ -109,13 +109,13 @@ evmosd config
 
 We can make changes to the default settings upon our choices, so it allows users to set the configuration beforehand all at once, so it would be ready with the same config afterward.
 
-For example, the chain identifier can be changed to `evmos_9000-2` from a blank name by using:
+For example, the chain identifier can be changed to `evmos_9000-3` from a blank name by using:
 
 ```bash
-evmosd config "chain-id" evmos_9000-2
+evmosd config "chain-id" evmos_9000-3
 evmosd config
 {
- "chain-id": "evmos_9000-2",
+ "chain-id": "evmos_9000-3",
  "keyring-backend": "os",
  "output": "text",
  "node": "tcp://localhost:26657",
@@ -135,7 +135,7 @@ Alternatively, we can directly make the changes to the config values in one plac
 
 # The network chain ID
 
-chain-id = "evmos_9000-2"
+chain-id = "evmos_9000-3"
 
 # The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
 
@@ -171,19 +171,19 @@ evmosd config
 
 A list of commonly used flags of `evmosd` is listed below:
 
-| Option              | Description                   | Type         | Default Value   |
-|---------------------|-------------------------------|--------------|-----------------|
-| `--chain-id`        | Full Chain ID                 | String       | ---             |
-| `--home`            | Directory for config and data | string       | `~/.evmosd`     |
-| `--keyring-backend` | Select keyring's backend      | os/file/test | os              |
-| `--output`          | Output format                 | string       | "text"          |
+| Option              | Description                   | Type                                             | Default Value |
+| ------------------- | ----------------------------- | ------------------------------------------------ | ------------- |
+| `--chain-id`        | Full Chain ID                 | `string`                                         | `""`          |
+| `--home`            | Directory for config and data | `string`                                         | `~/.evmosd`   |
+| `--keyring-backend` | Select keyring's backend      | `{"os"|"file"|"kwallet"|"pass"|"test"|"memory"}` | `"os"`        |
+| `--output`          | Output format                 | `string`                                         | "text"        |
 
 ## Command list
 
 A list of commonly used `evmosd` commands. You can obtain the full list by using the `evmosd -h` command.
 
 | Command      | Description              | Subcommands (example)                                                     |
-|--------------|--------------------------|---------------------------------------------------------------------------|
+| ------------ | ------------------------ | ------------------------------------------------------------------------- |
 | `keys`       | Keys management          | `list`, `show`, `add`, `add  --recover`, `delete`                         |
 | `tx`         | Transactions subcommands | `bank send`, `ibc-transfer transfer`, `distribution withdraw-all-rewards` |
 | `query`      | Query subcommands        | `bank balance`, `staking validators`, `gov proposals`                     |
