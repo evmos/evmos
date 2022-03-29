@@ -39,10 +39,11 @@ type IBCTestingSuite struct {
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
-	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 2)                 // initializes 2 test chains
-	suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))      // convenience and readability
-	suite.IBCOsmosisChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2)) // convenience and readability
-	suite.IBCCosmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))  // convenience and readability
+	// initializes 3 test chains
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 2)
+	suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
+	suite.IBCOsmosisChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
+	suite.IBCCosmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))
 	suite.coordinator.CommitNBlocks(suite.EvmosChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCOsmosisChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
@@ -148,7 +149,7 @@ func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort,
 		dstPort,
 		dstChannel,
 		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,                  // timeout timestamp disabled
+		timeout,
 	)
 }
 

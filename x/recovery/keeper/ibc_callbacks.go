@@ -94,8 +94,6 @@ func (k Keeper) OnRecvPacket(
 	// Perform recovery to transfer the balance back to the sender bech32 address.
 	// NOTE: Since destination channel is authorized and not from an EVM chain, we
 	// know that only secp256k1 keys are supported in the source chain.
-	destPort := packet.DestinationPort
-	destChannel := packet.DestinationChannel
 	balances := sdk.Coins{}
 
 	// iterate over all tokens owned by the address (i.e sender balance) and
@@ -108,8 +106,8 @@ func (k Keeper) OnRecvPacket(
 		}
 
 		if strings.HasPrefix(coin.Denom, "ibc/") {
-			// IBC vouchers, obtain the source port and channel from the denom path
-			destPort, destChannel, err = k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, senderBech32)
+			// IBC vouchers, obtain the destination port and channel from the denom path
+			destPort, destChannel, err := k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, senderBech32)
 			if err != nil {
 				logger.Error(
 					"failed to get the IBC full denom path of source chain",
@@ -124,11 +122,6 @@ func (k Keeper) OnRecvPacket(
 				// continue
 				return false
 			}
-		} else {
-			// Native tokens, use the source port and channel to transfer the EVMOS
-			// and other converted ERC20 coin denoms to the authorized source chain
-			destPort = packet.DestinationPort
-			destChannel = packet.DestinationChannel
 		}
 
 		// NOTE: Don't use the consensus state because it may become unreliable if updates slow down
