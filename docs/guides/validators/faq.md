@@ -61,10 +61,16 @@ evmosd tx staking create-validator
     --commission-max-change-rate="0.01"
     --min-self-delegation "1"
     --moniker "validator"
-    --chain-id "evmos_9000-2"
+    --chain-id "evmos_9000-3"
     --gas auto
     --node tcp://127.0.0.1:26647
 ```
+
+::: danger
+🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a [`test`](./../keys-wallets/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+
+Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
+:::
 
 Once a validator is created and registered, EVMOS holders can delegate EVMOS to it, effectively adding stake to its pool. The total stake of a validator is the sum of the EVMOS self-bonded by the validator's operator and the EVMOS bonded by external delegators.
 

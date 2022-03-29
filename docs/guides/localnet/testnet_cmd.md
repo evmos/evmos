@@ -80,7 +80,7 @@ evmosd status
 Import the key from the provided mnemonic:
 
 ```bash
-evmosd keys add test --recover --keyring-backend test
+evmosd keys add test --recover
 ```
 
 Check the balance of the account address:
