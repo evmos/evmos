@@ -134,6 +134,12 @@ evmosd tx staking create-validator \
   --from=<key_name>
 ```
 
+::: danger
+🚨 **DANGER**: <u>Never</u> create your validator keys using a [`test`](./../guides/keys-wallets/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+
+Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
+:::
+
 ## Start mainnet
 
 The final step is to [start the nodes](./../quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the node will start producing blocks.

@@ -15,7 +15,7 @@ You can customize the local testnet script by changing values for convenience fo
 ```bash
 # customize the name of your key, the chain-id, moniker of the node, keyring backend, and log level
 KEY="mykey"
-CHAINID="evmos_9000-2"
+CHAINID="evmos_9000-3"
 MONIKER="localtestnet"
 KEYRING="test"
 LOGLEVEL="info"
@@ -48,7 +48,7 @@ Before actually running the node, we need to initialize the chain, and most impo
 ```bash
 $MONIKER=testing
 $KEY=mykey
-$CHAINID="evmos_9000-2"
+$CHAINID="evmos_9000-3"
 
 # The argument $MONIKER is the custom username of your node, it should be human-readable.
 evmosd init $MONIKER --chain-id=$CHAINID
@@ -67,13 +67,13 @@ The command above creates all the configuration files needed for your node and v
 Before starting the chain, you need to populate the state with at least one account using the [keyring](./../keys-wallets/keyring.md#add-keys):
 
 ```bash
-evmosd keys add my_validator --keyring-backend=test
+evmosd keys add my_validator
 ```
 
 Once you have created a local account, go ahead and grant it some `aevmos` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence:
 
 ```bash
-evmosd add-genesis-account my_validator 10000000000aevmos --keyring-backend test
+evmosd add-genesis-account my_validator 10000000000aevmos
 ```
 
 Now that your account has some tokens, you need to add a validator to your chain.

@@ -10,24 +10,42 @@ The keyring holds the private/public keypairs used to interact with the node. Fo
 
 ## Add keys
 
-You can use `evmosd keys` for help with the keys command and `evmosd keys [command] --help` for more information about a particular subcommand.
-
-To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. For the purpose of this tutorial, we will solely use the `test` backend, and call our new key `mykey`. This key will be used in the next section.
+You can use the following commands for help with the `keys` command and for more information about a particular subcommand, respectively:
 
 ```bash
-evmosd keys add mykey --keyring-backend test
+evmosd keys
+```
+
+```bash
+evmosd keys [command] --help
+```
+
+To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. You will have to provide a password for the newly generated key. This key will be used in the next section.
+
+```bash
+evmosd keys add mykey
 
 # Put the generated address in a variable for later use.
-MY_VALIDATOR_ADDRESS=$(evmosd keys show mykey -a --keyring-backend test)
+MY_VALIDATOR_ADDRESS=$(evmosd keys show mykey -a)
 ```
 
 This command generates a new 24-word mnemonic phrase, persists it to the relevant backend, and outputs information about the keypair. If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!
 
-By default, the keyring generates a `eth_secp256k1` keypair. The keyring also supports `ed25519` keys, which may be created by passing the `--algo` flag. A keyring can of course hold both types of keys simultaneously.
+By default, the keyring generates a `eth_secp256k1` key. The keyring also supports `ed25519` keys, which may be created by passing the `--algo` flag. A keyring can of course hold both types of keys simultaneously.
+
+::: warning
+**NOTE**: Cosmos `secp256k1` keys are not supported on Evmos due to compatibility issues with Ethereum transactions.
+:::
 
 ## Keyring Backends
 
 ### OS
+
+::: tip
+**`os`** is the default option since operating system's default credentials managers are
+designed to meet users' most common needs and provide them with a comfortable
+experience without compromising on security.
+:::
 
 The `os` backend relies on operating system-specific defaults to handle key storage
 securely. Typically, an operating system's credential sub-system handles password prompts,
@@ -45,10 +63,6 @@ GNU/Linux distributions that use GNOME as default desktop environment typically 
 commonly provided with [KDE Wallet Manager](https://userbase.kde.org/KDE_Wallet_Manager).
 Whilst the former is in fact a `libsecret` convenient frontend, the latter is a `kwallet`
 client.
-
-`os` is the default option since operating system's default credentials managers are
-designed to meet users' most common needs and provide them with a comfortable
-experience without compromising on security.
 
 The recommended backends for headless environments are `file` and `pass`.
 
@@ -81,7 +95,7 @@ operating systems as well as GNU/Linux distributions. Please refer to its manual
 information on how to download and install it.
 
 ::: tip
-**pass** uses [GnuPG](https://gnupg.org/) for encryption. `gpg` automatically invokes the `gpg-agent`
+**`pass`** uses [GnuPG](https://gnupg.org/) for encryption. `gpg` automatically invokes the `gpg-agent`
 daemon upon execution, which handles the caching of GnuPG credentials. Please refer to `gpg-agent`
 man page for more information on how to configure cache parameters such as credentials TTL and
 passphrase expiration.
@@ -106,10 +120,12 @@ information.
 ### Testing
 
 The `test` backend is a password-less variation of the `file` backend. Keys are stored
-**unencrypted** on disk.
+**unencrypted** on disk. This keyring is provided for <u>testing purposes only</u>. Use at your own risk!
 
-:::danger
-Provided for testing purposes only. The `test` backend is **NOT** recommended for use in production environments.
+::: danger
+🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a `test` keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+
+Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
 
 ### In Memory
@@ -117,5 +133,5 @@ Provided for testing purposes only. The `test` backend is **NOT** recommended fo
 The `memory` backend stores keys in memory. The keys are immediately deleted after the program has exited.
 
 :::danger
-Provided for testing purposes only. The `memory` backend is **NOT** recommended for use in production environments.
+**IMPORTANT**: Provided for testing purposes only. The `memory` backend is **not** recommended for use in production environments. Use at your own risk!
 :::
