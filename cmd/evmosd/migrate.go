@@ -45,14 +45,12 @@ func MigrateGenesisCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			var err error
-
 			target := args[0]
 			importGenesis := args[1]
 
 			genDoc, err := tmtypes.GenesisDocFromFile(importGenesis)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to retrieve genesis.json: %w", err)
 			}
 
 			var initialState types.AppMap
@@ -60,17 +58,19 @@ func MigrateGenesisCmd() *cobra.Command {
 				return fmt.Errorf("failed to JSON unmarshal initial genesis state: %w", err)
 			}
 
-			migrationFunc := GetMigrationCallback(target)
-			if migrationFunc == nil {
+			migrationFn := GetMigrationCallback(target)
+			if migrationFn == nil {
 				return fmt.Errorf("unknown migration function for version: %s", target)
 			}
 
-			newGenState := migrationFunc(initialState, clientCtx)
+			newGenState := migrationFn(initialState, clientCtx)
 
-			genDoc.AppState, err = json.Marshal(newGenState)
+			appState, err := json.Marshal(newGenState)
 			if err != nil {
 				return fmt.Errorf("failed to JSON marshal migrated genesis state: %w", err)
 			}
+
+			genDoc.AppState = appState
 
 			genesisTime, _ := cmd.Flags().GetString(FlagGenesisTime)
 			if genesisTime != "" {
@@ -103,8 +103,8 @@ func MigrateGenesisCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String(FlagGenesisTime, "", "override genesis_time with this flag")
-	cmd.Flags().String(flags.FlagChainID, "", "override chain_id with this flag")
+	cmd.Flags().String(FlagGenesisTime, "", "override genesis time")
+	cmd.Flags().String(flags.FlagChainID, "", "override genesis chain-id")
 
 	return cmd
 }
