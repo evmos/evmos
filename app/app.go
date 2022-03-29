@@ -100,13 +100,13 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app/ante"
 	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
+	v3 "github.com/tharsis/evmos/v3/app/upgrades/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
@@ -1001,5 +1001,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
+	)
+	// v3 handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v3.UpgradeName,
+		v3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
 }
