@@ -445,7 +445,6 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 			"transfer", "channel-0",
 		},
 	}
-
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
@@ -460,6 +459,97 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 				suite.Require().Equal(tc.expDestinationPort, destinationPort)
 				suite.Require().Equal(tc.expDestinationChannel, destinationChannel)
 			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
+	// secp256k1 account
+	secpPk := secp256k1.GenPrivKey()
+	secpAddr := sdk.AccAddress(secpPk.PubKey().Address())
+	secpAddrEvmos := secpAddr.String()
+	secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
+
+	// Setup Cosmos <=> Evmos IBC relayer
+	denom := "uatom"
+	sourceChannel := "channel-292"
+	evmosChannel := claimstypes.DefaultAuthorizedChannels[1]
+	path := fmt.Sprintf("%s/%s", transfertypes.PortID, evmosChannel)
+
+	var mockTransferKeeper *MockTransferKeeper
+	expAck := ibcmock.MockAcknowledgement
+	testCases := []struct {
+		name     string
+		malleate func()
+	}{
+		{
+			"Fail to retrieve ibc denom trace",
+			func() {
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(transfertypes.DenomTrace{}, false)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			},
+		},
+		{
+			"invalid ibc denom trace",
+			func() {
+				// Set Denom Trace
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "badpath",
+					BaseDenom: denom,
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			},
+		},
+
+		{
+			"Fail to send transfer",
+			func() {
+				// Set Denom Trace
+				denomTrace := transfertypes.DenomTrace{
+					Path:      path,
+					BaseDenom: denom,
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("Fail to transfer"))
+			},
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			// Enable Recovery
+			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
+			params.EnableRecovery = true
+			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+
+			transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
+			packet := channeltypes.NewPacket(transfer.GetBytes(), 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+
+			mockTransferKeeper = &MockTransferKeeper{
+				Keeper: suite.app.BankKeeper,
+			}
+
+			tc.malleate()
+
+			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+			suite.Require().True(found)
+			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
+
+			// Fund receiver account with EVMOS
+			coins := sdk.NewCoins(
+				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+			)
+			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+
+			// Perform IBC callback
+			ack := suite.app.RecoveryKeeper.OnRecvPacket(suite.ctx, packet, expAck)
+			// Recovery should Fail
+			suite.Require().False(ack.Success())
 		})
 	}
 }
