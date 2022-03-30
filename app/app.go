@@ -806,10 +806,6 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
-	// migrate fee market
-	migrator := feemarketkeeper.NewMigrator(app.FeeMarketKeeper)
-	_ = migrator.Migrate1to2(ctx)
-
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
