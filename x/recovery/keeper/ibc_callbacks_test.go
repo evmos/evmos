@@ -8,6 +8,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/v3/testutil"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
@@ -300,6 +301,164 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().True(balances.IsZero())
 			} else {
 				suite.Require().Equal(coins, balances)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
+	address := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+
+	testCases := []struct {
+		name                                      string
+		denom                                     string
+		malleate                                  func()
+		expError                                  bool
+		expDestinationPort, expDestinationChannel string
+	}{
+		{
+			"invalid native denom",
+			"aevmos",
+			func() {},
+			true,
+			"", "",
+		},
+		{
+			"invalid IBC denom hash",
+			"ibc/aevmos",
+			func() {},
+			true,
+			"", "",
+		},
+		{
+			"denom trace not found",
+			ibcAtomDenom,
+			func() {},
+			true,
+			"", "",
+		},
+		{
+			"channel not found",
+			ibcAtomDenom,
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+			},
+			true,
+			"", "",
+		},
+		{
+			"invalid destination port - insufficient length",
+			"ibc/B9A49AA0AB0EB977D4EC627D7D9F747AF11BB1D74F430DE759CA37B22ECACF30", // denomTrace.Hash()
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "t/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("t", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "t", "channel-3", channel)
+
+			},
+			true,
+			"", "",
+		},
+		{
+			"invalid channel identifier - insufficient length",
+			"ibc/5E3E083402F07599C795A7B75058EC3F13A8E666A8FEA2E51B6F3D93C755DFBC", // denomTrace.Hash()
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/c-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				fmt.Println(denomTrace.Hash())
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "c-3", channel)
+
+			},
+			true,
+			"", "",
+		},
+		{
+			"success - ATOM",
+			ibcAtomDenom,
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-3", channel)
+			},
+			false,
+			"transfer", "channel-3",
+		},
+		{
+			"success - OSMO",
+			ibcOsmoDenom,
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-0",
+					BaseDenom: "uosmo",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-204"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
+			},
+			false,
+			"transfer", "channel-0",
+		},
+		{
+			"success - ibcATOM (via Osmosis)",
+			"ibc/6CDD4663F2F09CD62285E2D45891FC149A3568E316CE3EBBE201A71A78A69388",
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-0/transfer/channel-0",
+					BaseDenom: "uatom",
+				}
+
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-204"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
+			},
+			false,
+			"transfer", "channel-0",
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			destinationPort, destinationChannel, err := suite.app.RecoveryKeeper.GetIBCDenomDestinationIdentifiers(suite.ctx, tc.denom, address)
+			if tc.expError {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+				suite.Require().Equal(tc.expDestinationPort, destinationPort)
+				suite.Require().Equal(tc.expDestinationChannel, destinationChannel)
 			}
 		})
 	}
