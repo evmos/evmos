@@ -534,8 +534,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 			}
 
 			tc.malleate()
-			// mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(transfertypes.DenomTrace{}, false)
-			// mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
