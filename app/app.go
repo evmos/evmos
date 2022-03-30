@@ -803,7 +803,14 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+
+	vm, err := v3.CreateUpgradeHandler(app.mm, app.configurator)(ctx, upgradetypes.Plan{}, app.mm.GetVersionMap())
+	if err != nil {
+		panic(err)
+	}
+
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, vm)
+
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -1002,7 +1009,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// v3 handler
+	// v3 handler upgrade is
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v3.UpgradeName,
 		v3.CreateUpgradeHandler(app.mm, app.configurator),
