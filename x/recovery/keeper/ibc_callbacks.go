@@ -96,7 +96,7 @@ func (k Keeper) OnRecvPacket(
 	// know that only secp256k1 keys are supported in the source chain.
 	balances := sdk.Coins{}
 
-	// iterate over all tokens owned by the address (i.e sender balance) and
+	// iterate over all tokens owned by the address (i.e recipient balance) and
 	// transfer them to the original sender address in the source chain (if
 	// applicable, see cases for IBC vouchers below).
 	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
