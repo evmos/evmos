@@ -94,9 +94,10 @@ func (k Keeper) OnRecvPacket(
 	// Perform recovery to transfer the balance back to the sender bech32 address.
 	// NOTE: Since destination channel is authorized and not from an EVM chain, we
 	// know that only secp256k1 keys are supported in the source chain.
+	var destPort, destChannel string
 	balances := sdk.Coins{}
 
-	// iterate over all tokens owned by the address (i.e sender balance) and
+	// iterate over all tokens owned by the address (i.e recipient balance) and
 	// transfer them to the original sender address in the source chain (if
 	// applicable, see cases for IBC vouchers below).
 	k.bankKeeper.IterateAccountBalances(ctx, recipient, func(coin sdk.Coin) (stop bool) {
@@ -106,7 +107,6 @@ func (k Keeper) OnRecvPacket(
 		}
 
 		if strings.HasPrefix(coin.Denom, "ibc/") {
-			var destPort, destChannel string
 			// IBC vouchers, obtain the destination port and channel from the denom path
 			destPort, destChannel, err = k.GetIBCDenomDestinationIdentifiers(ctx, coin.Denom, senderBech32)
 			if err != nil {
