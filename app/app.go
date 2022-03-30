@@ -804,12 +804,11 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 		panic(err)
 	}
 
-	vm, err := v3.CreateUpgradeHandler(app.mm, app.configurator)(ctx, upgradetypes.Plan{}, app.mm.GetVersionMap())
-	if err != nil {
-		panic(err)
-	}
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, vm)
+	// migrate fee market
+	migrator := feemarketkeeper.NewMigrator(app.FeeMarketKeeper)
+	_ = migrator.Migrate1to2(ctx)
 
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
