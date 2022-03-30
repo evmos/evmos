@@ -50,11 +50,19 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	packet := mockPacket
 	expAck := ibcmock.MockAcknowledgement
 
+	coins := sdk.NewCoins(
+		sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+		sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
+	)
+
 	testCases := []struct {
 		name        string
 		malleate    func()
 		ackSuccess  bool
 		expRecovery bool
+		expCoins    sdk.Coins
 	}{
 		{
 			"continue - params disabled",
@@ -65,6 +73,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - destination channel not authorized",
@@ -75,6 +84,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - destination channel is EVM",
@@ -86,6 +96,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"fail - non ics20 packet",
@@ -94,6 +105,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - invalid sender - missing '1' ",
@@ -104,6 +116,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - invalid sender - invalid bech32",
@@ -114,6 +127,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - invalid recipient",
@@ -124,6 +138,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - case: receiver address is in deny list",
@@ -136,9 +151,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
-			"continue - case 1: sender and receiver address are not the same",
+			"continue - sender != receiver",
 			func() {
 				pk1 := secp256k1.GenPrivKey()
 				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
@@ -149,6 +165,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - receiver is a vesting account",
@@ -165,6 +182,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - receiver is a module account",
@@ -178,9 +196,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
-			"continue - case 2: receiver pubkey is a supported key",
+			"continue - receiver pubkey is a supported key",
 			func() {
 				// Set account to generate a pubkey
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(ethsecpAddr, ethPk.PubKey(), 0, 0))
@@ -191,6 +210,26 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
+		},
+		{
+			"partial recovery - account has invalid ibc vouchers balance",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+
+				invalidDenom := "ibc/1"
+				coins := sdk.NewCoins(sdk.NewCoin(invalidDenom, sdk.NewInt(1000)))
+				testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+			},
+			false,
+			false,
+			sdk.NewCoins(
+				sdk.NewCoin("ibc/1", sdk.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
+			),
 		},
 		{
 			"recovery - send uatom from cosmos to evmos",
@@ -201,6 +240,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			true,
+			nil,
 		},
 		{
 			"recovery - send ibc/uosmo from cosmos to evmos",
@@ -213,6 +253,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			true,
+			nil,
 		},
 		{
 			"recovery - send uosmo from osmosis to evmos",
@@ -226,9 +267,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+				// TODO TEST
 			},
 			true,
 			true,
+			nil,
 		},
 	}
 	for _, tc := range testCases {
@@ -276,12 +319,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
-			coins := sdk.NewCoins(
-				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
-				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
-				sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
-				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
-			)
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
 
 			// Perform IBC callback
@@ -300,7 +337,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			if tc.expRecovery {
 				suite.Require().True(balances.IsZero())
 			} else {
-				suite.Require().Equal(coins, balances)
+				suite.Require().Equal(tc.expCoins, balances)
 			}
 		})
 	}
@@ -379,7 +416,6 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 				}
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
 
-				fmt.Println(denomTrace.Hash())
 				channel := channeltypes.Channel{
 					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
 				}
