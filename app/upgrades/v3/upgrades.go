@@ -46,7 +46,7 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 
 	// Migrate relative source genesis application state and marshal it into
 	// the respective key.
-	newFeeMarketState := MigrateJSON(oldFeeMarketState)
+	newFeeMarketState := MigrateJSON(&oldFeeMarketState)
 
 	appState[feemarkettypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&newFeeMarketState)
 
@@ -56,14 +56,14 @@ func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
 // MigrateJSON accepts exported v2 x/feemarket genesis state and migrates it to
 // v3 x/feemarket genesis state. The migration includes:
 // - Migrate BaseFee to params
-func MigrateJSON(oldState feemarkettypes.GenesisState) feemarkettypes.GenesisState {
+func MigrateJSON(oldState *feemarkettypes.GenesisState) feemarkettypes.GenesisState {
 	return feemarkettypes.GenesisState{
 		Params: feemarkettypes.Params{
 			NoBaseFee:                oldState.Params.NoBaseFee,
 			BaseFeeChangeDenominator: oldState.Params.BaseFeeChangeDenominator,
 			ElasticityMultiplier:     oldState.Params.ElasticityMultiplier,
 			EnableHeight:             oldState.Params.EnableHeight,
-			// BaseFee:                  oldState.BaseFee, FIXME: import
+			BaseFee:                  oldState.Params.BaseFee,
 		},
 		BlockGas: oldState.BlockGas,
 	}
