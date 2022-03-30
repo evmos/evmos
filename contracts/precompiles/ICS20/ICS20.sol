@@ -39,13 +39,18 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
         }
         
         // Emit the transfer event with correct parameters
-        emit Transfer(denom, amount, _msgSender(), receiver, sourcePort, sourceChannel, timeoutHeight); 
+        emit Transfer(
+            denom, amount, _msgSender(), receiver, sourcePort, sourceChannel, timeoutHeight
+            ); 
     }
 
     /*
     * Recieve transaction from another ICS20
     */
-    function onRecvTx(Packet.Data calldata packet) external virtual override returns (bytes memory acknowledgement) {
+    function onRecvTx(Packet.Data calldata packet) external
+     virtual override 
+     returns (bytes memory acknowledgement) 
+     {
         // Fetches data structure from library, FungibleTokenPacketData
         FungibleTokenPacketData.Data memory data = FungibleTokenPacketData.decode(packet.data); 
 
@@ -65,7 +70,8 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
             return _newAcknowledgement(
                 _mint(data.receiver.toAddress(), prefixedDenom, data.amount)
             );
-        }}
+        }
+     }
 
     /*
     Internal function interfaces
@@ -99,7 +105,13 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
         return acknowledgement[0] == 0x01;
     }
 
-    function _refundTokens(FungibleTokenPacketData memory data, string memory sourcePort, string memory sourceChannel) virtual internal {
+    function _refundTokens(
+        FungibleTokenPacketData memory data, 
+        string memory sourcePort, 
+        string memory sourceChannel) 
+        virtual internal {
+            
+
         if (!data.denom.toSlice().startsWith(_makeDenomPrefix(sourcePort, sourceChannel))) { // sender was source chain
             require(_transferFrom(_getEscrowAddress(sourceChannel), data.sender.toAddress(), data.denom, data.amount));
         } else {
