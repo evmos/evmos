@@ -332,20 +332,59 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 		},
 		{
 			"denom trace not found",
-			"ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701",
+			ibcAtomDenom,
 			func() {},
 			true,
 			"", "",
 		},
 		{
 			"channel not found",
-			"ibc/A4DB47A9D3CF9A068D454513891B526702455D3EF08FB9EB558C561F9DC2B701",
+			ibcAtomDenom,
 			func() {
 				denomTrace := transfertypes.DenomTrace{
 					Path:      "transfer/channel-3",
 					BaseDenom: "uatom",
 				}
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+			},
+			true,
+			"", "",
+		},
+		{
+			"invalid destination port - insufficient length",
+			"ibc/B9A49AA0AB0EB977D4EC627D7D9F747AF11BB1D74F430DE759CA37B22ECACF30", // denomTrace.Hash()
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "t/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("t", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "t", "channel-3", channel)
+
+			},
+			true,
+			"", "",
+		},
+		{
+			"invalid channel identifier - insufficient length",
+			"ibc/5E3E083402F07599C795A7B75058EC3F13A8E666A8FEA2E51B6F3D93C755DFBC", // denomTrace.Hash()
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/c-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				fmt.Println(denomTrace.Hash())
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "c-3", channel)
+
 			},
 			true,
 			"", "",
