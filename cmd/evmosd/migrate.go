@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/genutil/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	v3 "github.com/tharsis/evmos/v3/app/upgrades/v3"
 )
@@ -22,12 +22,12 @@ import (
 // FlagGenesisTime defines the genesis time in string format
 const FlagGenesisTime = "genesis-time"
 
-var migrationMap = types.MigrationMap{
-	"v3": v3.Migrate, // migration to v3
+var migrationMap = genutiltypes.MigrationMap{
+	"v3": v3.MigrateGenesis, // migration to v3
 }
 
 // GetMigrationCallback returns a MigrationCallback for a given version.
-func GetMigrationCallback(version string) types.MigrationCallback {
+func GetMigrationCallback(version string) genutiltypes.MigrationCallback {
 	return migrationMap[version]
 }
 
@@ -53,7 +53,7 @@ func MigrateGenesisCmd() *cobra.Command {
 				return fmt.Errorf("failed to retrieve genesis.json: %w", err)
 			}
 
-			var initialState types.AppMap
+			var initialState genutiltypes.AppMap
 			if err := json.Unmarshal(genDoc.AppState, &initialState); err != nil {
 				return fmt.Errorf("failed to JSON unmarshal initial genesis state: %w", err)
 			}

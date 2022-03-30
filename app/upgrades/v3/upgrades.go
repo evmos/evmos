@@ -7,6 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	feemarketv010 "github.com/tharsis/ethermint/x/feemarket/migrations/v010"
+	feemarketv09types "github.com/tharsis/ethermint/x/feemarket/migrations/v09/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 )
 
@@ -30,41 +32,32 @@ func CreateUpgradeHandler(
 	}
 }
 
-// Migrate migrates exported state from v2 to v3 genesis state.
-func Migrate(appState types.AppMap, clientCtx client.Context) types.AppMap {
+// Migrate migrates exported state from v2 to v3 genesis state. It performs a no-op if the migration errors.
+func MigrateGenesis(appState types.AppMap, clientCtx client.Context) types.AppMap {
 	// Migrate x/feemarket.
 	if appState[feemarkettypes.ModuleName] == nil {
 		return appState
 	}
 
 	// unmarshal relative source genesis application state
-	var oldFeeMarketState feemarkettypes.GenesisState
-	clientCtx.Codec.MustUnmarshalJSON(appState[feemarkettypes.ModuleName], &oldFeeMarketState)
+	var oldFeeMarketState feemarketv09types.GenesisState
+	if err := clientCtx.Codec.UnmarshalJSON(appState[feemarkettypes.ModuleName], &oldFeeMarketState); err != nil {
+		return appState
+	}
 
 	// delete deprecated x/feemarket genesis state
 	delete(appState, feemarkettypes.ModuleName)
 
 	// Migrate relative source genesis application state and marshal it into
 	// the respective key.
-	newFeeMarketState := MigrateJSON(oldFeeMarketState)
+	newFeeMarketState := feemarketv010.MigrateJSON(oldFeeMarketState)
 
-	appState[feemarkettypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&newFeeMarketState)
+	feeMarketBz, err := clientCtx.Codec.MarshalJSON(&newFeeMarketState)
+	if err != nil {
+		return appState
+	}
+
+	appState[feemarkettypes.ModuleName] = feeMarketBz
 
 	return appState
-}
-
-// MigrateJSON accepts exported v2 x/feemarket genesis state and migrates it to
-// v3 x/feemarket genesis state. The migration includes:
-// - Migrate BaseFee to params
-func MigrateJSON(oldState feemarkettypes.GenesisState) feemarkettypes.GenesisState {
-	return feemarkettypes.GenesisState{
-		Params: feemarkettypes.Params{
-			NoBaseFee:                oldState.Params.NoBaseFee,
-			BaseFeeChangeDenominator: oldState.Params.BaseFeeChangeDenominator,
-			ElasticityMultiplier:     oldState.Params.ElasticityMultiplier,
-			EnableHeight:             oldState.Params.EnableHeight,
-			// BaseFee:                  oldState.BaseFee, FIXME: import
-		},
-		BlockGas: oldState.BlockGas,
-	}
 }
