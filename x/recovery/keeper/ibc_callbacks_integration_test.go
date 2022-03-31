@@ -6,6 +6,9 @@ import (
 	"testing"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,6 +39,17 @@ type IBCTestingSuite struct {
 	pathOsmosisEvmos  *ibcgotesting.Path
 	pathCosmosEvmos   *ibcgotesting.Path
 	pathOsmosisCosmos *ibcgotesting.Path
+}
+
+var s *IBCTestingSuite
+
+func TestIBCTestingSuite(t *testing.T) {
+	s = new(IBCTestingSuite)
+	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Keeper Suite")
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
@@ -87,10 +101,6 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().Equal("07-tendermint-0", suite.pathOsmosisEvmos.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathOsmosisEvmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
-}
-
-func TestIBCTestingSuite(t *testing.T) {
-	suite.Run(t, new(IBCTestingSuite))
 }
 
 var (
