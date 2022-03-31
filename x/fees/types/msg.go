@@ -22,14 +22,14 @@ const (
 func NewMsgRegisterFeeContract(
 	fromAddr sdk.AccAddress,
 	contract string,
-	deploymentHash string,
 	withdrawAddress sdk.AccAddress,
+	factories []ContractFactory,
 ) *MsgRegisterFeeContract {
 	return &MsgRegisterFeeContract{
 		FromAddress:     fromAddr.String(),
 		Contract:        contract,
-		DeploymentHash:  deploymentHash,
 		WithdrawAddress: withdrawAddress.String(),
+		Factories:       factories,
 	}
 }
 
@@ -53,7 +53,8 @@ func (msg MsgRegisterFeeContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid withdrawal address address")
 	}
 
-	// TODO check deployment hash
+	// TODO validate factories
+
 	return nil
 }
 
@@ -92,8 +93,8 @@ func (msg MsgCancelFeeContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.GetContract()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address")
+	if !common.IsHexAddress(msg.GetContract()) {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", msg.Contract)
 	}
 
 	return nil
@@ -138,8 +139,8 @@ func (msg MsgUpdateFeeContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.Contract); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address")
+	if !common.IsHexAddress(msg.Contract) {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", msg.Contract)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {

@@ -1,10 +1,5 @@
 package types
 
-import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/ethereum/go-ethereum/common"
-)
-
 // constants
 const (
 	// module name
@@ -17,36 +12,12 @@ const (
 	RouterKey = ModuleName
 )
 
-// ModuleAddress is the native module address for fees module
-var ModuleAddress common.Address
-
-func init() {
-	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
-}
-
 // prefix bytes for the fees persistent store
 const (
 	prefixFee = iota + 1
-	prefixGasMeter
-	prefixAllocationMeter
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixFee             = []byte{prefixFee}
-	KeyPrefixGasMeter        = []byte{prefixGasMeter}
-	KeyPrefixAllocationMeter = []byte{prefixAllocationMeter}
+	KeyPrefixFee = []byte{prefixFee}
 )
-
-// SplitGasMeterKey is a helper to split up KV-store keys in a
-// `prefix|<contract_address>|<participant_address>` format
-func SplitGasMeterKey(key []byte) (contract, userAddr common.Address) {
-	// with prefix
-	if len(key) == 41 {
-		key = key[1:]
-	}
-
-	contract = common.BytesToAddress(key[:common.AddressLength])
-	userAddr = common.BytesToAddress(key[common.AddressLength:])
-	return contract, userAddr
-}

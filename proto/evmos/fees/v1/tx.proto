@@ -9,51 +9,72 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 
 // Msg defines the fees Msg service.
 service Msg {
-  // RegisterFeeContract
+  // RegisterFeeContract is used by a deployer to register a new contract for
+  // receiving transaction fees
   rpc RegisterFeeContract(MsgRegisterFeeContract) returns (MsgRegisterFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/tx/register_fee_contract";
   };
-  // CancelFeeContract
+  // CancelFeeContract is used by a deployer to cancel a registered contract
+  // and stop receiving transaction fees
   rpc CancelFeeContract(MsgCancelFeeContract) returns (MsgCancelFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/tx/cancel_fee_contract";
   };
-  // UpdateFeeContract
+  // UpdateFeeContract is used by a deployer to update the withdraw address
   rpc UpdateFeeContract(MsgUpdateFeeContract) returns (MsgUpdateFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/tx/update_fee_contract";
   };
 }
 
-// MsgRegisterFeesContract defines a message that registers a FeeContract.
+// ContractFactory defines a contract's factory address and the nonce used when
+// the contract was deployed
+message ContractFactory {
+  // hex address of the factory contract
+  string factory_address = 1;
+  // the n-th contract created by the factory, which determines its address
+  uint64 nonce = 2;
+}
+
+// MsgRegisterFeesContract defines a message that registers a FeeContract
 message MsgRegisterFeeContract {
   option (gogoproto.equal) = false;
-  // contract address
+  // contract hex address
   string contract = 1;
-  // deployment transaction hash
-  string deployment_hash = 2;
-  // contract owner
-  string from_address = 3;
-  // account receiving the fees
-  string withdraw_address = 4;
+  // bech32 address of message sender, must be the same as the origin EOA
+  // sending the transaction which deploys the contract
+  string from_address = 2;
+  // bech32 address of account receiving the transaction fees
+  string withdraw_address = 3;
+  // list of contract factories on the contract creation path if the contract
+  // was not directly deployed by an EOA
+  repeated ContractFactory factories = 4 [ (gogoproto.nullable) = false ];
 }
 
-// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type.
+// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type
 message MsgRegisterFeeContractResponse {}
 
-// CancelContractProposal is a Content type to cancel a contract fee
+// MsgCancelFeeContract defines a message that cancels a registered a FeeContract
 message MsgCancelFeeContract {
   option (gogoproto.equal) = false;
+  // contract hex address
   string contract = 1;
+  // deployer bech32 address
   string from_address = 2;
 }
 
+// MsgCancelFeeContractResponse defines the MsgCancelFeeContract response type
 message MsgCancelFeeContractResponse {}
 
-// UpdateContractProposal is a Content type to cancel a contract fee
+// MsgUpdateFeeContract defines a message that updates the withdraw address for
+// a registered FeeContract
 message MsgUpdateFeeContract {
   option (gogoproto.equal) = false;
+  // contract hex address
   string contract = 1;
+  // deployer bech32 address
   string from_address = 2;
+  // new withdraw bech32 address for receiving the transaction fees
   string withdraw_address = 3;
 }
 
+// MsgUpdateFeeContractResponse defines the MsgUpdateFeeContract response type
 message MsgUpdateFeeContractResponse {}

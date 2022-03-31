@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"math/big"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -37,22 +35,27 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *
 		return nil
 	}
 	cfg, err := h.k.evmKeeper.EVMConfig(ctx)
-	// TODO do something with the error?
 	if err != nil {
-		return nil
+		return err
 	}
 
 	feeContract, ok := h.k.GetFee(ctx, *contract)
 	if !ok {
 		return nil
 	}
-	waddr := common.HexToAddress(feeContract.WithdrawAddress)
-	withdrawAddr := sdk.AccAddress(waddr.Bytes())
-	distrFees := new(big.Int).Mul(new(big.Int).SetUint64(receipt.GasUsed), cfg.BaseFee)
-	developerFee := new(big.Int).Mul(distrFees, new(big.Int).SetUint64(h.k.GetParams(ctx).DeveloperPercentage))
-	developerFee = new(big.Int).Quo(developerFee, big.NewInt(100))
 
-	return h.addFeesToOwner(ctx, *contract, withdrawAddr, developerFee, cfg.Params.EvmDenom)
+	withdrawAddr, err := sdk.AccAddressFromBech32(feeContract.WithdrawAddress)
+	if err != nil {
+		return err
+	}
+
+	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(cfg.BaseFee))
+	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(h.k.GetParams(ctx).DeveloperPercentage)
+	developerCoins := sdk.Coins{sdk.NewCoin(cfg.Params.EvmDenom, developerFee.TruncateInt())}
+
+	// TODO burn 100% - devP - validatorP
+
+	return h.addFeesToOwner(ctx, *contract, withdrawAddr, developerCoins)
 }
 
 // addGasToParticipant adds gasUsed to a participant's gas meter's cumulative
@@ -61,11 +64,9 @@ func (h Hooks) addFeesToOwner(
 	ctx sdk.Context,
 	contract common.Address,
 	withdrawAddr sdk.AccAddress,
-	fees *big.Int,
-	denom string,
+	fees sdk.Coins,
 ) error {
-	coins := sdk.Coins{sdk.NewCoin(denom, sdk.NewIntFromBigInt(fees))}
-	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, h.k.feeCollectorName, withdrawAddr, coins)
+	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, h.k.feeCollectorName, withdrawAddr, fees)
 	if err != nil {
 		err = sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "fee collector account failed to distribute developer fees: %s", err.Error())
 		return sdkerrors.Wrapf(err, "failed to distribute %s fees", fees.String())

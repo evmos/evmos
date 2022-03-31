@@ -217,7 +217,6 @@ var (
 	allowedReceivingModAcc = map[string]bool{
 		distrtypes.ModuleName:      true,
 		incentivestypes.ModuleName: true,
-		feestypes.ModuleName:       true,
 	}
 )
 
@@ -467,7 +466,7 @@ func NewEvmos(
 
 	app.FeesKeeper = feeskeeper.NewKeeper(
 		keys[feestypes.StoreKey], appCodec, app.GetSubspace(feestypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
 	)
 

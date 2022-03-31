@@ -88,6 +88,7 @@
     - [Query](#evmos.fees.v1.Query)
   
 - [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
+    - [ContractFactory](#evmos.fees.v1.ContractFactory)
     - [MsgCancelFeeContract](#evmos.fees.v1.MsgCancelFeeContract)
     - [MsgCancelFeeContractResponse](#evmos.fees.v1.MsgCancelFeeContractResponse)
     - [MsgRegisterFeeContract](#evmos.fees.v1.MsgRegisterFeeContract)
@@ -986,9 +987,9 @@ given smart contract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | contract address |
-| `owner` | [string](#string) |  | deployment transaction hash |
-| `withdraw_address` | [string](#string) |  | account receiving the fees |
+| `contract` | [string](#string) |  | hex address of registered contract |
+| `owner` | [string](#string) |  | bech32 address of contract deployer |
+| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
 
 
 
@@ -1020,7 +1021,7 @@ GenesisState defines the module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
-| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) | repeated | active fees |
+| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) | repeated | active registered contracts |
 
 
 
@@ -1036,9 +1037,8 @@ Params defines the fees module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
-| `fees_denom` | [string](#string) |  |  |
-| `developer_percentage` | [uint64](#uint64) |  |  |
-| `validator_percentage` | [uint64](#uint64) |  |  |
+| `developer_percentage` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to the registered contract owner |
+| `validator_percentage` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to validators |
 
 
 
@@ -1179,16 +1179,33 @@ Query defines the gRPC querier service.
 
 
 
-<a name="evmos.fees.v1.MsgCancelFeeContract"></a>
+<a name="evmos.fees.v1.ContractFactory"></a>
 
-### MsgCancelFeeContract
-CancelContractProposal is a Content type to cancel a contract fee
+### ContractFactory
+ContractFactory defines a contract's factory address and the nonce used when
+the contract was deployed
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  |  |
-| `from_address` | [string](#string) |  |  |
+| `factory_address` | [string](#string) |  | hex address of the factory contract |
+| `nonce` | [uint64](#uint64) |  | the n-th contract created by the factory, which determines its address |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgCancelFeeContract"></a>
+
+### MsgCancelFeeContract
+MsgCancelFeeContract defines a message that cancels a registered a FeeContract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract` | [string](#string) |  | contract hex address |
+| `from_address` | [string](#string) |  | deployer bech32 address |
 
 
 
@@ -1198,7 +1215,7 @@ CancelContractProposal is a Content type to cancel a contract fee
 <a name="evmos.fees.v1.MsgCancelFeeContractResponse"></a>
 
 ### MsgCancelFeeContractResponse
-
+MsgCancelFeeContractResponse defines the MsgCancelFeeContract response type
 
 
 
@@ -1208,15 +1225,15 @@ CancelContractProposal is a Content type to cancel a contract fee
 <a name="evmos.fees.v1.MsgRegisterFeeContract"></a>
 
 ### MsgRegisterFeeContract
-MsgRegisterFeesContract defines a message that registers a FeeContract.
+MsgRegisterFeesContract defines a message that registers a FeeContract
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | contract address |
-| `deployment_hash` | [string](#string) |  | deployment transaction hash |
-| `from_address` | [string](#string) |  | contract owner |
-| `withdraw_address` | [string](#string) |  | account receiving the fees |
+| `contract` | [string](#string) |  | contract hex address |
+| `from_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
+| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
+| `factories` | [ContractFactory](#evmos.fees.v1.ContractFactory) | repeated | list of contract factories on the contract creation path if the contract was not directly deployed by an EOA |
 
 
 
@@ -1226,7 +1243,7 @@ MsgRegisterFeesContract defines a message that registers a FeeContract.
 <a name="evmos.fees.v1.MsgRegisterFeeContractResponse"></a>
 
 ### MsgRegisterFeeContractResponse
-MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type.
+MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type
 
 
 
@@ -1236,14 +1253,15 @@ MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type.
 <a name="evmos.fees.v1.MsgUpdateFeeContract"></a>
 
 ### MsgUpdateFeeContract
-UpdateContractProposal is a Content type to cancel a contract fee
+MsgUpdateFeeContract defines a message that updates the withdraw address for
+a registered FeeContract
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  |  |
-| `from_address` | [string](#string) |  |  |
-| `withdraw_address` | [string](#string) |  |  |
+| `contract` | [string](#string) |  | contract hex address |
+| `from_address` | [string](#string) |  | deployer bech32 address |
+| `withdraw_address` | [string](#string) |  | new withdraw bech32 address for receiving the transaction fees |
 
 
 
@@ -1253,7 +1271,7 @@ UpdateContractProposal is a Content type to cancel a contract fee
 <a name="evmos.fees.v1.MsgUpdateFeeContractResponse"></a>
 
 ### MsgUpdateFeeContractResponse
-
+MsgUpdateFeeContractResponse defines the MsgUpdateFeeContract response type
 
 
 
@@ -1273,9 +1291,9 @@ Msg defines the fees Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `RegisterFeeContract` | [MsgRegisterFeeContract](#evmos.fees.v1.MsgRegisterFeeContract) | [MsgRegisterFeeContractResponse](#evmos.fees.v1.MsgRegisterFeeContractResponse) | RegisterFeeContract | GET|/evmos/fees/v1/tx/register_fee_contract|
-| `CancelFeeContract` | [MsgCancelFeeContract](#evmos.fees.v1.MsgCancelFeeContract) | [MsgCancelFeeContractResponse](#evmos.fees.v1.MsgCancelFeeContractResponse) | CancelFeeContract | GET|/evmos/fees/v1/tx/cancel_fee_contract|
-| `UpdateFeeContract` | [MsgUpdateFeeContract](#evmos.fees.v1.MsgUpdateFeeContract) | [MsgUpdateFeeContractResponse](#evmos.fees.v1.MsgUpdateFeeContractResponse) | UpdateFeeContract | GET|/evmos/fees/v1/tx/update_fee_contract|
+| `RegisterFeeContract` | [MsgRegisterFeeContract](#evmos.fees.v1.MsgRegisterFeeContract) | [MsgRegisterFeeContractResponse](#evmos.fees.v1.MsgRegisterFeeContractResponse) | RegisterFeeContract is used by a deployer to register a new contract for receiving transaction fees | GET|/evmos/fees/v1/tx/register_fee_contract|
+| `CancelFeeContract` | [MsgCancelFeeContract](#evmos.fees.v1.MsgCancelFeeContract) | [MsgCancelFeeContractResponse](#evmos.fees.v1.MsgCancelFeeContractResponse) | CancelFeeContract is used by a deployer to cancel a registered contract and stop receiving transaction fees | GET|/evmos/fees/v1/tx/cancel_fee_contract|
+| `UpdateFeeContract` | [MsgUpdateFeeContract](#evmos.fees.v1.MsgUpdateFeeContract) | [MsgUpdateFeeContractResponse](#evmos.fees.v1.MsgUpdateFeeContractResponse) | UpdateFeeContract is used by a deployer to update the withdraw address | GET|/evmos/fees/v1/tx/update_fee_contract|
 
  <!-- end services -->
 

@@ -23,7 +23,7 @@ func InitGenesis(
 	}
 
 	for _, fee := range data.Fees {
-		// Set Fees
+		// Set initial contracts receiving transaction fees
 		k.SetFee(ctx, fee)
 	}
 }

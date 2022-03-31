@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 )
@@ -8,9 +9,13 @@ import (
 // NewFee returns an instance of Fee
 func NewFee(
 	contract common.Address,
+	owner sdk.AccAddress,
+	withdrawAddress sdk.AccAddress,
 ) FeeContract {
 	return FeeContract{
-		Contract: contract.String(),
+		Contract:        contract.String(),
+		Owner:           owner.String(),
+		WithdrawAddress: withdrawAddress.String(),
 	}
 }
 
@@ -20,11 +25,11 @@ func (i FeeContract) Validate() error {
 		return err
 	}
 
-	if err := ethermint.ValidateAddress(i.Owner); err != nil {
+	if _, err := sdk.AccAddressFromBech32(i.Owner); err != nil {
 		return err
 	}
 
-	if err := ethermint.ValidateAddress(i.WithdrawAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(i.WithdrawAddress); err != nil {
 		return err
 	}
 

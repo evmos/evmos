@@ -10,7 +10,7 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 message GenesisState {
   // module parameters
   Params params = 1 [ (gogoproto.nullable) = false ];
-  // active fees
+  // active registered contracts
   repeated FeeContract fees = 2 [ (gogoproto.nullable) = false ];
 }
 
@@ -18,8 +18,16 @@ message GenesisState {
 message Params {
   // parameter to enable fees
   bool enable_fees = 1;
-  string fees_denom = 2;
-  uint64 developer_percentage = 3;
-  // TODO remove; we only need developer_percentage
-  uint64 validator_percentage = 4;
+  // developer_percentage defines the proportion of the transaction fees to be
+  // distributed to the registered contract owner
+  string developer_percentage = 2  [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // developer_percentage defines the proportion of the transaction fees to be
+  // distributed to validators
+  string validator_percentage = 3  [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

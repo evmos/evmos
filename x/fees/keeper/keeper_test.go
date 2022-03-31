@@ -42,6 +42,7 @@ type KeeperTestSuite struct {
 	address        common.Address
 	signer         keyring.Signer
 	ethSigner      ethtypes.Signer
+	consAddress    sdk.ConsAddress
 	validator      stakingtypes.Validator
 }
 
@@ -70,13 +71,13 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
-	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
+	suite.consAddress = sdk.ConsAddress(privCons.PubKey().Address())
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),
-		ProposerAddress: consAddress.Bytes(),
+		ProposerAddress: suite.consAddress.Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -134,7 +135,7 @@ func (suite *KeeperTestSuite) Commit() {
 // Commit commits a block at a given time.
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
-	suite.app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: header.Height})
+	suite.app.EndBlock(abci.RequestEndBlock{Height: header.Height})
 	_ = suite.app.Commit()
 
 	header.Height += 1

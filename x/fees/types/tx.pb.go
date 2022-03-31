@@ -30,23 +30,81 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgRegisterFeesContract defines a message that registers a FeeContract.
+// ContractFactory defines a contract's factory address and the nonce used when
+// the contract was deployed
+type ContractFactory struct {
+	// hex address of the factory contract
+	FactoryAddress string `protobuf:"bytes,1,opt,name=factory_address,json=factoryAddress,proto3" json:"factory_address,omitempty"`
+	// the n-th contract created by the factory, which determines its address
+	Nonce uint64 `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
+}
+
+func (m *ContractFactory) Reset()         { *m = ContractFactory{} }
+func (m *ContractFactory) String() string { return proto.CompactTextString(m) }
+func (*ContractFactory) ProtoMessage()    {}
+func (*ContractFactory) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8839b3a6b237f9b6, []int{0}
+}
+func (m *ContractFactory) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ContractFactory) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ContractFactory.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ContractFactory) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ContractFactory.Merge(m, src)
+}
+func (m *ContractFactory) XXX_Size() int {
+	return m.Size()
+}
+func (m *ContractFactory) XXX_DiscardUnknown() {
+	xxx_messageInfo_ContractFactory.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ContractFactory proto.InternalMessageInfo
+
+func (m *ContractFactory) GetFactoryAddress() string {
+	if m != nil {
+		return m.FactoryAddress
+	}
+	return ""
+}
+
+func (m *ContractFactory) GetNonce() uint64 {
+	if m != nil {
+		return m.Nonce
+	}
+	return 0
+}
+
+// MsgRegisterFeesContract defines a message that registers a FeeContract
 type MsgRegisterFeeContract struct {
-	// contract address
+	// contract hex address
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
-	// deployment transaction hash
-	DeploymentHash string `protobuf:"bytes,2,opt,name=deployment_hash,json=deploymentHash,proto3" json:"deployment_hash,omitempty"`
-	// contract owner
-	FromAddress string `protobuf:"bytes,3,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
-	// account receiving the fees
-	WithdrawAddress string `protobuf:"bytes,4,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
+	// bech32 address of message sender, must be the same as the origin EOA
+	// sending the transaction which deploys the contract
+	FromAddress string `protobuf:"bytes,2,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
+	// bech32 address of account receiving the transaction fees
+	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
+	// list of contract factories on the contract creation path if the contract
+	// was not directly deployed by an EOA
+	Factories []ContractFactory `protobuf:"bytes,4,rep,name=factories,proto3" json:"factories"`
 }
 
 func (m *MsgRegisterFeeContract) Reset()         { *m = MsgRegisterFeeContract{} }
 func (m *MsgRegisterFeeContract) String() string { return proto.CompactTextString(m) }
 func (*MsgRegisterFeeContract) ProtoMessage()    {}
 func (*MsgRegisterFeeContract) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8839b3a6b237f9b6, []int{0}
+	return fileDescriptor_8839b3a6b237f9b6, []int{1}
 }
 func (m *MsgRegisterFeeContract) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -82,13 +140,6 @@ func (m *MsgRegisterFeeContract) GetContract() string {
 	return ""
 }
 
-func (m *MsgRegisterFeeContract) GetDeploymentHash() string {
-	if m != nil {
-		return m.DeploymentHash
-	}
-	return ""
-}
-
 func (m *MsgRegisterFeeContract) GetFromAddress() string {
 	if m != nil {
 		return m.FromAddress
@@ -103,7 +154,14 @@ func (m *MsgRegisterFeeContract) GetWithdrawAddress() string {
 	return ""
 }
 
-// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type.
+func (m *MsgRegisterFeeContract) GetFactories() []ContractFactory {
+	if m != nil {
+		return m.Factories
+	}
+	return nil
+}
+
+// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type
 type MsgRegisterFeeContractResponse struct {
 }
 
@@ -111,7 +169,7 @@ func (m *MsgRegisterFeeContractResponse) Reset()         { *m = MsgRegisterFeeCo
 func (m *MsgRegisterFeeContractResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgRegisterFeeContractResponse) ProtoMessage()    {}
 func (*MsgRegisterFeeContractResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8839b3a6b237f9b6, []int{1}
+	return fileDescriptor_8839b3a6b237f9b6, []int{2}
 }
 func (m *MsgRegisterFeeContractResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -140,9 +198,11 @@ func (m *MsgRegisterFeeContractResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRegisterFeeContractResponse proto.InternalMessageInfo
 
-// CancelContractProposal is a Content type to cancel a contract fee
+// MsgCancelFeeContract defines a message that cancels a registered a FeeContract
 type MsgCancelFeeContract struct {
-	Contract    string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
+	// contract hex address
+	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
+	// deployer bech32 address
 	FromAddress string `protobuf:"bytes,2,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
 }
 
@@ -150,7 +210,7 @@ func (m *MsgCancelFeeContract) Reset()         { *m = MsgCancelFeeContract{} }
 func (m *MsgCancelFeeContract) String() string { return proto.CompactTextString(m) }
 func (*MsgCancelFeeContract) ProtoMessage()    {}
 func (*MsgCancelFeeContract) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8839b3a6b237f9b6, []int{2}
+	return fileDescriptor_8839b3a6b237f9b6, []int{3}
 }
 func (m *MsgCancelFeeContract) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -193,6 +253,7 @@ func (m *MsgCancelFeeContract) GetFromAddress() string {
 	return ""
 }
 
+// MsgCancelFeeContractResponse defines the MsgCancelFeeContract response type
 type MsgCancelFeeContractResponse struct {
 }
 
@@ -200,7 +261,7 @@ func (m *MsgCancelFeeContractResponse) Reset()         { *m = MsgCancelFeeContra
 func (m *MsgCancelFeeContractResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgCancelFeeContractResponse) ProtoMessage()    {}
 func (*MsgCancelFeeContractResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8839b3a6b237f9b6, []int{3}
+	return fileDescriptor_8839b3a6b237f9b6, []int{4}
 }
 func (m *MsgCancelFeeContractResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -229,10 +290,14 @@ func (m *MsgCancelFeeContractResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCancelFeeContractResponse proto.InternalMessageInfo
 
-// UpdateContractProposal is a Content type to cancel a contract fee
+// MsgUpdateFeeContract defines a message that updates the withdraw address for
+// a registered FeeContract
 type MsgUpdateFeeContract struct {
-	Contract        string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
-	FromAddress     string `protobuf:"bytes,2,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
+	// contract hex address
+	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
+	// deployer bech32 address
+	FromAddress string `protobuf:"bytes,2,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
+	// new withdraw bech32 address for receiving the transaction fees
 	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
 }
 
@@ -240,7 +305,7 @@ func (m *MsgUpdateFeeContract) Reset()         { *m = MsgUpdateFeeContract{} }
 func (m *MsgUpdateFeeContract) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateFeeContract) ProtoMessage()    {}
 func (*MsgUpdateFeeContract) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8839b3a6b237f9b6, []int{4}
+	return fileDescriptor_8839b3a6b237f9b6, []int{5}
 }
 func (m *MsgUpdateFeeContract) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -290,6 +355,7 @@ func (m *MsgUpdateFeeContract) GetWithdrawAddress() string {
 	return ""
 }
 
+// MsgUpdateFeeContractResponse defines the MsgUpdateFeeContract response type
 type MsgUpdateFeeContractResponse struct {
 }
 
@@ -297,7 +363,7 @@ func (m *MsgUpdateFeeContractResponse) Reset()         { *m = MsgUpdateFeeContra
 func (m *MsgUpdateFeeContractResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateFeeContractResponse) ProtoMessage()    {}
 func (*MsgUpdateFeeContractResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8839b3a6b237f9b6, []int{5}
+	return fileDescriptor_8839b3a6b237f9b6, []int{6}
 }
 func (m *MsgUpdateFeeContractResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -327,6 +393,7 @@ func (m *MsgUpdateFeeContractResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgUpdateFeeContractResponse proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*ContractFactory)(nil), "evmos.fees.v1.ContractFactory")
 	proto.RegisterType((*MsgRegisterFeeContract)(nil), "evmos.fees.v1.MsgRegisterFeeContract")
 	proto.RegisterType((*MsgRegisterFeeContractResponse)(nil), "evmos.fees.v1.MsgRegisterFeeContractResponse")
 	proto.RegisterType((*MsgCancelFeeContract)(nil), "evmos.fees.v1.MsgCancelFeeContract")
@@ -338,37 +405,39 @@ func init() {
 func init() { proto.RegisterFile("evmos/fees/v1/tx.proto", fileDescriptor_8839b3a6b237f9b6) }
 
 var fileDescriptor_8839b3a6b237f9b6 = []byte{
-	// 477 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xbf, 0x6e, 0x13, 0x41,
-	0x10, 0xc6, 0xbd, 0x76, 0x84, 0x60, 0xf9, 0x13, 0x38, 0xa2, 0xc8, 0x3a, 0x45, 0x9b, 0x60, 0x14,
-	0x39, 0x11, 0xca, 0xad, 0x42, 0x3a, 0x3a, 0x12, 0x09, 0xd1, 0xb8, 0xb1, 0x44, 0x03, 0x85, 0xb5,
-	0xbe, 0x1b, 0xef, 0x9d, 0xe4, 0xbb, 0x3d, 0xed, 0xac, 0x9d, 0xa4, 0xa5, 0xa0, 0x46, 0x82, 0x92,
-	0x82, 0x57, 0xe0, 0x2d, 0x28, 0x23, 0x68, 0x28, 0x91, 0x4d, 0xc1, 0x63, 0x20, 0xef, 0x5d, 0x0e,
-	0x25, 0x7b, 0x58, 0x2e, 0xe8, 0x66, 0x3f, 0x7d, 0x33, 0xf3, 0xbb, 0x99, 0xd1, 0xd1, 0x4d, 0x98,
-	0xa6, 0x0a, 0xf9, 0x08, 0x00, 0xf9, 0xf4, 0x90, 0x9b, 0xb3, 0x20, 0xd7, 0xca, 0x28, 0xef, 0xae,
-	0xd5, 0x83, 0x85, 0x1e, 0x4c, 0x0f, 0xfd, 0x2d, 0xa9, 0x94, 0x1c, 0x03, 0x17, 0x79, 0xc2, 0x45,
-	0x96, 0x29, 0x23, 0x4c, 0xa2, 0x32, 0x2c, 0xcc, 0xfe, 0x86, 0x54, 0x52, 0xd9, 0x90, 0x2f, 0xa2,
-	0x52, 0xdd, 0x2e, 0x73, 0xec, 0x6b, 0x38, 0x19, 0x71, 0x93, 0xa4, 0x80, 0x46, 0xa4, 0x79, 0x61,
-	0xe8, 0x7c, 0x21, 0x74, 0xb3, 0x87, 0xb2, 0x0f, 0x32, 0x41, 0x03, 0xfa, 0x05, 0xc0, 0x89, 0xca,
-	0x8c, 0x16, 0xa1, 0xf1, 0x7c, 0x7a, 0x33, 0x2c, 0xe3, 0x36, 0xd9, 0x21, 0x7b, 0xb7, 0xfa, 0xd5,
-	0xdb, 0xeb, 0xd2, 0xf5, 0x08, 0xf2, 0xb1, 0x3a, 0x4f, 0x21, 0x33, 0x83, 0x58, 0x60, 0xdc, 0x6e,
-	0x5a, 0xcb, 0xbd, 0xbf, 0xf2, 0x4b, 0x81, 0xb1, 0xf7, 0x88, 0xde, 0x19, 0x69, 0x95, 0x0e, 0x44,
-	0x14, 0x69, 0x40, 0x6c, 0xb7, 0xac, 0xeb, 0xf6, 0x42, 0x7b, 0x5e, 0x48, 0xde, 0x3e, 0xbd, 0x7f,
-	0x9a, 0x98, 0x38, 0xd2, 0xe2, 0xb4, 0xb2, 0xad, 0x59, 0xdb, 0xfa, 0xa5, 0x5e, 0x5a, 0x9f, 0xad,
-	0xfd, 0xfe, 0xbc, 0xdd, 0xe8, 0xec, 0x50, 0x56, 0x8f, 0xdc, 0x07, 0xcc, 0x55, 0x86, 0xd0, 0x79,
-	0x43, 0x37, 0x7a, 0x28, 0x4f, 0x44, 0x16, 0xc2, 0x78, 0xd5, 0x4f, 0xba, 0x4e, 0xda, 0x74, 0x48,
-	0xcb, 0xf6, 0x8c, 0x6e, 0xd5, 0x15, 0xaf, 0x9a, 0xbf, 0x23, 0xb6, 0xfb, 0xab, 0x3c, 0x12, 0x06,
-	0xfe, 0x5f, 0xf7, 0xda, 0x39, 0xb5, 0x96, 0xcd, 0xa9, 0x00, 0x75, 0x38, 0x2e, 0x41, 0x9f, 0x7e,
-	0x6b, 0xd1, 0x56, 0x0f, 0xa5, 0xf7, 0x89, 0xd0, 0x87, 0x75, 0x07, 0xb0, 0x1b, 0x5c, 0x39, 0xc0,
-	0xa0, 0x7e, 0xe8, 0xfe, 0xc1, 0x4a, 0xb6, 0x6a, 0x3c, 0xfc, 0xed, 0xf7, 0x5f, 0x1f, 0x9a, 0xfb,
-	0x5e, 0x97, 0x5f, 0x3f, 0x7b, 0xae, 0xcb, 0xb4, 0xc1, 0x08, 0x60, 0x50, 0x8d, 0xe6, 0x23, 0xa1,
-	0x0f, 0xdc, 0x55, 0x3e, 0x76, 0xbb, 0x3a, 0x26, 0xff, 0xc9, 0x0a, 0xa6, 0x0a, 0xec, 0xc0, 0x82,
-	0x75, 0xbd, 0x5d, 0x17, 0x2c, 0xb4, 0x49, 0x2e, 0x96, 0xbb, 0xe3, 0x1a, 0x2c, 0xc7, 0x54, 0x87,
-	0xf5, 0xcf, 0x2d, 0x2d, 0xc3, 0x9a, 0xd8, 0xa4, 0x2b, 0x58, 0xc7, 0xc7, 0x5f, 0x67, 0x8c, 0x5c,
-	0xcc, 0x18, 0xf9, 0x39, 0x63, 0xe4, 0xfd, 0x9c, 0x35, 0x2e, 0xe6, 0xac, 0xf1, 0x63, 0xce, 0x1a,
-	0xaf, 0xf7, 0x64, 0x62, 0xe2, 0xc9, 0x30, 0x08, 0x55, 0xca, 0x4d, 0x2c, 0x34, 0x26, 0x58, 0x96,
-	0x9c, 0x1e, 0xf1, 0xb3, 0xa2, 0xae, 0x39, 0xcf, 0x01, 0x87, 0x37, 0xec, 0xbf, 0xe1, 0xe8, 0x4f,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0xa9, 0x12, 0xfc, 0xd5, 0x99, 0x04, 0x00, 0x00,
+	// 508 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x54, 0xbf, 0x6f, 0xd3, 0x40,
+	0x14, 0xf6, 0x25, 0x01, 0xd1, 0x2b, 0x10, 0x30, 0x51, 0x15, 0x59, 0x95, 0x13, 0x82, 0xaa, 0xa4,
+	0x42, 0xf5, 0xa9, 0xed, 0xc6, 0x46, 0x2a, 0x75, 0x8b, 0x84, 0x2c, 0xb1, 0xc0, 0x10, 0x5d, 0x9c,
+	0xe7, 0x8b, 0xa5, 0xda, 0x67, 0xdd, 0x5d, 0xd2, 0x76, 0x65, 0x60, 0x46, 0x82, 0x91, 0x81, 0x3f,
+	0xa7, 0x03, 0x43, 0x05, 0x0b, 0x13, 0x42, 0x09, 0x03, 0x7f, 0x06, 0xca, 0xf9, 0x07, 0x4a, 0x6c,
+	0x50, 0x06, 0xa4, 0x6e, 0xef, 0x7d, 0xfe, 0xde, 0xfb, 0xbe, 0xf7, 0x9e, 0x6d, 0xbc, 0x03, 0xb3,
+	0x90, 0x4b, 0xe2, 0x03, 0x48, 0x32, 0x3b, 0x24, 0xea, 0xc2, 0x89, 0x05, 0x57, 0xdc, 0xbc, 0xa7,
+	0x71, 0x67, 0x89, 0x3b, 0xb3, 0x43, 0x6b, 0x97, 0x71, 0xce, 0xce, 0x80, 0xd0, 0x38, 0x20, 0x34,
+	0x8a, 0xb8, 0xa2, 0x2a, 0xe0, 0x91, 0x4c, 0xc8, 0x56, 0x83, 0x71, 0xc6, 0x75, 0x48, 0x96, 0x51,
+	0x8a, 0xb6, 0xd2, 0x1a, 0x9d, 0x8d, 0xa6, 0x3e, 0x51, 0x41, 0x08, 0x52, 0xd1, 0x30, 0x4e, 0x08,
+	0x9d, 0x17, 0xb8, 0x7e, 0xc2, 0x23, 0x25, 0xa8, 0xa7, 0x4e, 0xa9, 0xa7, 0xb8, 0xb8, 0x34, 0xbb,
+	0xb8, 0xee, 0x27, 0xe1, 0x90, 0x8e, 0xc7, 0x02, 0xa4, 0x6c, 0xa2, 0x36, 0xea, 0x6d, 0xb9, 0xf7,
+	0x53, 0xf8, 0x79, 0x82, 0x9a, 0x0d, 0x7c, 0x2b, 0xe2, 0x91, 0x07, 0xcd, 0x4a, 0x1b, 0xf5, 0x6a,
+	0x6e, 0x92, 0x74, 0x3e, 0x23, 0xbc, 0x33, 0x90, 0xcc, 0x05, 0x16, 0x48, 0x05, 0xe2, 0x14, 0x20,
+	0x13, 0x30, 0x2d, 0x7c, 0xc7, 0x4b, 0xe3, 0xb4, 0x65, 0x9e, 0x9b, 0x8f, 0xf1, 0x5d, 0x5f, 0xf0,
+	0x30, 0x97, 0xac, 0xe8, 0xe7, 0xdb, 0x4b, 0x2c, 0xd3, 0xdb, 0xc7, 0x0f, 0xce, 0x03, 0x35, 0x19,
+	0x0b, 0x7a, 0x9e, 0xd3, 0xaa, 0x9a, 0x56, 0xcf, 0xf0, 0x8c, 0xda, 0xc7, 0x5b, 0x89, 0xd9, 0x00,
+	0x64, 0xb3, 0xd6, 0xae, 0xf6, 0xb6, 0x8f, 0x6c, 0x67, 0x65, 0x9d, 0xce, 0xda, 0xd8, 0xfd, 0xda,
+	0xd5, 0xf7, 0x96, 0xe1, 0xfe, 0x29, 0x7b, 0x56, 0xfb, 0xf5, 0xa9, 0x65, 0x74, 0xda, 0xd8, 0x2e,
+	0x9f, 0xc6, 0x05, 0x19, 0xf3, 0x48, 0x42, 0xe7, 0x35, 0x6e, 0x0c, 0x24, 0x3b, 0xa1, 0x91, 0x07,
+	0x67, 0xff, 0x6f, 0xda, 0x54, 0xde, 0xc6, 0xbb, 0x65, 0xcd, 0x73, 0xf1, 0xb7, 0x48, 0xab, 0xbf,
+	0x8c, 0xc7, 0x54, 0xc1, 0x8d, 0xec, 0x7a, 0xc5, 0x68, 0xc1, 0x47, 0x66, 0xf4, 0xe8, 0x4b, 0x15,
+	0x57, 0x07, 0x92, 0x99, 0x1f, 0x11, 0x7e, 0x54, 0xf6, 0x6e, 0xec, 0xad, 0x9d, 0xa7, 0x7c, 0xe9,
+	0xd6, 0xc1, 0x46, 0xb4, 0x7c, 0x3d, 0xe4, 0xcd, 0xd7, 0x9f, 0xef, 0x2b, 0xfb, 0x66, 0x97, 0xac,
+	0x7f, 0x63, 0x44, 0xa4, 0x65, 0x43, 0x1f, 0x60, 0x98, 0xaf, 0xe6, 0x03, 0xc2, 0x0f, 0x8b, 0xa7,
+	0x7c, 0x52, 0x54, 0x2d, 0x90, 0xac, 0xa7, 0x1b, 0x90, 0x72, 0x63, 0x07, 0xda, 0x58, 0xd7, 0xdc,
+	0x2b, 0x1a, 0xf3, 0x74, 0x51, 0xd1, 0x56, 0xf1, 0xc6, 0x25, 0xb6, 0x0a, 0xa4, 0x32, 0x5b, 0x7f,
+	0xbd, 0xd2, 0xbf, 0x6c, 0x4d, 0x75, 0xd1, 0x8a, 0xad, 0x7e, 0xff, 0x6a, 0x6e, 0xa3, 0xeb, 0xb9,
+	0x8d, 0x7e, 0xcc, 0x6d, 0xf4, 0x6e, 0x61, 0x1b, 0xd7, 0x0b, 0xdb, 0xf8, 0xb6, 0xb0, 0x8d, 0x57,
+	0x3d, 0x16, 0xa8, 0xc9, 0x74, 0xe4, 0x78, 0x3c, 0x24, 0x6a, 0x42, 0x85, 0x0c, 0x64, 0xda, 0x72,
+	0x76, 0x4c, 0x2e, 0x92, 0xbe, 0xea, 0x32, 0x06, 0x39, 0xba, 0xad, 0x7f, 0x44, 0xc7, 0xbf, 0x03,
+	0x00, 0x00, 0xff, 0xff, 0xe5, 0x26, 0x2b, 0x5e, 0x06, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -383,11 +452,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// RegisterFeeContract
+	// RegisterFeeContract is used by a deployer to register a new contract for
+	// receiving transaction fees
 	RegisterFeeContract(ctx context.Context, in *MsgRegisterFeeContract, opts ...grpc.CallOption) (*MsgRegisterFeeContractResponse, error)
-	// CancelFeeContract
+	// CancelFeeContract is used by a deployer to cancel a registered contract
+	// and stop receiving transaction fees
 	CancelFeeContract(ctx context.Context, in *MsgCancelFeeContract, opts ...grpc.CallOption) (*MsgCancelFeeContractResponse, error)
-	// UpdateFeeContract
+	// UpdateFeeContract is used by a deployer to update the withdraw address
 	UpdateFeeContract(ctx context.Context, in *MsgUpdateFeeContract, opts ...grpc.CallOption) (*MsgUpdateFeeContractResponse, error)
 }
 
@@ -428,11 +499,13 @@ func (c *msgClient) UpdateFeeContract(ctx context.Context, in *MsgUpdateFeeContr
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// RegisterFeeContract
+	// RegisterFeeContract is used by a deployer to register a new contract for
+	// receiving transaction fees
 	RegisterFeeContract(context.Context, *MsgRegisterFeeContract) (*MsgRegisterFeeContractResponse, error)
-	// CancelFeeContract
+	// CancelFeeContract is used by a deployer to cancel a registered contract
+	// and stop receiving transaction fees
 	CancelFeeContract(context.Context, *MsgCancelFeeContract) (*MsgCancelFeeContractResponse, error)
-	// UpdateFeeContract
+	// UpdateFeeContract is used by a deployer to update the withdraw address
 	UpdateFeeContract(context.Context, *MsgUpdateFeeContract) (*MsgUpdateFeeContractResponse, error)
 }
 
@@ -529,6 +602,41 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	Metadata: "evmos/fees/v1/tx.proto",
 }
 
+func (m *ContractFactory) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ContractFactory) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ContractFactory) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Nonce != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Nonce))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.FactoryAddress) > 0 {
+		i -= len(m.FactoryAddress)
+		copy(dAtA[i:], m.FactoryAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FactoryAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *MsgRegisterFeeContract) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -549,24 +657,31 @@ func (m *MsgRegisterFeeContract) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	_ = i
 	var l int
 	_ = l
+	if len(m.Factories) > 0 {
+		for iNdEx := len(m.Factories) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Factories[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	if len(m.WithdrawAddress) > 0 {
 		i -= len(m.WithdrawAddress)
 		copy(dAtA[i:], m.WithdrawAddress)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.WithdrawAddress)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.FromAddress) > 0 {
 		i -= len(m.FromAddress)
 		copy(dAtA[i:], m.FromAddress)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.FromAddress)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.DeploymentHash) > 0 {
-		i -= len(m.DeploymentHash)
-		copy(dAtA[i:], m.DeploymentHash)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.DeploymentHash)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -741,6 +856,22 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *ContractFactory) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FactoryAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Nonce != 0 {
+		n += 1 + sovTx(uint64(m.Nonce))
+	}
+	return n
+}
+
 func (m *MsgRegisterFeeContract) Size() (n int) {
 	if m == nil {
 		return 0
@@ -751,10 +882,6 @@ func (m *MsgRegisterFeeContract) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.DeploymentHash)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	l = len(m.FromAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
@@ -762,6 +889,12 @@ func (m *MsgRegisterFeeContract) Size() (n int) {
 	l = len(m.WithdrawAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Factories) > 0 {
+		for _, e := range m.Factories {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
 	}
 	return n
 }
@@ -837,6 +970,107 @@ func sovTx(x uint64) (n int) {
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+func (m *ContractFactory) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ContractFactory: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ContractFactory: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FactoryAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FactoryAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
+			}
+			m.Nonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Nonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *MsgRegisterFeeContract) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -900,38 +1134,6 @@ func (m *MsgRegisterFeeContract) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DeploymentHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DeploymentHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FromAddress", wireType)
 			}
 			var stringLen uint64
@@ -962,7 +1164,7 @@ func (m *MsgRegisterFeeContract) Unmarshal(dAtA []byte) error {
 			}
 			m.FromAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field WithdrawAddress", wireType)
 			}
@@ -993,6 +1195,40 @@ func (m *MsgRegisterFeeContract) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.WithdrawAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Factories", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Factories = append(m.Factories, ContractFactory{})
+			if err := m.Factories[len(m.Factories)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

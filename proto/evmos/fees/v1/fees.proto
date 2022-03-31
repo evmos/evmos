@@ -9,10 +9,10 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 // FeeContract defines an instance that organizes fee distribution conditions for the owner of a
 // given smart contract
 message FeeContract {
-  // contract address
+  // hex address of registered contract
   string contract = 1;
-  // deployment transaction hash
+  // bech32 address of contract deployer
   string owner = 2;
-  // account receiving the fees
+  // bech32 address of account receiving the transaction fees
   string withdraw_address = 3;
 }

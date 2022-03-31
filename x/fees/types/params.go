@@ -9,11 +9,9 @@ import (
 
 // Parameter store key
 var (
-	DefaultFeesDenom                 = "adevi"
-	DefaultDeveloperPercentage       = uint64(50)
-	DefaultValidatorPercentage       = uint64(50)
+	DefaultDeveloperPercentage       = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultValidatorPercentage       = sdk.NewDecWithPrec(50, 2) // 50%
 	ParamStoreKeyEnableFees          = []byte("EnableFees")
-	ParamStoreKeyFeesDenom           = []byte("FeesDenom")
 	ParamStoreKeyDeveloperPercentage = []byte("DeveloperPercentage")
 	ParamStoreKeyValidatorPercentage = []byte("ValidatorPercentage")
 )
@@ -26,14 +24,12 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params object
 func NewParams(
 	enableFees bool,
-	feesDenom string,
-	developerPercentage uint64,
-	validatorPercentage uint64,
+	developerPercentage sdk.Dec,
+	validatorPercentage sdk.Dec,
 
 ) Params {
 	return Params{
 		EnableFees:          enableFees,
-		FeesDenom:           feesDenom,
 		DeveloperPercentage: developerPercentage,
 		ValidatorPercentage: validatorPercentage,
 	}
@@ -42,7 +38,6 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EnableFees:          true,
-		FeesDenom:           DefaultFeesDenom,
 		DeveloperPercentage: DefaultDeveloperPercentage,
 		ValidatorPercentage: DefaultValidatorPercentage,
 	}
@@ -52,9 +47,8 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableFees, &p.EnableFees, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyFeesDenom, &p.FeesDenom, validateDenom),
-		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperPercentage, &p.DeveloperPercentage, validateUint64),
-		paramtypes.NewParamSetPair(ParamStoreKeyValidatorPercentage, &p.ValidatorPercentage, validateUint64),
+		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperPercentage, &p.DeveloperPercentage, validatePercentage),
+		paramtypes.NewParamSetPair(ParamStoreKeyValidatorPercentage, &p.ValidatorPercentage, validatePercentage),
 	}
 }
 
@@ -67,19 +61,14 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validateDenom(i interface{}) error {
-	denom, ok := i.(string)
+func validatePercentage(i interface{}) error {
+	v, ok := i.(sdk.Dec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	return sdk.ValidateDenom(denom)
-}
-
-func validateUint64(i interface{}) error {
-	_, ok := i.(uint64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+	if v.IsNegative() {
+		return fmt.Errorf("value cannot be negative")
 	}
 
 	return nil
@@ -89,13 +78,10 @@ func (p Params) Validate() error {
 	if err := validateBool(p.EnableFees); err != nil {
 		return err
 	}
-	if err := sdk.ValidateDenom(p.FeesDenom); err != nil {
+	if err := validatePercentage(p.DeveloperPercentage); err != nil {
 		return err
 	}
-	if err := validateUint64(p.DeveloperPercentage); err != nil {
-		return err
-	}
-	if err := validateUint64(p.ValidatorPercentage); err != nil {
+	if err := validatePercentage(p.ValidatorPercentage); err != nil {
 		return err
 	}
 

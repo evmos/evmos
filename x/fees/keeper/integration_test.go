@@ -33,7 +33,6 @@ import (
 )
 
 var _ = Describe("Fees", Ordered, func() {
-	// denom := types.DefaultFeesDenom
 	claimsDenom := claimstypes.DefaultClaimsDenom
 	evmDenom := evmtypes.DefaultEVMDenom
 	accountCount := 4
@@ -87,13 +86,12 @@ var _ = Describe("Fees", Ordered, func() {
 
 	Context("ctx", func() {
 		var contractAddress common.Address
-		var txHash common.Hash
 		BeforeAll(func() {
-			contractAddress, txHash = deployContract(priv0)
+			contractAddress = deployContract(priv0)
 		})
 
 		It("send registration message", func() {
-			registerFeeContract(priv0, &contractAddress, txHash)
+			registerFeeContract(priv0, &contractAddress)
 			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 			Expect(isRegistered).To(Equal(true))
 			Expect(fee.Contract).To(Equal(contractAddress.Hex()))
@@ -112,21 +110,20 @@ var _ = Describe("Fees", Ordered, func() {
 			gasUsed, err := strconv.ParseInt(string(registerEvent.Attributes[3].Value), 10, 64)
 			s.Require().NoError(err)
 
-			feeDistribution := new(big.Int).Mul(big.NewInt(gasUsed), cfg.BaseFee)
-			receivedFee := new(big.Int).Mul(feeDistribution, big.NewInt(int64(params.DeveloperPercentage)))
-			receivedFee = new(big.Int).Quo(receivedFee, big.NewInt(100))
-			receivedCoins := sdk.NewCoin(evmDenom, sdk.NewIntFromBigInt(receivedFee))
+			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(cfg.BaseFee))
+			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperPercentage)
+			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr0, evmDenom)
-			Expect(balance).To(Equal(preBalance.Add(receivedCoins)))
+			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 		})
 	})
 })
 
-func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address, deploymentHash common.Hash) {
+func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address) {
 	fromAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	msg := types.NewMsgRegisterFeeContract(fromAddress, contractAddress.String(), deploymentHash.Hex(), fromAddress)
+	msg := types.NewMsgRegisterFeeContract(fromAddress, contractAddress.String(), fromAddress, make([]types.ContractFactory, 0))
 
 	res := deliverTx(priv, msg)
 	s.Commit()
@@ -140,33 +137,13 @@ func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
 	return sdk.AccAddress(priv.PubKey().Address().Bytes())
 }
 
-func deployContract(priv *ethsecp256k1.PrivKey) (common.Address, common.Hash) {
+func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-	// ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "Test", "TTT", uint8(18))
-	// s.Require().NoError(err)
-
-	// data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
-	// args, err := json.Marshal(&evm.TransactionArgs{
-	// 	From: &s.address,
-	// 	Data: (*hexutil.Bytes)(&data),
-	// })
-	// s.Require().NoError(err)
-	// data := common.Hex2Bytes("600b61000e600039600b6000f30061222260005260206000f3")
 	data := common.Hex2Bytes("600661000e60003960066000f300612222600055")
-	// args := make([]byte, 0)
 	gasLimit := uint64(100000)
-
-	// ctx := sdk.WrapSDKContext(s.ctx)
-	// res, err := s.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-	// 	Args:   args,
-	// 	GasCap: uint64(config.DefaultGasCap),
-	// })
-	// s.Require().NoError(err)
-	// gasLimit := res.Gas
-
 	msgEthereumTx := evmtypes.NewTxContract(chainID, nonce, nil, gasLimit, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 
@@ -177,12 +154,11 @@ func deployContract(priv *ethsecp256k1.PrivKey) (common.Address, common.Hash) {
 	Expect(ethereumTx.Type).To(Equal("ethereum_tx"))
 	Expect(string(ethereumTx.Attributes[1].Key)).To(Equal("ethereumTxHash"))
 
-	txHash := common.HexToHash(string(ethereumTx.Attributes[1].Value))
 	contractAddress := crypto.CreateAddress(from, nonce)
 	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
 	s.Require().NotEmpty(acc)
 	s.Require().True(acc.IsContract())
-	return contractAddress, txHash
+	return contractAddress
 }
 
 func contractInteract(priv *ethsecp256k1.PrivKey, contractAddr *common.Address) abci.ResponseDeliverTx {

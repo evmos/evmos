@@ -17,14 +17,8 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	accountKeeper   types.AccountKeeper
-	bankKeeper      types.BankKeeper
-	inflationKeeper types.InflationKeeper
-
-	// Currently not used, but added to prevent breaking change s in case we want
-	// to allocate incentives to staking instead of transferring the deferred
-	// rewards to the user's wallet
-	stakeKeeper      types.StakeKeeper
+	accountKeeper    types.AccountKeeper
+	bankKeeper       types.BankKeeper
 	evmKeeper        types.EVMKeeper
 	feeCollectorName string
 }
@@ -36,8 +30,6 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	ik types.InflationKeeper,
-	sk types.StakeKeeper,
 	evmKeeper types.EVMKeeper,
 	feeCollector string,
 ) Keeper {
@@ -52,8 +44,6 @@ func NewKeeper(
 		paramstore:       ps,
 		accountKeeper:    ak,
 		bankKeeper:       bk,
-		inflationKeeper:  ik,
-		stakeKeeper:      sk,
 		evmKeeper:        evmKeeper,
 		feeCollectorName: feeCollector,
 	}

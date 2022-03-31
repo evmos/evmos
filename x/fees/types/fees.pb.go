@@ -28,11 +28,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // FeeContract defines an instance that organizes fee distribution conditions for the owner of a
 // given smart contract
 type FeeContract struct {
-	// contract address
+	// hex address of registered contract
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
-	// deployment transaction hash
+	// bech32 address of contract deployer
 	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
-	// account receiving the fees
+	// bech32 address of account receiving the transaction fees
 	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
 }
 

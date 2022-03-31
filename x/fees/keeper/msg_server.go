@@ -24,8 +24,8 @@ func (k Keeper) RegisterFeeContract(
 	contract := common.HexToAddress(msg.Contract)
 	withdrawAddr, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
 
-	// TODO check owner is real owner (origin of deployment tx or ERC)
-	fmt.Println("--RegisterContract", from, contract, withdrawAddr, msg.DeploymentHash)
+	// TODO check owner is real owner
+	fmt.Println("--RegisterContract", from, contract, withdrawAddr)
 
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is already registered", contract)
