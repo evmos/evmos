@@ -78,17 +78,16 @@
     - [Params](#evmos.fees.v1.Params)
   
 - [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
-    - [QueryFeesContractRequest](#evmos.fees.v1.QueryFeesContractRequest)
-    - [QueryFeesContractResponse](#evmos.fees.v1.QueryFeesContractResponse)
-    - [QueryFeesContractsRequest](#evmos.fees.v1.QueryFeesContractsRequest)
-    - [QueryFeesContractsResponse](#evmos.fees.v1.QueryFeesContractsResponse)
+    - [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest)
+    - [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse)
+    - [QueryFeeContractsRequest](#evmos.fees.v1.QueryFeeContractsRequest)
+    - [QueryFeeContractsResponse](#evmos.fees.v1.QueryFeeContractsResponse)
     - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
   
     - [Query](#evmos.fees.v1.Query)
   
 - [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
-    - [ContractFactory](#evmos.fees.v1.ContractFactory)
     - [MsgCancelFeeContract](#evmos.fees.v1.MsgCancelFeeContract)
     - [MsgCancelFeeContractResponse](#evmos.fees.v1.MsgCancelFeeContractResponse)
     - [MsgRegisterFeeContract](#evmos.fees.v1.MsgRegisterFeeContract)
@@ -981,8 +980,8 @@ Msg defines the erc20 Msg service.
 <a name="evmos.fees.v1.FeeContract"></a>
 
 ### FeeContract
-FeeContract defines an instance that organizes fee distribution conditions for the owner of a
-given smart contract
+FeeContract defines an instance that organizes fee distribution conditions
+for the owner of a given smart contract
 
 
 | Field | Type | Label | Description |
@@ -1061,10 +1060,11 @@ Params defines the fees module params
 
 
 
-<a name="evmos.fees.v1.QueryFeesContractRequest"></a>
+<a name="evmos.fees.v1.QueryFeeContractRequest"></a>
 
-### QueryFeesContractRequest
-QueryFeesContractRequest is the request type for the Query/FeesContract RPC method.
+### QueryFeeContractRequest
+QueryFeeContractRequest is the request type for the Query/FeeContract RPC
+method.
 
 
 | Field | Type | Label | Description |
@@ -1076,10 +1076,10 @@ QueryFeesContractRequest is the request type for the Query/FeesContract RPC meth
 
 
 
-<a name="evmos.fees.v1.QueryFeesContractResponse"></a>
+<a name="evmos.fees.v1.QueryFeeContractResponse"></a>
 
-### QueryFeesContractResponse
-QueryFeesContractResponse is the response type for the Query/FeesContract RPC
+### QueryFeeContractResponse
+QueryFeeContractResponse is the response type for the Query/FeeContract RPC
 method.
 
 
@@ -1092,10 +1092,10 @@ method.
 
 
 
-<a name="evmos.fees.v1.QueryFeesContractsRequest"></a>
+<a name="evmos.fees.v1.QueryFeeContractsRequest"></a>
 
-### QueryFeesContractsRequest
-QueryFeesContractsRequest is the request type for the Query/FeesContracts RPC
+### QueryFeeContractsRequest
+QueryFeeContractsRequest is the request type for the Query/FeeContracts RPC
 method.
 
 
@@ -1108,11 +1108,11 @@ method.
 
 
 
-<a name="evmos.fees.v1.QueryFeesContractsResponse"></a>
+<a name="evmos.fees.v1.QueryFeeContractsResponse"></a>
 
-### QueryFeesContractsResponse
-QueryFeesContractsResponse is the response type for the Query/FeesContracts RPC
-method.
+### QueryFeeContractsResponse
+QueryFeeContractsResponse is the response type for the Query/FeeContracts
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1164,8 +1164,8 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `FeesContracts` | [QueryFeesContractsRequest](#evmos.fees.v1.QueryFeesContractsRequest) | [QueryFeesContractsResponse](#evmos.fees.v1.QueryFeesContractsResponse) | FeesContracts retrieves registered fees | GET|/evmos/fees/v1/fees|
-| `FeesContract` | [QueryFeesContractRequest](#evmos.fees.v1.QueryFeesContractRequest) | [QueryFeesContractResponse](#evmos.fees.v1.QueryFeesContractResponse) | FeesContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract}|
+| `FeeContracts` | [QueryFeeContractsRequest](#evmos.fees.v1.QueryFeeContractsRequest) | [QueryFeeContractsResponse](#evmos.fees.v1.QueryFeeContractsResponse) | FeeContracts retrieves registered fees | GET|/evmos/fees/v1/fees|
+| `FeeContract` | [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest) | [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse) | FeeContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
 
  <!-- end services -->
@@ -1179,27 +1179,11 @@ Query defines the gRPC querier service.
 
 
 
-<a name="evmos.fees.v1.ContractFactory"></a>
-
-### ContractFactory
-ContractFactory defines a contract's factory address and the nonce used when
-the contract was deployed
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `factory_address` | [string](#string) |  | hex address of the factory contract |
-| `nonce` | [uint64](#uint64) |  | the n-th contract created by the factory, which determines its address |
-
-
-
-
-
-
 <a name="evmos.fees.v1.MsgCancelFeeContract"></a>
 
 ### MsgCancelFeeContract
-MsgCancelFeeContract defines a message that cancels a registered a FeeContract
+MsgCancelFeeContract defines a message that cancels a registered a
+FeeContract
 
 
 | Field | Type | Label | Description |
@@ -1233,7 +1217,7 @@ MsgRegisterFeesContract defines a message that registers a FeeContract
 | `contract` | [string](#string) |  | contract hex address |
 | `from_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
-| `factories` | [ContractFactory](#evmos.fees.v1.ContractFactory) | repeated | list of contract factories on the contract creation path if the contract was not directly deployed by an EOA |
+| `nonces` | [uint64](#uint64) | repeated | array of nonces from the address path, where the last nonce is the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce |
 
 
 
@@ -1243,7 +1227,8 @@ MsgRegisterFeesContract defines a message that registers a FeeContract
 <a name="evmos.fees.v1.MsgRegisterFeeContractResponse"></a>
 
 ### MsgRegisterFeeContractResponse
-MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type
+MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response
+type
 
 
 

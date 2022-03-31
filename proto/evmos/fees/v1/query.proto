@@ -11,13 +11,15 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // FeesContracts retrieves registered fees
-  rpc FeesContracts(QueryFeesContractsRequest) returns (QueryFeesContractsResponse) {
+  // FeeContracts retrieves registered fees
+  rpc FeeContracts(QueryFeeContractsRequest)
+      returns (QueryFeeContractsResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees";
   }
 
-  // FeesContract retrieves a registered fee
-  rpc FeesContract(QueryFeesContractRequest) returns (QueryFeesContractResponse) {
+  // FeeContract retrieves a registered fee
+  rpc FeeContract(QueryFeeContractRequest)
+      returns (QueryFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees/{contract}";
   }
 
@@ -27,31 +29,32 @@ service Query {
   }
 }
 
-// QueryFeesContractsRequest is the request type for the Query/FeesContracts RPC
+// QueryFeeContractsRequest is the request type for the Query/FeeContracts RPC
 // method.
-message QueryFeesContractsRequest {
+message QueryFeeContractsRequest {
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryFeesContractsResponse is the response type for the Query/FeesContracts RPC
-// method.
-message QueryFeesContractsResponse {
+// QueryFeeContractsResponse is the response type for the Query/FeeContracts
+// RPC method.
+message QueryFeeContractsResponse {
   repeated FeeContract fees = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryFeesContractRequest is the request type for the Query/FeesContract RPC method.
-message QueryFeesContractRequest {
+// QueryFeeContractRequest is the request type for the Query/FeeContract RPC
+// method.
+message QueryFeeContractRequest {
   // contract identifier is the hex contract address of a contract
   string contract = 1;
 }
 
-// QueryFeesContractResponse is the response type for the Query/FeesContract RPC
+// QueryFeeContractResponse is the response type for the Query/FeeContract RPC
 // method.
-message QueryFeesContractResponse {
-    FeeContract fees = 1 [ (gogoproto.nullable) = false ];
+message QueryFeeContractResponse {
+  FeeContract fees = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

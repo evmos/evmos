@@ -1,13 +1,10 @@
 syntax = "proto3";
 package evmos.fees.v1;
 
-import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
-import "cosmos/base/v1beta1/coin.proto";
 option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 
-// FeeContract defines an instance that organizes fee distribution conditions for the owner of a
-// given smart contract
+// FeeContract defines an instance that organizes fee distribution conditions
+// for the owner of a given smart contract
 message FeeContract {
   // hex address of registered contract
   string contract = 1;

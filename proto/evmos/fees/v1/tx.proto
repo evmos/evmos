@@ -3,7 +3,6 @@ package evmos.fees.v1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 
@@ -11,27 +10,21 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 service Msg {
   // RegisterFeeContract is used by a deployer to register a new contract for
   // receiving transaction fees
-  rpc RegisterFeeContract(MsgRegisterFeeContract) returns (MsgRegisterFeeContractResponse) {
+  rpc RegisterFeeContract(MsgRegisterFeeContract)
+      returns (MsgRegisterFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/tx/register_fee_contract";
   };
   // CancelFeeContract is used by a deployer to cancel a registered contract
   // and stop receiving transaction fees
-  rpc CancelFeeContract(MsgCancelFeeContract) returns (MsgCancelFeeContractResponse) {
+  rpc CancelFeeContract(MsgCancelFeeContract)
+      returns (MsgCancelFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/tx/cancel_fee_contract";
   };
   // UpdateFeeContract is used by a deployer to update the withdraw address
-  rpc UpdateFeeContract(MsgUpdateFeeContract) returns (MsgUpdateFeeContractResponse) {
+  rpc UpdateFeeContract(MsgUpdateFeeContract)
+      returns (MsgUpdateFeeContractResponse) {
     option (google.api.http).get = "/evmos/fees/v1/tx/update_fee_contract";
   };
-}
-
-// ContractFactory defines a contract's factory address and the nonce used when
-// the contract was deployed
-message ContractFactory {
-  // hex address of the factory contract
-  string factory_address = 1;
-  // the n-th contract created by the factory, which determines its address
-  uint64 nonce = 2;
 }
 
 // MsgRegisterFeesContract defines a message that registers a FeeContract
@@ -44,15 +37,17 @@ message MsgRegisterFeeContract {
   string from_address = 2;
   // bech32 address of account receiving the transaction fees
   string withdraw_address = 3;
-  // list of contract factories on the contract creation path if the contract
-  // was not directly deployed by an EOA
-  repeated ContractFactory factories = 4 [ (gogoproto.nullable) = false ];
+  // array of nonces from the address path, where the last nonce is
+  // the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce
+  repeated uint64 nonces = 4;
 }
 
-// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response type
+// MsgRegisterFeeContractResponse defines the MsgRegisterFeeContract response
+// type
 message MsgRegisterFeeContractResponse {}
 
-// MsgCancelFeeContract defines a message that cancels a registered a FeeContract
+// MsgCancelFeeContract defines a message that cancels a registered a
+// FeeContract
 message MsgCancelFeeContract {
   option (gogoproto.equal) = false;
   // contract hex address

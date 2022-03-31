@@ -2,34 +2,45 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
 var _ types.MsgServer = &Keeper{}
 
-// RegisterIncentive creates an incentive for a contract
+// RegisterFeeContract registers a contract to receive transaction fees
 func (k Keeper) RegisterFeeContract(
 	goCtx context.Context,
 	msg *types.MsgRegisterFeeContract,
 ) (*types.MsgRegisterFeeContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
 	contract := common.HexToAddress(msg.Contract)
-	withdrawAddr, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
-
-	// TODO check owner is real owner
-	fmt.Println("--RegisterContract", from, contract, withdrawAddr)
 
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is already registered", contract)
 	}
+
+	deployer, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	derivedContractAddr := common.BytesToAddress(deployer)
+
+	for _, nonce := range msg.Nonces {
+		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
+	}
+
+	if contract != derivedContractAddr {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrorInvalidSigner,
+			"%s not contract deployer or wrong nonce", msg.FromAddress,
+		)
+	}
+
+	// check that the contract is deployed, to avoid spam registrations
+	// TODO
 
 	k.SetFee(ctx, types.FeeContract{
 		Contract:        msg.Contract,
@@ -58,11 +69,16 @@ func (k Keeper) CancelFeeContract(
 ) (*types.MsgCancelFeeContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
-	contract, _ := sdk.AccAddressFromBech32(msg.Contract)
+	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.Contract))
+	if !ok {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.Contract)
+	}
 
-	// TODO check ownership, remove from keyvalue store
-	fmt.Println("--CancelFeeContract", from, contract)
+	if msg.FromAddress != feeContract.Owner {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.FromAddress)
+	}
+
+	k.DeleteFee(ctx, feeContract)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -84,19 +100,25 @@ func (k Keeper) UpdateFeeContract(
 ) (*types.MsgUpdateFeeContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
-	contract, _ := sdk.AccAddressFromBech32(msg.Contract)
-	withdrawAddr, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
+	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.Contract))
+	if !ok {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.Contract)
+	}
 
-	// TODO check ownership, update keyvalue store
-	fmt.Println("--UpdateFeeContract", from, contract, withdrawAddr)
+	if msg.FromAddress != feeContract.Owner {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.FromAddress)
+	}
+
+	feeContract.WithdrawAddress = msg.WithdrawAddress
+	k.SetFee(ctx, feeContract)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeUpdateFeeContract,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.Contract),
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
+				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
 			),
 		},
 	)

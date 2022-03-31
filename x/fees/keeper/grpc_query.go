@@ -18,46 +18,46 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// Incentives return registered incentives
-func (k Keeper) FeesContracts(
+// FeeContracts return registered contracts to receive transaction fees
+func (k Keeper) FeeContracts(
 	c context.Context,
-	req *types.QueryFeesContractsRequest,
-) (*types.QueryFeesContractsResponse, error) {
+	req *types.QueryFeeContractsRequest,
+) (*types.QueryFeeContractsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var incentives []types.FeeContract
+	var feeContracts []types.FeeContract
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
 		func(_, value []byte) error {
-			var incentive types.FeeContract
-			if err := k.cdc.Unmarshal(value, &incentive); err != nil {
+			var feeContract types.FeeContract
+			if err := k.cdc.Unmarshal(value, &feeContract); err != nil {
 				return err
 			}
-			incentives = append(incentives, incentive)
+			feeContracts = append(feeContracts, feeContract)
 			return nil
 		},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryFeesContractsResponse{
-		Fees:       incentives,
+	return &types.QueryFeeContractsResponse{
+		Fees:       feeContracts,
 		Pagination: pageRes,
 	}, nil
 }
 
-// Incentive returns a given registered incentive
-func (k Keeper) FeesContract(
+// FeeContract returns a given registered contract
+func (k Keeper) FeeContract(
 	c context.Context,
-	req *types.QueryFeesContractRequest,
-) (*types.QueryFeesContractResponse, error) {
+	req *types.QueryFeeContractRequest,
+) (*types.QueryFeeContractResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -79,16 +79,16 @@ func (k Keeper) FeesContract(
 		)
 	}
 
-	incentive, found := k.GetFee(ctx, common.HexToAddress(req.Contract))
+	feeContract, found := k.GetFee(ctx, common.HexToAddress(req.Contract))
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
-			"incentive with contract '%s'",
+			"fees registered contract '%s'",
 			req.Contract,
 		)
 	}
 
-	return &types.QueryFeesContractResponse{Fees: incentive}, nil
+	return &types.QueryFeeContractResponse{Fees: feeContract}, nil
 }
 
 // Params return hub contract param

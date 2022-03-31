@@ -91,7 +91,7 @@ var _ = Describe("Fees", Ordered, func() {
 		})
 
 		It("send registration message", func() {
-			registerFeeContract(priv0, &contractAddress)
+			registerFeeContract(priv0, &contractAddress, 0)
 			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 			Expect(isRegistered).To(Equal(true))
 			Expect(fee.Contract).To(Equal(contractAddress.Hex()))
@@ -120,10 +120,9 @@ var _ = Describe("Fees", Ordered, func() {
 	})
 })
 
-func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address) {
+func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address, nonce uint64) {
 	fromAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	msg := types.NewMsgRegisterFeeContract(fromAddress, contractAddress.String(), fromAddress, make([]types.ContractFactory, 0))
+	msg := types.NewMsgRegisterFeeContract(*contractAddress, fromAddress, fromAddress, []uint64{nonce})
 
 	res := deliverTx(priv, msg)
 	s.Commit()

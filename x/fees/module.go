@@ -18,7 +18,6 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	// "github.com/tharsis/evmos/v3/x/fees/client/cli"
 	"github.com/tharsis/evmos/v3/x/fees/keeper"
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
@@ -76,12 +75,11 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
-// GetTxCmd returns the root tx command for the incentives module.
+// GetTxCmd returns the root tx command for the fees module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
 
-// GetQueryCmd returns no root query command for the incentives module.
+// GetQueryCmd returns no root query command for the fees module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	// return cli.GetQueryCmd()
 	return nil
 }
 
@@ -109,7 +107,7 @@ func (AppModule) Name() string {
 
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
-// NewHandler returns nil incentives module doesn't expose tx gRPC endpoints
+// NewHandler returns nil fees module doesn't expose tx gRPC endpoints
 func (am AppModule) NewHandler() sdk.Handler {
 	return nil
 }

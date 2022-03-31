@@ -11,7 +11,7 @@ import (
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
-// Keeper of this module maintains collections of incentives.
+// Keeper of this module maintains collections of fees.
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        codec.BinaryCodec
@@ -23,7 +23,7 @@ type Keeper struct {
 	feeCollectorName string
 }
 
-// NewKeeper creates new instances of the incentives Keeper
+// NewKeeper creates new instances of the fees Keeper
 func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,

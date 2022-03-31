@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+	ethermint "github.com/tharsis/ethermint/types"
 )
 
 var (
@@ -20,16 +21,16 @@ const (
 
 // NewMsgRegisterFeeContract creates new instance of MsgRegisterFeeContract
 func NewMsgRegisterFeeContract(
+	contract common.Address,
 	fromAddr sdk.AccAddress,
-	contract string,
 	withdrawAddress sdk.AccAddress,
-	factories []ContractFactory,
+	nonces []uint64,
 ) *MsgRegisterFeeContract {
 	return &MsgRegisterFeeContract{
+		Contract:        contract.String(),
 		FromAddress:     fromAddr.String(),
-		Contract:        contract,
 		WithdrawAddress: withdrawAddress.String(),
-		Factories:       factories,
+		Nonces:          nonces,
 	}
 }
 
@@ -45,8 +46,8 @@ func (msg MsgRegisterFeeContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if !common.IsHexAddress(msg.Contract) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", msg.Contract)
+	if err := ethermint.ValidateAddress(msg.Contract); err != nil {
+		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.Contract)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
@@ -93,8 +94,8 @@ func (msg MsgCancelFeeContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if !common.IsHexAddress(msg.GetContract()) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", msg.Contract)
+	if err := ethermint.ValidateAddress(msg.Contract); err != nil {
+		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.Contract)
 	}
 
 	return nil
@@ -139,8 +140,8 @@ func (msg MsgUpdateFeeContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if !common.IsHexAddress(msg.Contract) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", msg.Contract)
+	if err := ethermint.ValidateAddress(msg.Contract); err != nil {
+		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.Contract)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {

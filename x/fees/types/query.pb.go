@@ -30,25 +30,25 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryFeesContractsRequest is the request type for the Query/FeesContracts RPC
+// QueryFeeContractsRequest is the request type for the Query/FeeContracts RPC
 // method.
-type QueryFeesContractsRequest struct {
+type QueryFeeContractsRequest struct {
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryFeesContractsRequest) Reset()         { *m = QueryFeesContractsRequest{} }
-func (m *QueryFeesContractsRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryFeesContractsRequest) ProtoMessage()    {}
-func (*QueryFeesContractsRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeeContractsRequest) Reset()         { *m = QueryFeeContractsRequest{} }
+func (m *QueryFeeContractsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeContractsRequest) ProtoMessage()    {}
+func (*QueryFeeContractsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6533658f63002c05, []int{0}
 }
-func (m *QueryFeesContractsRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeContractsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeesContractsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeContractsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeesContractsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeContractsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -58,45 +58,45 @@ func (m *QueryFeesContractsRequest) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *QueryFeesContractsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeesContractsRequest.Merge(m, src)
+func (m *QueryFeeContractsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeContractsRequest.Merge(m, src)
 }
-func (m *QueryFeesContractsRequest) XXX_Size() int {
+func (m *QueryFeeContractsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeesContractsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeesContractsRequest.DiscardUnknown(m)
+func (m *QueryFeeContractsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeContractsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeesContractsRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeContractsRequest proto.InternalMessageInfo
 
-func (m *QueryFeesContractsRequest) GetPagination() *query.PageRequest {
+func (m *QueryFeeContractsRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryFeesContractsResponse is the response type for the Query/FeesContracts RPC
-// method.
-type QueryFeesContractsResponse struct {
+// QueryFeeContractsResponse is the response type for the Query/FeeContracts
+// RPC method.
+type QueryFeeContractsResponse struct {
 	Fees []FeeContract `protobuf:"bytes,1,rep,name=fees,proto3" json:"fees"`
 	// pagination defines the pagination in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryFeesContractsResponse) Reset()         { *m = QueryFeesContractsResponse{} }
-func (m *QueryFeesContractsResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryFeesContractsResponse) ProtoMessage()    {}
-func (*QueryFeesContractsResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeeContractsResponse) Reset()         { *m = QueryFeeContractsResponse{} }
+func (m *QueryFeeContractsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeContractsResponse) ProtoMessage()    {}
+func (*QueryFeeContractsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6533658f63002c05, []int{1}
 }
-func (m *QueryFeesContractsResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeContractsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeesContractsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeContractsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeesContractsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeContractsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -106,50 +106,51 @@ func (m *QueryFeesContractsResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *QueryFeesContractsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeesContractsResponse.Merge(m, src)
+func (m *QueryFeeContractsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeContractsResponse.Merge(m, src)
 }
-func (m *QueryFeesContractsResponse) XXX_Size() int {
+func (m *QueryFeeContractsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeesContractsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeesContractsResponse.DiscardUnknown(m)
+func (m *QueryFeeContractsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeContractsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeesContractsResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeContractsResponse proto.InternalMessageInfo
 
-func (m *QueryFeesContractsResponse) GetFees() []FeeContract {
+func (m *QueryFeeContractsResponse) GetFees() []FeeContract {
 	if m != nil {
 		return m.Fees
 	}
 	return nil
 }
 
-func (m *QueryFeesContractsResponse) GetPagination() *query.PageResponse {
+func (m *QueryFeeContractsResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryFeesContractRequest is the request type for the Query/FeesContract RPC method.
-type QueryFeesContractRequest struct {
+// QueryFeeContractRequest is the request type for the Query/FeeContract RPC
+// method.
+type QueryFeeContractRequest struct {
 	// contract identifier is the hex contract address of a contract
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
 }
 
-func (m *QueryFeesContractRequest) Reset()         { *m = QueryFeesContractRequest{} }
-func (m *QueryFeesContractRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryFeesContractRequest) ProtoMessage()    {}
-func (*QueryFeesContractRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeeContractRequest) Reset()         { *m = QueryFeeContractRequest{} }
+func (m *QueryFeeContractRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeContractRequest) ProtoMessage()    {}
+func (*QueryFeeContractRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6533658f63002c05, []int{2}
 }
-func (m *QueryFeesContractRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeContractRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeesContractRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeContractRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeesContractRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeContractRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -159,43 +160,43 @@ func (m *QueryFeesContractRequest) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *QueryFeesContractRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeesContractRequest.Merge(m, src)
+func (m *QueryFeeContractRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeContractRequest.Merge(m, src)
 }
-func (m *QueryFeesContractRequest) XXX_Size() int {
+func (m *QueryFeeContractRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeesContractRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeesContractRequest.DiscardUnknown(m)
+func (m *QueryFeeContractRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeContractRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeesContractRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeContractRequest proto.InternalMessageInfo
 
-func (m *QueryFeesContractRequest) GetContract() string {
+func (m *QueryFeeContractRequest) GetContract() string {
 	if m != nil {
 		return m.Contract
 	}
 	return ""
 }
 
-// QueryFeesContractResponse is the response type for the Query/FeesContract RPC
+// QueryFeeContractResponse is the response type for the Query/FeeContract RPC
 // method.
-type QueryFeesContractResponse struct {
+type QueryFeeContractResponse struct {
 	Fees FeeContract `protobuf:"bytes,1,opt,name=fees,proto3" json:"fees"`
 }
 
-func (m *QueryFeesContractResponse) Reset()         { *m = QueryFeesContractResponse{} }
-func (m *QueryFeesContractResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryFeesContractResponse) ProtoMessage()    {}
-func (*QueryFeesContractResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeeContractResponse) Reset()         { *m = QueryFeeContractResponse{} }
+func (m *QueryFeeContractResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeContractResponse) ProtoMessage()    {}
+func (*QueryFeeContractResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6533658f63002c05, []int{3}
 }
-func (m *QueryFeesContractResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeContractResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeesContractResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeContractResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeesContractResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeContractResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -205,19 +206,19 @@ func (m *QueryFeesContractResponse) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *QueryFeesContractResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeesContractResponse.Merge(m, src)
+func (m *QueryFeeContractResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeContractResponse.Merge(m, src)
 }
-func (m *QueryFeesContractResponse) XXX_Size() int {
+func (m *QueryFeeContractResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeesContractResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeesContractResponse.DiscardUnknown(m)
+func (m *QueryFeeContractResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeContractResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeesContractResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeContractResponse proto.InternalMessageInfo
 
-func (m *QueryFeesContractResponse) GetFees() FeeContract {
+func (m *QueryFeeContractResponse) GetFees() FeeContract {
 	if m != nil {
 		return m.Fees
 	}
@@ -308,10 +309,10 @@ func (m *QueryParamsResponse) GetParams() Params {
 }
 
 func init() {
-	proto.RegisterType((*QueryFeesContractsRequest)(nil), "evmos.fees.v1.QueryFeesContractsRequest")
-	proto.RegisterType((*QueryFeesContractsResponse)(nil), "evmos.fees.v1.QueryFeesContractsResponse")
-	proto.RegisterType((*QueryFeesContractRequest)(nil), "evmos.fees.v1.QueryFeesContractRequest")
-	proto.RegisterType((*QueryFeesContractResponse)(nil), "evmos.fees.v1.QueryFeesContractResponse")
+	proto.RegisterType((*QueryFeeContractsRequest)(nil), "evmos.fees.v1.QueryFeeContractsRequest")
+	proto.RegisterType((*QueryFeeContractsResponse)(nil), "evmos.fees.v1.QueryFeeContractsResponse")
+	proto.RegisterType((*QueryFeeContractRequest)(nil), "evmos.fees.v1.QueryFeeContractRequest")
+	proto.RegisterType((*QueryFeeContractResponse)(nil), "evmos.fees.v1.QueryFeeContractResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "evmos.fees.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "evmos.fees.v1.QueryParamsResponse")
 }
@@ -319,38 +320,38 @@ func init() {
 func init() { proto.RegisterFile("evmos/fees/v1/query.proto", fileDescriptor_6533658f63002c05) }
 
 var fileDescriptor_6533658f63002c05 = []byte{
-	// 492 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x53, 0x3f, 0x6f, 0xd3, 0x40,
-	0x14, 0xcf, 0xb5, 0x25, 0x82, 0x2b, 0x5d, 0xae, 0x8d, 0x48, 0x5d, 0x30, 0xc1, 0x43, 0x6b, 0x18,
-	0xee, 0x94, 0x04, 0xf1, 0x01, 0x82, 0x14, 0x24, 0xa6, 0x36, 0x23, 0xdb, 0xd9, 0x7a, 0xb8, 0x96,
-	0x88, 0xcf, 0xf5, 0x5d, 0x2c, 0x2a, 0xc4, 0x00, 0x0b, 0x62, 0x43, 0x62, 0xe4, 0x0b, 0x75, 0xac,
-	0xc4, 0xc2, 0x84, 0x50, 0xc2, 0x07, 0x41, 0xbe, 0x3b, 0x43, 0x2f, 0x35, 0x4d, 0x36, 0xe7, 0xbd,
-	0xdf, 0xfb, 0xfd, 0x79, 0xef, 0x82, 0xf7, 0xa1, 0x9c, 0x0a, 0xc9, 0x5e, 0x03, 0x48, 0x56, 0xf6,
-	0xd9, 0xd9, 0x0c, 0x8a, 0x73, 0x9a, 0x17, 0x42, 0x09, 0xb2, 0xa3, 0x5b, 0xb4, 0x6a, 0xd1, 0xb2,
-	0xef, 0x3d, 0x89, 0x85, 0xac, 0xa0, 0x11, 0x97, 0x60, 0x70, 0xac, 0xec, 0x47, 0xa0, 0x78, 0x9f,
-	0xe5, 0x3c, 0x49, 0x33, 0xae, 0x52, 0x91, 0x99, 0x51, 0xef, 0xc0, 0x65, 0x4d, 0x20, 0x03, 0x99,
-	0x4a, 0xdb, 0xec, 0xba, 0x4d, 0xcd, 0x6f, 0x3a, 0xf7, 0x13, 0x21, 0x92, 0x37, 0xc0, 0x78, 0x9e,
-	0x32, 0x9e, 0x65, 0x42, 0x69, 0xce, 0xba, 0xbb, 0x97, 0x88, 0x44, 0xe8, 0x4f, 0x56, 0x7d, 0x99,
-	0x6a, 0x10, 0xe3, 0xfd, 0x93, 0xca, 0xcc, 0x18, 0x40, 0x3e, 0x17, 0x99, 0x2a, 0x78, 0xac, 0xe4,
-	0x04, 0xce, 0x66, 0x20, 0x15, 0x19, 0x63, 0xfc, 0xcf, 0x5b, 0x17, 0xf5, 0x50, 0xb8, 0x3d, 0x38,
-	0xa4, 0x26, 0x08, 0xad, 0x82, 0x50, 0x13, 0xd8, 0x06, 0xa1, 0xc7, 0x3c, 0x01, 0x3b, 0x3b, 0xb9,
-	0x32, 0x19, 0x7c, 0x43, 0xd8, 0x6b, 0x52, 0x91, 0xb9, 0xc8, 0x24, 0x90, 0xa7, 0x78, 0xab, 0x4a,
-	0xd1, 0x45, 0xbd, 0xcd, 0x70, 0x7b, 0xe0, 0x51, 0x67, 0x71, 0x74, 0x0c, 0x50, 0x8f, 0x8c, 0xb6,
-	0x2e, 0x7e, 0x3e, 0x6c, 0x4d, 0x34, 0x9a, 0xbc, 0x70, 0xcc, 0x6d, 0x68, 0x73, 0x47, 0x2b, 0xcd,
-	0x19, 0x49, 0xc7, 0xdd, 0x33, 0xdc, 0xbd, 0x66, 0xae, 0xde, 0x80, 0x87, 0x6f, 0xc7, 0xb6, 0xa4,
-	0xf3, 0xdf, 0x99, 0xfc, 0xfd, 0x1d, 0x9c, 0x34, 0xac, 0xae, 0x21, 0x13, 0x5a, 0x3f, 0x53, 0xb0,
-	0x87, 0x89, 0xa6, 0x3c, 0xe6, 0x05, 0x9f, 0xd6, 0x67, 0x08, 0x5e, 0xe2, 0x5d, 0xa7, 0x6a, 0x25,
-	0x86, 0xb8, 0x9d, 0xeb, 0x8a, 0x15, 0xe9, 0x2c, 0x89, 0x18, 0xb8, 0xe5, 0xb7, 0xd0, 0xc1, 0xa7,
-	0x4d, 0x7c, 0x4b, 0x93, 0x91, 0x0f, 0x08, 0xef, 0x38, 0xf7, 0x20, 0xe1, 0x12, 0xc1, 0x7f, 0x1f,
-	0x86, 0xf7, 0x78, 0x0d, 0xa4, 0x71, 0x19, 0x1c, 0x7c, 0xfc, 0xfe, 0xfb, 0xeb, 0x46, 0x87, 0xec,
-	0xb2, 0xeb, 0xef, 0x96, 0x7c, 0x46, 0xf8, 0xee, 0xd5, 0x31, 0x72, 0xb4, 0x8a, 0xb8, 0x76, 0x10,
-	0xae, 0x06, 0x5a, 0x03, 0x87, 0xda, 0x40, 0x8f, 0xf8, 0x0d, 0x06, 0xd8, 0xbb, 0xfa, 0x9a, 0xef,
-	0x49, 0x86, 0xdb, 0x66, 0x63, 0xe4, 0x51, 0x13, 0xb7, 0x73, 0x12, 0x2f, 0xb8, 0x09, 0x62, 0x85,
-	0x1f, 0x68, 0xe1, 0x7b, 0xa4, 0xb3, 0x24, 0x6c, 0x2e, 0x31, 0x1a, 0x5d, 0xcc, 0x7d, 0x74, 0x39,
-	0xf7, 0xd1, 0xaf, 0xb9, 0x8f, 0xbe, 0x2c, 0xfc, 0xd6, 0xe5, 0xc2, 0x6f, 0xfd, 0x58, 0xf8, 0xad,
-	0x57, 0x61, 0x92, 0xaa, 0xd3, 0x59, 0x44, 0x63, 0x31, 0x65, 0xea, 0x94, 0x17, 0x32, 0x95, 0x96,
-	0xa2, 0x1c, 0xb2, 0xb7, 0x86, 0x47, 0x9d, 0xe7, 0x20, 0xa3, 0xb6, 0xfe, 0x13, 0x0f, 0xff, 0x04,
-	0x00, 0x00, 0xff, 0xff, 0xa2, 0x83, 0x29, 0x2e, 0x87, 0x04, 0x00, 0x00,
+	// 487 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x53, 0x3f, 0x6f, 0x13, 0x31,
+	0x14, 0x8f, 0xdb, 0x12, 0x81, 0x03, 0x8b, 0xdb, 0xa8, 0xe9, 0x15, 0x8e, 0x70, 0x43, 0x12, 0x31,
+	0xd8, 0x4a, 0x02, 0x5f, 0x20, 0x48, 0x45, 0x62, 0x0a, 0x19, 0xd9, 0x7c, 0xd1, 0xc3, 0x3d, 0x89,
+	0xd8, 0xd7, 0xb3, 0x73, 0xa2, 0x42, 0x20, 0xc4, 0xc0, 0x8c, 0xc4, 0xc6, 0x27, 0xea, 0x58, 0x89,
+	0x85, 0x09, 0xa1, 0x84, 0x0f, 0x82, 0xce, 0xf6, 0x41, 0x2e, 0x09, 0x84, 0xcd, 0xf7, 0xde, 0xef,
+	0xfd, 0xfe, 0xf8, 0xf9, 0xf0, 0x09, 0xe4, 0x33, 0xa5, 0xd9, 0x4b, 0x00, 0xcd, 0xf2, 0x3e, 0xbb,
+	0x98, 0x43, 0x76, 0x49, 0xd3, 0x4c, 0x19, 0x45, 0xee, 0xd8, 0x16, 0x2d, 0x5a, 0x34, 0xef, 0x07,
+	0x0f, 0xa7, 0x4a, 0x17, 0xd0, 0x98, 0x6b, 0x70, 0x38, 0x96, 0xf7, 0x63, 0x30, 0xbc, 0xcf, 0x52,
+	0x2e, 0x12, 0xc9, 0x4d, 0xa2, 0xa4, 0x1b, 0x0d, 0x4e, 0xab, 0xac, 0x02, 0x24, 0xe8, 0x44, 0xfb,
+	0x66, 0xab, 0xda, 0xb4, 0xfc, 0xae, 0x73, 0x57, 0x28, 0x25, 0x5e, 0x01, 0xe3, 0x69, 0xc2, 0xb8,
+	0x94, 0xca, 0x58, 0xce, 0xb2, 0x7b, 0x24, 0x94, 0x50, 0xf6, 0xc8, 0x8a, 0x93, 0xab, 0x46, 0x31,
+	0x6e, 0x3d, 0x2f, 0xcc, 0x9c, 0x01, 0x3c, 0x51, 0xd2, 0x64, 0x7c, 0x6a, 0xf4, 0x04, 0x2e, 0xe6,
+	0xa0, 0x0d, 0x39, 0xc3, 0xf8, 0x8f, 0xb5, 0x16, 0x6a, 0xa3, 0x5e, 0x63, 0xd0, 0xa1, 0x2e, 0x07,
+	0x2d, 0x72, 0x50, 0x97, 0xd7, 0xe7, 0xa0, 0x63, 0x2e, 0xc0, 0xcf, 0x4e, 0x56, 0x26, 0xa3, 0x2f,
+	0x08, 0x9f, 0x6c, 0x11, 0xd1, 0xa9, 0x92, 0x1a, 0xc8, 0x23, 0x7c, 0x50, 0x64, 0x68, 0xa1, 0xf6,
+	0x7e, 0xaf, 0x31, 0x08, 0x68, 0xe5, 0xda, 0xe8, 0xca, 0xc8, 0xe8, 0xe0, 0xea, 0xfb, 0xfd, 0xda,
+	0xc4, 0xa2, 0xc9, 0xd3, 0x8a, 0xb7, 0x3d, 0xeb, 0xad, 0xbb, 0xd3, 0x9b, 0x93, 0xac, 0x98, 0x7b,
+	0x8c, 0x8f, 0xd7, 0xbd, 0x95, 0xf9, 0x03, 0x7c, 0x73, 0xea, 0x4b, 0x36, 0xfd, 0xad, 0xc9, 0xef,
+	0xef, 0x68, 0xbc, 0x79, 0x6f, 0x5b, 0x12, 0xa1, 0xff, 0x4f, 0x14, 0x1d, 0x61, 0x62, 0x19, 0xc7,
+	0x3c, 0xe3, 0xb3, 0x72, 0x07, 0xd1, 0x33, 0x7c, 0x58, 0xa9, 0x7a, 0x89, 0x21, 0xae, 0xa7, 0xb6,
+	0xe2, 0x45, 0x9a, 0x6b, 0x22, 0x0e, 0xee, 0xf9, 0x3d, 0x74, 0xf0, 0x7e, 0x1f, 0xdf, 0xb0, 0x64,
+	0xe4, 0x1d, 0xbe, 0xbd, 0xba, 0x0b, 0xd2, 0x5d, 0x1b, 0xff, 0xdb, 0x93, 0x08, 0x7a, 0xbb, 0x81,
+	0xce, 0x61, 0x74, 0xfa, 0xe1, 0xeb, 0xcf, 0xcf, 0x7b, 0x4d, 0x72, 0xc8, 0x36, 0xdf, 0x2b, 0xf9,
+	0x88, 0x70, 0x63, 0x65, 0x8a, 0x74, 0x76, 0xd0, 0x96, 0xf2, 0xdd, 0x9d, 0x38, 0xaf, 0xde, 0xb1,
+	0xea, 0x6d, 0x12, 0x6e, 0x51, 0x67, 0x6f, 0xca, 0x2d, 0xbe, 0x25, 0x12, 0xd7, 0xdd, 0x55, 0x91,
+	0x07, 0xdb, 0xa8, 0x2b, 0xbb, 0x08, 0xa2, 0x7f, 0x41, 0xbc, 0xf0, 0x3d, 0x2b, 0x7c, 0x4c, 0x9a,
+	0x6b, 0xc2, 0x6e, 0x05, 0xa3, 0xd1, 0xd5, 0x22, 0x44, 0xd7, 0x8b, 0x10, 0xfd, 0x58, 0x84, 0xe8,
+	0xd3, 0x32, 0xac, 0x5d, 0x2f, 0xc3, 0xda, 0xb7, 0x65, 0x58, 0x7b, 0xd1, 0x13, 0x89, 0x39, 0x9f,
+	0xc7, 0x74, 0xaa, 0x66, 0xcc, 0x9c, 0xf3, 0x4c, 0x27, 0xda, 0x53, 0xe4, 0x43, 0xf6, 0xda, 0xf1,
+	0x98, 0xcb, 0x14, 0x74, 0x5c, 0xb7, 0x7f, 0xee, 0xf0, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0xd9,
+	0xef, 0x4c, 0x91, 0x7c, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -365,10 +366,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// FeesContracts retrieves registered fees
-	FeesContracts(ctx context.Context, in *QueryFeesContractsRequest, opts ...grpc.CallOption) (*QueryFeesContractsResponse, error)
-	// FeesContract retrieves a registered fee
-	FeesContract(ctx context.Context, in *QueryFeesContractRequest, opts ...grpc.CallOption) (*QueryFeesContractResponse, error)
+	// FeeContracts retrieves registered fees
+	FeeContracts(ctx context.Context, in *QueryFeeContractsRequest, opts ...grpc.CallOption) (*QueryFeeContractsResponse, error)
+	// FeeContract retrieves a registered fee
+	FeeContract(ctx context.Context, in *QueryFeeContractRequest, opts ...grpc.CallOption) (*QueryFeeContractResponse, error)
 	// Params retrieves the fees module params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
@@ -381,18 +382,18 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) FeesContracts(ctx context.Context, in *QueryFeesContractsRequest, opts ...grpc.CallOption) (*QueryFeesContractsResponse, error) {
-	out := new(QueryFeesContractsResponse)
-	err := c.cc.Invoke(ctx, "/evmos.fees.v1.Query/FeesContracts", in, out, opts...)
+func (c *queryClient) FeeContracts(ctx context.Context, in *QueryFeeContractsRequest, opts ...grpc.CallOption) (*QueryFeeContractsResponse, error) {
+	out := new(QueryFeeContractsResponse)
+	err := c.cc.Invoke(ctx, "/evmos.fees.v1.Query/FeeContracts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) FeesContract(ctx context.Context, in *QueryFeesContractRequest, opts ...grpc.CallOption) (*QueryFeesContractResponse, error) {
-	out := new(QueryFeesContractResponse)
-	err := c.cc.Invoke(ctx, "/evmos.fees.v1.Query/FeesContract", in, out, opts...)
+func (c *queryClient) FeeContract(ctx context.Context, in *QueryFeeContractRequest, opts ...grpc.CallOption) (*QueryFeeContractResponse, error) {
+	out := new(QueryFeeContractResponse)
+	err := c.cc.Invoke(ctx, "/evmos.fees.v1.Query/FeeContract", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -410,10 +411,10 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// FeesContracts retrieves registered fees
-	FeesContracts(context.Context, *QueryFeesContractsRequest) (*QueryFeesContractsResponse, error)
-	// FeesContract retrieves a registered fee
-	FeesContract(context.Context, *QueryFeesContractRequest) (*QueryFeesContractResponse, error)
+	// FeeContracts retrieves registered fees
+	FeeContracts(context.Context, *QueryFeeContractsRequest) (*QueryFeeContractsResponse, error)
+	// FeeContract retrieves a registered fee
+	FeeContract(context.Context, *QueryFeeContractRequest) (*QueryFeeContractResponse, error)
 	// Params retrieves the fees module params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
@@ -422,11 +423,11 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) FeesContracts(ctx context.Context, req *QueryFeesContractsRequest) (*QueryFeesContractsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FeesContracts not implemented")
+func (*UnimplementedQueryServer) FeeContracts(ctx context.Context, req *QueryFeeContractsRequest) (*QueryFeeContractsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeeContracts not implemented")
 }
-func (*UnimplementedQueryServer) FeesContract(ctx context.Context, req *QueryFeesContractRequest) (*QueryFeesContractResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FeesContract not implemented")
+func (*UnimplementedQueryServer) FeeContract(ctx context.Context, req *QueryFeeContractRequest) (*QueryFeeContractResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeeContract not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
@@ -436,38 +437,38 @@ func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_FeesContracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeesContractsRequest)
+func _Query_FeeContracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeeContractsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).FeesContracts(ctx, in)
+		return srv.(QueryServer).FeeContracts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/evmos.fees.v1.Query/FeesContracts",
+		FullMethod: "/evmos.fees.v1.Query/FeeContracts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeesContracts(ctx, req.(*QueryFeesContractsRequest))
+		return srv.(QueryServer).FeeContracts(ctx, req.(*QueryFeeContractsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_FeesContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeesContractRequest)
+func _Query_FeeContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeeContractRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).FeesContract(ctx, in)
+		return srv.(QueryServer).FeeContract(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/evmos.fees.v1.Query/FeesContract",
+		FullMethod: "/evmos.fees.v1.Query/FeeContract",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeesContract(ctx, req.(*QueryFeesContractRequest))
+		return srv.(QueryServer).FeeContract(ctx, req.(*QueryFeeContractRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -495,12 +496,12 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FeesContracts",
-			Handler:    _Query_FeesContracts_Handler,
+			MethodName: "FeeContracts",
+			Handler:    _Query_FeeContracts_Handler,
 		},
 		{
-			MethodName: "FeesContract",
-			Handler:    _Query_FeesContract_Handler,
+			MethodName: "FeeContract",
+			Handler:    _Query_FeeContract_Handler,
 		},
 		{
 			MethodName: "Params",
@@ -511,7 +512,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Metadata: "evmos/fees/v1/query.proto",
 }
 
-func (m *QueryFeesContractsRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeContractsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -521,12 +522,12 @@ func (m *QueryFeesContractsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeesContractsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeContractsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeesContractsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeContractsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -546,7 +547,7 @@ func (m *QueryFeesContractsRequest) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeesContractsResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeContractsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -556,12 +557,12 @@ func (m *QueryFeesContractsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeesContractsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeContractsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeesContractsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeContractsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -595,7 +596,7 @@ func (m *QueryFeesContractsResponse) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeesContractRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeContractRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -605,12 +606,12 @@ func (m *QueryFeesContractRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeesContractRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeContractRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeesContractRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeContractRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -625,7 +626,7 @@ func (m *QueryFeesContractRequest) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeesContractResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeContractResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -635,12 +636,12 @@ func (m *QueryFeesContractResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeesContractResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeContractResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeesContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -725,7 +726,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryFeesContractsRequest) Size() (n int) {
+func (m *QueryFeeContractsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -738,7 +739,7 @@ func (m *QueryFeesContractsRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryFeesContractsResponse) Size() (n int) {
+func (m *QueryFeeContractsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -757,7 +758,7 @@ func (m *QueryFeesContractsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryFeesContractRequest) Size() (n int) {
+func (m *QueryFeeContractRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -770,7 +771,7 @@ func (m *QueryFeesContractRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryFeesContractResponse) Size() (n int) {
+func (m *QueryFeeContractResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -807,7 +808,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryFeesContractsRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeContractsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -830,10 +831,10 @@ func (m *QueryFeesContractsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeesContractsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeContractsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeesContractsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeContractsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -893,7 +894,7 @@ func (m *QueryFeesContractsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeesContractsResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeContractsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -916,10 +917,10 @@ func (m *QueryFeesContractsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeesContractsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeContractsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeesContractsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeContractsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1013,7 +1014,7 @@ func (m *QueryFeesContractsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeesContractRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeContractRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1036,10 +1037,10 @@ func (m *QueryFeesContractRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeesContractRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeContractRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeesContractRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeContractRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1095,7 +1096,7 @@ func (m *QueryFeesContractRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeesContractResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeContractResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1118,10 +1119,10 @@ func (m *QueryFeesContractResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeesContractResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeContractResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeesContractResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeContractResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
