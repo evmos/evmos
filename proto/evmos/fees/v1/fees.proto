@@ -7,9 +7,9 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 // for the owner of a given smart contract
 message FeeContract {
   // hex address of registered contract
-  string contract = 1;
+  string contract_address = 1;
   // bech32 address of contract deployer
-  string owner = 2;
+  string deployer_address = 2;
   // bech32 address of account receiving the transaction fees
   string withdraw_address = 3;
 }

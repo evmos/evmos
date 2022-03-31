@@ -20,7 +20,7 @@ service Query {
   // FeeContract retrieves a registered fee
   rpc FeeContract(QueryFeeContractRequest)
       returns (QueryFeeContractResponse) {
-    option (google.api.http).get = "/evmos/fees/v1/fees/{contract}";
+    option (google.api.http).get = "/evmos/fees/v1/fees/{contract_address}";
   }
 
   // Params retrieves the fees module params
@@ -48,7 +48,7 @@ message QueryFeeContractsResponse {
 // method.
 message QueryFeeContractRequest {
   // contract identifier is the hex contract address of a contract
-  string contract = 1;
+  string contract_address = 1;
 }
 
 // QueryFeeContractResponse is the response type for the Query/FeeContract RPC

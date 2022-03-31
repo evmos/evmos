@@ -22,14 +22,14 @@ const (
 // NewMsgRegisterFeeContract creates new instance of MsgRegisterFeeContract
 func NewMsgRegisterFeeContract(
 	contract common.Address,
-	fromAddr sdk.AccAddress,
-	withdrawAddress sdk.AccAddress,
+	deployer sdk.AccAddress,
+	withdraw sdk.AccAddress,
 	nonces []uint64,
 ) *MsgRegisterFeeContract {
 	return &MsgRegisterFeeContract{
-		Contract:        contract.String(),
-		FromAddress:     fromAddr.String(),
-		WithdrawAddress: withdrawAddress.String(),
+		ContractAddress: contract.String(),
+		DeployerAddress: deployer.String(),
+		WithdrawAddress: withdraw.String(),
 		Nonces:          nonces,
 	}
 }
@@ -42,12 +42,12 @@ func (msg MsgRegisterFeeContract) Type() string { return TypeMsgRegisterFeeContr
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgRegisterFeeContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if err := ethermint.ValidateAddress(msg.Contract); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.Contract)
+	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
+		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
@@ -66,7 +66,7 @@ func (msg *MsgRegisterFeeContract) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgRegisterFeeContract) GetSigners() []sdk.AccAddress {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	if err != nil {
 		return nil
 	}
@@ -75,10 +75,10 @@ func (msg MsgRegisterFeeContract) GetSigners() []sdk.AccAddress {
 
 // NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
 // nil - defaulting to the funder.
-func NewMsgCancelFeeContract(fromAddr sdk.AccAddress, contract string) *MsgCancelFeeContract {
+func NewMsgCancelFeeContract(deployer sdk.AccAddress, contract string) *MsgCancelFeeContract {
 	return &MsgCancelFeeContract{
-		Contract:    contract,
-		FromAddress: fromAddr.String(),
+		ContractAddress: contract,
+		DeployerAddress: deployer.String(),
 	}
 }
 
@@ -90,12 +90,12 @@ func (msg MsgCancelFeeContract) Type() string { return TypeMsgCancelFeeContract 
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCancelFeeContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.GetFromAddress()); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if err := ethermint.ValidateAddress(msg.Contract); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.Contract)
+	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
+		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	return nil
@@ -108,7 +108,7 @@ func (msg *MsgCancelFeeContract) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgCancelFeeContract) GetSigners() []sdk.AccAddress {
-	funder, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	funder, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	if err != nil {
 		return nil
 	}
@@ -117,14 +117,14 @@ func (msg MsgCancelFeeContract) GetSigners() []sdk.AccAddress {
 
 // NewMsgUpdateFeeContract creates new instance of MsgUpdateFeeContract
 func NewMsgUpdateFeeContract(
-	fromAddr sdk.AccAddress,
+	deployer sdk.AccAddress,
 	contract string,
-	withdrawAddress sdk.AccAddress,
+	withdraw sdk.AccAddress,
 ) *MsgUpdateFeeContract {
 	return &MsgUpdateFeeContract{
-		FromAddress:     fromAddr.String(),
-		Contract:        contract,
-		WithdrawAddress: withdrawAddress.String(),
+		DeployerAddress: deployer.String(),
+		ContractAddress: contract,
+		WithdrawAddress: withdraw.String(),
 	}
 }
 
@@ -136,12 +136,12 @@ func (msg MsgUpdateFeeContract) Type() string { return TypeMsgUpdateFeeContract 
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateFeeContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid from address")
 	}
 
-	if err := ethermint.ValidateAddress(msg.Contract); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.Contract)
+	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
+		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
@@ -159,7 +159,7 @@ func (msg *MsgUpdateFeeContract) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgUpdateFeeContract) GetSigners() []sdk.AccAddress {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	if err != nil {
 		return nil
 	}

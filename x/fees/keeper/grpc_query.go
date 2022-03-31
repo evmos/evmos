@@ -64,7 +64,7 @@ func (k Keeper) FeeContract(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if strings.TrimSpace(req.Contract) == "" {
+	if strings.TrimSpace(req.ContractAddress) == "" {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			"contract address is empty",
@@ -72,19 +72,19 @@ func (k Keeper) FeeContract(
 	}
 
 	// check if the contract is a hex address
-	if err := ethermint.ValidateAddress(req.Contract); err != nil {
+	if err := ethermint.ValidateAddress(req.ContractAddress); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for contract %s, should be hex ('0x...')", req.Contract,
+			"invalid format for contract %s, should be hex ('0x...')", req.ContractAddress,
 		)
 	}
 
-	feeContract, found := k.GetFee(ctx, common.HexToAddress(req.Contract))
+	feeContract, found := k.GetFee(ctx, common.HexToAddress(req.ContractAddress))
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
 			"fees registered contract '%s'",
-			req.Contract,
+			req.ContractAddress,
 		)
 	}
 

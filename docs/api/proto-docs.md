@@ -986,8 +986,8 @@ for the owner of a given smart contract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | hex address of registered contract |
-| `owner` | [string](#string) |  | bech32 address of contract deployer |
+| `contract_address` | [string](#string) |  | hex address of registered contract |
+| `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
 
 
@@ -1069,7 +1069,7 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+| `contract_address` | [string](#string) |  | contract identifier is the hex contract address of a contract |
 
 
 
@@ -1165,7 +1165,7 @@ Query defines the gRPC querier service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `FeeContracts` | [QueryFeeContractsRequest](#evmos.fees.v1.QueryFeeContractsRequest) | [QueryFeeContractsResponse](#evmos.fees.v1.QueryFeeContractsResponse) | FeeContracts retrieves registered fees | GET|/evmos/fees/v1/fees|
-| `FeeContract` | [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest) | [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse) | FeeContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract}|
+| `FeeContract` | [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest) | [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse) | FeeContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
 
  <!-- end services -->
@@ -1188,8 +1188,8 @@ FeeContract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | contract hex address |
-| `from_address` | [string](#string) |  | deployer bech32 address |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `deployer_address` | [string](#string) |  | deployer bech32 address |
 
 
 
@@ -1214,8 +1214,8 @@ MsgRegisterFeesContract defines a message that registers a FeeContract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | contract hex address |
-| `from_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `deployer_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
 | `nonces` | [uint64](#uint64) | repeated | array of nonces from the address path, where the last nonce is the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce |
 
@@ -1244,8 +1244,8 @@ a registered FeeContract
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | contract hex address |
-| `from_address` | [string](#string) |  | deployer bech32 address |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `deployer_address` | [string](#string) |  | deployer bech32 address |
 | `withdraw_address` | [string](#string) |  | new withdraw bech32 address for receiving the transaction fees |
 
 

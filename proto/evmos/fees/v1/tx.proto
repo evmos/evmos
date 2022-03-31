@@ -31,10 +31,10 @@ service Msg {
 message MsgRegisterFeeContract {
   option (gogoproto.equal) = false;
   // contract hex address
-  string contract = 1;
+  string contract_address = 1;
   // bech32 address of message sender, must be the same as the origin EOA
   // sending the transaction which deploys the contract
-  string from_address = 2;
+  string deployer_address = 2;
   // bech32 address of account receiving the transaction fees
   string withdraw_address = 3;
   // array of nonces from the address path, where the last nonce is
@@ -51,9 +51,9 @@ message MsgRegisterFeeContractResponse {}
 message MsgCancelFeeContract {
   option (gogoproto.equal) = false;
   // contract hex address
-  string contract = 1;
+  string contract_address = 1;
   // deployer bech32 address
-  string from_address = 2;
+  string deployer_address = 2;
 }
 
 // MsgCancelFeeContractResponse defines the MsgCancelFeeContract response type
@@ -64,9 +64,9 @@ message MsgCancelFeeContractResponse {}
 message MsgUpdateFeeContract {
   option (gogoproto.equal) = false;
   // contract hex address
-  string contract = 1;
+  string contract_address = 1;
   // deployer bech32 address
-  string from_address = 2;
+  string deployer_address = 2;
   // new withdraw bech32 address for receiving the transaction fees
   string withdraw_address = 3;
 }

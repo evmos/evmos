@@ -19,13 +19,13 @@ func (k Keeper) RegisterFeeContract(
 	msg *types.MsgRegisterFeeContract,
 ) (*types.MsgRegisterFeeContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	contract := common.HexToAddress(msg.Contract)
+	contract := common.HexToAddress(msg.ContractAddress)
 
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is already registered", contract)
 	}
 
-	deployer, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	derivedContractAddr := common.BytesToAddress(deployer)
 
 	for _, nonce := range msg.Nonces {
@@ -35,7 +35,7 @@ func (k Keeper) RegisterFeeContract(
 	if contract != derivedContractAddr {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrorInvalidSigner,
-			"%s not contract deployer or wrong nonce", msg.FromAddress,
+			"%s not contract deployer or wrong nonce", msg.DeployerAddress,
 		)
 	}
 
@@ -43,8 +43,8 @@ func (k Keeper) RegisterFeeContract(
 	// TODO
 
 	k.SetFee(ctx, types.FeeContract{
-		Contract:        msg.Contract,
-		Owner:           msg.FromAddress,
+		ContractAddress: msg.ContractAddress,
+		DeployerAddress: msg.DeployerAddress,
 		WithdrawAddress: msg.WithdrawAddress,
 	})
 
@@ -52,8 +52,8 @@ func (k Keeper) RegisterFeeContract(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeRegisterFeeContract,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
-				sdk.NewAttribute(types.AttributeKeyContract, msg.Contract),
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
 			),
 		},
@@ -69,13 +69,13 @@ func (k Keeper) CancelFeeContract(
 ) (*types.MsgCancelFeeContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.Contract))
+	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
 	if !ok {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.Contract)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
 
-	if msg.FromAddress != feeContract.Owner {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.FromAddress)
+	if msg.DeployerAddress != feeContract.DeployerAddress {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
 	k.DeleteFee(ctx, feeContract)
@@ -84,8 +84,8 @@ func (k Keeper) CancelFeeContract(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeCancelFeeContract,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
-				sdk.NewAttribute(types.AttributeKeyContract, msg.Contract),
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 			),
 		},
 	)
@@ -100,13 +100,13 @@ func (k Keeper) UpdateFeeContract(
 ) (*types.MsgUpdateFeeContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.Contract))
+	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
 	if !ok {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.Contract)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
 
-	if msg.FromAddress != feeContract.Owner {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.FromAddress)
+	if msg.DeployerAddress != feeContract.DeployerAddress {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
 	feeContract.WithdrawAddress = msg.WithdrawAddress
@@ -116,8 +116,8 @@ func (k Keeper) UpdateFeeContract(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeUpdateFeeContract,
-				sdk.NewAttribute(types.AttributeKeyContract, msg.Contract),
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
+				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
 			),
 		},

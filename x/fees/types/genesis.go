@@ -27,15 +27,15 @@ func (gs GenesisState) Validate() error {
 	seenContractIn := make(map[string]bool)
 	for _, in := range gs.Fees {
 		// only one fee per contract
-		if seenContractIn[in.Contract] {
-			return fmt.Errorf("contract duplicated on genesis '%s'", in.Contract)
+		if seenContractIn[in.ContractAddress] {
+			return fmt.Errorf("contract duplicated on genesis '%s'", in.ContractAddress)
 		}
 
 		if err := in.Validate(); err != nil {
 			return err
 		}
 
-		seenContractIn[in.Contract] = true
+		seenContractIn[in.ContractAddress] = true
 	}
 
 	return gs.Params.Validate()

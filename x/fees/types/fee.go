@@ -10,22 +10,22 @@ import (
 func NewFee(
 	contract common.Address,
 	owner sdk.AccAddress,
-	withdrawAddress sdk.AccAddress,
+	withdraw sdk.AccAddress,
 ) FeeContract {
 	return FeeContract{
-		Contract:        contract.String(),
-		Owner:           owner.String(),
-		WithdrawAddress: withdrawAddress.String(),
+		ContractAddress: contract.String(),
+		DeployerAddress: owner.String(),
+		WithdrawAddress: withdraw.String(),
 	}
 }
 
 // Validate performs a stateless validation of a FeeContract
 func (i FeeContract) Validate() error {
-	if err := ethermint.ValidateAddress(i.Contract); err != nil {
+	if err := ethermint.ValidateAddress(i.ContractAddress); err != nil {
 		return err
 	}
 
-	if _, err := sdk.AccAddressFromBech32(i.Owner); err != nil {
+	if _, err := sdk.AccAddressFromBech32(i.DeployerAddress); err != nil {
 		return err
 	}
 

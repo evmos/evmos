@@ -91,8 +91,8 @@ func (suite *KeeperTestSuite) TestRegisterFeeContract() {
 
 				fee, ok := suite.app.FeesKeeper.GetFee(suite.ctx, tc.contract)
 				suite.Require().True(ok, "unregistered fee")
-				suite.Require().Equal(tc.contract.String(), fee.Contract, "wrong contract")
-				suite.Require().Equal(tc.deployer.String(), fee.Owner, "wrong deployer")
+				suite.Require().Equal(tc.contract.String(), fee.ContractAddress, "wrong contract")
+				suite.Require().Equal(tc.deployer.String(), fee.DeployerAddress, "wrong deployer")
 				suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, "wrong withdraw address")
 			} else {
 				suite.Require().Error(err, tc.name)

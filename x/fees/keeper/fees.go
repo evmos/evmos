@@ -65,7 +65,7 @@ func (k Keeper) GetFee(
 // SetFee stores a fee
 func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
-	key := common.HexToAddress(fee.Contract)
+	key := common.HexToAddress(fee.ContractAddress)
 	bz := k.cdc.MustMarshal(&fee)
 	store.Set(key.Bytes(), bz)
 }
@@ -73,7 +73,7 @@ func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
 // DeleteFee removes a fee
 func (k Keeper) DeleteFee(ctx sdk.Context, fee types.FeeContract) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
-	key := common.HexToAddress(fee.Contract)
+	key := common.HexToAddress(fee.ContractAddress)
 	store.Delete(key.Bytes())
 }
 

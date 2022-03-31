@@ -94,8 +94,8 @@ var _ = Describe("Fees", Ordered, func() {
 			registerFeeContract(priv0, &contractAddress, 0)
 			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 			Expect(isRegistered).To(Equal(true))
-			Expect(fee.Contract).To(Equal(contractAddress.Hex()))
-			Expect(fee.Owner).To(Equal(addr0.String()))
+			Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+			Expect(fee.DeployerAddress).To(Equal(addr0.String()))
 			Expect(fee.WithdrawAddress).To(Equal(addr0.String()))
 		})
 
