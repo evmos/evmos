@@ -468,6 +468,7 @@ func NewEvmos(
 	app.FeesKeeper = feeskeeper.NewKeeper(
 		keys[feestypes.StoreKey], appCodec, app.GetSubspace(feestypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
+		authtypes.FeeCollectorName,
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])

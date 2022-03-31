@@ -22,9 +22,9 @@ func InitGenesis(
 		panic("the fees module account has not been set")
 	}
 
-	for _, incentive := range data.Fees {
-		// Set Incentives
-		k.SetFee(ctx, incentive)
+	for _, fee := range data.Fees {
+		// Set Fees
+		k.SetFee(ctx, fee)
 	}
 }
 

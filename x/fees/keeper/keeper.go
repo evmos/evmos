@@ -24,8 +24,9 @@ type Keeper struct {
 	// Currently not used, but added to prevent breaking change s in case we want
 	// to allocate incentives to staking instead of transferring the deferred
 	// rewards to the user's wallet
-	stakeKeeper types.StakeKeeper
-	evmKeeper   types.EVMKeeper
+	stakeKeeper      types.StakeKeeper
+	evmKeeper        types.EVMKeeper
+	feeCollectorName string
 }
 
 // NewKeeper creates new instances of the incentives Keeper
@@ -38,6 +39,7 @@ func NewKeeper(
 	ik types.InflationKeeper,
 	sk types.StakeKeeper,
 	evmKeeper types.EVMKeeper,
+	feeCollector string,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -45,14 +47,15 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:        storeKey,
-		cdc:             cdc,
-		paramstore:      ps,
-		accountKeeper:   ak,
-		bankKeeper:      bk,
-		inflationKeeper: ik,
-		stakeKeeper:     sk,
-		evmKeeper:       evmKeeper,
+		storeKey:         storeKey,
+		cdc:              cdc,
+		paramstore:       ps,
+		accountKeeper:    ak,
+		bankKeeper:       bk,
+		inflationKeeper:  ik,
+		stakeKeeper:      sk,
+		evmKeeper:        evmKeeper,
+		feeCollectorName: feeCollector,
 	}
 }
 
