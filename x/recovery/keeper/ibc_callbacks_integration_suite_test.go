@@ -14,14 +14,6 @@ import (
 	"github.com/tharsis/evmos/v3/x/recovery/types"
 )
 
-// Tokens got stuck at v1.1.2 through the following options:
-//  - Sender on Osmosis/Cosmos without claims record sent IBC transfer to Evmos secp256k1 address
-//    => tokens from transfer got stuck
-//    => Recovery: Send IBC transfer from same-account address without a claims record
-//  - Sender on Osmosis/Cosmos with claims record sent IBC transfer to Evmos secp256k1 address
-//    => tokens from transfer got stuck
-//    => claims record migrated to Evmos 256k1 account and sender record was deleted
-//    => Recovery: Chain is restarted with restored Claims records
 var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 	coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(10000))
 	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
@@ -31,21 +23,31 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 		sender, receiver       string
 		senderAcc, receiverAcc sdk.AccAddress
 		timeout                uint64
+		claim                  claimtypes.ClaimsRecord
 	)
 
 	BeforeEach(func() {
 		s.SetupTest()
-		// timeout = uint64(s.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
 	})
 
 	Describe("from a non-authorized chain", func() {
-		It("should not recover any tokens", func() {
-			// expect sender balance the same
+		BeforeEach(func() {
+			params := claimtypes.DefaultParams()
+			params.AuthorizedChannels = []string{}
+			s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(s.EvmosChain.GetContext(), params)
+
+			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
+			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
+			senderAcc, _ = sdk.AccAddressFromBech32(sender)
+			receiverAcc, _ = sdk.AccAddressFromBech32(receiver)
 		})
-	})
-	Describe("from a non-authorized chain", func() {
-		It("should not recover any tokens", func() {
-			// expect sender balance the same
+		It("should transfer and not recover tokens", func() {
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", 10, sender, receiver, 1)
+
+			nativeEvmos := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, "aevmos")
+			Expect(nativeEvmos).To(Equal(coinEvmos))
+			ibcOsmo := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
+			Expect(ibcOsmo).To(Equal(sdk.NewCoin(uosmoIbcdenom, coinOsmo.Amount)))
 		})
 	})
 
@@ -98,7 +100,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 				Context("without completed actions", func() {
 					BeforeEach(func() {
 						amt := sdk.NewInt(int64(100))
-						claim := claimtypes.NewClaimsRecord(amt)
+						claim = claimtypes.NewClaimsRecord(amt)
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
 					})
 
@@ -118,20 +120,20 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 					BeforeEach(func() {
 						amt := sdk.NewInt(int64(100))
 						coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(int64(75))))
-						claim := claimtypes.NewClaimsRecord(amt)
+						claim = claimtypes.NewClaimsRecord(amt)
 						claim.MarkClaimed(claimtypes.ActionIBCTransfer)
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
 
 						// update the escrowed account balance to maintain the invariant
 						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
 						s.Require().NoError(err)
-					})
 
-					It("should transfer tokens to the recipient and perform recovery", func() {
 						// aevmos & ibc tokens that originated from the sender's chain
 						s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, coinOsmo.Denom, coinOsmo.Amount.Int64(), sender, receiver, 1)
 						timeout = uint64(s.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
+					})
 
+					It("should transfer tokens to the recipient and perform recovery", func() {
 						// Escrow before relaying packets
 						balanceEscrow := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), transfertypes.GetEscrowAddress("transfer", "channel-0"), "aevmos")
 						Expect(balanceEscrow).To(Equal(coinEvmos))
@@ -158,7 +160,14 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 					})
 
 					It("should not claim/migrate/merge claims records", func() {
-						// TODO prevent further funds to get stuck
+						// Relay both packets that were sent in the ibc_callback
+						err := s.pathOsmosisEvmos.RelayPacket(CreatePacket("10000", "aevmos", sender, receiver, "transfer", "channel-0", "transfer", "channel-0", 1, timeout))
+						s.Require().NoError(err)
+						err = s.pathOsmosisEvmos.RelayPacket(CreatePacket("10", "transfer/channel-0/uosmo", sender, receiver, "transfer", "channel-0", "transfer", "channel-0", 2, timeout))
+						s.Require().NoError(err)
+
+						claimAfter, _ := s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(s.EvmosChain.GetContext(), senderAcc)
+						Expect(claim).To(Equal(claimAfter))
 					})
 				})
 			})
@@ -194,10 +203,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						Expect(ibcOsmo.IsZero()).To(BeTrue())
 						nativeOsmo := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 						Expect(nativeOsmo).To(Equal(coinOsmo))
-					})
-
-					It("should not claim/migrate/merge claims records", func() {
-						// TODO prevent further funds to get stuck
 					})
 				})
 
