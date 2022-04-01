@@ -67,7 +67,7 @@ You can find other configuration examples [here](https://github.com/iqlusioninc/
 Now you need to generate a `secret_key`:
 
 ```bash
-tmkms keygen ~/.tmkms/secret_connection.key
+tmkms softsign keygen ~/.tmkms/secret_connection.key
 ```
 
 ### Retrieve validator key
