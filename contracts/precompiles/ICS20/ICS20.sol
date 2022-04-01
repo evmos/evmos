@@ -77,12 +77,16 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
     Internal function interfaces
     */
 
+    // Transfer Function to transfer amount in certain denom from sender to reciever
     function _transferFrom(address sender, address receiver, string memory denom, uint256 amount) virtual internal returns (bool);
         
+    // Mint function to mint amount in certain denom to receiver
     function _mint(address account, string memory denom, uint256 amount) virtual internal returns (bool);
 
+    // Burn function to burn amount in certain denom from sender
     function _burn(address account, string memory denom, uint256 amount) virtual internal returns (bool);
 
+    // Cleaning denom string
     function _makeDenomPrefix(string memory port, string memory channel) virtual internal pure returns (strings.slice memory) {
         return port.toSlice()
             .concat("/".toSlice()).toSlice()
@@ -90,6 +94,7 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
             .concat("/".toSlice()).toSlice();
     }
 
+    // Function to create a new acknowledgement for a certain transfer function
     function _newAcknowledgement(bool success) virtual internal pure returns (bytes memory) {
         bytes memory acknowledgement = new bytes(1);
         if (success) {
@@ -100,17 +105,19 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
         return acknowledgement;
     }
     
+    // Check for successful acknowledgement
     function _isSuccessAcknowledgement(bytes memory acknowledgement) virtual internal pure returns (bool) {
         require(acknowledgement.length == 1);
         return acknowledgement[0] == 0x01;
     }
 
+    // Refund function to refund tokens to sender
     function _refundTokens(
         FungibleTokenPacketData memory data, 
         string memory sourcePort, 
         string memory sourceChannel) 
         virtual internal {
-            
+
 
         if (!data.denom.toSlice().startsWith(_makeDenomPrefix(sourcePort, sourceChannel))) { // sender was source chain
             require(_transferFrom(_getEscrowAddress(sourceChannel), data.sender.toAddress(), data.denom, data.amount));
@@ -119,6 +126,8 @@ abstract contract ICS20 is IICS20Transfer, ICS20Bank
         }
     }
 
+
+    // Get escrow address for a certain channel
     function _getEscrowAddress(string memory channel) virtual internal pure returns (address) {
         if (channelEscrowAddresses[channel] == address(0)) {
             channelEscrowAddresses[channel] = _getEscrowAddressImpl(channel);
