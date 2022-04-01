@@ -8,7 +8,7 @@ import (
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
-// GetAllFees - get all registered FeeContract
+// GetAllFees - get all registered FeeContract instances
 func (k Keeper) GetAllFees(ctx sdk.Context) []types.FeeContract {
 	fees := []types.FeeContract{}
 
@@ -46,7 +46,7 @@ func (k Keeper) IterateFees(
 	}
 }
 
-// GetFee - get registered fee from the identifier
+// GetFee - get registered contract from the identifier
 func (k Keeper) GetFee(
 	ctx sdk.Context,
 	contract common.Address,
@@ -62,7 +62,7 @@ func (k Keeper) GetFee(
 	return fee, true
 }
 
-// SetFee stores a fee
+// SetFee stores a registered contract
 func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	key := common.HexToAddress(fee.ContractAddress)
@@ -70,7 +70,7 @@ func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteFee removes a fee
+// DeleteFee removes a registered contract
 func (k Keeper) DeleteFee(ctx sdk.Context, fee types.FeeContract) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	key := common.HexToAddress(fee.ContractAddress)
@@ -84,4 +84,53 @@ func (k Keeper) IsFeeRegistered(
 ) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	return store.Has(contract.Bytes())
+}
+
+// GetFeesInverseRaw returns all contracts registered by a deployer as
+// types.FeeContractsPerDeployer
+func (k Keeper) GetFeesInverseRaw(ctx sdk.Context, deployerAddress sdk.AccAddress) (types.FeeContractsPerDeployer, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixInverse)
+	bz := store.Get(deployerAddress.Bytes())
+	if len(bz) == 0 {
+		return types.FeeContractsPerDeployer{}, false
+	}
+	var addressList types.FeeContractsPerDeployer
+	k.cdc.MustUnmarshal(bz, &addressList)
+	return addressList, true
+}
+
+// GetFeesInverse returns all contracts registered by a deployer as []common.Address
+func (k Keeper) GetFeesInverse(ctx sdk.Context, deployerAddress sdk.AccAddress) []common.Address {
+	var addresses []common.Address
+	addressList, found := k.GetFeesInverseRaw(ctx, deployerAddress)
+	if !found {
+		return addresses
+	}
+
+	for _, addr := range addressList.ContractAddresses {
+		addresses = append(addresses, common.HexToAddress(addr))
+	}
+	return addresses
+}
+
+// SetFeeInverse stores a registered contract inverse mapping
+func (k Keeper) SetFeeInverse(ctx sdk.Context, deployerAddress sdk.AccAddress, contractAddress common.Address) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixInverse)
+
+	store.Set(deployerAddress.Bytes(), contractAddress.Bytes())
+}
+
+// DeleteFeeInverse removes a registered contract inverse mapping
+func (k Keeper) DeleteFeeInverse(ctx sdk.Context, deployerAddress sdk.AccAddress) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
+	store.Delete(deployerAddress.Bytes())
+}
+
+// HasFeeInverse - check if a reverse mapping deployer => contracts exists
+func (k Keeper) HasFeeInverse(
+	ctx sdk.Context,
+	deployerAddress sdk.AccAddress,
+) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixInverse)
+	return store.Has(deployerAddress.Bytes())
 }

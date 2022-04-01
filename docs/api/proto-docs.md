@@ -72,6 +72,7 @@
   
 - [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
     - [FeeContract](#evmos.fees.v1.FeeContract)
+    - [FeeContractsPerDeployer](#evmos.fees.v1.FeeContractsPerDeployer)
   
 - [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
     - [GenesisState](#evmos.fees.v1.GenesisState)
@@ -80,6 +81,8 @@
 - [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
     - [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest)
     - [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse)
+    - [QueryFeeContractsPerDeployerRequest](#evmos.fees.v1.QueryFeeContractsPerDeployerRequest)
+    - [QueryFeeContractsPerDeployerResponse](#evmos.fees.v1.QueryFeeContractsPerDeployerResponse)
     - [QueryFeeContractsRequest](#evmos.fees.v1.QueryFeeContractsRequest)
     - [QueryFeeContractsResponse](#evmos.fees.v1.QueryFeeContractsResponse)
     - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
@@ -994,6 +997,22 @@ for the owner of a given smart contract
 
 
 
+
+<a name="evmos.fees.v1.FeeContractsPerDeployer"></a>
+
+### FeeContractsPerDeployer
+FeeContractsPerDeployer defines an instance that keeps track of all
+contracts registered by a deployer
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_addresses` | [string](#string) | repeated |  |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1085,7 +1104,41 @@ method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) |  |  |
+| `fee` | [FeeContract](#evmos.fees.v1.FeeContract) |  |  |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeeContractsPerDeployerRequest"></a>
+
+### QueryFeeContractsPerDeployerRequest
+QueryFeeContractsPerDeployerRequest is the request type for the
+Query/FeeContractsPerDeployer RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `deployer_address` | [string](#string) |  | deployer bech32 address |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeeContractsPerDeployerResponse"></a>
+
+### QueryFeeContractsPerDeployerResponse
+QueryFeeContractsPerDeployerResponse is the response type for the
+Query/FeeContractsPerDeployer RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fees` | [FeeContract](#evmos.fees.v1.FeeContract) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
@@ -1164,9 +1217,10 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `FeeContracts` | [QueryFeeContractsRequest](#evmos.fees.v1.QueryFeeContractsRequest) | [QueryFeeContractsResponse](#evmos.fees.v1.QueryFeeContractsResponse) | FeeContracts retrieves registered fees | GET|/evmos/fees/v1/fees|
-| `FeeContract` | [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest) | [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse) | FeeContract retrieves a registered fee | GET|/evmos/fees/v1/fees/{contract_address}|
+| `FeeContracts` | [QueryFeeContractsRequest](#evmos.fees.v1.QueryFeeContractsRequest) | [QueryFeeContractsResponse](#evmos.fees.v1.QueryFeeContractsResponse) | FeeContracts retrieves all registered contracts for fee distribution | GET|/evmos/fees/v1/fees|
+| `FeeContract` | [QueryFeeContractRequest](#evmos.fees.v1.QueryFeeContractRequest) | [QueryFeeContractResponse](#evmos.fees.v1.QueryFeeContractResponse) | FeeContract retrieves a registered contract for fee distribution | GET|/evmos/fees/v1/fees/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
+| `FeeContractsPerDeployer` | [QueryFeeContractsPerDeployerRequest](#evmos.fees.v1.QueryFeeContractsPerDeployerRequest) | [QueryFeeContractsPerDeployerResponse](#evmos.fees.v1.QueryFeeContractsPerDeployerResponse) | FeeContractsPerDeployer retrieves all contracts that a deployer has registered for fee distribution | GET|/evmos/fees/v1/fees/{deployer_address}|
 
  <!-- end services -->
 

@@ -47,6 +47,7 @@ func (k Keeper) RegisterFeeContract(
 		DeployerAddress: msg.DeployerAddress,
 		WithdrawAddress: msg.WithdrawAddress,
 	})
+	k.SetFeeInverse(ctx, deployer, contract)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -78,7 +79,9 @@ func (k Keeper) CancelFeeContract(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
+	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	k.DeleteFee(ctx, feeContract)
+	k.DeleteFeeInverse(ctx, deployer)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

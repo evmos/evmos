@@ -3,6 +3,7 @@ package fees
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/evmos/v3/x/fees/keeper"
 	"github.com/tharsis/evmos/v3/x/fees/types"
@@ -23,8 +24,12 @@ func InitGenesis(
 	}
 
 	for _, fee := range data.Fees {
+		contract := common.HexToAddress(fee.ContractAddress)
+		deployer, _ := sdk.AccAddressFromBech32(fee.DeployerAddress)
+
 		// Set initial contracts receiving transaction fees
 		k.SetFee(ctx, fee)
+		k.SetFeeInverse(ctx, deployer, contract)
 	}
 }
 

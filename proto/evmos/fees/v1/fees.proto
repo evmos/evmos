@@ -13,3 +13,9 @@ message FeeContract {
   // bech32 address of account receiving the transaction fees
   string withdraw_address = 3;
 }
+
+// FeeContractsPerDeployer defines an instance that keeps track of all
+// contracts registered by a deployer
+message FeeContractsPerDeployer {
+  repeated string contract_addresses = 1;
+}

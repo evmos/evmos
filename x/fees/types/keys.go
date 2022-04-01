@@ -15,9 +15,11 @@ const (
 // prefix bytes for the fees persistent store
 const (
 	prefixFee = iota + 1
+	prefixFeeInverse
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixFee = []byte{prefixFee}
+	KeyPrefixFee     = []byte{prefixFee}
+	KeyPrefixInverse = []byte{prefixFeeInverse}
 )

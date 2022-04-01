@@ -18,7 +18,7 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// FeeContracts return registered contracts to receive transaction fees
+// FeeContracts returns all registered contracts for fee distribution
 func (k Keeper) FeeContracts(
 	c context.Context,
 	req *types.QueryFeeContractsRequest,
@@ -88,7 +88,7 @@ func (k Keeper) FeeContract(
 		)
 	}
 
-	return &types.QueryFeeContractResponse{Fees: feeContract}, nil
+	return &types.QueryFeeContractResponse{Fee: feeContract}, nil
 }
 
 // Params return hub contract param
@@ -99,4 +99,43 @@ func (k Keeper) Params(
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: params}, nil
+}
+
+// FeeContractsPerDeployer returns all contracts that a deployer has registered
+func (k Keeper) FeeContractsPerDeployer(
+	c context.Context,
+	req *types.QueryFeeContractsPerDeployerRequest,
+) (*types.QueryFeeContractsPerDeployerResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if strings.TrimSpace(req.DeployerAddress) == "" {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"deployer address is empty",
+		)
+	}
+
+	deployer, err := sdk.AccAddressFromBech32(req.DeployerAddress)
+	if err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"invalid format for deployer %s, should be bech32 ('evmos...')", req.DeployerAddress,
+		)
+	}
+
+	contractAddresses := k.GetFeesInverse(ctx, deployer)
+	var feeContracts []types.FeeContract
+
+	for _, contractAddress := range contractAddresses {
+		feeContract, found := k.GetFee(ctx, contractAddress)
+		if found {
+			feeContracts = append(feeContracts, feeContract)
+		}
+	}
+
+	return &types.QueryFeeContractsPerDeployerResponse{Fees: feeContracts}, nil
 }
