@@ -39,8 +39,11 @@ func (k Keeper) RegisterFeeContract(
 		)
 	}
 
-	// check that the contract is deployed, to avoid spam registrations
-	// TODO
+	// contract must already be deployed, to avoid spam registrations
+	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
+	if contractAccount == nil || !contractAccount.IsContract() {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s has no code", contract)
+	}
 
 	k.SetFee(ctx, types.FeeContract{
 		ContractAddress: msg.ContractAddress,
