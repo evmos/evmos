@@ -46,12 +46,14 @@ var _ = Describe("While", Ordered, func() {
 	totalAmount := sdk.NewCoin(claimsDenom, initAmount.MulRaw(int64(accountCount)))
 
 	var (
-		deployerKey     *ethsecp256k1.PrivKey
-		userKey         *ethsecp256k1.PrivKey
-		deployerAddress sdk.AccAddress
-		userAddress     sdk.AccAddress
-		params          types.Params
-		contractAddress common.Address
+		deployerKey      *ethsecp256k1.PrivKey
+		userKey          *ethsecp256k1.PrivKey
+		deployerAddress  sdk.AccAddress
+		userAddress      sdk.AccAddress
+		params           types.Params
+		contractAddress  common.Address
+		contractAddress1 common.Address
+		contractAddress2 common.Address
 	)
 
 	BeforeAll(func() {
@@ -78,14 +80,20 @@ var _ = Describe("While", Ordered, func() {
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 		s.Commit()
 
-		// deploy contract and register it
+		// deploy contracts
 		contractAddress = deployContract(deployerKey)
+		contractAddress1 = deployContract(deployerKey)
+		contractAddress2 = deployContract(deployerKey)
+
+		// register a contract
 		registerDevFeeInfo(deployerKey, &contractAddress, 0)
-		fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
+		fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
 		Expect(isRegistered).To(Equal(true))
 		Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 		Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
 		Expect(fee.WithdrawAddress).To(Equal(deployerAddress.String()))
+		s.Commit()
+
 		s.Commit()
 	})
 
@@ -94,6 +102,18 @@ var _ = Describe("While", Ordered, func() {
 			params = s.app.FeesKeeper.GetParams(s.ctx)
 			params.EnableFees = false
 			s.app.FeesKeeper.SetParams(s.ctx, params)
+		})
+
+		It("we cannot register contracts for receiving tx fees", func() {
+			fromAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
+			msg := types.NewMsgRegisterDevFeeInfo(contractAddress1, fromAddress, fromAddress, []uint64{1})
+
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(Equal(false), "registration should have failed")
+			s.Commit()
+
+			_, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress1)
+			Expect(isRegistered).To(Equal(false))
 		})
 
 		It("no tx fees go to developers", func() {
@@ -111,6 +131,22 @@ var _ = Describe("While", Ordered, func() {
 			params = s.app.FeesKeeper.GetParams(s.ctx)
 			params.EnableFees = true
 			s.app.FeesKeeper.SetParams(s.ctx, params)
+		})
+
+		It("we can register contracts for receiving tx fees, with default withdrawal address", func() {
+			fromAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
+			msg := types.NewMsgRegisterDevFeeInfo(contractAddress2, fromAddress, nil, []uint64{2})
+
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
+			s.Commit()
+
+			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+			Expect(isRegistered).To(Equal(true))
+			Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+			Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+			Expect(fee.WithdrawAddress).To(Equal(deployerAddress.String()))
+			s.Commit()
 		})
 
 		It("legacy tx fees are split validators-developers", func() {
@@ -158,6 +194,8 @@ func registerDevFeeInfo(priv *ethsecp256k1.PrivKey, contractAddress *common.Addr
 	msg := types.NewMsgRegisterDevFeeInfo(*contractAddress, fromAddress, fromAddress, []uint64{nonce})
 
 	res := deliverTx(priv, msg)
+	Expect(res.IsOK()).To(Equal(true), res.GetLog())
+
 	s.Commit()
 	registerEvent := res.GetEvents()[4]
 	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterDevFeeInfo))
@@ -300,6 +338,5 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
-	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	return res
 }

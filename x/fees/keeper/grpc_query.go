@@ -35,10 +35,14 @@ func (k Keeper) DevFeeInfos(
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
-		func(_, value []byte) error {
-			var feeInfo types.DevFeeInfo
-			if err := k.cdc.Unmarshal(value, &feeInfo); err != nil {
-				return err
+		func(key, value []byte) error {
+			contractAddress := common.BytesToAddress(key)
+			deployerAddress := sdk.AccAddress(value)
+			withdrawalAddress, _ := k.GetWithdrawal(ctx, contractAddress)
+			feeInfo := types.DevFeeInfo{
+				ContractAddress: contractAddress.String(),
+				DeployerAddress: deployerAddress.String(),
+				WithdrawAddress: withdrawalAddress.String(),
 			}
 			feeInfos = append(feeInfos, feeInfo)
 			return nil
@@ -79,7 +83,7 @@ func (k Keeper) DevFeeInfo(
 		)
 	}
 
-	feeInfo, found := k.GetFee(ctx, common.HexToAddress(req.ContractAddress))
+	feeInfo, found := k.GetFeeInfo(ctx, common.HexToAddress(req.ContractAddress))
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
@@ -131,7 +135,7 @@ func (k Keeper) DevFeeInfosPerDeployer(
 	var feeInfos []types.DevFeeInfo
 
 	for _, contractAddress := range contractAddresses {
-		feeInfo, found := k.GetFee(ctx, contractAddress)
+		feeInfo, found := k.GetFeeInfo(ctx, contractAddress)
 		if found {
 			feeInfos = append(feeInfos, feeInfo)
 		}

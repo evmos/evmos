@@ -59,6 +59,18 @@ func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 			true,
 		},
 		{
+			"ok - omit withdraw address, default to deployer",
+			sdk.AccAddress(addr1.Bytes()),
+			nil,
+			crypto.CreateAddress(addr1, 1),
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, crypto.CreateAddress(addr1, 1), contractAccount)
+				s.Require().NoError(err)
+			},
+			true,
+		},
+		{
 			"not ok - contract already registered",
 			sdk.AccAddress(addr1.Bytes()),
 			sdk.AccAddress(addr1.Bytes()),
@@ -116,11 +128,16 @@ func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res, tc.name)
 
-				fee, ok := suite.app.FeesKeeper.GetFee(suite.ctx, tc.contract)
+				fee, ok := suite.app.FeesKeeper.GetFeeInfo(suite.ctx, tc.contract)
 				suite.Require().True(ok, "unregistered fee")
 				suite.Require().Equal(tc.contract.String(), fee.ContractAddress, "wrong contract")
 				suite.Require().Equal(tc.deployer.String(), fee.DeployerAddress, "wrong deployer")
-				suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, "wrong withdraw address")
+
+				if tc.withdraw != nil {
+					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, "wrong withdraw address")
+				} else {
+					suite.Require().Equal(tc.deployer.String(), fee.WithdrawAddress, "wrong withdraw address")
+				}
 			} else {
 				suite.Require().Error(err, tc.name)
 			}

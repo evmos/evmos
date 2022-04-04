@@ -30,6 +30,7 @@ type DevFeeInfo struct {
 	// bech32 address of contract deployer
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// bech32 address of account receiving the transaction fees
+	// it defaults to deployer_address
 	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
 }
 

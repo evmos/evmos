@@ -19,14 +19,23 @@ func (k Keeper) RegisterDevFeeInfo(
 	msg *types.MsgRegisterDevFeeInfo,
 ) (*types.MsgRegisterDevFeeInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	contract := common.HexToAddress(msg.ContractAddress)
+	if !k.isEnabled(ctx) {
+		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
+	}
 
+	contract := common.HexToAddress(msg.ContractAddress)
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is already registered", contract)
 	}
 
+	var withdrawal *sdk.AccAddress
 	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	derivedContractAddr := common.BytesToAddress(deployer)
+
+	if msg.WithdrawAddress != "" {
+		_withdrawal, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
+		withdrawal = &_withdrawal
+	}
 
 	for _, nonce := range msg.Nonces {
 		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
@@ -45,11 +54,7 @@ func (k Keeper) RegisterDevFeeInfo(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s has no code", contract)
 	}
 
-	k.SetFee(ctx, types.DevFeeInfo{
-		ContractAddress: msg.ContractAddress,
-		DeployerAddress: msg.DeployerAddress,
-		WithdrawAddress: msg.WithdrawAddress,
-	})
+	k.SetFee(ctx, contract, deployer, withdrawal)
 	k.SetFeeInverse(ctx, deployer, contract)
 
 	ctx.EventManager().EmitEvents(
@@ -72,19 +77,21 @@ func (k Keeper) CancelDevFeeInfo(
 	msg *types.MsgCancelDevFeeInfo,
 ) (*types.MsgCancelDevFeeInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	if !k.isEnabled(ctx) {
+		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
+	}
 
-	feeInfo, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
-	if !ok {
+	deployerAddress, found := k.GetDeployer(ctx, common.HexToAddress(msg.ContractAddress))
+	if !found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
 
-	if msg.DeployerAddress != feeInfo.DeployerAddress {
+	if msg.DeployerAddress != deployerAddress.String() {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
-	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
-	k.DeleteFee(ctx, feeInfo)
-	k.DeleteFeeInverse(ctx, deployer)
+	k.DeleteFee(ctx, common.HexToAddress(msg.ContractAddress))
+	k.DeleteFeeInverse(ctx, deployerAddress)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -105,18 +112,22 @@ func (k Keeper) UpdateDevFeeInfo(
 	msg *types.MsgUpdateDevFeeInfo,
 ) (*types.MsgUpdateDevFeeInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	if !k.isEnabled(ctx) {
+		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
+	}
 
-	feeInfo, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
-	if !ok {
+	contractAddress := common.HexToAddress(msg.ContractAddress)
+	deployerAddress, found := k.GetDeployer(ctx, contractAddress)
+	if !found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
 
-	if msg.DeployerAddress != feeInfo.DeployerAddress {
+	if msg.DeployerAddress != deployerAddress.String() {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
-	feeInfo.WithdrawAddress = msg.WithdrawAddress
-	k.SetFee(ctx, feeInfo)
+	withdrawalAddress, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
+	k.SetWithdrawal(ctx, contractAddress, withdrawalAddress)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

@@ -50,8 +50,11 @@ func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdraw address address %s", msg.WithdrawAddress)
+	// WithdrawAddress can be omitted and it will default to DeployerAddress
+	if msg.WithdrawAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
+			return sdkerrors.Wrapf(err, "invalid withdraw address address %s", msg.WithdrawAddress)
+		}
 	}
 
 	return nil

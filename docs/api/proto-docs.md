@@ -991,7 +991,7 @@ for the owner of a given smart contract
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | hex address of registered contract |
 | `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
-| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
+| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
 
 
 

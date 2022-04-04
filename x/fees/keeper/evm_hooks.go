@@ -41,14 +41,9 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg ethtypes.Message, receipt *
 		return err
 	}
 
-	feeInfo, ok := h.k.GetFee(ctx, *contract)
+	withdrawAddr, ok := h.k.GetWithdrawal(ctx, *contract)
 	if !ok {
 		return nil
-	}
-
-	withdrawAddr, err := sdk.AccAddressFromBech32(feeInfo.WithdrawAddress)
-	if err != nil {
-		return err
 	}
 
 	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
