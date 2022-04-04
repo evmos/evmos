@@ -25,7 +25,6 @@ func MigrateStore(ctx sdk.Context, paramstore *paramtypes.Subspace) error {
 // to 2 x/claims genesis state. The migration includes:
 // - Add AuthorizedChannels and EVMChannels
 func MigrateJSON(oldState v1types.GenesisState) types.GenesisState {
-
 	finalClaims := []types.ClaimsRecordAddress{}
 	for _, claim := range oldState.ClaimsRecords {
 		finalClaims = append(finalClaims, types.ClaimsRecordAddress(claim))
