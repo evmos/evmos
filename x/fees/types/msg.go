@@ -43,7 +43,7 @@ func (msg MsgRegisterFeeContract) Type() string { return TypeMsgRegisterFeeContr
 // ValidateBasic runs stateless checks on the message
 func (msg MsgRegisterFeeContract) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid from address")
+		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
@@ -51,10 +51,8 @@ func (msg MsgRegisterFeeContract) ValidateBasic() error {
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdrawal address address")
+		return sdkerrors.Wrapf(err, "invalid withdraw address address %s", msg.WithdrawAddress)
 	}
-
-	// TODO validate factories
 
 	return nil
 }
@@ -91,7 +89,7 @@ func (msg MsgCancelFeeContract) Type() string { return TypeMsgCancelFeeContract 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCancelFeeContract) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid from address")
+		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
@@ -137,7 +135,7 @@ func (msg MsgUpdateFeeContract) Type() string { return TypeMsgUpdateFeeContract 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateFeeContract) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid from address")
+		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
@@ -145,10 +143,9 @@ func (msg MsgUpdateFeeContract) ValidateBasic() error {
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdrawal address address")
+		return sdkerrors.Wrapf(err, "invalid withdraw address address %s", msg.WithdrawAddress)
 	}
 
-	// TODO check deployment hash
 	return nil
 }
 

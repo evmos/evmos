@@ -37,7 +37,7 @@ func NewParams(
 
 func DefaultParams() Params {
 	return Params{
-		EnableFees:      true,
+		EnableFees:      false,
 		DeveloperShares: DefaultDeveloperShares,
 		ValidatorShares: DefaultValidatorShares,
 	}
