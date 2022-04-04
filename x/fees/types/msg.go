@@ -8,25 +8,25 @@ import (
 )
 
 var (
-	_ sdk.Msg = &MsgRegisterFeeContract{}
-	_ sdk.Msg = &MsgCancelFeeContract{}
-	_ sdk.Msg = &MsgUpdateFeeContract{}
+	_ sdk.Msg = &MsgRegisterDevFeeInfo{}
+	_ sdk.Msg = &MsgCancelDevFeeInfo{}
+	_ sdk.Msg = &MsgUpdateDevFeeInfo{}
 )
 
 const (
-	TypeMsgRegisterFeeContract = "register_fee_contract"
-	TypeMsgCancelFeeContract   = "cancel_fee_contract"
-	TypeMsgUpdateFeeContract   = "update_fee_contract"
+	TypeMsgRegisterDevFeeInfo = "register_fee_contract"
+	TypeMsgCancelDevFeeInfo   = "cancel_fee_contract"
+	TypeMsgUpdateDevFeeInfo   = "update_fee_contract"
 )
 
-// NewMsgRegisterFeeContract creates new instance of MsgRegisterFeeContract
-func NewMsgRegisterFeeContract(
+// NewMsgRegisterDevFeeInfo creates new instance of MsgRegisterDevFeeInfo
+func NewMsgRegisterDevFeeInfo(
 	contract common.Address,
 	deployer sdk.AccAddress,
 	withdraw sdk.AccAddress,
 	nonces []uint64,
-) *MsgRegisterFeeContract {
-	return &MsgRegisterFeeContract{
+) *MsgRegisterDevFeeInfo {
+	return &MsgRegisterDevFeeInfo{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
 		WithdrawAddress: withdraw.String(),
@@ -35,13 +35,13 @@ func NewMsgRegisterFeeContract(
 }
 
 // Route returns the name of the module
-func (msg MsgRegisterFeeContract) Route() string { return RouterKey }
+func (msg MsgRegisterDevFeeInfo) Route() string { return RouterKey }
 
 // Type returns the the action
-func (msg MsgRegisterFeeContract) Type() string { return TypeMsgRegisterFeeContract }
+func (msg MsgRegisterDevFeeInfo) Type() string { return TypeMsgRegisterDevFeeInfo }
 
 // ValidateBasic runs stateless checks on the message
-func (msg MsgRegisterFeeContract) ValidateBasic() error {
+func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
@@ -58,12 +58,12 @@ func (msg MsgRegisterFeeContract) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgRegisterFeeContract) GetSignBytes() []byte {
+func (msg *MsgRegisterDevFeeInfo) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg MsgRegisterFeeContract) GetSigners() []sdk.AccAddress {
+func (msg MsgRegisterDevFeeInfo) GetSigners() []sdk.AccAddress {
 	from, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	if err != nil {
 		return nil
@@ -73,21 +73,21 @@ func (msg MsgRegisterFeeContract) GetSigners() []sdk.AccAddress {
 
 // NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
 // nil - defaulting to the funder.
-func NewMsgCancelFeeContract(deployer sdk.AccAddress, contract string) *MsgCancelFeeContract {
-	return &MsgCancelFeeContract{
+func NewMsgCancelDevFeeInfo(deployer sdk.AccAddress, contract string) *MsgCancelDevFeeInfo {
+	return &MsgCancelDevFeeInfo{
 		ContractAddress: contract,
 		DeployerAddress: deployer.String(),
 	}
 }
 
-// Route returns the message route for a MsgCancelFeeContract.
-func (msg MsgCancelFeeContract) Route() string { return RouterKey }
+// Route returns the message route for a MsgCancelDevFeeInfo.
+func (msg MsgCancelDevFeeInfo) Route() string { return RouterKey }
 
-// Type returns the message type for a MsgCancelFeeContract.
-func (msg MsgCancelFeeContract) Type() string { return TypeMsgCancelFeeContract }
+// Type returns the message type for a MsgCancelDevFeeInfo.
+func (msg MsgCancelDevFeeInfo) Type() string { return TypeMsgCancelDevFeeInfo }
 
 // ValidateBasic runs stateless checks on the message
-func (msg MsgCancelFeeContract) ValidateBasic() error {
+func (msg MsgCancelDevFeeInfo) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
@@ -100,12 +100,12 @@ func (msg MsgCancelFeeContract) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgCancelFeeContract) GetSignBytes() []byte {
+func (msg *MsgCancelDevFeeInfo) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg MsgCancelFeeContract) GetSigners() []sdk.AccAddress {
+func (msg MsgCancelDevFeeInfo) GetSigners() []sdk.AccAddress {
 	funder, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	if err != nil {
 		return nil
@@ -113,13 +113,13 @@ func (msg MsgCancelFeeContract) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{funder}
 }
 
-// NewMsgUpdateFeeContract creates new instance of MsgUpdateFeeContract
-func NewMsgUpdateFeeContract(
+// NewMsgUpdateDevFeeInfo creates new instance of MsgUpdateDevFeeInfo
+func NewMsgUpdateDevFeeInfo(
 	deployer sdk.AccAddress,
 	contract string,
 	withdraw sdk.AccAddress,
-) *MsgUpdateFeeContract {
-	return &MsgUpdateFeeContract{
+) *MsgUpdateDevFeeInfo {
+	return &MsgUpdateDevFeeInfo{
 		DeployerAddress: deployer.String(),
 		ContractAddress: contract,
 		WithdrawAddress: withdraw.String(),
@@ -127,13 +127,13 @@ func NewMsgUpdateFeeContract(
 }
 
 // Route returns the name of the module
-func (msg MsgUpdateFeeContract) Route() string { return RouterKey }
+func (msg MsgUpdateDevFeeInfo) Route() string { return RouterKey }
 
 // Type returns the the action
-func (msg MsgUpdateFeeContract) Type() string { return TypeMsgUpdateFeeContract }
+func (msg MsgUpdateDevFeeInfo) Type() string { return TypeMsgUpdateDevFeeInfo }
 
 // ValidateBasic runs stateless checks on the message
-func (msg MsgUpdateFeeContract) ValidateBasic() error {
+func (msg MsgUpdateDevFeeInfo) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
@@ -150,12 +150,12 @@ func (msg MsgUpdateFeeContract) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgUpdateFeeContract) GetSignBytes() []byte {
+func (msg *MsgUpdateDevFeeInfo) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg MsgUpdateFeeContract) GetSigners() []sdk.AccAddress {
+func (msg MsgUpdateDevFeeInfo) GetSigners() []sdk.AccAddress {
 	from, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	if err != nil {
 		return nil

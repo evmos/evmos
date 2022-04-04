@@ -11,7 +11,7 @@ message GenesisState {
   // module parameters
   Params params = 1 [ (gogoproto.nullable) = false ];
   // active registered contracts
-  repeated FeeContract fees = 2 [ (gogoproto.nullable) = false ];
+  repeated DevFeeInfo fees = 2 [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the fees module params

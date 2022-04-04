@@ -18,46 +18,46 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// FeeContracts returns all registered contracts for fee distribution
-func (k Keeper) FeeContracts(
+// DevFeeInfos returns all registered contracts for fee distribution
+func (k Keeper) DevFeeInfos(
 	c context.Context,
-	req *types.QueryFeeContractsRequest,
-) (*types.QueryFeeContractsResponse, error) {
+	req *types.QueryDevFeeInfosRequest,
+) (*types.QueryDevFeeInfosResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var feeContracts []types.FeeContract
+	var feeInfos []types.DevFeeInfo
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
 		func(_, value []byte) error {
-			var feeContract types.FeeContract
-			if err := k.cdc.Unmarshal(value, &feeContract); err != nil {
+			var feeInfo types.DevFeeInfo
+			if err := k.cdc.Unmarshal(value, &feeInfo); err != nil {
 				return err
 			}
-			feeContracts = append(feeContracts, feeContract)
+			feeInfos = append(feeInfos, feeInfo)
 			return nil
 		},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryFeeContractsResponse{
-		Fees:       feeContracts,
+	return &types.QueryDevFeeInfosResponse{
+		Fees:       feeInfos,
 		Pagination: pageRes,
 	}, nil
 }
 
-// FeeContract returns a given registered contract
-func (k Keeper) FeeContract(
+// DevFeeInfo returns a given registered contract
+func (k Keeper) DevFeeInfo(
 	c context.Context,
-	req *types.QueryFeeContractRequest,
-) (*types.QueryFeeContractResponse, error) {
+	req *types.QueryDevFeeInfoRequest,
+) (*types.QueryDevFeeInfoResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -79,7 +79,7 @@ func (k Keeper) FeeContract(
 		)
 	}
 
-	feeContract, found := k.GetFee(ctx, common.HexToAddress(req.ContractAddress))
+	feeInfo, found := k.GetFee(ctx, common.HexToAddress(req.ContractAddress))
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
@@ -88,7 +88,7 @@ func (k Keeper) FeeContract(
 		)
 	}
 
-	return &types.QueryFeeContractResponse{Fee: feeContract}, nil
+	return &types.QueryDevFeeInfoResponse{Fee: feeInfo}, nil
 }
 
 // Params return hub contract param
@@ -101,11 +101,11 @@ func (k Keeper) Params(
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// FeeContractsPerDeployer returns all contracts that a deployer has registered
-func (k Keeper) FeeContractsPerDeployer(
+// DevFeeInfosPerDeployer returns all contracts that a deployer has registered
+func (k Keeper) DevFeeInfosPerDeployer(
 	c context.Context,
-	req *types.QueryFeeContractsPerDeployerRequest,
-) (*types.QueryFeeContractsPerDeployerResponse, error) {
+	req *types.QueryDevFeeInfosPerDeployerRequest,
+) (*types.QueryDevFeeInfosPerDeployerResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -128,14 +128,14 @@ func (k Keeper) FeeContractsPerDeployer(
 	}
 
 	contractAddresses := k.GetFeesInverse(ctx, deployer)
-	var feeContracts []types.FeeContract
+	var feeInfos []types.DevFeeInfo
 
 	for _, contractAddress := range contractAddresses {
-		feeContract, found := k.GetFee(ctx, contractAddress)
+		feeInfo, found := k.GetFee(ctx, contractAddress)
 		if found {
-			feeContracts = append(feeContracts, feeContract)
+			feeInfos = append(feeInfos, feeInfo)
 		}
 	}
 
-	return &types.QueryFeeContractsPerDeployerResponse{Fees: feeContracts}, nil
+	return &types.QueryDevFeeInfosPerDeployerResponse{Fees: feeInfos}, nil
 }

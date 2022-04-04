@@ -14,7 +14,7 @@ import (
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
-func (suite *KeeperTestSuite) TestRegisterFeeContract() {
+func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 	addr1 := tests.GenerateAddress()
 	factory1 := crypto.CreateAddress(addr1, 1)
 	factory2 := crypto.CreateAddress(factory1, 0)
@@ -67,14 +67,14 @@ func (suite *KeeperTestSuite) TestRegisterFeeContract() {
 			func() {
 				err := s.app.EvmKeeper.SetAccount(s.ctx, factory1, contractAccount)
 				s.Require().NoError(err)
-				msg := types.NewMsgRegisterFeeContract(
+				msg := types.NewMsgRegisterDevFeeInfo(
 					factory1,
 					sdk.AccAddress(addr1.Bytes()),
 					sdk.AccAddress(addr1.Bytes()),
 					[]uint64{1},
 				)
 				ctx := sdk.WrapSDKContext(suite.ctx)
-				suite.app.FeesKeeper.RegisterFeeContract(ctx, msg)
+				suite.app.FeesKeeper.RegisterDevFeeInfo(ctx, msg)
 			},
 			false,
 		},
@@ -106,10 +106,10 @@ func (suite *KeeperTestSuite) TestRegisterFeeContract() {
 			tc.malleate()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			msg := types.NewMsgRegisterFeeContract(tc.contract, tc.deployer, tc.withdraw, tc.nonces)
+			msg := types.NewMsgRegisterDevFeeInfo(tc.contract, tc.deployer, tc.withdraw, tc.nonces)
 
-			res, err := suite.app.FeesKeeper.RegisterFeeContract(ctx, msg)
-			expRes := &types.MsgRegisterFeeContractResponse{}
+			res, err := suite.app.FeesKeeper.RegisterDevFeeInfo(ctx, msg)
+			expRes := &types.MsgRegisterDevFeeInfoResponse{}
 			suite.Commit()
 
 			if tc.expPass {

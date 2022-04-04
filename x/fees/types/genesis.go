@@ -5,7 +5,7 @@ import "fmt"
 // NewGenesisState creates a new genesis state.
 func NewGenesisState(
 	params Params,
-	fees []FeeContract,
+	fees []DevFeeInfo,
 ) GenesisState {
 	return GenesisState{
 		Params: params,

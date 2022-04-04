@@ -8,16 +8,16 @@ import (
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
-// GetAllFees - get all registered FeeContract instances
-func (k Keeper) GetAllFees(ctx sdk.Context) []types.FeeContract {
-	fees := []types.FeeContract{}
+// GetAllFees - get all registered DevFeeInfo instances
+func (k Keeper) GetAllFees(ctx sdk.Context) []types.DevFeeInfo {
+	fees := []types.DevFeeInfo{}
 
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFee)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var fee types.FeeContract
+		var fee types.DevFeeInfo
 		k.cdc.MustUnmarshal(iterator.Value(), &fee)
 
 		fees = append(fees, fee)
@@ -26,18 +26,18 @@ func (k Keeper) GetAllFees(ctx sdk.Context) []types.FeeContract {
 	return fees
 }
 
-// IterateFees iterates over all registered `FeeContracts` and performs a
+// IterateFees iterates over all registered `DevFeeInfos` and performs a
 // callback.
 func (k Keeper) IterateFees(
 	ctx sdk.Context,
-	handlerFn func(fee types.FeeContract) (stop bool),
+	handlerFn func(fee types.DevFeeInfo) (stop bool),
 ) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFee)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var fee types.FeeContract
+		var fee types.DevFeeInfo
 		k.cdc.MustUnmarshal(iterator.Value(), &fee)
 
 		if handlerFn(fee) {
@@ -50,20 +50,20 @@ func (k Keeper) IterateFees(
 func (k Keeper) GetFee(
 	ctx sdk.Context,
 	contract common.Address,
-) (types.FeeContract, bool) {
+) (types.DevFeeInfo, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	bz := store.Get(contract.Bytes())
 	if len(bz) == 0 {
-		return types.FeeContract{}, false
+		return types.DevFeeInfo{}, false
 	}
 
-	var fee types.FeeContract
+	var fee types.DevFeeInfo
 	k.cdc.MustUnmarshal(bz, &fee)
 	return fee, true
 }
 
 // SetFee stores a registered contract
-func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
+func (k Keeper) SetFee(ctx sdk.Context, fee types.DevFeeInfo) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	key := common.HexToAddress(fee.ContractAddress)
 	bz := k.cdc.MustMarshal(&fee)
@@ -71,13 +71,13 @@ func (k Keeper) SetFee(ctx sdk.Context, fee types.FeeContract) {
 }
 
 // DeleteFee removes a registered contract
-func (k Keeper) DeleteFee(ctx sdk.Context, fee types.FeeContract) {
+func (k Keeper) DeleteFee(ctx sdk.Context, fee types.DevFeeInfo) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	key := common.HexToAddress(fee.ContractAddress)
 	store.Delete(key.Bytes())
 }
 
-// IsFeeRegistered - check if registered FeeContract is registered
+// IsFeeRegistered - check if registered DevFeeInfo is registered
 func (k Keeper) IsFeeRegistered(
 	ctx sdk.Context,
 	contract common.Address,
@@ -87,14 +87,14 @@ func (k Keeper) IsFeeRegistered(
 }
 
 // GetFeesInverseRaw returns all contracts registered by a deployer as
-// types.FeeContractsPerDeployer
-func (k Keeper) GetFeesInverseRaw(ctx sdk.Context, deployerAddress sdk.AccAddress) (types.FeeContractsPerDeployer, bool) {
+// types.DevFeeInfosPerDeployer
+func (k Keeper) GetFeesInverseRaw(ctx sdk.Context, deployerAddress sdk.AccAddress) (types.DevFeeInfosPerDeployer, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixInverse)
 	bz := store.Get(deployerAddress.Bytes())
 	if len(bz) == 0 {
-		return types.FeeContractsPerDeployer{}, false
+		return types.DevFeeInfosPerDeployer{}, false
 	}
-	var addressList types.FeeContractsPerDeployer
+	var addressList types.DevFeeInfosPerDeployer
 	k.cdc.MustUnmarshal(bz, &addressList)
 	return addressList, true
 }

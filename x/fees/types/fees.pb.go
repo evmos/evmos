@@ -22,9 +22,9 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// FeeContract defines an instance that organizes fee distribution conditions
+// DevFeeInfo defines an instance that organizes fee distribution conditions
 // for the owner of a given smart contract
-type FeeContract struct {
+type DevFeeInfo struct {
 	// hex address of registered contract
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// bech32 address of contract deployer
@@ -33,18 +33,18 @@ type FeeContract struct {
 	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
 }
 
-func (m *FeeContract) Reset()         { *m = FeeContract{} }
-func (m *FeeContract) String() string { return proto.CompactTextString(m) }
-func (*FeeContract) ProtoMessage()    {}
-func (*FeeContract) Descriptor() ([]byte, []int) {
+func (m *DevFeeInfo) Reset()         { *m = DevFeeInfo{} }
+func (m *DevFeeInfo) String() string { return proto.CompactTextString(m) }
+func (*DevFeeInfo) ProtoMessage()    {}
+func (*DevFeeInfo) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1527b6d4bf16c067, []int{0}
 }
-func (m *FeeContract) XXX_Unmarshal(b []byte) error {
+func (m *DevFeeInfo) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *FeeContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *DevFeeInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_FeeContract.Marshal(b, m, deterministic)
+		return xxx_messageInfo_DevFeeInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -54,57 +54,57 @@ func (m *FeeContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *FeeContract) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_FeeContract.Merge(m, src)
+func (m *DevFeeInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DevFeeInfo.Merge(m, src)
 }
-func (m *FeeContract) XXX_Size() int {
+func (m *DevFeeInfo) XXX_Size() int {
 	return m.Size()
 }
-func (m *FeeContract) XXX_DiscardUnknown() {
-	xxx_messageInfo_FeeContract.DiscardUnknown(m)
+func (m *DevFeeInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_DevFeeInfo.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_FeeContract proto.InternalMessageInfo
+var xxx_messageInfo_DevFeeInfo proto.InternalMessageInfo
 
-func (m *FeeContract) GetContractAddress() string {
+func (m *DevFeeInfo) GetContractAddress() string {
 	if m != nil {
 		return m.ContractAddress
 	}
 	return ""
 }
 
-func (m *FeeContract) GetDeployerAddress() string {
+func (m *DevFeeInfo) GetDeployerAddress() string {
 	if m != nil {
 		return m.DeployerAddress
 	}
 	return ""
 }
 
-func (m *FeeContract) GetWithdrawAddress() string {
+func (m *DevFeeInfo) GetWithdrawAddress() string {
 	if m != nil {
 		return m.WithdrawAddress
 	}
 	return ""
 }
 
-// FeeContractsPerDeployer defines an instance that keeps track of all
+// DevFeeInfosPerDeployer defines an instance that keeps track of all
 // contracts registered by a deployer
-type FeeContractsPerDeployer struct {
+type DevFeeInfosPerDeployer struct {
 	ContractAddresses []string `protobuf:"bytes,1,rep,name=contract_addresses,json=contractAddresses,proto3" json:"contract_addresses,omitempty"`
 }
 
-func (m *FeeContractsPerDeployer) Reset()         { *m = FeeContractsPerDeployer{} }
-func (m *FeeContractsPerDeployer) String() string { return proto.CompactTextString(m) }
-func (*FeeContractsPerDeployer) ProtoMessage()    {}
-func (*FeeContractsPerDeployer) Descriptor() ([]byte, []int) {
+func (m *DevFeeInfosPerDeployer) Reset()         { *m = DevFeeInfosPerDeployer{} }
+func (m *DevFeeInfosPerDeployer) String() string { return proto.CompactTextString(m) }
+func (*DevFeeInfosPerDeployer) ProtoMessage()    {}
+func (*DevFeeInfosPerDeployer) Descriptor() ([]byte, []int) {
 	return fileDescriptor_1527b6d4bf16c067, []int{1}
 }
-func (m *FeeContractsPerDeployer) XXX_Unmarshal(b []byte) error {
+func (m *DevFeeInfosPerDeployer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *FeeContractsPerDeployer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *DevFeeInfosPerDeployer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_FeeContractsPerDeployer.Marshal(b, m, deterministic)
+		return xxx_messageInfo_DevFeeInfosPerDeployer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -114,19 +114,19 @@ func (m *FeeContractsPerDeployer) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *FeeContractsPerDeployer) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_FeeContractsPerDeployer.Merge(m, src)
+func (m *DevFeeInfosPerDeployer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DevFeeInfosPerDeployer.Merge(m, src)
 }
-func (m *FeeContractsPerDeployer) XXX_Size() int {
+func (m *DevFeeInfosPerDeployer) XXX_Size() int {
 	return m.Size()
 }
-func (m *FeeContractsPerDeployer) XXX_DiscardUnknown() {
-	xxx_messageInfo_FeeContractsPerDeployer.DiscardUnknown(m)
+func (m *DevFeeInfosPerDeployer) XXX_DiscardUnknown() {
+	xxx_messageInfo_DevFeeInfosPerDeployer.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_FeeContractsPerDeployer proto.InternalMessageInfo
+var xxx_messageInfo_DevFeeInfosPerDeployer proto.InternalMessageInfo
 
-func (m *FeeContractsPerDeployer) GetContractAddresses() []string {
+func (m *DevFeeInfosPerDeployer) GetContractAddresses() []string {
 	if m != nil {
 		return m.ContractAddresses
 	}
@@ -134,32 +134,32 @@ func (m *FeeContractsPerDeployer) GetContractAddresses() []string {
 }
 
 func init() {
-	proto.RegisterType((*FeeContract)(nil), "evmos.fees.v1.FeeContract")
-	proto.RegisterType((*FeeContractsPerDeployer)(nil), "evmos.fees.v1.FeeContractsPerDeployer")
+	proto.RegisterType((*DevFeeInfo)(nil), "evmos.fees.v1.DevFeeInfo")
+	proto.RegisterType((*DevFeeInfosPerDeployer)(nil), "evmos.fees.v1.DevFeeInfosPerDeployer")
 }
 
 func init() { proto.RegisterFile("evmos/fees/v1/fees.proto", fileDescriptor_1527b6d4bf16c067) }
 
 var fileDescriptor_1527b6d4bf16c067 = []byte{
-	// 235 bytes of a gzipped FileDescriptorProto
+	// 239 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x48, 0x2d, 0xcb, 0xcd,
 	0x2f, 0xd6, 0x4f, 0x4b, 0x4d, 0x2d, 0xd6, 0x2f, 0x33, 0x04, 0xd3, 0x7a, 0x05, 0x45, 0xf9, 0x25,
-	0xf9, 0x42, 0xbc, 0x60, 0x19, 0x3d, 0xb0, 0x48, 0x99, 0xa1, 0x52, 0x1f, 0x23, 0x17, 0xb7, 0x5b,
-	0x6a, 0xaa, 0x73, 0x7e, 0x5e, 0x49, 0x51, 0x62, 0x72, 0x89, 0x90, 0x26, 0x97, 0x40, 0x32, 0x94,
-	0x1d, 0x9f, 0x98, 0x92, 0x52, 0x94, 0x5a, 0x5c, 0x2c, 0xc1, 0xa8, 0xc0, 0xa8, 0xc1, 0x19, 0xc4,
-	0x0f, 0x13, 0x77, 0x84, 0x08, 0x83, 0x94, 0xa6, 0xa4, 0x16, 0xe4, 0xe4, 0x57, 0xa6, 0x16, 0xc1,
-	0x95, 0x32, 0x41, 0x94, 0xc2, 0xc4, 0x91, 0x94, 0x96, 0x67, 0x96, 0x64, 0xa4, 0x14, 0x25, 0x96,
-	0xc3, 0x95, 0x32, 0x43, 0x94, 0xc2, 0xc4, 0xa1, 0x4a, 0x95, 0x3c, 0xb8, 0xc4, 0x91, 0xdc, 0x53,
-	0x1c, 0x90, 0x5a, 0xe4, 0x02, 0x35, 0x4c, 0x48, 0x97, 0x4b, 0x08, 0xdd, 0x6d, 0xa9, 0x20, 0xd7,
-	0x31, 0x6b, 0x70, 0x06, 0x09, 0xa2, 0xb9, 0x2e, 0xb5, 0xd8, 0xc9, 0xe9, 0xc4, 0x23, 0x39, 0xc6,
-	0x0b, 0x8f, 0xe4, 0x18, 0x1f, 0x3c, 0x92, 0x63, 0x9c, 0xf0, 0x58, 0x8e, 0xe1, 0xc2, 0x63, 0x39,
-	0x86, 0x1b, 0x8f, 0xe5, 0x18, 0xa2, 0x34, 0xd2, 0x33, 0x4b, 0x32, 0x4a, 0x93, 0xf4, 0x92, 0xf3,
-	0x73, 0xf5, 0x4b, 0x32, 0x12, 0x8b, 0x8a, 0x33, 0x8b, 0xf5, 0x21, 0x01, 0x56, 0x66, 0xac, 0x5f,
-	0x01, 0x09, 0xb5, 0x92, 0xca, 0x82, 0xd4, 0xe2, 0x24, 0x36, 0x70, 0xa0, 0x19, 0x03, 0x02, 0x00,
-	0x00, 0xff, 0xff, 0x81, 0x37, 0xee, 0x67, 0x50, 0x01, 0x00, 0x00,
+	0xf9, 0x42, 0xbc, 0x60, 0x19, 0x3d, 0xb0, 0x48, 0x99, 0xa1, 0x52, 0x2f, 0x23, 0x17, 0x97, 0x4b,
+	0x6a, 0x99, 0x5b, 0x6a, 0xaa, 0x67, 0x5e, 0x5a, 0xbe, 0x90, 0x26, 0x97, 0x40, 0x72, 0x7e, 0x5e,
+	0x49, 0x51, 0x62, 0x72, 0x49, 0x7c, 0x62, 0x4a, 0x4a, 0x51, 0x6a, 0x71, 0xb1, 0x04, 0xa3, 0x02,
+	0xa3, 0x06, 0x67, 0x10, 0x3f, 0x4c, 0xdc, 0x11, 0x22, 0x0c, 0x52, 0x9a, 0x92, 0x5a, 0x90, 0x93,
+	0x5f, 0x99, 0x5a, 0x04, 0x57, 0xca, 0x04, 0x51, 0x0a, 0x13, 0x47, 0x52, 0x5a, 0x9e, 0x59, 0x92,
+	0x91, 0x52, 0x94, 0x58, 0x0e, 0x57, 0xca, 0x0c, 0x51, 0x0a, 0x13, 0x87, 0x2a, 0x55, 0x72, 0xe7,
+	0x12, 0x43, 0x38, 0xa7, 0x38, 0x20, 0xb5, 0xc8, 0x05, 0x6a, 0x96, 0x90, 0x2e, 0x97, 0x10, 0xba,
+	0xd3, 0x52, 0x41, 0x8e, 0x63, 0xd6, 0xe0, 0x0c, 0x12, 0x44, 0x73, 0x5c, 0x6a, 0xb1, 0x93, 0xd3,
+	0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c,
+	0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44, 0x69, 0xa4, 0x67, 0x96, 0x64, 0x94,
+	0x26, 0xe9, 0x25, 0xe7, 0xe7, 0xea, 0x97, 0x64, 0x24, 0x16, 0x15, 0x67, 0x16, 0xeb, 0x43, 0x82,
+	0xab, 0xcc, 0x58, 0xbf, 0x02, 0x12, 0x66, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0xe0, 0x20,
+	0x33, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0xb1, 0xff, 0x67, 0x49, 0x4e, 0x01, 0x00, 0x00,
 }
 
-func (m *FeeContract) Marshal() (dAtA []byte, err error) {
+func (m *DevFeeInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -169,12 +169,12 @@ func (m *FeeContract) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *FeeContract) MarshalTo(dAtA []byte) (int, error) {
+func (m *DevFeeInfo) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *FeeContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *DevFeeInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -203,7 +203,7 @@ func (m *FeeContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *FeeContractsPerDeployer) Marshal() (dAtA []byte, err error) {
+func (m *DevFeeInfosPerDeployer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -213,12 +213,12 @@ func (m *FeeContractsPerDeployer) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *FeeContractsPerDeployer) MarshalTo(dAtA []byte) (int, error) {
+func (m *DevFeeInfosPerDeployer) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *FeeContractsPerDeployer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *DevFeeInfosPerDeployer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -246,7 +246,7 @@ func encodeVarintFees(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *FeeContract) Size() (n int) {
+func (m *DevFeeInfo) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -267,7 +267,7 @@ func (m *FeeContract) Size() (n int) {
 	return n
 }
 
-func (m *FeeContractsPerDeployer) Size() (n int) {
+func (m *DevFeeInfosPerDeployer) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -288,7 +288,7 @@ func sovFees(x uint64) (n int) {
 func sozFees(x uint64) (n int) {
 	return sovFees(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *FeeContract) Unmarshal(dAtA []byte) error {
+func (m *DevFeeInfo) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -311,10 +311,10 @@ func (m *FeeContract) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: FeeContract: wiretype end group for non-group")
+			return fmt.Errorf("proto: DevFeeInfo: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: FeeContract: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: DevFeeInfo: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -434,7 +434,7 @@ func (m *FeeContract) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *FeeContractsPerDeployer) Unmarshal(dAtA []byte) error {
+func (m *DevFeeInfosPerDeployer) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -457,10 +457,10 @@ func (m *FeeContractsPerDeployer) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: FeeContractsPerDeployer: wiretype end group for non-group")
+			return fmt.Errorf("proto: DevFeeInfosPerDeployer: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: FeeContractsPerDeployer: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: DevFeeInfosPerDeployer: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

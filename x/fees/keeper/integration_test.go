@@ -80,7 +80,7 @@ var _ = Describe("While", Ordered, func() {
 
 		// deploy contract and register it
 		contractAddress = deployContract(deployerKey)
-		registerFeeContract(deployerKey, &contractAddress, 0)
+		registerDevFeeInfo(deployerKey, &contractAddress, 0)
 		fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 		Expect(isRegistered).To(Equal(true))
 		Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
@@ -153,14 +153,14 @@ func getGasUsedFromResponse(res abci.ResponseDeliverTx, index int64) int64 {
 	return gasUsed
 }
 
-func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address, nonce uint64) {
+func registerDevFeeInfo(priv *ethsecp256k1.PrivKey, contractAddress *common.Address, nonce uint64) {
 	fromAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	msg := types.NewMsgRegisterFeeContract(*contractAddress, fromAddress, fromAddress, []uint64{nonce})
+	msg := types.NewMsgRegisterDevFeeInfo(*contractAddress, fromAddress, fromAddress, []uint64{nonce})
 
 	res := deliverTx(priv, msg)
 	s.Commit()
 	registerEvent := res.GetEvents()[4]
-	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterFeeContract))
+	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterDevFeeInfo))
 	Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
 	Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
 }

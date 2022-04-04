@@ -3,9 +3,9 @@ package evmos.fees.v1;
 
 option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 
-// FeeContract defines an instance that organizes fee distribution conditions
+// DevFeeInfo defines an instance that organizes fee distribution conditions
 // for the owner of a given smart contract
-message FeeContract {
+message DevFeeInfo {
   // hex address of registered contract
   string contract_address = 1;
   // bech32 address of contract deployer
@@ -14,8 +14,8 @@ message FeeContract {
   string withdraw_address = 3;
 }
 
-// FeeContractsPerDeployer defines an instance that keeps track of all
+// DevFeeInfosPerDeployer defines an instance that keeps track of all
 // contracts registered by a deployer
-message FeeContractsPerDeployer {
+message DevFeeInfosPerDeployer {
   repeated string contract_addresses = 1;
 }

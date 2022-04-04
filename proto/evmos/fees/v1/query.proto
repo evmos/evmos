@@ -11,15 +11,15 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // FeeContracts retrieves all registered contracts for fee distribution
-  rpc FeeContracts(QueryFeeContractsRequest)
-      returns (QueryFeeContractsResponse) {
+  // DevFeeInfos retrieves all registered contracts for fee distribution
+  rpc DevFeeInfos(QueryDevFeeInfosRequest)
+      returns (QueryDevFeeInfosResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees";
   }
 
-  // FeeContract retrieves a registered contract for fee distribution
-  rpc FeeContract(QueryFeeContractRequest)
-      returns (QueryFeeContractResponse) {
+  // DevFeeInfo retrieves a registered contract for fee distribution
+  rpc DevFeeInfo(QueryDevFeeInfoRequest)
+      returns (QueryDevFeeInfoResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees/{contract_address}";
   }
 
@@ -28,40 +28,40 @@ service Query {
     option (google.api.http).get = "/evmos/fees/v1/params";
   }
 
-  // FeeContractsPerDeployer retrieves all contracts that a deployer has
+  // DevFeeInfosPerDeployer retrieves all contracts that a deployer has
   // registered for fee distribution
-  rpc FeeContractsPerDeployer(QueryFeeContractsPerDeployerRequest)
-      returns (QueryFeeContractsPerDeployerResponse) {
+  rpc DevFeeInfosPerDeployer(QueryDevFeeInfosPerDeployerRequest)
+      returns (QueryDevFeeInfosPerDeployerResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees/{deployer_address}";
   }
 }
 
-// QueryFeeContractsRequest is the request type for the Query/FeeContracts RPC
+// QueryDevFeeInfosRequest is the request type for the Query/DevFeeInfos RPC
 // method.
-message QueryFeeContractsRequest {
+message QueryDevFeeInfosRequest {
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryFeeContractsResponse is the response type for the Query/FeeContracts
+// QueryDevFeeInfosResponse is the response type for the Query/DevFeeInfos
 // RPC method.
-message QueryFeeContractsResponse {
-  repeated FeeContract fees = 1 [ (gogoproto.nullable) = false ];
+message QueryDevFeeInfosResponse {
+  repeated DevFeeInfo fees = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryFeeContractRequest is the request type for the Query/FeeContract RPC
+// QueryDevFeeInfoRequest is the request type for the Query/DevFeeInfo RPC
 // method.
-message QueryFeeContractRequest {
+message QueryDevFeeInfoRequest {
   // contract identifier is the hex contract address of a contract
   string contract_address = 1;
 }
 
-// QueryFeeContractResponse is the response type for the Query/FeeContract RPC
+// QueryDevFeeInfoResponse is the response type for the Query/DevFeeInfo RPC
 // method.
-message QueryFeeContractResponse {
-  FeeContract fee = 1 [ (gogoproto.nullable) = false ];
+message QueryDevFeeInfoResponse {
+  DevFeeInfo fee = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -73,19 +73,19 @@ message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryFeeContractsPerDeployerRequest is the request type for the
-// Query/FeeContractsPerDeployer RPC method.
-message QueryFeeContractsPerDeployerRequest {
+// QueryDevFeeInfosPerDeployerRequest is the request type for the
+// Query/DevFeeInfosPerDeployer RPC method.
+message QueryDevFeeInfosPerDeployerRequest {
   // deployer bech32 address
   string deployer_address = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryFeeContractsPerDeployerResponse is the response type for the
-// Query/FeeContractsPerDeployer RPC method.
-message QueryFeeContractsPerDeployerResponse {
-  repeated FeeContract fees = 1 [ (gogoproto.nullable) = false ];
+// QueryDevFeeInfosPerDeployerResponse is the response type for the
+// Query/DevFeeInfosPerDeployer RPC method.
+message QueryDevFeeInfosPerDeployerResponse {
+  repeated DevFeeInfo fees = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

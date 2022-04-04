@@ -11,16 +11,16 @@ func NewFee(
 	contract common.Address,
 	owner sdk.AccAddress,
 	withdraw sdk.AccAddress,
-) FeeContract {
-	return FeeContract{
+) DevFeeInfo {
+	return DevFeeInfo{
 		ContractAddress: contract.String(),
 		DeployerAddress: owner.String(),
 		WithdrawAddress: withdraw.String(),
 	}
 }
 
-// Validate performs a stateless validation of a FeeContract
-func (i FeeContract) Validate() error {
+// Validate performs a stateless validation of a DevFeeInfo
+func (i DevFeeInfo) Validate() error {
 	if err := ethermint.ValidateAddress(i.ContractAddress); err != nil {
 		return err
 	}

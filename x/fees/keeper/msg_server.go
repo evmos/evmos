@@ -13,11 +13,11 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-// RegisterFeeContract registers a contract to receive transaction fees
-func (k Keeper) RegisterFeeContract(
+// RegisterDevFeeInfo registers a contract to receive transaction fees
+func (k Keeper) RegisterDevFeeInfo(
 	goCtx context.Context,
-	msg *types.MsgRegisterFeeContract,
-) (*types.MsgRegisterFeeContractResponse, error) {
+	msg *types.MsgRegisterDevFeeInfo,
+) (*types.MsgRegisterDevFeeInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	contract := common.HexToAddress(msg.ContractAddress)
 
@@ -45,7 +45,7 @@ func (k Keeper) RegisterFeeContract(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s has no code", contract)
 	}
 
-	k.SetFee(ctx, types.FeeContract{
+	k.SetFee(ctx, types.DevFeeInfo{
 		ContractAddress: msg.ContractAddress,
 		DeployerAddress: msg.DeployerAddress,
 		WithdrawAddress: msg.WithdrawAddress,
@@ -55,7 +55,7 @@ func (k Keeper) RegisterFeeContract(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeRegisterFeeContract,
+				types.EventTypeRegisterDevFeeInfo,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
@@ -63,65 +63,65 @@ func (k Keeper) RegisterFeeContract(
 		},
 	)
 
-	return &types.MsgRegisterFeeContractResponse{}, nil
+	return &types.MsgRegisterDevFeeInfoResponse{}, nil
 }
 
-// CancelFeeContract deletes the fee for a contract
-func (k Keeper) CancelFeeContract(
+// CancelDevFeeInfo deletes the fee for a contract
+func (k Keeper) CancelDevFeeInfo(
 	goCtx context.Context,
-	msg *types.MsgCancelFeeContract,
-) (*types.MsgCancelFeeContractResponse, error) {
+	msg *types.MsgCancelDevFeeInfo,
+) (*types.MsgCancelDevFeeInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
+	feeInfo, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
 	if !ok {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
 
-	if msg.DeployerAddress != feeContract.DeployerAddress {
+	if msg.DeployerAddress != feeInfo.DeployerAddress {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
 	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
-	k.DeleteFee(ctx, feeContract)
+	k.DeleteFee(ctx, feeInfo)
 	k.DeleteFeeInverse(ctx, deployer)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeCancelFeeContract,
+				types.EventTypeCancelDevFeeInfo,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 			),
 		},
 	)
 
-	return &types.MsgCancelFeeContractResponse{}, nil
+	return &types.MsgCancelDevFeeInfoResponse{}, nil
 }
 
-// UpdateFeeContract updates the withdraw address for a contract
-func (k Keeper) UpdateFeeContract(
+// UpdateDevFeeInfo updates the withdraw address for a contract
+func (k Keeper) UpdateDevFeeInfo(
 	goCtx context.Context,
-	msg *types.MsgUpdateFeeContract,
-) (*types.MsgUpdateFeeContractResponse, error) {
+	msg *types.MsgUpdateDevFeeInfo,
+) (*types.MsgUpdateDevFeeInfoResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	feeContract, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
+	feeInfo, ok := k.GetFee(ctx, common.HexToAddress(msg.ContractAddress))
 	if !ok {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
 
-	if msg.DeployerAddress != feeContract.DeployerAddress {
+	if msg.DeployerAddress != feeInfo.DeployerAddress {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
-	feeContract.WithdrawAddress = msg.WithdrawAddress
-	k.SetFee(ctx, feeContract)
+	feeInfo.WithdrawAddress = msg.WithdrawAddress
+	k.SetFee(ctx, feeInfo)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeUpdateFeeContract,
+				types.EventTypeUpdateDevFeeInfo,
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
@@ -129,5 +129,5 @@ func (k Keeper) UpdateFeeContract(
 		},
 	)
 
-	return &types.MsgUpdateFeeContractResponse{}, nil
+	return &types.MsgUpdateDevFeeInfoResponse{}, nil
 }
