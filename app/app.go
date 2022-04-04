@@ -105,6 +105,7 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app/ante"
+	tv3 "github.com/tharsis/evmos/v3/app/upgrades/tv3"
 	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
 	v3 "github.com/tharsis/evmos/v3/app/upgrades/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
@@ -1008,5 +1009,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v3.UpgradeName,
 		v3.CreateUpgradeHandler(app.mm, app.configurator),
+	)
+
+	// testnet v3 handler upgrade is
+	app.UpgradeKeeper.SetUpgradeHandler(
+		tv3.UpgradeName,
+		tv3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
 }

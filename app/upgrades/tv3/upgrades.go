@@ -1,4 +1,4 @@
-package v3
+package tv3
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
@@ -10,9 +10,13 @@ import (
 	feemarketv010 "github.com/tharsis/ethermint/x/feemarket/migrations/v010"
 	feemarketv09types "github.com/tharsis/ethermint/x/feemarket/migrations/v09/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	v1claims "github.com/tharsis/evmos/v3/x/claims/migrations/v1/types"
+	v2claims "github.com/tharsis/evmos/v3/x/claims/migrations/v2"
+	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
 )
 
-const UpgradeName = "v3"
+// UpgradeName defines the upgrade name for testnet v3
+const UpgradeName = "tv3"
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v3
 func CreateUpgradeHandler(
@@ -24,9 +28,10 @@ func CreateUpgradeHandler(
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
 
-		// migrate fee market module, other modules are left as-is to
+		// migrate fee market module and the claims module
 		// avoid running InitGenesis.
 		vm[feemarkettypes.ModuleName] = 1
+		vm[claimstypes.ModuleName] = 1
 
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -58,6 +63,26 @@ func MigrateGenesis(appState types.AppMap, clientCtx client.Context) types.AppMa
 	}
 
 	appState[feemarkettypes.ModuleName] = feeMarketBz
+
+	// unmarshal relative source genesis application state
+	var oldClaimsState v1claims.GenesisState
+	if err := clientCtx.Codec.UnmarshalJSON(appState[claimstypes.ModuleName], &oldClaimsState); err != nil {
+		return appState
+	}
+
+	// delete deprecated x/feemarket genesis state
+	delete(appState, claimstypes.ModuleName)
+
+	// Migrate relative source genesis application state and marshal it into
+	// the respective key.
+	newClaimsState := v2claims.MigrateJSON(oldClaimsState)
+
+	claimsBz, err := clientCtx.Codec.MarshalJSON(&newClaimsState)
+	if err != nil {
+		return appState
+	}
+
+	appState[claimstypes.ModuleName] = claimsBz
 
 	return appState
 }
