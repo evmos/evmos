@@ -32,7 +32,7 @@ import (
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
 )
 
-var _ = Describe("Fees", Ordered, func() {
+var _ = Describe("While", Ordered, func() {
 	claimsDenom := claimstypes.DefaultClaimsDenom
 	evmDenom := evmtypes.DefaultEVMDenom
 	accountCount := 4
@@ -46,10 +46,12 @@ var _ = Describe("Fees", Ordered, func() {
 	totalAmount := sdk.NewCoin(claimsDenom, initAmount.MulRaw(int64(accountCount)))
 
 	var (
-		priv0  *ethsecp256k1.PrivKey
-		privs  []*ethsecp256k1.PrivKey
-		addr0  sdk.AccAddress
-		params types.Params
+		deployerKey     *ethsecp256k1.PrivKey
+		userKey         *ethsecp256k1.PrivKey
+		deployerAddress sdk.AccAddress
+		userAddress     sdk.AccAddress
+		params          types.Params
+		contractAddress common.Address
 	)
 
 	BeforeAll(func() {
@@ -61,64 +63,95 @@ var _ = Describe("Fees", Ordered, func() {
 
 		// mint coins for claiming and send them to the claims module
 		coins := sdk.NewCoins(totalAmount)
-
 		err := testutil.FundModuleAccount(s.app.BankKeeper, s.ctx, inflationtypes.ModuleName, coins)
 		s.Require().NoError(err)
 
-		priv0, _ = ethsecp256k1.GenerateKey()
-		addr0 = getAddr(priv0)
-		testutil.FundAccount(s.app.BankKeeper, s.ctx, addr0, initBalance)
+		// setup accounts
+		deployerKey, _ = ethsecp256k1.GenerateKey()
+		deployerAddress = getAddr(deployerKey)
+		testutil.FundAccount(s.app.BankKeeper, s.ctx, deployerAddress, initBalance)
 
-		for i := 0; i < accountCount; i++ {
-			priv, _ := ethsecp256k1.GenerateKey()
-			privs = append(privs, priv)
-			addr := getAddr(priv)
-			testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, initBalance)
-			acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, addr)
-			s.app.AccountKeeper.SetAccount(s.ctx, acc)
+		userKey, _ = ethsecp256k1.GenerateKey()
+		userAddress = getAddr(userKey)
+		testutil.FundAccount(s.app.BankKeeper, s.ctx, userAddress, initBalance)
+		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, userAddress)
+		s.app.AccountKeeper.SetAccount(s.ctx, acc)
+		s.Commit()
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance.Amount).To(Equal(initAmount))
-		}
-
+		// deploy contract and register it
+		contractAddress = deployContract(deployerKey)
+		registerFeeContract(deployerKey, &contractAddress, 0)
+		fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
+		Expect(isRegistered).To(Equal(true))
+		Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+		Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+		Expect(fee.WithdrawAddress).To(Equal(deployerAddress.String()))
 		s.Commit()
 	})
 
-	Context("ctx", func() {
-		var contractAddress common.Address
+	Context("fee distribution is disabled", func() {
 		BeforeAll(func() {
-			contractAddress = deployContract(priv0)
+			params = s.app.FeesKeeper.GetParams(s.ctx)
+			params.EnableFees = false
+			s.app.FeesKeeper.SetParams(s.ctx, params)
 		})
 
-		It("send registration message", func() {
-			registerFeeContract(priv0, &contractAddress, 0)
-			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
-			Expect(isRegistered).To(Equal(true))
-			Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
-			Expect(fee.DeployerAddress).To(Equal(addr0.String()))
-			Expect(fee.WithdrawAddress).To(Equal(addr0.String()))
+		It("no tx fees go to developers", func() {
+			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+			gasPrice := big.NewInt(2000000000)
+			contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
+
+			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+			Expect(balance).To(Equal(preBalance))
+		})
+	})
+
+	Context("fee distribution is enabled", func() {
+		BeforeAll(func() {
+			params = s.app.FeesKeeper.GetParams(s.ctx)
+			params.EnableFees = true
+			s.app.FeesKeeper.SetParams(s.ctx, params)
 		})
 
-		It("interact with contract", func() {
-			preBalance := s.app.BankKeeper.GetBalance(s.ctx, addr0, evmDenom)
-			cfg, _ := s.app.EvmKeeper.EVMConfig(s.ctx)
-			res := contractInteract(privs[0], &contractAddress)
+		It("legacy tx fees are split validators-developers", func() {
+			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+			gasPrice := big.NewInt(2000000000)
+			res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-			registerEvent := res.GetEvents()[14]
-			Expect(registerEvent.Type).To(Equal("ethereum_tx"))
-			Expect(string(registerEvent.Attributes[3].Key)).To(Equal("txGasUsed"))
-			gasUsed, err := strconv.ParseInt(string(registerEvent.Attributes[3].Value), 10, 64)
-			s.Require().NoError(err)
-
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(cfg.BaseFee))
+			gasUsed := getGasUsedFromResponse(res, 14)
+			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperPercentage)
 			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr0, evmDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
+		})
+
+		It("dynamic tx fees are split validators-developers", func() {
+			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+			gasTipCap := big.NewInt(10000)
+			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
+			res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
+
+			gasUsed := getGasUsedFromResponse(res, 14)
+			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
+			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperPercentage)
+			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
+
+			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 		})
 	})
 })
+
+func getGasUsedFromResponse(res abci.ResponseDeliverTx, index int64) int64 {
+	registerEvent := res.GetEvents()[index]
+	Expect(registerEvent.Type).To(Equal("ethereum_tx"))
+	Expect(string(registerEvent.Attributes[3].Key)).To(Equal("txGasUsed"))
+	gasUsed, err := strconv.ParseInt(string(registerEvent.Attributes[3].Value), 10, 64)
+	s.Require().NoError(err)
+	return gasUsed
+}
 
 func registerFeeContract(priv *ethsecp256k1.PrivKey, contractAddress *common.Address, nonce uint64) {
 	fromAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
@@ -160,13 +193,20 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	return contractAddress
 }
 
-func contractInteract(priv *ethsecp256k1.PrivKey, contractAddr *common.Address) abci.ResponseDeliverTx {
+func contractInteract(
+	priv *ethsecp256k1.PrivKey,
+	contractAddr *common.Address,
+	gasPrice *big.Int,
+	gasFeeCap *big.Int,
+	gasTipCap *big.Int,
+	accesses *ethtypes.AccessList,
+) abci.ResponseDeliverTx {
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, contractAddr, nil, gasLimit, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
+	msgEthereumTx := evmtypes.NewTx(chainID, nonce, contractAddr, nil, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
 	msgEthereumTx.From = from.String()
 
 	res := performEthTx(priv, msgEthereumTx)

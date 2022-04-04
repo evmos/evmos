@@ -32,8 +32,7 @@ func (k Keeper) Hooks() Hooks {
 // PostTxProcessing implements EvmHooks.PostTxProcessing
 func (h Hooks) PostTxProcessing(
 	ctx sdk.Context,
-	from common.Address,
-	to *common.Address,
+	msg ethtypes.Message,
 	receipt *ethtypes.Receipt,
 ) error {
 	params := h.k.GetParams(ctx)

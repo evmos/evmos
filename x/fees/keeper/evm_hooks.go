@@ -23,17 +23,19 @@ func (k Keeper) Hooks() Hooks {
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the owner's GasUsed is
 // added to its gasMeter.
-func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *common.Address, receipt *ethtypes.Receipt) error {
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg ethtypes.Message, receipt *ethtypes.Receipt) error {
 	// check if the fees are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableFees {
 		return nil
 	}
 
+	contract := msg.To()
 	// If theres no fees registered for the contract, do nothing
 	if contract == nil || !h.k.IsFeeRegistered(ctx, *contract) {
 		return nil
 	}
+
 	cfg, err := h.k.evmKeeper.EVMConfig(ctx)
 	if err != nil {
 		return err
@@ -49,18 +51,16 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, contract *
 		return err
 	}
 
-	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(cfg.BaseFee))
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(h.k.GetParams(ctx).DeveloperPercentage)
+	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
+	feeParams := h.k.GetParams(ctx)
+	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(feeParams.DeveloperPercentage)
 	developerCoins := sdk.Coins{sdk.NewCoin(cfg.Params.EvmDenom, developerFee.TruncateInt())}
 
-	// TODO burn 100% - devP - validatorP
-
-	return h.addFeesToOwner(ctx, *contract, withdrawAddr, developerCoins)
+	return h.sendFees(ctx, *contract, withdrawAddr, developerCoins)
 }
 
-// addGasToParticipant adds gasUsed to a participant's gas meter's cumulative
-// gas used
-func (h Hooks) addFeesToOwner(
+// sendFees distributes the fees to the deployer
+func (h Hooks) sendFees(
 	ctx sdk.Context,
 	contract common.Address,
 	withdrawAddr sdk.AccAddress,
