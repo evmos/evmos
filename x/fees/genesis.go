@@ -24,13 +24,9 @@ func InitGenesis(
 	}
 
 	for _, fee := range data.DevFeeInfos {
-		var withdrawal *sdk.AccAddress
 		contract := common.HexToAddress(fee.ContractAddress)
 		deployer, _ := sdk.AccAddressFromBech32(fee.DeployerAddress)
-		_withdrawal, err := sdk.AccAddressFromBech32(fee.DeployerAddress)
-		if err == nil {
-			withdrawal = &_withdrawal
-		}
+		withdrawal, _ := sdk.AccAddressFromBech32(fee.DeployerAddress)
 
 		// Set initial contracts receiving transaction fees
 		k.SetFee(ctx, contract, deployer, withdrawal)

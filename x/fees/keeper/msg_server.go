@@ -28,15 +28,20 @@ func (k Keeper) RegisterDevFeeInfo(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is already registered", contract)
 	}
 
-	var withdrawal *sdk.AccAddress
+	var withdrawal sdk.AccAddress
 	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	derivedContractAddr := common.BytesToAddress(deployer)
 
 	if msg.WithdrawAddress != "" {
-		_withdrawal, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
-		withdrawal = &_withdrawal
+		withdrawal, _ = sdk.AccAddressFromBech32(msg.WithdrawAddress)
 	}
 
+	// the contract can be directly deployed by an EOA or created through one
+	// or more factory contracts. If it was deployed by an EOA account, then
+	// msg.Nonces contains the EOA nonce for the deployment transaction.
+	// If it was deployed by one or more factories, msg.Nonces contains the EOA
+	// nonce for the origin factory contract, then the nonce of the factory
+	// for the creation of the next factory/contract.
 	for _, nonce := range msg.Nonces {
 		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
 	}

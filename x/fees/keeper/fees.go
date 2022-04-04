@@ -10,20 +10,25 @@ import (
 
 // GetAllFees - get all registered DevFeeInfo instances
 func (k Keeper) GetAllFees(ctx sdk.Context) []types.DevFeeInfo {
-	fees := []types.DevFeeInfo{}
+	feeInfos := []types.DevFeeInfo{}
 
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFee)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var fee types.DevFeeInfo
-		k.cdc.MustUnmarshal(iterator.Value(), &fee)
-
-		fees = append(fees, fee)
+		contractAddress := common.BytesToAddress(iterator.Key())
+		deployerAddress := sdk.AccAddress(iterator.Value())
+		withdrawalAddress, _ := k.GetWithdrawal(ctx, contractAddress)
+		feeInfo := types.DevFeeInfo{
+			ContractAddress: contractAddress.String(),
+			DeployerAddress: deployerAddress.String(),
+			WithdrawAddress: withdrawalAddress.String(),
+		}
+		feeInfos = append(feeInfos, feeInfo)
 	}
 
-	return fees
+	return feeInfos
 }
 
 // IterateFees iterates over all registered `DevFeeInfos` and performs a
@@ -37,10 +42,16 @@ func (k Keeper) IterateFees(
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var fee types.DevFeeInfo
-		k.cdc.MustUnmarshal(iterator.Value(), &fee)
+		contractAddress := common.BytesToAddress(iterator.Key())
+		deployerAddress := sdk.AccAddress(iterator.Value())
+		withdrawalAddress, _ := k.GetWithdrawal(ctx, contractAddress)
+		feeInfo := types.DevFeeInfo{
+			ContractAddress: contractAddress.String(),
+			DeployerAddress: deployerAddress.String(),
+			WithdrawAddress: withdrawalAddress.String(),
+		}
 
-		if handlerFn(fee) {
+		if handlerFn(feeInfo) {
 			break
 		}
 	}
@@ -82,10 +93,10 @@ func (k Keeper) GetWithdrawal(ctx sdk.Context, contract common.Address) (sdk.Acc
 }
 
 // SetFee stores a registered contract
-func (k Keeper) SetFee(ctx sdk.Context, contract common.Address, deployer sdk.AccAddress, withdrawal *sdk.AccAddress) {
+func (k Keeper) SetFee(ctx sdk.Context, contract common.Address, deployer sdk.AccAddress, withdrawal sdk.AccAddress) {
 	k.SetDeployer(ctx, contract, deployer)
 	if withdrawal != nil {
-		k.SetWithdrawal(ctx, contract, *withdrawal)
+		k.SetWithdrawal(ctx, contract, withdrawal)
 	}
 }
 
