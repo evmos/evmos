@@ -49,7 +49,8 @@ func (k Keeper) RegisterDevFeeInfo(
 	if contract != derivedContractAddr {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrorInvalidSigner,
-			"%s not contract deployer or wrong nonce", msg.DeployerAddress,
+			"not contract deployer or wrong nonce: expected %s instead of %s", derivedContractAddr,
+			contract,
 		)
 	}
 
@@ -61,6 +62,11 @@ func (k Keeper) RegisterDevFeeInfo(
 
 	k.SetFee(ctx, contract, deployer, withdrawal)
 	k.SetFeeInverse(ctx, deployer, contract)
+	k.Logger(ctx).Debug(
+		"registering contract for transaction fees",
+		"contract", msg.ContractAddress, "deployer", msg.DeployerAddress,
+		"withdraw", msg.WithdrawAddress,
+	)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
