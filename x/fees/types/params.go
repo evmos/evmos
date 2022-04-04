@@ -9,11 +9,11 @@ import (
 
 // Parameter store key
 var (
-	DefaultDeveloperPercentage       = sdk.NewDecWithPrec(50, 2) // 50%
-	DefaultValidatorPercentage       = sdk.NewDecWithPrec(50, 2) // 50%
-	ParamStoreKeyEnableFees          = []byte("EnableFees")
-	ParamStoreKeyDeveloperPercentage = []byte("DeveloperPercentage")
-	ParamStoreKeyValidatorPercentage = []byte("ValidatorPercentage")
+	DefaultDeveloperShares       = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultValidatorShares       = sdk.NewDecWithPrec(50, 2) // 50%
+	ParamStoreKeyEnableFees      = []byte("EnableFees")
+	ParamStoreKeyDeveloperShares = []byte("DeveloperShares")
+	ParamStoreKeyValidatorShares = []byte("ValidatorShares")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -24,22 +24,22 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params object
 func NewParams(
 	enableFees bool,
-	developerPercentage sdk.Dec,
-	validatorPercentage sdk.Dec,
+	developerShares sdk.Dec,
+	validatorShares sdk.Dec,
 
 ) Params {
 	return Params{
-		EnableFees:          enableFees,
-		DeveloperPercentage: developerPercentage,
-		ValidatorPercentage: validatorPercentage,
+		EnableFees:      enableFees,
+		DeveloperShares: developerShares,
+		ValidatorShares: validatorShares,
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		EnableFees:          true,
-		DeveloperPercentage: DefaultDeveloperPercentage,
-		ValidatorPercentage: DefaultValidatorPercentage,
+		EnableFees:      true,
+		DeveloperShares: DefaultDeveloperShares,
+		ValidatorShares: DefaultValidatorShares,
 	}
 }
 
@@ -47,8 +47,8 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableFees, &p.EnableFees, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperPercentage, &p.DeveloperPercentage, validatePercentage),
-		paramtypes.NewParamSetPair(ParamStoreKeyValidatorPercentage, &p.ValidatorPercentage, validatePercentage),
+		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperShares, &p.DeveloperShares, validateShares),
+		paramtypes.NewParamSetPair(ParamStoreKeyValidatorShares, &p.ValidatorShares, validateShares),
 	}
 }
 
@@ -61,14 +61,18 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validatePercentage(i interface{}) error {
+func validateShares(i interface{}) error {
 	v, ok := i.(sdk.Dec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("value cannot be negative")
+		return fmt.Errorf("value cannot be negative: %T", i)
+	}
+
+	if v.GT(sdk.OneDec()) {
+		return fmt.Errorf("value cannot be greater than 1: %T", i)
 	}
 
 	return nil
@@ -78,11 +82,14 @@ func (p Params) Validate() error {
 	if err := validateBool(p.EnableFees); err != nil {
 		return err
 	}
-	if err := validatePercentage(p.DeveloperPercentage); err != nil {
+	if err := validateShares(p.DeveloperShares); err != nil {
 		return err
 	}
-	if err := validatePercentage(p.ValidatorPercentage); err != nil {
+	if err := validateShares(p.ValidatorShares); err != nil {
 		return err
+	}
+	if p.DeveloperShares.Add(p.ValidatorShares).GT(sdk.OneDec()) {
+		return fmt.Errorf("total shares cannot be greater than 1: %T + %T", p.DeveloperShares, p.ValidatorShares)
 	}
 
 	return nil

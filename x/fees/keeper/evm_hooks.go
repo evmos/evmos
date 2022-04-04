@@ -53,7 +53,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg ethtypes.Message, receipt *
 
 	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
 	feeParams := h.k.GetParams(ctx)
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(feeParams.DeveloperPercentage)
+	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(feeParams.DeveloperShares)
 	developerCoins := sdk.Coins{sdk.NewCoin(cfg.Params.EvmDenom, developerFee.TruncateInt())}
 
 	return h.sendFees(ctx, *contract, withdrawAddr, developerCoins)

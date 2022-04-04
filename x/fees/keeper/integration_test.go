@@ -120,7 +120,7 @@ var _ = Describe("While", Ordered, func() {
 
 			gasUsed := getGasUsedFromResponse(res, 14)
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperPercentage)
+			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
@@ -135,7 +135,7 @@ var _ = Describe("While", Ordered, func() {
 
 			gasUsed := getGasUsedFromResponse(res, 14)
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperPercentage)
+			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)

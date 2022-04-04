@@ -1055,8 +1055,8 @@ Params defines the fees module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
-| `developer_percentage` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to the registered contract owner |
-| `validator_percentage` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to validators |
+| `developer_shares` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to the registered contract owner |
+| `validator_shares` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to validators |
 
 
 
