@@ -1039,7 +1039,7 @@ GenesisState defines the module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
-| `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated | active registered contracts |
+| `dev_fee_infos` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated | active registered contracts |
 
 
 
@@ -1055,8 +1055,8 @@ Params defines the fees module params
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
-| `developer_shares` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to the registered contract owner |
-| `validator_shares` | [string](#string) |  | developer_percentage defines the proportion of the transaction fees to be distributed to validators |
+| `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
+| `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
 
 
 

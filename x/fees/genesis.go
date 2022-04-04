@@ -23,7 +23,7 @@ func InitGenesis(
 		panic("the fees module account has not been set")
 	}
 
-	for _, fee := range data.Fees {
+	for _, fee := range data.DevFeeInfos {
 		contract := common.HexToAddress(fee.ContractAddress)
 		deployer, _ := sdk.AccAddressFromBech32(fee.DeployerAddress)
 
@@ -36,7 +36,7 @@ func InitGenesis(
 // ExportGenesis export module status
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params: k.GetParams(ctx),
-		Fees:   k.GetAllFees(ctx),
+		Params:      k.GetParams(ctx),
+		DevFeeInfos: k.GetAllFees(ctx),
 	}
 }

@@ -6,8 +6,8 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 )
 
-// NewFee returns an instance of Fee
-func NewFee(
+// NewFee returns an instance of DevFeeInfo
+func NewDevFeeInfo(
 	contract common.Address,
 	owner sdk.AccAddress,
 	withdraw sdk.AccAddress,
