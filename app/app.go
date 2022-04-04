@@ -105,9 +105,9 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app/ante"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/tv3"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/v3"
+	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
+	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
+	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"

@@ -1,4 +1,4 @@
-package tv3
+package v3
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
