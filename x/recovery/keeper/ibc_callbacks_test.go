@@ -8,6 +8,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/evmos/v3/testutil"
 
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
@@ -49,11 +50,19 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	packet := mockPacket
 	expAck := ibcmock.MockAcknowledgement
 
+	coins := sdk.NewCoins(
+		sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+		sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
+	)
+
 	testCases := []struct {
 		name        string
 		malleate    func()
 		ackSuccess  bool
 		expRecovery bool
+		expCoins    sdk.Coins
 	}{
 		{
 			"continue - params disabled",
@@ -64,6 +73,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - destination channel not authorized",
@@ -74,6 +84,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - destination channel is EVM",
@@ -85,6 +96,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"fail - non ics20 packet",
@@ -93,6 +105,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - invalid sender - missing '1' ",
@@ -103,6 +116,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - invalid sender - invalid bech32",
@@ -113,6 +127,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - invalid recipient",
@@ -123,6 +138,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
 			"fail - case: receiver address is in deny list",
@@ -135,9 +151,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			false,
 			false,
+			coins,
 		},
 		{
-			"continue - case 1: sender and receiver address are not the same",
+			"continue - sender != receiver",
 			func() {
 				pk1 := secp256k1.GenPrivKey()
 				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
@@ -148,6 +165,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - receiver is a vesting account",
@@ -164,6 +182,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
 			"continue - receiver is a module account",
@@ -177,9 +196,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
 		},
 		{
-			"continue - case 2: receiver pubkey is a supported key",
+			"continue - receiver pubkey is a supported key",
 			func() {
 				// Set account to generate a pubkey
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(ethsecpAddr, ethPk.PubKey(), 0, 0))
@@ -190,6 +210,26 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			false,
+			coins,
+		},
+		{
+			"partial recovery - account has invalid ibc vouchers balance",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+
+				invalidDenom := "ibc/1"
+				coins := sdk.NewCoins(sdk.NewCoin(invalidDenom, sdk.NewInt(1000)))
+				testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+			},
+			false,
+			false,
+			sdk.NewCoins(
+				sdk.NewCoin("ibc/1", sdk.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
+			),
 		},
 		{
 			"recovery - send uatom from cosmos to evmos",
@@ -200,6 +240,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			true,
+			nil,
 		},
 		{
 			"recovery - send ibc/uosmo from cosmos to evmos",
@@ -212,6 +253,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			true,
 			true,
+			nil,
 		},
 		{
 			"recovery - send uosmo from osmosis to evmos",
@@ -225,9 +267,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+				// TODO TEST
 			},
 			true,
 			true,
+			nil,
 		},
 	}
 	for _, tc := range testCases {
@@ -275,12 +319,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
-			coins := sdk.NewCoins(
-				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
-				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
-				sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
-				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
-			)
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
 
 			// Perform IBC callback
@@ -299,8 +337,255 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			if tc.expRecovery {
 				suite.Require().True(balances.IsZero())
 			} else {
-				suite.Require().Equal(coins, balances)
+				suite.Require().Equal(tc.expCoins, balances)
 			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
+	address := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+
+	testCases := []struct {
+		name                                      string
+		denom                                     string
+		malleate                                  func()
+		expError                                  bool
+		expDestinationPort, expDestinationChannel string
+	}{
+		{
+			"invalid native denom",
+			"aevmos",
+			func() {},
+			true,
+			"", "",
+		},
+		{
+			"invalid IBC denom hash",
+			"ibc/aevmos",
+			func() {},
+			true,
+			"", "",
+		},
+		{
+			"denom trace not found",
+			ibcAtomDenom,
+			func() {},
+			true,
+			"", "",
+		},
+		{
+			"channel not found",
+			ibcAtomDenom,
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+			},
+			true,
+			"", "",
+		},
+		{
+			"invalid destination port - insufficient length",
+			"ibc/B9A49AA0AB0EB977D4EC627D7D9F747AF11BB1D74F430DE759CA37B22ECACF30", // denomTrace.Hash()
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "t/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("t", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "t", "channel-3", channel)
+
+			},
+			true,
+			"", "",
+		},
+		{
+			"invalid channel identifier - insufficient length",
+			"ibc/5E3E083402F07599C795A7B75058EC3F13A8E666A8FEA2E51B6F3D93C755DFBC", // denomTrace.Hash()
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/c-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "c-3", channel)
+
+			},
+			true,
+			"", "",
+		},
+		{
+			"success - ATOM",
+			ibcAtomDenom,
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-3",
+					BaseDenom: "uatom",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-3", channel)
+			},
+			false,
+			"transfer", "channel-3",
+		},
+		{
+			"success - OSMO",
+			ibcOsmoDenom,
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-0",
+					BaseDenom: "uosmo",
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-204"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
+			},
+			false,
+			"transfer", "channel-0",
+		},
+		{
+			"success - ibcATOM (via Osmosis)",
+			"ibc/6CDD4663F2F09CD62285E2D45891FC149A3568E316CE3EBBE201A71A78A69388",
+			func() {
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "transfer/channel-0/transfer/channel-0",
+					BaseDenom: "uatom",
+				}
+
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+
+				channel := channeltypes.Channel{
+					Counterparty: channeltypes.NewCounterparty("transfer", "channel-204"),
+				}
+				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "channel-0", channel)
+			},
+			false,
+			"transfer", "channel-0",
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			destinationPort, destinationChannel, err := suite.app.RecoveryKeeper.GetIBCDenomDestinationIdentifiers(suite.ctx, tc.denom, address)
+			if tc.expError {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+				suite.Require().Equal(tc.expDestinationPort, destinationPort)
+				suite.Require().Equal(tc.expDestinationChannel, destinationChannel)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
+	// secp256k1 account
+	secpPk := secp256k1.GenPrivKey()
+	secpAddr := sdk.AccAddress(secpPk.PubKey().Address())
+	secpAddrEvmos := secpAddr.String()
+	secpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, secpAddr)
+
+	// Setup Cosmos <=> Evmos IBC relayer
+	denom := "uatom"
+	sourceChannel := "channel-292"
+	evmosChannel := claimstypes.DefaultAuthorizedChannels[1]
+	path := fmt.Sprintf("%s/%s", transfertypes.PortID, evmosChannel)
+
+	var mockTransferKeeper *MockTransferKeeper
+	expAck := ibcmock.MockAcknowledgement
+	testCases := []struct {
+		name     string
+		malleate func()
+	}{
+		{
+			"Fail to retrieve ibc denom trace",
+			func() {
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(transfertypes.DenomTrace{}, false)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			},
+		},
+		{
+			"invalid ibc denom trace",
+			func() {
+				// Set Denom Trace
+				denomTrace := transfertypes.DenomTrace{
+					Path:      "badpath",
+					BaseDenom: denom,
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			},
+		},
+
+		{
+			"Fail to send transfer",
+			func() {
+				// Set Denom Trace
+				denomTrace := transfertypes.DenomTrace{
+					Path:      path,
+					BaseDenom: denom,
+				}
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
+				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
+				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("Fail to transfer"))
+			},
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			// Enable Recovery
+			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
+			params.EnableRecovery = true
+			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+
+			transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
+			packet := channeltypes.NewPacket(transfer.GetBytes(), 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+
+			mockTransferKeeper = &MockTransferKeeper{
+				Keeper: suite.app.BankKeeper,
+			}
+
+			tc.malleate()
+
+			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+			suite.Require().True(found)
+			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
+
+			// Fund receiver account with EVMOS
+			coins := sdk.NewCoins(
+				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+			)
+			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+
+			// Perform IBC callback
+			ack := suite.app.RecoveryKeeper.OnRecvPacket(suite.ctx, packet, expAck)
+			// Recovery should Fail
+			suite.Require().False(ack.Success())
 		})
 	}
 }

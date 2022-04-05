@@ -12,7 +12,7 @@ You need to set the **genesis file** and **seeds**. If you need more information
 
 | Chain ID       | Description   | Site                                                               | Version                                               | Status     |
 | -------------- | ------------- | ------------------------------------------------------------------ | ----------------------------------------------------- | ---------- |
-| `evmos_9001-2` | Evmos Mainnet 2 | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-2) | [`≥v2.0.1`](https://github.com/tharsis/evmos/releases) | `Not Live` |
+| `evmos_9001-2` | Evmos Mainnet 2 | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-2) | [`v3.0.x`](https://github.com/tharsis/evmos/releases) | `Not Live` |
 | `evmos_9001-1` | Evmos Mainnet 1 | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-1) | [`v2.0.1`](https://github.com/tharsis/evmos/releases/v2.0.1) | `Stale` |
 
 ## Install `evmosd`
@@ -133,6 +133,12 @@ evmosd tx staking create-validator \
   --gas-prices="0.025aevmos" \
   --from=<key_name>
 ```
+
+::: danger
+🚨 **DANGER**: <u>Never</u> create your validator keys using a [`test`](./../guides/keys-wallets/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+
+Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
+:::
 
 ## Start mainnet
 
