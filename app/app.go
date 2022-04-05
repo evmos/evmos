@@ -1041,7 +1041,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case upgradeInfo.Name == tv3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
 		// prepare store for testnet v3
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{claimstypes.ModuleName, feemarkettypes.ModuleName, recoverytypes.ModuleName},
+			Added: []string{recoverytypes.ModuleName},
 		}
 	}
 
