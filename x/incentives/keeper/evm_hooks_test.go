@@ -33,7 +33,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 	}{
 		{
 			"incentives are disabled globally",
-			func(contractAddr common.Address) {
+			func(_ common.Address) {
 				params := types.DefaultParams()
 				params.EnableIncentives = false
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 		},
 		{
 			"tx with unincentivized contract",
-			func(contractAddr common.Address) {
+			func(_ common.Address) {
 				suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
 			},
 			false,

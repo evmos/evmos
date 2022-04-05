@@ -54,10 +54,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (deps) [\#458](https://github.com/tharsis/evmos/pull/458) Bump Ethermint to [`v0.13.0`](https://github.com/tharsis/ethermint/releases/tag/v0.13.0)
 - (deps) [\#457](https://github.com/tharsis/evmos/pull/457) Bump Cosmos SDK to [`v0.45.2`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.2)
 - (cmd) [\#446](https://github.com/tharsis/evmos/pull/446) Update `migrate` command to migrate Evmos, Ethermint and Cosmos SDK modules.
 - (app) [\#446](https://github.com/tharsis/evmos/pull/446) Refactor upgrade code.
-- (deps) [\#427](https://github.com/tharsis/evmos/pull/427) Bump Ethermint to [`v0.12.0`](https://github.com/tharsis/ethermint/releases/tag/v0.12.0)
 - (ibc) [\#412](https://github.com/tharsis/evmos/pull/412) Introduce boilerplate struct for IBC applications.
 - (deps) [\#402](https://github.com/tharsis/evmos/pull/402) Bump IBC go to [`v3.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0)
 - (ibctesting) [\#388](https://github.com/tharsis/evmos/pull/388) Support Cosmos and EVM chains in IBC testing `Coordinator`.

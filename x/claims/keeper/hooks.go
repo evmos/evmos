@@ -8,7 +8,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -80,9 +80,9 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 // After a EVM state transition is successfully processed, the claimable amount
 // for the users's claims record evm action is claimed and transferred to the
 // user address.
-func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
+func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	params := k.GetParams(ctx)
-	fromAddr := sdk.AccAddress(from.Bytes())
+	fromAddr := sdk.AccAddress(msg.From().Bytes())
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, fromAddr)
 	if !found {
@@ -104,8 +104,8 @@ func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, from common.Address, to
 // ________________________________________________________________________________________
 
 // evm hook
-func (h Hooks) PostTxProcessing(ctx sdk.Context, from common.Address, to *common.Address, receipt *ethtypes.Receipt) error {
-	return h.k.AfterEVMStateTransition(ctx, from, to, receipt)
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	return h.k.AfterEVMStateTransition(ctx, msg, receipt)
 }
 
 // governance hooks
