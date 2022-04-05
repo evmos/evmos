@@ -229,10 +229,10 @@ func (m *ClaimsRecord) GetActionsCompleted() []bool {
 }
 
 func init() {
-	proto.RegisterEnum("evmos.claims.v1.Action", Action_name, Action_value)
-	proto.RegisterType((*Claim)(nil), "evmos.claims.v1.Claim")
-	proto.RegisterType((*ClaimsRecordAddress)(nil), "evmos.claims.v1.ClaimsRecordAddress")
-	proto.RegisterType((*ClaimsRecord)(nil), "evmos.claims.v1.ClaimsRecord")
+	proto.RegisterEnum("evmos.claims.migration.v1.Action", Action_name, Action_value)
+	proto.RegisterType((*Claim)(nil), "evmos.claims.migration.v1.Claim")
+	proto.RegisterType((*ClaimsRecordAddress)(nil), "evmos.claims.migration.v1.ClaimsRecordAddress")
+	proto.RegisterType((*ClaimsRecord)(nil), "evmos.claims.migration.v1.ClaimsRecord")
 }
 
 func init() { proto.RegisterFile("evmos/claims/v1/claims.proto", fileDescriptor_a7153f2307523893) }

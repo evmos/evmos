@@ -15,9 +15,6 @@ import (
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
 )
 
-// UpgradeName defines the upgrade name for testnet v3
-const UpgradeName = "tv3"
-
 // CreateUpgradeHandler creates an SDK upgrade handler for v3
 func CreateUpgradeHandler(
 	mm *module.Manager,
