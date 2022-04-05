@@ -54,6 +54,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (cmd) [\#446](https://github.com/tharsis/evmos/pull/446) Update `migrate` command to migrate Evmos, Ethermint and Cosmos SDK modules.
+- (app) [\#446](https://github.com/tharsis/evmos/pull/446) Refactor upgrade code.
 - (deps) [\#427](https://github.com/tharsis/evmos/pull/427) Bump Ethermint to [`v0.12.0`](https://github.com/tharsis/ethermint/releases/tag/v0.12.0)
 - (ibc) [\#412](https://github.com/tharsis/evmos/pull/412) Introduce boilerplate struct for IBC applications.
 - (deps) [\#402](https://github.com/tharsis/evmos/pull/402) Bump IBC go to [`v3.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0)
