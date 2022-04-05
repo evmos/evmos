@@ -31,10 +31,10 @@ architecture.
 
 To run testnet nodes, you will need a machine with the following minimum hardware requirements:
 
-- 4 or more physical CPU cores
-- At least 500GB of SSD disk storage
-- At least 32GB of memory (RAM)
-- At least 100mbps network bandwidth
+* 4 or more physical CPU cores
+* At least 500GB of SSD disk storage
+* At least 32GB of memory (RAM)
+* At least 100mbps network bandwidth
 
 As the usage of the blockchain grows, the server requirements may increase as well, so you should have a plan for updating your server as well.
 
@@ -45,6 +45,12 @@ Your `evmosvalconspub` can be used to create a new validator by staking tokens. 
 ```bash
 evmosd tendermint show-validator
 ```
+
+::: danger
+🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a [`test`](./../keys-wallets/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+
+Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
+:::
 
 To create your validator, just use the following command:
 
@@ -127,11 +133,11 @@ evmosd tx staking edit-validator
   --commission-rate="0.10"
 ```
 
-__Note__: The `commission-rate` value must adhere to the following invariants:
+**Note**: The `commission-rate` value must adhere to the following invariants:
 
-- Must be between 0 and the validator's `commission-max-rate`
-- Must not exceed the validator's `commission-max-change-rate` which is maximum
-  % point change rate __per day__. In other words, a validator can only change
+* Must be between 0 and the validator's `commission-max-rate`
+* Must not exceed the validator's `commission-max-change-rate` which is maximum
+  % point change rate **per day**. In other words, a validator can only change
   its commission once per day and within `commission-max-change-rate` bounds.
 
 ## View Validator Description

@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v3.0.0] - 2022-03-25
+## [v3.0.0] - 2022-04-05
 
 ### State Machine Breaking
 
@@ -54,7 +54,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (deps) [\#427](https://github.com/tharsis/evmos/pull/427) Bump Ethermint to [`v0.12.0`](https://github.com/tharsis/ethermint/releases/tag/v0.12.0)
+- (deps) [\#458](https://github.com/tharsis/evmos/pull/458) Bump Ethermint to [`v0.13.0`](https://github.com/tharsis/ethermint/releases/tag/v0.13.0)
+- (deps) [\#457](https://github.com/tharsis/evmos/pull/457) Bump Cosmos SDK to [`v0.45.2`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.2)
+- (cmd) [\#446](https://github.com/tharsis/evmos/pull/446) Update `migrate` command to migrate Evmos, Ethermint and Cosmos SDK modules.
+- (app) [\#446](https://github.com/tharsis/evmos/pull/446) Refactor upgrade code.
 - (ibc) [\#412](https://github.com/tharsis/evmos/pull/412) Introduce boilerplate struct for IBC applications.
 - (deps) [\#402](https://github.com/tharsis/evmos/pull/402) Bump IBC go to [`v3.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0)
 - (ibctesting) [\#388](https://github.com/tharsis/evmos/pull/388) Support Cosmos and EVM chains in IBC testing `Coordinator`.
@@ -62,6 +65,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (inflation) [\#383](https://github.com/tharsis/evmos/pull/383) Add gRPC endpoints for inflation rate and total supply
 - (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
 - (claims) [\#432](https://github.com/tharsis/evmos/pull/432) Add IBC trigger amount to claims merge/migrate IBC callbacks.
+- (claims) [\#442](https://github.com/tharsis/evmos/pull/443) Remove claims merge/migrate cases where sender already completed an action as they are never reached
 
 ## [v2.0.1] - 2022-03-06
 

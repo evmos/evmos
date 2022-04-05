@@ -7,8 +7,7 @@ func NewGenesisState(params Params) GenesisState {
 	}
 }
 
-// DefaultGenesisState sets default evm genesis state with empty accounts and
-// default params and chain config values.
+// DefaultGenesisState sets default recovery genesis state with default params
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params: DefaultParams(),
