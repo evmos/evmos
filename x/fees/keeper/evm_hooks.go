@@ -41,8 +41,11 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg ethtypes.Message, receipt *
 		return err
 	}
 
-	withdrawAddr, ok := h.k.GetWithdrawal(ctx, *contract)
-	if !ok {
+	withdrawAddr, found := h.k.GetWithdrawal(ctx, *contract)
+	if !found {
+		withdrawAddr, found = h.k.GetDeployer(ctx, *contract)
+	}
+	if !found {
 		return nil
 	}
 

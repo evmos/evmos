@@ -19,11 +19,13 @@ func (k Keeper) GetAllFees(ctx sdk.Context) []types.DevFeeInfo {
 	for ; iterator.Valid(); iterator.Next() {
 		contractAddress := common.BytesToAddress(iterator.Key())
 		deployerAddress := sdk.AccAddress(iterator.Value())
-		withdrawalAddress, _ := k.GetWithdrawal(ctx, contractAddress)
+		withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
 		feeInfo := types.DevFeeInfo{
 			ContractAddress: contractAddress.String(),
 			DeployerAddress: deployerAddress.String(),
-			WithdrawAddress: withdrawalAddress.String(),
+		}
+		if hasWithdrawAddr {
+			feeInfo.WithdrawAddress = withdrawalAddress.String()
 		}
 		feeInfos = append(feeInfos, feeInfo)
 	}
@@ -44,13 +46,14 @@ func (k Keeper) IterateFees(
 	for ; iterator.Valid(); iterator.Next() {
 		contractAddress := common.BytesToAddress(iterator.Key())
 		deployerAddress := sdk.AccAddress(iterator.Value())
-		withdrawalAddress, _ := k.GetWithdrawal(ctx, contractAddress)
+		withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
 		feeInfo := types.DevFeeInfo{
 			ContractAddress: contractAddress.String(),
 			DeployerAddress: deployerAddress.String(),
-			WithdrawAddress: withdrawalAddress.String(),
 		}
-
+		if hasWithdrawAddr {
+			feeInfo.WithdrawAddress = withdrawalAddress.String()
+		}
 		if handlerFn(feeInfo) {
 			break
 		}
@@ -63,11 +66,13 @@ func (k Keeper) GetFeeInfo(ctx sdk.Context, contract common.Address) (types.DevF
 	if !found {
 		return types.DevFeeInfo{}, false
 	}
-	withdrawalAddress, _ := k.GetWithdrawal(ctx, contract)
+	withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contract)
 	feeInfo := types.DevFeeInfo{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployerAddress.String(),
-		WithdrawAddress: withdrawalAddress.String(),
+	}
+	if hasWithdrawAddr {
+		feeInfo.WithdrawAddress = withdrawalAddress.String()
 	}
 	return feeInfo, true
 }
@@ -77,7 +82,7 @@ func (k Keeper) GetDeployer(ctx sdk.Context, contract common.Address) (sdk.AccAd
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	bz := store.Get(contract.Bytes())
 	if len(bz) == 0 {
-		return sdk.AccAddress{}, false
+		return nil, false
 	}
 	return sdk.AccAddress(bz), true
 }
@@ -87,7 +92,7 @@ func (k Keeper) GetWithdrawal(ctx sdk.Context, contract common.Address) (sdk.Acc
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeWithdrawal)
 	bz := store.Get(contract.Bytes())
 	if len(bz) == 0 {
-		return k.GetDeployer(ctx, contract)
+		return nil, false
 	}
 	return sdk.AccAddress(bz), true
 }
@@ -156,12 +161,10 @@ func (k Keeper) GetFeesInverseRaw(ctx sdk.Context, deployerAddress sdk.AccAddres
 func (k Keeper) GetFeesInverse(ctx sdk.Context, deployerAddress sdk.AccAddress) []common.Address {
 	var addresses []common.Address
 	addressList, found := k.GetFeesInverseRaw(ctx, deployerAddress)
-	if !found {
-		return addresses
-	}
-
-	for _, addr := range addressList.ContractAddresses {
-		addresses = append(addresses, common.HexToAddress(addr))
+	if found {
+		for _, addr := range addressList.ContractAddresses {
+			addresses = append(addresses, common.HexToAddress(addr))
+		}
 	}
 	return addresses
 }

@@ -57,6 +57,10 @@ func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 		}
 	}
 
+	if len(msg.Nonces) < 1 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - empty array")
+	}
+
 	return nil
 }
 
@@ -146,7 +150,11 @@ func (msg MsgUpdateDevFeeInfo) ValidateBasic() error {
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdraw address address %s", msg.WithdrawAddress)
+		return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawAddress)
+	}
+
+	if msg.DeployerAddress == msg.WithdrawAddress {
+		return sdkerrors.Wrapf(ErrInternalFee, "withdraw address %s must be different that deployer address %s", msg.WithdrawAddress, msg.DeployerAddress)
 	}
 
 	return nil

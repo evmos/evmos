@@ -25,13 +25,19 @@ func (k Keeper) RegisterDevFeeInfo(
 
 	contract := common.HexToAddress(msg.ContractAddress)
 	if k.IsFeeRegistered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is already registered", contract)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract is already registered %s", contract)
+	}
+
+	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
+	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer.Bytes()))
+	if deployerAccount == nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "deployer account not found %s", msg.DeployerAddress)
+	}
+	if deployerAccount.IsContract() {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "deployer cannot be a contract %s", msg.DeployerAddress)
 	}
 
 	var withdrawal sdk.AccAddress
-	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
-	derivedContractAddr := common.BytesToAddress(deployer)
-
 	if msg.WithdrawAddress != "" {
 		withdrawal, _ = sdk.AccAddressFromBech32(msg.WithdrawAddress)
 	}
@@ -42,6 +48,7 @@ func (k Keeper) RegisterDevFeeInfo(
 	// If it was deployed by one or more factories, msg.Nonces contains the EOA
 	// nonce for the origin factory contract, then the nonce of the factory
 	// for the creation of the next factory/contract.
+	derivedContractAddr := common.BytesToAddress(deployer)
 	for _, nonce := range msg.Nonces {
 		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
 	}
@@ -49,15 +56,15 @@ func (k Keeper) RegisterDevFeeInfo(
 	if contract != derivedContractAddr {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrorInvalidSigner,
-			"not contract deployer or wrong nonce: expected %s instead of %s", derivedContractAddr,
-			contract,
+			"not contract deployer or wrong nonce: expected %s instead of %s", derivedContractAddr.String(),
+			msg.ContractAddress,
 		)
 	}
 
 	// contract must already be deployed, to avoid spam registrations
 	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
 	if contractAccount == nil || !contractAccount.IsContract() {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s has no code", contract)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract has no code %s", msg.ContractAddress)
 	}
 
 	k.SetFee(ctx, contract, deployer, withdrawal)

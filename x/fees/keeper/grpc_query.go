@@ -38,11 +38,13 @@ func (k Keeper) DevFeeInfos(
 		func(key, value []byte) error {
 			contractAddress := common.BytesToAddress(key)
 			deployerAddress := sdk.AccAddress(value)
-			withdrawalAddress, _ := k.GetWithdrawal(ctx, contractAddress)
+			withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
 			feeInfo := types.DevFeeInfo{
 				ContractAddress: contractAddress.String(),
 				DeployerAddress: deployerAddress.String(),
-				WithdrawAddress: withdrawalAddress.String(),
+			}
+			if hasWithdrawAddr {
+				feeInfo.WithdrawAddress = withdrawalAddress.String()
 			}
 			feeInfos = append(feeInfos, feeInfo)
 			return nil
