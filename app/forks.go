@@ -35,7 +35,7 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 	// The new version should have
 	case tv3.UpgradeHeight:
 		// NOTE: only run for testnet
-		if !strings.HasPrefix(ctx.ChainID(), "evmos_9000-") {
+		if !strings.HasPrefix(ctx.ChainID(), TestnetChainID) {
 			return
 		}
 
