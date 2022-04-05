@@ -34,7 +34,7 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 	// NOTE: THIS UPGRADE PLAN SHOULD BE ADDED TO VERSION 1.0.0-beta1
 	// This will create the upgrade plan on the defined height
 	// and will stop the chain once the height is reached.
-	// The new version should have
+	// The new version should have the upgrade migration logic under the upgradeName
 	case tv3.UpgradeHeight:
 		// NOTE: only run for testnet
 		if !strings.HasPrefix(ctx.ChainID(), TestnetChainID) {
