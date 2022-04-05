@@ -9,7 +9,7 @@ import (
 
 // Parameter store key
 var (
-	ParamStoreKeyEnableWithdraw        = []byte("EnableWithdraw")
+	ParamStoreKeyEnableRecovery        = []byte("EnableRecovery")
 	ParamStoreKeyPacketTimeoutDuration = []byte("PacketTimeoutDuration")
 )
 
@@ -26,18 +26,18 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params instance
 func NewParams(
-	enableWithdraw bool, timeoutDuration time.Duration,
+	enableRecovery bool, timeoutDuration time.Duration,
 ) Params {
 	return Params{
-		EnableWithdraw:        enableWithdraw,
+		EnableRecovery:        enableRecovery,
 		PacketTimeoutDuration: timeoutDuration,
 	}
 }
 
-// DefaultParams defines the default params for the withdraw module
+// DefaultParams defines the default params for the recovery module
 func DefaultParams() Params {
 	return Params{
-		EnableWithdraw:        true,
+		EnableRecovery:        true,
 		PacketTimeoutDuration: DefaultPacketTimeoutDuration,
 	}
 }
@@ -45,7 +45,7 @@ func DefaultParams() Params {
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableWithdraw, &p.EnableWithdraw, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableRecovery, &p.EnableRecovery, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyPacketTimeoutDuration, &p.PacketTimeoutDuration, validateDuration),
 	}
 }
@@ -78,5 +78,5 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return validateBool(p.EnableWithdraw)
+	return validateBool(p.EnableRecovery)
 }

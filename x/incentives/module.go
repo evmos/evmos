@@ -126,7 +126,6 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	// types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
 	_ = keeper.NewMigrator(am.keeper)

@@ -49,7 +49,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 
 // RegisterInterfaces registers the module's interface types
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
 }
 
 // DefaultGenesis returns the claim module's default genesis state.
@@ -79,7 +79,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 }
 
 // GetTxCmd returns the claim module's root tx command.
-func (a AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
+func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
 
 // GetQueryCmd returns the claim module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
@@ -118,7 +118,7 @@ func (am AppModule) Route() sdk.Route {
 func (AppModule) QuerierRoute() string { return "" }
 
 // LegacyQuerierHandler returns the claim module's Querier.
-func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+func (AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
 	return nil
 }
 
@@ -159,7 +159,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // BeginBlock executes all ABCI BeginBlock logic respective to the claim module.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 
 // EndBlock executes all ABCI EndBlock logic respective to the claim module. It
 // returns no validator updates.

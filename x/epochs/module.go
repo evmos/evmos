@@ -53,7 +53,7 @@ func (AppModuleBasic) Name() string {
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // RegisterInterfaces registers the module's interface types
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {}
+func (AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {}
 
 // DefaultGenesis returns the epochs module's default genesis state.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {

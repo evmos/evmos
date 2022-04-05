@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	_ transfertypes.ICS4Wrapper = Hooks{}
+	_ transfertypes.ICS4Wrapper = Keeper{}
 	_ evmtypes.EvmHooks         = Hooks{}
 	_ govtypes.GovHooks         = Hooks{}
 	_ stakingtypes.StakingHooks = Hooks{}
@@ -159,6 +159,12 @@ func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, f
 // calls the underlying SendPacket function directly to move down the middleware
 // stack. Without SendPacket, this module would be skipped, when sending packages
 // from the transferKeeper to core IBC.
-func (h Hooks) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI) error {
-	return h.k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+func (k Keeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI) error {
+	return k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+}
+
+// WriteAcknowledgement implements the ICS4Wrapper interface from the transfer module.
+// It calls the underlying WriteAcknowledgement function directly to move down the middleware stack.
+func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI, ack exported.Acknowledgement) error {
+	return k.ics4Wrapper.WriteAcknowledgement(ctx, channelCap, packet, ack)
 }

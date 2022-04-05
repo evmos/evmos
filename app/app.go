@@ -28,6 +28,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -100,13 +101,14 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
-
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app/ante"
+	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
+	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
+	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
@@ -124,6 +126,9 @@ import (
 	"github.com/tharsis/evmos/v3/x/inflation"
 	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
 	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/tharsis/evmos/v3/x/recovery"
+	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
+	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
 	"github.com/tharsis/evmos/v3/x/vesting"
 	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
 	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
@@ -144,6 +149,10 @@ func init() {
 const (
 	// Name defines the application binary name
 	Name = "evmosd"
+	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
+	MainnetChainID = "evmos_9001"
+	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
+	TestnetChainID = "evmos_9000"
 )
 
 var (
@@ -185,6 +194,7 @@ var (
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
+		recovery.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -204,7 +214,8 @@ var (
 
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
+		distrtypes.ModuleName:      true,
+		incentivestypes.ModuleName: true,
 	}
 )
 
@@ -259,11 +270,12 @@ type Evmos struct {
 
 	// Evmos keepers
 	InflationKeeper  inflationkeeper.Keeper
-	ClaimsKeeper     claimskeeper.Keeper
+	ClaimsKeeper     *claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
+	RecoveryKeeper   *recoverykeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -417,10 +429,10 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
 		authtypes.FeeCollectorName,
 	)
-	app.ClaimsKeeper = *claimskeeper.NewKeeper(
+
+	app.ClaimsKeeper = claimskeeper.NewKeeper(
 		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper,
 	)
 
 	// register the staking hooks
@@ -472,19 +484,48 @@ func NewEvmos(
 		),
 	)
 
-	// Create Transfer Keepers
+	// Create Transfer Stack
 
-	// NOTE: since the transfer keeper is the last layer of the stack,
-	// we use the ChannelKeeper as the ICS4 wrapper
+	// SendPacket, since it is originating from the application to core IBC:
+	// transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> channel.SendPacket
+
+	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
+	// channel.RecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimsKeeper.Hooks(), // claims IBC middleware
+		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
+
+	app.RecoveryKeeper = recoverykeeper.NewKeeper(
+		app.GetSubspace(recoverytypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.TransferKeeper,
+		app.ClaimsKeeper,
+	)
+
+	// Set the ICS4 wrappers for claims and recovery middlewares
+	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
+	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
+	// NOTE: ICS4 wrapper for Transfer Keeper already set
+
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
-	// transfer stack contains: Airdrop Claim Middleware -> Transfer -> SendPacket
-	transferStack := claims.NewIBCModule(app.ClaimsKeeper, transfer.NewIBCModule(app.TransferKeeper))
+
+	// transfer stack contains (from top to bottom):
+	// - Recovery Middleware
+	// - Airdrop Claims Middleware
+	// - Transfer
+
+	// create IBC module from bottom to top of stack
+	var transferStack porttypes.IBCModule
+
+	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
+	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -537,8 +578,9 @@ func NewEvmos(
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		claims.NewAppModule(appCodec, app.ClaimsKeeper),
+		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		recovery.NewAppModule(*app.RecoveryKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -574,6 +616,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
+		recoverytypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -605,6 +648,7 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
+		recoverytypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -639,6 +683,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
+		recoverytypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -686,6 +731,7 @@ func NewEvmos(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	options := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
@@ -697,6 +743,7 @@ func NewEvmos(
 		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:  SigVerificationGasConsumer,
 		Cdc:             appCodec,
+		MaxTxGasWanted:  maxGasWanted,
 	}
 
 	if err := options.Validate(); err != nil {
@@ -762,7 +809,9 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -951,6 +1000,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
+	paramsKeeper.Subspace(recoverytypes.ModuleName)
 	return paramsKeeper
 }
 
@@ -960,4 +1010,43 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
+	// v3 handler upgrade is
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v3.UpgradeName,
+		v3.CreateUpgradeHandler(app.mm, app.configurator),
+	)
+
+	// testnet v3 handler upgrade is
+	app.UpgradeKeeper.SetUpgradeHandler(
+		tv3.UpgradeName,
+		tv3.CreateUpgradeHandler(app.mm, app.configurator),
+	)
+
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(err)
+	}
+
+	var storeUpgrades *storetypes.StoreUpgrades
+
+	switch {
+	case upgradeInfo.Name == v3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
+		// prepare store for v3
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{recoverytypes.ModuleName},
+		}
+	case upgradeInfo.Name == tv3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
+		// prepare store for testnet v3
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{recoverytypes.ModuleName},
+		}
+	}
+
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }

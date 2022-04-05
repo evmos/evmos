@@ -30,6 +30,7 @@ type HandlerOptions struct {
 	SignModeHandler authsigning.SignModeHandler
 	SigGasConsumer  func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 	Cdc             codec.BinaryCodec
+	MaxTxGasWanted  uint64
 }
 
 // Validate checks if the keepers are defined
@@ -63,7 +64,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ethante.NewEthValidateBasicDecorator(options.EvmKeeper),
 		ethante.NewEthSigVerificationDecorator(options.EvmKeeper),
 		ethante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
-		ethante.NewEthGasConsumeDecorator(options.EvmKeeper),
+		ethante.NewEthGasConsumeDecorator(options.EvmKeeper, options.MaxTxGasWanted),
 		ethante.NewCanTransferDecorator(options.EvmKeeper),
 		NewEthVestingTransactionDecorator(options.AccountKeeper),
 		ethante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
