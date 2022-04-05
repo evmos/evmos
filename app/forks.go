@@ -14,7 +14,7 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 	switch ctx.BlockHeight() {
 	case v2.UpgradeHeight:
 		// NOTE: only run for mainnet
-		if !strings.HasPrefix(ctx.ChainID(), "evmos_9001-") {
+		if !strings.HasPrefix(ctx.ChainID(), MainnetChainID) {
 			return
 		}
 

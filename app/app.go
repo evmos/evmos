@@ -149,6 +149,10 @@ func init() {
 const (
 	// Name defines the application binary name
 	Name = "evmosd"
+	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
+	MainnetChainID = "evmos_9001"
+	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
+	TestnetChainID = "evmos_9000"
 )
 
 var (
@@ -1026,23 +1030,23 @@ func (app *Evmos) setupUpgradeHandlers() {
 		panic(err)
 	}
 
-	// prepare store for v3
-	if upgradeInfo.Name == "v3" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{"recovery"},
-		}
+	var storeUpgrades *storetypes.StoreUpgrades
 
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	switch {
+	case upgradeInfo.Name == v3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
+		// prepare store for v3
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{recoverytypes.ModuleName},
+		}
+	case upgradeInfo.Name == tv3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
+		// prepare store for testnet v3
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{claimstypes.ModuleName, feemarkettypes.ModuleName, recoverytypes.ModuleName},
+		}
 	}
 
-	// prepare store for testnet v3
-	if upgradeInfo.Name == "tv3" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{"claims", "feemarket", "recovery"},
-		}
-
+	if storeUpgrades != nil {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
 	}
 }
