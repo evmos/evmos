@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -16,18 +17,25 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/v3"
+	"github.com/tharsis/evmos/v3/app"
+	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
+	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
 )
 
 // FlagGenesisTime defines the genesis time in string format
 const FlagGenesisTime = "genesis-time"
 
 var migrationMap = genutiltypes.MigrationMap{
-	"v3": v3.MigrateGenesis, // migration to v3
+	"v3":  v3.MigrateGenesis,  // migration to v3
+	"tv3": tv3.MigrateGenesis, // migration to testnet v3
 }
 
 // GetMigrationCallback returns a MigrationCallback for a given version.
-func GetMigrationCallback(version string) genutiltypes.MigrationCallback {
+func GetMigrationCallback(version string, isMainnet bool) genutiltypes.MigrationCallback {
+	if !isMainnet {
+		version = fmt.Sprintf("%s%s", "t", version)
+	}
+
 	return migrationMap[version]
 }
 
@@ -58,7 +66,14 @@ func MigrateGenesisCmd() *cobra.Command {
 				return fmt.Errorf("failed to JSON unmarshal initial genesis state: %w", err)
 			}
 
-			migrationFn := GetMigrationCallback(target)
+			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
+			if chainID != "" {
+				genDoc.ChainID = chainID
+			}
+
+			isMainnet := strings.HasPrefix(chainID, app.MainnetChainID)
+
+			migrationFn := GetMigrationCallback(target, isMainnet)
 			if migrationFn == nil {
 				return fmt.Errorf("unknown migration function for version: %s", target)
 			}
@@ -81,11 +96,6 @@ func MigrateGenesisCmd() *cobra.Command {
 				}
 
 				genDoc.GenesisTime = t
-			}
-
-			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
-			if chainID != "" {
-				genDoc.ChainID = chainID
 			}
 
 			bz, err := tmjson.Marshal(genDoc)

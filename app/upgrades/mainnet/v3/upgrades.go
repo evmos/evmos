@@ -32,7 +32,7 @@ func CreateUpgradeHandler(
 	}
 }
 
-// Migrate migrates exported state from v2 to v3 genesis state. It performs a no-op if the migration errors.
+// MigrateGenesis migrates exported state from v2 to v3 genesis state. It performs a no-op if the migration errors.
 func MigrateGenesis(appState types.AppMap, clientCtx client.Context) types.AppMap {
 	// Migrate x/feemarket.
 	if appState[feemarkettypes.ModuleName] == nil {

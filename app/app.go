@@ -28,6 +28,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -105,8 +106,9 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/v3"
+	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
+	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
+	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
@@ -147,6 +149,10 @@ func init() {
 const (
 	// Name defines the application binary name
 	Name = "evmosd"
+	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
+	MainnetChainID = "evmos_9001"
+	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
+	TestnetChainID = "evmos_9000"
 )
 
 var (
@@ -1009,4 +1015,38 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v3.UpgradeName,
 		v3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
+
+	// testnet v3 handler upgrade is
+	app.UpgradeKeeper.SetUpgradeHandler(
+		tv3.UpgradeName,
+		tv3.CreateUpgradeHandler(app.mm, app.configurator),
+	)
+
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(err)
+	}
+
+	var storeUpgrades *storetypes.StoreUpgrades
+
+	switch {
+	case upgradeInfo.Name == v3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
+		// prepare store for v3
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{recoverytypes.ModuleName},
+		}
+	case upgradeInfo.Name == tv3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
+		// prepare store for testnet v3
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{claimstypes.ModuleName, feemarkettypes.ModuleName, recoverytypes.ModuleName},
+		}
+	}
+
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }
