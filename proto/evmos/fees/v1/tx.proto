@@ -1,0 +1,76 @@
+syntax = "proto3";
+package evmos.fees.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
+
+// Msg defines the fees Msg service.
+service Msg {
+  // RegisterDevFeeInfo is used by a deployer to register a new contract for
+  // receiving transaction fees
+  rpc RegisterDevFeeInfo(MsgRegisterDevFeeInfo)
+      returns (MsgRegisterDevFeeInfoResponse) {
+    option (google.api.http).post = "/evmos/fees/v1/tx/register_fee_contract";
+  };
+  // CancelDevFeeInfo is used by a deployer to cancel a registered contract
+  // and stop receiving transaction fees
+  rpc CancelDevFeeInfo(MsgCancelDevFeeInfo)
+      returns (MsgCancelDevFeeInfoResponse) {
+    option (google.api.http).post = "/evmos/fees/v1/tx/cancel_fee_contract";
+  };
+  // UpdateDevFeeInfo is used by a deployer to update the withdraw address
+  rpc UpdateDevFeeInfo(MsgUpdateDevFeeInfo)
+      returns (MsgUpdateDevFeeInfoResponse) {
+    option (google.api.http).post = "/evmos/fees/v1/tx/update_fee_contract";
+  };
+}
+
+// MsgRegisterFeesContract defines a message that registers a DevFeeInfo
+message MsgRegisterDevFeeInfo {
+  option (gogoproto.equal) = false;
+  // contract hex address
+  string contract_address = 1;
+  // bech32 address of message sender, must be the same as the origin EOA
+  // sending the transaction which deploys the contract
+  string deployer_address = 2;
+  // bech32 address of account receiving the transaction fees
+  string withdraw_address = 3;
+  // array of nonces from the address path, where the last nonce is
+  // the nonce that determines the contract's address - it can be an EOA nonce
+  // or a factory contract nonce
+  repeated uint64 nonces = 4;
+}
+
+// MsgRegisterDevFeeInfoResponse defines the MsgRegisterDevFeeInfo response
+// type
+message MsgRegisterDevFeeInfoResponse {}
+
+// MsgCancelDevFeeInfo defines a message that cancels a registered a
+// DevFeeInfo
+message MsgCancelDevFeeInfo {
+  option (gogoproto.equal) = false;
+  // contract hex address
+  string contract_address = 1;
+  // deployer bech32 address
+  string deployer_address = 2;
+}
+
+// MsgCancelDevFeeInfoResponse defines the MsgCancelDevFeeInfo response type
+message MsgCancelDevFeeInfoResponse {}
+
+// MsgUpdateDevFeeInfo defines a message that updates the withdraw address for
+// a registered DevFeeInfo
+message MsgUpdateDevFeeInfo {
+  option (gogoproto.equal) = false;
+  // contract hex address
+  string contract_address = 1;
+  // deployer bech32 address
+  string deployer_address = 2;
+  // new withdraw bech32 address for receiving the transaction fees
+  string withdraw_address = 3;
+}
+
+// MsgUpdateDevFeeInfoResponse defines the MsgUpdateDevFeeInfo response type
+message MsgUpdateDevFeeInfoResponse {}

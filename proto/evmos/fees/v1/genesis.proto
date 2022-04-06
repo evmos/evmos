@@ -1,0 +1,33 @@
+syntax = "proto3";
+package evmos.fees.v1;
+import "evmos/fees/v1/fees.proto";
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+  // module parameters
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  // active registered contracts
+  repeated DevFeeInfo dev_fee_infos = 2 [ (gogoproto.nullable) = false ];
+}
+
+// Params defines the fees module params
+message Params {
+  // parameter to enable fees
+  bool enable_fees = 1;
+  // developer_shares defines the proportion of the transaction fees to be
+  // distributed to the registered contract owner
+  string developer_shares = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // developer_shares defines the proportion of the transaction fees to be
+  // distributed to validators
+  string validator_shares = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
