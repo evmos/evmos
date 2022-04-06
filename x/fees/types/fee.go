@@ -9,7 +9,7 @@ import (
 // NewFee returns an instance of DevFeeInfo
 func NewDevFeeInfo(
 	contract common.Address,
-	owner sdk.AccAddress,
+	owner,
 	withdraw sdk.AccAddress,
 ) DevFeeInfo {
 	return DevFeeInfo{

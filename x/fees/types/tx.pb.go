@@ -39,7 +39,8 @@ type MsgRegisterDevFeeInfo struct {
 	// bech32 address of account receiving the transaction fees
 	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
 	// array of nonces from the address path, where the last nonce is
-	// the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce
+	// the nonce that determines the contract's address - it can be an EOA nonce
+	// or a factory contract nonce
 	Nonces []uint64 `protobuf:"varint,4,rep,packed,name=nonces,proto3" json:"nonces,omitempty"`
 }
 

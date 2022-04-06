@@ -12,18 +12,18 @@ service Msg {
   // receiving transaction fees
   rpc RegisterDevFeeInfo(MsgRegisterDevFeeInfo)
       returns (MsgRegisterDevFeeInfoResponse) {
-    option (google.api.http).get = "/evmos/fees/v1/tx/register_fee_contract";
+    option (google.api.http).post = "/evmos/fees/v1/tx/register_fee_contract";
   };
   // CancelDevFeeInfo is used by a deployer to cancel a registered contract
   // and stop receiving transaction fees
   rpc CancelDevFeeInfo(MsgCancelDevFeeInfo)
       returns (MsgCancelDevFeeInfoResponse) {
-    option (google.api.http).get = "/evmos/fees/v1/tx/cancel_fee_contract";
+    option (google.api.http).post = "/evmos/fees/v1/tx/cancel_fee_contract";
   };
   // UpdateDevFeeInfo is used by a deployer to update the withdraw address
   rpc UpdateDevFeeInfo(MsgUpdateDevFeeInfo)
       returns (MsgUpdateDevFeeInfoResponse) {
-    option (google.api.http).get = "/evmos/fees/v1/tx/update_fee_contract";
+    option (google.api.http).post = "/evmos/fees/v1/tx/update_fee_contract";
   };
 }
 
@@ -38,7 +38,8 @@ message MsgRegisterDevFeeInfo {
   // bech32 address of account receiving the transaction fees
   string withdraw_address = 3;
   // array of nonces from the address path, where the last nonce is
-  // the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce
+  // the nonce that determines the contract's address - it can be an EOA nonce
+  // or a factory contract nonce
   repeated uint64 nonces = 4;
 }
 

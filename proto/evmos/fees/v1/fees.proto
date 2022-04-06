@@ -17,6 +17,4 @@ message DevFeeInfo {
 
 // DevFeeInfosPerDeployer defines an instance that keeps track of all
 // contracts registered by a deployer
-message DevFeeInfosPerDeployer {
-  repeated string contract_addresses = 1;
-}
+message DevFeeInfosPerDeployer { repeated string contract_addresses = 1; }

@@ -12,14 +12,12 @@ option go_package = "github.com/tharsis/evmos/v3/x/fees/types";
 // Query defines the gRPC querier service.
 service Query {
   // DevFeeInfos retrieves all registered contracts for fee distribution
-  rpc DevFeeInfos(QueryDevFeeInfosRequest)
-      returns (QueryDevFeeInfosResponse) {
+  rpc DevFeeInfos(QueryDevFeeInfosRequest) returns (QueryDevFeeInfosResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees";
   }
 
   // DevFeeInfo retrieves a registered contract for fee distribution
-  rpc DevFeeInfo(QueryDevFeeInfoRequest)
-      returns (QueryDevFeeInfoResponse) {
+  rpc DevFeeInfo(QueryDevFeeInfoRequest) returns (QueryDevFeeInfoResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees/{contract_address}";
   }
 

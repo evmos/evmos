@@ -24,7 +24,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params object
 func NewParams(
 	enableFees bool,
-	developerShares sdk.Dec,
+	developerShares,
 	validatorShares sdk.Dec,
 
 ) Params {
