@@ -80,9 +80,9 @@ func (msg MsgRegisterDevFeeInfo) GetSigners() []sdk.AccAddress {
 
 // NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
 // nil - defaulting to the funder.
-func NewMsgCancelDevFeeInfo(deployer sdk.AccAddress, contract string) *MsgCancelDevFeeInfo {
+func NewMsgCancelDevFeeInfo(contract common.Address, deployer sdk.AccAddress) *MsgCancelDevFeeInfo {
 	return &MsgCancelDevFeeInfo{
-		ContractAddress: contract,
+		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
 	}
 }
@@ -122,13 +122,13 @@ func (msg MsgCancelDevFeeInfo) GetSigners() []sdk.AccAddress {
 
 // NewMsgUpdateDevFeeInfo creates new instance of MsgUpdateDevFeeInfo
 func NewMsgUpdateDevFeeInfo(
+	contract common.Address,
 	deployer sdk.AccAddress,
-	contract string,
 	withdraw sdk.AccAddress,
 ) *MsgUpdateDevFeeInfo {
 	return &MsgUpdateDevFeeInfo{
+		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
-		ContractAddress: contract,
 		WithdrawAddress: withdraw.String(),
 	}
 }
@@ -154,7 +154,7 @@ func (msg MsgUpdateDevFeeInfo) ValidateBasic() error {
 	}
 
 	if msg.DeployerAddress == msg.WithdrawAddress {
-		return sdkerrors.Wrapf(ErrInternalFee, "withdraw address %s must be different that deployer address %s", msg.WithdrawAddress, msg.DeployerAddress)
+		return sdkerrors.Wrapf(ErrInternalFee, "withdraw address must be different that deployer address: withdraw %s, deployer %s", msg.WithdrawAddress, msg.DeployerAddress)
 	}
 
 	return nil
