@@ -73,6 +73,14 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 			false,
 		},
 		{
+			"address must not be empty",
+			"0x0000000000000000000000000000000000000000",
+			deployerStr,
+			deployerStr,
+			[]uint64{1},
+			false,
+		},
+		{
 			"invalid deployer address",
 			contract.String(),
 			"",

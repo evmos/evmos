@@ -104,6 +104,46 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: false,
 		},
 		{
+			name: "invalid genesis - invalid contract address",
+			genState: &GenesisState{
+				Params: DefaultParams(),
+				DevFeeInfos: []DevFeeInfo{
+					{
+						ContractAddress: address1,
+						DeployerAddress: address1,
+					},
+				},
+			},
+			expPass: false,
+		},
+		{
+			name: "invalid genesis - invalid deployer address",
+			genState: &GenesisState{
+				Params: DefaultParams(),
+				DevFeeInfos: []DevFeeInfo{
+					{
+						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						DeployerAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+					},
+				},
+			},
+			expPass: false,
+		},
+		{
+			name: "invalid genesis - invalid withdraw address",
+			genState: &GenesisState{
+				Params: DefaultParams(),
+				DevFeeInfos: []DevFeeInfo{
+					{
+						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						DeployerAddress: address1,
+						WithdrawAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+					},
+				},
+			},
+			expPass: false,
+		},
+		{
 			name: "invalid genesis - invalid params",
 			genState: &GenesisState{
 				Params: DefaultParams(),

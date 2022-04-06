@@ -50,6 +50,13 @@ func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
+	if ethermint.IsZeroAddress(msg.ContractAddress) {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
+			msg.ContractAddress,
+		)
+	}
+
 	// WithdrawAddress can be omitted and it will default to DeployerAddress
 	if msg.WithdrawAddress != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
@@ -103,6 +110,13 @@ func (msg MsgCancelDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
+	if ethermint.IsZeroAddress(msg.ContractAddress) {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
+			msg.ContractAddress,
+		)
+	}
+
 	return nil
 }
 
@@ -147,6 +161,13 @@ func (msg MsgUpdateDevFeeInfo) ValidateBasic() error {
 
 	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
+	}
+
+	if ethermint.IsZeroAddress(msg.ContractAddress) {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
+			msg.ContractAddress,
+		)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
