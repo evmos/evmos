@@ -4,24 +4,31 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"github.com/tharsis/ethermint/tests"
 )
 
 type GenesisTestSuite struct {
 	suite.Suite
-}
-
-func (suite *GenesisTestSuite) SetupTest() {
+	address1 string
+	address2 string
 }
 
 func TestGenesisTestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisTestSuite))
 }
 
+func (suite *GenesisTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
+
+func (suite *GenesisTestSuite) DoSetupTest(t require.TestingT) {
+	suite.address1 = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+	suite.address2 = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+}
+
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	address1 := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
-	address2 := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 	newGen := NewGenesisState(DefaultParams(), []DevFeeInfo{})
 	testCases := []struct {
 		name     string
@@ -53,12 +60,12 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				DevFeeInfos: []DevFeeInfo{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address1,
+						DeployerAddress: suite.address1,
 					},
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec8",
-						DeployerAddress: address2,
-						WithdrawAddress: address2,
+						DeployerAddress: suite.address2,
+						WithdrawAddress: suite.address2,
 					},
 				},
 			},
@@ -76,11 +83,11 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				DevFeeInfos: []DevFeeInfo{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address1,
+						DeployerAddress: suite.address1,
 					},
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address1,
+						DeployerAddress: suite.address1,
 					},
 				},
 			},
@@ -93,11 +100,11 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				DevFeeInfos: []DevFeeInfo{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address1,
+						DeployerAddress: suite.address1,
 					},
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address2,
+						DeployerAddress: suite.address2,
 					},
 				},
 			},
@@ -109,8 +116,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				DevFeeInfos: []DevFeeInfo{
 					{
-						ContractAddress: address1,
-						DeployerAddress: address1,
+						ContractAddress: suite.address1,
+						DeployerAddress: suite.address1,
 					},
 				},
 			},
@@ -136,7 +143,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				DevFeeInfos: []DevFeeInfo{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address1,
+						DeployerAddress: suite.address1,
 						WithdrawAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 					},
 				},
@@ -150,7 +157,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				DevFeeInfos: []DevFeeInfo{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: address1,
+						DeployerAddress: suite.address1,
 						WithdrawAddress: "withdraw",
 					},
 				},

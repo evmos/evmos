@@ -94,7 +94,7 @@ func (p Params) Validate() error {
 		return err
 	}
 	if p.DeveloperShares.Add(p.ValidatorShares).GT(sdk.OneDec()) {
-		return fmt.Errorf("total shares cannot be greater than 1: %#v + %#v", p.DeveloperShares, p.ValidatorShares)
+		return fmt.Errorf("total shares cannot be greater than 1: %#s + %#s", p.DeveloperShares, p.ValidatorShares)
 	}
 
 	return nil

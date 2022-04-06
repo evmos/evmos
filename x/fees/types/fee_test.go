@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tharsis/ethermint/tests"
@@ -12,15 +13,24 @@ import (
 
 type FeeTestSuite struct {
 	suite.Suite
+	address1 sdk.AccAddress
+	address2 sdk.AccAddress
 }
 
 func TestFeeSuite(t *testing.T) {
 	suite.Run(t, new(FeeTestSuite))
 }
 
+func (suite *FeeTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
+
+func (suite *FeeTestSuite) DoSetupTest(t require.TestingT) {
+	suite.address1 = sdk.AccAddress(tests.GenerateAddress().Bytes())
+	suite.address2 = sdk.AccAddress(tests.GenerateAddress().Bytes())
+}
+
 func (suite *FeeTestSuite) TestDevFeeInfoNew() {
-	address1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	address2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	testCases := []struct {
 		name       string
 		contract   common.Address
@@ -31,29 +41,29 @@ func (suite *FeeTestSuite) TestDevFeeInfoNew() {
 		{
 			"Create fee info - pass",
 			tests.GenerateAddress(),
-			address1,
-			address2,
+			suite.address1,
+			suite.address2,
 			true,
 		},
 		{
 			"Create fee info, omit withdraw - pass",
 			tests.GenerateAddress(),
-			address1,
+			suite.address1,
 			nil,
 			true,
 		},
 		{
 			"Create fee info - invalid contract address",
 			common.Address{},
-			address1,
-			address2,
+			suite.address1,
+			suite.address2,
 			false,
 		},
 		{
 			"Create fee info - invalid deployer address",
 			tests.GenerateAddress(),
 			sdk.AccAddress{},
-			address2,
+			suite.address2,
 			false,
 		},
 	}
@@ -71,8 +81,6 @@ func (suite *FeeTestSuite) TestDevFeeInfoNew() {
 }
 
 func (suite *FeeTestSuite) TestFee() {
-	address1 := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
-	address2 := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 	testCases := []struct {
 		msg        string
 		feeInfo    DevFeeInfo
@@ -82,8 +90,8 @@ func (suite *FeeTestSuite) TestFee() {
 			"Create fee info - pass",
 			DevFeeInfo{
 				tests.GenerateAddress().String(),
-				address1,
-				address2,
+				suite.address1.String(),
+				suite.address2.String(),
 			},
 			true,
 		},
@@ -91,8 +99,8 @@ func (suite *FeeTestSuite) TestFee() {
 			"Create fee info - invalid contract address (not hex)",
 			DevFeeInfo{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-				address1,
-				address2,
+				suite.address1.String(),
+				suite.address2.String(),
 			},
 			false,
 		},
@@ -100,8 +108,8 @@ func (suite *FeeTestSuite) TestFee() {
 			"Create fee info - invalid contract address (invalid length 1)",
 			DevFeeInfo{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
-				address1,
-				address2,
+				suite.address1.String(),
+				suite.address2.String(),
 			},
 			false,
 		},
@@ -109,8 +117,8 @@ func (suite *FeeTestSuite) TestFee() {
 			"Create fee info - invalid contract address (invalid length 2)",
 			DevFeeInfo{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
-				address1,
-				address2,
+				suite.address1.String(),
+				suite.address2.String(),
 			},
 			false,
 		},
@@ -119,7 +127,7 @@ func (suite *FeeTestSuite) TestFee() {
 			DevFeeInfo{
 				tests.GenerateAddress().String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
-				address2,
+				suite.address2.String(),
 			},
 			false,
 		},
@@ -127,7 +135,7 @@ func (suite *FeeTestSuite) TestFee() {
 			"Create fee info - invalid withdraw address",
 			DevFeeInfo{
 				tests.GenerateAddress().String(),
-				address1,
+				suite.address1.String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
 			},
 			false,

@@ -3,30 +3,44 @@ package types
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tharsis/ethermint/tests"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type MsgsTestSuite struct {
 	suite.Suite
+	contract    common.Address
+	deployer    sdk.AccAddress
+	deployerStr string
 }
 
 func TestMsgsTestSuite(t *testing.T) {
 	suite.Run(t, new(MsgsTestSuite))
 }
 
+func (suite *MsgsTestSuite) SetupTest() {
+	suite.DoSetupTest(suite.T())
+}
+
+func (suite *MsgsTestSuite) DoSetupTest(t require.TestingT) {
+	deployer := tests.GenerateAddress()
+	suite.contract = crypto.CreateAddress(deployer, 1)
+	suite.deployer = sdk.AccAddress(deployer.Bytes())
+	suite.deployerStr = suite.deployer.String()
+}
+
 func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoGetters() {
 	msgInvalid := MsgRegisterDevFeeInfo{}
-	deployer := tests.GenerateAddress()
-	contract := crypto.CreateAddress(deployer, 1)
 	msg := NewMsgRegisterDevFeeInfo(
-		contract,
-		sdk.AccAddress(deployer.Bytes()),
-		sdk.AccAddress(deployer.Bytes()),
+		suite.contract,
+		suite.deployer,
+		suite.deployer,
 		[]uint64{1},
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
@@ -37,9 +51,6 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoGetters() {
 }
 
 func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
-	deployer := tests.GenerateAddress()
-	deployerStr := sdk.AccAddress(deployer.Bytes()).String()
-	contract := crypto.CreateAddress(deployer, 1)
 	testCases := []struct {
 		msg        string
 		contract   string
@@ -50,57 +61,57 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 	}{
 		{
 			"msg register contract - pass",
-			contract.String(),
-			deployerStr,
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
 			[]uint64{1},
 			true,
 		},
 		{
 			"msg register contract empty withdraw - pass",
-			contract.String(),
-			deployerStr,
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
 			[]uint64{1},
 			true,
 		},
 		{
 			"invalid contract address",
 			"",
-			deployerStr,
-			deployerStr,
+			suite.deployerStr,
+			suite.deployerStr,
 			[]uint64{1},
 			false,
 		},
 		{
 			"address must not be empty",
 			"0x0000000000000000000000000000000000000000",
-			deployerStr,
-			deployerStr,
+			suite.deployerStr,
+			suite.deployerStr,
 			[]uint64{1},
 			false,
 		},
 		{
 			"invalid deployer address",
-			contract.String(),
+			suite.contract.String(),
 			"",
-			deployerStr,
+			suite.deployerStr,
 			[]uint64{1},
 			false,
 		},
 		{
 			"invalid withdraw address",
-			contract.String(),
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
 			"withdraw",
 			[]uint64{1},
 			false,
 		},
 		{
 			"invalid nonces",
-			contract.String(),
-			deployerStr,
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
 			[]uint64{},
 			false,
 		},
@@ -126,11 +137,9 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 
 func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoGetters() {
 	msgInvalid := MsgCancelDevFeeInfo{}
-	deployer := tests.GenerateAddress()
-	contract := crypto.CreateAddress(deployer, 1)
 	msg := NewMsgCancelDevFeeInfo(
-		contract,
-		sdk.AccAddress(deployer.Bytes()),
+		suite.contract,
+		sdk.AccAddress(suite.deployer.Bytes()),
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgCancelDevFeeInfo, msg.Type())
@@ -140,9 +149,6 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoGetters() {
 }
 
 func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
-	deployer := tests.GenerateAddress()
-	deployerStr := sdk.AccAddress(deployer.Bytes()).String()
-	contract := crypto.CreateAddress(deployer, 1)
 	testCases := []struct {
 		msg        string
 		contract   string
@@ -151,25 +157,25 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 	}{
 		{
 			"msg cancel contract fee - pass",
-			contract.String(),
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
 			true,
 		},
 		{
 			"invalid contract address",
 			"",
-			deployerStr,
+			suite.deployerStr,
 			false,
 		},
 		{
 			"address must not be empty",
 			"0x0000000000000000000000000000000000000000",
-			deployerStr,
+			suite.deployerStr,
 			false,
 		},
 		{
 			"invalid deployer address",
-			contract.String(),
+			suite.contract.String(),
 			"",
 			false,
 		},
@@ -193,12 +199,10 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 
 func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoGetters() {
 	msgInvalid := MsgUpdateDevFeeInfo{}
-	deployer := tests.GenerateAddress()
-	contract := crypto.CreateAddress(deployer, 1)
 	msg := NewMsgUpdateDevFeeInfo(
-		contract,
-		sdk.AccAddress(deployer.Bytes()),
-		sdk.AccAddress(deployer.Bytes()),
+		suite.contract,
+		sdk.AccAddress(suite.deployer.Bytes()),
+		sdk.AccAddress(suite.deployer.Bytes()),
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgUpdateDevFeeInfo, msg.Type())
@@ -208,10 +212,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoGetters() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
-	deployer := tests.GenerateAddress()
-	deployerStr := sdk.AccAddress(deployer.Bytes()).String()
 	withdrawStr := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
-	contract := crypto.CreateAddress(deployer, 1)
 	testCases := []struct {
 		msg        string
 		contract   string
@@ -221,44 +222,44 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
 	}{
 		{
 			"msg update fee info - pass",
-			contract.String(),
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
 			withdrawStr,
 			true,
 		},
 		{
 			"invalid contract address",
 			"",
-			deployerStr,
+			suite.deployerStr,
 			withdrawStr,
 			false,
 		},
 		{
 			"address must not be empty",
 			"0x0000000000000000000000000000000000000000",
-			deployerStr,
+			suite.deployerStr,
 			withdrawStr,
 			false,
 		},
 		{
 			"invalid deployer address",
-			contract.String(),
+			suite.contract.String(),
 			"",
-			deployerStr,
+			suite.deployerStr,
 			false,
 		},
 		{
 			"invalid withdraw address",
-			contract.String(),
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
 			"withdraw",
 			false,
 		},
 		{
 			"withdraw address must be different that deployer",
-			contract.String(),
-			deployerStr,
-			deployerStr,
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
 			false,
 		},
 	}

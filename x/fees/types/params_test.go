@@ -4,23 +4,10 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 )
 
-type ParamsTestSuite struct {
-	suite.Suite
-}
-
-func TestParamsTestSuite(t *testing.T) {
-	suite.Run(t, new(ParamsTestSuite))
-}
-
-func (suite *ParamsTestSuite) TestParamKeyTable() {
-	suite.Require().IsType(paramtypes.KeyTable{}, ParamKeyTable())
-}
-
-func (suite *ParamsTestSuite) TestParamsValidate() {
+func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
 	validatorShares := sdk.NewDecWithPrec(40, 2)
 
@@ -71,14 +58,20 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		err := tc.params.Validate()
 
 		if tc.expError {
-			suite.Require().Error(err, tc.name)
+			require.Error(t, err, tc.name)
 		} else {
-			suite.Require().NoError(err, tc.name)
+			require.NoError(t, err, tc.name)
 		}
 	}
 }
 
-func (suite *ParamsTestSuite) TestParamsValidatePriv() {
-	suite.Require().Error(validateBool(1))
-	suite.Require().NoError(validateBool(true))
+func TestParamsValidateBool(t *testing.T) {
+	err := validateBool(true)
+	require.NoError(t, err)
+	err = validateBool(false)
+	require.NoError(t, err)
+	err = validateBool("")
+	require.Error(t, err)
+	err = validateBool(int64(123))
+	require.Error(t, err)
 }
