@@ -29,8 +29,10 @@ func (i DevFeeInfo) Validate() error {
 		return err
 	}
 
-	if _, err := sdk.AccAddressFromBech32(i.WithdrawAddress); err != nil {
-		return err
+	if i.WithdrawAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(i.WithdrawAddress); err != nil {
+			return err
+		}
 	}
 
 	return nil
