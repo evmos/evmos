@@ -266,6 +266,8 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 	from := tests.GenerateAddress()
 	to := tests.GenerateAddress()
+	msg := ethtypes.NewMessage(from, &to, 0, nil, 0, nil, nil, nil, nil, nil, false)
+
 	receipt := ethtypes.Receipt{}
 	addr := sdk.AccAddress(from.Bytes())
 
@@ -276,7 +278,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 		{
 			"no claim record",
 			func() {
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
+				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -295,7 +297,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
+				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -316,7 +318,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
+				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -344,7 +346,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
-				err = suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
+				err = suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
@@ -374,7 +376,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, from, &to, &receipt)
+				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)

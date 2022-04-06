@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
@@ -23,7 +24,7 @@ func (k Keeper) Hooks() Hooks {
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the owner's GasUsed is
 // added to its gasMeter.
-func (h Hooks) PostTxProcessing(ctx sdk.Context, msg ethtypes.Message, receipt *ethtypes.Receipt) error {
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	// check if the fees are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableFees {

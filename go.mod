@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/armon/go-metrics v0.3.10
-	github.com/cosmos/cosmos-sdk v0.45.1
+	github.com/cosmos/cosmos-sdk v0.45.2
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/ethereum/go-ethereum v1.10.16
@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tendermint/tm-db v0.6.7
-	github.com/tharsis/ethermint v0.12.2
+	github.com/tharsis/ethermint v0.13.0
 	go.opencensus.io v0.23.0
 	google.golang.org/genproto v0.0.0-20220401170504-314d38edb7de
 	google.golang.org/grpc v1.45.0
@@ -153,8 +153,6 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/cosmos/cosmos-sdk => github.com/tharsis/cosmos-sdk v0.45.2-0.20220306021140-2de5a020cedb
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/tharsis/ethermint => github.com/loredanacirstea/ethermint v0.6.1-0.20220404144557-bf7358bae637
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
