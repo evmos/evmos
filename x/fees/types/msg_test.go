@@ -162,6 +162,12 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 			false,
 		},
 		{
+			"address must not be empty",
+			"0x0000000000000000000000000000000000000000",
+			deployerStr,
+			false,
+		},
+		{
 			"invalid deployer address",
 			contract.String(),
 			"",
@@ -224,7 +230,14 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
 			"invalid contract address",
 			"",
 			deployerStr,
+			withdrawStr,
+			false,
+		},
+		{
+			"address must not be empty",
+			"0x0000000000000000000000000000000000000000",
 			deployerStr,
+			withdrawStr,
 			false,
 		},
 		{
