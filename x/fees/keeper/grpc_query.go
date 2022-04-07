@@ -36,16 +36,11 @@ func (k Keeper) DevFeeInfos(
 		store,
 		req.Pagination,
 		func(key, value []byte) error {
-			contractAddress := common.BytesToAddress(key)
-			deployerAddress := sdk.AccAddress(value)
-			withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
-			feeInfo := types.DevFeeInfo{
-				ContractAddress: contractAddress.String(),
-				DeployerAddress: deployerAddress.String(),
-			}
-			if hasWithdrawAddr {
-				feeInfo.WithdrawAddress = withdrawalAddress.String()
-			}
+			feeInfo := k.BuildFeeInfo(
+				ctx,
+				common.BytesToAddress(key),
+				sdk.AccAddress(value),
+			)
 			feeInfos = append(feeInfos, feeInfo)
 			return nil
 		},
@@ -97,7 +92,7 @@ func (k Keeper) DevFeeInfo(
 	return &types.QueryDevFeeInfoResponse{Fee: feeInfo}, nil
 }
 
-// Params return hub contract param
+// Params returns the fees module params
 func (k Keeper) Params(
 	c context.Context,
 	_ *types.QueryParamsRequest,
@@ -107,7 +102,8 @@ func (k Keeper) Params(
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// DevFeeInfosPerDeployer returns all contracts that a deployer has registered
+// DevFeeInfosPerDeployer returns the fee information for all contracts that a
+// deployer has registered
 func (k Keeper) DevFeeInfosPerDeployer(
 	c context.Context,
 	req *types.QueryDevFeeInfosPerDeployerRequest,

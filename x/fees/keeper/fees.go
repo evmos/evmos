@@ -17,24 +17,19 @@ func (k Keeper) GetAllFees(ctx sdk.Context) []types.DevFeeInfo {
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		contractAddress := common.BytesToAddress(iterator.Key())
-		deployerAddress := sdk.AccAddress(iterator.Value())
-		withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
-		feeInfo := types.DevFeeInfo{
-			ContractAddress: contractAddress.String(),
-			DeployerAddress: deployerAddress.String(),
-		}
-		if hasWithdrawAddr {
-			feeInfo.WithdrawAddress = withdrawalAddress.String()
-		}
+		feeInfo := k.BuildFeeInfo(
+			ctx,
+			common.BytesToAddress(iterator.Key()),
+			sdk.AccAddress(iterator.Value()),
+		)
 		feeInfos = append(feeInfos, feeInfo)
 	}
 
 	return feeInfos
 }
 
-// IterateFees iterates over all registered `DevFeeInfos` and performs a
-// callback.
+// IterateFees iterates over all registered contracts and performs a
+// callback with the corresponding DevFeeInfo.
 func (k Keeper) IterateFees(
 	ctx sdk.Context,
 	handlerFn func(fee types.DevFeeInfo) (stop bool),
@@ -44,16 +39,11 @@ func (k Keeper) IterateFees(
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		contractAddress := common.BytesToAddress(iterator.Key())
-		deployerAddress := sdk.AccAddress(iterator.Value())
-		withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
-		feeInfo := types.DevFeeInfo{
-			ContractAddress: contractAddress.String(),
-			DeployerAddress: deployerAddress.String(),
-		}
-		if hasWithdrawAddr {
-			feeInfo.WithdrawAddress = withdrawalAddress.String()
-		}
+		feeInfo := k.BuildFeeInfo(
+			ctx,
+			common.BytesToAddress(iterator.Key()),
+			sdk.AccAddress(iterator.Value()),
+		)
 		if handlerFn(feeInfo) {
 			break
 		}
@@ -66,6 +56,12 @@ func (k Keeper) GetFeeInfo(ctx sdk.Context, contract common.Address) (types.DevF
 	if !found {
 		return types.DevFeeInfo{}, false
 	}
+	feeInfo := k.BuildFeeInfo(ctx, contract, deployerAddress)
+	return feeInfo, true
+}
+
+// BuildFeeInfo returns DevFeeInfo given the contract and deployer addresses
+func (k Keeper) BuildFeeInfo(ctx sdk.Context, contract common.Address, deployerAddress sdk.AccAddress) types.DevFeeInfo {
 	withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contract)
 	feeInfo := types.DevFeeInfo{
 		ContractAddress: contract.String(),
@@ -74,7 +70,7 @@ func (k Keeper) GetFeeInfo(ctx sdk.Context, contract common.Address) (types.DevF
 	if hasWithdrawAddr {
 		feeInfo.WithdrawAddress = withdrawalAddress.String()
 	}
-	return feeInfo, true
+	return feeInfo
 }
 
 // GetDeployer returns the deployer address for a registered contract
@@ -97,10 +93,10 @@ func (k Keeper) GetWithdrawal(ctx sdk.Context, contract common.Address) (sdk.Acc
 	return sdk.AccAddress(bz), true
 }
 
-// SetFee stores a registered contract
+// SetFee stores the developer fee information for a registered contract
 func (k Keeper) SetFee(ctx sdk.Context, contract common.Address, deployer sdk.AccAddress, withdrawal sdk.AccAddress) {
 	k.SetDeployer(ctx, contract, deployer)
-	if withdrawal != nil && withdrawal.String() != deployer.String() {
+	if len(withdrawal) > 0 && withdrawal.String() != deployer.String() {
 		k.SetWithdrawal(ctx, contract, withdrawal)
 	}
 }
@@ -135,7 +131,7 @@ func (k Keeper) DeleteWithdrawal(ctx sdk.Context, contract common.Address) {
 	store.Delete(contract.Bytes())
 }
 
-// IsFeeRegistered - check if registered DevFeeInfo is registered
+// IsFeeRegistered checks if a contract was registered for receiving fees
 func (k Keeper) IsFeeRegistered(
 	ctx sdk.Context,
 	contract common.Address,
@@ -172,7 +168,6 @@ func (k Keeper) GetFeesInverse(ctx sdk.Context, deployerAddress sdk.AccAddress) 
 // SetFeeInverse stores a registered contract inverse mapping
 func (k Keeper) SetFeeInverse(ctx sdk.Context, deployerAddress sdk.AccAddress, contractAddress common.Address) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixInverse)
-
 	store.Set(deployerAddress.Bytes(), contractAddress.Bytes())
 }
 
@@ -182,7 +177,7 @@ func (k Keeper) DeleteFeeInverse(ctx sdk.Context, deployerAddress sdk.AccAddress
 	store.Delete(deployerAddress.Bytes())
 }
 
-// HasFeeInverse - check if a reverse mapping deployer => contracts exists
+// HasFeeInverse checks if a reverse mapping deployer => contracts exists
 func (k Keeper) HasFeeInverse(
 	ctx sdk.Context,
 	deployerAddress sdk.AccAddress,

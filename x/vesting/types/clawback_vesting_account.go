@@ -50,7 +50,7 @@ func NewClawbackVestingAccount(
 func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 	// It's likely that one or the other schedule will be nearly trivial,
 	// so there should be little overhead in recomputing the conjunction each time.
-	coins := CoinsMin(va.GetUnlockedOnly(blockTime), va.GetVestedOnly(blockTime))
+	coins := va.GetUnlockedOnly(blockTime).Min(va.GetVestedOnly(blockTime))
 	if coins.IsZero() {
 		return nil
 	}

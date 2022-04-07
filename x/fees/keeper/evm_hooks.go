@@ -16,14 +16,14 @@ type Hooks struct {
 
 var _ evmtypes.EvmHooks = Hooks{}
 
-// Return the wrapper struct
+// Hooks return the wrapper hooks struct for the Keeper
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
-// interaction with an incentivized contract, the owner's GasUsed is
-// added to its gasMeter.
+// interaction with a registered contract, the contract deployer receives
+// a share from the transaction fees paid by the user.
 func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	// check if the fees are globally enabled
 	params := h.k.GetParams(ctx)
@@ -32,14 +32,9 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	}
 
 	contract := msg.To()
-	// If theres no fees registered for the contract, do nothing
+	// if the contract is not registered to receive fees, do nothing
 	if contract == nil || !h.k.IsFeeRegistered(ctx, *contract) {
 		return nil
-	}
-
-	cfg, err := h.k.evmKeeper.EVMConfig(ctx)
-	if err != nil {
-		return err
 	}
 
 	withdrawAddr, found := h.k.GetWithdrawal(ctx, *contract)
@@ -47,18 +42,20 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 		withdrawAddr, found = h.k.GetDeployer(ctx, *contract)
 	}
 	if !found {
+		// no registered deployer / withdraw address for the contract
 		return nil
 	}
 
 	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
-	feeParams := h.k.GetParams(ctx)
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(feeParams.DeveloperShares)
-	developerCoins := sdk.Coins{sdk.NewCoin(cfg.Params.EvmDenom, developerFee.TruncateInt())}
+
+	evmDenom := h.k.evmKeeper.GetParams(ctx).EvmDenom
+	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
+	developerCoins := sdk.Coins{{Denom: evmDenom, Amount: developerFee.TruncateInt()}}
 
 	return h.sendFees(ctx, *contract, withdrawAddr, developerCoins)
 }
 
-// sendFees distributes the fees to the deployer
+// sendFees distributes the transaction fees to the contract deployer
 func (h Hooks) sendFees(
 	ctx sdk.Context,
 	contract common.Address,
@@ -67,7 +64,11 @@ func (h Hooks) sendFees(
 ) error {
 	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, h.k.feeCollectorName, withdrawAddr, fees)
 	if err != nil {
-		err = sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "fee collector account failed to distribute developer fees: %s", err.Error())
+		err = sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"fee collector account failed to distribute developer fees: %s",
+			err.Error(),
+		)
 		return sdkerrors.Wrapf(err, "failed to distribute %s fees", fees.String())
 	}
 	return nil

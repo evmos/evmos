@@ -11,7 +11,8 @@ import (
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
-// Keeper of this module maintains collections of fees.
+// Keeper of this module maintains collections of fee information for contracts
+// registered to receive transaction fees.
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        codec.BinaryCodec
