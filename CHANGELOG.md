@@ -54,6 +54,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (vesting) [\#468](https://github.com/tharsis/evmos/pull/468) Use coins `Min` function from Cosmos SDK.
 - (deps) [\#458](https://github.com/tharsis/evmos/pull/458) Bump Ethermint to [`v0.13.0`](https://github.com/tharsis/ethermint/releases/tag/v0.13.0)
 - (deps) [\#457](https://github.com/tharsis/evmos/pull/457) Bump Cosmos SDK to [`v0.45.2`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.2)
 - (cmd) [\#446](https://github.com/tharsis/evmos/pull/446) Update `migrate` command to migrate Evmos, Ethermint and Cosmos SDK modules.
