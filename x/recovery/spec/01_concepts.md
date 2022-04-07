@@ -1,12 +1,16 @@
+<!--
+order: 1
+-->
+
 # Concepts
 
-## **Key generation**
+## Key generation
 
 `secp256k1` refers to the parameters of the elliptic curve used in generating cryptographic public keys. Like Bitcoin, IBC compatible chains like the Cosmos chain use `secp256k1` for public key generation.
 
 Some chains use different elliptic curves for generating public keys. An example is the`eth_secp256k1`used by Ethereum and Evmos chain for generating public keys.
 
-```
+```go
 // Generate new random ethsecp256k1 private key and address
 
 ethPrivKey, err := ethsecp256k1.GenerateKey()
@@ -21,14 +25,14 @@ ethsecpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, ethsecp
 
 The above example code demonstrates a simple user account creation on Evmos. 
 On the second line, a private key is generated using the `eth_secp256k1` curve, which is used to create a human readable `PubKey` string.
-For more detailed info on accounts, please check the [accounts section](https://evmos.dev/basics/accounts.html#evmos-accounts "Evmos Accounts in Evmos Documentation") in the official Evmos documentation.
+For more detailed info on accounts, please check the [accounts section](https://evmos.dev/basics/accounts.html#evmos-accounts) in the official Evmos documentation.
 
 
-## **Stuck funds**
+## Stuck funds
 
 The primary use case of the `x/recovery` module is to enable the recovery of tokens, that were sent to unsupported Evmos addresses. These tokens are termed “stuck”, as the account’s owner cannot sign transactions that transfer the tokens to other accounts. The owner only holds the private key to sign transactions for its `eth_secp256k1` public keys on Evmos, not other unsupported keys (i.e. `secp256k1` keys) .They are unable to transfer the tokens using the keys of the accounts through which they were sent due to the incompatibility of their elliptic curves.
 
-## **Recovery**
+## Recovery
 
 After the initial Evmos launch (`v1.1.2`), tokens got stuck from accounts with and without claims records (airdrop allocation):
 
@@ -58,7 +62,7 @@ After the initial Evmos launch (`v1.1.2`), tokens got stuck from accounts with a
 
 ## IBC Middleware Stack
 
-### **Middleware ordering**
+### Middleware ordering
 
 The IBC middleware adds custom logic between the core IBC and the underlying application. Middlewares are implemented as stacks so that applications can define multiple layers of custom behavior.
 
@@ -85,7 +89,7 @@ This means that the IBC transfer will be executed first, then the claim will be 
 4. User receives `100uosmo` and `1000aevmos` (IBC voucher) on Osmosis.
 
 
-### **Execution errors**
+### Execution errors
 
 It is possible that the IBC transaction fails in any point of the stack execution and in that case the recovery will not be triggered by the transaction, as it will rollback to the previous state.
 

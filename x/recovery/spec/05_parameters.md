@@ -1,3 +1,7 @@
+<!--
+order: 5
+-->
+
 # Parameters
 
 The `x/recovery` module contains the following parameters.
