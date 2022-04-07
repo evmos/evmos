@@ -90,6 +90,22 @@ func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 			"",
 		},
 		{
+			"ok - deployer == withdraw, withdraw is stored as empty string",
+			sdk.AccAddress(deployer.Bytes()),
+			sdk.AccAddress(deployer.Bytes()),
+			contract1,
+			[]uint64{1},
+			func() {
+				// set deployer and contract accounts
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+			},
+			true,
+			"",
+		},
+		{
 			"not ok - deployer account not found",
 			sdk.AccAddress(deployer.Bytes()),
 			sdk.AccAddress(deployer.Bytes()),
@@ -194,7 +210,11 @@ func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 				suite.Require().True(ok, "unregistered fee")
 				suite.Require().Equal(tc.contract.String(), fee.ContractAddress, "wrong contract")
 				suite.Require().Equal(tc.deployer.String(), fee.DeployerAddress, "wrong deployer")
-				suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, "wrong withdraw address")
+				if tc.withdraw.String() != tc.deployer.String() {
+					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, "wrong withdraw address")
+				} else {
+					suite.Require().Equal("", fee.WithdrawAddress, "wrong withdraw address")
+				}
 			} else {
 				suite.Require().Error(err, tc.name)
 				suite.Require().Contains(err.Error(), tc.errorMessage)

@@ -27,7 +27,6 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	// distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
 )
@@ -91,9 +90,7 @@ var _ = Describe("While", Ordered, func() {
 		Expect(isRegistered).To(Equal(true))
 		Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 		Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
-		Expect(fee.WithdrawAddress).To(Equal(deployerAddress.String()))
-		s.Commit()
-
+		Expect(fee.WithdrawAddress).To(Equal(""))
 		s.Commit()
 	})
 
@@ -145,7 +142,7 @@ var _ = Describe("While", Ordered, func() {
 			Expect(isRegistered).To(Equal(true))
 			Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 			Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
-			Expect(fee.WithdrawAddress).To(Equal(deployerAddress.String()))
+			Expect(fee.WithdrawAddress).To(Equal(""))
 			s.Commit()
 		})
 
