@@ -1,5 +1,8 @@
 <!--
 order: 3
+title: "Recovery hooks"
+parent:
+  title: "recovery"
 -->
 
 # Hooks
