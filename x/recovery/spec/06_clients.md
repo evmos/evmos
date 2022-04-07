@@ -2,7 +2,7 @@
 
 The query commands allow users to query Recovery state.
 
-`**params**`
+` **params** `
 Allows users to query the module parameters.
 
 ```bash
