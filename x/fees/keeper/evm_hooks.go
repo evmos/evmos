@@ -16,7 +16,7 @@ type Hooks struct {
 
 var _ evmtypes.EvmHooks = Hooks{}
 
-// Return the wrapper struct
+// Hooks return the wrapper hooks struct for the Keeper
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
@@ -47,6 +47,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 		withdrawAddr, found = h.k.GetDeployer(ctx, *contract)
 	}
 	if !found {
+		// no registered deployer / withdraw address for the contract
 		return nil
 	}
 
