@@ -237,7 +237,7 @@ func (k Keeper) addGrant(
 
 	// cap DV at the current unvested amount, DF rounds out to current delegated
 	unvested := va.GetVestingCoins(ctx.BlockTime())
-	va.DelegatedVesting = types.CoinsMin(delegated, unvested)
+	va.DelegatedVesting = delegated.Min(unvested)
 	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
 }
 
@@ -258,6 +258,6 @@ func (k Keeper) transferClawback(
 	// Transfer clawback
 	addr := updatedAcc.GetAddress()
 	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
-	transferAmt := types.CoinsMin(toClawBack, spendable)
+	transferAmt := toClawBack.Min(spendable)
 	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
 }
