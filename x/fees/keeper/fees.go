@@ -33,8 +33,8 @@ func (k Keeper) GetAllFees(ctx sdk.Context) []types.DevFeeInfo {
 	return feeInfos
 }
 
-// IterateFees iterates over all registered `DevFeeInfos` and performs a
-// callback.
+// IterateFees iterates over all registered contracts and performs a
+// callback with the corresponding DevFeeInfo.
 func (k Keeper) IterateFees(
 	ctx sdk.Context,
 	handlerFn func(fee types.DevFeeInfo) (stop bool),

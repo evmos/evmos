@@ -68,7 +68,11 @@ func (h Hooks) sendFees(
 ) error {
 	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, h.k.feeCollectorName, withdrawAddr, fees)
 	if err != nil {
-		err = sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "fee collector account failed to distribute developer fees: %s", err.Error())
+		err = sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"fee collector account failed to distribute developer fees: %s",
+			err.Error(),
+		)
 		return sdkerrors.Wrapf(err, "failed to distribute %s fees", fees.String())
 	}
 	return nil
