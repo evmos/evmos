@@ -70,6 +70,36 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
+- [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
+    - [DevFeeInfo](#evmos.fees.v1.DevFeeInfo)
+    - [DevFeeInfosPerDeployer](#evmos.fees.v1.DevFeeInfosPerDeployer)
+  
+- [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
+    - [GenesisState](#evmos.fees.v1.GenesisState)
+    - [Params](#evmos.fees.v1.Params)
+  
+- [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
+    - [QueryDevFeeInfoRequest](#evmos.fees.v1.QueryDevFeeInfoRequest)
+    - [QueryDevFeeInfoResponse](#evmos.fees.v1.QueryDevFeeInfoResponse)
+    - [QueryDevFeeInfosPerDeployerRequest](#evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest)
+    - [QueryDevFeeInfosPerDeployerResponse](#evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse)
+    - [QueryDevFeeInfosRequest](#evmos.fees.v1.QueryDevFeeInfosRequest)
+    - [QueryDevFeeInfosResponse](#evmos.fees.v1.QueryDevFeeInfosResponse)
+    - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
+  
+    - [Query](#evmos.fees.v1.Query)
+  
+- [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
+    - [MsgCancelDevFeeInfo](#evmos.fees.v1.MsgCancelDevFeeInfo)
+    - [MsgCancelDevFeeInfoResponse](#evmos.fees.v1.MsgCancelDevFeeInfoResponse)
+    - [MsgRegisterDevFeeInfo](#evmos.fees.v1.MsgRegisterDevFeeInfo)
+    - [MsgRegisterDevFeeInfoResponse](#evmos.fees.v1.MsgRegisterDevFeeInfoResponse)
+    - [MsgUpdateDevFeeInfo](#evmos.fees.v1.MsgUpdateDevFeeInfo)
+    - [MsgUpdateDevFeeInfoResponse](#evmos.fees.v1.MsgUpdateDevFeeInfoResponse)
+  
+    - [Msg](#evmos.fees.v1.Msg)
+  
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [GasMeter](#evmos.incentives.v1.GasMeter)
@@ -938,6 +968,371 @@ Msg defines the erc20 Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
 | `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/fees.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/fees.proto
+
+
+
+<a name="evmos.fees.v1.DevFeeInfo"></a>
+
+### DevFeeInfo
+DevFeeInfo defines an instance that organizes fee distribution conditions
+for the owner of a given smart contract
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | hex address of registered contract |
+| `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
+| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
+
+
+
+
+
+
+<a name="evmos.fees.v1.DevFeeInfosPerDeployer"></a>
+
+### DevFeeInfosPerDeployer
+DevFeeInfosPerDeployer defines an instance that keeps track of all
+contracts registered by a deployer
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_addresses` | [string](#string) | repeated |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/genesis.proto
+
+
+
+<a name="evmos.fees.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
+| `dev_fee_infos` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated | active registered contracts |
+
+
+
+
+
+
+<a name="evmos.fees.v1.Params"></a>
+
+### Params
+Params defines the fees module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `enable_fees` | [bool](#bool) |  | parameter to enable fees |
+| `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
+| `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/query.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/query.proto
+
+
+
+<a name="evmos.fees.v1.QueryDevFeeInfoRequest"></a>
+
+### QueryDevFeeInfoRequest
+QueryDevFeeInfoRequest is the request type for the Query/DevFeeInfo RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryDevFeeInfoResponse"></a>
+
+### QueryDevFeeInfoResponse
+QueryDevFeeInfoResponse is the response type for the Query/DevFeeInfo RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fee` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) |  |  |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest"></a>
+
+### QueryDevFeeInfosPerDeployerRequest
+QueryDevFeeInfosPerDeployerRequest is the request type for the
+Query/DevFeeInfosPerDeployer RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `deployer_address` | [string](#string) |  | deployer bech32 address |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse"></a>
+
+### QueryDevFeeInfosPerDeployerResponse
+QueryDevFeeInfosPerDeployerResponse is the response type for the
+Query/DevFeeInfosPerDeployer RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryDevFeeInfosRequest"></a>
+
+### QueryDevFeeInfosRequest
+QueryDevFeeInfosRequest is the request type for the Query/DevFeeInfos RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryDevFeeInfosResponse"></a>
+
+### QueryDevFeeInfosResponse
+QueryDevFeeInfosResponse is the response type for the Query/DevFeeInfos
+RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryParamsRequest"></a>
+
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.fees.v1.Params) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.fees.v1.Query"></a>
+
+### Query
+Query defines the gRPC querier service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `DevFeeInfos` | [QueryDevFeeInfosRequest](#evmos.fees.v1.QueryDevFeeInfosRequest) | [QueryDevFeeInfosResponse](#evmos.fees.v1.QueryDevFeeInfosResponse) | DevFeeInfos retrieves all registered contracts for fee distribution | GET|/evmos/fees/v1/fees|
+| `DevFeeInfo` | [QueryDevFeeInfoRequest](#evmos.fees.v1.QueryDevFeeInfoRequest) | [QueryDevFeeInfoResponse](#evmos.fees.v1.QueryDevFeeInfoResponse) | DevFeeInfo retrieves a registered contract for fee distribution | GET|/evmos/fees/v1/fees/{contract_address}|
+| `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
+| `DevFeeInfosPerDeployer` | [QueryDevFeeInfosPerDeployerRequest](#evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest) | [QueryDevFeeInfosPerDeployerResponse](#evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse) | DevFeeInfosPerDeployer retrieves all contracts that a deployer has registered for fee distribution | GET|/evmos/fees/v1/fees/{deployer_address}|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/fees/v1/tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/fees/v1/tx.proto
+
+
+
+<a name="evmos.fees.v1.MsgCancelDevFeeInfo"></a>
+
+### MsgCancelDevFeeInfo
+MsgCancelDevFeeInfo defines a message that cancels a registered a
+DevFeeInfo
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `deployer_address` | [string](#string) |  | deployer bech32 address |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgCancelDevFeeInfoResponse"></a>
+
+### MsgCancelDevFeeInfoResponse
+MsgCancelDevFeeInfoResponse defines the MsgCancelDevFeeInfo response type
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgRegisterDevFeeInfo"></a>
+
+### MsgRegisterDevFeeInfo
+MsgRegisterFeesContract defines a message that registers a DevFeeInfo
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `deployer_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
+| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
+| `nonces` | [uint64](#uint64) | repeated | array of nonces from the address path, where the last nonce is the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgRegisterDevFeeInfoResponse"></a>
+
+### MsgRegisterDevFeeInfoResponse
+MsgRegisterDevFeeInfoResponse defines the MsgRegisterDevFeeInfo response
+type
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgUpdateDevFeeInfo"></a>
+
+### MsgUpdateDevFeeInfo
+MsgUpdateDevFeeInfo defines a message that updates the withdraw address for
+a registered DevFeeInfo
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract hex address |
+| `deployer_address` | [string](#string) |  | deployer bech32 address |
+| `withdraw_address` | [string](#string) |  | new withdraw bech32 address for receiving the transaction fees |
+
+
+
+
+
+
+<a name="evmos.fees.v1.MsgUpdateDevFeeInfoResponse"></a>
+
+### MsgUpdateDevFeeInfoResponse
+MsgUpdateDevFeeInfoResponse defines the MsgUpdateDevFeeInfo response type
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+
+<a name="evmos.fees.v1.Msg"></a>
+
+### Msg
+Msg defines the fees Msg service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `RegisterDevFeeInfo` | [MsgRegisterDevFeeInfo](#evmos.fees.v1.MsgRegisterDevFeeInfo) | [MsgRegisterDevFeeInfoResponse](#evmos.fees.v1.MsgRegisterDevFeeInfoResponse) | RegisterDevFeeInfo is used by a deployer to register a new contract for receiving transaction fees | GET|/evmos/fees/v1/tx/register_fee_contract|
+| `CancelDevFeeInfo` | [MsgCancelDevFeeInfo](#evmos.fees.v1.MsgCancelDevFeeInfo) | [MsgCancelDevFeeInfoResponse](#evmos.fees.v1.MsgCancelDevFeeInfoResponse) | CancelDevFeeInfo is used by a deployer to cancel a registered contract and stop receiving transaction fees | GET|/evmos/fees/v1/tx/cancel_fee_contract|
+| `UpdateDevFeeInfo` | [MsgUpdateDevFeeInfo](#evmos.fees.v1.MsgUpdateDevFeeInfo) | [MsgUpdateDevFeeInfoResponse](#evmos.fees.v1.MsgUpdateDevFeeInfoResponse) | UpdateDevFeeInfo is used by a deployer to update the withdraw address | GET|/evmos/fees/v1/tx/update_fee_contract|
 
  <!-- end services -->
 
