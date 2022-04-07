@@ -7,7 +7,6 @@ The `x/recovery` module emits the following event:
 | ---------- | :---------------:| -----------------:  |
 | `recovery` | `sender`         | `senderBech32`      |
 | `recovery` | `receiver`       | `recipientBech32`   |
-
 | `recovery` | `amount`       | `amtStr`   |
 | `recovery` | `SrcChannel`       | `packet.SourceChannel`   |
 | `recovery` | `srcPort`       | `packet.SourcePort`   |
