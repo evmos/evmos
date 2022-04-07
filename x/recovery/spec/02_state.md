@@ -1,8 +1,5 @@
 <!--
 order: 2
-title: "Recovery state"
-parent:
-  title: "recovery"
 -->
 
 # State

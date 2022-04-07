@@ -1,8 +1,5 @@
 <!--
 order: 5
-title: "Recovery parameters"
-parent:
-  title: "recovery"
 -->
 
 # Parameters

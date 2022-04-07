@@ -1,8 +1,5 @@
 <!--
 order: 4
-title: "Recovery events"
-parent:
-  title: "recovery"
 -->
 
 # Events

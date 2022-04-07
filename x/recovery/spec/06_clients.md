@@ -1,8 +1,5 @@
 <!--
 order: 6
-title: "Recovery clients"
-parent:
-  title: "recovery"
 -->
 
 # Clients
