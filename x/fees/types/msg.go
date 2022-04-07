@@ -50,6 +50,13 @@ func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
+	if ethermint.IsZeroAddress(msg.ContractAddress) {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
+			msg.ContractAddress,
+		)
+	}
+
 	// WithdrawAddress can be omitted and it will default to DeployerAddress
 	if msg.WithdrawAddress != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
@@ -80,9 +87,9 @@ func (msg MsgRegisterDevFeeInfo) GetSigners() []sdk.AccAddress {
 
 // NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
 // nil - defaulting to the funder.
-func NewMsgCancelDevFeeInfo(deployer sdk.AccAddress, contract string) *MsgCancelDevFeeInfo {
+func NewMsgCancelDevFeeInfo(contract common.Address, deployer sdk.AccAddress) *MsgCancelDevFeeInfo {
 	return &MsgCancelDevFeeInfo{
-		ContractAddress: contract,
+		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
 	}
 }
@@ -101,6 +108,13 @@ func (msg MsgCancelDevFeeInfo) ValidateBasic() error {
 
 	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
+	}
+
+	if ethermint.IsZeroAddress(msg.ContractAddress) {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
+			msg.ContractAddress,
+		)
 	}
 
 	return nil
@@ -122,13 +136,13 @@ func (msg MsgCancelDevFeeInfo) GetSigners() []sdk.AccAddress {
 
 // NewMsgUpdateDevFeeInfo creates new instance of MsgUpdateDevFeeInfo
 func NewMsgUpdateDevFeeInfo(
+	contract common.Address,
 	deployer sdk.AccAddress,
-	contract string,
 	withdraw sdk.AccAddress,
 ) *MsgUpdateDevFeeInfo {
 	return &MsgUpdateDevFeeInfo{
+		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
-		ContractAddress: contract,
 		WithdrawAddress: withdraw.String(),
 	}
 }
@@ -149,12 +163,19 @@ func (msg MsgUpdateDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
+	if ethermint.IsZeroAddress(msg.ContractAddress) {
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
+			msg.ContractAddress,
+		)
+	}
+
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawAddress)
 	}
 
 	if msg.DeployerAddress == msg.WithdrawAddress {
-		return sdkerrors.Wrapf(ErrInternalFee, "withdraw address %s must be different that deployer address %s", msg.WithdrawAddress, msg.DeployerAddress)
+		return sdkerrors.Wrapf(ErrInternalFee, "withdraw address must be different that deployer address: withdraw %s, deployer %s", msg.WithdrawAddress, msg.DeployerAddress)
 	}
 
 	return nil
