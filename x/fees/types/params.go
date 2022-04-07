@@ -63,8 +63,13 @@ func validateBool(i interface{}) error {
 
 func validateShares(i interface{}) error {
 	v, ok := i.(sdk.Dec)
+
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("invalid parameter: nil")
 	}
 
 	if v.IsNegative() {
@@ -89,7 +94,7 @@ func (p Params) Validate() error {
 		return err
 	}
 	if p.DeveloperShares.Add(p.ValidatorShares).GT(sdk.OneDec()) {
-		return fmt.Errorf("total shares cannot be greater than 1: %T + %T", p.DeveloperShares, p.ValidatorShares)
+		return fmt.Errorf("total shares cannot be greater than 1: %#s + %#s", p.DeveloperShares, p.ValidatorShares)
 	}
 
 	return nil
