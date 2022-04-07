@@ -182,7 +182,7 @@ func ConjunctPeriods(
 	// if the minimum of P and Q changes
 	consumeP := func(nextTime int64) {
 		amountP = amountP.Add(periodsP[iP].Amount...)
-		min := CoinsMin(amountP, amountQ)
+		min := amountP.Min(amountQ)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
 			if !diff.IsZero() {
@@ -197,7 +197,7 @@ func ConjunctPeriods(
 	// if the minimum of P and Q changes
 	consumeQ := func(nextTime int64) {
 		amountQ = amountQ.Add(periodsQ[iQ].Amount...)
-		min := CoinsMin(amountP, amountQ)
+		min := amountP.Min(amountQ)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
 			if !diff.IsZero() {
@@ -213,7 +213,7 @@ func ConjunctPeriods(
 	consumeBoth := func(nextTime int64) {
 		amountP = amountP.Add(periodsP[iP].Amount...)
 		amountQ = amountQ.Add(periodsQ[iQ].Amount...)
-		min := CoinsMin(amountP, amountQ)
+		min := amountP.Min(amountQ)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
 			if !diff.IsZero() {
