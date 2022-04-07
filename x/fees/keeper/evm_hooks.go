@@ -39,7 +39,8 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 
 	cfg, err := h.k.evmKeeper.EVMConfig(ctx)
 	if err != nil {
-		return err
+		// shouldn't occur: error is already checked in EVM's ApplyTransaction
+		return nil
 	}
 
 	withdrawAddr, found := h.k.GetWithdrawal(ctx, *contract)
