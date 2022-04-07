@@ -22,10 +22,6 @@ func TestFeeSuite(t *testing.T) {
 }
 
 func (suite *FeeTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func (suite *FeeTestSuite) DoSetupTest(t require.TestingT) {
 	suite.address1 = sdk.AccAddress(tests.GenerateAddress().Bytes())
 	suite.address2 = sdk.AccAddress(tests.GenerateAddress().Bytes())
 }

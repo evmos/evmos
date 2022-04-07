@@ -25,10 +25,6 @@ func TestMsgsTestSuite(t *testing.T) {
 }
 
 func (suite *MsgsTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func (suite *MsgsTestSuite) DoSetupTest(t require.TestingT) {
 	deployer := tests.GenerateAddress()
 	suite.contract = crypto.CreateAddress(deployer, 1)
 	suite.deployer = sdk.AccAddress(deployer.Bytes())

@@ -20,10 +20,6 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func (suite *GenesisTestSuite) DoSetupTest(t require.TestingT) {
 	suite.address1 = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 	suite.address2 = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 }
