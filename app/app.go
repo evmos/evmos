@@ -134,7 +134,6 @@ import (
 	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
 	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
 
-	// feesclient "github.com/tharsis/evmos/v3/x/fees/client"
 	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
 	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
 )

@@ -7,7 +7,7 @@ import (
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
-// NewHandler defines the vesting module handler instance
+// NewHandler defines the fees module handler instance
 func NewHandler(server types.MsgServer) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
