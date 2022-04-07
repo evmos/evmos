@@ -2,17 +2,11 @@
 
 The `x/recovery` module contains the following parameters.
 
-| Key    | Type     | Default Value |
-| ------ |: ------ :|: ------ |
-| EnableRecovery | bool | true |
-| PacketTimeoutDuration | time.Duration | 14400000000000  // 4hrs |
-
 
 | Key       | Type    | Default Value     |
 | ---------- | :---------------:| -----------------:  |
 | EnableRecovery | `bool`         | `true`      |
 | PacketTimeoutDuration | `time.Duration`       | `14400000000000`  // 4hrs  |
-
 
 
 ## Enable Recovery
