@@ -36,16 +36,11 @@ func (k Keeper) DevFeeInfos(
 		store,
 		req.Pagination,
 		func(key, value []byte) error {
-			contractAddress := common.BytesToAddress(key)
-			deployerAddress := sdk.AccAddress(value)
-			withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
-			feeInfo := types.DevFeeInfo{
-				ContractAddress: contractAddress.String(),
-				DeployerAddress: deployerAddress.String(),
-			}
-			if hasWithdrawAddr {
-				feeInfo.WithdrawAddress = withdrawalAddress.String()
-			}
+			feeInfo := k.BuildFeeInfo(
+				ctx,
+				common.BytesToAddress(key),
+				sdk.AccAddress(value),
+			)
 			feeInfos = append(feeInfos, feeInfo)
 			return nil
 		},

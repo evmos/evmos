@@ -37,12 +37,6 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 		return nil
 	}
 
-	cfg, err := h.k.evmKeeper.EVMConfig(ctx)
-	if err != nil {
-		// shouldn't occur: error is already checked in EVM's ApplyTransaction
-		return nil
-	}
-
 	withdrawAddr, found := h.k.GetWithdrawal(ctx, *contract)
 	if !found {
 		withdrawAddr, found = h.k.GetDeployer(ctx, *contract)
@@ -54,8 +48,9 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 
 	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
 
+	evmDenom := h.k.evmKeeper.GetParams(ctx).EvmDenom
 	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-	developerCoins := sdk.Coins{{Denom: cfg.Params.EvmDenom, Amount: developerFee.TruncateInt()}}
+	developerCoins := sdk.Coins{{Denom: evmDenom, Amount: developerFee.TruncateInt()}}
 
 	return h.sendFees(ctx, *contract, withdrawAddr, developerCoins)
 }

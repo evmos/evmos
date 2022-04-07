@@ -17,16 +17,11 @@ func (k Keeper) GetAllFees(ctx sdk.Context) []types.DevFeeInfo {
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		contractAddress := common.BytesToAddress(iterator.Key())
-		deployerAddress := sdk.AccAddress(iterator.Value())
-		withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
-		feeInfo := types.DevFeeInfo{
-			ContractAddress: contractAddress.String(),
-			DeployerAddress: deployerAddress.String(),
-		}
-		if hasWithdrawAddr {
-			feeInfo.WithdrawAddress = withdrawalAddress.String()
-		}
+		feeInfo := k.BuildFeeInfo(
+			ctx,
+			common.BytesToAddress(iterator.Key()),
+			sdk.AccAddress(iterator.Value()),
+		)
 		feeInfos = append(feeInfos, feeInfo)
 	}
 
@@ -44,16 +39,11 @@ func (k Keeper) IterateFees(
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		contractAddress := common.BytesToAddress(iterator.Key())
-		deployerAddress := sdk.AccAddress(iterator.Value())
-		withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contractAddress)
-		feeInfo := types.DevFeeInfo{
-			ContractAddress: contractAddress.String(),
-			DeployerAddress: deployerAddress.String(),
-		}
-		if hasWithdrawAddr {
-			feeInfo.WithdrawAddress = withdrawalAddress.String()
-		}
+		feeInfo := k.BuildFeeInfo(
+			ctx,
+			common.BytesToAddress(iterator.Key()),
+			sdk.AccAddress(iterator.Value()),
+		)
 		if handlerFn(feeInfo) {
 			break
 		}
@@ -66,6 +56,12 @@ func (k Keeper) GetFeeInfo(ctx sdk.Context, contract common.Address) (types.DevF
 	if !found {
 		return types.DevFeeInfo{}, false
 	}
+	feeInfo := k.BuildFeeInfo(ctx, contract, deployerAddress)
+	return feeInfo, true
+}
+
+// BuildFeeInfo returns DevFeeInfo given the contract and deployer addresses
+func (k Keeper) BuildFeeInfo(ctx sdk.Context, contract common.Address, deployerAddress sdk.AccAddress) types.DevFeeInfo {
 	withdrawalAddress, hasWithdrawAddr := k.GetWithdrawal(ctx, contract)
 	feeInfo := types.DevFeeInfo{
 		ContractAddress: contract.String(),
@@ -74,7 +70,7 @@ func (k Keeper) GetFeeInfo(ctx sdk.Context, contract common.Address) (types.DevF
 	if hasWithdrawAddr {
 		feeInfo.WithdrawAddress = withdrawalAddress.String()
 	}
-	return feeInfo, true
+	return feeInfo
 }
 
 // GetDeployer returns the deployer address for a registered contract
