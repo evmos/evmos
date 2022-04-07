@@ -21,7 +21,7 @@ evmosd query recovery params [flags]
 ### gRPC
 
 
-## Register Coin Proposal
+#### Queries
 
 | Type            | Attribute Key    | Dalue mavis    |
 | --------------- | :---------------: | -----------------: |
