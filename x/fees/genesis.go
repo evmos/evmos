@@ -18,11 +18,6 @@ func InitGenesis(
 ) {
 	k.SetParams(ctx, data.Params)
 
-	// Ensure fees module account is set on genesis
-	if acc := accountKeeper.GetModuleAccount(ctx, types.ModuleName); acc == nil {
-		panic("the fees module account has not been set")
-	}
-
 	for _, fee := range data.DevFeeInfos {
 		contract := common.HexToAddress(fee.ContractAddress)
 		deployer, _ := sdk.AccAddressFromBech32(fee.DeployerAddress)

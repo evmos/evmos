@@ -215,7 +215,6 @@ var (
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		claimstypes.ModuleName:         nil,
 		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
-		feestypes.ModuleName:           {authtypes.Minter, authtypes.Burner},
 	}
 
 	// module accounts that are allowed to receive tokens

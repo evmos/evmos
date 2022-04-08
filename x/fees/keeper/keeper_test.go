@@ -58,10 +58,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
-func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
+	t := suite.T()
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
