@@ -431,8 +431,8 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	Expect(strings.Contains(txLog, strings.ToLower(contractAddress.String())))
 
 	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
-	s.Require().NotEmpty(acc)
-	s.Require().True(acc.IsContract())
+	s.Require().NotEmpty(acc, "contract not created")
+	s.Require().True(acc.IsContract(), "not a contract")
 	return contractAddress
 }
 
