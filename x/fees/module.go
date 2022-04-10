@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/tharsis/evmos/v3/x/fees/client/cli"
 	"github.com/tharsis/evmos/v3/x/fees/keeper"
 	"github.com/tharsis/evmos/v3/x/fees/types"
 )
@@ -81,11 +82,13 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 }
 
 // GetTxCmd returns the root tx command for the fees module.
-func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.NewTxCmd()
+}
 
 // GetQueryCmd returns the fees module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return nil
+	return cli.GetQueryCmd()
 }
 
 // ___________________________________________________________________________
