@@ -62,6 +62,12 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 				}
 			}
 
+			// If withdraw address is the same as contract deployer, remove the
+			// field for avoiding storage bloat
+			if deployer.String() == withdraw {
+				withdraw = ""
+			}
+
 			msg := &types.MsgRegisterDevFeeInfo{
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
