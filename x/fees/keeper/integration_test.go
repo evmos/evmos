@@ -29,8 +29,7 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	// authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	// distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
 )
@@ -41,8 +40,7 @@ var contractCode = "600661000e60003960066000f300612222600055"
 var factoryCode = "603061000e60003960306000f3007f600661000e60003960066000f300612222600055000000000000000000000000600052601460006000f060006000a1"
 
 var _ = Describe("While", Ordered, func() {
-	// feeCollectorAddr := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-	// distrAddr := s.app.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
+	feeCollectorAddr := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
 	claimsDenom := claimstypes.DefaultClaimsDenom
 	evmDenom := evmtypes.DefaultEVMDenom
 	accountCount := 4
@@ -194,8 +192,7 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("legacy tx fees are split 50-50 validators-developers", func() {
-			// preDistrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
-			// preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
+			preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			gasPrice := big.NewInt(2000000000)
 			res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
@@ -204,19 +201,22 @@ var _ = Describe("While", Ordered, func() {
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-			// validatorCoins := developerCoins
+			validatorCoins := developerCoins
 
-			// distrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
-			// feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
+			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+
+			// fmt.Println("preFeeColectorBalance", preFeeColectorBalance)
+			// fmt.Println("feeColectorBalance", feeColectorBalance)
+			// fmt.Println("validatorCoins", validatorCoins)
+
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
-			// Expect(distrBalance).To(Equal(preDistrBalance.Add(validatorCoins)))
-			// Expect(preFeeColectorBalance).To(Equal(feeColectorBalance.Add(validatorCoins)))
+			Expect(feeColectorBalance).To(Equal(preFeeColectorBalance.Add(validatorCoins)))
 			s.Commit()
 		})
 
 		It("dynamic tx fees are split 50-50 validators-developers", func() {
-			// preDistrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
+			preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			gasTipCap := big.NewInt(10000)
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
@@ -226,12 +226,12 @@ var _ = Describe("While", Ordered, func() {
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
 			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-			// validatorCoins := developerCoins
+			validatorCoins := developerCoins
 
-			// distrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
+			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
-			// Expect(distrBalance).To(Equal(preDistrBalance.Add(validatorCoins)))
+			Expect(feeColectorBalance).To(Equal(preFeeColectorBalance.Add(validatorCoins)))
 			s.Commit()
 		})
 
@@ -241,7 +241,7 @@ var _ = Describe("While", Ordered, func() {
 			params.ValidatorShares = sdk.NewDec(1)
 			s.app.FeesKeeper.SetParams(s.ctx, params)
 
-			// preDistrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
+			preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			gasTipCap := big.NewInt(10000)
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
@@ -249,13 +249,13 @@ var _ = Describe("While", Ordered, func() {
 
 			gasUsed := getGasUsedFromResponse(res, 10)
 			fmt.Println("gasUsed", gasUsed)
-			// feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
-			// validatorCoins := sdk.NewCoin(evmDenom, feeDistribution)
+			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
+			validatorCoins := sdk.NewCoin(evmDenom, feeDistribution)
 
-			// distrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
+			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance))
-			// Expect(distrBalance).To(Equal(preDistrBalance.Add(validatorCoins)))
+			Expect(feeColectorBalance).To(Equal(preFeeColectorBalance.Add(validatorCoins)))
 			s.Commit()
 		})
 
@@ -265,7 +265,7 @@ var _ = Describe("While", Ordered, func() {
 			params.ValidatorShares = sdk.NewDec(0)
 			s.app.FeesKeeper.SetParams(s.ctx, params)
 
-			// preDistrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
+			preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			gasTipCap := big.NewInt(10000)
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
@@ -275,10 +275,10 @@ var _ = Describe("While", Ordered, func() {
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
 			developerCoins := sdk.NewCoin(evmDenom, feeDistribution)
 
-			// distrBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, evmDenom)
+			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
-			// Expect(distrBalance).To(Equal(preDistrBalance))
+			Expect(feeColectorBalance).To(Equal(preFeeColectorBalance))
 			s.Commit()
 		})
 

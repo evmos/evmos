@@ -110,6 +110,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	stakingParams.BondDenom = claimtypes.DefaultClaimsDenom
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
+	inflationParams := suite.app.InflationKeeper.GetParams(suite.ctx)
+	inflationParams.EnableInflation = false
+	suite.app.InflationKeeper.SetParams(suite.ctx, inflationParams)
+
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
