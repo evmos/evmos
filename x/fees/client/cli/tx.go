@@ -39,6 +39,7 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-fee [contract_hex] [withdraw_bech32]",
 		Short: "Register a contract for fee distribution",
+		Long:  "Register a contract for fee distribution. Only the contract deployer can register a contract. \nThe withdraw address defaults to the deployer address if not provided.",
 		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -85,6 +86,7 @@ func NewCancelDevFeeInfo() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cancel-fee [contract_hex]",
 		Short: "Cancel a contract from fee distribution",
+		Long:  "Cancel a contract from fee distribution. The deployer will no longer receive fees from users interacting with the contract. \nOnly the contract deployer can cancel a contract.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -121,7 +123,8 @@ func NewCancelDevFeeInfo() *cobra.Command {
 func NewUpdateDevFeeInfo() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-fee [contract_hex] [withdraw_bech32]",
-		Short: "Update withdraw address for a contract registered for fee distribution",
+		Short: "Update withdraw address for a contract registered for fee distribution.",
+		Long:  "Update withdraw address for a contract registered for fee distribution. \nOnly the contract deployer can update the withdraw address.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
