@@ -65,7 +65,7 @@ var _ = Describe("While", Ordered, func() {
 		contractAddress1 common.Address
 		contractAddress2 common.Address
 		factoryAddress   common.Address
-		fnonce           uint64
+		factoryNonce     uint64
 	)
 
 	BeforeAll(func() {
@@ -98,6 +98,7 @@ var _ = Describe("While", Ordered, func() {
 		contractAddress2 = deployContract(deployerKey, contractCode)
 
 		// deploy a factory
+		factoryNonce = s.app.EvmKeeper.GetNonce(s.ctx, common.BytesToAddress(deployerAddress.Bytes()))
 		factoryAddress = deployContract(deployerKey, factoryCode)
 
 		// register a contract with default withdraw address
@@ -282,6 +283,7 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("update of withdrawal address: withdraw address is different than the deployer address", func() {
+			params = s.app.FeesKeeper.GetParams(s.ctx)
 			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
 			msg := types.NewMsgUpdateDevFeeInfo(contractAddress2, deployerAddress, withdrawAddress)
@@ -347,13 +349,33 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("factory generated contracts with legacy tx", func() {
-			contractAddress := deployContractWithFactory(deployerKey, &factoryAddress, fnonce)
-			fnonce += 1
+			// Create contract through factory
+			contractNonce := s.app.EvmKeeper.GetNonce(s.ctx, common.BytesToAddress(factoryAddress.Bytes()))
+			contractAddress := deployContractWithFactory(deployerKey, &factoryAddress)
+			s.Commit()
 
+			// Register contract for receiving tx fees
+			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
+			msg := types.NewMsgRegisterDevFeeInfo(contractAddress, deployerAddress, nil, []uint64{factoryNonce, contractNonce})
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
+			s.Commit()
+
+			// Check contract has been correctly registered
+			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+			Expect(isRegistered).To(Equal(true))
+			Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+			Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+			Expect(fee.WithdrawAddress).To(Equal(""))
+
+			// Get deployer balance before user interaction
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
-			gasPrice := big.NewInt(2000000000)
-			res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
+			// User interaction with registered contract
+			gasPrice := big.NewInt(2000000000)
+			res = contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
+
+			// Calculate fees amount
 			gasUsed := getGasUsedFromResponse(res, 14)
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
@@ -365,13 +387,34 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("factory generated contracts with dynamic fee txs", func() {
-			contractAddress := deployContractWithFactory(deployerKey, &factoryAddress, fnonce)
-			fnonce += 1
+			// Create contract through factory
+			contractNonce := s.app.EvmKeeper.GetNonce(s.ctx, common.BytesToAddress(factoryAddress.Bytes()))
+			contractAddress := deployContractWithFactory(deployerKey, &factoryAddress)
+			s.Commit()
+
+			// Register contract for receiving tx fees
+			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
+			msg := types.NewMsgRegisterDevFeeInfo(contractAddress, deployerAddress, nil, []uint64{factoryNonce, contractNonce})
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
+			s.Commit()
+
+			// Check contract has been correctly registered
+			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+			Expect(isRegistered).To(Equal(true))
+			Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+			Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+			Expect(fee.WithdrawAddress).To(Equal(""))
+
+			// Get deployer balance before user interaction
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
+
+			// User interaction with registered contract
 			gasTipCap := big.NewInt(10000)
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-			res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
+			res = contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
 
+			// Calculate fees amount
 			gasUsed := getGasUsedFromResponse(res, 14)
 			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
 			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
@@ -411,7 +454,8 @@ func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
 	return sdk.AccAddress(priv.PubKey().Address().Bytes())
 }
 
-func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address, factoryNonce uint64) common.Address {
+func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address) common.Address {
+	factoryNonce := s.app.EvmKeeper.GetNonce(s.ctx, *factoryAddress)
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
@@ -428,7 +472,9 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	txLog := string(ethereumTx.Attributes[0].Value)
 
 	contractAddress := crypto.CreateAddress(*factoryAddress, factoryNonce)
-	Expect(strings.Contains(txLog, strings.ToLower(contractAddress.String())))
+	Expect(
+		strings.Contains(txLog, strings.ToLower(contractAddress.String()[2:])),
+	).To(BeTrue(), "log topic does not match created contract address")
 
 	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
 	s.Require().NotEmpty(acc, "contract not created")
