@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math"
 	"math/big"
 	"strconv"
@@ -36,7 +35,8 @@ import (
 
 var contractCode = "600661000e60003960066000f300612222600055"
 
-// Uses CREATE to deploy the above contract and emits log1(0, 0, contractAddress)
+// Uses CREATE opcode to deploy the above contract and emits
+// log1(0, 0, contractAddress)
 var factoryCode = "603061000e60003960306000f3007f600661000e60003960066000f300612222600055000000000000000000000000600052601460006000f060006000a1"
 
 var _ = Describe("While", Ordered, func() {
@@ -49,7 +49,7 @@ var _ = Describe("While", Ordered, func() {
 	initAmount := sdk.NewInt(int64(math.Pow10(18) * 2))
 	initBalance := sdk.NewCoins(
 		sdk.NewCoin(claimsDenom, initAmount),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, initAmount),
+		sdk.NewCoin(evmDenom, initAmount),
 	)
 	totalAmount := sdk.NewCoin(claimsDenom, initAmount.MulRaw(int64(accountCount)))
 
@@ -78,11 +78,12 @@ var _ = Describe("While", Ordered, func() {
 		err := testutil.FundModuleAccount(s.app.BankKeeper, s.ctx, inflationtypes.ModuleName, coins)
 		s.Require().NoError(err)
 
-		// setup accounts
+		// setup deployer account
 		deployerKey, _ = ethsecp256k1.GenerateKey()
 		deployerAddress = getAddr(deployerKey)
 		testutil.FundAccount(s.app.BankKeeper, s.ctx, deployerAddress, initBalance)
 
+		// setup account interacting with registered contracts
 		userKey, _ = ethsecp256k1.GenerateKey()
 		userAddress = getAddr(userKey)
 		testutil.FundAccount(s.app.BankKeeper, s.ctx, userAddress, initBalance)
@@ -117,11 +118,14 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("we cannot register contracts for receiving tx fees", func() {
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			msg := types.NewMsgRegisterDevFeeInfo(contractAddress1, deployerAddress, deployerAddress, []uint64{1})
 
 			res := deliverTx(deployerKey, msg)
 			Expect(res.IsOK()).To(Equal(false), "registration should have failed")
+			Expect(
+				strings.Contains(res.GetLog(),
+					"fees module is not enabled"),
+			).To(BeTrue())
 			s.Commit()
 
 			_, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress1)
@@ -147,7 +151,6 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("we can register contracts for receiving tx fees, with default withdrawal address", func() {
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			msg := types.NewMsgRegisterDevFeeInfo(contractAddress2, deployerAddress, nil, []uint64{2})
 
 			res := deliverTx(deployerKey, msg)
@@ -163,7 +166,6 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("we can register contracts for receiving tx fees, with withdrawal address", func() {
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
 			msg := types.NewMsgRegisterDevFeeInfo(contractAddress1, deployerAddress, withdrawAddress, []uint64{1})
 
@@ -182,52 +184,36 @@ var _ = Describe("While", Ordered, func() {
 			res = contractInteract(userKey, &contractAddress1, gasPrice, nil, nil, nil)
 			s.Commit()
 
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-
+			developerCoins, _ := calculateFees(params, res, gasPrice, 14)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, withdrawAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 		})
 
-		It("legacy tx fees are split 50-50 validators-developers", func() {
+		It("and fees are split 50-50 validators-developers, legacy tx fees are split correctly", func() {
 			preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			gasPrice := big.NewInt(2000000000)
 			res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-			validatorCoins := developerCoins
-
+			developerCoins, validatorCoins := calculateFees(params, res, gasPrice, 14)
 			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 
-			// fmt.Println("preFeeColectorBalance", preFeeColectorBalance)
-			// fmt.Println("feeColectorBalance", feeColectorBalance)
-			// fmt.Println("validatorCoins", validatorCoins)
-
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
-			Expect(feeColectorBalance).To(Equal(preFeeColectorBalance.Add(validatorCoins)))
+			Expect(feeColectorBalance).To(Equal(
+				preFeeColectorBalance.Add(validatorCoins),
+			))
 			s.Commit()
 		})
 
-		It("dynamic tx fees are split 50-50 validators-developers", func() {
+		It("and fees are split 50-50 validators-developers, dynamic tx fees are split correctly", func() {
 			preFeeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			gasTipCap := big.NewInt(10000)
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
 			res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
 
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-			validatorCoins := developerCoins
-
+			developerCoins, validatorCoins := calculateFees(params, res, gasFeeCap, 14)
 			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -235,7 +221,7 @@ var _ = Describe("While", Ordered, func() {
 			s.Commit()
 		})
 
-		It("tx fees are split 100-0 validators-developers", func() {
+		It("and fees are split 100-0 validators-developers, only validators receive fees", func() {
 			params = s.app.FeesKeeper.GetParams(s.ctx)
 			params.DeveloperShares = sdk.NewDec(0)
 			params.ValidatorShares = sdk.NewDec(1)
@@ -247,11 +233,7 @@ var _ = Describe("While", Ordered, func() {
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
 			res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
 
-			gasUsed := getGasUsedFromResponse(res, 10)
-			fmt.Println("gasUsed", gasUsed)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
-			validatorCoins := sdk.NewCoin(evmDenom, feeDistribution)
-
+			_, validatorCoins := calculateFees(params, res, gasFeeCap, 10)
 			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance))
@@ -259,7 +241,7 @@ var _ = Describe("While", Ordered, func() {
 			s.Commit()
 		})
 
-		It("tx fees are split 0-100 validators-developers", func() {
+		It("and fees are split 0-100 validators-developers, only developers receive fees", func() {
 			params = s.app.FeesKeeper.GetParams(s.ctx)
 			params.DeveloperShares = sdk.NewDec(1)
 			params.ValidatorShares = sdk.NewDec(0)
@@ -271,10 +253,7 @@ var _ = Describe("While", Ordered, func() {
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
 			res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
 
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
-			developerCoins := sdk.NewCoin(evmDenom, feeDistribution)
-
+			developerCoins, _ := calculateFees(params, res, gasFeeCap, 14)
 			feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, evmDenom)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -282,14 +261,20 @@ var _ = Describe("While", Ordered, func() {
 			s.Commit()
 		})
 
-		It("update of withdrawal address: withdraw address is different than the deployer address", func() {
+		It("we can update the withdrawal address if it is different than the deployer address", func() {
 			params = s.app.FeesKeeper.GetParams(s.ctx)
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
-			msg := types.NewMsgUpdateDevFeeInfo(contractAddress2, deployerAddress, withdrawAddress)
+			msg := types.NewMsgUpdateDevFeeInfo(
+				contractAddress2,
+				deployerAddress,
+				withdrawAddress,
+			)
 
 			res := deliverTx(deployerKey, msg)
-			Expect(res.IsOK()).To(Equal(true), "withdraw update failed: "+res.GetLog())
+			Expect(res.IsOK()).To(
+				Equal(true),
+				"withdraw update failed: "+res.GetLog(),
+			)
 			s.Commit()
 
 			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress2)
@@ -305,30 +290,47 @@ var _ = Describe("While", Ordered, func() {
 			res = contractInteract(userKey, &contractAddress2, gasPrice, nil, nil, nil)
 			s.Commit()
 
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-
+			developerCoins, _ := calculateFees(params, res, gasPrice, 14)
 			balanceD := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			balanceW := s.app.BankKeeper.GetBalance(s.ctx, withdrawAddress, evmDenom)
 			Expect(balanceW).To(Equal(preBalanceW.Add(developerCoins)))
 			Expect(balanceD).To(Equal(preBalanceD))
 		})
 
-		It("canceled developer fees: check that no fees are distributed", func() {
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
-			withdrawAddress, found := s.app.FeesKeeper.GetWithdrawal(s.ctx, contractAddress2)
-			if !found {
-				withdrawAddress = deployerAddress
-			}
-			msg := types.NewMsgCancelDevFeeInfo(contractAddress2, deployerAddress)
+		It("we cannot update the withdrawal address if it is the same as the deployer address", func() {
+			params = s.app.FeesKeeper.GetParams(s.ctx)
+			msg := types.NewMsgUpdateDevFeeInfo(
+				contractAddress2,
+				deployerAddress,
+				deployerAddress,
+			)
 
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(
+				Equal(false),
+				"withdraw update failed: "+res.GetLog(),
+			)
+			Expect(
+				strings.Contains(res.GetLog(),
+					"withdraw address must be different that deployer address"),
+			).To(BeTrue())
+			s.Commit()
+		})
+
+		It("we can cancel a contract registration, so no fees are distributed to deployer", func() {
+			withdrawAddress, _ := s.app.FeesKeeper.GetWithdrawal(s.ctx, contractAddress2)
+			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress2)
+			Expect(isRegistered).To(Equal(true))
+			Expect(fee.ContractAddress).To(Equal(contractAddress2.Hex()))
+			Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+			Expect(fee.WithdrawAddress != "").To(BeTrue())
+
+			msg := types.NewMsgCancelDevFeeInfo(contractAddress2, deployerAddress)
 			res := deliverTx(deployerKey, msg)
 			Expect(res.IsOK()).To(Equal(true), "withdraw update failed: "+res.GetLog())
 			s.Commit()
 
-			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress2)
+			fee, isRegistered = s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress2)
 			Expect(isRegistered).To(Equal(false))
 			Expect(fee.ContractAddress).To(Equal(""))
 			Expect(fee.DeployerAddress).To(Equal(""))
@@ -348,14 +350,16 @@ var _ = Describe("While", Ordered, func() {
 			Expect(balanceD).To(Equal(preBalanceD))
 		})
 
-		It("factory generated contracts with legacy tx", func() {
+		It("fee split for legacy tx works with factory generated contracts", func() {
 			// Create contract through factory
-			contractNonce := s.app.EvmKeeper.GetNonce(s.ctx, common.BytesToAddress(factoryAddress.Bytes()))
+			contractNonce := s.app.EvmKeeper.GetNonce(
+				s.ctx,
+				common.BytesToAddress(factoryAddress.Bytes()),
+			)
 			contractAddress := deployContractWithFactory(deployerKey, &factoryAddress)
 			s.Commit()
 
 			// Register contract for receiving tx fees
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			msg := types.NewMsgRegisterDevFeeInfo(contractAddress, deployerAddress, nil, []uint64{factoryNonce, contractNonce})
 			res := deliverTx(deployerKey, msg)
 			Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
@@ -375,25 +379,22 @@ var _ = Describe("While", Ordered, func() {
 			gasPrice := big.NewInt(2000000000)
 			res = contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-			// Calculate fees amount
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-
+			developerCoins, _ := calculateFees(params, res, gasPrice, 14)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 			s.Commit()
 		})
 
-		It("factory generated contracts with dynamic fee txs", func() {
+		It("fee split for dynamic tx works with factory generated contracts", func() {
 			// Create contract through factory
-			contractNonce := s.app.EvmKeeper.GetNonce(s.ctx, common.BytesToAddress(factoryAddress.Bytes()))
+			contractNonce := s.app.EvmKeeper.GetNonce(
+				s.ctx,
+				common.BytesToAddress(factoryAddress.Bytes()),
+			)
 			contractAddress := deployContractWithFactory(deployerKey, &factoryAddress)
 			s.Commit()
 
 			// Register contract for receiving tx fees
-			deployerAddress := sdk.AccAddress(deployerKey.PubKey().Address().Bytes())
 			msg := types.NewMsgRegisterDevFeeInfo(contractAddress, deployerAddress, nil, []uint64{factoryNonce, contractNonce})
 			res := deliverTx(deployerKey, msg)
 			Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
@@ -414,18 +415,23 @@ var _ = Describe("While", Ordered, func() {
 			gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
 			res = contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
 
-			// Calculate fees amount
-			gasUsed := getGasUsedFromResponse(res, 14)
-			feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasFeeCap))
-			developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-			developerCoins := sdk.NewCoin(evmDenom, developerFee.TruncateInt())
-
+			developerCoins, _ := calculateFees(params, res, gasFeeCap, 14)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, evmDenom)
 			Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 			s.Commit()
 		})
 	})
 })
+
+func calculateFees(params types.Params, res abci.ResponseDeliverTx, gasPrice *big.Int, logIndex int64) (sdk.Coin, sdk.Coin) {
+	gasUsed := getGasUsedFromResponse(res, logIndex)
+	feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
+	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
+	developerCoins := sdk.NewCoin(evmtypes.DefaultEVMDenom, developerFee.TruncateInt())
+	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(params.ValidatorShares)
+	validatorCoins := sdk.NewCoin(evmtypes.DefaultEVMDenom, validatorFee.TruncateInt())
+	return developerCoins, validatorCoins
+}
 
 func getGasUsedFromResponse(res abci.ResponseDeliverTx, index int64) int64 {
 	registerEvent := res.GetEvents()[index]
