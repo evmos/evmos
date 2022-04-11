@@ -44,6 +44,7 @@ type KeeperTestSuite struct {
 	ethSigner      ethtypes.Signer
 	consAddress    sdk.ConsAddress
 	validator      stakingtypes.Validator
+	denom          string
 }
 
 var s *KeeperTestSuite
@@ -64,6 +65,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = tests.NewSigner(priv)
+
+	suite.denom = claimtypes.DefaultClaimsDenom
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
@@ -107,8 +110,12 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.app.FeesKeeper.SetParams(suite.ctx, params)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = claimtypes.DefaultClaimsDenom
+	stakingParams.BondDenom = suite.denom
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
+	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+	evmParams.EvmDenom = suite.denom
+	suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
 
 	inflationParams := suite.app.InflationKeeper.GetParams(suite.ctx)
 	inflationParams.EnableInflation = false
