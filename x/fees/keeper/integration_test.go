@@ -298,7 +298,6 @@ var _ = Describe("While", Ordered, func() {
 		})
 
 		It("we cannot update the withdrawal address if it is the same as the deployer address", func() {
-			params = s.app.FeesKeeper.GetParams(s.ctx)
 			msg := types.NewMsgUpdateDevFeeInfo(
 				contractAddress2,
 				deployerAddress,
@@ -313,7 +312,28 @@ var _ = Describe("While", Ordered, func() {
 			Expect(
 				strings.Contains(res.GetLog(),
 					"withdraw address must be different that deployer address"),
-			).To(BeTrue())
+			).To(BeTrue(), res.GetLog())
+			s.Commit()
+		})
+
+		It("we cannot update the withdrawal address if the contract is not registered", func() {
+			contractAddress := tests.GenerateAddress()
+			withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
+			msg := types.NewMsgUpdateDevFeeInfo(
+				contractAddress,
+				deployerAddress,
+				withdrawAddress,
+			)
+
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(
+				Equal(false),
+				"withdraw update failed: "+res.GetLog(),
+			)
+			Expect(
+				strings.Contains(res.GetLog(),
+					"is not registered"),
+			).To(BeTrue(), res.GetLog())
 			s.Commit()
 		})
 
@@ -348,6 +368,21 @@ var _ = Describe("While", Ordered, func() {
 			balanceW := s.app.BankKeeper.GetBalance(s.ctx, withdrawAddress, evmDenom)
 			Expect(balanceW).To(Equal(preBalanceW))
 			Expect(balanceD).To(Equal(preBalanceD))
+		})
+
+		It("we cannot cancel if the contract is not registered", func() {
+			contractAddress := tests.GenerateAddress()
+			msg := types.NewMsgCancelDevFeeInfo(contractAddress, deployerAddress)
+			res := deliverTx(deployerKey, msg)
+			Expect(res.IsOK()).To(
+				Equal(false),
+				"cancelling failed: "+res.GetLog(),
+			)
+			Expect(
+				strings.Contains(res.GetLog(),
+					"is not registered"),
+			).To(BeTrue(), res.GetLog())
+			s.Commit()
 		})
 
 		It("fee split for legacy tx works with factory generated contracts", func() {

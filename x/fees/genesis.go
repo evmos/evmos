@@ -29,7 +29,7 @@ func InitGenesis(
 	}
 }
 
-// ExportGenesis export module status
+// ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:      k.GetParams(ctx),
