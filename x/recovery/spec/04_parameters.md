@@ -1,5 +1,5 @@
 <!--
-order: 5
+order: 4
 title: "Recovery parameters"
 parent:
   title: "recovery"
