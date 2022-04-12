@@ -12,8 +12,8 @@ var (
 	DefaultEnableFees      = false
 	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
 	DefaultValidatorShares = sdk.NewDecWithPrec(50, 2) // 50%
-	// cost for `crypto.CreateAddress`
-	// keccak256(word) costs 36 gas
+	// Cost for executing `crypto.CreateAddress`
+	// must be at least 36 gas for the contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate       = uint64(50)
 	ParamStoreKeyEnableFees               = []byte("EnableFees")
 	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
