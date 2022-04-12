@@ -102,7 +102,12 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		It("should not allow new contract registrations", func() {
 			contractAddress := deployContract(deployerKey, contractCode)
-			msg := types.NewMsgRegisterDevFeeInfo(contractAddress, deployerAddress, deployerAddress, []uint64{1})
+			msg := types.NewMsgRegisterDevFeeInfo(
+				contractAddress,
+				deployerAddress,
+				deployerAddress,
+				[]uint64{1},
+			)
 
 			res := deliverTx(deployerKey, msg)
 			Expect(res.IsOK()).To(Equal(false), "registration should have failed")
@@ -284,7 +289,14 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					gasTipCap := big.NewInt(10000)
 					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-					res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
+					res := contractInteract(
+						userKey,
+						&contractAddress,
+						nil,
+						gasFeeCap,
+						gasTipCap,
+						&ethtypes.AccessList{},
+					)
 
 					developerCoins, validatorCoins := calculateFees(denom, params, res, gasFeeCap, 14)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
@@ -308,7 +320,14 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					gasTipCap := big.NewInt(10000)
 					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-					res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
+					res := contractInteract(
+						userKey,
+						&contractAddress,
+						nil,
+						gasFeeCap,
+						gasTipCap,
+						&ethtypes.AccessList{},
+					)
 
 					_, validatorCoins := calculateFees(denom, params, res, gasFeeCap, 10)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
@@ -332,7 +351,14 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					gasTipCap := big.NewInt(10000)
 					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-					res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
+					res := contractInteract(
+						userKey,
+						&contractAddress,
+						nil,
+						gasFeeCap,
+						gasTipCap,
+						&ethtypes.AccessList{},
+					)
 
 					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
@@ -636,7 +662,18 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, factoryAddress, nil, uint64(100000), big.NewInt(1000000000), nil, nil, data, nil)
+	msgEthereumTx := evmtypes.NewTx(
+		chainID,
+		nonce,
+		factoryAddress,
+		nil,
+		uint64(100000),
+		big.NewInt(1000000000),
+		nil,
+		nil,
+		data,
+		nil,
+	)
 	msgEthereumTx.From = from.String()
 
 	res := performEthTx(priv, msgEthereumTx)
@@ -665,7 +702,17 @@ func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Addr
 
 	data := common.Hex2Bytes(contractCode)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTxContract(chainID, nonce, nil, gasLimit, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
+	msgEthereumTx := evmtypes.NewTxContract(
+		chainID,
+		nonce,
+		nil,
+		gasLimit,
+		nil,
+		s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
+		big.NewInt(1),
+		data,
+		&ethtypes.AccessList{},
+	)
 	msgEthereumTx.From = from.String()
 
 	res := performEthTx(priv, msgEthereumTx)
@@ -695,7 +742,18 @@ func contractInteract(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, contractAddr, nil, gasLimit, gasPrice, gasFeeCap, gasTipCap, data, accesses)
+	msgEthereumTx := evmtypes.NewTx(
+		chainID,
+		nonce,
+		contractAddr,
+		nil,
+		gasLimit,
+		gasPrice,
+		gasFeeCap,
+		gasTipCap,
+		data,
+		accesses,
+	)
 	msgEthereumTx.From = from.String()
 
 	return performEthTx(priv, msgEthereumTx)
