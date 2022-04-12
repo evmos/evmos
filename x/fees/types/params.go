@@ -32,7 +32,6 @@ func NewParams(
 	developerShares,
 	validatorShares sdk.Dec,
 	addrDerivationCostCreate uint64,
-
 ) Params {
 	return Params{
 		EnableFees:               enableFees,
