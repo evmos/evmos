@@ -1330,9 +1330,9 @@ Msg defines the fees Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `RegisterDevFeeInfo` | [MsgRegisterDevFeeInfo](#evmos.fees.v1.MsgRegisterDevFeeInfo) | [MsgRegisterDevFeeInfoResponse](#evmos.fees.v1.MsgRegisterDevFeeInfoResponse) | RegisterDevFeeInfo is used by a deployer to register a new contract for receiving transaction fees | GET|/evmos/fees/v1/tx/register_fee_contract|
-| `CancelDevFeeInfo` | [MsgCancelDevFeeInfo](#evmos.fees.v1.MsgCancelDevFeeInfo) | [MsgCancelDevFeeInfoResponse](#evmos.fees.v1.MsgCancelDevFeeInfoResponse) | CancelDevFeeInfo is used by a deployer to cancel a registered contract and stop receiving transaction fees | GET|/evmos/fees/v1/tx/cancel_fee_contract|
-| `UpdateDevFeeInfo` | [MsgUpdateDevFeeInfo](#evmos.fees.v1.MsgUpdateDevFeeInfo) | [MsgUpdateDevFeeInfoResponse](#evmos.fees.v1.MsgUpdateDevFeeInfoResponse) | UpdateDevFeeInfo is used by a deployer to update the withdraw address | GET|/evmos/fees/v1/tx/update_fee_contract|
+| `RegisterDevFeeInfo` | [MsgRegisterDevFeeInfo](#evmos.fees.v1.MsgRegisterDevFeeInfo) | [MsgRegisterDevFeeInfoResponse](#evmos.fees.v1.MsgRegisterDevFeeInfoResponse) | RegisterDevFeeInfo is used by a deployer to register a new contract for receiving transaction fees | POST|/evmos/fees/v1/tx/register_dev_fee_info|
+| `CancelDevFeeInfo` | [MsgCancelDevFeeInfo](#evmos.fees.v1.MsgCancelDevFeeInfo) | [MsgCancelDevFeeInfoResponse](#evmos.fees.v1.MsgCancelDevFeeInfoResponse) | CancelDevFeeInfo is used by a deployer to cancel a registered contract and stop receiving transaction fees | POST|/evmos/fees/v1/tx/cancel_dev_fee_info|
+| `UpdateDevFeeInfo` | [MsgUpdateDevFeeInfo](#evmos.fees.v1.MsgUpdateDevFeeInfo) | [MsgUpdateDevFeeInfoResponse](#evmos.fees.v1.MsgUpdateDevFeeInfoResponse) | UpdateDevFeeInfo is used by a deployer to update the withdraw address | POST|/evmos/fees/v1/tx/update_dev_fee_info|
 
  <!-- end services -->
 
