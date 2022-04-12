@@ -78,9 +78,9 @@ func TestParamsValidateBool(t *testing.T) {
 }
 
 func TestParamsValidateUint64(t *testing.T) {
-	err := validateUint64(0)
+	err := validateUint64(uint64(0))
 	require.NoError(t, err)
-	err = validateUint64(1)
+	err = validateUint64(uint64(1))
 	require.NoError(t, err)
 	err = validateUint64("")
 	require.Error(t, err)
