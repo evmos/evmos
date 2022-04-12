@@ -26,7 +26,6 @@ func NewParams(
 	enableFees bool,
 	developerShares,
 	validatorShares sdk.Dec,
-
 ) Params {
 	return Params{
 		EnableFees:      enableFees,
