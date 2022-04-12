@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"math"
 	"math/big"
-	"strconv"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -36,6 +35,9 @@ var contractCode = "600661000e60003960066000f300612222600055"
 // Uses CREATE opcode to deploy the above contract and emits
 // log1(0, 0, contractAddress)
 var factoryCode = "603061000e60003960306000f3007f600661000e60003960066000f300612222600055000000000000000000000000600052601460006000f060006000a1"
+
+// Creates the above factory
+var doubleFactoryCode = "605461000e60003960546000f3007f603061000e60003960306000f3007f600661000e60003960066000f3006122226000527f600055000000000000000000000000600052601460006000f060006000a10000602052603e60006000f060006000a1"
 
 var _ = Describe("Fee distribution:", Ordered, func() {
 	feeCollectorAddr := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
@@ -547,54 +549,122 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			})
 		})
 
-		Describe("Registering factory created contracts with CREATE opcode", Ordered, func() {
-			var contractNonce uint64
-			var contractAddress common.Address
+		Describe("Registering contracts created by a factory contract with CREATE opcode", func() {
+			Context("with one factory", Ordered, func() {
+				var contractNonce uint64
+				var contractAddress common.Address
 
-			BeforeAll(func() {
-				contractNonce = getNonce(factoryAddress.Bytes())
-				contractAddress = deployContractWithFactory(deployerKey, &factoryAddress)
-				s.Commit()
+				BeforeAll(func() {
+					contractNonce = getNonce(factoryAddress.Bytes())
+					contractAddress = deployContractWithFactory(deployerKey, &factoryAddress)
+					s.Commit()
+				})
+
+				It("should be possible", func() {
+					msg := types.NewMsgRegisterDevFeeInfo(
+						contractAddress,
+						deployerAddress,
+						nil,
+						[]uint64{factoryNonce, contractNonce},
+					)
+					res := deliverTx(deployerKey, msg)
+					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
+					s.Commit()
+
+					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					Expect(isRegistered).To(Equal(true))
+					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+					Expect(fee.WithdrawAddress).To(Equal(""))
+				})
+
+				It("should transfer legacy tx fees evenly to validator and deployer", func() {
+					preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
+
+					// User interaction with registered contract
+					gasPrice := big.NewInt(2000000000)
+					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
+
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
+					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
+					s.Commit()
+				})
+
+				It("should transfer dynamic tx fees evenly to validator and deployer", func() {
+					preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
+
+					// User interaction with registered contract
+					gasTipCap := big.NewInt(10000)
+					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
+					res := contractInteract(
+						userKey,
+						&contractAddress,
+						nil,
+						gasFeeCap,
+						gasTipCap,
+						&ethtypes.AccessList{},
+					)
+
+					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
+					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
+					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
+					s.Commit()
+				})
 			})
 
-			It("should be possible", func() {
-				msg := types.NewMsgRegisterDevFeeInfo(contractAddress, deployerAddress, nil, []uint64{factoryNonce, contractNonce})
-				res := deliverTx(deployerKey, msg)
-				Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
-				s.Commit()
+			Context("With factory-created factory", Ordered, func() {
+				addressDerivationCostCreate := int64(50)
+				var (
+					factory1Nonce        uint64
+					factory2Nonce        uint64
+					contractNonce        uint64
+					factory1Address      common.Address
+					factory2Address      common.Address
+					contractAddress      common.Address
+					gasUsedOneDerivation int64
+				)
 
-				fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
-				Expect(isRegistered).To(Equal(true))
-				Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
-				Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
-				Expect(fee.WithdrawAddress).To(Equal(""))
-			})
+				BeforeAll(func() {
+					// Create contract: factory1 -> factory2 -> contract
+					// Create factory1
+					factory1Nonce = getNonce(deployerAddress.Bytes())
+					factory1Address = deployContract(deployerKey, doubleFactoryCode)
 
-			It("should transfer legacy tx fees evenly to validator and deployer", func() {
-				preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
+					// Create factory2
+					factory2Nonce = getNonce(factory1Address.Bytes())
+					factory2Address = deployContractWithFactory(deployerKey, &factory1Address)
 
-				// User interaction with registered contract
-				gasPrice := big.NewInt(2000000000)
-				res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
+					// Create contract
+					contractNonce = getNonce(factory2Address.Bytes())
+					contractAddress = deployContractWithFactory(deployerKey, &factory2Address)
 
-				developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
-				balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
-				Expect(balance).To(Equal(preBalance.Add(developerCoins)))
-				s.Commit()
-			})
+					// Register factory1 for receiving tx fees
+					res := registerDevFeeInfo(deployerKey, &factory1Address, nil, []uint64{factory1Nonce})
+					gasUsedOneDerivation = res.GetGasUsed()
+					s.Commit()
+				})
 
-			It("should transfer dynamic tx fees evenly to validator and deployer", func() {
-				preBalance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
+				It("should consume gas for three address derivation iterations", func() {
+					res := registerDevFeeInfo(
+						deployerKey,
+						&contractAddress,
+						nil,
+						[]uint64{factory1Nonce, factory2Nonce, contractNonce},
+					)
+					s.Commit()
 
-				// User interaction with registered contract
-				gasTipCap := big.NewInt(10000)
-				gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
-				res := contractInteract(userKey, &contractAddress, nil, gasFeeCap, gasTipCap, &ethtypes.AccessList{})
+					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					Expect(isRegistered).To(Equal(true))
+					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+					Expect(fee.WithdrawAddress).To(Equal(""))
 
-				developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
-				balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
-				Expect(balance).To(Equal(preBalance.Add(developerCoins)))
-				s.Commit()
+					// Check addressDerivationCostCreate is subtracted 3 times
+					Expect(res.GasUsed).To(Equal(
+						gasUsedOneDerivation + addressDerivationCostCreate*2 + 20,
+					))
+				})
 			})
 		})
 	})
@@ -607,22 +677,12 @@ func calculateFees(
 	gasPrice *big.Int,
 	logIndex int64,
 ) (sdk.Coin, sdk.Coin) {
-	gasUsed := getGasUsedFromResponse(res, logIndex)
-	feeDistribution := sdk.NewInt(gasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
+	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
 	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(params.ValidatorShares)
 	validatorCoins := sdk.NewCoin(denom, validatorFee.TruncateInt())
 	return developerCoins, validatorCoins
-}
-
-func getGasUsedFromResponse(res abci.ResponseDeliverTx, index int64) int64 {
-	registerEvent := res.GetEvents()[index]
-	Expect(registerEvent.Type).To(Equal("ethereum_tx"))
-	Expect(string(registerEvent.Attributes[3].Key)).To(Equal("txGasUsed"))
-	gasUsed, err := strconv.ParseInt(string(registerEvent.Attributes[3].Value), 10, 64)
-	s.Require().NoError(err)
-	return gasUsed
 }
 
 func getNonce(addressBytes []byte) uint64 {
@@ -637,18 +697,19 @@ func registerDevFeeInfo(
 	contractAddress *common.Address,
 	withdrawAddress sdk.AccAddress,
 	nonces []uint64,
-) {
+) abci.ResponseDeliverTx {
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	msg := types.NewMsgRegisterDevFeeInfo(*contractAddress, deployerAddress, withdrawAddress, nonces)
 
 	res := deliverTx(priv, msg)
 	s.Commit()
-	Expect(res.IsOK()).To(Equal(true), res.GetLog())
+	Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
-	registerEvent := res.GetEvents()[4]
+	registerEvent := res.GetEvents()[8]
 	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterDevFeeInfo))
 	Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
 	Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
+	return res
 }
 
 func generateKey() (*ethsecp256k1.PrivKey, sdk.AccAddress) {
@@ -796,10 +857,12 @@ func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
+	denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
 
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(1000000)
+	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: sdk.NewInt(1)}})
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)
 
