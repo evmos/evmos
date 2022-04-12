@@ -13,11 +13,6 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-const (
-	// keccak256(word) costs 36 gas
-	addressDerivationCostCreate uint64 = 50
-)
-
 // RegisterDevFeeInfo registers a contract to receive transaction fees
 func (k Keeper) RegisterDevFeeInfo(
 	goCtx context.Context,
@@ -53,9 +48,13 @@ func (k Keeper) RegisterDevFeeInfo(
 	// If it was deployed by one or more factories, msg.Nonces contains the EOA
 	// nonce for the origin factory contract, then the nonce of the factory
 	// for the creation of the next factory/contract.
+	addrDerivationCostCreate := k.GetParams(ctx).AddrDerivationCostCreate
 	derivedContractAddr := common.BytesToAddress(deployer)
 	for _, nonce := range msg.Nonces {
-		ctx.GasMeter().ConsumeGas(addressDerivationCostCreate, "fees registration: address derivation CREATE opcode")
+		ctx.GasMeter().ConsumeGas(
+			addrDerivationCostCreate,
+			"fees registration: address derivation CREATE opcode",
+		)
 		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
 	}
 

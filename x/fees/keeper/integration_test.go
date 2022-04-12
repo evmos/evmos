@@ -613,19 +613,17 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("With factory-created factory", Ordered, func() {
-				addressDerivationCostCreate := int64(50)
+			Context("With factory-created factory", func() {
 				var (
-					factory1Nonce        uint64
-					factory2Nonce        uint64
-					contractNonce        uint64
-					factory1Address      common.Address
-					factory2Address      common.Address
-					contractAddress      common.Address
-					gasUsedOneDerivation int64
+					factory1Nonce   uint64
+					factory2Nonce   uint64
+					contractNonce   uint64
+					factory1Address common.Address
+					factory2Address common.Address
+					contractAddress common.Address
 				)
 
-				BeforeAll(func() {
+				BeforeEach(func() {
 					// Create contract: factory1 -> factory2 -> contract
 					// Create factory1
 					factory1Nonce = getNonce(deployerAddress.Bytes())
@@ -638,32 +636,86 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					// Create contract
 					contractNonce = getNonce(factory2Address.Bytes())
 					contractAddress = deployContractWithFactory(deployerKey, &factory2Address)
-
-					// Register factory1 for receiving tx fees
-					res := registerDevFeeInfo(deployerKey, &factory1Address, nil, []uint64{factory1Nonce})
-					gasUsedOneDerivation = res.GetGasUsed()
-					s.Commit()
 				})
 
-				It("should consume gas for three address derivation iterations", func() {
-					res := registerDevFeeInfo(
-						deployerKey,
-						&contractAddress,
-						nil,
-						[]uint64{factory1Nonce, factory2Nonce, contractNonce},
-					)
-					s.Commit()
+				Context("with address derivation cost of 50", func() {
+					BeforeAll(func() {
+						params = s.app.FeesKeeper.GetParams(s.ctx)
+						params.AddrDerivationCostCreate = uint64(50)
+						s.app.FeesKeeper.SetParams(s.ctx, params)
+					})
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
-					Expect(isRegistered).To(Equal(true))
-					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
-					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
-					Expect(fee.WithdrawAddress).To(Equal(""))
+					It("should consume gas for three address derivation iterations", func() {
+						// Register factory1 for receiving tx fees
+						result := registerDevFeeInfo(
+							deployerKey,
+							&factory1Address,
+							nil,
+							[]uint64{factory1Nonce},
+						)
+						gasUsedOneDerivation := result.GetGasUsed()
+						s.Commit()
 
-					// Check addressDerivationCostCreate is subtracted 3 times
-					Expect(res.GasUsed).To(Equal(
-						gasUsedOneDerivation + addressDerivationCostCreate*2 + 20,
-					))
+						// Registering contract for receiving fees
+						res := registerDevFeeInfo(
+							deployerKey,
+							&contractAddress,
+							nil,
+							[]uint64{factory1Nonce, factory2Nonce, contractNonce},
+						)
+						s.Commit()
+
+						fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+						Expect(isRegistered).To(Equal(true))
+						Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+						Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+						Expect(fee.WithdrawAddress).To(Equal(""))
+
+						// Check addressDerivationCostCreate is subtracted 3 times
+						Expect(res.GasUsed).To(Equal(
+							gasUsedOneDerivation + 50*2 + 20,
+						))
+					})
+				})
+
+				Context("with address derivation cost of 500", func() {
+					BeforeAll(func() {
+						params = s.app.FeesKeeper.GetParams(s.ctx)
+						params.AddrDerivationCostCreate = uint64(500)
+						s.app.FeesKeeper.SetParams(s.ctx, params)
+					})
+
+					It("should consume gas for three address derivation iterations", func() {
+						// Register factory1 for receiving tx fees
+						result := registerDevFeeInfo(
+							deployerKey,
+							&factory1Address,
+							nil,
+							[]uint64{factory1Nonce},
+						)
+						gasUsedOneDerivation := result.GetGasUsed()
+						s.Commit()
+
+						// Registering contract for receiving fees
+						res := registerDevFeeInfo(
+							deployerKey,
+							&contractAddress,
+							nil,
+							[]uint64{factory1Nonce, factory2Nonce, contractNonce},
+						)
+						s.Commit()
+
+						fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+						Expect(isRegistered).To(Equal(true))
+						Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
+						Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
+						Expect(fee.WithdrawAddress).To(Equal(""))
+
+						// Check addressDerivationCostCreate is subtracted 3 times
+						Expect(res.GasUsed).To(Equal(
+							gasUsedOneDerivation + 500*2 + 20,
+						))
+					})
 				})
 			})
 		})
