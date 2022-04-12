@@ -63,13 +63,11 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		s.app.FeesKeeper.SetParams(s.ctx, params)
 
 		// setup deployer account
-		deployerKey, _ = ethsecp256k1.GenerateKey()
-		deployerAddress = getAddr(deployerKey)
+		deployerKey, deployerAddress = generateKey()
 		testutil.FundAccount(s.app.BankKeeper, s.ctx, deployerAddress, initBalance)
 
 		// setup account interacting with registered contracts
-		userKey, _ = ethsecp256k1.GenerateKey()
-		userAddress = getAddr(userKey)
+		userKey, userAddress = generateKey()
 		testutil.FundAccount(s.app.BankKeeper, s.ctx, userAddress, initBalance)
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, userAddress)
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
@@ -347,7 +345,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		})
 
 		Describe("Updating registered fee information", func() {
-			Context("new withdraw address is different than deployer address", Ordered, func() {
+			Context("with a withdraw address that is different from the deployer address", Ordered, func() {
 				var withdrawAddress sdk.AccAddress
 				var contractAddress common.Address
 				var nonce uint64
@@ -387,7 +385,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					s.Commit()
 				})
 
-				It("should send fees to the new withdraw address", func() {
+				It("should send tx fees to the new withdraw address", func() {
 					preBalanceD := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					preBalanceW := s.app.BankKeeper.GetBalance(s.ctx, withdrawAddress, denom)
 					gasPrice := big.NewInt(2000000000)
@@ -402,7 +400,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("new withdraw address is same as deployer address", func() {
+			Context("with a withdraw address equal to the deployer's address", func() {
 				var contractAddress common.Address
 				var nonce uint64
 
@@ -438,8 +436,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("contract is not registered", func() {
-				It("should not update fee information", func() {
+			Context("for a contract that was not registered", func() {
+				It("should fail", func() {
 					contractAddress := tests.GenerateAddress()
 					withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
 					msg := types.NewMsgUpdateDevFeeInfo(
@@ -627,8 +625,9 @@ func registerDevFeeInfo(
 	Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
 }
 
-func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
-	return sdk.AccAddress(priv.PubKey().Address().Bytes())
+func generateKey() (*ethsecp256k1.PrivKey, sdk.AccAddress) {
+	address, priv := tests.NewAddrKey()
+	return priv.(*ethsecp256k1.PrivKey), sdk.AccAddress(address.Bytes())
 }
 
 func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address) common.Address {
