@@ -22,7 +22,6 @@ import (
 	"github.com/tharsis/evmos/v3/app"
 	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/fees/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -41,12 +40,10 @@ var factoryCode = "603061000e60003960306000f3007f600661000e60003960066000f300612
 var _ = Describe("While", Ordered, func() {
 	feeCollectorAddr := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
 	denom := s.denom
-	accountCount := 4
 
 	// account initial balances
 	initAmount := sdk.NewInt(int64(math.Pow10(18) * 4))
 	initBalance := sdk.NewCoins(sdk.NewCoin(denom, initAmount))
-	totalAmount := sdk.NewCoin(denom, initAmount.MulRaw(int64(accountCount)))
 
 	var (
 		deployerKey      *ethsecp256k1.PrivKey
@@ -67,11 +64,6 @@ var _ = Describe("While", Ordered, func() {
 		params = s.app.FeesKeeper.GetParams(s.ctx)
 		params.EnableFees = true
 		s.app.FeesKeeper.SetParams(s.ctx, params)
-
-		// mint coins for claiming and send them to the claims module
-		coins := sdk.NewCoins(totalAmount)
-		err := testutil.FundModuleAccount(s.app.BankKeeper, s.ctx, inflationtypes.ModuleName, coins)
-		s.Require().NoError(err)
 
 		// setup deployer account
 		deployerKey, _ = ethsecp256k1.GenerateKey()

@@ -120,6 +120,8 @@ import (
 	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
 	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
 	"github.com/tharsis/evmos/v3/x/fees"
+	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
+	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
 	"github.com/tharsis/evmos/v3/x/incentives"
 	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
 	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
@@ -133,9 +135,6 @@ import (
 	"github.com/tharsis/evmos/v3/x/vesting"
 	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
 	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
-
-	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
-	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
 )
 
 func init() {
