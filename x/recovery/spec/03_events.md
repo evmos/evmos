@@ -1,18 +1,15 @@
 <!--
 order: 3
-title: "Recovery events"
-parent:
-  title: "recovery"
 -->
 
 # Events
 
 The `x/recovery` module emits the following event:
 
-### Recovery
+## Recovery
 
 | Type       |    Attribute Key     |             Attribute Value |
-| ---------- | :------------------: | --------------------------: |
+| :--------- | :------------------- | :-------------------------- |
 | `recovery` |       `sender`       |              `senderBech32` |
 | `recovery` |      `receiver`      |           `recipientBech32` |
 | `recovery` |       `amount`       |                    `amtStr` |

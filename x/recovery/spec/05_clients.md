@@ -1,8 +1,5 @@
 <!--
 order: 5
-title: "Recovery clients"
-parent:
-  title: "recovery"
 -->
 
 # Clients
@@ -17,7 +14,7 @@ Find below a list of `evmosd` commands added with the `x/recovery` module. You c
 
 The query commands allow users to query Recovery state.
 
-##### `params`
+  **`params`**
 
 Allows users to query the module parameters.
 
@@ -27,7 +24,7 @@ evmosd query recovery params [flags]
 
 ## gRPC
 
-#### Queries
+### Queries
 
 | Verb   |              Method              |           Description |
 | ------ | :------------------------------: | --------------------: |
