@@ -85,8 +85,29 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			},
 			false,
 		},
+		{
+			"Pair is incorrectly loaded",
+			func(contractAddr common.Address) {
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				suite.app.Erc20Keeper.DeleteTokenPair(suite.ctx, *pair)
+
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), pair.GetID())
+				// Mint 10 tokens to suite.address (owner)
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				suite.Commit()
+
+				// Burn the 10 tokens of suite.address (owner)
+				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
+
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
