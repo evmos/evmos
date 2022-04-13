@@ -58,7 +58,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 // sendFees distributes the transaction fees to the contract deployer
 func (h Hooks) sendFees(
 	ctx sdk.Context,
-	contract common.Address,
+	_ common.Address,
 	withdrawAddr sdk.AccAddress,
 	fees sdk.Coins,
 ) error {
