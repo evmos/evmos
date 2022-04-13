@@ -9,11 +9,16 @@ import (
 
 // Parameter store key
 var (
-	DefaultDeveloperShares       = sdk.NewDecWithPrec(50, 2) // 50%
-	DefaultValidatorShares       = sdk.NewDecWithPrec(50, 2) // 50%
-	ParamStoreKeyEnableFees      = []byte("EnableFees")
-	ParamStoreKeyDeveloperShares = []byte("DeveloperShares")
-	ParamStoreKeyValidatorShares = []byte("ValidatorShares")
+	DefaultEnableFees      = false
+	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultValidatorShares = sdk.NewDecWithPrec(50, 2) // 50%
+	// Cost for executing `crypto.CreateAddress`
+	// must be at least 36 gas for the contained keccak256(word) operation
+	DefaultAddrDerivationCostCreate       = uint64(50)
+	ParamStoreKeyEnableFees               = []byte("EnableFees")
+	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
+	ParamStoreKeyValidatorShares          = []byte("ValidatorShares")
+	ParamStoreKeyAddrDerivationCostCreate = []byte("AddrDerivationCostCreate")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -26,19 +31,22 @@ func NewParams(
 	enableFees bool,
 	developerShares,
 	validatorShares sdk.Dec,
+	addrDerivationCostCreate uint64,
 ) Params {
 	return Params{
-		EnableFees:      enableFees,
-		DeveloperShares: developerShares,
-		ValidatorShares: validatorShares,
+		EnableFees:               enableFees,
+		DeveloperShares:          developerShares,
+		ValidatorShares:          validatorShares,
+		AddrDerivationCostCreate: addrDerivationCostCreate,
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		EnableFees:      false,
-		DeveloperShares: DefaultDeveloperShares,
-		ValidatorShares: DefaultValidatorShares,
+		EnableFees:               DefaultEnableFees,
+		DeveloperShares:          DefaultDeveloperShares,
+		ValidatorShares:          DefaultValidatorShares,
+		AddrDerivationCostCreate: DefaultAddrDerivationCostCreate,
 	}
 }
 
@@ -48,7 +56,17 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableFees, &p.EnableFees, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperShares, &p.DeveloperShares, validateShares),
 		paramtypes.NewParamSetPair(ParamStoreKeyValidatorShares, &p.ValidatorShares, validateShares),
+		paramtypes.NewParamSetPair(ParamStoreKeyAddrDerivationCostCreate, &p.AddrDerivationCostCreate, validateUint64),
 	}
+}
+
+func validateUint64(i interface{}) error {
+	_, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
 }
 
 func validateBool(i interface{}) error {
@@ -94,6 +112,9 @@ func (p Params) Validate() error {
 	}
 	if p.DeveloperShares.Add(p.ValidatorShares).GT(sdk.OneDec()) {
 		return fmt.Errorf("total shares cannot be greater than 1: %#s + %#s", p.DeveloperShares, p.ValidatorShares)
+	}
+	if err := validateUint64(p.AddrDerivationCostCreate); err != nil {
+		return err
 	}
 
 	return nil
