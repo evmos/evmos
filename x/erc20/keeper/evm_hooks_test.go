@@ -216,8 +216,9 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 	)
 
 	account := tests.GenerateAddress()
-	//account.Hash().Bytes(), account.Hash().Bytes()
-	transferData, _ := contracts.ERC20BurnableContract.ABI.Pack("transfer", account, big.NewInt(10))
+
+	transferData := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	transferData[31] = uint8(10)
 	erc20 := contracts.ERC20BurnableContract.ABI
 
 	transferEvent := erc20.Events["Transfer"]
@@ -256,7 +257,7 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				_, err = suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 
 				topics := []common.Hash{transferEvent.ID, account.Hash(), types.ModuleAddress.Hash()}
@@ -270,7 +271,15 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 				}
 
 				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-				//TODO CHECK MINT
+				sender := sdk.AccAddress(account.Bytes())
+				cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, pair.Denom)
+
+				transferEvent, err := erc20.Unpack("Transfer", transferData)
+				suite.Require().NoError(err)
+
+				tokens, _ := transferEvent[0].(*big.Int)
+				suite.Require().Equal(cosmosBalance.Amount.String(), tokens.String())
+
 			},
 		},
 		{
