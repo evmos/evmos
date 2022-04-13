@@ -23,7 +23,7 @@ evmosd query recovery params [flags]
 
 ## gRPC
 
-### Queries
+#### Queries
 
 | Verb   |              Method              |           Description |
 | :----- | :------------------------------- | :-------------------- |
