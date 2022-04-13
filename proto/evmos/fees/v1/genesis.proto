@@ -30,4 +30,6 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+  // parameter to configure the cost of address derivation
+  uint64 addr_derivation_cost_create = 4;
 }

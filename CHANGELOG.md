@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Features
+
+- (fees) [\#436](https://github.com/tharsis/evmos/pull/436) Add `x/fees` module.
+
 ## [v3.0.0] - 2022-04-05
 
 ### State Machine Breaking
