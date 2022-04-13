@@ -10,7 +10,7 @@ A user can query the `x/recovery` module using the CLI, gRPC or REST.
 
 Find below a list of `evmosd` commands added with the `x/recovery` module. You can obtain the full list by using the `evmosd` -h command.
 
-#### Queries
+### Queries
 
 The query commands allow users to query Recovery state.
 
