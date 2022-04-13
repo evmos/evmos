@@ -91,8 +91,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 
-	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
 	srvflags "github.com/tharsis/ethermint/server/flags"
@@ -104,6 +102,9 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
+	// unnamed import of statik for swagger UI support
+	_ "github.com/tharsis/evmos/v3/client/docs/statik"
 
 	"github.com/tharsis/evmos/v3/app/ante"
 	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
