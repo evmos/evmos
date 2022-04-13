@@ -27,6 +27,6 @@ evmosd query recovery params [flags]
 ### Queries
 
 | Verb   |              Method              |           Description |
-| ------ | :------------------------------: | --------------------: |
+| :----- | :------------------------------- | :-------------------- |
 | `gRPC` | `evmos.recovery.v1.Query/Params` | `Get Recovery params` |
 | `GET`  |   `/evmos/recovery/v1/params`    | `Get Recovery params` |
