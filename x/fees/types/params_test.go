@@ -10,6 +10,7 @@ import (
 func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
 	validatorShares := sdk.NewDecWithPrec(40, 2)
+	derivCostCreate := uint64(50)
 
 	testCases := []struct {
 		name     string
@@ -19,17 +20,17 @@ func TestParamsValidate(t *testing.T) {
 		{"default", DefaultParams(), false},
 		{
 			"valid: enabled",
-			NewParams(true, devShares, validatorShares),
+			NewParams(true, devShares, validatorShares, derivCostCreate),
 			false,
 		},
 		{
 			"valid: disabled",
-			NewParams(false, devShares, validatorShares),
+			NewParams(false, devShares, validatorShares, derivCostCreate),
 			false,
 		},
 		{
 			"valid: 100% devs",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(0))},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
 			false,
 		},
 		{
@@ -38,18 +39,18 @@ func TestParamsValidate(t *testing.T) {
 			true,
 		},
 		{
-			"invalid: > 1",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), sdk.NewDecFromInt(sdk.NewInt(0))},
+			"invalid: share > 1",
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
 			true,
 		},
 		{
-			"invalid: < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), sdk.NewDecFromInt(sdk.NewInt(0))},
+			"invalid: share < 0",
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
 			true,
 		},
 		{
-			"invalid: sum > 1 ",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1))},
+			"invalid: sum shares > 1 ",
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate},
 			true,
 		},
 	}
@@ -73,5 +74,18 @@ func TestParamsValidateBool(t *testing.T) {
 	err = validateBool("")
 	require.Error(t, err)
 	err = validateBool(int64(123))
+	require.Error(t, err)
+}
+
+func TestParamsValidateUint64(t *testing.T) {
+	err := validateUint64(uint64(0))
+	require.NoError(t, err)
+	err = validateUint64(uint64(1))
+	require.NoError(t, err)
+	err = validateUint64("")
+	require.Error(t, err)
+	err = validateUint64(int64(123))
+	require.Error(t, err)
+	err = validateUint64(int64(-1))
 	require.Error(t, err)
 }
