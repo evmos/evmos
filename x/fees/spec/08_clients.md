@@ -15,7 +15,7 @@ evmosd query fees params
 ### Queries
 
 | Command        | Subcommand    | Description                    |
-| -------------- | ------------- | ------------------------------ |
+| :------------- | :------------ | :----------------------------- |
 | `query` `fees` | `params`      | Get fees params                |
 | `query` `fees` | `fee-info`    | Get registered fee info        |
 | `query` `fees` | `fee-infos`   | Get all registered fee infos   |
@@ -23,7 +23,7 @@ evmosd query fees params
 ### Transactions
 
 | Command     | Subcommand      | Description                                |
-| ----------- | --------------- | ------------------------------------------ |
+| :---------- | :-------------- | :----------------------------------------- |
 | `tx` `fees` | `register-fee`  | Register a contract for receiving fees     |
 | `tx` `fees` | `update-fee`    | Update the withdraw address for a contract |
 | `tx` `fees` | `cancel-fee`    | Remove the fee info for a contract         |
@@ -33,7 +33,7 @@ evmosd query fees params
 ### Queries
 
 | Verb   | Method                                       | Description                                 |
-| ------ | -------------------------------------------- | ------------------------------------------- |
+| :----- | :------------------------------------------- | :------------------------------------------ |
 | `gRPC` | `evmos.fees.v1.Query/Params`                 | Get fees params                             |
 | `gRPC` | `evmos.fees.v1.Query/DevFeeInfo`             | Get registered fee info                     |
 | `gRPC` | `evmos.fees.v1.Query/DevFeeInfos`            | Get all registered fee infos                |
@@ -46,7 +46,7 @@ evmosd query fees params
 ### Transactions
 
 | Verb   | Method                                    | Description                                |
-| ------ | ----------------------------------------- | ------------------------------------------ |
+| :----- | :---------------------------------------- | :----------------------------------------- |
 | `gRPC` | `evmos.fees.v1.Msg/RegisterDevFeeInfo`    | Register a contract for receiving fees     |
 | `gRPC` | `evmos.fees.v1.Msg/UpdateDevFeeInfo`      | Update the withdraw address for a contract |
 | `gRPC` | `evmos.fees.v1.Msg/CancelDevFeeInfo`      | Remove the fee info for a contract         |

@@ -7,7 +7,7 @@ order: 7
 The fees module contains the following parameters:
 
 | Key                        | Type          | Default Value                 |
-| -------------------------- | ------------- | ----------------------------- |
+| :------------------------- | :------------ | :---------------------------- |
 | `EnableFees`               | bool          | `true`                        |
 | `DeveloperShares`          | sdk.Dec       | `50%`                         |
 | `ValidatorShares`          | sdk.Dec       | `50%`                         |
