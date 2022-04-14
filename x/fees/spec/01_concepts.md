@@ -42,4 +42,6 @@ If `MyContract` is deployed directly by `DeployerEOA`, in a transaction sent wit
 
 If the contract was created by a smart contract, through the `CREATE` opcode, we need to provide all the nonces from the creation path. Let's take the example of `DeployerEOA` deploying a `Factory0` smart contract with nonce `5`. Then, `DeployerEOA` sends a transaction to `Factory0` through which a `Factory1` smart contract is created. Let us assume `Factory1` is the second contract created by `Factory0` - the nonce is `1`. Then, `DeployerEOA` sends a transaction to the `Factory1` contract, through which `MyContract` is created. Let us assume this is the first contract created by `Factory1` - the nonce is `0`. We now have an address derivation path of `DeployerEOA` -> `Factory0` -> `Factory1` -> `MyContract`. To be able to verify that `DeployerEOA` can register `MyContract`, we need to provide the following nonces: `[5, 1, 0]`.
 
+::: tip
 **Note**: Even if `MyContract` is created from `Factory1` through a transaction sent by an account different from `DeployerEOA`, only `DeployerEOA` can register `MyContract`.
+:::

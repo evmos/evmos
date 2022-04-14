@@ -50,6 +50,6 @@ evmosd query fees params
 | `gRPC` | `evmos.fees.v1.Msg/RegisterDevFeeInfo`    | Register a contract for receiving fees     |
 | `gRPC` | `evmos.fees.v1.Msg/UpdateDevFeeInfo`      | Update the withdraw address for a contract |
 | `gRPC` | `evmos.fees.v1.Msg/CancelDevFeeInfo`      | Remove the fee info for a contract         |
-| `GET`  | `/evmos/fees/v1/tx/register_dev_fee_info` | Register a contract for receiving fees     |
-| `GET`  | `/evmos/fees/v1/tx/update_dev_fee_info`   | Update the withdraw address for a contract |
-| `GET`  | `/evmos/fees/v1/tx/cancel_dev_fee_info`   | Remove the fee info for a contract         |
+| `POST`  | `/evmos/fees/v1/tx/register_dev_fee_info` | Register a contract for receiving fees     |
+| `POST`  | `/evmos/fees/v1/tx/update_dev_fee_info`   | Update the withdraw address for a contract |
+| `POST`  | `/evmos/fees/v1/tx/cancel_dev_fee_info`   | Remove the fee info for a contract         |

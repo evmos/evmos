@@ -13,7 +13,7 @@ A developer registers a contract for receiving transaction fees, defining the co
 If the withdraw address is not set, the fees will be sent to the deployer address by default.
 
 1. User submits a `RegisterDevFeeInfo` to register a contract address, along with a withdraw address that they would like to receive the fees to
-2. The following checks must pass
+2. The following checks must pass:
     1. `x/fees` module is enabled
     2. the contract was not previously registered
     3. deployer has a valid account (it has done at least one transaction) and is not a smart contract
@@ -27,7 +27,7 @@ If the withdraw address is not set, the fees will be sent to the deployer addres
 A developer updates the withdraw address for a registered contract, defining the contract address and the new withdraw address.
 
 1. User submits a `UpdateDevFeeInfo`
-2. The following checks must pass
+2. The following checks must pass:
     1. `x/fees` module is enabled
     2. the contract is registered
     3. the signer of the transaction is the same as the contract deployer
@@ -39,7 +39,7 @@ A developer updates the withdraw address for a registered contract, defining the
 A developer cancels receiving fees for a registered contract, defining the contract address.
 
 1. User submits a `CancelDevFeeInfo`
-2. The following checks must pass
+2. The following checks must pass:
     1. `x/fees` module is enabled
     2. the contract is registered
     3. the signer of the transaction is the same as the contract deployer

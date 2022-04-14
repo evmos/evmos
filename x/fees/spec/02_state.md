@@ -10,9 +10,9 @@ The `x/fees` module keeps the following objects in state:
 
 | State Object      | Description                | Key                                    | Value                        | Store |
 |-------------------|----------------------------|----------------------------------------|------------------------------|-------|
-| DeployerAddress   | Deployer address bytecode  | `[]byte{1} + []byte(contract_address)` | `[]byte{deployer_address}`   | KV    |
-| WithdrawAddress   | Withdraw address bytecode  | `[]byte{2} + []byte(contract_address)` | `[]byte{withdraw_address}`   | KV    |
-| ContractAddresses | ContractAddresses bytecode | `[]byte{3} + []byte(deployer_address)` | `[]byte{contract_addresses}` | KV    |
+| `DeployerAddress`   | Deployer address bytecode  | `[]byte{1} + []byte(contract_address)` | `[]byte{deployer_address}`   | KV    |
+| `WithdrawAddress`   | Withdraw address bytecode  | `[]byte{2} + []byte(contract_address)` | `[]byte{withdraw_address}`   | KV    |
+| `ContractAddresses` | ContractAddresses bytecode | `[]byte{3} + []byte(deployer_address)` | `[]byte{contract_addresses}` | KV    |
 
 ### DeployerAddress
 
