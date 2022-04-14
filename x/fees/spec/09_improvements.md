@@ -1,3 +1,7 @@
+<!--
+order: 9
+-->
+
 # Future Improvements
 
 - The fee distribution registration could be extended to register the withdrawal address to the owner of the contract according to [EIP173](https://eips.ethereum.org/EIPS/eip-173).
