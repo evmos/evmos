@@ -507,7 +507,6 @@ func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {
 
 			_, err = suite.app.Erc20Keeper.ConvertERC20(ctx, msgConvertERC20)
 			suite.Require().Error(err, tc.name)
-
 		})
 	}
 }

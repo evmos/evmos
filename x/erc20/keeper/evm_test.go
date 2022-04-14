@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -157,17 +159,20 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			false,
 		},
 	}
+
 	for _, tc := range testCases {
-		suite.SetupTest() // reset
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
 
-		data, contract := tc.malleate()
+			data, contract := tc.malleate()
 
-		res, err := suite.app.Erc20Keeper.CallEVMWithData(suite.ctx, tc.from, contract, data)
-		if tc.expPass {
-			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
-			suite.Require().NoError(err)
-		} else {
-			suite.Require().Error(err)
-		}
+			res, err := suite.app.Erc20Keeper.CallEVMWithData(suite.ctx, tc.from, contract, data)
+			if tc.expPass {
+				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
 	}
 }
