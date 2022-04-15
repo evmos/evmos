@@ -101,7 +101,7 @@ func (k Keeper) CallEVMWithData(
 		Data: (*hexutil.Bytes)(&data),
 	})
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, "failled to marshal tx args: %s", err.Error())
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
 	}
 
 	gasRes, err := k.evmKeeper.EstimateGas(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
