@@ -164,10 +164,17 @@ func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
+	// if the clawback time is before the vesting start time, perform a no-op
+	// as there is nothing to clawback
+	// NOTE: error must be checked during message execution
+	if clawbackTime < va.GetStartTime() {
+		return va, sdk.Coins{}
+	}
+
 	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
 	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
-	// Remove all unvested periods from the schdule
+	// Remove all unvested periods from the schedule
 	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
 	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
 
