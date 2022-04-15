@@ -458,3 +458,55 @@ func (suite *KeeperTestSuite) TestConvertNativeIBC() {
 	suite.Require().NoError(err)
 	suite.Commit()
 }
+
+func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {
+	testCases := []struct {
+		name      string
+		mint      int64
+		burn      int64
+		reconvert int64
+		expPass   bool
+	}{
+		{"ok - sufficient funds", 100, 10, 5, true},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.mintFeeCollector = true
+			suite.SetupTest()
+			metadata, pair := suite.setupRegisterCoin()
+			suite.Require().NotNil(metadata)
+			suite.Require().NotNil(pair)
+
+			// Precondition: Convert Coin to ERC20
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
+			sender := sdk.AccAddress(suite.address.Bytes())
+			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+			msg := types.NewMsgConvertCoin(
+				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
+				suite.address,
+				sender,
+			)
+
+			pair.ContractOwner = types.OWNER_UNSPECIFIED
+			suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			_, err := suite.app.Erc20Keeper.ConvertCoin(ctx, msg)
+			suite.Require().Error(err, tc.name)
+
+			// Convert ERC20s back to Coins
+			ctx = sdk.WrapSDKContext(suite.ctx)
+			contractAddr := common.HexToAddress(pair.Erc20Address)
+			msgConvertERC20 := types.NewMsgConvertERC20(
+				sdk.NewInt(tc.reconvert),
+				sender,
+				contractAddr,
+				suite.address,
+			)
+
+			_, err = suite.app.Erc20Keeper.ConvertERC20(ctx, msgConvertERC20)
+			suite.Require().Error(err, tc.name)
+		})
+	}
+}
