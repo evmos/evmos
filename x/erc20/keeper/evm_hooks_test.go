@@ -307,12 +307,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err = suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -338,12 +334,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err = suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -358,12 +350,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -378,12 +366,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -394,12 +378,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -413,12 +393,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -434,12 +410,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 		{
@@ -454,12 +426,8 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 					Logs: []*ethtypes.Log{&log},
 				}
 
-<<<<<<< HEAD
-				suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
-=======
 				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
 				suite.Require().NoError(err)
->>>>>>> main
 			},
 		},
 	}
