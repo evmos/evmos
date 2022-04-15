@@ -99,7 +99,7 @@ func (h Hooks) PostTxProcessing(
 			// continue to allow transfers for the ERC20 in case the token pair is disabled
 			h.k.Logger(ctx).Debug(
 				"ERC20 token -> Cosmos coin conversion is disabled for pair",
-				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
+				"coin", pair.Denom, "contract", pair.Erc20Address,
 			)
 			continue
 		}
