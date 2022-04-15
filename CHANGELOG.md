@@ -35,6 +35,19 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+<<<<<<< HEAD
+=======
+## Unreleased
+
+### Features
+
+- (fees) [\#436](https://github.com/tharsis/evmos/pull/436) Add `x/fees` module.
+
+### Bug Fixes
+
+- (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
+
+>>>>>>> f9a1828 (fix: clawback before vesting start time (#483))
 ## [v3.0.0] - 2022-04-05
 
 ### State Machine Breaking

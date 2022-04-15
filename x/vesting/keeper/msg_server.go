@@ -171,7 +171,7 @@ func (k Keeper) Clawback(
 		)
 	}
 
-	// Chech if account exists
+	// Check if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)
@@ -186,6 +186,11 @@ func (k Keeper) Clawback(
 	// Check if account funder is same as in msg
 	if va.FunderAddress != msg.FunderAddress {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+	}
+
+	// Return error if clawback is attempted before start time
+	if ctx.BlockTime().Before(va.StartTime) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
 	}
 
 	// Perform clawback transfer

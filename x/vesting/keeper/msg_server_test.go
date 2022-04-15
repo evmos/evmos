@@ -224,6 +224,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 		funder       sdk.AccAddress
 		addr         sdk.AccAddress
 		dest         sdk.AccAddress
+		startTime    time.Time
 		expectedPass bool
 	}{
 		{
@@ -232,6 +233,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			addr,
 			sdk.AccAddress(tests.GenerateAddress().Bytes()),
 			addr3,
+			suite.ctx.BlockTime(),
 			false,
 		},
 		{
@@ -244,6 +246,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			addr,
 			addr4,
 			addr3,
+			suite.ctx.BlockTime(),
 			false,
 		},
 		{
@@ -252,6 +255,17 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			addr3,
 			addr2,
 			addr3,
+			suite.ctx.BlockTime(),
+			false,
+		},
+		{
+			"before start time",
+			func() {
+			},
+			addr,
+			addr2,
+			addr3,
+			suite.ctx.BlockTime().Add(time.Hour),
 			false,
 		},
 		{
@@ -261,6 +275,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			addr,
 			addr2,
 			addr3,
+			suite.ctx.BlockTime(),
 			true,
 		},
 		{
@@ -270,6 +285,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			addr,
 			addr2,
 			sdk.AccAddress([]byte{}),
+			suite.ctx.BlockTime(),
 			true,
 		},
 	}
@@ -283,8 +299,8 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			suite.app.AccountKeeper.SetAccount(suite.ctx, funder)
 			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, balances)
 
-			// Create Clawnback Vesting Account
-			createMsg := types.NewMsgCreateClawbackVestingAccount(addr, addr2, suite.ctx.BlockTime(), lockupPeriods, vestingPeriods, false)
+			// Create Clawback Vesting Account
+			createMsg := types.NewMsgCreateClawbackVestingAccount(addr, addr2, tc.startTime, lockupPeriods, vestingPeriods, false)
 			createRes, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, createMsg)
 			suite.Require().NoError(err)
 			suite.Require().NotNil(createRes)
