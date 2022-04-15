@@ -491,6 +491,14 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 		expVestingPeriods  []sdkvesting.Period
 	}{
 		{
+			"clawback before start time, no-op",
+			now.Add(-time.Hour).Unix(),
+			sdk.Coins{},
+			origCoins,
+			lockupPeriods,
+			vestingPeriods,
+		},
+		{
 			"clawback everything before any period passes",
 			now.Unix(),
 			c(fee(1000), stake(100)),
