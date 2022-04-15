@@ -14,9 +14,9 @@ var (
 )
 
 const (
-	TypeMsgRegisterDevFeeInfo = "register_fee_contract"
-	TypeMsgCancelDevFeeInfo   = "cancel_fee_contract"
-	TypeMsgUpdateDevFeeInfo   = "update_fee_contract"
+	TypeMsgRegisterDevFeeInfo = "register_dev_fee_info"
+	TypeMsgCancelDevFeeInfo   = "cancel_dev_fee_info"
+	TypeMsgUpdateDevFeeInfo   = "update_dev_fee_info"
 )
 
 // NewMsgRegisterDevFeeInfo creates new instance of MsgRegisterDevFeeInfo
