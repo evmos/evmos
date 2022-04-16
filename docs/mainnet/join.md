@@ -6,9 +6,17 @@ order: 1
 
 This document outlines the steps to join an existing testnet {synopsis}
 
+## Pre-requisite Readings
+
+- [Validator Security](./security.md) {prereq}
+
 ## Mainnet
 
 You need to set the **genesis file** and **seeds**. If you need more information about past networks, check our [mainnet repo](https://github.com/tharsis/mainnet).
+
+::: warning
+**IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security.md) recommendations!
+:::
 
 | Chain ID       | Description   | Site                                                               | Version                                               | Status     |
 | -------------- | ------------- | ------------------------------------------------------------------ | ----------------------------------------------------- | ---------- |
