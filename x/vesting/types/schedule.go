@@ -168,7 +168,7 @@ func DisjunctPeriods(
 func ConjunctPeriods(
 	startTimePeriodA, startTimePeriodB int64,
 	periodsA, periodsB sdkvesting.Periods,
-) (startTime int64, endTime int64, conjunctionPeriods sdkvesting.Periods) {
+) (startTime, endTime int64, conjunctionPeriods sdkvesting.Periods) {
 	timePeriodsA := startTimePeriodA
 	timePeriodsB := startTimePeriodB
 	iP := 0
