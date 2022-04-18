@@ -19,35 +19,107 @@ func TestScheduleSuite(t *testing.T) {
 func period(length int64, amount int64) sdkvesting.Period {
 	return sdkvesting.Period{
 		Length: length,
-		Amount: sdk.NewCoins(sdk.NewInt64Coin("test", amount)),
+		Amount: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, amount)),
 	}
 }
 
 func (suite *ScheduleTestSuite) TestReadSchedule() {
-	periods := sdkvesting.Periods{
-		period(10, 10),
-		period(20, 20),
-		period(40, 40),
-	}
-	total := sdk.NewCoins(sdk.NewInt64Coin("test", 70))
 	testCases := []struct {
-		time       int64
-		expPeriods int64
+		name       string
+		startTime  int64
+		endTime    int64
+		readTime   int64
+		totalCoins sdk.Coins
+		periods    sdkvesting.Periods
+		expAmount  sdk.Coins
 	}{
-		{0, 0},
-		{100, 0},
-		{105, 0},
-		{110, 10},
-		{120, 10},
-		{130, 30},
-		{150, 30},
-		{170, 70},
-		{180, 70},
+		{
+			name:       "empty",
+			startTime:  0,
+			endTime:    0,
+			readTime:   0,
+			totalCoins: sdk.Coins{},
+			periods:    sdkvesting.Periods{},
+			expAmount:  sdk.Coins{},
+		},
+		{
+			name:       "before start time",
+			startTime:  100,
+			endTime:    200,
+			readTime:   0,
+			totalCoins: sdk.Coins{},
+			periods:    sdkvesting.Periods{},
+			expAmount:  sdk.NewCoins(),
+		},
+		{
+			name:       "at start time",
+			startTime:  100,
+			endTime:    200,
+			readTime:   100,
+			totalCoins: sdk.Coins{},
+			periods:    sdkvesting.Periods{},
+			expAmount:  sdk.NewCoins(),
+		},
+		{
+			name:       "at end time",
+			startTime:  100,
+			endTime:    200,
+			readTime:   200,
+			totalCoins: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 100)),
+			periods:    sdkvesting.Periods{},
+			expAmount:  sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 100)),
+		},
+		{
+			name:       "after end time",
+			startTime:  100,
+			endTime:    200,
+			readTime:   250,
+			totalCoins: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 100)),
+			periods:    sdkvesting.Periods{},
+			expAmount:  sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 100)),
+		},
+		{
+			name:       "between start and end of first period",
+			startTime:  100,
+			endTime:    200,
+			readTime:   120,
+			totalCoins: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 70)),
+			periods:    sdkvesting.Periods{period(25, 10), period(50, 20), period(25, 40)},
+			expAmount:  sdk.Coins{},
+		},
+		{
+			name:       "at first period end",
+			startTime:  100,
+			endTime:    200,
+			readTime:   125,
+			totalCoins: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 70)),
+			periods:    sdkvesting.Periods{period(25, 10), period(50, 20), period(25, 40)},
+			expAmount:  sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 10)),
+		},
+		{
+			name:       "between first and second period",
+			startTime:  100,
+			endTime:    200,
+			readTime:   150,
+			totalCoins: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 70)),
+			periods:    sdkvesting.Periods{period(25, 10), period(50, 20), period(25, 40)},
+			expAmount:  sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 10)),
+		},
+		{
+			name:       "last period, before end time",
+			startTime:  100,
+			endTime:    200,
+			readTime:   199,
+			totalCoins: sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 70)),
+			periods:    sdkvesting.Periods{period(25, 10), period(50, 20), period(25, 40)},
+			expAmount:  sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 30)),
+		},
 	}
 	for _, tc := range testCases {
-		gotCoins := ReadSchedule(100, 170, periods, total, tc.time)
-		got := gotCoins.AmountOf("test").Int64()
-		suite.Require().Equal(tc.expPeriods, got)
+		suite.Run(tc.name, func() {
+			coins := ReadSchedule(tc.startTime, tc.endTime, tc.periods, tc.totalCoins, tc.readTime)
+			suite.Require().Equal(tc.expAmount, coins)
+		})
 	}
 }
 

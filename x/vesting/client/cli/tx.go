@@ -62,7 +62,7 @@ type InputPeriod struct {
 
 // readScheduleFile reads the file at path and unmarshals it to get the schedule.
 // Returns start time, periods, and error.
-func ReadScheduleFile(path string) (int64, []sdkvesting.Period, error) {
+func ReadScheduleFile(path string) (int64, sdkvesting.Periods, error) {
 	contents, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return 0, nil, err
@@ -75,7 +75,7 @@ func ReadScheduleFile(path string) (int64, []sdkvesting.Period, error) {
 	}
 
 	startTime := data.StartTime
-	periods := make([]sdkvesting.Period, 0, len(data.Periods))
+	periods := make(sdkvesting.Periods, 0, len(data.Periods))
 
 	for i, p := range data.Periods {
 		if p.Length < 1 {
@@ -126,7 +126,7 @@ with a start time and an array of coins strings and durations relative to the st
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var (
 				lockupStart, vestingStart     int64
-				lockupPeriods, vestingPeriods []sdkvesting.Period
+				lockupPeriods, vestingPeriods sdkvesting.Periods
 			)
 
 			clientCtx, err := client.GetClientTxContext(cmd)

@@ -189,7 +189,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	// Cap the unlocking schedule to the new total vested.
 	//  - If lockup has already passed, all vested coins are unlocked.
 	//  - If lockup has not passed, the vested coins, are still locked.
-	capPeriods := []sdkvesting.Period{
+	capPeriods := sdkvesting.Periods{
 		{
 			Length: 0,
 			Amount: totalVested,

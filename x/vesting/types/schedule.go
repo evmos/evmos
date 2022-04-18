@@ -18,23 +18,26 @@ func ReadSchedule(
 	totalCoins sdk.Coins,
 	readTime int64,
 ) sdk.Coins {
+	// return empty coins if the read time is before or equal start time
 	if readTime <= startTime {
 		return sdk.NewCoins()
 	}
+	// return the total coins when the read time is equal or after
+	// end time
 	if readTime >= endTime {
 		return totalCoins
 	}
 
 	coins := sdk.Coins{} // sum of amounts for events before readTime
-	time := startTime
+	elapsedTime := startTime
 
 	for _, period := range periods {
-		if readTime < time+period.Length {
+		if readTime < elapsedTime+period.Length {
 			// we're reading before the next event
 			break
 		}
 		coins = coins.Add(period.Amount...)
-		time += period.Length
+		elapsedTime += period.Length
 	}
 
 	return coins
@@ -47,22 +50,29 @@ func ReadPastPeriodCount(
 	readTime int64,
 ) int {
 	passedPeriods := 0
+
+	// return 0 if the read time is before or equal start time
 	if readTime <= startTime {
-		return passedPeriods
+		return 0
 	}
+
+	// return all the periods when the read time is equal or after
+	// end time
 	if readTime >= endTime {
 		return len(periods)
 	}
 
-	time := startTime
+	elapsedTime := startTime
 
+	// for every period, add the period length to the elapsed time until
+	// the read time is before the next period
 	for _, period := range periods {
-		if readTime < time+period.Length {
+		if readTime < elapsedTime+period.Length {
 			// we're reading before the next event
 			break
 		}
 		passedPeriods++
-		time += period.Length
+		elapsedTime += period.Length
 	}
 
 	return passedPeriods
@@ -154,6 +164,7 @@ func DisjunctPeriods(
 // result is the minimum of the two schedules.
 // It returns the resulting periods start and end times as well as the resulting
 // conjunction periods.
+// TODO: rename and add comprehensive comments, this is currently not maintainable
 func ConjunctPeriods(
 	startTimePeriodA, startTimePeriodB int64,
 	periodsA, periodsB sdkvesting.Periods,
