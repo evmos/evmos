@@ -256,13 +256,20 @@ func (k Keeper) transferClawback(
 	// Compute clawback amount, unlock unvested tokens and remove future vesting events
 	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
 	if toClawBack.IsZero() {
+		// no-op, nothing to transfer
 		return nil
 	}
+
+	// set the account with the updated values of the vesting schedule
 	k.accountKeeper.SetAccount(ctx, &updatedAcc)
 
-	// Transfer clawback
 	addr := updatedAcc.GetAddress()
-	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
-	transferAmt := toClawBack.Min(spendable)
-	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
+
+	// NOTE: don't use `SpendableCoins` to get the minimum value to clawback since
+	// the amount is retrieved from `ComputeClawback`, which ensures correctness.
+	// `SpendableCoins` can result in gas exhaustion if the user has too many
+	// different denoms (because of store iteration).
+
+	// Transfer clawback to the destination (funder)
+	return k.bankKeeper.SendCoins(ctx, addr, dest, toClawBack)
 }
