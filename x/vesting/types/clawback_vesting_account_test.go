@@ -467,31 +467,30 @@ func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 }
 
 func (suite *VestingAccountTestSuite) TestComputeClawback() {
-	c := sdk.NewCoins
 	fee := func(x int64) sdk.Coin { return sdk.NewInt64Coin(feeDenom, x) }
 	stake := func(x int64) sdk.Coin { return sdk.NewInt64Coin(stakeDenom, x) }
 	now := tmtime.Now()
 	lockupPeriods := sdkvesting.Periods{
-		{Length: int64(12 * 3600), Amount: c(fee(1000), stake(100))}, // noon
+		{Length: int64(12 * 3600), Amount: sdk.NewCoins(fee(1000), stake(100))}, // noon
 	}
 	vestingPeriods := sdkvesting.Periods{
-		{Length: int64(8 * 3600), Amount: c(fee(200))},            // 8am
-		{Length: int64(1 * 3600), Amount: c(fee(200), stake(50))}, // 9am
-		{Length: int64(6 * 3600), Amount: c(fee(200), stake(50))}, // 3pm
-		{Length: int64(2 * 3600), Amount: c(fee(200))},            // 5pm
-		{Length: int64(1 * 3600), Amount: c(fee(200))},            // 6pm
+		{Length: int64(8 * 3600), Amount: sdk.NewCoins(fee(200))},            // 8am
+		{Length: int64(1 * 3600), Amount: sdk.NewCoins(fee(200), stake(50))}, // 9am
+		{Length: int64(6 * 3600), Amount: sdk.NewCoins(fee(200), stake(50))}, // 3pm
+		{Length: int64(2 * 3600), Amount: sdk.NewCoins(fee(200))},            // 5pm
+		{Length: int64(1 * 3600), Amount: sdk.NewCoins(fee(200))},            // 6pm
 	}
 
 	testCases := []struct {
 		name               string
 		time               int64
-		expCoins           sdk.Coins
+		expClawedBack      sdk.Coins
 		expOriginalVesting sdk.Coins
-		expLockupPeriods   []sdkvesting.Period
-		expVestingPeriods  []sdkvesting.Period
+		expLockupPeriods   sdkvesting.Periods
+		expVestingPeriods  sdkvesting.Periods
 	}{
 		{
-			"clawback before start time, no-op",
+			"should no-op if clawed back before start time",
 			now.Add(-time.Hour).Unix(),
 			sdk.Coins{},
 			origCoins,
@@ -499,29 +498,26 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 			vestingPeriods,
 		},
 		{
-			"clawback everything before any period passes",
+			"should clawback everything before any vesting or lockup period passes",
 			now.Unix(),
-			c(fee(1000), stake(100)),
-			c(),
-			[]sdkvesting.Period{},
-			[]sdkvesting.Period{},
+			sdk.NewCoins(fee(1000), stake(100)),
+			sdk.NewCoins(),
+			sdkvesting.Periods{},
+			sdkvesting.Periods{},
 		},
 		{
-			"clawback after two periods ",
+			"it should clawback after two vesting periods and before the first lock period",
 			now.Add(11 * time.Hour).Unix(),
-			c(fee(600), stake(50)),
-			c(fee(400), stake(50)),
-			[]sdkvesting.Period{{Length: int64(12 * 3600), Amount: c(fee(400), stake(50))}},
-			[]sdkvesting.Period{
-				{Length: int64(8 * 3600), Amount: c(fee(200))},            // 8am
-				{Length: int64(1 * 3600), Amount: c(fee(200), stake(50))}, // 9am
-			},
+			sdk.NewCoins(fee(600), stake(50)), // last 3 periods are still vesting
+			sdk.NewCoins(fee(400), stake(50)), // first 2 periods
+			sdkvesting.Periods{{Length: int64(12 * 3600), Amount: sdk.NewCoins(fee(400), stake(50))}},
+			vestingPeriods[:2],
 		},
 		{
-			"clawback after all periods",
+			"should clawback zero coins after all vesting and locked periods",
 			now.Add(23 * time.Hour).Unix(),
 			sdk.Coins{},
-			c(fee(1000), stake(100)),
+			sdk.NewCoins(fee(1000), stake(100)),
 			lockupPeriods,
 			vestingPeriods,
 		},
@@ -535,7 +531,7 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 
 			va2, amt := va.ComputeClawback(tc.time)
 
-			suite.Require().Equal(tc.expCoins, amt)
+			suite.Require().Equal(tc.expClawedBack, amt)
 			suite.Require().Equal(tc.expOriginalVesting, va2.OriginalVesting)
 			suite.Require().Equal(tc.expLockupPeriods, va2.LockupPeriods)
 			suite.Require().Equal(tc.expVestingPeriods, va2.VestingPeriods)

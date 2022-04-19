@@ -50,7 +50,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
-		msg.LockupPeriods = []sdkvesting.Period{
+		msg.LockupPeriods = sdkvesting.Periods{
 			{Length: 0, Amount: vestingCoins},
 		}
 		lockupCoins = vestingCoins
@@ -58,7 +58,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	// If vesting absent, default to an instant vesting schedule
 	if !lockupCoins.IsZero() && len(msg.VestingPeriods) == 0 {
-		msg.VestingPeriods = []sdkvesting.Period{
+		msg.VestingPeriods = sdkvesting.Periods{
 			{Length: 0, Amount: lockupCoins},
 		}
 		vestingCoins = lockupCoins
@@ -218,7 +218,7 @@ func (k Keeper) addGrant(
 	ctx sdk.Context,
 	va *types.ClawbackVestingAccount,
 	grantStartTime int64,
-	grantLockupPeriods, grantVestingPeriods []sdkvesting.Period,
+	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
 	grantCoins sdk.Coins,
 ) {
 	// how much is really delegated?

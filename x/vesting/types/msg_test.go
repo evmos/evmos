@@ -25,8 +25,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 		sdk.AccAddress(tests.GenerateAddress().Bytes()),
 		sdk.AccAddress(tests.GenerateAddress().Bytes()),
 		time.Unix(100200300, 0),
-		[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-		[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+		sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+		sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 		true,
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
@@ -42,8 +42,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 		from           sdk.AccAddress
 		to             sdk.AccAddress
 		startTime      time.Time
-		lockupPeriods  []sdkvesting.Period
-		vestingPeriods []sdkvesting.Period
+		lockupPeriods  sdkvesting.Periods
+		vestingPeriods sdkvesting.Periods
 		merge          bool
 		expectPass     bool
 	}{
@@ -52,8 +52,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			true,
 		},
@@ -84,8 +84,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		from           string
 		to             string
 		startTime      time.Time
-		lockupPeriods  []sdkvesting.Period
-		vestingPeriods []sdkvesting.Period
+		lockupPeriods  sdkvesting.Periods
+		vestingPeriods sdkvesting.Periods
 		merge          bool
 		expectPass     bool
 	}{
@@ -94,8 +94,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			"foo",
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -104,8 +104,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			"foo",
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -114,8 +114,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -124,8 +124,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -134,8 +134,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			false,
 		},
@@ -144,8 +144,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
 			true,
 			false,
 		},
@@ -154,8 +154,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			sdk.AccAddress(tests.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
-			[]sdkvesting.Period{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
-			[]sdkvesting.Period{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
+			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			true,
 			true,
 		},
