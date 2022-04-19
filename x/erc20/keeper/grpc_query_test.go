@@ -135,6 +135,21 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			},
 			true,
 		},
+		{
+			"token pair not found - with erc20 existant",
+			func() {
+				addr := tests.GenerateAddress()
+				pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+
+				req = &types.QueryTokenPairRequest{
+					Token: pair.Erc20Address,
+				}
+				expRes = &types.QueryTokenPairResponse{TokenPair: pair}
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {

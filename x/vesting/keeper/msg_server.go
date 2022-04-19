@@ -50,7 +50,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
-		msg.LockupPeriods = []sdkvesting.Period{
+		msg.LockupPeriods = sdkvesting.Periods{
 			{Length: 0, Amount: vestingCoins},
 		}
 		lockupCoins = vestingCoins
@@ -58,7 +58,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	// If vesting absent, default to an instant vesting schedule
 	if !lockupCoins.IsZero() && len(msg.VestingPeriods) == 0 {
-		msg.VestingPeriods = []sdkvesting.Period{
+		msg.VestingPeriods = sdkvesting.Periods{
 			{Length: 0, Amount: lockupCoins},
 		}
 		vestingCoins = lockupCoins
@@ -171,7 +171,7 @@ func (k Keeper) Clawback(
 		)
 	}
 
-	// Chech if account exists
+	// Check if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)
@@ -186,6 +186,11 @@ func (k Keeper) Clawback(
 	// Check if account funder is same as in msg
 	if va.FunderAddress != msg.FunderAddress {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+	}
+
+	// Return error if clawback is attempted before start time
+	if ctx.BlockTime().Before(va.StartTime) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
 	}
 
 	// Perform clawback transfer
@@ -213,7 +218,7 @@ func (k Keeper) addGrant(
 	ctx sdk.Context,
 	va *types.ClawbackVestingAccount,
 	grantStartTime int64,
-	grantLockupPeriods, grantVestingPeriods []sdkvesting.Period,
+	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
 	grantCoins sdk.Coins,
 ) {
 	// how much is really delegated?
@@ -237,7 +242,7 @@ func (k Keeper) addGrant(
 
 	// cap DV at the current unvested amount, DF rounds out to current delegated
 	unvested := va.GetVestingCoins(ctx.BlockTime())
-	va.DelegatedVesting = types.CoinsMin(delegated, unvested)
+	va.DelegatedVesting = delegated.Min(unvested)
 	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
 }
 
@@ -258,6 +263,6 @@ func (k Keeper) transferClawback(
 	// Transfer clawback
 	addr := updatedAcc.GetAddress()
 	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
-	transferAmt := types.CoinsMin(toClawBack, spendable)
+	transferAmt := toClawBack.Min(spendable)
 	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
 }

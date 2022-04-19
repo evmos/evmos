@@ -6,7 +6,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
+	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/v3/contracts"
 	"github.com/tharsis/evmos/v3/x/erc20/types"
 )
 
@@ -64,8 +67,47 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 			},
 			false,
 		},
+		{
+			"Pair is disabled",
+			func(contractAddr common.Address) {
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				pair.Enabled = false
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
+				// Mint 10 tokens to suite.address (owner)
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				suite.Commit()
+
+				// Burn the 10 tokens of suite.address (owner)
+				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+
+			},
+			false,
+		},
+		{
+			"Pair is incorrectly loaded",
+			func(contractAddr common.Address) {
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				suite.app.Erc20Keeper.DeleteTokenPair(suite.ctx, *pair)
+
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), pair.GetID())
+				// Mint 10 tokens to suite.address (owner)
+				_ = suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				suite.Commit()
+
+				// Burn the 10 tokens of suite.address (owner)
+				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
+
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
@@ -152,6 +194,251 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 				suite.Require().Error(err)
 				suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.mint-tc.burn))
 			}
+		})
+	}
+	suite.mintFeeCollector = false
+}
+
+func (suite *KeeperTestSuite) TestEvmHooksForceError() {
+
+	msg := ethtypes.NewMessage(
+		types.ModuleAddress,
+		&common.Address{},
+		0,
+		big.NewInt(0), // amount
+		uint64(0),     // gasLimit
+		big.NewInt(0), // gasFeeCap
+		big.NewInt(0), // gasTipCap
+		big.NewInt(0), // gasPrice
+		[]byte{},
+		ethtypes.AccessList{}, // AccessList
+		true,                  // checkNonce
+	)
+
+	account := tests.GenerateAddress()
+
+	transferData := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	transferData[31] = uint8(10)
+	erc20 := contracts.ERC20BurnableContract.ABI
+
+	transferEvent := erc20.Events["Transfer"]
+
+	testCases := []struct {
+		name string
+		test func()
+	}{
+		{
+			"correct transfer (non burn)",
+			func() {
+				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				_, err = suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				topics := []common.Hash{transferEvent.ID, account.Hash(), account.Hash()}
+				log := ethtypes.Log{
+					Topics:  topics,
+					Data:    transferData,
+					Address: contractAddr,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err = suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"correct burn",
+			func() {
+				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				topics := []common.Hash{transferEvent.ID, account.Hash(), types.ModuleAddress.Hash()}
+				log := ethtypes.Log{
+					Topics:  topics,
+					Data:    transferData,
+					Address: contractAddr,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err = suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+				sender := sdk.AccAddress(account.Bytes())
+				cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, pair.Denom)
+
+				transferEvent, err := erc20.Unpack("Transfer", transferData)
+				suite.Require().NoError(err)
+
+				tokens, _ := transferEvent[0].(*big.Int)
+				suite.Require().Equal(cosmosBalance.Amount.String(), tokens.String())
+
+			},
+		},
+		{
+			"Unspecified Owner",
+			func() {
+				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				pair.ContractOwner = types.OWNER_UNSPECIFIED
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
+
+				topics := []common.Hash{transferEvent.ID, account.Hash(), types.ModuleAddress.Hash()}
+				log := ethtypes.Log{
+					Topics:  topics,
+					Data:    transferData,
+					Address: contractAddr,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err = suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"Fail Evm",
+			func() {
+				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+
+				pair.ContractOwner = types.OWNER_MODULE
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
+
+				topics := []common.Hash{transferEvent.ID, account.Hash(), types.ModuleAddress.Hash()}
+				log := ethtypes.Log{
+					Topics:  topics,
+					Data:    transferData,
+					Address: contractAddr,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err = suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"No log address",
+			func() {
+				topics := []common.Hash{transferEvent.ID, account.Hash(), types.ModuleAddress.Hash()}
+				log := ethtypes.Log{
+					Topics: topics,
+					Data:   transferData,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"No data on topic",
+			func() {
+				topics := []common.Hash{transferEvent.ID}
+				log := ethtypes.Log{
+					Topics: topics,
+					Data:   transferData,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"Empty logs",
+			func() {
+				log := ethtypes.Log{}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"No log data",
+			func() {
+				topics := []common.Hash{transferEvent.ID, account.Hash(), types.ModuleAddress.Hash()}
+				log := ethtypes.Log{
+					Topics: topics,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"Non transfer event",
+			func() {
+				aprovalEvent := erc20.Events["Approval"]
+				topics := []common.Hash{aprovalEvent.ID, account.Hash(), account.Hash()}
+				log := ethtypes.Log{
+					Topics: topics,
+					Data:   transferData,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+		{
+			"Non recognized event",
+			func() {
+				topics := []common.Hash{{}, account.Hash(), account.Hash()}
+				log := ethtypes.Log{
+					Topics: topics,
+					Data:   transferData,
+				}
+				receipt := &ethtypes.Receipt{
+					Logs: []*ethtypes.Log{&log},
+				}
+
+				err := suite.app.Erc20Keeper.Hooks().PostTxProcessing(suite.ctx, msg, receipt)
+				suite.Require().NoError(err)
+			},
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.mintFeeCollector = true
+			suite.SetupTest()
+			suite.ensureHooksSet()
+
+			tc.test()
+
 		})
 	}
 	suite.mintFeeCollector = false
