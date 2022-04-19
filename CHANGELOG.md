@@ -53,6 +53,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
+- (claims) [\#507](https://github.com/tharsis/evmos/pull/507) Always return claimable amount on grpc queries regarding of claims status.
 
 ## [v3.0.0] - 2022-04-05
 
