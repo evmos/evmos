@@ -103,6 +103,11 @@ func (k Keeper) OnRecvPacket(
 
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
 
+	if senderRecordFound && senderClaimsRecord.HasClaimedAction(types.ActionIBCTransfer) {
+		// short-circuit, perform no-op if the IBC action has already been completed
+		return ack
+	}
+
 	sameAddress := sender.Equals(recipient)
 	fromEVMChain := params.IsEVMChannel(packet.DestinationChannel)
 
@@ -153,7 +158,7 @@ func (k Keeper) OnRecvPacket(
 	// They require a merge or migration of claims records. To prevent this
 	// happening by accident, they are only executed, when the sender transfers
 	// the specified IBCTriggerAmt.
-	case senderRecordFound && recipientRecordFound && !sameAddress && isTriggerAmt && !senderClaimsRecord.HasClaimedAll():
+	case senderRecordFound && recipientRecordFound && !sameAddress && isTriggerAmt:
 		// case 1: both sender and recipient are distinct and have a claims record
 		// -> merge sender's record with the recipient's record and claim actions that
 		// have already been claimed by one or the other
@@ -172,7 +177,7 @@ func (k Keeper) OnRecvPacket(
 			"receiver", recipientBech32,
 			"total-claimable", senderClaimsRecord.InitialClaimableAmount.Add(recipientClaimsRecord.InitialClaimableAmount).String(),
 		)
-	case senderRecordFound && !recipientRecordFound && isTriggerAmt && !senderClaimsRecord.HasClaimedAll():
+	case senderRecordFound && !recipientRecordFound && isTriggerAmt:
 		// case 2: only the sender has a claims record
 		// -> migrate the sender record to the recipient address and claim IBC action
 		claimedAmt, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
