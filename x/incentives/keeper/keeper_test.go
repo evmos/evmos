@@ -375,7 +375,7 @@ func (suite *KeeperTestSuite) sendTx(
 func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.Int {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, false, "balanceOf", account)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res)
 
@@ -391,7 +391,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.I
 func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "name")
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, false, "name")
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res)
 

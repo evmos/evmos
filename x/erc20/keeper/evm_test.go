@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.Require().NoError(err)
 		account := tests.GenerateAddress()
 
-		res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, tc.method, account)
+		res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)
@@ -166,7 +166,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 
 			data, contract := tc.malleate()
 
-			res, err := suite.app.Erc20Keeper.CallEVMWithData(suite.ctx, tc.from, contract, data)
+			res, err := suite.app.Erc20Keeper.CallEVMWithData(suite.ctx, tc.from, contract, data, true)
 			if tc.expPass {
 				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 				suite.Require().NoError(err)
