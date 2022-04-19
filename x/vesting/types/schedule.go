@@ -90,8 +90,8 @@ func DisjunctPeriods(
 	timePeriodA := startTimePeriodsA  // time of last merged periods A event, next p event is relative to this time
 	timePeriodsB := startTimePeriodsB // time of last merged periods B event, next periodsB event is relative to this time
 
-	iP := 0 // periods A indexes before this have been merged
-	iQ := 0 // periods B indexes before this have been merged
+	idxPeriodsA := 0 // periods A indexes before this have been merged
+	idxPeriodsB := 0 // periods B indexes before this have been merged
 
 	lenPeriodsA := len(periodsA)
 	lenPeriodsB := len(periodsB)
@@ -109,52 +109,52 @@ func DisjunctPeriods(
 		endTime = nextTime
 	}
 
-	// consumeP emits the next period from A, updating indexes
-	consumeP := func(nextPeriodA int64) {
-		emit(nextPeriodA, periodsA[iP].Amount)
+	// consumeA emits the next period from A, updating indexes
+	consumeA := func(nextPeriodA int64) {
+		emit(nextPeriodA, periodsA[idxPeriodsA].Amount)
 		timePeriodA = nextPeriodA
-		iP++
+		idxPeriodsA++
 	}
 
-	// consumeQ emits the next period from B, updating indexes
-	consumeQ := func(nextPeriodB int64) {
-		emit(nextPeriodB, periodsB[iQ].Amount)
+	// consumeB emits the next period from B, updating indexes
+	consumeB := func(nextPeriodB int64) {
+		emit(nextPeriodB, periodsB[idxPeriodsB].Amount)
 		timePeriodsB = nextPeriodB
-		iQ++
+		idxPeriodsB++
 	}
 
-	// consumeBoth emits a merge of the next periods from p and periodsB, updating indexes
+	// consumeBoth emits a merge of the next periods from periods A and B, updating indexes
 	consumeBoth := func(nextTime int64) {
-		emit(nextTime, periodsA[iP].Amount.Add(periodsB[iQ].Amount...))
+		emit(nextTime, periodsA[idxPeriodsA].Amount.Add(periodsB[idxPeriodsB].Amount...))
 		timePeriodA = nextTime
 		timePeriodsB = nextTime
-		iP++
-		iQ++
+		idxPeriodsA++
+		idxPeriodsB++
 	}
 
 	// while there are more events in both schedules, handle the next one, merge
 	// if concurrent
-	for iP < lenPeriodsA && iQ < lenPeriodsB {
-		nextP := timePeriodA + periodsA[iP].Length  // next periodsA event in absolute time
-		nextQ := timePeriodsB + periodsB[iQ].Length // next periodsB event in absolute time
+	for idxPeriodsA < lenPeriodsA && idxPeriodsB < lenPeriodsB {
+		nextPeriodA := timePeriodA + periodsA[idxPeriodsA].Length  // next periodsA event in absolute time
+		nextPeriodB := timePeriodsB + periodsB[idxPeriodsB].Length // next periodsB event in absolute time
 		switch {
-		case nextP < nextQ:
-			consumeP(nextP)
-		case nextP > nextQ:
-			consumeQ(nextQ)
+		case nextPeriodA < nextPeriodB:
+			consumeA(nextPeriodA)
+		case nextPeriodA > nextPeriodB:
+			consumeB(nextPeriodB)
 		default:
-			consumeBoth(nextP)
+			consumeBoth(nextPeriodA)
 		}
 	}
 	// consume remaining events in schedule Periods A
-	for iP < lenPeriodsA {
-		nextP := timePeriodA + periodsA[iP].Length
-		consumeP(nextP)
+	for idxPeriodsA < lenPeriodsA {
+		nextPeriodA := timePeriodA + periodsA[idxPeriodsA].Length
+		consumeA(nextPeriodA)
 	}
 	// consume remaining events in schedule PeriodsB
-	for iQ < lenPeriodsB {
-		nextQ := timePeriodsB + periodsB[iQ].Length
-		consumeQ(nextQ)
+	for idxPeriodsB < lenPeriodsB {
+		nextPeriodB := timePeriodsB + periodsB[idxPeriodsB].Length
+		consumeB(nextPeriodB)
 	}
 
 	return startTime, endTime, periods
@@ -171,8 +171,8 @@ func ConjunctPeriods(
 ) (startTime, endTime int64, conjunctionPeriods sdkvesting.Periods) {
 	timePeriodsA := startTimePeriodA
 	timePeriodsB := startTimePeriodB
-	iP := 0
-	iQ := 0
+	idxPeriodsA := 0
+	idxPeriodsB := 0
 	lenPeriodsA := len(periodsA)
 	lenPeriodsB := len(periodsB)
 	startTime = Min64(startTimePeriodA, startTimePeriodB)
@@ -195,10 +195,10 @@ func ConjunctPeriods(
 		amount = amount.Add(coins...)
 	}
 
-	// consumeP processes the next event in P and emits an event
+	// consumeA processes the next event in P and emits an event
 	// if the minimum of P and Q changes
-	consumeP := func(nextTime int64) {
-		totalAmountPeriodsA = totalAmountPeriodsA.Add(periodsA[iP].Amount...)
+	consumeA := func(nextTime int64) {
+		totalAmountPeriodsA = totalAmountPeriodsA.Add(periodsA[idxPeriodsA].Amount...)
 		min := totalAmountPeriodsA.Min(totalAmountPeriodsB)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
@@ -207,13 +207,13 @@ func ConjunctPeriods(
 			}
 		}
 		timePeriodsA = nextTime
-		iP++
+		idxPeriodsA++
 	}
 
-	// consumeQ processes the next event in Q and emits an event
+	// consumeB processes the next event in Q and emits an event
 	// if the minimum of P and Q changes
-	consumeQ := func(nextTime int64) {
-		totalAmountPeriodsB = totalAmountPeriodsB.Add(periodsB[iQ].Amount...)
+	consumeB := func(nextTime int64) {
+		totalAmountPeriodsB = totalAmountPeriodsB.Add(periodsB[idxPeriodsB].Amount...)
 		min := totalAmountPeriodsA.Min(totalAmountPeriodsB)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
@@ -222,14 +222,14 @@ func ConjunctPeriods(
 			}
 		}
 		timePeriodsB = nextTime
-		iQ++
+		idxPeriodsB++
 	}
 
 	// consumeBoth processes simultaneous events in P and Q and emits an
 	// event if the minimum of P and Q changes
 	consumeBoth := func(nextTime int64) {
-		totalAmountPeriodsA = totalAmountPeriodsA.Add(periodsA[iP].Amount...)
-		totalAmountPeriodsB = totalAmountPeriodsB.Add(periodsB[iQ].Amount...)
+		totalAmountPeriodsA = totalAmountPeriodsA.Add(periodsA[idxPeriodsA].Amount...)
+		totalAmountPeriodsB = totalAmountPeriodsB.Add(periodsB[idxPeriodsB].Amount...)
 		min := totalAmountPeriodsA.Min(totalAmountPeriodsB)
 		if amount.IsAllLTE(min) {
 			diff := min.Sub(amount)
@@ -239,42 +239,42 @@ func ConjunctPeriods(
 		}
 		timePeriodsA = nextTime
 		timePeriodsB = nextTime
-		iP++
-		iQ++
+		idxPeriodsA++
+		idxPeriodsB++
 	}
 
 	// while there are events left in both schedules, process the next one
-	for iP < lenPeriodsA && iQ < lenPeriodsB {
-		nextP := timePeriodsA + periodsA[iP].Length // next periods A event in absolute time
-		nextQ := timePeriodsB + periodsB[iQ].Length // next periods B event in absolute time
+	for idxPeriodsA < lenPeriodsA && idxPeriodsB < lenPeriodsB {
+		nextPeriodA := timePeriodsA + periodsA[idxPeriodsA].Length // next periods A event in absolute time
+		nextPeriodB := timePeriodsB + periodsB[idxPeriodsB].Length // next periods B event in absolute time
 		switch {
-		case nextP < nextQ:
-			consumeP(nextP)
-		case nextP > nextQ:
-			consumeQ(nextQ)
+		case nextPeriodA < nextPeriodB:
+			consumeA(nextPeriodA)
+		case nextPeriodA > nextPeriodB:
+			consumeB(nextPeriodB)
 		default:
-			consumeBoth(nextP)
+			consumeBoth(nextPeriodA)
 		}
 	}
 
 	// consume remaining events in schedule P
-	for iP < lenPeriodsA {
-		nextP := timePeriodsA + periodsA[iP].Length
-		consumeP(nextP)
+	for idxPeriodsA < lenPeriodsA {
+		nextPeriodA := timePeriodsA + periodsA[idxPeriodsA].Length
+		consumeA(nextPeriodA)
 	}
 
 	// consume remaining events in schedule Q
-	for iQ < lenPeriodsB {
-		nextQ := timePeriodsB + periodsB[iQ].Length
-		consumeQ(nextQ)
+	for idxPeriodsB < lenPeriodsB {
+		nextPeriodB := timePeriodsB + periodsB[idxPeriodsB].Length
+		consumeB(nextPeriodB)
 	}
 
 	endTime = time
 	return startTime, endTime, conjunctionPeriods
 }
 
-// AlignSchedules rewrites the first period length to align the two given periods
-// to the same start time.
+// AlignSchedules extends the first period's length to align the two given periods
+// to the same start time. The earliest start time is chosen.
 // It returns the aligned new start and end times of the periods.
 func AlignSchedules(
 	startTimePeriodA,
