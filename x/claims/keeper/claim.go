@@ -166,7 +166,25 @@ func (k Keeper) MergeClaimsRecords(
 
 // GetClaimableAmountForAction returns claimable amount for a specific action
 // done by an address
+// returns zero if airdrop didn't start, isn't enabled or has finished
 func (k Keeper) GetClaimableAmountForAction(
+	ctx sdk.Context,
+	claimsRecord types.ClaimsRecord,
+	action types.Action,
+	params types.Params,
+) (claimableCoins, remainder sdk.Int) {
+	// check if the entire airdrop has completed. This shouldn't occur since at
+	// the end of the airdrop, the EnableClaims param is disabled.
+	if !params.IsClaimsActive(ctx.BlockTime()) {
+		return sdk.ZeroInt(), sdk.ZeroInt()
+	}
+
+	return k.ClaimableAmountForAction(ctx, claimsRecord, action, params)
+}
+
+// ClaimableAmountForAction returns claimable amount for a specific action
+// done by an address
+func (k Keeper) ClaimableAmountForAction(
 	ctx sdk.Context,
 	claimsRecord types.ClaimsRecord,
 	action types.Action,
@@ -174,12 +192,6 @@ func (k Keeper) GetClaimableAmountForAction(
 ) (claimableCoins, remainder sdk.Int) {
 	// return zero if there are no coins to claim
 	if claimsRecord.InitialClaimableAmount.IsNil() || claimsRecord.InitialClaimableAmount.IsZero() {
-		return sdk.ZeroInt(), sdk.ZeroInt()
-	}
-
-	// check if the entire airdrop has completed. This shouldn't occur since at
-	// the end of the airdrop, the EnableClaims param is disabled.
-	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return sdk.ZeroInt(), sdk.ZeroInt()
 	}
 
