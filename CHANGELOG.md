@@ -56,13 +56,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-<<<<<<< HEAD
 - (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
 - (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
-=======
 - (deps) [\#478](https://github.com/tharsis/evmos/pull/478) Bump Cosmos SDK to [`v0.45.3`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.3)
 - (deps) [\#478](https://github.com/tharsis/evmos/pull/478) Bump Ethermint to [`v0.14.0`](https://github.com/tharsis/ethermint/releases/tag/v0.14.0)
->>>>>>> 898159a (deps: bump cosmos-sdk to v0.45.3 and ethermint to v0.14.0 (#478))
 - (vesting) [\#468](https://github.com/tharsis/evmos/pull/468) Use coins `Min` function from Cosmos SDK.
 - (cmd) [\#446](https://github.com/tharsis/evmos/pull/446) Update `migrate` command to migrate Evmos, Ethermint and Cosmos SDK modules.
 - (app) [\#446](https://github.com/tharsis/evmos/pull/446) Refactor upgrade code.
