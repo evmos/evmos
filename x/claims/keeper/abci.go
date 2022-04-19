@@ -83,18 +83,15 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 // hasn't performed a single tx during the claim window).
 // Once the account is clawbacked, the claims record is deleted from state.
 func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
-	totalClawback := sdk.Coin{Denom: claimsDenom, Amount: sdk.ZeroInt()}
+	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
 
+	accPruned := int64(0)
 	accClawbacked := int64(0)
 
-	var addresses []sdk.AccAddress
-
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
-		// NOTE: we cannot delete the record while iterating over it
-		defer func() {
-			addresses = append(addresses, addr)
-		}()
+		// delete claims record once the account balance is clawed back
+		defer k.DeleteClaimsRecord(ctx, addr)
 
 		acc := k.accountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
@@ -123,9 +120,17 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		balance := k.bankKeeper.GetBalance(ctx, addr, claimsDenom)
+		balances := k.bankKeeper.GetAllBalances(ctx, addr)
+
 		// prune empty accounts from the airdrop
-		if balance.IsZero() {
+		if balances == nil || balances.IsZero() {
+			k.accountKeeper.RemoveAccount(ctx, acc)
+			accPruned++
+			return false
+		}
+
+		clawbackCoin := sdk.Coin{Denom: claimsDenom, Amount: balances.AmountOfNoDenomValidation(claimsDenom)}
+		if !clawbackCoin.IsPositive() {
 			return false
 		}
 
@@ -134,29 +139,25 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		// "Unclaimed" tokens are defined as being in wallets which have a sequence
 		// number = 0, which means the address has NOT performed a single action
 		// during the airdrop claim window.
-		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{balance}, addr); err != nil {
+		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{clawbackCoin}, addr); err != nil {
 			logger.Debug(
 				"not enough balance to clawback account",
 				"address", addr.String(),
-				"amount", balance.String(),
+				"amount", clawbackCoin.String(),
 			)
 			return false
 		}
 
-		totalClawback = totalClawback.Add(balance)
+		totalClawback = totalClawback.Add(clawbackCoin)
 		accClawbacked++
 
 		return false
 	})
 
-	// delete claims record once the account balance is clawed back
-	for _, addr := range addresses {
-		k.DeleteClaimsRecord(ctx, addr)
-	}
-
 	logger.Info(
 		"clawed back funds into community pool",
 		"total", totalClawback.String(),
 		"clawbacked-accounts", strconv.FormatInt(accClawbacked, 10),
+		"pruned-accounts", strconv.FormatInt(accPruned, 10),
 	)
 }

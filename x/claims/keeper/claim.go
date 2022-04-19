@@ -63,7 +63,11 @@ func (k Keeper) ClaimCoinsForAction(
 		),
 	})
 
-	k.SetClaimsRecord(ctx, addr, claimsRecord)
+	if claimsRecord.HasClaimedAll() {
+		k.DeleteClaimsRecord(ctx, addr)
+	} else {
+		k.SetClaimsRecord(ctx, addr, claimsRecord)
+	}
 
 	k.Logger(ctx).Info(
 		"claimed action",
