@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v3.0.0] - 2022-04-05
+## [v3.0.0] - 2022-04-19
 
 ### State Machine Breaking
 
@@ -48,12 +48,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
 - (claims) [\#381](https://github.com/tharsis/evmos/pull/381) Fix claim migration and deletion for EVM chains via IBC attestation.
 - (claims) [\#374](https://github.com/tharsis/evmos/pull/374) Fix balance invariant in Claims `InitGenesis`
 - (erc20) [\#366](https://github.com/tharsis/evmos/issues/366) Delete ERC20 denom map when deleting pair.
 
 ### Improvements
 
+- (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
+- (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
+- (vesting) [\#468](https://github.com/tharsis/evmos/pull/468) Use coins `Min` function from Cosmos SDK.
 - (deps) [\#458](https://github.com/tharsis/evmos/pull/458) Bump Ethermint to [`v0.13.0`](https://github.com/tharsis/ethermint/releases/tag/v0.13.0)
 - (deps) [\#457](https://github.com/tharsis/evmos/pull/457) Bump Cosmos SDK to [`v0.45.2`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.2)
 - (cmd) [\#446](https://github.com/tharsis/evmos/pull/446) Update `migrate` command to migrate Evmos, Ethermint and Cosmos SDK modules.

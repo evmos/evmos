@@ -24,12 +24,15 @@ func NewClawbackVestingAccount(
 	lockupPeriods,
 	vestingPeriods sdkvesting.Periods,
 ) *ClawbackVestingAccount {
-	// copy and align schedules to avoid mutating inputs
+	// copy and align schedules to the same start time to
+	// avoid mutating inputs
 	lp := make(sdkvesting.Periods, len(lockupPeriods))
 	copy(lp, lockupPeriods)
 	vp := make(sdkvesting.Periods, len(vestingPeriods))
 	copy(vp, vestingPeriods)
+
 	_, endTime := AlignSchedules(startTime.Unix(), startTime.Unix(), lp, vp)
+
 	baseVestingAcc := &sdkvesting.BaseVestingAccount{
 		BaseAccount:     baseAcc,
 		OriginalVesting: originalVesting,
@@ -50,7 +53,7 @@ func NewClawbackVestingAccount(
 func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 	// It's likely that one or the other schedule will be nearly trivial,
 	// so there should be little overhead in recomputing the conjunction each time.
-	coins := CoinsMin(va.GetUnlockedOnly(blockTime), va.GetVestedOnly(blockTime))
+	coins := va.GetUnlockedOnly(blockTime).Min(va.GetVestedOnly(blockTime))
 	if coins.IsZero() {
 		return nil
 	}
@@ -164,10 +167,17 @@ func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
+	// if the clawback time is before the vesting start time, perform a no-op
+	// as there is nothing to clawback
+	// NOTE: error must be checked during message execution
+	if clawbackTime < va.GetStartTime() {
+		return va, sdk.Coins{}
+	}
+
 	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
 	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
-	// Remove all unvested periods from the schdule
+	// Remove all unvested periods from the schedule
 	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
 	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
 
@@ -179,12 +189,14 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	// Cap the unlocking schedule to the new total vested.
 	//  - If lockup has already passed, all vested coins are unlocked.
 	//  - If lockup has not passed, the vested coins, are still locked.
-	capPeriods := []sdkvesting.Period{
+	capPeriods := sdkvesting.Periods{
 		{
 			Length: 0,
 			Amount: totalVested,
 		},
 	}
+
+	// minimum of the 2 periods
 	_, newLockingEnd, newLockupPeriods := ConjunctPeriods(va.GetStartTime(), va.GetStartTime(), va.LockupPeriods, capPeriods)
 
 	// Now construct the new account state
