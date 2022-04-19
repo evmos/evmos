@@ -37,11 +37,13 @@ message MsgCreateClawbackVestingAccount {
   ];
   // lockup_periods defines the unlocking schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
  // vesting_periods defines thevesting schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
   // merge specifies a the creation mechanism for existing
   // ClawbackVestingAccounts. If true, merge this new grant into an existing

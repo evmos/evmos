@@ -62,6 +62,14 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 			false,
 		},
 		{
+			"token not registered",
+			func() {
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
+			},
+			false,
+		},
+		{
 			"ok",
 			func() {
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
