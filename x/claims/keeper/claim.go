@@ -173,7 +173,6 @@ func (k Keeper) GetClaimableAmountForAction(
 	action types.Action,
 	params types.Params,
 ) (claimableCoins, remainder sdk.Int) {
-
 	// check if the entire airdrop has completed. This shouldn't occur since at
 	// the end of the airdrop, the EnableClaims param is disabled.
 	if !params.IsClaimsActive(ctx.BlockTime()) {
@@ -191,7 +190,6 @@ func (k Keeper) ClaimableAmountForAction(
 	action types.Action,
 	params types.Params,
 ) (claimableCoins, remainder sdk.Int) {
-
 	// return zero if there are no coins to claim
 	if claimsRecord.InitialClaimableAmount.IsNil() || claimsRecord.InitialClaimableAmount.IsZero() {
 		return sdk.ZeroInt(), sdk.ZeroInt()
