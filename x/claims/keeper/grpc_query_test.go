@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/ethermint/tests"
@@ -176,6 +178,34 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 		{
 			"valid, non empty claimable amounts",
 			func() {
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
+				req = &types.QueryClaimsRecordRequest{
+					Address: addr.String(),
+				}
+			},
+			false,
+		},
+		{
+			"valid, non empty claimable amounts if Claims disabled",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = false
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
+				req = &types.QueryClaimsRecordRequest{
+					Address: addr.String(),
+				}
+			},
+			false,
+		},
+		{
+			"valid, non empty claimable amounts if Claims didnt start",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.AirdropStartTime = time.Now().Add(time.Hour * 24)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 				req = &types.QueryClaimsRecordRequest{
