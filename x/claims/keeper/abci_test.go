@@ -9,6 +9,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tharsis/ethermint/tests"
 
+	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/claims/types"
 	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
@@ -64,9 +65,9 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 	var amount int64 = 10000
 
 	testCases := []struct {
-		name     string
-		funds    int64
-		malleate func()
+		name       string
+		expBalance int64
+		malleate   func()
 	}{
 		{
 			"no claims records",
@@ -122,9 +123,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
+				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -154,7 +153,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 
 			moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAcc.GetAddress(), "aevmos")
-			suite.Require().Equal(tc.funds, balance.Amount.Int64())
+			suite.Require().Equal(tc.expBalance, balance.Amount.Int64())
 		})
 	}
 }
