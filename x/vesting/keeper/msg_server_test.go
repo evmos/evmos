@@ -21,8 +21,8 @@ var (
 	addr2          = sdk.AccAddress(tests.GenerateAddress().Bytes())
 	addr3          = sdk.AccAddress(tests.GenerateAddress().Bytes())
 	addr4          = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	lockupPeriods  = []sdkvesting.Period{{Length: 5000, Amount: balances}}
-	vestingPeriods = []sdkvesting.Period{
+	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
+	vestingPeriods = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
@@ -37,8 +37,8 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 		from               sdk.AccAddress
 		to                 sdk.AccAddress
 		startTime          time.Time
-		lockup             []sdkvesting.Period
-		vesting            []sdkvesting.Period
+		lockup             sdkvesting.Periods
+		vesting            sdkvesting.Periods
 		merge              bool
 		expectExtraBalance int64
 		expectPass         bool
@@ -85,7 +85,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			addr,
 			addr2,
 			time.Now(),
-			[]sdkvesting.Period{
+			sdkvesting.Periods{
 				{Length: 5000, Amount: quarter},
 			},
 			vestingPeriods,
