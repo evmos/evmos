@@ -12,18 +12,18 @@ service Msg {
   // receiving transaction fees
   rpc RegisterDevFeeInfo(MsgRegisterDevFeeInfo)
       returns (MsgRegisterDevFeeInfoResponse) {
-    option (google.api.http).post = "/evmos/fees/v1/tx/register_fee_contract";
+    option (google.api.http).post = "/evmos/fees/v1/tx/register_dev_fee_info";
   };
   // CancelDevFeeInfo is used by a deployer to cancel a registered contract
   // and stop receiving transaction fees
   rpc CancelDevFeeInfo(MsgCancelDevFeeInfo)
       returns (MsgCancelDevFeeInfoResponse) {
-    option (google.api.http).post = "/evmos/fees/v1/tx/cancel_fee_contract";
+    option (google.api.http).post = "/evmos/fees/v1/tx/cancel_dev_fee_info";
   };
   // UpdateDevFeeInfo is used by a deployer to update the withdraw address
   rpc UpdateDevFeeInfo(MsgUpdateDevFeeInfo)
       returns (MsgUpdateDevFeeInfoResponse) {
-    option (google.api.http).post = "/evmos/fees/v1/tx/update_fee_contract";
+    option (google.api.http).post = "/evmos/fees/v1/tx/update_dev_fee_info";
   };
 }
 

@@ -35,6 +35,25 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Features
+
+- (fees) [\#436](https://github.com/tharsis/evmos/pull/436) Add `x/fees` module.
+
+### Improvements
+
+- (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
+
+### Bug Fixes
+
+- (vesting) [\#502](https://github.com/tharsis/evmos/pull/502) Fix gas exhaustion bug by removing `SpendableCoins` during vesting account clawback.
+- (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
+
+### Improvements
+
+- (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
+
 ## [v3.0.0] - 2022-04-05
 
 ### State Machine Breaking
