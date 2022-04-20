@@ -59,7 +59,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- [\#430](https://github.com/tharsis/evmos/pull/430) Exclusively delete claims records at the end of the claims period.
 - [\#342](https://github.com/tharsis/evmos/pull/342) Implement IBC middleware to recover stuck funds
 
 ### API Breaking
