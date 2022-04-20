@@ -20,7 +20,7 @@ The user votes on a Governance proposal using their Evmos account. Once the vote
     - claimable amount is greater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
 4. Mark the `ActionVote` as completed on the claims record.
-5. Update the claims record.
+5. Update the claims record or delete it if all the actions have been claimed.
 
 ## Staking Hook - Delegate Action
 
@@ -36,7 +36,7 @@ The user delegates their EVMOS tokens to a validator. Once the tokens are staked
     - claimable amount is greater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
 4. Mark the `ActionDelegate` as completed on the claims record.
-5. Update the claims record.
+5. Update the claims record or delete it if all the actions have been claimed.
 
 ## EVM Hook - EVM Action
 
@@ -52,7 +52,7 @@ The user deploys or interacts with a smart contract using their Evmos account or
     - claimable amount is greater than zero
 3. Transfer the claimable amount from the escrow account to the user balance
 4. Mark the `ActionEVM` as completed on the claims record.
-5. Update the claims record.
+5. Update the claims record or delete it if all the actions have been claimed.
 
 ## IBC Middleware - IBC Transfer Action
 
@@ -71,7 +71,7 @@ The user submits an IBC transfer to a recipient in the destination chain. Once t
     - claimable amount is grater than zero
 6. Transfer the claimable amount from the escrow account to the user balance
 7. Mark the `ActionIBC` as completed on the claims record.
-8. Update the claims record.
+8. Update the claims record or delete it if all the actions have been claimed.
 
 ### Receive
 

@@ -61,8 +61,6 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr3 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	var amount int64 = 10000
 
@@ -137,30 +135,11 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
-			},
-		},
-		{
-			"multiple accounts, all clawed back ",
-			amount * 3,
-			func() {
-				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
-				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr2, nil, 0, 0))
-				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr3, nil, 0, 0))
-
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
-				suite.Require().NoError(err)
-				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr2, coins)
-				suite.Require().NoError(err)
-				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr2, coins)
-				suite.Require().NoError(err)
-
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr2, types.ClaimsRecord{})
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr3, types.ClaimsRecord{})
 			},
 		},
 	}
@@ -175,10 +154,6 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAcc.GetAddress(), "aevmos")
 			suite.Require().Equal(tc.expBalance, balance.Amount.Int64())
-
-			// test that all claims records are deleted
-			claimsRecords := suite.app.ClaimsKeeper.GetClaimsRecords(suite.ctx)
-			suite.Require().Len(claimsRecords, 0)
 		})
 	}
 }
@@ -202,7 +177,9 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			amount,
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 		},
