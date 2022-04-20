@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/ethermint/tests"
+	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {
@@ -25,9 +25,7 @@ func (suite *KeeperTestSuite) TestTotalUnclaimed() {
 		{
 			"non-empty balance",
 			func() {
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			}, coins,
 		},

@@ -78,10 +78,10 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	return nil
 }
 
-// ClawbackEmptyAccounts performs the clawback of all allocated tokens
-// from airdrop recipient accounts with a sequence number of 0 (i.e the account
-// hasn't performed a single tx during the claim window).
-// Once the account is clawbacked, the claims record is deleted from state.
+// ClawbackEmptyAccounts performs the clawback of all allocated tokens from
+// airdrop recipient accounts with a sequence number of 0 (i.e the account
+// hasn't performed a single tx during the claim window). Once the account is
+// clawbacked, the claims record is deleted from state.
 func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
@@ -89,9 +89,14 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	accPruned := int64(0)
 	accClawbacked := int64(0)
 
+	var addresses []sdk.AccAddress
+
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
-		// delete claims record once the account balance is clawed back
-		defer k.DeleteClaimsRecord(ctx, addr)
+		// NOTE: we cannot delete the record while iterating over it
+		// Ref: https://github.com/cosmos/cosmos-sdk/blob/c2fd51b4c5f41efc56c9aec1f44b4ce9e963dfc3/store/types/store.go#L215-L221
+		defer func() {
+			addresses = append(addresses, addr)
+		}()
 
 		acc := k.accountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
@@ -120,17 +125,12 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		balances := k.bankKeeper.GetAllBalances(ctx, addr)
+		clawbackCoin := k.bankKeeper.GetBalance(ctx, addr, claimsDenom)
 
 		// prune empty accounts from the airdrop
-		if balances == nil || balances.IsZero() {
+		if clawbackCoin.IsZero() {
 			k.accountKeeper.RemoveAccount(ctx, acc)
 			accPruned++
-			return false
-		}
-
-		clawbackCoin := sdk.Coin{Denom: claimsDenom, Amount: balances.AmountOfNoDenomValidation(claimsDenom)}
-		if !clawbackCoin.IsPositive() {
 			return false
 		}
 
@@ -153,6 +153,11 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 
 		return false
 	})
+
+	// delete claims record once the account balance is clawed back
+	for _, addr := range addresses {
+		k.DeleteClaimsRecord(ctx, addr)
+	}
 
 	logger.Info(
 		"clawed back funds into community pool",
