@@ -361,7 +361,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.NewInt(50),
 			sdk.ZeroInt(),
 			false,
-			true,
+			false,
 		},
 	}
 
