@@ -125,16 +125,15 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		balances := k.bankKeeper.GetAllBalances(ctx, addr)
+		clawbackCoin := k.bankKeeper.GetBalance(ctx, addr, claimsDenom)
 
 		// prune empty accounts from the airdrop
-		if balances == nil || balances.IsZero() {
+		if clawbackCoin.IsZero() {
 			k.accountKeeper.RemoveAccount(ctx, acc)
 			accPruned++
 			return false
 		}
 
-		clawbackCoin := sdk.Coin{Denom: claimsDenom, Amount: balances.AmountOfNoDenomValidation(claimsDenom)}
 		if !clawbackCoin.IsPositive() {
 			return false
 		}

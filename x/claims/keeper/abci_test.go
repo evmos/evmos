@@ -60,6 +60,8 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	// addr2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	// addr3 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	var amount int64 = 10000
 
@@ -137,6 +139,25 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
 		},
+		// {
+		// 	"multiple accounts, all clawed back ",
+		// 	amount * 3,
+		// 	func() {
+		// 		suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		// 		suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr2, nil, 0, 0))
+		// 		suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr3, nil, 0, 0))
+
+		// 		coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
+		// 		err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+		// 		suite.Require().NoError(err)
+		// 		err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr2, coins)
+		// 		suite.Require().NoError(err)
+
+		// 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
+		// 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr2, types.ClaimsRecord{})
+		// 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr3, types.ClaimsRecord{})
+		// 	},
+		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
