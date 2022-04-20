@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
+- (claims) [\#516](https://github.com/tharsis/evmos/pull/516) Retain claims records when all actions have been completed.
 
 ### Bug Fixes
 

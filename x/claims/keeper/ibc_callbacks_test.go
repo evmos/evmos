@@ -680,7 +680,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestAck() {
+func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 	disabledTimeoutTimestamp := uint64(0)
 	timeoutHeight = clienttypes.NewHeight(0, 100)
 	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, disabledTimeoutTimestamp)
