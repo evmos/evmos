@@ -5,8 +5,8 @@ import (
 
 	"github.com/tharsis/ethermint/tests"
 
+	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestClaimsInvariant() {
@@ -31,9 +31,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 
 				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
 				// update the escrowed account balance to maintain the invariant
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.Commit()
 			},
@@ -48,9 +46,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 
 				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(2))}
 				// update the escrowed account balance to maintain the invariant
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.Commit()
 			},
@@ -69,9 +65,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 
 				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
 				// update the escrowed account balance to maintain the invariant
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.Commit()
 			},
@@ -90,9 +84,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 
 				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
 				// update the escrowed account balance to maintain the invariant
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.Commit()
 			},
@@ -119,9 +111,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 
 				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(200))}
 				// update the escrowed account balance to maintain the invariant
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.Commit()
 			},
