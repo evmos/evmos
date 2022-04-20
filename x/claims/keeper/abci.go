@@ -78,10 +78,10 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	return nil
 }
 
-// ClawbackEmptyAccounts performs the clawback of all allocated tokens
-// from airdrop recipient accounts with a sequence number of 0 (i.e the account
-// hasn't performed a single tx during the claim window).
-// Once the account is clawbacked, the claims record is deleted from state.
+// ClawbackEmptyAccounts performs the clawback of all allocated tokens from
+// airdrop recipient accounts with a sequence number of 0 (i.e the account
+// hasn't performed a single tx during the claim window). Once the account is
+// clawbacked, the claims record is deleted from state.
 func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
@@ -131,10 +131,6 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		if clawbackCoin.IsZero() {
 			k.accountKeeper.RemoveAccount(ctx, acc)
 			accPruned++
-			return false
-		}
-
-		if !clawbackCoin.IsPositive() {
 			return false
 		}
 
