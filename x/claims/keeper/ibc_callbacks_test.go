@@ -136,14 +136,23 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 			true,
 		},
 		{
-			"correct execution - Claimed transfer",
+			"correct execution - Already claimed transfer",
 			func(claimableAmount int64) {
 				amt := sdk.NewInt(claimableAmount)
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
 			},
 			4,
 			0,
-			true,
+			false,
+		},
+		{
+			"correct execution - 0 claimable amount",
+			func(_ int64) {
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: sdk.ZeroInt(), ActionsCompleted: []bool{false, false, false, false}})
+			},
+			4,
+			0,
+			false,
 		},
 		{
 			"correct execution - Recipient Claimable transfer",
