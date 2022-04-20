@@ -104,6 +104,18 @@ func (suite *IBCTestingSuite) TestOnReceiveClaim() {
 		expPass         bool
 	}{
 		{
+			"Deactivate claims params",
+			func(_ int64) {
+				params := types.DefaultParams()
+				params.EnableClaims = false
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+			},
+			0,
+			0,
+			false,
+		},
+		{
 			"correct execution - Claimable Transfer",
 			func(claimableAmount int64) {
 				amt := sdk.NewInt(claimableAmount)
