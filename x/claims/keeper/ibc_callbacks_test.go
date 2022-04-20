@@ -461,7 +461,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 1: sender ≠ recipient",
+			"case 1: merge - sender ≠ recipient",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -479,7 +479,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 1 - continue: sender ≠ recipient, but wrong triggerAmt",
+			"case 1: continue - sender ≠ recipient, but wrong triggerAmt",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -496,7 +496,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 1 - fail: not enough funds on escrow account",
+			"case 1: fail - not enough funds on escrow account",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -513,7 +513,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 2: same sender ≠ recipient, sender claims record found",
+			"case 2: migrate and claim - sender ≠ recipient, sender claims record found",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -530,7 +530,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 2 - continue: same sender ≠ recipient, sender claims record found, but wrong triggerAmt",
+			"case 2: continue - sender ≠ recipient, sender claims record found, but wrong triggerAmt",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -541,13 +541,13 @@ func (suite *KeeperTestSuite) TestReceive() {
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
-				// check that the record is migrated
+				// check that the record is not migrated
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
 		{
-			"case 3: same sender ≠ recipient, recipient claims record found",
+			"case 3: claim - sender ≠ recipient, recipient claims record found",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -559,11 +559,46 @@ func (suite *KeeperTestSuite) TestReceive() {
 				suite.Require().True(resAck.Success())
 
 				// check that the record is not deleted
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
+
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, receiver)
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
 			},
 		},
 		{
-			"case 3: same sender with EVM channel, with claims record",
+			"case 3: claim - sender ≠ recipient, recipient claims record found, where ibc is last action",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				cr := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{true, true, true, false},
+				}
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, cr)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{true, true, true, true},
+				}
+
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, receiver)
+				// check that the record is not deleted and action is
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
+			},
+		},
+		{
+			"case 3: claim - same Address with EVM channel, with claims record",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -576,10 +611,12 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 				// check that the record is not deleted
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
+				// TODO: check that IBC action is claimed
+
 			},
 		},
 		{
-			"case 3 fail: not enough funds on escrow account",
+			"case 3: fail - not enough funds on escrow account",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -597,7 +634,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 4: sender different than recipient, no claims records",
+			"case 4: continue - sender ≠ recipient, no claims records",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -611,7 +648,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"case 4: same sender with EVM channel, no claims record",
+			"case 4: continue - same sender with EVM channel, no claims record",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
