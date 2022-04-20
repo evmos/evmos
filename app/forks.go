@@ -25,7 +25,6 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 			Height: v2.UpgradeHeight,
 		}
 
-		// FIXME: upstream no validation logic
 		err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
 		if err != nil {
 			panic(err)
