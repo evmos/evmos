@@ -133,12 +133,6 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// define a completed claims record so that the sender one can still be queried
-	cr := types.ClaimsRecord{
-		InitialClaimableAmount: senderClaimsRecord.InitialClaimableAmount,
-		ActionsCompleted:       []bool{true, true, true, true},
-	}
-
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
 	amt, err := ibc.GetTransferAmount(packet)
 	if err != nil {
@@ -163,7 +157,7 @@ func (k Keeper) OnRecvPacket(
 		// update the recipient's record with the new merged one and delete the
 		// sender's record
 		k.SetClaimsRecord(ctx, recipient, recipientClaimsRecord)
-		k.SetClaimsRecord(ctx, sender, cr)
+		k.DeleteClaimsRecord(ctx, sender)
 		logger.Debug(
 			"merged sender and receiver claims records",
 			"sender", senderBech32,
@@ -174,7 +168,7 @@ func (k Keeper) OnRecvPacket(
 		// case 2: only the sender has a claims record
 		// -> migrate the sender record to the recipient address and claim IBC action
 		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
-		k.SetClaimsRecord(ctx, sender, cr)
+		k.DeleteClaimsRecord(ctx, sender)
 
 		logger.Debug(
 			"migrated sender claims record to receiver",
