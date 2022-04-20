@@ -628,6 +628,32 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
+			"case 3: claim - same Address with EVM channel, with claims record, that is not an authorized channel",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.AuthorizedChannels = []string{
+					"channel-0", // Osmosis
+					"channel-3", // Cosmos Hub
+				}
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
+
+				cr := types.NewClaimsRecord(sdk.NewInt(100))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, cr)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				crAfter, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, secpAddr)
+				// check that the record is not deleted and action is completed
+				suite.Require().True(found)
+				suite.Require().Equal(crAfter, cr)
+			},
+		},
+		{
 			"case 3: fail - not enough funds on escrow account",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, receiverStr)
