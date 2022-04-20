@@ -93,6 +93,7 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
 		// NOTE: we cannot delete the record while iterating over it
+		// Ref: https://github.com/cosmos/cosmos-sdk/blob/c2fd51b4c5f41efc56c9aec1f44b4ce9e963dfc3/store/types/store.go#L215-L221
 		defer func() {
 			addresses = append(addresses, addr)
 		}()
