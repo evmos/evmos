@@ -25,6 +25,7 @@ var (
 	DefaultAuthorizedChannels = []string{
 		"channel-0", // Osmosis
 		"channel-3", // Cosmos Hub
+		"channel-2", // Injective
 	}
 	DefaultEVMChannels = []string{
 		"channel-2", // Injective

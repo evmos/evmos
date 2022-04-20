@@ -337,7 +337,7 @@ func (suite *IBCTestingSuite) TestOnAckClaim() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestReceive() {
+func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	pk := secp256k1.GenPrivKey()
 	secpAddr := sdk.AccAddress(pk.PubKey().Address())
 	secpAddrEvmos := secpAddr.String()
@@ -524,9 +524,16 @@ func (suite *KeeperTestSuite) TestReceive() {
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
-				// check that the record is migrated
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
+
+				// check that the record is migrated and action is completed
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, receiver)
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
 				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
 		{
@@ -592,7 +599,7 @@ func (suite *KeeperTestSuite) TestReceive() {
 				}
 
 				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, receiver)
-				// check that the record is not deleted and action is
+				// check that the record is not deleted and action is completed
 				suite.Require().True(found)
 				suite.Require().Equal(expCR, cr)
 			},
@@ -609,10 +616,15 @@ func (suite *KeeperTestSuite) TestReceive() {
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
-				// check that the record is not deleted
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
-				// TODO: check that IBC action is claimed
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
 
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, secpAddr)
+				// check that the record is not deleted and action is completed
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
 			},
 		},
 		{
