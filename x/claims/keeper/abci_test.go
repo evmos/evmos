@@ -135,9 +135,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
+				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -154,6 +152,10 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAcc.GetAddress(), "aevmos")
 			suite.Require().Equal(tc.expBalance, balance.Amount.Int64())
+
+			// test that all claims records are deleted
+			claimsRecords := suite.app.ClaimsKeeper.GetClaimsRecords(suite.ctx)
+			suite.Require().Len(claimsRecords, 0)
 		})
 	}
 }
