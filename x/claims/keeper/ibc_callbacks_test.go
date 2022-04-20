@@ -475,17 +475,6 @@ func (suite *KeeperTestSuite) TestReceive() {
 			},
 		},
 		{
-			"fail - params, channel not authorized",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-100", timeoutHeight, 0)
-
-				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().Equal(ack, resAck)
-			},
-		},
-		{
 			"fail - non ics20 packet",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
@@ -494,6 +483,19 @@ func (suite *KeeperTestSuite) TestReceive() {
 				suite.Require().Equal(expectedAck, resAck)
 			},
 		},
+		{
+			"fail - blocked recipient (deny list)",
+			func() {
+				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, blockedAddr.String())
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+			},
+		},
+		//////::::::::
 		{
 			"fail - invalid sender",
 			func() {
@@ -527,13 +529,26 @@ func (suite *KeeperTestSuite) TestReceive() {
 				suite.Require().False(resAck.Success())
 			},
 		},
+
 		{
-			"fail - blocked recipient (deny list)",
+			"fail - params, channel not authorized",
 			func() {
-				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, blockedAddr.String())
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-100", timeoutHeight, 0)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().Equal(ack, resAck)
+			},
+		},
+		{
+			"fail - sender and receiver address are the same (with claim record)",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
@@ -548,19 +563,6 @@ func (suite *KeeperTestSuite) TestReceive() {
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
-			},
-		},
-		{
-			"fail - sender and receiver address are the same (with claim record)",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
-
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
-
-				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().False(resAck.Success())
 			},
 		},
 		{
