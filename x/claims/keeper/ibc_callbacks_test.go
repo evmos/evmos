@@ -605,8 +605,14 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
-			"case 3: claim - same Address with EVM channel, with claims record",
+			"case 3: claim - same Address with authrorized EVM channel, with claims record",
 			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.AuthorizedChannels = []string{
+					"channel-2", // Injective
+				}
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
