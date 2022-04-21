@@ -94,19 +94,24 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 		expPass         bool
 	}{
 		{
-			"correct execution - Claimable Transfer",
-			func(claimableAmount int64) {
-				amt := sdk.NewInt(claimableAmount)
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
-
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.NewClaimsRecord(amt))
-				// update the escrowed account balance to maintain the invariant
-				err := testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
-				suite.Require().NoError(err)
+			"mo-op - claims dectivated",
+			func(_ int64) {
+				params := types.DefaultParams()
+				params.EnableClaims = false
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
 			},
 			4,
-			1,
-			true,
+			0,
+			false,
+		},
+		{
+			"no-op - claims record not found",
+			func(claimableAmount int64) {
+			},
+			4,
+			0,
+			false,
 		},
 		{
 			"correct execution - Claimable Transfer",
@@ -139,25 +144,6 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 			0,
 			true,
 		},
-		{
-			"Disabled by params",
-			func(_ int64) {
-				params := types.DefaultParams()
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
-			},
-			0,
-			0,
-			false,
-		},
-		{
-			"No claim record",
-			func(claimableAmount int64) {
-			},
-			0,
-			0,
-			false,
-		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -166,30 +152,27 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 
 			tc.malleate(tc.claimableAmount)
 
+			// send packet on endpointA to claim ibc action for sender
 			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
-			// send on endpointA
 			err := path.EndpointA.SendPacket(packet)
 			suite.Require().NoError(err)
 
 			err = path.RelayPacket(packet)
 			suite.Require().NoError(err)
 
+			coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
+			suite.Require().Equal(sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)).String(), coin.String())
 			if tc.expPass {
-				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
-				suite.Require().Equal(coin.String(), sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)).String())
 				claim, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderAddr)
 				suite.Require().True(found)
 				suite.Require().Equal(claim.InitialClaimableAmount, sdk.NewInt(4))
 			} else {
-				coin := suite.chainA.App.(*app.Evmos).BankKeeper.GetBalance(suite.chainA.GetContext(), senderAddr, "aevmos")
-				suite.Require().Equal(coin.String(), sdk.NewCoin("aevmos", sdk.NewInt(tc.expectedBalance)).String())
 				_, found := suite.chainA.App.(*app.Evmos).ClaimsKeeper.GetClaimsRecord(suite.chainA.GetContext(), senderAddr)
 				suite.Require().False(found)
 			}
-
 		})
 	}
 }
