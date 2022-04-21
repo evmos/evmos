@@ -139,6 +139,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
+
 	amt, err := ibc.GetTransferAmount(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())

@@ -291,7 +291,41 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
-			"case 1: sender ≠ recipient",
+			"case 1: no-op - sender ≠ recipient, but wrong triggerAmt",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 1: fail - not enough funds on escrow account",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(10000000000)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(10000000000)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success())
+
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 1: pass/merge - sender ≠ recipient",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -309,58 +343,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
-			"case 1 - continue: sender ≠ recipient, but wrong triggerAmt",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
-
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
-
-				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().True(resAck.Success())
-
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
-			},
-		},
-		{
-			"case 1 - fail: not enough funds on escrow account",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
-
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(10000000000)))
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(10000000000)))
-
-				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().False(resAck.Success())
-
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
-			},
-		},
-		{
-			"case 2: same sender ≠ recipient, sender claims record found",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
-
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
-
-				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().True(resAck.Success())
-
-				// check that the record is migrated
-				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
-			},
-		},
-		{
-			"case 2 - continue: same sender ≠ recipient, sender claims record found, but wrong triggerAmt",
+			"case 2: no-op - same sender ≠ recipient, sender claims record found, but wrong triggerAmt",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -377,39 +360,41 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
-			"case 3: same sender ≠ recipient, recipient claims record found",
+			"case 2: no-op - same sender ≠ recipient, sender claims record found, not enough escowed funds",
 			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(9000000000000000000)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().False(resAck.Success(), ack.String())
+
+				// check that the record is not migrated
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 2: pass/migrate - same sender ≠ recipient, sender claims record found",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
-				// check that the record is not deleted
+				// check that the record is migrated
+				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
 		{
-			"case 3: same sender with EVM channel, with claims record",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
-
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
-
-				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
-				suite.Require().True(resAck.Success())
-
-				// check that the record is not deleted
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
-			},
-		},
-		{
-			"case 3 fail: not enough funds on escrow account",
+			"case 3: fail - not enough funds on escrow account",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -427,7 +412,39 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
-			"case 4: sender different than recipient, no claims records",
+			"case 3: pass/claim - same sender ≠ recipient, recipient claims record found",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is not deleted
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
+			},
+		},
+		{
+			"case 3: pass/claim - same sender with EVM channel, with claims record",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				// check that the record is not deleted
+				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
+			},
+		},
+		{
+			"case 4: no-op - sender different than recipient, no claims records",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -441,7 +458,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 		},
 		{
-			"case 4: same sender with EVM channel, no claims record",
+			"case 4: no-op - same sender with EVM channel, no claims record",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
