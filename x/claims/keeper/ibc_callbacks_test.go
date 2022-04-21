@@ -338,8 +338,16 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().True(resAck.Success())
 
 				// check that the record is merged to the recipient
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(200),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
+
+				// check that the record is migrated and action is completed
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, receiver)
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
 				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
 		{
@@ -354,7 +362,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
-				// check that the record is migrated
+				// check that the record is not migrated
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, sender))
 				suite.Require().False(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
@@ -427,9 +435,16 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 			},
 		},
+		// TODO
 		{
-			"case 3: pass/claim - same sender with EVM channel, with claims record",
+			"case 3: claim - same Address with authrorized EVM channel, with claims record",
 			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.AuthorizedChannels = []string{
+					"channel-2", // Injective
+				}
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
@@ -439,8 +454,69 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
-				// check that the record is not deleted
-				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, secpAddr))
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
+
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, secpAddr)
+				// check that the record is not deleted and action is completed
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
+			},
+		},
+		{
+			"case 3: claim - same Address with unauthorized EVM channel, with claims record",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.AuthorizedChannels = []string{
+					"channel-0", // Osmosis
+					"channel-3", // Cosmos Hub
+				}
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
+
+				cr := types.NewClaimsRecord(sdk.NewInt(100))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, cr)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				crAfter, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, secpAddr)
+				// check that the record is not deleted and action is completed
+				suite.Require().True(found)
+				suite.Require().Equal(crAfter, cr)
+			},
+		},
+		{
+			"case 3: claim - sender ≠ recipient, recipient claims record found, where ibc is last action",
+			func() {
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", senderStr, receiverStr)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
+
+				cr := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{true, true, true, false},
+				}
+
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, cr)
+
+				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
+				suite.Require().True(resAck.Success())
+
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{true, true, true, true},
+				}
+
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(s.ctx, receiver)
+				// check that the record is not deleted and action is completed
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
 			},
 		},
 		{
