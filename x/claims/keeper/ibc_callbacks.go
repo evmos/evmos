@@ -103,6 +103,11 @@ func (k Keeper) OnRecvPacket(
 
 	senderClaimsRecord, senderRecordFound := k.GetClaimsRecord(ctx, sender)
 
+	if senderRecordFound && senderClaimsRecord.HasClaimedAction(types.ActionIBCTransfer) {
+		// short-circuit, perform no-op if the IBC action has already been completed
+		return ack
+	}
+
 	sameAddress := sender.Equals(recipient)
 	fromEVMChain := params.IsEVMChannel(packet.DestinationChannel)
 
@@ -134,10 +139,12 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	recipientClaimsRecord, recipientRecordFound := k.GetClaimsRecord(ctx, recipient)
+
 	amt, err := ibc.GetTransferAmount(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
+
 	isTriggerAmt := amt == types.IBCTriggerAmt
 
 	switch {
@@ -167,6 +174,16 @@ func (k Keeper) OnRecvPacket(
 	case senderRecordFound && !recipientRecordFound && isTriggerAmt:
 		// case 2: only the sender has a claims record
 		// -> migrate the sender record to the recipient address and claim IBC action
+
+		claimedAmt := sdk.ZeroInt() // nolint: ineffassign
+		claimedAmt, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
+
+		// if the transfer fails or the claimable amount is 0 (eg: action already
+		// completed), don't perform a state migration
+		if err != nil || claimedAmt.IsZero() {
+			break
+		}
+
 		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
 		k.DeleteClaimsRecord(ctx, sender)
 
@@ -176,9 +193,6 @@ func (k Keeper) OnRecvPacket(
 			"receiver", recipientBech32,
 			"total-claimable", senderClaimsRecord.InitialClaimableAmount.String(),
 		)
-
-		_, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
-
 	// Cases without SenderRecordFound
 	case !senderRecordFound && recipientRecordFound,
 		sameAddress && fromEVMChain && recipientRecordFound:

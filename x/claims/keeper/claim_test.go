@@ -20,15 +20,6 @@ import (
 	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
-func (suite *KeeperTestSuite) SetupClaimTest() {
-	suite.SetupTest()
-	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
-
-	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(10000000)))
-	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
-	suite.Require().NoError(err)
-}
-
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 	testCases := []struct {
 		name         string
@@ -610,7 +601,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 }
 
 func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr1, nil, 0, 0))
 
@@ -628,7 +619,7 @@ func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 }
 
 func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 
 	airdropStartTime := suite.ctx.BlockTime().Add(time.Hour)
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
@@ -669,7 +660,7 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 }
 
 func (suite *KeeperTestSuite) TestHookAfterAirdropEnd() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 
 	// airdrop recipient address
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
@@ -693,7 +684,7 @@ func (suite *KeeperTestSuite) TestHookAfterAirdropEnd() {
 }
 
 func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
@@ -728,7 +719,7 @@ func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 }
 
 func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 
 	pub1, _ := ethsecp256k1.GenerateKey()
 	pub2, _ := ethsecp256k1.GenerateKey()
@@ -784,7 +775,7 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 }
 
 func (suite *KeeperTestSuite) TestAirdropFlow() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 
 	addrs := []sdk.AccAddress{
 		sdk.AccAddress(tests.GenerateAddress().Bytes()),
@@ -883,7 +874,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 }
 
 func (suite *KeeperTestSuite) TestClaimOfDecayed() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 
 	airdropStartTime := time.Now().UTC()
 	durationUntilDecay := time.Hour
@@ -965,7 +956,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	}
 
 	for _, test := range t {
-		suite.SetupClaimTest()
+		suite.SetupTestWithEscrow()
 
 		claimsRecord = types.ClaimsRecord{
 			InitialClaimableAmount: sdk.NewInt(100),
@@ -988,7 +979,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 
 	ctx := suite.ctx.WithBlockTime(params.GetAirdropStartTime())
@@ -1044,7 +1035,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
-	suite.SetupClaimTest()
+	suite.SetupTestWithEscrow()
 
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 	tests := []struct {
