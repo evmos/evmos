@@ -35,32 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-<<<<<<< HEAD
 ## [v3.0.0] - 2022-04-19
-=======
-## Unreleased
-
-### Features
-
-- (fees) [\#436](https://github.com/tharsis/evmos/pull/436) Add `x/fees` module.
-
-### Improvements
-
-- (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
-- (claims) [\#516](https://github.com/tharsis/evmos/pull/516) Retain claims records when all actions have been completed.
-
-### Bug Fixes
-
-- (vesting) [\#502](https://github.com/tharsis/evmos/pull/502) Fix gas exhaustion bug by removing `SpendableCoins` during vesting account clawback.
-- (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
-
-### Improvements
-
-- (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
-- (claims) [\#507](https://github.com/tharsis/evmos/pull/507) Always return claimable amount on grpc queries regarding of claims status.
-
-## [v3.0.0] - 2022-04-05
->>>>>>> 0d16f15 (impr(claims): Retain claims records when all actions have been completed (#516))
 
 ### State Machine Breaking
 
@@ -96,6 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (claims) [\#432](https://github.com/tharsis/evmos/pull/432) Add IBC trigger amount to claims merge/migrate IBC callbacks.
 - (claims) [\#442](https://github.com/tharsis/evmos/pull/443) Remove claims merge/migrate cases where sender already completed an action as they are never reached
 - (claims) [\#507](https://github.com/tharsis/evmos/pull/507) Always return claimable amount on grpc queries regarding of claims status.
+- (claims) [\#516](https://github.com/tharsis/evmos/pull/516) Retain claims records when all actions have been completed.
 
 ## [v2.0.1] - 2022-03-06
 
