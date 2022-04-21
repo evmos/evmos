@@ -64,7 +64,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 			},
 		},
 		{
-			"error - claim IBC action with no escrowed funds",
+			"error - no escrowed funds",
 			func() {
 				addr, err := sdk.AccAddressFromBech32("evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v")
 				suite.Require().NoError(err)
@@ -76,10 +76,62 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 					},
 				)
 
-				cr := types.NewClaimsRecord(sdk.NewInt(200))
+				cr := types.NewClaimsRecord(sdk.NewInt(100))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
 				suite.Require().Error(err)
+			},
+		},
+		{
+			"noop - claims record not found ",
+			func() {
+				suite.SetupClaimTest()
+
+				addr, err := sdk.AccAddressFromBech32("evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v")
+				suite.Require().NoError(err)
+
+				mockpacket.Data = transfertypes.ModuleCdc.MustMarshalJSON(
+					&transfertypes.FungibleTokenPacketData{
+						Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+					},
+				)
+
+				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				suite.Require().NoError(err)
+
+				_, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
+				suite.Require().False(found)
+			},
+		},
+		{
+			"pass - claim IBC action ",
+			func() {
+				suite.SetupClaimTest()
+
+				addr, err := sdk.AccAddressFromBech32("evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v")
+				suite.Require().NoError(err)
+
+				mockpacket.Data = transfertypes.ModuleCdc.MustMarshalJSON(
+					&transfertypes.FungibleTokenPacketData{
+						Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+					},
+				)
+
+				cr := types.NewClaimsRecord(sdk.NewInt(100))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
+
+				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				suite.Require().NoError(err)
+
+				expCR := types.ClaimsRecord{
+					InitialClaimableAmount: sdk.NewInt(100),
+					ActionsCompleted:       []bool{false, false, false, true},
+				}
+				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
+				suite.Require().True(found)
+				suite.Require().Equal(expCR, cr)
 			},
 		},
 	}
