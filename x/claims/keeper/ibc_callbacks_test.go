@@ -437,7 +437,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		},
 		// TODO
 		{
-			"case 3: claim - same Address with authrorized EVM channel, with claims record",
+			"case 3: claim - same Address with authorized EVM channel, with claims record",
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.AuthorizedChannels = []string{

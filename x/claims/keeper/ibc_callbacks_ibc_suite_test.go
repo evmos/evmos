@@ -94,7 +94,7 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 		expPass         bool
 	}{
 		{
-			"no-op - claims dectivated",
+			"no-op - claims deactivated",
 			func(_ int64) {
 				params := types.DefaultParams()
 				params.EnableClaims = false
@@ -195,7 +195,7 @@ func (suite *IBCTestingSuite) TestOnRecvPacketIBC() {
 		expectedRecipientFound bool
 	}{
 		{
-			"no-op - claims dectivated",
+			"no-op - claims deactivated",
 			func(_ int64) {
 				params := types.DefaultParams()
 				params.EnableClaims = false
@@ -356,7 +356,7 @@ func (suite *IBCTestingSuite) TestOnRecvPacketIBC() {
 			true,
 		},
 		{
-			"case 3: no-op -only sender claims record found with no claimable amount",
+			"case 3: no-op - only sender claims record found with no claimable amount",
 			func(claimableAmount int64) {
 				amt := sdk.NewInt(claimableAmount)
 				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), receiverAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{false, false, false, false}})
@@ -373,9 +373,7 @@ func (suite *IBCTestingSuite) TestOnRecvPacketIBC() {
 		},
 		{
 			"case 4: No claims record found",
-			func(claimableAmount int64) {
-				fmt.Println(claimableAmount)
-			},
+			func(_ int64) {},
 			func() {},
 			0,
 			0,
