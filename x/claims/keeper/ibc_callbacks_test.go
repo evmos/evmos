@@ -85,7 +85,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 		{
 			"noop - claims record not found ",
 			func() {
-				suite.SetupClaimTest()
+				suite.SetupTestWithEscrow()
 
 				addr, err := sdk.AccAddressFromBech32("evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v")
 				suite.Require().NoError(err)
@@ -107,7 +107,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 		{
 			"pass - claim IBC action ",
 			func() {
-				suite.SetupClaimTest()
+				suite.SetupTestWithEscrow()
 
 				addr, err := sdk.AccAddressFromBech32("evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v")
 				suite.Require().NoError(err)
@@ -547,7 +547,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupClaimTest() // reset
+			suite.SetupTestWithEscrow() // reset
 
 			tc.test()
 		})
