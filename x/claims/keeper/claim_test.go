@@ -340,7 +340,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			false,
 		},
 		{
-			"success - claimed all actions",
+			"success - claimed all actions - with VOTE as last action",
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(50)))
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
@@ -361,7 +361,31 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			sdk.NewInt(50),
 			sdk.ZeroInt(),
 			false,
-			true,
+			false,
+		},
+		{
+			"success - claimed all actions - with IBC as last action",
+			func() {
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(50)))
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				suite.Require().NoError(err)
+			},
+			types.ClaimsRecord{
+				InitialClaimableAmount: sdk.NewInt(200),
+				ActionsCompleted:       []bool{true, true, true, false},
+			},
+			types.ActionIBCTransfer,
+			types.Params{
+				EnableClaims:       true,
+				AirdropStartTime:   suite.ctx.BlockTime().Add(-time.Hour),
+				DurationUntilDecay: 2 * time.Hour,
+				DurationOfDecay:    time.Hour,
+				ClaimsDenom:        types.DefaultClaimsDenom,
+			},
+			sdk.NewInt(50),
+			sdk.ZeroInt(),
+			false,
+			false,
 		},
 	}
 
