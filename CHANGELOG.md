@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (vesting) [\#502](https://github.com/tharsis/evmos/pull/502) Fix gas exhaustion bug by removing `SpendableCoins` during vesting account clawback.
 - (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
+- (claims) [\#505](https://github.com/tharsis/evmos/pull/505) Fix IBC attestation ordering
 
 ### Improvements
 
