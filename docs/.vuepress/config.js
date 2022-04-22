@@ -182,7 +182,7 @@ module.exports = {
           title: 'Clients',
           children: [
             {
-              title: 'Evmosjs',
+              title: 'EvmosJS',
               directory: false,
               path: '/clients/evmosjs'
             },
