@@ -162,6 +162,11 @@ module.exports = {
               directory: false,
               path: '/api/connect'
             },
+            // {
+            //   title: 'API Services',
+            //   directory: false,
+            //   path: '/api/apis'
+            // },
             {
               title: 'Ethereum JSON-RPC',
               directory: true,
@@ -173,21 +178,16 @@ module.exports = {
             },
           ]
         },
-        // {
-        //   title: 'Clients',
-        //   children: [
-        //     {
-        //       title: 'APIs',
-        //       directory: false,
-        //       path: '/clients/apis'
-        //     },
-        //     {
-        //       title: 'Evmosjs',
-        //       directory: false,
-        //       path: '/clients/evmosjs'
-        //     },
-        //   ]
-        // },
+        {
+          title: 'Clients',
+          children: [
+            {
+              title: 'EvmosJS',
+              directory: false,
+              path: '/clients/evmosjs'
+            },
+          ]
+        },
         {
           title: 'Mainnet',
           children: [

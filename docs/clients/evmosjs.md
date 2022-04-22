@@ -2,26 +2,25 @@
 order: 1
 -->
 
-# Evmosjs
+# EvmosJS
 
-Use the evmosjs library for connecting clients to Evmos {synopsis}
+Use the EvmosJS library for connecting clients to Evmos {synopsis}
 
 [`evmosjs`](https://github.com/tharsis/evmosjs) is a JavaScript and TypeScript client library for [Evmos](https://github.com/tharsis/evmos) and [Ethermint](https://github.com/tharsis/ethermint) nodes.
 
-::: tip
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+## Functionalities
 
-This documentation page is currently under work in progress.
+- Address format converter (Bech32 <--> Hex)
+- Protobuf files used to generate Cosmos/Evmos transactions
+- Query REST provider for interacting with Evmos nodes
+- Evmos transaction generator
+- Send Evmos's Cosmos transactions using EIP712 transactions generator
+- Sign Evmos transactions using Keplr
 
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-:::
+## List of packages
 
-## Cosmjs
-
-Additionally to `evmosjs`, users can integrate [cosmjs](https://github.com/cosmos/cosmjs) to:
-
-- Connect to Evmos Tendermint RPC
-- Use Evmos Cosmos Proto Signing
-- Network and misc. utils and more
-
-CosmJS documentation can be found [here](https://cosmos.github.io/cosmjs). As of February 2022, CosmJS documentation is still work in progress.
+- [@tharsis/address-converter](https://www.npmjs.com/package/@tharsis/address-converter)
+- [@tharsis/eip712](https://www.npmjs.com/package/@tharsis/eip712)
+- [@tharsis/proto](https://www.npmjs.com/package/@tharsis/proto)
+- [@tharsis/provider](https://www.npmjs.com/package/@tharsis/provider)
+- [@tharsis/transactions](https://www.npmjs.com/package/@tharsis/transactions)

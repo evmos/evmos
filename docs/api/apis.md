@@ -1,5 +1,10 @@
+<!--
+order: 2
+-->
 
 # Evmos APIs
+
+Learn about all the available services for clients {synopsis}
 
 ::: tip
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
@@ -9,14 +14,16 @@ This documentation page is currently under work in progress.
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 :::
 
-## Public Testnet Nodes
-
-<!-- TODO: List public nodes for testnet -->
-
 ## Ethereum JSON-RPC
 
 <!-- TODO: Link JSON-RPC docs -->
 
-## Evmos gRPC Web API
+## Ethereum Websocket
 
-<!-- TODO: intro -->
+<!-- TODO: Link WSS docs -->
+
+## Cosmos gRPC
+
+## Cosmos gRPC Gateway (HTTP REST)
+
+## Tendermint Websocket
