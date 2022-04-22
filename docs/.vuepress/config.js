@@ -158,14 +158,18 @@ module.exports = {
           title: 'APIs',
           children: [
             {
-              title: 'JSON-RPC',
+              title: 'Quick Connect',
+              directory: false,
+              path: '/api/connect'
+            },
+            {
+              title: 'Ethereum JSON-RPC',
               directory: true,
               path: '/api/json-rpc'
             },
             {
-              title: 'Protobuf Reference',
-              directory: false,
-              path: '/api/proto-docs'
+              title: 'Cosmos gRPC & REST',
+              path: 'https://api.evmos.dev/'
             },
           ]
         },
@@ -253,7 +257,7 @@ module.exports = {
           ]
         },
         {
-          title: 'Resources',
+          title: 'Core Dev',
           children: [
             {
               title: 'Evmos Go API',
@@ -264,13 +268,10 @@ module.exports = {
               path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
             },
             {
-              title: 'Evmos gRPC Gateway API',
-              path: 'https://api.evmos.dev/'
+              title: 'Evmos Protobuf',
+              directory: false,
+              path: '/api/proto-docs'
             },
-            {
-              title: 'JSON-RPC API',
-              path: '/api/json-rpc/endpoints'
-            }
           ]
         }
       ]
