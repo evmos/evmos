@@ -37,27 +37,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-### Features
-
-- (fees) [\#436](https://github.com/tharsis/evmos/pull/436) Add `x/fees` module.
-
-### Improvements
-
-- (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
-- (claims) [\#516](https://github.com/tharsis/evmos/pull/516) Retain claims records when all actions have been completed.
-
 ### Bug Fixes
 
-- (vesting) [\#502](https://github.com/tharsis/evmos/pull/502) Fix gas exhaustion bug by removing `SpendableCoins` during vesting account clawback.
-- (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
-- (claims) [\#505](https://github.com/tharsis/evmos/pull/505) Fix IBC attestation ordering
+- (app) [\#523](https://github.com/tharsis/evmos/pull/523) Fix testnet upgrade store loader.
 
-### Improvements
-
-- (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
-- (claims) [\#507](https://github.com/tharsis/evmos/pull/507) Always return claimable amount on grpc queries regarding of claims status.
-
-## [v3.0.0] - 2022-04-05
+## [v3.0.0] - 2022-04-22
 
 ### State Machine Breaking
 
@@ -69,12 +53,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (vesting) [\#502](https://github.com/tharsis/evmos/pull/502) Fix gas exhaustion bug by removing `SpendableCoins` during vesting account clawback.
+- (vesting) [\#483](https://github.com/tharsis/evmos/pull/483) Fix balance clawback when vesting start time is in the future
 - (claims) [\#381](https://github.com/tharsis/evmos/pull/381) Fix claim migration and deletion for EVM chains via IBC attestation.
 - (claims) [\#374](https://github.com/tharsis/evmos/pull/374) Fix balance invariant in Claims `InitGenesis`
 - (erc20) [\#366](https://github.com/tharsis/evmos/issues/366) Delete ERC20 denom map when deleting pair.
+- (claims) [\#505](https://github.com/tharsis/evmos/pull/505) Fix IBC attestation ordering
 
 ### Improvements
 
+- (vesting) [\#486](https://github.com/tharsis/evmos/pull/486) Refactor `x/vesting` types and tests.
+- (erc20) [\#484](https://github.com/tharsis/evmos/pull/484) Avoid unnecessary commits to the StateDB and don't estimate gas when performing a query
 - (deps) [\#478](https://github.com/tharsis/evmos/pull/478) Bump Cosmos SDK to [`v0.45.3`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.3)
 - (deps) [\#478](https://github.com/tharsis/evmos/pull/478) Bump Ethermint to [`v0.14.0`](https://github.com/tharsis/ethermint/releases/tag/v0.14.0)
 - (vesting) [\#468](https://github.com/tharsis/evmos/pull/468) Use coins `Min` function from Cosmos SDK.
@@ -88,6 +77,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (inflation) [\#369](https://github.com/tharsis/evmos/pull/369) Add `enableInflation` parameter.
 - (claims) [\#432](https://github.com/tharsis/evmos/pull/432) Add IBC trigger amount to claims merge/migrate IBC callbacks.
 - (claims) [\#442](https://github.com/tharsis/evmos/pull/443) Remove claims merge/migrate cases where sender already completed an action as they are never reached
+- (claims) [\#507](https://github.com/tharsis/evmos/pull/507) Always return claimable amount on grpc queries regarding of claims status.
+- (claims) [\#516](https://github.com/tharsis/evmos/pull/516) Retain claims records when all actions have been completed.
 
 ## [v2.0.1] - 2022-03-06
 

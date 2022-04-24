@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -1024,18 +1025,17 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v2 handler
+	// v2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// v3 handler upgrade is
+	// v3 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v3.UpgradeName,
 		v3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-
-	// testnet v3 handler upgrade is
+	// testnet upgrade v3 handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		tv3.UpgradeName,
 		tv3.CreateUpgradeHandler(app.mm, app.configurator),
@@ -1046,22 +1046,22 @@ func (app *Evmos) setupUpgradeHandlers() {
 	// This will read that value, and execute the preparations for the upgrade.
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
 	}
 
 	var storeUpgrades *storetypes.StoreUpgrades
 
-	switch {
-	case upgradeInfo.Name == v3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
-		// prepare store for v3
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{recoverytypes.ModuleName},
-		}
-	case upgradeInfo.Name == tv3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
-		// prepare store for testnet v3
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{recoverytypes.ModuleName},
-		}
+	switch upgradeInfo.Name {
+	case v2.UpgradeName:
+		// no store upgrades in v2
+	case v3.UpgradeName:
+		// no store upgrades in v3
+	case tv3.UpgradeName:
+		// no store upgrades in testnet v3
 	}
 
 	if storeUpgrades != nil {
