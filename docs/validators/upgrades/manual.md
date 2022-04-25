@@ -73,7 +73,6 @@ To restart your node once the new genesis has been updated, use the `start` comm
 evmosd start
 ```
 
-
 ## Updating the `evmosd` binary
 
 These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet.

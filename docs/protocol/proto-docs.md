@@ -1,5 +1,6 @@
 <!-- This file is auto-generated. Please do not modify it yourself. -->
 # Protobuf Documentation
+
 <a name="top"></a>
 
 ## Table of Contents
@@ -181,21 +182,17 @@
   
 - [Scalar Value Types](#scalar-value-types)
 
-
-
 <a name="evmos/claims/v1/claims.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/claims/v1/claims.proto
 
-
-
 <a name="evmos.claims.v1.Claim"></a>
 
 ### Claim
+
 Claim defines the action, completed flag and the remaining claimable amount
 for a given user. This is only used during client queries.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -203,33 +200,23 @@ for a given user. This is only used during client queries.
 | `completed` | [bool](#bool) |  | true if the action has been completed |
 | `claimable_amount` | [string](#string) |  | claimable token amount for the action. Zero if completed |
 
-
-
-
-
-
 <a name="evmos.claims.v1.ClaimsRecord"></a>
 
 ### ClaimsRecord
+
 ClaimsRecord defines the initial claimable airdrop amount and the list of
 completed actions to claim the tokens.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
 | `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
 
-
-
-
-
-
 <a name="evmos.claims.v1.ClaimsRecordAddress"></a>
 
 ### ClaimsRecordAddress
-ClaimsRecordAddress is the claims metadata per address that is used at Genesis.
 
+ClaimsRecordAddress is the claims metadata per address that is used at Genesis.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -237,16 +224,12 @@ ClaimsRecordAddress is the claims metadata per address that is used at Genesis.
 | `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
 | `actions_completed` | [bool](#bool) | repeated | slice of the available actions completed |
 
-
-
-
-
  <!-- end messages -->
-
 
 <a name="evmos.claims.v1.Action"></a>
 
 ### Action
+
 Action defines the list of available actions to claim the airdrop tokens.
 
 | Name | Number | Description |
@@ -257,43 +240,33 @@ Action defines the list of available actions to claim the airdrop tokens.
 | ACTION_EVM | 3 | EVM defines an EVM transaction. |
 | ACTION_IBC_TRANSFER | 4 | IBC Transfer defines a fungible token transfer transaction via IBC. |
 
-
  <!-- end enums -->
 
  <!-- end HasExtensions -->
 
  <!-- end services -->
 
-
-
 <a name="evmos/claims/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/claims/v1/genesis.proto
 
-
-
 <a name="evmos.claims.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState define the claims module's genesis state.
 
+GenesisState define the claims module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.claims.v1.Params) |  | params defines all the parameters of the module. |
 | `claims_records` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated | list of claim records with the corresponding airdrop recipient |
 
-
-
-
-
-
 <a name="evmos.claims.v1.Params"></a>
 
 ### Params
-Params defines the claims module's parameters.
 
+Params defines the claims module's parameters.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -305,10 +278,6 @@ Params defines the claims module's parameters.
 | `authorized_channels` | [string](#string) | repeated | list of authorized channel identifiers that can perform address attestations via IBC. |
 | `evm_channels` | [string](#string) | repeated | list of channel identifiers from EVM compatible chains |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -317,131 +286,90 @@ Params defines the claims module's parameters.
 
  <!-- end services -->
 
-
-
 <a name="evmos/claims/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/claims/v1/query.proto
 
-
-
 <a name="evmos.claims.v1.QueryClaimsRecordRequest"></a>
 
 ### QueryClaimsRecordRequest
+
 QueryClaimsRecordRequest is the request type for the Query/ClaimsRecord RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `address` | [string](#string) |  | address defines the user to query claims record for |
 
-
-
-
-
-
 <a name="evmos.claims.v1.QueryClaimsRecordResponse"></a>
 
 ### QueryClaimsRecordResponse
+
 QueryClaimsRecordResponse is the response type for the Query/ClaimsRecord RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `initial_claimable_amount` | [string](#string) |  | total initial claimable amount for the user |
 | `claims` | [Claim](#evmos.claims.v1.Claim) | repeated | the claims of the user |
 
-
-
-
-
-
 <a name="evmos.claims.v1.QueryClaimsRecordsRequest"></a>
 
 ### QueryClaimsRecordsRequest
+
 QueryClaimsRecordsRequest is the request type for the Query/ClaimsRecords RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.claims.v1.QueryClaimsRecordsResponse"></a>
 
 ### QueryClaimsRecordsResponse
+
 QueryClaimsRecordsResponse is the response type for the Query/ClaimsRecords
 RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `claims` | [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress) | repeated | claims defines all claims records |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
-
-
-
-
-
 <a name="evmos.claims.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
+
 QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
 
 <a name="evmos.claims.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
-QueryParamsResponse is the response type for the Query/Params RPC method.
 
+QueryParamsResponse is the response type for the Query/Params RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.claims.v1.Params) |  | params defines the parameters of the module. |
 
-
-
-
-
-
 <a name="evmos.claims.v1.QueryTotalUnclaimedRequest"></a>
 
 ### QueryTotalUnclaimedRequest
+
 QueryTotalUnclaimedRequest is the request type for the Query/TotalUnclaimed
 RPC method.
-
-
-
-
-
 
 <a name="evmos.claims.v1.QueryTotalUnclaimedResponse"></a>
 
 ### QueryTotalUnclaimedResponse
+
 QueryTotalUnclaimedResponse is the response type for the Query/TotalUnclaimed
 RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `coins` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | coins defines the unclaimed coins |
-
-
-
-
 
  <!-- end messages -->
 
@@ -449,10 +377,10 @@ RPC method.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.claims.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -464,20 +392,14 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/epochs/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/epochs/v1/genesis.proto
 
-
-
 <a name="evmos.epochs.v1.EpochInfo"></a>
 
 ### EpochInfo
-
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -489,24 +411,15 @@ Query defines the gRPC querier service.
 | `epoch_counting_started` | [bool](#bool) |  |  |
 | `current_epoch_start_height` | [int64](#int64) |  |  |
 
-
-
-
-
-
 <a name="evmos.epochs.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the epochs module's genesis state.
 
+GenesisState defines the epochs module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
-
-
-
-
 
  <!-- end messages -->
 
@@ -516,74 +429,43 @@ GenesisState defines the epochs module's genesis state.
 
  <!-- end services -->
 
-
-
 <a name="evmos/epochs/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/epochs/v1/query.proto
 
-
-
 <a name="evmos.epochs.v1.QueryCurrentEpochRequest"></a>
 
 ### QueryCurrentEpochRequest
-
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `identifier` | [string](#string) |  |  |
 
-
-
-
-
-
 <a name="evmos.epochs.v1.QueryCurrentEpochResponse"></a>
 
 ### QueryCurrentEpochResponse
-
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `current_epoch` | [int64](#int64) |  |  |
 
-
-
-
-
-
 <a name="evmos.epochs.v1.QueryEpochsInfoRequest"></a>
 
 ### QueryEpochsInfoRequest
-
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
 
-
-
-
-
-
 <a name="evmos.epochs.v1.QueryEpochsInfoResponse"></a>
 
 ### QueryEpochsInfoResponse
-
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `epochs` | [EpochInfo](#evmos.epochs.v1.EpochInfo) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
-
-
-
-
 
  <!-- end messages -->
 
@@ -591,10 +473,10 @@ GenesisState defines the epochs module's genesis state.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.epochs.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -604,20 +486,16 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/erc20/v1/erc20.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/erc20/v1/erc20.proto
 
-
-
 <a name="evmos.erc20.v1.RegisterCoinProposal"></a>
 
 ### RegisterCoinProposal
-RegisterCoinProposal is a gov Content type to register a token pair
 
+RegisterCoinProposal is a gov Content type to register a token pair
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -625,16 +503,11 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | `description` | [string](#string) |  | proposal description |
 | `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | token pair of Cosmos native denom and ERC20 token address |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.RegisterERC20Proposal"></a>
 
 ### RegisterERC20Proposal
-RegisterCoinProposal is a gov Content type to register a token pair
 
+RegisterCoinProposal is a gov Content type to register a token pair
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -642,17 +515,12 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | `description` | [string](#string) |  | proposal description |
 | `erc20address` | [string](#string) |  | contract address of ERC20 token |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.ToggleTokenRelayProposal"></a>
 
 ### ToggleTokenRelayProposal
+
 ToggleTokenRelayProposal is a gov Content type to toggle
 the internal relaying of a token pair.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -660,17 +528,12 @@ the internal relaying of a token pair.
 | `description` | [string](#string) |  | proposal description |
 | `token` | [string](#string) |  | token identifier can be either the hex contract address of the ERC20 or the Cosmos base denomination |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.TokenPair"></a>
 
 ### TokenPair
+
 TokenPair defines an instance that records pairing consisting of a Cosmos
 native Coin and an ERC20 token address.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -679,17 +542,12 @@ native Coin and an ERC20 token address.
 | `enabled` | [bool](#bool) |  | shows token mapping enable status |
 | `contract_owner` | [Owner](#evmos.erc20.v1.Owner) |  | ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address) |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.UpdateTokenPairERC20Proposal"></a>
 
 ### UpdateTokenPairERC20Proposal
+
 UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
 ERC20 contract address.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -698,16 +556,12 @@ ERC20 contract address.
 | `erc20_address` | [string](#string) |  | contract address of ERC20 token |
 | `new_erc20_address` | [string](#string) |  | new address of ERC20 token contract |
 
-
-
-
-
  <!-- end messages -->
-
 
 <a name="evmos.erc20.v1.Owner"></a>
 
 ### Owner
+
 Owner enumerates the ownership of a ERC20 contract.
 
 | Name | Number | Description |
@@ -716,52 +570,38 @@ Owner enumerates the ownership of a ERC20 contract.
 | OWNER_MODULE | 1 | OWNER_MODULE erc20 is owned by the erc20 module account. |
 | OWNER_EXTERNAL | 2 | EXTERNAL erc20 is owned by an external account. |
 
-
  <!-- end enums -->
 
  <!-- end HasExtensions -->
 
  <!-- end services -->
-
-
 
 <a name="evmos/erc20/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/erc20/v1/genesis.proto
 
-
-
 <a name="evmos.erc20.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the module's genesis state.
 
+GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.erc20.v1.Params) |  | module parameters |
 | `token_pairs` | [TokenPair](#evmos.erc20.v1.TokenPair) | repeated | registered token pairs |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.Params"></a>
 
 ### Params
-Params defines the erc20 module params
 
+Params defines the erc20 module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_erc20` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
 | `enable_evm_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
-
-
-
-
 
  <!-- end messages -->
 
@@ -771,103 +611,71 @@ Params defines the erc20 module params
 
  <!-- end services -->
 
-
-
 <a name="evmos/erc20/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/erc20/v1/query.proto
 
-
-
 <a name="evmos.erc20.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
+
 QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
 
 <a name="evmos.erc20.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
+
 QueryParamsResponse is the response type for the Query/Params RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.erc20.v1.Params) |  |  |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.QueryTokenPairRequest"></a>
 
 ### QueryTokenPairRequest
-QueryTokenPairRequest is the request type for the Query/TokenPair RPC method.
 
+QueryTokenPairRequest is the request type for the Query/TokenPair RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `token` | [string](#string) |  | token identifier can be either the hex contract address of the ERC20 or the Cosmos base denomination |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.QueryTokenPairResponse"></a>
 
 ### QueryTokenPairResponse
+
 QueryTokenPairResponse is the response type for the Query/TokenPair RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `token_pair` | [TokenPair](#evmos.erc20.v1.TokenPair) |  |  |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.QueryTokenPairsRequest"></a>
 
 ### QueryTokenPairsRequest
+
 QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.QueryTokenPairsResponse"></a>
 
 ### QueryTokenPairsResponse
+
 QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `token_pairs` | [TokenPair](#evmos.erc20.v1.TokenPair) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
-
-
-
-
 
  <!-- end messages -->
 
@@ -875,10 +683,10 @@ method.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.erc20.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -889,20 +697,16 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/erc20/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/erc20/v1/tx.proto
 
-
-
 <a name="evmos.erc20.v1.MsgConvertCoin"></a>
 
 ### MsgConvertCoin
-MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
 
+MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -910,26 +714,17 @@ MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
 | `receiver` | [string](#string) |  | recipient hex address to receive ERC20 token |
 | `sender` | [string](#string) |  | cosmos bech32 address from the owner of the given ERC20 tokens |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.MsgConvertCoinResponse"></a>
 
 ### MsgConvertCoinResponse
+
 MsgConvertCoinResponse returns no fields
-
-
-
-
-
 
 <a name="evmos.erc20.v1.MsgConvertERC20"></a>
 
 ### MsgConvertERC20
-MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
 
+MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -938,19 +733,11 @@ MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
 | `receiver` | [string](#string) |  | bech32 address to receive SDK coins. |
 | `sender` | [string](#string) |  | sender hex address from the owner of the given ERC20 tokens |
 
-
-
-
-
-
 <a name="evmos.erc20.v1.MsgConvertERC20Response"></a>
 
 ### MsgConvertERC20Response
+
 MsgConvertERC20Response returns no fields
-
-
-
-
 
  <!-- end messages -->
 
@@ -958,10 +745,10 @@ MsgConvertERC20Response returns no fields
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.erc20.v1.Msg"></a>
 
 ### Msg
+
 Msg defines the erc20 Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -971,21 +758,17 @@ Msg defines the erc20 Msg service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/fees/v1/fees.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/fees/v1/fees.proto
 
-
-
 <a name="evmos.fees.v1.DevFeeInfo"></a>
 
 ### DevFeeInfo
+
 DevFeeInfo defines an instance that organizes fee distribution conditions
 for the owner of a given smart contract
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -993,25 +776,16 @@ for the owner of a given smart contract
 | `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
 
-
-
-
-
-
 <a name="evmos.fees.v1.DevFeeInfosPerDeployer"></a>
 
 ### DevFeeInfosPerDeployer
+
 DevFeeInfosPerDeployer defines an instance that keeps track of all
 contracts registered by a deployer
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_addresses` | [string](#string) | repeated |  |
-
-
-
-
 
  <!-- end messages -->
 
@@ -1021,36 +795,27 @@ contracts registered by a deployer
 
  <!-- end services -->
 
-
-
 <a name="evmos/fees/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/fees/v1/genesis.proto
 
-
-
 <a name="evmos.fees.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the module's genesis state.
 
+GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
 | `dev_fee_infos` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated | active registered contracts |
 
-
-
-
-
-
 <a name="evmos.fees.v1.Params"></a>
 
 ### Params
-Params defines the fees module params
 
+Params defines the fees module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1059,10 +824,6 @@ Params defines the fees module params
 | `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | parameter to configure the cost of address derivation |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1071,138 +832,96 @@ Params defines the fees module params
 
  <!-- end services -->
 
-
-
 <a name="evmos/fees/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/fees/v1/query.proto
 
-
-
 <a name="evmos.fees.v1.QueryDevFeeInfoRequest"></a>
 
 ### QueryDevFeeInfoRequest
+
 QueryDevFeeInfoRequest is the request type for the Query/DevFeeInfo RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract identifier is the hex contract address of a contract |
 
-
-
-
-
-
 <a name="evmos.fees.v1.QueryDevFeeInfoResponse"></a>
 
 ### QueryDevFeeInfoResponse
+
 QueryDevFeeInfoResponse is the response type for the Query/DevFeeInfo RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `fee` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) |  |  |
 
-
-
-
-
-
 <a name="evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest"></a>
 
 ### QueryDevFeeInfosPerDeployerRequest
+
 QueryDevFeeInfosPerDeployerRequest is the request type for the
 Query/DevFeeInfosPerDeployer RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `deployer_address` | [string](#string) |  | deployer bech32 address |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse"></a>
 
 ### QueryDevFeeInfosPerDeployerResponse
+
 QueryDevFeeInfosPerDeployerResponse is the response type for the
 Query/DevFeeInfosPerDeployer RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
-
-
-
-
-
 <a name="evmos.fees.v1.QueryDevFeeInfosRequest"></a>
 
 ### QueryDevFeeInfosRequest
+
 QueryDevFeeInfosRequest is the request type for the Query/DevFeeInfos RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.fees.v1.QueryDevFeeInfosResponse"></a>
 
 ### QueryDevFeeInfosResponse
+
 QueryDevFeeInfosResponse is the response type for the Query/DevFeeInfos
 RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
-
-
-
-
-
 <a name="evmos.fees.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
+
 QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
 
 <a name="evmos.fees.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
+
 QueryParamsResponse is the response type for the Query/Params RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.fees.v1.Params) |  |  |
-
-
-
-
 
  <!-- end messages -->
 
@@ -1210,10 +929,10 @@ method.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.fees.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -1225,47 +944,34 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/fees/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/fees/v1/tx.proto
 
-
-
 <a name="evmos.fees.v1.MsgCancelDevFeeInfo"></a>
 
 ### MsgCancelDevFeeInfo
+
 MsgCancelDevFeeInfo defines a message that cancels a registered a
 DevFeeInfo
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address |
 | `deployer_address` | [string](#string) |  | deployer bech32 address |
 
-
-
-
-
-
 <a name="evmos.fees.v1.MsgCancelDevFeeInfoResponse"></a>
 
 ### MsgCancelDevFeeInfoResponse
+
 MsgCancelDevFeeInfoResponse defines the MsgCancelDevFeeInfo response type
-
-
-
-
-
 
 <a name="evmos.fees.v1.MsgRegisterDevFeeInfo"></a>
 
 ### MsgRegisterDevFeeInfo
-MsgRegisterFeesContract defines a message that registers a DevFeeInfo
 
+MsgRegisterFeesContract defines a message that registers a DevFeeInfo
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1274,28 +980,19 @@ MsgRegisterFeesContract defines a message that registers a DevFeeInfo
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
 | `nonces` | [uint64](#uint64) | repeated | array of nonces from the address path, where the last nonce is the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce |
 
-
-
-
-
-
 <a name="evmos.fees.v1.MsgRegisterDevFeeInfoResponse"></a>
 
 ### MsgRegisterDevFeeInfoResponse
+
 MsgRegisterDevFeeInfoResponse defines the MsgRegisterDevFeeInfo response
 type
-
-
-
-
-
 
 <a name="evmos.fees.v1.MsgUpdateDevFeeInfo"></a>
 
 ### MsgUpdateDevFeeInfo
+
 MsgUpdateDevFeeInfo defines a message that updates the withdraw address for
 a registered DevFeeInfo
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1303,19 +1000,11 @@ a registered DevFeeInfo
 | `deployer_address` | [string](#string) |  | deployer bech32 address |
 | `withdraw_address` | [string](#string) |  | new withdraw bech32 address for receiving the transaction fees |
 
-
-
-
-
-
 <a name="evmos.fees.v1.MsgUpdateDevFeeInfoResponse"></a>
 
 ### MsgUpdateDevFeeInfoResponse
+
 MsgUpdateDevFeeInfoResponse defines the MsgUpdateDevFeeInfo response type
-
-
-
-
 
  <!-- end messages -->
 
@@ -1323,10 +1012,10 @@ MsgUpdateDevFeeInfoResponse defines the MsgUpdateDevFeeInfo response type
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.fees.v1.Msg"></a>
 
 ### Msg
+
 Msg defines the fees Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -1337,20 +1026,16 @@ Msg defines the fees Msg service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/incentives/v1/incentives.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/incentives/v1/incentives.proto
 
-
-
 <a name="evmos.incentives.v1.CancelIncentiveProposal"></a>
 
 ### CancelIncentiveProposal
-CancelIncentiveProposal is a gov Content type to cancel an incentive
 
+CancelIncentiveProposal is a gov Content type to cancel an incentive
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1358,16 +1043,11 @@ CancelIncentiveProposal is a gov Content type to cancel an incentive
 | `description` | [string](#string) |  | proposal description |
 | `contract` | [string](#string) |  | contract address |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.GasMeter"></a>
 
 ### GasMeter
-GasMeter tracks the cumulative gas spent per participant in one epoch
 
+GasMeter tracks the cumulative gas spent per participant in one epoch
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1375,17 +1055,12 @@ GasMeter tracks the cumulative gas spent per participant in one epoch
 | `participant` | [string](#string) |  | participant address that interacts with the incentive |
 | `cumulative_gas` | [uint64](#uint64) |  | cumulative gas spent during the epoch |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.Incentive"></a>
 
 ### Incentive
+
 Incentive defines an instance that organizes distribution conditions for a
 given smart contract
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1395,16 +1070,11 @@ given smart contract
 | `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  | distribution start time |
 | `total_gas` | [uint64](#uint64) |  | cumulative gas spent by all gasmeters of the incentive during the epoch |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.RegisterIncentiveProposal"></a>
 
 ### RegisterIncentiveProposal
-RegisterIncentiveProposal is a gov Content type to register an incentive
 
+RegisterIncentiveProposal is a gov Content type to register an incentive
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1414,10 +1084,6 @@ RegisterIncentiveProposal is a gov Content type to register an incentive
 | `allocations` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated | denoms and percentage of rewards to be allocated |
 | `epochs` | [uint32](#uint32) |  | number of remaining epochs |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1426,20 +1092,16 @@ RegisterIncentiveProposal is a gov Content type to register an incentive
 
  <!-- end services -->
 
-
-
 <a name="evmos/incentives/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/incentives/v1/genesis.proto
 
-
-
 <a name="evmos.incentives.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the module's genesis state.
 
+GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1447,16 +1109,11 @@ GenesisState defines the module's genesis state.
 | `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated | active incentives |
 | `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated | active Gasmeters |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.Params"></a>
 
 ### Params
-Params defines the incentives module params
 
+Params defines the incentives module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1465,10 +1122,6 @@ Params defines the incentives module params
 | `incentives_epoch_identifier` | [string](#string) |  | identifier for the epochs module hooks |
 | `reward_scaler` | [string](#string) |  | scaling factor for capping rewards |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1477,234 +1130,162 @@ Params defines the incentives module params
 
  <!-- end services -->
 
-
-
 <a name="evmos/incentives/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/incentives/v1/query.proto
 
-
-
 <a name="evmos.incentives.v1.QueryAllocationMeterRequest"></a>
 
 ### QueryAllocationMeterRequest
+
 QueryAllocationMeterRequest is the request type for the Query/AllocationMeter
 RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `denom` | [string](#string) |  | denom is the coin denom to query an allocation meter for. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryAllocationMeterResponse"></a>
 
 ### QueryAllocationMeterResponse
+
 QueryAllocationMeterResponse is the response type for the
 Query/AllocationMeter RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `allocation_meter` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  |  |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryAllocationMetersRequest"></a>
 
 ### QueryAllocationMetersRequest
+
 QueryAllocationMetersRequest is the request type for the
 Query/AllocationMeters RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryAllocationMetersResponse"></a>
 
 ### QueryAllocationMetersResponse
+
 QueryAllocationMetersResponse is the response type for the
 Query/AllocationMeters RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `allocation_meters` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryGasMeterRequest"></a>
 
 ### QueryGasMeterRequest
-QueryGasMeterRequest is the request type for the Query/Incentive RPC method.
 
+QueryGasMeterRequest is the request type for the Query/Incentive RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
 | `participant` | [string](#string) |  | participant identifier is the hex address of a user |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryGasMeterResponse"></a>
 
 ### QueryGasMeterResponse
+
 QueryGasMeterResponse is the response type for the Query/Incentive RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `gas_meter` | [uint64](#uint64) |  |  |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryGasMetersRequest"></a>
 
 ### QueryGasMetersRequest
+
 QueryGasMetersRequest is the request type for the Query/Incentives RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract` | [string](#string) |  | contract is the hex contract address of a incentivized smart contract |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryGasMetersResponse"></a>
 
 ### QueryGasMetersResponse
+
 QueryGasMetersResponse is the response type for the Query/Incentives RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `gas_meters` | [GasMeter](#evmos.incentives.v1.GasMeter) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryIncentiveRequest"></a>
 
 ### QueryIncentiveRequest
-QueryIncentiveRequest is the request type for the Query/Incentive RPC method.
 
+QueryIncentiveRequest is the request type for the Query/Incentive RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract` | [string](#string) |  | contract identifier is the hex contract address of a contract |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryIncentiveResponse"></a>
 
 ### QueryIncentiveResponse
+
 QueryIncentiveResponse is the response type for the Query/Incentive RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `incentive` | [Incentive](#evmos.incentives.v1.Incentive) |  |  |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryIncentivesRequest"></a>
 
 ### QueryIncentivesRequest
+
 QueryIncentivesRequest is the request type for the Query/Incentives RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryIncentivesResponse"></a>
 
 ### QueryIncentivesResponse
+
 QueryIncentivesResponse is the response type for the Query/Incentives RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `incentives` | [Incentive](#evmos.incentives.v1.Incentive) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
-
-
-
-
-
 <a name="evmos.incentives.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
+
 QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
 
 <a name="evmos.incentives.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
+
 QueryParamsResponse is the response type for the Query/Params RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.incentives.v1.Params) |  |  |
-
-
-
-
 
  <!-- end messages -->
 
@@ -1712,10 +1293,10 @@ method.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.incentives.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -1730,24 +1311,20 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/inflation/v1/inflation.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/inflation/v1/inflation.proto
 
-
-
 <a name="evmos.inflation.v1.ExponentialCalculation"></a>
 
 ### ExponentialCalculation
+
 ExponentialCalculation holds factors to calculate exponential inflation on
 each period. Calculation reference:
-periodProvision = exponentialDecay       *  bondingIncentive
-f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
+periodProvision = exponentialDecay       *bondingIncentive
+f(x)            = (a* (1 - r) ^ x + c)  *(1 + max_variance - bondedRatio*
 (max_variance / bonding_target))
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1757,14 +1334,10 @@ f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
 | `bonding_target` | [string](#string) |  | bonding target |
 | `max_variance` | [string](#string) |  | max variance |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.InflationDistribution"></a>
 
 ### InflationDistribution
+
 InflationDistribution defines the distribution in which inflation is
 allocated through minting on each epoch (staking, incentives, community). It
 excludes the team vesting distribution, as this is minted once at genesis.
@@ -1773,16 +1346,11 @@ Model like this:
 mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 0.5333333         = 40%           / (1 - 25%)
 
-
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `staking_rewards` | [string](#string) |  | staking_rewards defines the proportion of the minted minted_denom that is to be allocated as staking rewards |
 | `usage_incentives` | [string](#string) |  | usage_incentives defines the proportion of the minted minted_denom that is to be allocated to the incentives module address |
 | `community_pool` | [string](#string) |  | community_pool defines the proportion of the minted minted_denom that is to be allocated to the community pool |
-
-
-
-
 
  <!-- end messages -->
 
@@ -1792,20 +1360,16 @@ mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 
  <!-- end services -->
 
-
-
 <a name="evmos/inflation/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/inflation/v1/genesis.proto
 
-
-
 <a name="evmos.inflation.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the inflation module's genesis state.
 
+GenesisState defines the inflation module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1815,16 +1379,11 @@ GenesisState defines the inflation module's genesis state.
 | `epochs_per_period` | [int64](#int64) |  | number of epochs after which inflation is recalculated |
 | `skipped_epochs` | [uint64](#uint64) |  | number of epochs that have passed while inflation is disabled |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.Params"></a>
 
 ### Params
-Params holds parameters for the inflation module.
 
+Params holds parameters for the inflation module.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1832,10 +1391,6 @@ Params holds parameters for the inflation module.
 | `exponential_calculation` | [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation) |  | variables to calculate exponential inflation |
 | `inflation_distribution` | [InflationDistribution](#evmos.inflation.v1.InflationDistribution) |  | inflation distribution of the minted denom |
 | `enable_inflation` | [bool](#bool) |  | parameter to enable inflation and halt increasing the skipped_epochs |
-
-
-
-
 
  <!-- end messages -->
 
@@ -1845,165 +1400,108 @@ Params holds parameters for the inflation module.
 
  <!-- end services -->
 
-
-
 <a name="evmos/inflation/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/inflation/v1/query.proto
 
-
-
 <a name="evmos.inflation.v1.QueryEpochMintProvisionRequest"></a>
 
 ### QueryEpochMintProvisionRequest
+
 QueryEpochMintProvisionRequest is the request type for the
 Query/EpochMintProvision RPC method.
-
-
-
-
-
 
 <a name="evmos.inflation.v1.QueryEpochMintProvisionResponse"></a>
 
 ### QueryEpochMintProvisionResponse
+
 QueryEpochMintProvisionResponse is the response type for the
 Query/EpochMintProvision RPC method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `epoch_mint_provision` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | epoch_mint_provision is the current minting per epoch provision value. |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.QueryInflationRateRequest"></a>
 
 ### QueryInflationRateRequest
+
 QueryInflationRateRequest is the request type for the Query/InflationRate RPC method.
-
-
-
-
-
 
 <a name="evmos.inflation.v1.QueryInflationRateResponse"></a>
 
 ### QueryInflationRateResponse
-QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
 
+QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `inflation_rate` | [string](#string) |  | rate by which the total supply increases within one period |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
+
 QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
 
 <a name="evmos.inflation.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
-QueryParamsResponse is the response type for the Query/Params RPC method.
 
+QueryParamsResponse is the response type for the Query/Params RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.inflation.v1.Params) |  | params defines the parameters of the module. |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.QueryPeriodRequest"></a>
 
 ### QueryPeriodRequest
+
 QueryPeriodRequest is the request type for the Query/Period RPC method.
-
-
-
-
-
 
 <a name="evmos.inflation.v1.QueryPeriodResponse"></a>
 
 ### QueryPeriodResponse
-QueryPeriodResponse is the response type for the Query/Period RPC method.
 
+QueryPeriodResponse is the response type for the Query/Period RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `period` | [uint64](#uint64) |  | period is the current minting per epoch provision value. |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.QuerySkippedEpochsRequest"></a>
 
 ### QuerySkippedEpochsRequest
+
 QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
-
-
-
-
-
 
 <a name="evmos.inflation.v1.QuerySkippedEpochsResponse"></a>
 
 ### QuerySkippedEpochsResponse
-QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
 
+QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `skipped_epochs` | [uint64](#uint64) |  | number of epochs that the inflation module has been disabled. |
 
-
-
-
-
-
 <a name="evmos.inflation.v1.QueryTotalSupplyRequest"></a>
 
 ### QueryTotalSupplyRequest
+
 QueryTotalSupplyRequest is the request type for the Query/TotalSupply RPC method.
-
-
-
-
-
 
 <a name="evmos.inflation.v1.QueryTotalSupplyResponse"></a>
 
 ### QueryTotalSupplyResponse
-QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
 
+QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `total_supply` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | total amount of coins in circulation |
-
-
-
-
 
  <!-- end messages -->
 
@@ -2011,10 +1509,10 @@ QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC meth
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.inflation.v1.Query"></a>
 
 ### Query
+
 Query provides defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -2028,44 +1526,31 @@ Query provides defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/recovery/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/recovery/v1/genesis.proto
 
-
-
 <a name="evmos.recovery.v1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines the recovery module's genesis state.
 
+GenesisState defines the recovery module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.recovery.v1.Params) |  | params defines all the paramaters of the module. |
 
-
-
-
-
-
 <a name="evmos.recovery.v1.Params"></a>
 
 ### Params
-Params holds parameters for the recovery module
 
+Params holds parameters for the recovery module
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `enable_recovery` | [bool](#bool) |  | enable recovery IBC middleware |
 | `packet_timeout_duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  | duration added to timeout timestamp for balances recovered via IBC packets |
-
-
-
-
 
  <!-- end messages -->
 
@@ -2075,38 +1560,26 @@ Params holds parameters for the recovery module
 
  <!-- end services -->
 
-
-
 <a name="evmos/recovery/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/recovery/v1/query.proto
 
-
-
 <a name="evmos.recovery.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
+
 QueryParamsRequest is the request type for the Query/Params RPC method.
-
-
-
-
-
 
 <a name="evmos.recovery.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
-QueryParamsResponse is the response type for the Query/Params RPC method.
 
+QueryParamsResponse is the response type for the Query/Params RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.recovery.v1.Params) |  | params defines the parameters of the module. |
-
-
-
-
 
  <!-- end messages -->
 
@@ -2114,10 +1587,10 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.recovery.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -2126,36 +1599,27 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/vesting/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/vesting/v1/query.proto
 
-
-
 <a name="evmos.vesting.v1.QueryBalancesRequest"></a>
 
 ### QueryBalancesRequest
-QueryBalancesRequest is the request type for the Query/Balances RPC method.
 
+QueryBalancesRequest is the request type for the Query/Balances RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `address` | [string](#string) |  | address of the clawback vesting account |
 
-
-
-
-
-
 <a name="evmos.vesting.v1.QueryBalancesResponse"></a>
 
 ### QueryBalancesResponse
+
 QueryBalancesResponse is the response type for the Query/Balances RPC
 method.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -2163,20 +1627,16 @@ method.
 | `unvested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of unvested tokens |
 | `vested` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | current amount of vested tokens |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.vesting.v1.Query"></a>
 
 ### Query
+
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -2185,21 +1645,17 @@ Query defines the gRPC querier service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/vesting/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/vesting/v1/tx.proto
 
-
-
 <a name="evmos.vesting.v1.MsgClawback"></a>
 
 ### MsgClawback
+
 MsgClawback defines a message that removes unvested tokens from a
 ClawbackVestingAccount.
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -2207,26 +1663,17 @@ ClawbackVestingAccount.
 | `account_address` | [string](#string) |  | account_address is the address of the ClawbackVestingAccount to claw back from. |
 | `dest_address` | [string](#string) |  | dest_address specifies where the clawed-back tokens should be transferred to. If empty, the tokens will be transferred back to the original funder of the account. |
 
-
-
-
-
-
 <a name="evmos.vesting.v1.MsgClawbackResponse"></a>
 
 ### MsgClawbackResponse
+
 MsgClawbackResponse defines the MsgClawback response type.
-
-
-
-
-
 
 <a name="evmos.vesting.v1.MsgCreateClawbackVestingAccount"></a>
 
 ### MsgCreateClawbackVestingAccount
-MsgCreateClawbackVestingAccount defines a message that enables creating a ClawbackVestingAccount.
 
+MsgCreateClawbackVestingAccount defines a message that enables creating a ClawbackVestingAccount.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -2237,20 +1684,12 @@ MsgCreateClawbackVestingAccount defines a message that enables creating a Clawba
 | `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting_periods defines thevesting schedule relative to the start_time |
 | `merge` | [bool](#bool) |  | merge specifies a the creation mechanism for existing ClawbackVestingAccounts. If true, merge this new grant into an existing ClawbackVestingAccount, or create it if it does not exist. If false, creates a new account. New grants to an existing account must be from the same from_address. |
 
-
-
-
-
-
 <a name="evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse"></a>
 
 ### MsgCreateClawbackVestingAccountResponse
+
 MsgCreateClawbackVestingAccountResponse defines the
 MsgCreateClawbackVestingAccount response type.
-
-
-
-
 
  <!-- end messages -->
 
@@ -2258,10 +1697,10 @@ MsgCreateClawbackVestingAccount response type.
 
  <!-- end HasExtensions -->
 
-
 <a name="evmos.vesting.v1.Msg"></a>
 
 ### Msg
+
 Msg defines the vesting Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
@@ -2271,23 +1710,19 @@ Msg defines the vesting Msg service.
 
  <!-- end services -->
 
-
-
 <a name="evmos/vesting/v1/vesting.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/vesting/v1/vesting.proto
 
-
-
 <a name="evmos.vesting.v1.ClawbackVestingAccount"></a>
 
 ### ClawbackVestingAccount
+
 ClawbackVestingAccount implements the VestingAccount interface. It provides
 an account that can hold contributions subject to "lockup" (like a
 PeriodicVestingAccount), or vesting which is subject to clawback
 of unvested tokens, or a combination (tokens vest, but are still locked).
-
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -2297,10 +1732,6 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
 | `lockup_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | lockup_periods defines the unlocking schedule relative to the start_time |
 | `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated | vesting_periods defines the vesting schedule relative to the start_time |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -2308,8 +1739,6 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
  <!-- end HasExtensions -->
 
  <!-- end services -->
-
-
 
 ## Scalar Value Types
 
@@ -2330,4 +1759,3 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
 | <a name="bool" /> bool |  | bool | boolean | boolean | bool | bool | boolean | TrueClass/FalseClass |
 | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
-
