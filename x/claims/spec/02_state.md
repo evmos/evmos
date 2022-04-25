@@ -44,7 +44,7 @@ type GenesisState struct {
 
 ## Invariants
 
-The `x/claims` module registers an [`Invariant`](https://docs.cosmos.network/master/building-modules/invariants.html#invariants) to ensure that a property is true at any given time. These functions are useful to detect bugs early on and act upon them to limit their potential consequences (e.g. by halting the chain).
+The `x/claims` module registers an [`Invariant`](https://docs.cosmos.network/main/building-modules/invariants.html#invariants) to ensure that a property is true at any given time. These functions are useful to detect bugs early on and act upon them to limit their potential consequences (e.g. by halting the chain).
 
 ### ClaimsInvariant
 

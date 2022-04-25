@@ -23,4 +23,4 @@ If the `x/fees` module is enabled, the EVM hook sends a percentage of the fees p
     devFees := receipt.GasUsed * msg.GasPrice * params.DeveloperShares
     ```
 
-    and sends these dev fees from the `FeeCollector` (Cosmos SDK `auth` module account) to the registered withdraw address for that contract. The remaining amount in the `FeeCollector` is allocated towards the [SDK  Distribution Scheme](https://docs.cosmos.network/master/modules/distribution/03_begin_block.html#the-distribution-scheme). If there is no withdraw address, fees are sent to contract deployer's address.
+    and sends these dev fees from the `FeeCollector` (Cosmos SDK `auth` module account) to the registered withdraw address for that contract. The remaining amount in the `FeeCollector` is allocated towards the [SDK  Distribution Scheme](https://docs.cosmos.network/main/modules/distribution/03_begin_block.html#the-distribution-scheme). If there is no withdraw address, fees are sent to contract deployer's address.
