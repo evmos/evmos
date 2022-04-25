@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- (app) [\#523](https://github.com/tharsis/evmos/pull/523) Fix testnet upgrade store loader.
+
 ## [v3.0.0] - 2022-04-22
 
 ### State Machine Breaking
