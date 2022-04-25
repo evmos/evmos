@@ -1,14 +1,24 @@
 <!--
-order: 4
+order: 3
 -->
 
 # Resources
 
 Learn about Evmos with the list of official resources. {synopsis}
 
-- Official Documentation: [https://evmos.dev/](https://evmos.dev/)
-- Official Codebase: [https://github.com/tharsis/evmos](https://github.com/tharsis/evmos)
-- Official Website: [https://evmos.org/](https://evmos.org/)
+::: tip
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+
+This documentation page is currently under work in progress.
+
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+:::
+
+- Documentation (this site): [https://evmos.dev/](https://evmos.dev/)
+- Open Source Codebase: [https://github.com/tharsis/evmos](https://github.com/tharsis/evmos)
+- Website: [https://evmos.org/](https://evmos.org/)
+- Blog: [https://evmos.blog/](https://evmos.blog/)
+- Ethermint: [https://github.com/tharsis/ethermint](https://github.com/tharsis/ethermint)
 
 ## Workshops and Videos
 
@@ -21,7 +31,7 @@ Learn about Evmos with the list of official resources. {synopsis}
 
 ## Articles
 
-### Cosmos Blog
+### Ethermint
 
 ::: tip
 Note: most of these articles are outdated as they refer to the previous Ethermint projects (linked below). They are listed here for reference only.
@@ -39,7 +49,7 @@ Note: most of these articles are outdated as they refer to the previous Ethermin
 ## Previous Ethermint implementations
 
 - [Ethermint ABCI:](https://github.com/cosmos/ethermint_abci) This project was the first and original Tendermint ABCI application with EVM support. Not built with Cosmos SDK.
-- [Ethermint (archive):](https://github.com/tharsis/ethermint-archive) Precursor implementation of the current project, developed by [All in Bits Inc](https://tendermint.com/). It was aiming to implement [Turbo-Geth](https://github.com/ledgerwatch/turbo-geth) as the EVM for scalability improvements.
+- [Ethermint (archive):](https://github.com/tharsis/ethermint-archive) Precursor implementation of the current project, developed by [All in Bits Inc](https://tendermint.com/). It was aiming to implement [Erigon](https://github.com/ledgerwatch/erigon) as the EVM for scalability improvements.
 
 ## Next {hide}
 

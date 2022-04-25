@@ -8,10 +8,9 @@ parent:
 
 This repository contains reference documentation on the basic concepts of Evmos.
 
-1. [Chain ID](./chain_id.md)
-1. [Accounts](./accounts.md)
-1. [Gas and Fees](./gas.md)
-1. [Lifecycle of a transaction](./transactions.md)
+1. [Transactions](./transactions.md)
 1. [Tokens](./tokens.md)
+1. [Gas](./gas.md)
+1. [Smart Contracts](./smart_contracts.md)
 
-After reading the basics, head on to the [Core Reference](../core/README.md) for more advanced material.
+After reading the basics, head on to the [Technical Concepts](../technical_concepts/README.md) for more advanced material.

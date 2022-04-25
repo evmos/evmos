@@ -36,7 +36,7 @@ Make sure you have the right version of `{{ $themeConfig.project.binary }}` inst
 We recommend saving the mainnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
 
 ::: tip
-See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for reference.
+See the Official [Chain IDs](./../technical_concepts/chain_id#official-chain-ids) for reference.
 :::
 
 ```bash

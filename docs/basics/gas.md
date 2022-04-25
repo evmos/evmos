@@ -1,5 +1,5 @@
 <!--
-order: 4
+order: 3
 -->
 
 # Gas and Fees
@@ -30,7 +30,7 @@ $$fee = gas ~ * ~ gasPrice$$
 In both networks, gas is used to make sure that operations do not require an excess amount of
 computational power to complete and as a way to deter bad-acting users from spamming the network.
 
-## Cosmos SDK `Gas`
+## Cosmos `Gas`
 
 In the Cosmos SDK, gas is tracked in the main `GasMeter` and the `BlockGasMeter`:
 

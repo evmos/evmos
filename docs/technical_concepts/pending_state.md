@@ -1,5 +1,5 @@
 <!--
-order: 2
+order: 5
 -->
 
 # Pending State
@@ -20,7 +20,7 @@ to become reverted as more time (and blocks) passes.
 
 Evmos is designed quite differently on this front as there is no concept of a "pending state".
 Evmos uses [Tendermint Core](https://docs.tendermint.com/) BFT consensus which provides instant
-finality for transaction. For this reason, Etheremint does not require a pending state mechanism, as
+finality for transaction. For this reason, Ethermint does not require a pending state mechanism, as
 all (if not most) of the transactions will be committed to the next block (avg. block time on Cosmos chains is ~8s). However, this causes a
 few hiccups in terms of the Ethereum Web3-compatible queries that can be made to pending state.
 

@@ -10,12 +10,12 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
 
-| Testnet Chain ID | Description                       | Site                                                                       | Version                                               |   Status  |
-| ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- | --- |
-| `evmos_9000-4`   | Evmos_9000-4 Testnet              | [Evmos 9000-4](https://github.com/tharsis/testnets/tree/main/evmos_9000-4) | [`v3.0.0-beta1`](https://github.com/tharsis/evmos/releases/tag/v3.0.0-beta1) |  `Live`   |
-| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/tharsis/evmos/releases/tag/v1.0.0-beta1) |  `Stale`   |
-| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases) |  `Stale`   |
-| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/tharsis/evmos/releases) | `Stale`    |
+| Testnet Chain ID | Description                       | Site                                                                       | Version                                                                      | Status  |
+| ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------- |
+| `evmos_9000-4`   | Evmos_9000-4 Testnet              | [Evmos 9000-4](https://github.com/tharsis/testnets/tree/main/evmos_9000-4) | [`v3.0.0`](https://github.com/tharsis/evmos/releases/tag/v3.0.0)             | `Live`  |
+| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/tharsis/evmos/releases/tag/v1.0.0-beta1) | `Stale` |
+| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/tharsis/evmos/releases)                        | `Stale` |
+| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/tharsis/evmos/releases)                        | `Stale` |
 
 ## Install `evmosd`
 
@@ -30,7 +30,7 @@ Make sure you have the right version of `{{ $themeConfig.project.binary }}` inst
 We recommend saving the testnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
 
 ::: tip
-See the Official [Chain IDs](./../basics/chain_id.md#official-chain-ids) for reference.
+See the Official [Chain IDs](./../technical_concepts/chain_id#official-chain-ids) for reference.
 :::
 
 ```bash

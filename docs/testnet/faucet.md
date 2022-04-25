@@ -18,7 +18,7 @@ You can request tokens for the testnet by using the Evmos [faucet](https://fauce
 Simply fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
 
 ::: warning
-If you use your Bech32 address, make sure you input the [account address](./../basics/accounts.md#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
+If you use your Bech32 address, make sure you input the [account address](./../technical_concepts/accounts#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
 :::
 
 ![faucet site](./img/faucet_web_page.png)

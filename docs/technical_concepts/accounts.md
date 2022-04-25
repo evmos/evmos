@@ -1,5 +1,5 @@
 <!--
-order: 2
+order: 3
 -->
 
 # Accounts
@@ -23,9 +23,9 @@ The root HD path for Evmos-based accounts is `m/44'/60'/0'/0`.
 
 [BIP-0173](https://github.com/satoshilabs/slips/blob/master/slip-0173.md) defines a new format for segregated witness output addresses that contains a human-readable part that identifies the Bech32 usage. Evmos uses the following HRP (human readable prefix) as the base HRP:
 
-| Network   | Mainnet | Testnet | Regtest |
-|-----------|---------|---------|---------|
-| Evmos     | `evmos` | `evmos` |         |
+| Network   | Mainnet | Testnet |
+|-----------|---------|---------|
+| Evmos     | `evmos` | `evmos` |
 
 There are 3 main types of HRP for the `Addresses`/`PubKeys` available by default on Evmos:
 

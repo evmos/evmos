@@ -10,7 +10,6 @@ This folder contains introduction material for Evmos.
 
 1. [Overview](./overview)
 1. [Architecture](./architecture)
-1. [Clients](./clients)
 1. [Use Cases](./use_cases)
 1. [Resources](./resources)
 
