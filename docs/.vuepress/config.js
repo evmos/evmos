@@ -90,7 +90,7 @@ module.exports = {
             {
               title: 'Introduction',
               directory: true,
-              path: '/intro'
+              path: '/about/intro'
             },
             {
               title: 'Evmos Ecosystem',
@@ -108,22 +108,22 @@ module.exports = {
             {
               title: 'Basic Concepts',
               directory: true,
-              path: '/basics'
+              path: '/users/basics'
             },
             {
               title: 'Digital Wallets',
               directory: true,
-              path: '/guides/wallets'
+              path: '/users/wallets'
             },
             {
               title: 'Account Keys',
               directory: true,
-              path: '/guides/keys'
+              path: '/users/keys'
             },
             {
               title: 'Technical Concepts',
               directory: true,
-              path: '/technical_concepts'
+              path: '/users/technical_concepts'
             },
           ]
         },
@@ -133,41 +133,41 @@ module.exports = {
             {
               title: 'Quick Connect',
               directory: false,
-              path: '/api/connect'
-            },
-            {
-              title: 'Testnet Faucet',
-              directory: false,
-              path: '/testnet/faucet'
-            },
-            {
-              title: 'Ethereum Tooling',
-              directory: true,
-              path: '/guides/tools'
-            },
-            {
-              title: 'Localnet',
-              directory: true,
-              path: '/guides/localnet'
+              path: '/developers/connect'
             },
             {
               title: 'Developer APIs',
               directory: false,
-              path: '/api/apis'
+              path: '/developers/apis'
             },
             {
-              title: 'Ethereum JSON-RPC',
+              title: 'Testnet Faucet',
+              directory: false,
+              path: '/developers/faucet'
+            },
+            {
+              title: 'Ethereum Tooling',
               directory: true,
-              path: '/api/json-rpc'
+              path: '/developers/tools'
             },
             {
-              title: 'Cosmos gRPC & REST',
-              path: 'https://api.evmos.dev/'
+              title: 'Localnet',
+              directory: true,
+              path: '/developers/localnet'
             },
             {
               title: 'Libraries',
               directory: true,
-              path: '/libraries'
+              path: '/developers/libraries'
+            },
+            {
+              title: 'Ethereum JSON-RPC',
+              directory: true,
+              path: '/developers/json-rpc'
+            },
+            {
+              title: 'Cosmos gRPC & REST',
+              path: 'https://api.evmos.dev/'
             },
           ]
         },
@@ -190,7 +190,7 @@ module.exports = {
             {
               title: 'Evmos Protobuf',
               directory: false,
-              path: '/api/proto-docs'
+              path: '/protocol/proto-docs'
             }
           ]
         },
@@ -198,40 +198,50 @@ module.exports = {
           title: 'For Validators',
           children: [
             {
-              title: 'Quick Start',
-              directory: true,
-              path: '/quickstart'
+              title: 'Validators Overview',
+              directory: false,
+              path: '/validators/overview'
             },
             {
-              title: 'Evmos Governance',
+              title: 'Node Setup',
               directory: true,
-              path: '/governance'
+              path: '/validators/setup'
+            },
+            {
+              title: 'Installation & Quick Start',
+              directory: true,
+              path: '/validators/quickstart'
             },
             {
               title: 'Join Testnet',
               directory: false,
-              path: '/testnet/join'
+              path: '/validators/testnet'
             },
             {
               title: 'Join Mainnet',
               directory: false,
-              path: '/mainnet/join'
+              path: '/validators/mainnet'
             },
             {
-              title: 'Validators Guide',
+              title: 'Security',
               directory: true,
-              path: '/guides/validators'
+              path: '/validators/security'
             },
             {
               title: 'Software Upgrade Guide',
               directory: true,
-              path: '/guides/upgrades'
+              path: '/validators/upgrades'
             },
             {
-              title: 'Key Management System',
+              title: 'Evmos Governance',
               directory: true,
-              path: '/guides/kms'
+              path: '/validators/governance'
             },
+            {
+              title: 'FAQ',
+              directory: false,
+              path: '/validators/faq'
+            }
           ]
         },
         {
@@ -239,7 +249,7 @@ module.exports = {
           children: [
             {
               title: 'Block Explorers',
-              path: '/tools/explorers'
+              path: '/developers/explorers'
             },
             {
               title: 'Blockscout (EVM)',
