@@ -283,7 +283,7 @@ func AlignSchedules(
 ) (startTime, endTime int64) {
 	startTime = Min64(startTimePeriodA, startTimePeriodB)
 
-	// add the difference time between
+	// add the difference time between the two periods
 	if len(periodsA) > 0 {
 		periodsA[0].Length += startTimePeriodA - startTime
 	}
@@ -292,15 +292,8 @@ func AlignSchedules(
 		periodsB[0].Length += startTimePeriodB - startTime
 	}
 
-	endPeriodsA := startTime
-	for _, period := range periodsA {
-		endPeriodsA += period.Length
-	}
-
-	endPeriodsB := startTime
-	for _, period := range periodsB {
-		endPeriodsB += period.Length
-	}
+	endPeriodsA := startTime + periodsA.TotalLength()
+	endPeriodsB := startTime + periodsB.TotalLength()
 
 	// the end time between the 2 periods is the max length
 	endTime = Max64(endPeriodsA, endPeriodsB)
