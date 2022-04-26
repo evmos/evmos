@@ -5,11 +5,13 @@ order: 3
 
 # Manual Upgrades
 
+Learn how to manually upgrade your node. {synopsis}
+
 ## Pre-requisites
 
 - [Install Evmos](./../quickstart/installation) {prereq}
 
-## Upgrade the Evmos version
+## 1. Upgrade the Evmos version
 
 Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/Cmd+C`.
 
@@ -47,9 +49,7 @@ go: go version go1.18 darwin/amd64
 If the software version does not match, then please check your `$PATH` to ensure the correct `evmosd` is running.
 :::
 
-## Replace Genesis file
-
-If you are joining an existing testnet, you can fetch the genesis from the appropriate testnet or mainnet repository where the genesis file is hosted.
+## 2. Replace Genesis file
 
 ::: tip
 You can find the latest `genesis.json` file for mainnet or testnet in the following repositories:
@@ -76,7 +76,7 @@ echo "<expected_hash>  genesis.json" | sha256sum -c
 
 :::
 
-## Data Reset
+## 3. Data Reset
 
 ::: danger
 Check [here](./upgrades) if the version you are upgrading require a data reset (hard fork). If this is not the case, you can skip to [Restart](#restart-node).
@@ -99,7 +99,7 @@ been upgraded.
 Make sure that every node has a unique `priv_validator.json`. **DO NOT** copy the `priv_validator.json` from an old node to multiple new nodes. Running two nodes with the same `priv_validator.json` will cause you to [double sign](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
 :::
 
-## Restart Node
+## 4. Restart Node
 
 To restart your node once the new genesis has been updated, use the `start` command:
 

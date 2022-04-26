@@ -5,6 +5,8 @@ order: 2
 
 # Automated Upgrades
 
+Learn how to automate chain upgrades using Cosmovisor. {synopsis}
+
 ## Pre-requisites
 
 - [Install Cosmovisor](https://docs.cosmos.network/main/run-node/cosmovisor.html#installation) {prereq}
@@ -19,7 +21,7 @@ order: 2
 
 We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
-### Setup
+### 1. Setup Cosmovisor
 
 Set up the Cosmovisor environment variables. We recommend setting these in your `.profile` so it is automatically set in every session.
 
@@ -48,9 +50,9 @@ cosmovisor version
 evmosd version
 ```
 
-### Download the Evmos release
+### 2. Download the Evmos release
 
-#### Manual Download
+#### 2.a) Manual Download
 
 Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is [released](https://github.com/tharsis/evmos/releases), node operators need to:
 
@@ -86,7 +88,7 @@ cosmovisor/
         └── upgrade-info.json
 ```
 
-#### Automatic Download
+#### 2.b) Automatic Download
 
 ::: warning
 **NOTE**: Auto-download doesn't verify in advance if a binary is available. If there will be any issue with downloading a binary, `cosmovisor` will stop and won't restart an the chain (which could lead it to a halt).
@@ -100,7 +102,7 @@ To set the auto-download use set the following environment variable:
 echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=true" >> ~/.profile
 ```
 
-### Start your node
+### 3. Start your node
 
 Now that everything is setup and ready to go, you can start your node.
 

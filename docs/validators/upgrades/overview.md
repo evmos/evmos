@@ -4,7 +4,7 @@ order: 1
 
 # Overview
 
-Learn how to manage chain upgrades for your full and validator nodes {synopsis}
+Learn how to manage chain upgrades for your full and validator nodes. {synopsis}
 
 There are 3 different categories for upgrades:
 
@@ -51,11 +51,13 @@ In order to update a patch:
 2. Download new release binary manually
 3. Restart node
 
-## Automatic Manual Upgrades
+## Automatic or Manual Upgrades
 
 With every new software release, we strongly recommend full nodes and validator operators to perform a software upgrade.
 
-You can upgrade your node by:
+You can upgrade your node by either:
 
-- [automatically](./automated) bumping the software version and restart the node once the upgrade occurs, and
+- [automatically](./automated) bumping the software version and restart the node once the upgrade occurs, or
 - download the new binary and perform a [manual upgrade](manual)
+
+Follow the links in the options above to learn how to upgrade your node according to your preferred option.
