@@ -4,43 +4,20 @@ order: 1
 
 # Run a Validator
 
-Learn how to setup and run a validator node {synopsis}
+Learn how to run a validator node {synopsis}
 
 ## Pre-requisite Readings
 
-- [Validator Overview](./../overview.md) {prereq}
-- [Full Node Setup](../localnet/single_node.md#manual-localnet) {prereq}
+- [Validator Overview](./../overview) {prereq}
+- [Validator Security](./../security/security) {prereq}
 
+::: tip
 If you plan to use a Key Management System (KMS), you should go through these steps first: [Using a KMS](./../security/kms.md).
-
-## What is a Validator?
-
-[Validators](./../overview.md) are responsible for committing new blocks to the blockchain through voting. A validator's stake is slashed if they become unavailable or sign blocks at the same height. Please read about [Sentry Node Architecture](./../validator-faq.md#how-can-validators-protect-themselves-from-denial-of-service-attacks) to protect your node from DDoS attacks and to ensure high-availability.
-
-::: danger Warning
-If you want to become a validator for the Hub's `mainnet`, you should [research security](./../security/security.md).
 :::
-
-## Supported OS
-
-We officially support macOS, Windows and Linux only. Other platforms may work but there is no
-guarantee. We will extend our support to other platforms after we have stabilized our current
-architecture.
-
-## Minimum Requirements
-
-To run testnet nodes, you will need a machine with the following minimum hardware requirements:
-
-* 4 or more physical CPU cores
-* At least 500GB of SSD disk storage
-* At least 32GB of memory (RAM)
-* At least 100mbps network bandwidth
-
-As the usage of the blockchain grows, the server requirements may increase as well, so you should have a plan for updating your server as well.
 
 ## Create Your Validator
 
-Your `evmosvalconspub` can be used to create a new validator by staking tokens. You can find your validator pubkey by running:
+Your node consensus public key (`evmosvalconspub...`) can be used to create a new validator by staking EVMOS tokens. You can find your validator pubkey by running:
 
 ```bash
 evmosd tendermint show-validator
@@ -52,11 +29,11 @@ evmosd tendermint show-validator
 Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
 
-To create your validator, just use the following command:
+To create your validator on testnet, just use the following command:
 
 ```bash
 evmosd tx staking create-validator \
-  --amount=1000000aevmos \
+  --amount=1000000atevmos \
   --pubkey=$(evmosd tendermint show-validator) \
   --moniker="choose a moniker" \
   --chain-id=<chain_id> \
@@ -65,7 +42,7 @@ evmosd tx staking create-validator \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
-  --gas-prices="0.025aevmos" \
+  --gas-prices="0.025atevmos" \
   --from=<key_name>
 ```
 
@@ -74,43 +51,10 @@ When specifying commission parameters, the `commission-max-change-rate` is used 
 :::
 
 ::: tip
-`Min-self-delegation` is a strictly positive integer that represents the minimum amount of self-delegated voting power your validator must always have. A `min-self-delegation` of `1000000` means your validator will never have a self-delegation lower than `1 aevmos`
+`Min-self-delegation` is a strictly positive integer that represents the minimum amount of self-delegated voting power your validator must always have. A `min-self-delegation` of `1000000` means your validator will never have a self-delegation lower than `1 atevmos`
 :::
 
 You can confirm that you are in the validator set by using a third party explorer.
-
-## Participate in Genesis as a Validator
-
-If you want to participate in genesis as a validator, you need to justify that
-you have some stake at genesis, create one (or multiple) transactions to bond this stake to your validator address, and include this transaction in the genesis file.
-
-Your `evmosvalconspub` can be used to create a new validator by staking tokens. You can find your validator pubkey by running:
-
-```bash
-evmosd tendermint show-validator
-```
-
-Next, craft your `evmosd gentx` command.
-
-::: tip
-A `gentx` is a JSON file carrying a self-delegation. All genesis transactions are collected by a `genesis coordinator` and validated against an initial `genesis.json`.
-:::
-
-```bash
-evmosd gentx \
-  --amount <amount_of_delegation_aevmos> \
-  --commission-rate <commission_rate> \
-  --commission-max-rate <commission_max_rate> \
-  --commission-max-change-rate <commission_max_change_rate> \
-  --pubkey <consensus_pubkey> \
-  --name <key_name>
-```
-
-::: tip
-When specifying commission parameters, the `commission-max-change-rate` is used to measure % *point* change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
-:::
-
-You can then submit your `gentx` on the [launch repository](https://github.com/cosmos/launch). These `gentx` will be used to form the final genesis file.
 
 ## Edit Validator Description
 
@@ -128,7 +72,7 @@ evmosd tx staking edit-validator
   --details="To infinity and beyond!" \
   --chain-id=<chain_id> \
   --gas="auto" \
-  --gas-prices="0.025aevmos" \
+  --gas-prices="0.025atevmos" \
   --from=<key_name> \
   --commission-rate="0.10"
 ```

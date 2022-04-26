@@ -207,7 +207,7 @@ module.exports = {
               path: '/validators/overview'
             },
             {
-              title: 'Node Setup',
+              title: 'Setup & Configuration',
               directory: true,
               path: '/validators/setup'
             },

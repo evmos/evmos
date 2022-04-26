@@ -124,7 +124,7 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmos
 ## Run a Mainnet Validator
 
 ::: tip
-For more details on how to configure your validator, follow the validator [setup](./setup/setup.md) instructions.
+For more details on how to run your validator, follow the validator [these](./setup/run_validator.md) instructions.
 :::
 
 ```bash
