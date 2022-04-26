@@ -4,13 +4,54 @@ order: 1
 
 # Software Upgrades
 
-Learn how to upgrade your full nodes and validator nodes to the latest software version {synopsis}
+Learn how to manage chain upgrades for your full and validator nodes {synopsis}
 
-With every new software release, we strongly recommend validators to perform a software upgrade, in order to prevent [double signing or halting the chain during consensus](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
+There are different categories for upgrades:
 
-You can upgrade your node by 1) upgrading your software version and 2) upgrading your node to that version. In this guide, you can find out how to automatically upgrade your node with Cosmovisor or perform the update manually.
+- **Automatic or Manual Upgrades**: How 
+- **Planned or Unplanned Upgrades**: Chain upgrades can be scheduled through an upgrade proposal or, in the case of a critical vulnerability, be coordinated internally between the validators and core teams to halt the chain at a given height and perform the upgrade
+- **Breaking or Non-breaking Upgrades**: 
 
-## Coordinating upgrades
+## Planned and Unplanned Upgrades
+
+With every new software release, we strongly recommend full nodes and validator operators to perform a software upgrade.
+
+You can upgrade your node by:
+
+1) automatically, and
+2) upgrading your node to that version
+
+In this guide, you can find out how to automatically upgrade your node with Cosmovisor or perform the update manually.
+
+
+
+## Breaking and Non-Breaking Upgrades
+
+Upgrades can be categorized according to the Semantic versioning ([Semver](https://semver.org/)) of the corresponding software [release version](https://github.com/tharsis/evmos/releases) (*i.e* `vX.Y.Z`):
+
+- Major version (`X`): backward incompatible API and state machine breaking changes
+- Minor version (`Y`): new backward compatible features. These can be state machine breaking
+- Patch version (`Z`): backwards compatible bug fixes, small refactors and improvements.
+
+### Major Upgrades
+
+If the new version you are upgrading to has breaking changes, you will have to [export](#export-state) the state  and [restart](#restart-node) your node.
+
+in order to prevent [double signing or halting the chain during consensus](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing)
+
+To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `evmosd export` command.
+
+### Minor Upgrades
+
+
+
+### Patch Upgrades
+
+Patch upgrades a
+
+you can skip to [Restart](#restart-node) after installing the new version.
+
+
 
 ## Upgrading a Node
 
