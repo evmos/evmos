@@ -5,7 +5,49 @@ order: 3
 
 # Manual Upgrades
 
-## Update Genesis file
+## Pre-requisites
+
+- [Install Evmos](./../quickstart/installation) {prereq}
+
+## Upgrade the Evmos version
+
+Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/Cmd + C`.
+
+Next, upgrade the software to the desired release version. Check the Evmos [releases page](https://github.com/tharsis/evmos/releases) for details on each release.
+
+::: warning
+🚧 You will need to ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).
+:::
+
+```bash
+cd evmos
+git fetch --all && git checkout <new_version>
+make install
+```
+
+::: tip
+If you have issues at this step, please check that you have the latest stable version of [Golang](https://golang.org/dl/) installed.
+:::
+
+Verify that you've successfully installed Evmos on your system by using the `version` command:
+
+```bash
+$ evmosd version --long
+
+name: evmos
+server_name: evmosd
+version: 3.0.0
+commit: fe9df43332800a74a163c014c69e62765d8206e3
+build_tags: netgo,ledger
+go: go version go1.18 darwin/amd64
+...
+```
+
+::: tip
+If the software version does not match, then please check your `$PATH` to ensure the correct `evmosd` is running.
+:::
+
+## Replace Genesis file
 
 If you are joining an existing testnet, you can fetch the genesis from the appropriate testnet or mainnet repository where the genesis file is hosted.
 
@@ -25,6 +67,27 @@ cp -f genesis.json new_genesis.json
 mv new_genesis.json genesis.json
 ```
 
+## Exported Hard Fork
+
+::: danger
+If the version <new_version> you are upgrading to is not state-machine breaking from the previous one, you **should not** reset the data. If this is the case you can skip to [Restart](#restart)
+:::
+
+First, remove the outdated files and reset the data.
+
+```bash
+rm $HOME/.evmosd/config/addrbook.json
+evmosd tendermint unsafe-reset-all
+```
+
+Your node is now in a pristine state while keeping the original `priv_validator.json` and `config.toml`. If you had any sentry nodes or full nodes setup before,
+your node will still try to connect to them, but may fail if they haven't also
+been upgraded.
+
+::: danger Danger
+🚨 Make sure that every node has a unique `priv_validator.json`. **DO NOT** copy the `priv_validator.json` from an old node to multiple new nodes. Running two nodes with the same `priv_validator.json` will cause you to [double sign](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
+:::
+
 ## Restart Node
 
 To restart your node once the new genesis has been updated, use the `start` command:
@@ -32,37 +95,3 @@ To restart your node once the new genesis has been updated, use the `start` comm
 ```bash
 evmosd start
 ```
-
-## Updating the `evmosd` binary
-
-These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet.
-
-First, stop your instance of `evmosd`. Next, upgrade the software:
-
-```bash
-cd evmos
-git fetch --all && git checkout <new_version>
-make install
-```
-
-::: tip
-If you have issues at this step, please check that you have the latest stable version of GO installed.
-:::
-
-You will need to ensure that the version installed matches the one needed for th testnet. Check the Evmos [releases page](https://github.com/tharsis/evmos/releases) for details on each release.
-
-Verify that everything is OK. If you get something like the following, you've successfully installed Evmos on your system.
-
-```bash
-$ evmosd version --long
-
-name: evmos
-server_name: evmosd
-version: 3.0.0
-commit: fe9df43332800a74a163c014c69e62765d8206e3
-build_tags: netgo,ledger
-go: go version go1.18 darwin/amd64
-...
-```
-
-If the software version does not match, then please check your `$PATH` to ensure the correct `evmosd` is running.

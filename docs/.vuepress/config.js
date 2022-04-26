@@ -169,6 +169,10 @@ module.exports = {
               title: 'Cosmos gRPC & REST',
               path: 'https://api.evmos.dev/'
             },
+            {
+              title: 'Tendermint RPC',
+              path: 'https://docs.tendermint.com/v0.34/rpc/'
+            },
           ]
         },
         {
