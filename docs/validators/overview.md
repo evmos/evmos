@@ -26,9 +26,13 @@ We anticipate that network requirements will be low initially. Bandwidth, CPU an
 
 ### Supported OS
 
-We officially support macOS, Windows and Linux only in the following arquitectures:
+We officially support macOS, Windows and Linux only in the following architectures:
 
-* 
+* `darwin/arm64`
+* `darwin/x86_64`
+* `linux/arm64`
+* `linux/x86_64`
+* `windows/x86_64`
 
 ### Minimum Requirements
 
