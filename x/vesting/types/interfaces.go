@@ -53,6 +53,9 @@ type StakingKeeper interface {
 	SetRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 
+	//
+	GetDelegatorUnbonding(ctx sdk.Context, delegator sdk.AccAddress) sdk.Int
+	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) sdk.Int
 	// Hooks
 	stakingtypes.StakingHooks
 }
