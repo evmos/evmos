@@ -11,12 +11,12 @@ order: 3
 
 ## Upgrade the Evmos version
 
-Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/Cmd + C`.
+Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/Cmd+C`.
 
 Next, upgrade the software to the desired release version. Check the Evmos [releases page](https://github.com/tharsis/evmos/releases) for details on each release.
 
 ::: warning
-🚧 You will need to ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).
+Ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).
 :::
 
 ```bash
@@ -56,7 +56,6 @@ You can find the latest `genesis.json` file for mainnet or testnet in the follow
 
 - **Mainnet**: [github.com/tharsis/mainnet](https://github.com/tharsis/mainnet)
 - **Testnet**: [github.com/tharsis/testnets](https://github.com/tharsis/testnets)
-
 :::
 
 Save the new genesis as `new_genesis.json`. Then, replace the old `genesis.json` located in your `config/` directory with `new_genesis.json`:
@@ -77,10 +76,10 @@ echo "<expected_hash>  genesis.json" | sha256sum -c
 
 :::
 
-## Exported Hard Fork
+## Data Reset
 
 ::: danger
-If the version `<new_version>` you are upgrading to is not state-machine breaking from the previous one, you **SHOULD NOT** reset the data. If this is the case you can skip to [Restart](#restart-node).
+Check [here](./upgrades) if the version you are upgrading require a data reset (hard fork). If this is not the case, you can skip to [Restart](#restart-node).
 :::
 
 Remove the outdated files and the reset the data:

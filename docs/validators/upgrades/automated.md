@@ -17,6 +17,8 @@ order: 2
 👉 For more info about Cosmovisor, please refer to the project official documentation [here](https://docs.cosmos.network/main/run-node/cosmovisor.html).
 :::
 
+We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
+
 ### Setup
 
 Set up the Cosmovisor environment variables. We recommend setting these in your `.profile` so it is automatically set in every session.
