@@ -8,7 +8,7 @@ Learn how to manage chain upgrades for your full and validator nodes {synopsis}
 
 There are different categories for upgrades:
 
-- **Automatic or Manual Upgrades**: How 
+- **Automatic or Manual Upgrades**: Validators and full node can choose if they want Cosmovisor process to perform the upgrade for them or just
 - **Planned or Unplanned Upgrades**: Chain upgrades can be scheduled through an upgrade proposal or, in the case of a critical vulnerability, be coordinated internally between the validators and core teams to halt the chain at a given height and perform the upgrade
 - **Breaking or Non-breaking Upgrades**: 
 
@@ -22,8 +22,6 @@ You can upgrade your node by:
 2) upgrading your node to that version
 
 In this guide, you can find out how to automatically upgrade your node with Cosmovisor or perform the update manually.
-
-
 
 ## Breaking and Non-Breaking Upgrades
 
@@ -47,7 +45,7 @@ To upgrade the genesis file, you can either fetch it from a trusted source or ex
 
 ### Patch Upgrades
 
-Patch upgrades a
+In order to update a pat
 
 you can skip to [Restart](#restart-node) after installing the new version.
 
