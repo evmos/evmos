@@ -67,13 +67,23 @@ cp -f genesis.json new_genesis.json
 mv new_genesis.json genesis.json
 ```
 
+::: tip
+We recommend using `sha256sum` to check the hash of the downloaded genesis against the expected genesis.
+
+```bash
+cd ~/.evmosd/config
+echo "<expected_hash>  genesis.json" | sha256sum -c
+```
+
+:::
+
 ## Exported Hard Fork
 
 ::: danger
-If the version <new_version> you are upgrading to is not state-machine breaking from the previous one, you **should not** reset the data. If this is the case you can skip to [Restart](#restart)
+If the version `<new_version>` you are upgrading to is not state-machine breaking from the previous one, you **SHOULD NOT** reset the data. If this is the case you can skip to [Restart](#restart-node).
 :::
 
-First, remove the outdated files and reset the data.
+Remove the outdated files and the reset the data:
 
 ```bash
 rm $HOME/.evmosd/config/addrbook.json
@@ -84,8 +94,10 @@ Your node is now in a pristine state while keeping the original `priv_validator.
 your node will still try to connect to them, but may fail if they haven't also
 been upgraded.
 
-::: danger Danger
-🚨 Make sure that every node has a unique `priv_validator.json`. **DO NOT** copy the `priv_validator.json` from an old node to multiple new nodes. Running two nodes with the same `priv_validator.json` will cause you to [double sign](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
+::: danger
+🚨 **IMPORTANT** 🚨
+
+Make sure that every node has a unique `priv_validator.json`. **DO NOT** copy the `priv_validator.json` from an old node to multiple new nodes. Running two nodes with the same `priv_validator.json` will cause you to [double sign](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
 :::
 
 ## Restart Node
