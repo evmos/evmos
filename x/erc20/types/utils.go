@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -26,7 +27,7 @@ func EqualMetadata(a, b banktypes.Metadata) error {
 		}
 
 		for i, v := range a.DenomUnits {
-			if v != b.DenomUnits[i] {
+			if (v.Exponent != b.DenomUnits[i].Exponent) || (v.Denom != b.DenomUnits[i].Denom) || !reflect.DeepEqual(v.Aliases, b.DenomUnits[i].Aliases) {
 				return fmt.Errorf("metadata provided has different denom unit from stored, %s ≠ %s", a.DenomUnits[i], b.DenomUnits[i])
 			}
 		}
