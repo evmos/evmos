@@ -123,7 +123,7 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmos
 Claim your testnet {{ $themeConfig.project.testnet_denom }} on the [faucet](./../developers/faucet.md) using your validator account address and submit your validator account address:
 
 ::: tip
-For more details on how to configure your validator, follow the validator [setup](./setup/setup.md) instructions.
+For more details on how to run your validator, follow [these](./setup/run_validator.md) instructions.
 :::
 
 ```bash
@@ -165,7 +165,7 @@ First, remove the outdated files and reset the data.
 
 ```bash
 rm $HOME/.evmosd/config/addrbook.json $HOME/.evmosd/config/genesis.json
-evmosd unsafe-reset-all
+evmosd tendermint unsafe-reset-all
 ```
 
 Your node is now in a pristine state while keeping the original `priv_validator.json` and `config.toml`. If you had any sentry nodes or full nodes setup before,
