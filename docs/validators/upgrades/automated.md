@@ -74,7 +74,7 @@ echo "2b5164f4bab00263cb424c3d0aa5c47a707184c6ff288322acc4c7e0c5f6f36f  genesis.
 There shouldn't be any chain database yet, but in case there is for some reason, you should reset it. This is a good idea especially if you ran `evmosd start` on an old, broken genesis file.
 
 ```bash
-evmosd unsafe-reset-all
+evmosd tendermint unsafe-reset-all
 ```
 
 ### Ensure that you have set peers

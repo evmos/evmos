@@ -59,9 +59,9 @@ $ evmosd version --long
 name: evmos
 server_name: evmosd
 version: 3.0.0
-commit: 070b668f2cbbf52548c46e96b236e09884483dd4
+commit: fe9df43332800a74a163c014c69e62765d8206e3
 build_tags: netgo,ledger
-go: go version go1.17 darwin/amd64
+go: go version go1.18 darwin/amd64
 ...
 ```
 
