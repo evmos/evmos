@@ -82,7 +82,7 @@ echo "<expected_hash>  genesis.json" | sha256sum -c
 Check [here](./upgrades) if the version you are upgrading require a data reset (hard fork). If this is not the case, you can skip to [Restart](#restart-node).
 :::
 
-Remove the outdated files and the reset the data:
+Remove the outdated files and reset the data:
 
 ```bash
 rm $HOME/.evmosd/config/addrbook.json
