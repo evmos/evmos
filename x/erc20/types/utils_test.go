@@ -99,10 +99,18 @@ func TestEqualMetadata(t *testing.T) {
 		DenomUnits:  denomUnits_C,
 	}
 
-	require.Nil(t, metadata_A.Validate())
-	require.Nil(t, metadata_B.Validate())
-	require.Nil(t, metadata_C.Validate())
+	// metadata list
+	metadataList := []*banktypes.Metadata{
+		&metadata_A,
+		&metadata_B,
+		&metadata_C,
+	}
 
-	require.Nil(t, EqualMetadata(metadata_A, metadata_B))
+	// validate each metadata
+	for _, md := range metadataList {
+		require.NoError(t, md.Validate())
+	}
+
+	require.NoError(t, EqualMetadata(metadata_A, metadata_B))
 	require.NotEqual(t, EqualMetadata(metadata_A, metadata_C), nil)
 }

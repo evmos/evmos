@@ -37,6 +37,7 @@ func EqualMetadata(a, b banktypes.Metadata) error {
 	return fmt.Errorf("metadata provided is different from stored")
 }
 
+// EqualStringSlice checks if two string slices are equal.
 func EqualStringSlice(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
