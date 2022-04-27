@@ -180,11 +180,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	// Remove all unvested periods from the schedule
 	passedPeriodID := va.GetPassedPeriodCount(time.Unix(clawbackTime, 0))
 	newVestingPeriods := va.VestingPeriods[:passedPeriodID]
-
-	newVestingEnd := va.GetStartTime()
-	for _, period := range newVestingPeriods {
-		newVestingEnd += period.Length
-	}
+	newVestingEnd := va.GetStartTime() + newVestingPeriods.TotalLength()
 
 	// Cap the unlocking schedule to the new total vested.
 	//  - If lockup has already passed, all vested coins are unlocked.

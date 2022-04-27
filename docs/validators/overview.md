@@ -8,7 +8,7 @@ Learn about validating on Evmos {synopsis}
 
 ## Introduction
 
-Evmos is based on [Tendermint](https://github.com/tendermint/tendermint/blob/master/docs/introduction/what-is-tendermint.md), which relies on a set of validators that are responsible for committing new blocks in the blockchain. These validators participate in the consensus protocol by broadcasting votes which contain cryptographic signatures signed by each validator's private key.
+Evmos is based on [Tendermint Core](https://github.com/tendermint/tendermint/blob/master/docs/introduction/what-is-tendermint.md), which relies on a set of validators that are responsible for committing new blocks in the blockchain. These validators participate in the consensus protocol by broadcasting votes which contain cryptographic signatures signed by each validator's private key.
 
 Validator candidates can bond their own staking tokens and have the tokens "delegated", or staked, to them by token holders. The **{{ $themeConfig.project.denom }}** is Evmos's native token. At its onset, Evmos will launch with 150 validators. The validators are determined by who has the most stake delegated to them - the top 150 validator candidates with the most stake will become Evmos validators.
 
@@ -24,16 +24,35 @@ Validators should expect to equip their datacenter location with redundant power
 
 We anticipate that network requirements will be low initially. Bandwidth, CPU and memory requirements will rise as the network grows. Large hard drives are recommended for storing years of blockchain history.
 
-## Set Up a Website
+### Supported OS
 
-Set up a dedicated validator's website and signal your intention to become a validator on Discord. This is important since delegators will want to have information about the entity they are delegating their EVMOS to.
+We officially support macOS, Windows and Linux only in the following architectures:
 
-## Seek Legal Advice
+* `darwin/arm64`
+* `darwin/x86_64`
+* `linux/arm64`
+* `linux/x86_64`
+* `windows/x86_64`
 
+### Minimum Requirements
+
+To run mainnet or testnet validator nodes, you will need a machine with the following minimum hardware requirements:
+
+* 4 or more physical CPU cores
+* At least 500GB of SSD disk storage
+* At least 32GB of memory (RAM)
+* At least 100mbps network bandwidth
+
+As the usage of the blockchain grows, the server requirements may increase as well, so you should have a plan for updating your server as well.
+
+## Get Involved
+
+::: tip
 Seek legal advice if you intend to run a validator.
+:::
+
+Set up a dedicated validator's website, social profile (eg: Twitter) and signal your intention to become a validator on Discord. This is important since users will want to have information about the entity they are staking their EVMOS to.
 
 ## Community
 
-Discuss the finer details of being a validator on our community chat and forum:
-
-* [Validator Forum](https://forum.cosmos.network/c/validating)
+Discuss the finer details of being a validator and seek advise from the rest of the validator community on our [Discord](https://discord.gg/evmos).
