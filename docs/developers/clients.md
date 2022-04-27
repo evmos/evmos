@@ -9,15 +9,15 @@ Learn about all the available services for clients {synopsis}
 The Evmos supports different clients in order to support Cosmos and Ethereum transactions
 and queries:
 
-|                                                        | Description                                                               | Default Port |
-| ------------------------------------------------------ | ------------------------------------------------------------------------- | ------------ |
-| **Cosmos [gRPC](#cosmos-grpc)**                        |                                                                           | `9090`       |
-| **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** |                                                                           | `9091`       |
-| **Ethereum [JSON-RPC](#ethereum-json-rpc)**            |                                                                           | `8545`       |
-| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.         | `8586`       |
-| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.         | `26657`      |
-| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc. | `26657`      |
-| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.          | N/A          |
+|                                                        | Description                                                                          | Default Port |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------ |
+| **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |
+| **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`       |
+| **Ethereum [JSON-RPC](#ethereum-json-rpc)**            | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`       |
+| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`       |
+| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `26657`      |
+| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.            | `26657`      |
+| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.                     | N/A          |
 
 ## Cosmos gRPC
 
@@ -36,7 +36,7 @@ See the list of supported gRPC-Gateway API endpoints for the Evmos testnet [here
 
 <!-- TODO: Link JSON-RPC docs -->
 
-Evmos also supports most of the standard [JSON-RPC APIs](./json-rpc/running_server) to connect with existing Ethereum-compatible web3 tooling.
+Evmos supports most of the standard [JSON-RPC APIs](./json-rpc/server) to connect with existing Ethereum-compatible web3 tooling.
 
 ::: tip
 Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints) and [namespaces](./../api/json-rpc/namespaces).
@@ -45,6 +45,17 @@ Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints) a
 ## Ethereum Websocket
 
 <!-- TODO: Link WSS docs -->
+
+Then, start a websocket subscription with [`ws`](https://github.com/hashrocket/ws)
+
+```bash
+# connect to tendermint websocet at port 8546 as defined above
+ws ws://localhost:8546/
+
+# subscribe to new Ethereum-formatted block Headers
+> {"id": 1, "method": "eth_subscribe", "params": ["newHeads", {}]}
+< {"jsonrpc":"2.0","result":"0x44e010cb2c3161e9c02207ff172166ef","id":1}
+```
 
 ## Tendermint Websocket
 
