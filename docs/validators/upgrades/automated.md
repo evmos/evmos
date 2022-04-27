@@ -5,17 +5,23 @@ order: 2
 
 # Automated Upgrades
 
+Learn how to automate chain upgrades using Cosmovisor. {synopsis}
+
+## Pre-requisites
+
+- [Install Cosmovisor](https://docs.cosmos.network/main/run-node/cosmovisor.html#installation) {prereq}
+
 ## Using Cosmovisor
 
 > `cosmovisor` is a small process manager for Cosmos SDK application binaries that monitors the governance module for incoming chain upgrade proposals. If it sees a proposal that gets approved, cosmovisor can automatically download the new binary, stop the current binary, switch from the old binary to the new one, and finally restart the node with the new binary.
 
-### Install and Setup
+::: tip
+👉 For more info about Cosmovisor, please refer to the project official documentation [here](https://docs.cosmos.network/main/run-node/cosmovisor.html).
+:::
 
-To get started with [Cosmovisor](https://github.com/cosmos/cosmos-sdk/tree/master/cosmovisor) first download it
+We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
-```bash
-go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@v1.0.0
-```
+### 1. Setup Cosmovisor
 
 Set up the Cosmovisor environment variables. We recommend setting these in your `.profile` so it is automatically set in every session.
 
@@ -26,7 +32,7 @@ echo "export DAEMON_HOME=$HOME/.evmosd" >> ~/.profile
 source ~/.profile
 ```
 
-After this, you must make the necessary folders for cosmosvisor in your daemon home directory (~/.evmosd) and copy over the current binary.
+After this, you must make the necessary folders for `cosmosvisor` in your `DAEMON_HOME` directory (`~/.evmosd`) and copy over the current binary.
 
 ```bash
 mkdir -p ~/.evmosd/cosmovisor
@@ -37,77 +43,66 @@ mkdir -p ~/.evmosd/cosmovisor/upgrades
 cp $GOPATH/bin/evmosd ~/.evmosd/cosmovisor/genesis/bin
 ```
 
-To check that you did this correctly, ensure your versions of cosmovisor and evmosd are the same:
+To check that you did this correctly, ensure your versions of `cosmovisor` and `evmosd` are the same:
 
-```
+```bash
 cosmovisor version
 evmosd version
 ```
 
-### Generally Preparing an Upgrade
+### 2. Download the Evmos release
 
-Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is ready, node operators can download the new binary and place it under `$DAEMON_HOME/cosmovisor/upgrades/<name>/bin` where `<name>` is the URI-encoded name of the upgrade as specified in the upgrade module plan.
+#### 2.a) Manual Download
 
-It is possible to have Cosmovisor automatically download the new binary. To do this set the following environment variable.
+Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is [released](https://github.com/tharsis/evmos/releases), node operators need to:
+
+1. Download (**NOT INSTALL**) the binary for the new release
+2. Place it under `$DAEMON_HOME/cosmovisor/upgrades/<name>/bin`, where `<name>` is the URI-encoded name of the upgrade as specified in the Software Upgrade Plan.
+
+**Example**: for a `Plan` with name `v3.0.0` with the following `upgrade-info.json`:
+
+```json
+{
+    "binaries": {
+        "darwin/arm64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Darwin_arm64.tar.gz",
+        "darwin/x86_64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Darwin_x86_64.tar.gz",
+        "linux/arm64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Linux_arm64.tar.gz",
+        "linux/x86_64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Linux_x86_64.tar.gz",
+        "windows/x86_64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Windows_x86_64.zip"
+    }
+}
+```
+
+Your `cosmovisor/` directory should look like this:
+
+```shell
+cosmovisor/
+├── current/   # either genesis or upgrades/<name>
+├── genesis
+│   └── bin
+│       └── evmosd
+└── upgrades
+    └── v3.0.0
+        ├── bin
+        │   └── evmosd
+        └── upgrade-info.json
+```
+
+#### 2.b) Automatic Download
+
+::: warning
+**NOTE**: Auto-download doesn't verify in advance if a binary is available. If there will be any issue with downloading a binary, `cosmovisor` will stop and won't restart an the chain (which could lead it to a halt).
+:::
+
+It is possible to have Cosmovisor [automatically download](https://docs.cosmos.network/main/run-node/cosmovisor.html#auto-download) the new binary. Validators can use the automatic download option to prevent unnecessary downtime during the upgrade process. This option will automatically restart the chain with the upgrade binary once the chain has halted at the proposed `upgrade-height`. The major benefit of this option is that validators can prepare the upgrade binary in advance and then relax at the time of the upgrade.
+
+To set the auto-download use set the following environment variable:
 
 ```bash
 echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=true" >> ~/.profile
 ```
 
-### Download Genesis File
-
-You can now download the "genesis" file for the chain. It is pre-filled with the entire genesis state and gentxs.
-
-```bash
-curl https://raw.githubusercontent.com/tharsis/testnets/main/olympus_mons/genesis.json > ~/.evmosd/config/genesis.json
-```
-
-We recommend using `sha256sum` to check the hash of the genesis.
-
-```bash
-cd ~/.evmosd/config
-echo "2b5164f4bab00263cb424c3d0aa5c47a707184c6ff288322acc4c7e0c5f6f36f  genesis.json" | sha256sum -c
-```
-
-### Reset Chain Database
-
-There shouldn't be any chain database yet, but in case there is for some reason, you should reset it. This is a good idea especially if you ran `evmosd start` on an old, broken genesis file.
-
-```bash
-evmosd unsafe-reset-all
-```
-
-### Ensure that you have set peers
-
-In `~/.evmosd/config/config.toml` you can set your peers. See the [peers.txt](https://github.com/tharsis/testnets/blob/main/olympus_mons/peers.txt) file for a list of up to date peers.
-
-See the [Add persistent peers section](https://evmos.dev/testnet/join.html#add-persistent-peers) in our docs for an automated method, but field should look something like a comma separated string of peers (do not copy this, just an example):
-
-```bash
-persistent_peers = "5576b0160761fe81ccdf88e06031a01bc8643d51@195.201.108.97:24656,13e850d14610f966de38fc2f925f6dc35c7f4bf4@176.9.60.27:26656,38eb4984f89899a5d8d1f04a79b356f15681bb78@18.169.155.159:26656,59c4351009223b3652674bd5ee4324926a5a11aa@51.15.133.26:26656,3a5a9022c8aa2214a7af26ebbfac49b77e34e5c5@65.108.1.46:26656,4fc0bea2044c9fd1ea8cc987119bb8bdff91aaf3@65.21.246.124:26656,6624238168de05893ca74c2b0270553189810aa7@95.216.100.80:26656,9d247286cd407dc8d07502240245f836e18c0517@149.248.32.208:26656,37d59371f7578101dee74d5a26c86128a229b8bf@194.163.172.168:26656,b607050b4e5b06e52c12fcf2db6930fd0937ef3b@95.217.107.96:26656,7a6bbbb6f6146cb11aebf77039089cd038003964@94.130.54.247:26656"
-```
-
-You can share your peer with
-
-```bash
-evmosd tendermint show-node-id
-```
-
-**Peer Format**: `node-id@ip:port`
-
-**Example**: `3d892cfa787c164aca6723e689176207c1a42025@143.198.224.124:26656`
-
-If you are relying on just seed node and no persistent peers or a low amount of them, please increase the following params in `config.toml`:
-
-```bash
-# Maximum number of inbound peers
-max_num_inbound_peers = 200
-
-# Maximum number of outbound peers to connect to, excluding persistent peers
-max_num_outbound_peers = 100
-```
-
-### Start your node
+### 3. Start your node
 
 Now that everything is setup and ready to go, you can start your node.
 
@@ -152,33 +147,4 @@ You can check the status with:
 
 ```bash
 systemctl status evmosd
-```
-
-### update Cosmosvisor
-
-If you're not yet on the latest V1 release (`v1.1.2`) please upgrade your current version first:
-
-```bash
-cd $HOME/evmos
-git pull
-git checkout v1.1.2
-make build
-systemctl stop evmosd.service
-cp build/evmosd ~/.evmosd/cosmovisor/genesis/bin
-systemctl start evmosd.service
-cd $HOME
-```
-
-If you are on the latest V1 release (`v1.1.2`) and you want evmosd to upgrade automatically from V1 to V2, do the following steps prior to the upgrade height:
-
-```bash
-mkdir -p ~/.evmosd/cosmovisor/upgrades/v2/bin
-cd $HOME/evmos
-git pull
-git checkout v2.0.0
-make build
-systemctl stop evmosd.service
-cp build/evmosd ~/.evmosd/cosmovisor/upgrades/v2/bin
-systemctl start evmosd.service
-cd $HOME
 ```

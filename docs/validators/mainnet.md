@@ -124,7 +124,7 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmos
 ## Run a Mainnet Validator
 
 ::: tip
-For more details on how to configure your validator, follow the validator [setup](./../guides/validators/setup.md) instructions.
+For more details on how to run your validator, follow the validator [these](./setup/run_validator.md) instructions.
 :::
 
 ```bash
@@ -150,42 +150,7 @@ Ref: [Security Advisory: Insecurely configured geth can make funds remotely acce
 
 ## Start mainnet
 
-The final step is to [start the nodes](./../quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the node will start producing blocks.
-
-```bash
-evmosd start
-```
-
-## Upgrading Your Node
-
-::: tip
-These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest mainnet version.
-:::
-
-### Reset Data
-
-::: warning
-If the version <new_version> you are upgrading to is not breaking from the previous one, you **should not** reset the data. If this is the case you can skip to [Restart](#restart)
-:::
-
-First, remove the outdated files and reset the data.
-
-```bash
-rm $HOME/.evmosd/config/addrbook.json $HOME/.evmosd/config/genesis.json
-evmosd unsafe-reset-all
-```
-
-Your node is now in a pristine state while keeping the original `priv_validator.json` and `config.toml`. If you had any sentry nodes or full nodes setup before,
-your node will still try to connect to them, but may fail if they haven't also
-been upgraded.
-
-::: danger Warning
-Make sure that every node has a unique `priv_validator.json`. Do not copy the `priv_validator.json` from an old node to multiple new nodes. Running two nodes with the same `priv_validator.json` will cause you to double sign.
-:::
-
-### Restart
-
-To restart your node, just type:
+The final step is to [start the nodes](./quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the node will start producing blocks.
 
 ```bash
 evmosd start
