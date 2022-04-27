@@ -136,9 +136,9 @@ module.exports = {
               path: '/developers/connect'
             },
             {
-              title: 'Developer APIs',
+              title: 'Evmos Clients',
               directory: false,
-              path: '/developers/apis'
+              path: '/developers/clients'
             },
             {
               title: 'Testnet Faucet',
