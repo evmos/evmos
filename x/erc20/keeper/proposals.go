@@ -73,7 +73,11 @@ func (k Keeper) DeployERC20Contract(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) (common.Address, error) {
-	decimals := uint8(coinMetadata.DenomUnits[0].Exponent)
+	decimals := uint8(0)
+	if len(coinMetadata.DenomUnits) > 0 {
+		decimalsIdx := len(coinMetadata.DenomUnits) - 1
+		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
+	}
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
 		"",
 		coinMetadata.Name,
