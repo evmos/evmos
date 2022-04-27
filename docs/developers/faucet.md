@@ -12,16 +12,26 @@ The Evmos Testnet Faucet distributes small amounts of {{ $themeConfig.project.te
 Follow the [Metamask](./../guides/keys-wallets/metamask.md), [Keplr](./../users/wallets/keplr.md) or [Keyring](./../users/keys/keyring.md) guides for more info on how to setup your wallet account.
 :::
 
-## Request tokens
+## Connect to the Evmos Testnet & Request tokens
 
-You can request tokens for the testnet by using the Evmos [faucet](https://faucet.evmos.dev).
-Simply fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
+Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.dev/) to request tokens for the testnet. Click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (`evmos_{{ $themeConfig.project.testnet_chain_id }}-{{ $themeConfig.project.testnet_version_number }}`) to Keplr and approve the connection.
+
+![chain add request](./../img/keplr_approve_chain.png)
+
+After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../users/technical_concepts/accounts#address-formats-for-clients) on the testnet (only `eth_secp256k1` addresses are supported).
+
+![chain add request](./../img/keplr_transaction.png)
+
+Alternatively you can also fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
 
 ::: warning
 If you use your Bech32 address, make sure you input the [account address](./../technical_concepts/accounts#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
 :::
 
 ![faucet site](./../img/faucet_web_page.png)
+
+
+View your account balance either by clicking on the Keplr extension or by [interacting with the node](../../quickstart/interact_node). Note that Faucet might not display the amount of {{ $themeConfig.project.testnet_denom }} transferred by the Faucet, as it might be smaller than the number of decimals displayed in the Keplr extension.
 
 ## Rate limits
 
