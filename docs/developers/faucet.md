@@ -41,11 +41,12 @@ View your account balance either by clicking on the Keplr extension or by [inter
 :::
 
 ## Rate limits
+
 ::: tip
 All addresses **MUST** be authenticated using ReCAPTCHA before requesting tokens.
 :::
 
-To prevent the faucet account from draining the available funds, the Evmos testnet faucet imposes a maximum number of requests for a period of time. By default, the faucet service accepts 1 request per day per address. You can request {{ $themeConfig.project.testnet_denom }} from the [Faucet](./../../developers/faucet) for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours. 
+To prevent the faucet account from draining the available funds, the Evmos testnet faucet imposes a maximum number of requests for a period of time. By default, the faucet service accepts 1 request per day per address. You can request {{ $themeConfig.project.testnet_denom }} from the [Faucet](./../../developers/faucet) for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
 
 ## Amount
 
