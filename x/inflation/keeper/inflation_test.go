@@ -132,7 +132,7 @@ func (suite *KeeperTestSuite) TestGetTotalSupplyAndInflationRate() {
 			suite.app.InflationKeeper.MintCoins(suite.ctx, coin)
 
 			teamAlloc := sdk.NewDecCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(int64(200_000_000), sdk.DefaultPowerReduction))
-			totalSupply := s.app.InflationKeeper.GetTotalSupply(suite.ctx)
+			totalSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx)
 
 			suite.Require().Equal(decCoin.Sub(teamAlloc).Amount, totalSupply)
 
