@@ -20,8 +20,6 @@ Add the Keplr browser extension following the instructions on the [Keplr website
 
 Open the Keplr extension on your browser. If you are setting up Keplr for the first time, you can either create a new account or import an existing account. Refer to the [Keplr documentation](https://keplr.crunch.help/getting-started) for further information.
 
-## Connect Keplr to Emvos Mainnet
+## Connect Keplr to Mainnet
 
-Once you are signed in to the Keplr extension, you can connect the wallet with the Evmos network.
-
-To connect Keplr to mainnet, visit the Evmos [Dashboard](https://app.evmos.org/). On the dashboard, click `CONNECT WALLET` and select `Keplr`. A popup will prompt you `Requesting Connection` to add the Evmos mainnet chain (`evmos_{{ $themeConfig.project.chain_id }}-{{ $themeConfig.project.version_number }}`) to Keplr and approve the connection.
+Once you are signed in to the Keplr extension, you can connect the wallet with the Evmos network. The Evmos mainnet network is already built into Keplr; it is the Evmos (beta) network.
