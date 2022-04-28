@@ -38,15 +38,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 		)
 	}
 
-	vestingCoins := sdk.NewCoins()
-	for _, period := range msg.VestingPeriods {
-		vestingCoins = vestingCoins.Add(period.Amount...)
-	}
-
-	lockupCoins := sdk.NewCoins()
-	for _, period := range msg.LockupPeriods {
-		lockupCoins = lockupCoins.Add(period.Amount...)
-	}
+	vestingCoins := msg.VestingPeriods.TotalAmount()
+	lockupCoins := msg.LockupPeriods.TotalAmount()
 
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
@@ -222,8 +215,8 @@ func (k Keeper) addGrant(
 	grantCoins sdk.Coins,
 ) {
 	// how much is really delegated?
-	bondedAmt := k.GetDelegatorBonded(ctx, va.GetAddress())
-	unbondingAmt := k.GetDelegatorUnbonding(ctx, va.GetAddress())
+	bondedAmt := k.stakingKeeper.GetDelegatorBonded(ctx, va.GetAddress())
+	unbondingAmt := k.stakingKeeper.GetDelegatorUnbonding(ctx, va.GetAddress())
 	delegatedAmt := bondedAmt.Add(unbondingAmt)
 	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
 
