@@ -15,9 +15,13 @@ messages and index transactions. {synopsis}
 
 ## Subscribing to Events
 
-### SDK and Tendermint Events
+### Cosmos and Tendermint Events
 
-It is possible to subscribe to `Events` via Tendermint's [Websocket](https://tendermint.com/docs/app-dev/subscribing-to-events-via-websocket.html#subscribing-to-events-via-websocket).
+::: tip
+Check the [Tendermint Websocket](./../clients#tendermint-websocket) in the Clients documentation for reference.
+:::
+
+It is possible to subscribe to `Events` via Tendermint's [Websocket](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html).
 This is done by calling the `subscribe` RPC method via Websocket:
 
 ```json
@@ -26,23 +30,15 @@ This is done by calling the `subscribe` RPC method via Websocket:
     "method": "subscribe",
     "id": "0",
     "params": {
-        "query": "tm.event='eventCategory' AND eventType.eventAttribute='attributeValue'"
+        "query": "tm.event='<event_value>' AND eventType.eventAttribute='<attribute_value>'"
     }
 }
 ```
 
-The main `eventCategory` you can subscribe to are:
-
-- `NewBlock`: Contains `events` triggered during `BeginBlock` and `EndBlock`.
-- `Tx`: Contains `events` triggered during `DeliverTx` (i.e. transaction processing).
-- `ValidatorSetUpdates`: Contains validator set updates for the block.
-
-These events are triggered from the `state` package after a block is committed. You can get the full
-list of `event` categories
-[here](https://godoc.org/github.com/tendermint/tendermint/types#pkg-constants).
+These events are triggered after a block is committed. You can get the full list of `event` categories and values [here](./../clients#list-of-tendermint-events).
 
 The `type` and `attribute` value of the `query` allow you to filter the specific `event` you are
-looking for. For example, a `MsgEthereumTx` transaction triggers an `event` of type `ethermint` and
+looking for. For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
 has `sender` and `recipient` as `attributes`. Subscribing to this `event` would be done like so:
 
 ```json
@@ -58,12 +54,11 @@ has `sender` and `recipient` as `attributes`. Subscribing to this `event` would 
 
 where `hexAddress` is an Ethereum hex address (eg: `0x1122334455667788990011223344556677889900`).
 
-### Ethereum JSON-RPC Events
+### Ethereum Events
 
-Evmos also supports the Ethereum [JSON-RPC](https://eth.wiki/json-rpc/API) filters calls to
+Evmos also supports the Ethereum [JSON-RPC](./server) filters calls to
 subscribe to [state logs](https://eth.wiki/json-rpc/API#eth_newfilter),
-[blocks](https://eth.wiki/json-rpc/API#eth_newblockfilter) or [pending
-transactions](https://eth.wiki/json-rpc/API#eth_newpendingtransactionfilter) changes.
+[blocks](https://eth.wiki/json-rpc/API#eth_newblockfilter) or [pending transactions](https://eth.wiki/json-rpc/API#eth_newpendingtransactionfilter) changes.
 
 Under the hood, it uses the Tendermint RPC client's event system to process subscriptions that are
 then formatted to Ethereum-compatible events.
@@ -107,8 +102,7 @@ ws ws://localhost:8080/websocket
 
 Since Evmos runs uses Tendermint Core as it's consensus Engine and it's built with the Cosmos
 SDK framework, it inherits the event format from them. However, in order to support the native Web3
-compatibility for websockets of the [Ethereum's
-PubSubAPI](https://geth.ethereum.org/docs/rpc/pubsub), Evmos needs to cast the Tendermint
+compatibility for websockets of the [Ethereum's PubSubAPI](https://geth.ethereum.org/docs/rpc/pubsub), Evmos needs to cast the Tendermint
 responses retrieved into the Ethereum types.
 
 You can start a connection with the Ethereum websocket using the `--json-rpc.ws-address` flag when starting
