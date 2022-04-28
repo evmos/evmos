@@ -167,7 +167,7 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryTotalSupply() {
+func (suite *KeeperTestSuite) TestQueryCirculatingSupply() {
 	// Team allocation is only set on mainnet
 	ctx := sdk.WrapSDKContext(suite.ctx)
 

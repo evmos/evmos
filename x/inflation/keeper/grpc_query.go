@@ -66,10 +66,10 @@ func (k Keeper) CirculatingSupply(
 	_ *types.QueryCirculatingSupplyRequest,
 ) (*types.QueryCirculatingSupplyResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	totalSupply := k.GetCirculatingSupply(ctx)
+	circulatingSupply := k.GetCirculatingSupply(ctx)
 
 	mintDenom := k.GetParams(ctx).MintDenom
-	coin := sdk.NewDecCoinFromDec(mintDenom, totalSupply)
+	coin := sdk.NewDecCoinFromDec(mintDenom, circulatingSupply)
 
 	return &types.QueryCirculatingSupplyResponse{CirculatingSupply: coin}, nil
 }
