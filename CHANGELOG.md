@@ -55,7 +55,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - [\#342](https://github.com/tharsis/evmos/pull/342) Implement IBC middleware to recover stuck funds
 
-
 ### API Breaking
 
 - [\#415](https://github.com/tharsis/evmos/pull/415) Bump Evmos go version to v3
