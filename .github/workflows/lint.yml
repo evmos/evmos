@@ -44,6 +44,6 @@ jobs:
         with:
           files: .
           config_file: .markdownlint.yaml
-          ignore_path: examples/.markdownlintignore
+          ignore_path: .markdownlintignore
         # Check only if there are differences in the source code
         if: env.GIT_DIFF
