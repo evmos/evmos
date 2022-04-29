@@ -25,7 +25,7 @@ func GetQueryCmd() *cobra.Command {
 		GetPeriod(),
 		GetEpochMintProvision(),
 		GetSkippedEpochs(),
-		GetTotalSupply(),
+		GetCirculatingSupply(),
 		GetInflationRate(),
 		GetParams(),
 	)
@@ -120,11 +120,11 @@ func GetSkippedEpochs() *cobra.Command {
 	return cmd
 }
 
-// GetTotalSupply implements a command to return the current total supply
-func GetTotalSupply() *cobra.Command {
+// GetCirculatingSupply implements a command to return the current circulating supply
+func GetCirculatingSupply() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "total-supply",
-		Short: "Query the current total supply of tokens in circulation",
+		Use:   "circulating-supply",
+		Short: "Query the current supply of tokens in circulation",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -133,13 +133,13 @@ func GetTotalSupply() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryTotalSupplyRequest{}
-			res, err := queryClient.TotalSupply(context.Background(), params)
+			params := &types.QueryCirculatingSupplyRequest{}
+			res, err := queryClient.CirculatingSupply(context.Background(), params)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.TotalSupply))
+			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.CirculatingSupply))
 		},
 	}
 

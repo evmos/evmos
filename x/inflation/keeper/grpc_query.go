@@ -59,18 +59,19 @@ func (k Keeper) InflationRate(
 	return &types.QueryInflationRateResponse{InflationRate: inflationRate}, nil
 }
 
-// TotalSupply returns the number of skipped Epochs of the inflation module.
-func (k Keeper) TotalSupply(
+// CirculatingSupply returns the total supply in circulation excluding the team
+// allocation in the first year
+func (k Keeper) CirculatingSupply(
 	c context.Context,
-	_ *types.QueryTotalSupplyRequest,
-) (*types.QueryTotalSupplyResponse, error) {
+	_ *types.QueryCirculatingSupplyRequest,
+) (*types.QueryCirculatingSupplyResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	totalSupply := k.GetTotalSupply(ctx)
+	circulatingSupply := k.GetCirculatingSupply(ctx)
 
 	mintDenom := k.GetParams(ctx).MintDenom
-	coin := sdk.NewDecCoinFromDec(mintDenom, totalSupply)
+	coin := sdk.NewDecCoinFromDec(mintDenom, circulatingSupply)
 
-	return &types.QueryTotalSupplyResponse{TotalSupply: coin}, nil
+	return &types.QueryCirculatingSupplyResponse{CirculatingSupply: coin}, nil
 }
 
 // Params returns params of the mint module.

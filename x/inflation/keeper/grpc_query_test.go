@@ -167,7 +167,7 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryTotalSupply() {
+func (suite *KeeperTestSuite) TestQueryCirculatingSupply() {
 	// Team allocation is only set on mainnet
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
@@ -178,11 +178,11 @@ func (suite *KeeperTestSuite) TestQueryTotalSupply() {
 	suite.Require().NoError(err)
 
 	// team allocation is zero if not on mainnet
-	expTotalSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, sdk.DefaultPowerReduction))
+	expCirculatingSupply := sdk.NewDecCoin(mintDenom, sdk.TokensFromConsensusPower(200_000_000, sdk.DefaultPowerReduction))
 
-	res, err := suite.queryClient.TotalSupply(ctx, &types.QueryTotalSupplyRequest{})
+	res, err := suite.queryClient.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Equal(expTotalSupply, res.TotalSupply)
+	suite.Require().Equal(expCirculatingSupply, res.CirculatingSupply)
 }
 
 func (suite *KeeperTestSuite) TestQueryInflationRate() {

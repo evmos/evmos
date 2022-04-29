@@ -28,10 +28,11 @@ service Query {
     option (google.api.http).get = "/evmos/inflation/v1/skipped_epochs";
   }
 
-  // TotalSupply retrieves the total number of skipped epochs.
-  rpc TotalSupply(QueryTotalSupplyRequest)
-      returns (QueryTotalSupplyResponse) {
-    option (google.api.http).get = "/evmos/inflation/v1/total_supply";
+  // CirculatingSupply retrieves the total number of tokens that are in
+  // circulation (i.e. excluding unvested tokens).
+  rpc CirculatingSupply(QueryCirculatingSupplyRequest)
+      returns (QueryCirculatingSupplyResponse) {
+    option (google.api.http).get = "/evmos/inflation/v1/circulating_supply";
   }
 
   // InflationRate retrieves the inflation rate of the current period.
@@ -69,31 +70,37 @@ message QueryEpochMintProvisionResponse {
   ];
 }
 
-// QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
+// QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC
+// method.
 message QuerySkippedEpochsRequest {}
 
-// QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
+// QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs
+// RPC method.
 message QuerySkippedEpochsResponse {
   // number of epochs that the inflation module has been disabled.
   uint64 skipped_epochs = 1;
 }
 
-// QueryTotalSupplyRequest is the request type for the Query/TotalSupply RPC method.
-message QueryTotalSupplyRequest {}
+// QueryCirculatingSupplyRequest is the request type for the
+// Query/CirculatingSupply RPC method.
+message QueryCirculatingSupplyRequest {}
 
-// QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
-message QueryTotalSupplyResponse {
+// QueryCirculatingSupplyResponse is the response type for the
+// Query/CirculatingSupply RPC method.
+message QueryCirculatingSupplyResponse {
   // total amount of coins in circulation
-  cosmos.base.v1beta1.DecCoin total_supply = 1 [
+  cosmos.base.v1beta1.DecCoin circulating_supply = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }
 
-// QueryInflationRateRequest is the request type for the Query/InflationRate RPC method.
+// QueryInflationRateRequest is the request type for the Query/InflationRate RPC
+// method.
 message QueryInflationRateRequest {}
 
-// QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
+// QueryInflationRateResponse is the response type for the Query/InflationRate
+// RPC method.
 message QueryInflationRateResponse {
   // rate by which the total supply increases within one period
   string inflation_rate = 1 [

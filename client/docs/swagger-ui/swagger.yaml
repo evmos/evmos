@@ -1507,6 +1507,62 @@ paths:
                       format: byte
       tags:
         - Query
+  /evmos/inflation/v1/circulating_supply:
+    get:
+      summary: |-
+        CirculatingSupply retrieves the total number of tokens that are in
+        circulation (i.e. excluding unvested tokens).
+      operationId: CirculatingSupply
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              circulating_supply:
+                title: total amount of coins in circulation
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: |-
+              QueryCirculatingSupplyResponse is the response type for the
+              Query/CirculatingSupply RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /evmos/inflation/v1/epoch_mint_provision:
     get:
       summary: EpochMintProvision retrieves current minting epoch provision value.
@@ -1569,7 +1625,9 @@ paths:
                 title: rate by which the total supply increases within one period
             description: >-
               QueryInflationRateResponse is the response type for the
-              Query/InflationRate RPC method.
+              Query/InflationRate
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1744,61 +1802,9 @@ paths:
                 description: number of epochs that the inflation module has been disabled.
             description: >-
               QuerySkippedEpochsResponse is the response type for the
-              Query/SkippedEpochs RPC method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      tags:
-        - Query
-  /evmos/inflation/v1/total_supply:
-    get:
-      summary: TotalSupply retrieves the total number of skipped epochs.
-      operationId: InflationTotalSupply
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              total_supply:
-                title: total amount of coins in circulation
-                type: object
-                properties:
-                  denom:
-                    type: string
-                  amount:
-                    type: string
-                description: >-
-                  DecCoin defines a token with a denomination and a decimal
-                  amount.
+              Query/SkippedEpochs
 
-
-                  NOTE: The amount field is an Dec which implements the custom
-                  method
-
-                  signatures required by gogoproto.
-            description: >-
-              QueryTotalSupplyResponse is the response type for the
-              Query/TotalSupply RPC method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -29387,6 +29393,25 @@ definitions:
         type: boolean
         title: parameter to enable inflation and halt increasing the skipped_epochs
     description: Params holds parameters for the inflation module.
+  evmos.inflation.v1.QueryCirculatingSupplyResponse:
+    type: object
+    properties:
+      circulating_supply:
+        title: total amount of coins in circulation
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          DecCoin defines a token with a denomination and a decimal amount.
+
+          NOTE: The amount field is an Dec which implements the custom method
+          signatures required by gogoproto.
+    description: |-
+      QueryCirculatingSupplyResponse is the response type for the
+      Query/CirculatingSupply RPC method.
   evmos.inflation.v1.QueryEpochMintProvisionResponse:
     type: object
     properties:
@@ -29409,7 +29434,9 @@ definitions:
         title: rate by which the total supply increases within one period
     description: >-
       QueryInflationRateResponse is the response type for the
-      Query/InflationRate RPC method.
+      Query/InflationRate
+
+      RPC method.
   evmos.inflation.v1.QueryParamsResponse:
     type: object
     properties:
@@ -29487,25 +29514,8 @@ definitions:
         description: number of epochs that the inflation module has been disabled.
     description: >-
       QuerySkippedEpochsResponse is the response type for the
-      Query/SkippedEpochs RPC method.
-  evmos.inflation.v1.QueryTotalSupplyResponse:
-    type: object
-    properties:
-      total_supply:
-        title: total amount of coins in circulation
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          DecCoin defines a token with a denomination and a decimal amount.
+      Query/SkippedEpochs
 
-          NOTE: The amount field is an Dec which implements the custom method
-          signatures required by gogoproto.
-    description: >-
-      QueryTotalSupplyResponse is the response type for the Query/TotalSupply
       RPC method.
   evmos.vesting.v1.QueryBalancesResponse:
     type: object
