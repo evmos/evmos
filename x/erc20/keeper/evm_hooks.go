@@ -99,7 +99,7 @@ func (h Hooks) PostTxProcessing(
 			// continue to allow transfers for the ERC20 in case the token pair is disabled
 			h.k.Logger(ctx).Debug(
 				"ERC20 token -> Cosmos coin conversion is disabled for pair",
-				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
+				"coin", pair.Denom, "contract", pair.Erc20Address,
 			)
 			continue
 		}
@@ -119,7 +119,7 @@ func (h Hooks) PostTxProcessing(
 		// Mint the coin only if ERC20 is external
 		switch pair.ContractOwner {
 		case types.OWNER_MODULE:
-			_, err = h.k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, "burn", tokens)
+			_, err = h.k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)
 		case types.OWNER_EXTERNAL:
 			err = h.k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 		default:

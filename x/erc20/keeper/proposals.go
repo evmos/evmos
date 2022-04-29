@@ -73,7 +73,11 @@ func (k Keeper) DeployERC20Contract(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) (common.Address, error) {
-	decimals := uint8(coinMetadata.DenomUnits[0].Exponent)
+	decimals := uint8(0)
+	if len(coinMetadata.DenomUnits) > 0 {
+		decimalsIdx := len(coinMetadata.DenomUnits) - 1
+		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
+	}
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
 		"",
 		coinMetadata.Name,
@@ -94,7 +98,7 @@ func (k Keeper) DeployERC20Contract(
 	}
 
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
-	_, err = k.CallEVMWithData(ctx, types.ModuleAddress, nil, data)
+	_, err = k.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrapf(err, "failed to deploy contract for %s", coinMetadata.Name)
 	}

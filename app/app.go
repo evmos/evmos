@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -91,8 +92,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 
-	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
 	srvflags "github.com/tharsis/ethermint/server/flags"
@@ -104,6 +103,9 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
+	// unnamed import of statik for swagger UI support
+	_ "github.com/tharsis/evmos/v3/client/docs/statik"
 
 	"github.com/tharsis/evmos/v3/app/ante"
 	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
@@ -119,6 +121,9 @@ import (
 	erc20client "github.com/tharsis/evmos/v3/x/erc20/client"
 	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
 	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v3/x/fees"
+	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
+	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
 	"github.com/tharsis/evmos/v3/x/incentives"
 	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
 	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
@@ -195,6 +200,7 @@ var (
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
 		recovery.AppModuleBasic{},
+		fees.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -276,6 +282,7 @@ type Evmos struct {
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
 	RecoveryKeeper   *recoverykeeper.Keeper
+	FeesKeeper       feeskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -332,6 +339,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
+		feestypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -461,6 +469,12 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
 	)
 
+	app.FeesKeeper = feeskeeper.NewKeeper(
+		keys[feestypes.StoreKey], appCodec, app.GetSubspace(feestypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
@@ -480,6 +494,7 @@ func NewEvmos(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
+			app.FeesKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
 	)
@@ -581,6 +596,7 @@ func NewEvmos(
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		recovery.NewAppModule(*app.RecoveryKeeper),
+		fees.NewAppModule(app.FeesKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -617,6 +633,7 @@ func NewEvmos(
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
+		feestypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -649,6 +666,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
+		feestypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -684,6 +702,7 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
+		feestypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -1001,22 +1020,22 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
+	paramsKeeper.Subspace(feestypes.ModuleName)
 	return paramsKeeper
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v2 handler
+	// v2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// v3 handler upgrade is
+	// v3 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v3.UpgradeName,
 		v3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-
-	// testnet v3 handler upgrade is
+	// testnet upgrade v3 handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		tv3.UpgradeName,
 		tv3.CreateUpgradeHandler(app.mm, app.configurator),
@@ -1027,22 +1046,22 @@ func (app *Evmos) setupUpgradeHandlers() {
 	// This will read that value, and execute the preparations for the upgrade.
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
 	}
 
 	var storeUpgrades *storetypes.StoreUpgrades
 
-	switch {
-	case upgradeInfo.Name == v3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
-		// prepare store for v3
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{recoverytypes.ModuleName},
-		}
-	case upgradeInfo.Name == tv3.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height):
-		// prepare store for testnet v3
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{recoverytypes.ModuleName},
-		}
+	switch upgradeInfo.Name {
+	case v2.UpgradeName:
+		// no store upgrades in v2
+	case v3.UpgradeName:
+		// no store upgrades in v3
+	case tv3.UpgradeName:
+		// no store upgrades in testnet v3
 	}
 
 	if storeUpgrades != nil {

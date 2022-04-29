@@ -27,6 +27,7 @@ import (
 	"github.com/tendermint/tendermint/version"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/v3/app"
+	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/claims/types"
 )
 
@@ -125,6 +126,15 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.validator = validators[0]
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
+}
+
+func (suite *KeeperTestSuite) SetupTestWithEscrow() {
+	suite.SetupTest()
+	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+
+	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(10000000)))
+	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+	suite.Require().NoError(err)
 }
 
 // Commit commits and starts a new block with an updated context.

@@ -16,9 +16,9 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v3/app"
+	"github.com/tharsis/evmos/v3/testutil"
 	"github.com/tharsis/evmos/v3/x/claims"
 	"github.com/tharsis/evmos/v3/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 )
 
 type GenesisTestSuite struct {
@@ -114,9 +114,7 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 			},
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(2_800)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			false,
@@ -140,9 +138,7 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 			},
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			false,
@@ -189,9 +185,7 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 	}
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-	suite.Require().NoError(err)
-	err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
 	claims.InitGenesis(suite.ctx, *suite.app.ClaimsKeeper, suite.genesis)

@@ -31,7 +31,7 @@ For Evmos, the `ClawbackVestingAccount` is used to allocate tokens to core team 
 
 ## References
 
-- SDK vesting specification: [https://docs.cosmos.network/master/modules/auth/05_vesting.html](https://docs.cosmos.network/master/modules/auth/05_vesting.html)
+- SDK vesting specification: [https://docs.cosmos.network/main/modules/auth/05_vesting.html](https://docs.cosmos.network/main/modules/auth/05_vesting.html)
 - SDK vesting implementation: [https://github.com/cosmos/cosmos-sdk/tree/master/x/auth/vesting](https://github.com/cosmos/cosmos-sdk/tree/master/x/auth/vesting)
 - Agoric’s Vesting Clawback Account: [https://github.com/Agoric/agoric-sdk/issues/4085](https://github.com/Agoric/agoric-sdk/issues/4085)
 - Agoric’s `vestcalc` tool: [https://github.com/agoric-labs/cosmos-sdk/tree/Agoric/x/auth/vesting/cmd/vestcalc](https://github.com/agoric-labs/cosmos-sdk/tree/Agoric/x/auth/vesting/cmd/vestcalc)
