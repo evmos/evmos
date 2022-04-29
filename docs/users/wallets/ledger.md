@@ -174,5 +174,4 @@ Since Evmos only support Ethereum keys and uses the same HD path as Ethereum, th
 
 <!-- 4. **I can’t use Ledger for my validator**
 
-Validators can use [`EIP712`](#eip712-signing) with their Ethereum Ledger app to sign transactions. If you are using an 
-existing Cosmos `secp256k1` key, it won't work -->
+Validators can use [`EIP712`](#eip712-signing) with their Ethereum Ledger app to sign transactions. If you are using an existing Cosmos `secp256k1` key, it won't work -->
