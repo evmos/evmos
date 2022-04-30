@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	epochtypes "github.com/tharsis/evmos/v3/x/epochs/types"
+	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
 )
 
 // Parameter store key
@@ -44,7 +44,7 @@ func DefaultParams() Params {
 	return Params{
 		EnableIncentives:          true,
 		AllocationLimit:           sdk.NewDecWithPrec(5, 2),
-		IncentivesEpochIdentifier: "week",
+		IncentivesEpochIdentifier: epochstypes.WeekEpochID,
 		RewardScaler:              sdk.NewDecWithPrec(12, 1),
 	}
 }
@@ -54,7 +54,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
-		paramtypes.NewParamSetPair(ParamStoreKeyEpochIdentifier, &p.IncentivesEpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
+		paramtypes.NewParamSetPair(ParamStoreKeyEpochIdentifier, &p.IncentivesEpochIdentifier, epochstypes.ValidateEpochIdentifierInterface),
 		paramtypes.NewParamSetPair(ParamStoreKeyRewardScaler, &p.RewardScaler, validateUncappedPercentage),
 	}
 }
@@ -114,5 +114,5 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return epochtypes.ValidateEpochIdentifierString(p.IncentivesEpochIdentifier)
+	return epochstypes.ValidateEpochIdentifierString(p.IncentivesEpochIdentifier)
 }
