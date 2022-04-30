@@ -54,7 +54,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						EpochCountingStarted:    false,
 					},
 					{
-						Identifier:              "day",
+						Identifier:              DayEpochID,
 						StartTime:               time.Time{},
 						Duration:                time.Hour * 24,
 						CurrentEpoch:            0,

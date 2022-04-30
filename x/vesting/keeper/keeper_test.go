@@ -153,7 +153,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
 	// module
-	identifiers := []string{epochstypes.WeekEpochID, "day"}
+	identifiers := []string{epochstypes.WeekEpochID, epochstypes.DayEpochID}
 	for _, identifier := range identifiers {
 		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
 		suite.Require().True(found)
