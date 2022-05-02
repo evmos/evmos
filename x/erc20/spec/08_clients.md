@@ -27,6 +27,43 @@ evmosd query erc20 params
 | `tx` `erc20` | `convert-coin`  | Convert a Cosmos Coin to ERC20 |
 | `tx` `erc20` | `convert-erc20` | Convert a ERC20 to Cosmos Coin |
 
+
+### Proposals
+
+The `tx gov submit-proposal` commands allow users to query create a proposal using the governance module CLI:
+
+**`register-coin`**
+
+Allows users to submit a `RegisterCoinProposal`.
+
+```bash
+evmosd tx gov submit-proposal register-coin [metadata] [flags]
+```
+
+**`register-erc20`**
+
+Allows users to submit a `RegisterERC20Proposal`.
+
+```bash
+evmosd tx gov submit-proposal register-erc20 [erc20-address] [flags]
+```
+
+**`toggle-token-conversion`**
+
+Allows users to submit a `ToggleTokenConversionProposal`.
+
+```bash
+evmosd tx gov submit-proposal toggle-token-conversion [token] [flags]
+```
+
+**`param-change`**
+
+Allows users to submit a `ParameterChangeProposal``.
+
+```bash
+evmosd tx gov submit-proposal param-change [proposal-file] [flags]
+```
+
 ## gRPC
 
 ### Queries
