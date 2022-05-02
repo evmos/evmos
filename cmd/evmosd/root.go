@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/snapshots"
@@ -91,15 +92,11 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			// TODO: define our own token
-			customAppTemplate, customAppConfig := initAppConfig()
+			customAppTemplate, customAppConfig := initAppConfig(initClientCtx.ChainID)
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 		},
 	}
-
-	// TODO: double-check
-	// authclient.Codec = encodingConfig.Marshaler
 
 	cfg := sdk.GetConfig()
 	cfg.Seal()
@@ -196,12 +193,17 @@ func txCommand() *cobra.Command {
 
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
-func initAppConfig() (string, interface{}) {
+func initAppConfig(chainID string) (string, interface{}) {
 	customAppTemplate, customAppConfig := servercfg.AppConfig(cmdcfg.BaseDenom)
 
 	srvCfg, ok := customAppConfig.(servercfg.Config)
 	if !ok {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
+	}
+
+	// define a non-zero default minimum gas price on Evmos Mainnet
+	if strings.HasPrefix(chainID, "evmos_9001-") && (srvCfg.MinGasPrices == "" || srvCfg.MinGasPrices == "0aevmos") {
+		srvCfg.MinGasPrices = "0.0025aevmos"
 	}
 
 	srvCfg.StateSync.SnapshotInterval = 1500
