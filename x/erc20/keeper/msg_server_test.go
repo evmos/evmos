@@ -19,11 +19,12 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 		mint           int64
 		burn           int64
 		malleate       func(common.Address)
+		extra          func()
 		expPass        bool
 		selfdestructed bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(common.Address) {}, true, false},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, true, false},
+		{"ok - sufficient funds", 100, 10, func(common.Address) {}, func() {}, true, false},
+		{"ok - equal funds", 10, 10, func(common.Address) {}, func() {}, true, false},
 		{
 			"ok - suicided contract",
 			10,
@@ -34,10 +35,11 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				suite.Require().True(ok)
 				suite.Require().NoError(stateDb.Commit())
 			},
+			func() {},
 			true,
 			true,
 		},
-		{"fail - insufficient funds", 0, 10, func(common.Address) {}, false, false},
+		{"fail - insufficient funds", 0, 10, func(common.Address) {}, func() {}, false, false},
 		{
 			"fail - minting disabled",
 			100,
@@ -47,8 +49,15 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 			},
+			func() {},
 			false,
 			false,
+		},
+		{"fail - deleted module account - force fail", 100, 10, func(common.Address) {},
+			func() {
+				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
+				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
+			}, false, false,
 		},
 	}
 	for _, tc := range testCases {
@@ -73,6 +82,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 
+			tc.extra()
 			res, err := suite.app.Erc20Keeper.ConvertCoin(ctx, msg)
 			expRes := &types.MsgConvertCoinResponse{}
 			suite.Commit()
@@ -112,11 +122,20 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 		mint      int64
 		burn      int64
 		reconvert int64
+		malleate  func()
 		expPass   bool
 	}{
-		{"ok - sufficient funds", 100, 10, 5, true},
-		{"ok - equal funds", 10, 10, 10, true},
-		{"fail - insufficient funds", 10, 1, 5, false},
+		{"ok - sufficient funds", 100, 10, 5, func() {}, true},
+		{"ok - equal funds", 10, 10, 10, func() {}, true},
+		{"fail - insufficient funds", 10, 1, 5, func() {}, false},
+		{"fail ", 10, 1, -5, func() {}, false},
+		{"fail - deleted module account - force fail", 100, 10, 5,
+			func() {
+				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
+				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -156,6 +175,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				suite.address,
 			)
 
+			tc.malleate()
 			res, err := suite.app.Erc20Keeper.ConvertERC20(ctx, msgConvertERC20)
 			expRes := &types.MsgConvertERC20Response{}
 			suite.Commit()
@@ -182,6 +202,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 		mint           int64
 		transfer       int64
 		malleate       func(common.Address)
+		extra          func()
 		contractType   int
 		expPass        bool
 		selfdestructed bool
@@ -191,6 +212,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			true,
 			false,
@@ -200,6 +222,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			true,
 			false,
@@ -209,6 +232,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			true,
 			false,
@@ -223,6 +247,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.Require().True(ok)
 				suite.Require().NoError(stateDb.Commit())
 			},
+			func() {},
 			contractMinterBurner,
 			true,
 			true,
@@ -232,6 +257,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			0,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			false,
 			false,
@@ -245,6 +271,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 			},
+			func() {},
 			contractMinterBurner,
 			false,
 			false,
@@ -254,6 +281,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractDirectBalanceManipulation,
 			false,
 			false,
@@ -263,7 +291,33 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMaliciousDelayed,
+			false,
+			false,
+		},
+		{
+			"fail - negative transfer contract",
+			10,
+			-10,
+			func(common.Address) {},
+			func() {},
+			contractMinterBurner,
+			false,
+			false,
+		},
+		{
+			"fail - no module address",
+			100,
+			10,
+			func(common.Address) {
+
+			},
+			func() {
+				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
+				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
+			},
+			contractMinterBurner,
 			false,
 			false,
 		},
@@ -292,6 +346,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			suite.Commit()
 			ctx := sdk.WrapSDKContext(suite.ctx)
 
+			tc.extra()
 			res, err := suite.app.Erc20Keeper.ConvertERC20(ctx, msg)
 
 			expRes := &types.MsgConvertERC20Response{}
@@ -333,6 +388,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		mint         int64
 		convert      int64
 		malleate     func(common.Address)
+		extra        func()
 		contractType int
 		expPass      bool
 	}{
@@ -341,6 +397,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			true,
 		},
@@ -349,6 +406,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			100,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			true,
 		},
@@ -357,6 +415,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			200,
 			func(common.Address) {},
+			func() {},
 			contractMinterBurner,
 			false,
 		},
@@ -365,6 +424,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractDirectBalanceManipulation,
 			false,
 		},
@@ -373,7 +433,20 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
+			func() {},
 			contractMaliciousDelayed,
+			false,
+		},
+		{
+			"fail - deleted module address - force fail",
+			100,
+			10,
+			func(common.Address) {},
+			func() {
+				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
+				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
+			},
+			contractMinterBurner,
 			false,
 		},
 	}
@@ -413,6 +486,8 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 				receiver,
 				sender,
 			)
+
+			tc.extra()
 			res, err := suite.app.Erc20Keeper.ConvertCoin(ctx, msg)
 
 			expRes := &types.MsgConvertCoinResponse{}

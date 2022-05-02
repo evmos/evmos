@@ -58,6 +58,7 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 
 // verify if the metadata matches the existing one, if not it sets it to the store
 func (k Keeper) verifyMetadata(ctx sdk.Context, coinMetadata banktypes.Metadata) error {
+	// Metadata cant be invalid since its checked that bank supply is available
 	meta, found := k.bankKeeper.GetDenomMetaData(ctx, coinMetadata.Base)
 	if !found {
 		k.bankKeeper.SetDenomMetaData(ctx, coinMetadata)
