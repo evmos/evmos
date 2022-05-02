@@ -201,7 +201,7 @@ func initAppConfig(chainID string) (string, interface{}) {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
 	}
 
-	// define a non-zero default global minimum gas price on Evmos Mainnet
+	// define a non-zero default minimum gas price on Evmos Mainnet
 	if strings.HasPrefix(chainID, "evmos_9001-") && (srvCfg.MinGasPrices == "" || srvCfg.MinGasPrices == "0aevmos") {
 		srvCfg.MinGasPrices = "0.0025aevmos"
 	}
