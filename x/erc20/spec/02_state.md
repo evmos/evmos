@@ -76,7 +76,7 @@ func (tp TokenPair) IsNativeERC20() bool {
 
 ### Token Pair by ERC20 and by Denom
 
-
+`TokenPairByERC20` and `TokenPairByDenom` are additional state objects for querying a token pair id.
 
 ## Genesis State
 

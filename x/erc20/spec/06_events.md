@@ -27,7 +27,6 @@ The `x/erc20` module emits the following events:
 | `toggle_token_conversion` | `"erc20_token"` | `{erc20_address}` |
 | `toggle_token_conversion` | `"cosmos_coin"` | `{denom}`         |
 
-
 ## Convert Coin
 
 | Type           | Attribute Key   | Attribute Value              |
