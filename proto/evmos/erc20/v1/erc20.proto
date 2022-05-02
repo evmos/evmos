@@ -64,17 +64,3 @@ message ToggleTokenRelayProposal {
   // Cosmos base denomination
   string token = 3;
 }
-
-// UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
-// ERC20 contract address.
-message UpdateTokenPairERC20Proposal {
-  option (gogoproto.equal) = true;
-  // title of the proposal
-  string title = 1;
-  // proposal description
-  string description = 2;
-  // contract address of ERC20 token
-  string erc20_address = 3;
-  // new address of ERC20 token contract
-  string new_erc20_address = 4;
-}
