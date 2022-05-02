@@ -3,10 +3,13 @@ package types
 import (
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/stretchr/testify/suite"
+
+	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
 )
 
 type ParamsTestSuite struct {
@@ -38,7 +41,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				true,
 				govtypes.DefaultPeriod,
 				sdk.NewDecWithPrec(5, 2),
-				"week",
+				epochstypes.WeekEpochID,
 				sdk.NewDecWithPrec(15, 1),
 			),
 			false,
@@ -49,7 +52,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				true,
 				govtypes.DefaultPeriod,
 				sdk.NewDecWithPrec(100, 2),
-				"week",
+				epochstypes.WeekEpochID,
 				sdk.NewDecWithPrec(15, 1),
 			),
 			false,
@@ -60,7 +63,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				true,
 				govtypes.DefaultPeriod,
 				sdk.NewDecWithPrec(100, 2),
-				"week",
+				epochstypes.WeekEpochID,
 				sdk.NewDecWithPrec(10, 0),
 			),
 			false,
@@ -75,7 +78,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives:          true,
 				AllocationLimit:           sdk.Dec{},
-				IncentivesEpochIdentifier: "week",
+				IncentivesEpochIdentifier: epochstypes.WeekEpochID,
 				RewardScaler:              sdk.NewDecWithPrec(15, 1),
 			},
 			true,
@@ -85,7 +88,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives:          true,
 				AllocationLimit:           sdk.MustNewDecFromStr("-0.02"),
-				IncentivesEpochIdentifier: "week",
+				IncentivesEpochIdentifier: epochstypes.WeekEpochID,
 				RewardScaler:              sdk.NewDecWithPrec(15, 1),
 			},
 			true,
@@ -95,7 +98,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives:          true,
 				AllocationLimit:           sdk.NewDecWithPrec(101, 2),
-				IncentivesEpochIdentifier: "week",
+				IncentivesEpochIdentifier: epochstypes.WeekEpochID,
 				RewardScaler:              sdk.NewDecWithPrec(15, 1),
 			},
 			true,
@@ -105,7 +108,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives:          true,
 				AllocationLimit:           sdk.NewDecWithPrec(5, 2),
-				IncentivesEpochIdentifier: "week",
+				IncentivesEpochIdentifier: epochstypes.WeekEpochID,
 				RewardScaler:              sdk.Dec{},
 			},
 			true,
@@ -115,7 +118,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			Params{
 				EnableIncentives:          true,
 				AllocationLimit:           sdk.NewDecWithPrec(5, 2),
-				IncentivesEpochIdentifier: "week",
+				IncentivesEpochIdentifier: epochstypes.WeekEpochID,
 				RewardScaler:              sdk.MustNewDecFromStr("-0.02"),
 			},
 			true,

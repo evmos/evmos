@@ -37,6 +37,7 @@ import (
 
 	"github.com/tharsis/evmos/v3/app"
 	"github.com/tharsis/evmos/v3/contracts"
+	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
 	"github.com/tharsis/evmos/v3/x/vesting/types"
 )
 
@@ -152,7 +153,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
 	// module
-	identifiers := []string{"week", "day"}
+	identifiers := []string{epochstypes.WeekEpochID, epochstypes.DayEpochID}
 	for _, identifier := range identifiers {
 		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
 		suite.Require().True(found)

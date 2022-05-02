@@ -52,7 +52,7 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"invalid - epoch duration zero",
 			EpochInfo{
-				"week",
+				WeekEpochID,
 				time.Now(),
 				time.Hour * 0,
 				1,
@@ -65,7 +65,7 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"invalid - negative current epoch",
 			EpochInfo{
-				"week",
+				WeekEpochID,
 				time.Now(),
 				time.Hour * 24,
 				-1,
@@ -78,7 +78,7 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"invalid - negative epoch start height",
 			EpochInfo{
-				"week",
+				WeekEpochID,
 				time.Now(),
 				time.Hour * 24,
 				1,
@@ -91,7 +91,7 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"pass",
 			EpochInfo{
-				"week",
+				WeekEpochID,
 				time.Now(),
 				time.Hour * 24,
 				1,
