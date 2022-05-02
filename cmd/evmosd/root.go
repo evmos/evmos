@@ -204,6 +204,11 @@ func initAppConfig() (string, interface{}) {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
 	}
 
+	// define a global min gas price
+	// if srvCfg.MinGasPrices == "" || srvCfg.MinGasPrices == "0aevmos" {
+	// 	srvCfg.MinGasPrices
+	// }
+
 	srvCfg.StateSync.SnapshotInterval = 1500
 	srvCfg.StateSync.SnapshotKeepRecent = 2
 
