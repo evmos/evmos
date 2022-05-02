@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (app) [\#537](https://github.com/tharsis/evmos/pull/537) Fix router key for IBC client proposals.
+- (erc20) [\#530](https://github.com/tharsis/evmos/pull/530) Use the highest denom unit when deploying an ERC20 contract.
 
 ### API Breaking
 
@@ -47,11 +48,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (cmd) [\#543](https://github.com/tharsis/evmos/pull/543) Update mainnet default `min-gas-price` to `0.0025aevmos`.
 - (epochs) [\#539](https://github.com/tharsis/evmos/pull/539) Use constants for epoch identifiers.
 - (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
 
 ### Bug Fixes
 
+- (erc20) [\#530](https://github.com/tharsis/evmos/pull/530) Fix `Metadata` equal check for denom units.
 - (app) [\#523](https://github.com/tharsis/evmos/pull/523) Fix testnet upgrade store loader.
 
 ## [v3.0.0] - 2022-04-22
