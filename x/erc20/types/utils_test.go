@@ -28,7 +28,6 @@ func TestSanitizeERC20Name(t *testing.T) {
 }
 
 func TestEqualMetadata(t *testing.T) {
-
 	base := "CoinBase"
 	display := "CoinDisplay"
 	name := "CoinName"
@@ -47,7 +46,8 @@ func TestEqualMetadata(t *testing.T) {
 			Denom:    display,
 			Exponent: decimal,
 			Aliases:  []string{display, "moreInfo"},
-		}}
+		},
+	}
 	metadata_A := banktypes.Metadata{
 		Base:        base,
 		Display:     display,
@@ -68,7 +68,8 @@ func TestEqualMetadata(t *testing.T) {
 			Denom:    display,
 			Exponent: decimal,
 			Aliases:  []string{display, "moreInfo"},
-		}}
+		},
+	}
 	metadata_B := banktypes.Metadata{
 		Base:        base,
 		Display:     display,
@@ -89,7 +90,8 @@ func TestEqualMetadata(t *testing.T) {
 			Denom:    display,
 			Exponent: decimal,
 			Aliases:  []string{display, "moreInfo"},
-		}}
+		},
+	}
 	metadata_C := banktypes.Metadata{
 		Base:        base,
 		Display:     display,
