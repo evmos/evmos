@@ -549,13 +549,13 @@ paths:
                   enable_erc20:
                     type: boolean
                     description: >-
-                      parameter to enable the intrarelaying of Cosmos coins <-->
+                      parameter to enable the conversion of Cosmos coins <-->
                       ERC20 tokens.
                   enable_evm_hook:
                     type: boolean
                     description: >-
-                      parameter to enable the EVM hook to convert an ERC20 token
-                      to a Cosmos
+                      parameter to enable the EVM hook that converts an ERC20
+                      token to a Cosmos
 
                       Coin by transferring the Tokens through a MsgEthereumTx to
                       the
@@ -591,7 +591,7 @@ paths:
         - Query
   /evmos/erc20/v1/token_pairs:
     get:
-      summary: Retrieves registered token pairs
+      summary: TokenPairs retrieves registered token pairs
       operationId: TokenPairs
       responses:
         '200':
@@ -630,10 +630,9 @@ paths:
                          - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
                          - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
                   description: >-
-                    TokenPair defines an instance that records pairing
-                    consisting of a Cosmos
-
-                    native Coin and an ERC20 token address.
+                    TokenPair defines an instance that records a pairing
+                    consisting of a native
+                     Cosmos Coin and an ERC20 token address.
               pagination:
                 description: pagination defines the pagination in the response.
                 type: object
@@ -740,7 +739,7 @@ paths:
         - Query
   '/evmos/erc20/v1/token_pairs/{token}':
     get:
-      summary: Retrieves a registered token pair
+      summary: TokenPair retrieves a registered token pair
       operationId: TokenPair
       responses:
         '200':
@@ -777,10 +776,9 @@ paths:
                        - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
                        - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
                 description: >-
-                  TokenPair defines an instance that records pairing consisting
-                  of a Cosmos
-
-                  native Coin and an ERC20 token address.
+                  TokenPair defines an instance that records a pairing
+                  consisting of a native
+                   Cosmos Coin and an ERC20 token address.
             description: >-
               QueryTokenPairResponse is the response type for the
               Query/TokenPair RPC
@@ -29596,14 +29594,15 @@ definitions:
     properties:
       enable_erc20:
         type: boolean
-        description: >-
-          parameter to enable the intrarelaying of Cosmos coins <--> ERC20
-          tokens.
+        description: parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
       enable_evm_hook:
         type: boolean
-        description: |-
-          parameter to enable the EVM hook to convert an ERC20 token to a Cosmos
+        description: >-
+          parameter to enable the EVM hook that converts an ERC20 token to a
+          Cosmos
+
           Coin by transferring the Tokens through a MsgEthereumTx to the
+
           ModuleAddress Ethereum address.
     title: Params defines the erc20 module params
   evmos.erc20.v1.QueryParamsResponse:
@@ -29615,12 +29614,12 @@ definitions:
           enable_erc20:
             type: boolean
             description: >-
-              parameter to enable the intrarelaying of Cosmos coins <--> ERC20
+              parameter to enable the conversion of Cosmos coins <--> ERC20
               tokens.
           enable_evm_hook:
             type: boolean
             description: >-
-              parameter to enable the EVM hook to convert an ERC20 token to a
+              parameter to enable the EVM hook that converts an ERC20 token to a
               Cosmos
 
               Coin by transferring the Tokens through a MsgEthereumTx to the
@@ -29662,10 +29661,9 @@ definitions:
                - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
                - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
         description: >-
-          TokenPair defines an instance that records pairing consisting of a
-          Cosmos
-
-          native Coin and an ERC20 token address.
+          TokenPair defines an instance that records a pairing consisting of a
+          native
+           Cosmos Coin and an ERC20 token address.
     description: |-
       QueryTokenPairResponse is the response type for the Query/TokenPair RPC
       method.
@@ -29703,10 +29701,9 @@ definitions:
                  - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
                  - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
           description: >-
-            TokenPair defines an instance that records pairing consisting of a
-            Cosmos
-
-            native Coin and an ERC20 token address.
+            TokenPair defines an instance that records a pairing consisting of a
+            native
+             Cosmos Coin and an ERC20 token address.
       pagination:
         description: pagination defines the pagination in the response.
         type: object
@@ -29756,9 +29753,10 @@ definitions:
            - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
            - OWNER_MODULE: OWNER_MODULE erc20 is owned by the erc20 module account.
            - OWNER_EXTERNAL: EXTERNAL erc20 is owned by an external account.
-    description: |-
-      TokenPair defines an instance that records pairing consisting of a Cosmos
-      native Coin and an ERC20 token address.
+    description: >-
+      TokenPair defines an instance that records a pairing consisting of a
+      native
+       Cosmos Coin and an ERC20 token address.
   cosmos.base.v1beta1.DecCoin:
     type: object
     properties:

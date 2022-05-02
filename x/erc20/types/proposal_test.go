@@ -25,8 +25,8 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 	suite.Require().Equal("RegisterCoin", (&RegisterCoinProposal{}).ProposalType())
 	suite.Require().Equal("erc20", (&RegisterERC20Proposal{}).ProposalRoute())
 	suite.Require().Equal("RegisterERC20", (&RegisterERC20Proposal{}).ProposalType())
-	suite.Require().Equal("erc20", (&ToggleTokenRelayProposal{}).ProposalRoute())
-	suite.Require().Equal("ToggleTokenRelay", (&ToggleTokenRelayProposal{}).ProposalType())
+	suite.Require().Equal("erc20", (&ToggleTokenConversionProposal{}).ProposalRoute())
+	suite.Require().Equal("ToggleTokenConversion", (&ToggleTokenConversionProposal{}).ProposalType())
 }
 
 func (suite *ProposalTestSuite) TestValidateErc20Denom() {
@@ -195,7 +195,7 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
+func (suite *ProposalTestSuite) TestToggleTokenConversionProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
@@ -203,27 +203,27 @@ func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
 		token       string
 		expectPass  bool
 	}{
-		{msg: "Enable token relay proposal - valid denom", title: "test", description: "test desc", token: "test", expectPass: true},
-		{msg: "Enable token relay proposal - valid address", title: "test", description: "test desc", token: "0x5dCA2483280D9727c80b5518faC4556617fb194F", expectPass: true},
-		{msg: "Enable token relay proposal - invalid address", title: "test", description: "test desc", token: "0x123", expectPass: false},
+		{msg: "Enable token conversion proposal - valid denom", title: "test", description: "test desc", token: "test", expectPass: true},
+		{msg: "Enable token conversion proposal - valid address", title: "test", description: "test desc", token: "0x5dCA2483280D9727c80b5518faC4556617fb194F", expectPass: true},
+		{msg: "Enable token conversion proposal - invalid address", title: "test", description: "test desc", token: "0x123", expectPass: false},
 
 		// Invalid missing params
-		{msg: "Enable token relay proposal - valid missing title", title: "", description: "test desc", token: "test", expectPass: false},
-		{msg: "Enable token relay proposal - valid missing description", title: "test", description: "", token: "test", expectPass: false},
-		{msg: "Enable token relay proposal - invalid missing token", title: "test", description: "test desc", token: "", expectPass: false},
+		{msg: "Enable token conversion proposal - valid missing title", title: "", description: "test desc", token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - valid missing description", title: "test", description: "", token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid missing token", title: "test", description: "test desc", token: "", expectPass: false},
 
 		// Invalid regex
-		{msg: "Enable token relay proposal - invalid denom", title: "test", description: "test desc", token: "^test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid denom", title: "test", description: "test desc", token: "^test", expectPass: false},
 		// Invalid length
-		{msg: "Enable token relay proposal - invalid length (1)", title: "test", description: "test desc", token: "a", expectPass: false},
-		{msg: "Enable token relay proposal - invalid length (128)", title: "test", description: "test desc", token: strings.Repeat("a", 129), expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length (1)", title: "test", description: "test desc", token: "a", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length (128)", title: "test", description: "test desc", token: strings.Repeat("a", 129), expectPass: false},
 
-		{msg: "Enable token relay proposal - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", token: "test", expectPass: false},
-		{msg: "Enable token relay proposal - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), token: "test", expectPass: false},
 	}
 
 	for i, tc := range testCases {
-		tx := NewToggleTokenRelayProposal(tc.title, tc.description, tc.token)
+		tx := NewToggleTokenConversionProposal(tc.title, tc.description, tc.token)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {

@@ -61,7 +61,7 @@ During the Registration of an ERC20 Token the Coin metadata is derived from the 
 
 ## Token Pair Modifiers
 
-A valid token pair can be modified through several governance proposals. The internal relaying of a token pair can be toggled with `ToggleTokenRelayProposal`, so that the conversions between the token pair's tokens can be enabled or disabled. Additionally, the ERC20 contract address of a token pair can be updated with `UpdateTokenPairERC20Proposal`.
+A valid token pair can be modified through several governance proposals. The internal conversion of a token pair can be toggled with `ToggleTokenConversionProposal`, so that the conversions between the token pair's tokens can be enabled or disabled.
 
 ## Token Conversion
 

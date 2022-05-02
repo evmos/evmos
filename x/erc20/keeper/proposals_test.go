@@ -315,7 +315,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 	}
 }
 
-func (suite KeeperTestSuite) TestToggleRelay() {
+func (suite KeeperTestSuite) TestToggleConverision() {
 	var (
 		contractAddr common.Address
 		id           []byte
@@ -323,10 +323,10 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 	)
 
 	testCases := []struct {
-		name         string
-		malleate     func()
-		expPass      bool
-		relayEnabled bool
+		name              string
+		malleate          func()
+		expPass           bool
+		conversionEnabled bool
 	}{
 		{
 			"token not registered",
@@ -352,7 +352,7 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			false,
 		},
 		{
-			"disable relay",
+			"disable conversion",
 			func() {
 				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
@@ -362,12 +362,12 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			false,
 		},
 		{
-			"disable and enable relay",
+			"disable and enable conversion",
 			func() {
 				contractAddr = suite.setupRegisterERC20Pair(contractMinterBurner)
 				id = suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 				pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
-				pair, _ = suite.app.Erc20Keeper.ToggleRelay(suite.ctx, contractAddr.String())
+				pair, _ = suite.app.Erc20Keeper.ToggleConversion(suite.ctx, contractAddr.String())
 			},
 			true,
 			true,
@@ -380,12 +380,12 @@ func (suite KeeperTestSuite) TestToggleRelay() {
 			tc.malleate()
 
 			var err error
-			pair, err = suite.app.Erc20Keeper.ToggleRelay(suite.ctx, contractAddr.String())
+			pair, err = suite.app.Erc20Keeper.ToggleConversion(suite.ctx, contractAddr.String())
 			// Request the pair using the GetPairToken func to make sure that is updated on the db
 			pair, _ = suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
-				if tc.relayEnabled {
+				if tc.conversionEnabled {
 					suite.Require().True(pair.Enabled)
 				} else {
 					suite.Require().False(pair.Enabled)

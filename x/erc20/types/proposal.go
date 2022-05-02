@@ -14,27 +14,25 @@ import (
 
 // constants
 const (
-	ProposalTypeRegisterCoin         string = "RegisterCoin"
-	ProposalTypeRegisterERC20        string = "RegisterERC20"
-	ProposalTypeToggleTokenRelay     string = "ToggleTokenRelay" // #nosec
-	ProposalTypeUpdateTokenPairERC20 string = "UpdateTokenPairERC20"
+	ProposalTypeRegisterCoin          string = "RegisterCoin"
+	ProposalTypeRegisterERC20         string = "RegisterERC20"
+	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
 )
 
 // Implements Proposal Interface
 var (
 	_ govtypes.Content = &RegisterCoinProposal{}
 	_ govtypes.Content = &RegisterERC20Proposal{}
-	_ govtypes.Content = &ToggleTokenRelayProposal{}
+	_ govtypes.Content = &ToggleTokenConversionProposal{}
 )
 
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeRegisterCoin)
 	govtypes.RegisterProposalType(ProposalTypeRegisterERC20)
-	govtypes.RegisterProposalType(ProposalTypeToggleTokenRelay)
-	govtypes.RegisterProposalType(ProposalTypeUpdateTokenPairERC20)
+	govtypes.RegisterProposalType(ProposalTypeToggleTokenConversion)
 	govtypes.RegisterProposalTypeCodec(&RegisterCoinProposal{}, "erc20/RegisterCoinProposal")
 	govtypes.RegisterProposalTypeCodec(&RegisterERC20Proposal{}, "erc20/RegisterERC20Proposal")
-	govtypes.RegisterProposalTypeCodec(&ToggleTokenRelayProposal{}, "erc20/ToggleTokenRelayProposal")
+	govtypes.RegisterProposalTypeCodec(&ToggleTokenConversionProposal{}, "erc20/ToggleTokenConversionProposal")
 }
 
 // CreateDenomDescription generates a string with the coin description
@@ -143,9 +141,9 @@ func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-// NewToggleTokenRelayProposal returns new instance of ToggleTokenRelayProposal
-func NewToggleTokenRelayProposal(title, description string, token string) govtypes.Content {
-	return &ToggleTokenRelayProposal{
+// NewToggleTokenConversionProposal returns new instance of ToggleTokenConversionProposal
+func NewToggleTokenConversionProposal(title, description string, token string) govtypes.Content {
+	return &ToggleTokenConversionProposal{
 		Title:       title,
 		Description: description,
 		Token:       token,
@@ -153,15 +151,15 @@ func NewToggleTokenRelayProposal(title, description string, token string) govtyp
 }
 
 // ProposalRoute returns router key for this proposal
-func (*ToggleTokenRelayProposal) ProposalRoute() string { return RouterKey }
+func (*ToggleTokenConversionProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
-func (*ToggleTokenRelayProposal) ProposalType() string {
-	return ProposalTypeToggleTokenRelay
+func (*ToggleTokenConversionProposal) ProposalType() string {
+	return ProposalTypeToggleTokenConversion
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
-func (etrp *ToggleTokenRelayProposal) ValidateBasic() error {
+func (etrp *ToggleTokenConversionProposal) ValidateBasic() error {
 	// check if the token is a hex address, if not, check if it is a valid SDK
 	// denom
 	if err := ethermint.ValidateAddress(etrp.Token); err != nil {

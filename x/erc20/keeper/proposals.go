@@ -191,8 +191,8 @@ func (k Keeper) CreateCoinMetadata(ctx sdk.Context, contract common.Address) (*b
 	return &metadata, nil
 }
 
-// ToggleRelay toggles relaying for a given token pair
-func (k Keeper) ToggleRelay(ctx sdk.Context, token string) (types.TokenPair, error) {
+// ToggleConversion toggles conversion for a given token pair
+func (k Keeper) ToggleConversion(ctx sdk.Context, token string) (types.TokenPair, error) {
 	id := k.GetTokenPairID(ctx, token)
 	if len(id) == 0 {
 		return types.TokenPair{}, sdkerrors.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered by id", token)

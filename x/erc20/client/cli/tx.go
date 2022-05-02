@@ -296,14 +296,14 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 	return cmd
 }
 
-// NewToggleTokenRelayProposalCmd implements the command to submit a community-pool-spend proposal
-func NewToggleTokenRelayProposalCmd() *cobra.Command {
+// NewToggleTokenConversionProposalCmd implements the command to submit a community-pool-spend proposal
+func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "toggle-token-relay [token]",
+		Use:     "toggle-token-conversion [token]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Submit a toggle token relay proposal",
-		Long:    "Submit a proposal to toggle the relaying of a token pair along with an initial deposit.",
-		Example: fmt.Sprintf("$ %s tx gov submit-proposal toggle-token-relay <denom_or_contract> --from=<key_or_address>", version.AppName),
+		Short:   "Submit a toggle token conversion proposal",
+		Long:    "Submit a proposal to toggle the conversion of a token pair along with an initial deposit.",
+		Example: fmt.Sprintf("$ %s tx gov submit-proposal toggle-token-conversion <denom_or_contract> --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -332,7 +332,7 @@ func NewToggleTokenRelayProposalCmd() *cobra.Command {
 
 			from := clientCtx.GetFromAddress()
 			token := args[0]
-			content := types.NewToggleTokenRelayProposal(title, description, token)
+			content := types.NewToggleTokenConversionProposal(title, description, token)
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
