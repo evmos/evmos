@@ -77,7 +77,7 @@ func (k Keeper) TokenPair(c context.Context, req *types.QueryTokenPairRequest) (
 	return &types.QueryTokenPairResponse{TokenPair: pair}, nil
 }
 
-// Params return hub contract param
+// Params returns the params of the erc20 module
 func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)

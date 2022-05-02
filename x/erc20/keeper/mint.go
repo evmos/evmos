@@ -13,7 +13,11 @@ import (
 //  - minting is enabled for the given (erc20,coin) token pair
 //  - recipient address is not on the blocked list
 //  - bank module transfers are enabled for the Cosmos coin
-func (k Keeper) MintingEnabled(ctx sdk.Context, sender, receiver sdk.AccAddress, token string) (types.TokenPair, error) {
+func (k Keeper) MintingEnabled(
+	ctx sdk.Context,
+	sender, receiver sdk.AccAddress,
+	token string,
+) (types.TokenPair, error) {
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
 		return types.TokenPair{}, sdkerrors.Wrap(types.ErrERC20Disabled, "module is currently disabled by governance")
