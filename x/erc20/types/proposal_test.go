@@ -45,7 +45,7 @@ func (suite *ProposalTestSuite) TestValidateErc20Denom() {
 		},
 		{
 			"without /",
-			"intrarelayerCoin",
+			"conversionCoin",
 			false,
 		},
 		{

@@ -48,11 +48,3 @@ evmosd query erc20 params
 | `gRPC` | `evmos.erc20.v1.Msg/ConvertERC20`  | Convert a ERC20 to Cosmos Coin |
 | `GET`  | `/evmos/erc20/v1/tx/convert_coin`  | Convert a Cosmos Coin to ERC20 |
 | `GET`  | `/evmos/erc20/v1/tx/convert_erc20` | Convert a ERC20 to Cosmos Coin |
-
-<!-- ## JSON-RPC
-
-TODO
-
-- Prereq: intrarelaying enabled, pair enabled, evm hook enabled
-- Transfer registered ERC20 to module address
-- Should update balance on the bank module -->

@@ -108,7 +108,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 		expPass  bool
 	}{
 		{
-			"intrarelaying is disabled globally",
+			"conversion is disabled globally",
 			func() {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
@@ -243,7 +243,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 		expPass  bool
 	}{
 		{
-			"intrarelaying is disabled globally",
+			"conversion is disabled globally",
 			func() {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
