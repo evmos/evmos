@@ -14,7 +14,7 @@ A user registers a native Cosmos Coin. Once the proposal passes (i.e is approved
 
 1. User submits a `RegisterCoinProposal`
 2. Validators of the Evmos Hub vote on the proposal using `MsgVote` and proposal passes
-3. If Cosmos coin or IBC voucher already exist on the bank module supply, create the ERC20 token contract on the EVM based on the ERC20Mintable ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) interface
+3. If Cosmos coin or IBC voucher already exist on the bank module supply, create the [ERC20 token contract](https://github.com/tharsis/evmos/blob/main/contracts/ERC20MinterBurnerDecimals.sol) on the EVM based on the ERC20Mintable ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) interface
     - Initial supply: 0
     - Token details (Name, Symbol, Decimals, etc) are derived from the bank module `Metadata` field on the proposal content.
 
@@ -41,10 +41,10 @@ Conversion of a registered `TokenPair` can be done via:
 
 #### Invariants
 
-- Only the ModuleAccount should have the Minter Role on the ERC20. Otherwise,
+- Only the `ModuleAccount` should have the Minter Role on the ERC20. Otherwise,
   the user could unilaterally mint an infinite supply of the ERC20 token and
   then convert them to the native Coin
-- The user and the ModuleAccount (owner) should be the only ones that have the
+- The user and the `ModuleAccount` (owner) should be the only ones that have the
   Burn Role for a Cosmos Coin
 - There shouldn't exist any native Cosmos Coin ERC20 Contract (eg Evmos, Atom,
   Osmo ERC20 contracts) that is not owned by the governance
@@ -55,11 +55,11 @@ Conversion of a registered `TokenPair` can be done via:
 #### 1.1 Coin to ERC20
 
 1. User submits `ConvertCoin` Tx
-2. Check if intrarelaying is allowed for the pair, sender and recipient
+2. Check if conversion is allowed for the pair, sender and recipient
     - global parameter is enabled
     - token pair is enabled
     - sender tokens are not vesting
-    - recipient address is not blocklisted
+    - recipient address is not blacklisted
 3. If Coin is a native Cosmos Coin  && Token Owner is `ModuleAccount`
     1. Escrow Cosmos coin by sending them to the erc20 module account
     2. Call `mint()` ERC20 tokens from the `ModuleAccount` address
@@ -69,10 +69,10 @@ Conversion of a registered `TokenPair` can be done via:
 #### 1.2 ERC20 to Coin
 
 1. User submits a `ConvertERC20` Tx
-2. Check if intrarelaying is allowed for the pair, sender and recipient (See 1.1 Coin to ERC20)
+2. Check if conversion is allowed for the pair, sender and recipient (see [1.1 Coin to ERC20](#11-coin-to-erc20))
 3. If token is a ERC20 && Token Owner is `ModuleAccount`
     1. Call `burnCoins()` on ERC20 to burn ERC20 tokens from the user balance
-    2. Send Coins (previously escrowed  see 1.1) from module to the recipient address.
+    2. Send Coins (previously escrowed, see [1.1 Coin to ERC20](#11-coin-to-erc20)) from module to the recipient address.
 4. Check if
    - Coin balance increased by amount
    - Token balance decreased by amount
@@ -95,7 +95,7 @@ Conversion of a registered `TokenPair` can be done via:
 #### 2.1 ERC20 to Coin
 
 1. User submits a `ConvertERC20` Tx
-2. Check if intrarelaying is allowed for the pair, sender and recipient (See 1.1 Coin to ERC20)
+2. Check if conversion is allowed for the pair, sender and recipient (See [1.1 Coin to ERC20](#11-coin-to-erc20))
 3. If token is a ERC20 &&  Token Owner is **not** `ModuleAccount`
     1. Escrow ERC20 token by sending them to the erc20 module account
     2. Mint Cosmos coins of the corresponding token pair denomination
@@ -103,15 +103,15 @@ Conversion of a registered `TokenPair` can be done via:
 4. Check if
    - Coin balance increased by amount
    - Token balance decreased by amount
-5. Fail if unexpected `appove` event found in logs
+5. Fail if unexpected `approve` event found in logs to prevent malicious contract behaviour
 
 #### 2.2 Coin to ERC20
 
 1. User submits `ConvertCoin` Tx
-2. Check if intrarelaying is allowed for the pair, sender and recipient
+2. Check if conversion is allowed for the pair, sender and recipient
 3. If coin is a native Cosmos coin && Token Owner is **not** `ModuleAccount`
     1. Escrow Cosmos Coins by sending them to the erc20 module account
     2. Unlock escrowed ERC20 from the module address by sending it to the recipient
     3. Burn escrowed Cosmos coins
 4. Check if token balance increased by amount
-5. Fail if unexpected `appove` event found in logs
+5. Fail if unexpected `approve` event found in logs to prevent malicious contract behaviour
