@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -117,7 +116,7 @@ func (k Keeper) convertCoinNativeCoin(
 	contract := pair.GetERC20Contract()
 	balanceToken := k.BalanceOf(ctx, erc20, contract, receiver)
 	if balanceToken == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	// Escrow coins on module account
@@ -136,7 +135,7 @@ func (k Keeper) convertCoinNativeCoin(
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
 	if balanceTokenAfter == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 	expToken := big.NewInt(0).Add(balanceToken, tokens)
 
@@ -183,7 +182,7 @@ func (k Keeper) convertERC20NativeCoin(
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	balanceToken := k.BalanceOf(ctx, erc20, contract, sender)
 	if balanceToken == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	// Burn escrowed tokens
@@ -213,7 +212,7 @@ func (k Keeper) convertERC20NativeCoin(
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, sender)
 	if balanceTokenAfter == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	expToken := big.NewInt(0).Sub(balanceToken, tokens)
@@ -263,7 +262,7 @@ func (k Keeper) convertERC20NativeToken(
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	balanceToken := k.BalanceOf(ctx, erc20, contract, types.ModuleAddress)
 	if balanceToken == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	// Escrow tokens on module account
@@ -291,7 +290,7 @@ func (k Keeper) convertERC20NativeToken(
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, types.ModuleAddress)
 	if balanceTokenAfter == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	expToken := big.NewInt(0).Add(balanceToken, tokens)
@@ -368,7 +367,7 @@ func (k Keeper) convertCoinNativeERC20(
 	contract := pair.GetERC20Contract()
 	balanceToken := k.BalanceOf(ctx, erc20, contract, receiver)
 	if balanceToken == nil {
-		return nil, fmt.Errorf("failed to escrow coins")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	// Escrow Coins on module account
@@ -396,7 +395,7 @@ func (k Keeper) convertCoinNativeERC20(
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
 	if balanceTokenAfter == nil {
-		return nil, fmt.Errorf("failed to get balance")
+		return nil, sdkerrors.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	exp := big.NewInt(0).Add(balanceToken, tokens)
