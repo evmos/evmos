@@ -78,15 +78,6 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 			},
 			true,
 		},
-		{
-			"ok",
-			func() {
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
-			},
-			true,
-		},
 	}
 
 	for _, tc := range testCases {
