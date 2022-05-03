@@ -20,7 +20,7 @@ A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approval
 
 ### 2. Register ERC20
 
-A user registers a ERC20 token contract that is already deployed on the EVM module. Once the proposal passes (i.e is Approvald by governance), the ERC20 module creates an Cosmos coin representation of the ERC20 token.
+A user registers a ERC20 token contract that is already deployed on the EVM module. Once the proposal passes (i.e is approved by governance), the ERC20 module creates a Cosmos coin representation of the ERC20 token.
 
 1. User submits a `RegisterERC20Proposal`
 2. Validators of the EVMOS chain vote on the proposal using `MsgVote` and proposal passes
