@@ -19,14 +19,17 @@ import (
 )
 
 // QueryERC20 returns the data of a deployed ERC20 contract
-func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
+func (k Keeper) QueryERC20(
+	ctx sdk.Context,
+	contract common.Address,
+) (types.ERC20Data, error) {
 	var (
 		nameRes    types.ERC20StringResponse
 		symbolRes  types.ERC20StringResponse
 		decimalRes types.ERC20Uint8Response
 	)
 
-	erc20 := contracts.ERC20BurnableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	// Name
 	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "name")
@@ -35,7 +38,9 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	if err := erc20.UnpackIntoInterface(&nameRes, "name", res.Ret); err != nil {
-		return types.ERC20Data{}, sdkerrors.Wrapf(types.ErrABIUnpack, "failed to unpack name: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(
+			types.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
+		)
 	}
 
 	// Symbol
@@ -45,7 +50,9 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	if err := erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
-		return types.ERC20Data{}, sdkerrors.Wrapf(types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(
+			types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
+		)
 	}
 
 	// Decimals
@@ -55,7 +62,9 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	if err := erc20.UnpackIntoInterface(&decimalRes, "decimals", res.Ret); err != nil {
-		return types.ERC20Data{}, sdkerrors.Wrapf(types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(
+			types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
+		)
 	}
 
 	return types.NewERC20Data(nameRes.Value, symbolRes.Value, decimalRes.Value), nil

@@ -43,7 +43,7 @@ func (h Hooks) PostTxProcessing(
 		return nil
 	}
 
-	erc20 := contracts.ERC20BurnableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	for i, log := range receipt.Logs {
 		if len(log.Topics) < 3 {
