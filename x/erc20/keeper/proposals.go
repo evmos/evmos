@@ -205,6 +205,10 @@ func (k Keeper) verifyMetadata(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) error {
+	if err := coinMetadata.Validate(); err != nil {
+		return sdkerrors.Wrapf(types.ErrInvalidMetadata, err.Error())
+	}
+
 	meta, found := k.bankKeeper.GetDenomMetaData(ctx, coinMetadata.Base)
 	if !found {
 		k.bankKeeper.SetDenomMetaData(ctx, coinMetadata)

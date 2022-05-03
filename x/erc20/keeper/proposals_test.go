@@ -236,6 +236,16 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			},
 			false,
 		},
+		{
+			"fail invalid metadata",
+			func() {
+				metadata.Base = cosmosTokenBase
+				metadata.Symbol = ""
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				suite.Require().NoError(err)
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
