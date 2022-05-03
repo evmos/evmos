@@ -16,8 +16,8 @@ enum Owner {
   OWNER_EXTERNAL = 2;
 }
 
-// TokenPair defines an instance that records pairing consisting of a Cosmos
-// native Coin and an ERC20 token address.
+// TokenPair defines an instance that records a pairing consisting of a native
+//  Cosmos Coin and an ERC20 token address.
 message TokenPair {
   option (gogoproto.equal) = true;
   // address of ERC20 contract token
@@ -30,18 +30,20 @@ message TokenPair {
   Owner contract_owner = 4;
 }
 
-// RegisterCoinProposal is a gov Content type to register a token pair
+// RegisterCoinProposal is a gov Content type to register a token pair for a
+// native Cosmos coin.
 message RegisterCoinProposal {
   option (gogoproto.equal) = false;
   // title of the proposal
   string title = 1;
   // proposal description
   string description = 2;
-  // token pair of Cosmos native denom and ERC20 token address
+  // metadata of the native Cosmos coin
   cosmos.bank.v1beta1.Metadata metadata = 3 [ (gogoproto.nullable) = false ];
 }
 
-// RegisterCoinProposal is a gov Content type to register a token pair
+// RegisterERC20Proposal is a gov Content type to register a token pair for an
+// ERC20 token
 message RegisterERC20Proposal {
   option (gogoproto.equal) = false;
   // title of the proposal
@@ -52,9 +54,9 @@ message RegisterERC20Proposal {
   string erc20address = 3;
 }
 
-// ToggleTokenRelayProposal is a gov Content type to toggle
-// the internal relaying of a token pair.
-message ToggleTokenRelayProposal {
+// ToggleTokenConversionProposal is a gov Content type to toggle the conversion
+// of a token pair.
+message ToggleTokenConversionProposal {
   option (gogoproto.equal) = true;
   // title of the proposal
   string title = 1;
@@ -63,18 +65,4 @@ message ToggleTokenRelayProposal {
   // token identifier can be either the hex contract address of the ERC20 or the
   // Cosmos base denomination
   string token = 3;
-}
-
-// UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
-// ERC20 contract address.
-message UpdateTokenPairERC20Proposal {
-  option (gogoproto.equal) = true;
-  // title of the proposal
-  string title = 1;
-  // proposal description
-  string description = 2;
-  // contract address of ERC20 token
-  string erc20_address = 3;
-  // new address of ERC20 token contract
-  string new_erc20_address = 4;
 }

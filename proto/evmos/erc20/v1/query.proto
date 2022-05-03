@@ -11,12 +11,12 @@ option go_package = "github.com/tharsis/evmos/v3/x/erc20/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Retrieves registered token pairs
+  // TokenPairs retrieves registered token pairs
   rpc TokenPairs(QueryTokenPairsRequest) returns (QueryTokenPairsResponse) {
     option (google.api.http).get = "/evmos/erc20/v1/token_pairs";
   }
 
-  // Retrieves a registered token pair
+  // TokenPair retrieves a registered token pair
   rpc TokenPair(QueryTokenPairRequest) returns (QueryTokenPairResponse) {
     option (google.api.http).get = "/evmos/erc20/v1/token_pairs/{token}";
   }

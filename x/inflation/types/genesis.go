@@ -3,7 +3,7 @@ package types
 import (
 	fmt "fmt"
 
-	epochtypes "github.com/tharsis/evmos/v3/x/epochs/types"
+	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
 )
 
 // NewGenesisState creates a new GenesisState object
@@ -28,7 +28,7 @@ func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params:          DefaultParams(),
 		Period:          uint64(0),
-		EpochIdentifier: "day",
+		EpochIdentifier: epochstypes.DayEpochID,
 		EpochsPerPeriod: 365,
 		SkippedEpochs:   0,
 	}
@@ -37,7 +37,7 @@ func DefaultGenesisState() *GenesisState {
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	if err := epochtypes.ValidateEpochIdentifierInterface(gs.EpochIdentifier); err != nil {
+	if err := epochstypes.ValidateEpochIdentifierInterface(gs.EpochIdentifier); err != nil {
 		return err
 	}
 

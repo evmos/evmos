@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
 	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
 )
 
@@ -100,7 +101,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						s.CommitAfter(time.Second * 6)
 						s.CommitAfter(time.Second * 6)
 
-						epochInfo, found := s.app.EpochsKeeper.GetEpochInfo(s.ctx, "day")
+						epochInfo, found := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
 						s.Require().True(found)
 						epochNumber = epochInfo.CurrentEpoch
 
@@ -109,7 +110,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						s.CommitAfter(time.Second * 6) // commit next block
 					})
 					It("should increase the epoch number ", func() {
-						epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, "day")
+						epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
 						Expect(epochInfo.CurrentEpoch).To(Equal(epochNumber + 1))
 					})
 					It("should not increase the skipped epochs number", func() {
@@ -127,7 +128,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						s.CommitAfter(time.Second * 6)
 						s.CommitAfter(time.Second * 6)
 
-						epochInfo, found := s.app.EpochsKeeper.GetEpochInfo(s.ctx, "day")
+						epochInfo, found := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
 						s.Require().True(found)
 						epochNumber = epochInfo.CurrentEpoch
 
@@ -136,7 +137,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						s.CommitAfter(time.Second * 6) // commit next block
 					})
 					It("should not increase the epoch number ", func() {
-						epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, "day")
+						epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
 						Expect(epochInfo.CurrentEpoch).To(Equal(epochNumber))
 					})
 					It("should not increase the skipped epochs number", func() {
@@ -150,7 +151,7 @@ var _ = Describe("Inflation", Ordered, func() {
 							params.EnableInflation = true
 							s.app.InflationKeeper.SetParams(s.ctx, params)
 
-							epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, "day")
+							epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
 							epochNumber := epochInfo.CurrentEpoch // 6
 
 							epochsPerPeriod := int64(1)

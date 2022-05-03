@@ -1,6 +1,7 @@
 <!--
 order: 1
 -->
+
 # Concepts
 
 ## Vesting

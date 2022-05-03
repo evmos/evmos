@@ -37,7 +37,7 @@ func (suite *EpochIdentifierTestSuite) TestValidateEpochIdentifierInterface() {
 		},
 		{
 			"pass",
-			"week",
+			WeekEpochID,
 			true,
 		},
 	}

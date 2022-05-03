@@ -43,9 +43,8 @@
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
-    - [ToggleTokenRelayProposal](#evmos.erc20.v1.ToggleTokenRelayProposal)
+    - [ToggleTokenConversionProposal](#evmos.erc20.v1.ToggleTokenConversionProposal)
     - [TokenPair](#evmos.erc20.v1.TokenPair)
-    - [UpdateTokenPairERC20Proposal](#evmos.erc20.v1.UpdateTokenPairERC20Proposal)
   
     - [Owner](#evmos.erc20.v1.Owner)
   
@@ -138,6 +137,8 @@
     - [Params](#evmos.inflation.v1.Params)
   
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
+    - [QueryCirculatingSupplyRequest](#evmos.inflation.v1.QueryCirculatingSupplyRequest)
+    - [QueryCirculatingSupplyResponse](#evmos.inflation.v1.QueryCirculatingSupplyResponse)
     - [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest)
     - [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse)
     - [QueryInflationRateRequest](#evmos.inflation.v1.QueryInflationRateRequest)
@@ -148,8 +149,6 @@
     - [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse)
     - [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest)
     - [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse)
-    - [QueryTotalSupplyRequest](#evmos.inflation.v1.QueryTotalSupplyRequest)
-    - [QueryTotalSupplyResponse](#evmos.inflation.v1.QueryTotalSupplyResponse)
   
     - [Query](#evmos.inflation.v1.Query)
   
@@ -495,19 +494,21 @@ Query defines the gRPC querier service.
 
 ### RegisterCoinProposal
 
-RegisterCoinProposal is a gov Content type to register a token pair
+RegisterCoinProposal is a gov Content type to register a token pair for a
+native Cosmos coin.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | token pair of Cosmos native denom and ERC20 token address |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | metadata of the native Cosmos coin |
 
 <a name="evmos.erc20.v1.RegisterERC20Proposal"></a>
 
 ### RegisterERC20Proposal
 
-RegisterCoinProposal is a gov Content type to register a token pair
+RegisterERC20Proposal is a gov Content type to register a token pair for an
+ERC20 token
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -515,12 +516,12 @@ RegisterCoinProposal is a gov Content type to register a token pair
 | `description` | [string](#string) |  | proposal description |
 | `erc20address` | [string](#string) |  | contract address of ERC20 token |
 
-<a name="evmos.erc20.v1.ToggleTokenRelayProposal"></a>
+<a name="evmos.erc20.v1.ToggleTokenConversionProposal"></a>
 
-### ToggleTokenRelayProposal
+### ToggleTokenConversionProposal
 
-ToggleTokenRelayProposal is a gov Content type to toggle
-the internal relaying of a token pair.
+ToggleTokenConversionProposal is a gov Content type to toggle the conversion
+of a token pair.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -532,8 +533,8 @@ the internal relaying of a token pair.
 
 ### TokenPair
 
-TokenPair defines an instance that records pairing consisting of a Cosmos
-native Coin and an ERC20 token address.
+TokenPair defines an instance that records a pairing consisting of a native
+ Cosmos Coin and an ERC20 token address.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -541,20 +542,6 @@ native Coin and an ERC20 token address.
 | `denom` | [string](#string) |  | cosmos base denomination to be mapped to |
 | `enabled` | [bool](#bool) |  | shows token mapping enable status |
 | `contract_owner` | [Owner](#evmos.erc20.v1.Owner) |  | ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address) |
-
-<a name="evmos.erc20.v1.UpdateTokenPairERC20Proposal"></a>
-
-### UpdateTokenPairERC20Proposal
-
-UpdateTokenPairERC20Proposal is a gov Content type to update a token pair's
-ERC20 contract address.
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `title` | [string](#string) |  | title of the proposal |
-| `description` | [string](#string) |  | proposal description |
-| `erc20_address` | [string](#string) |  | contract address of ERC20 token |
-| `new_erc20_address` | [string](#string) |  | new address of ERC20 token contract |
 
  <!-- end messages -->
 
@@ -600,8 +587,8 @@ Params defines the erc20 module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `enable_erc20` | [bool](#bool) |  | parameter to enable the intrarelaying of Cosmos coins <--> ERC20 tokens. |
-| `enable_evm_hook` | [bool](#bool) |  | parameter to enable the EVM hook to convert an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
+| `enable_erc20` | [bool](#bool) |  | parameter to enable the conversion of Cosmos coins <--> ERC20 tokens. |
+| `enable_evm_hook` | [bool](#bool) |  | parameter to enable the EVM hook that converts an ERC20 token to a Cosmos Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address. |
 
  <!-- end messages -->
 
@@ -691,8 +678,8 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `TokenPairs` | [QueryTokenPairsRequest](#evmos.erc20.v1.QueryTokenPairsRequest) | [QueryTokenPairsResponse](#evmos.erc20.v1.QueryTokenPairsResponse) | Retrieves registered token pairs | GET|/evmos/erc20/v1/token_pairs|
-| `TokenPair` | [QueryTokenPairRequest](#evmos.erc20.v1.QueryTokenPairRequest) | [QueryTokenPairResponse](#evmos.erc20.v1.QueryTokenPairResponse) | Retrieves a registered token pair | GET|/evmos/erc20/v1/token_pairs/{token}|
+| `TokenPairs` | [QueryTokenPairsRequest](#evmos.erc20.v1.QueryTokenPairsRequest) | [QueryTokenPairsResponse](#evmos.erc20.v1.QueryTokenPairsResponse) | TokenPairs retrieves registered token pairs | GET|/evmos/erc20/v1/token_pairs|
+| `TokenPair` | [QueryTokenPairRequest](#evmos.erc20.v1.QueryTokenPairRequest) | [QueryTokenPairResponse](#evmos.erc20.v1.QueryTokenPairResponse) | TokenPair retrieves a registered token pair | GET|/evmos/erc20/v1/token_pairs/{token}|
 | `Params` | [QueryParamsRequest](#evmos.erc20.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.erc20.v1.QueryParamsResponse) | Params retrieves the erc20 module params | GET|/evmos/erc20/v1/params|
 
  <!-- end services -->
@@ -706,13 +693,13 @@ Query defines the gRPC querier service.
 
 ### MsgConvertCoin
 
-MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
+MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Cosmos coin which denomination is registered on erc20 bridge. The coin amount defines the total ERC20 tokens to convert. |
+| `coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Cosmos coin which denomination is registered in a token pair. The coin amount defines the amount of coins to convert. |
 | `receiver` | [string](#string) |  | recipient hex address to receive ERC20 token |
-| `sender` | [string](#string) |  | cosmos bech32 address from the owner of the given ERC20 tokens |
+| `sender` | [string](#string) |  | cosmos bech32 address from the owner of the given Cosmos coins |
 
 <a name="evmos.erc20.v1.MsgConvertCoinResponse"></a>
 
@@ -724,13 +711,14 @@ MsgConvertCoinResponse returns no fields
 
 ### MsgConvertERC20
 
-MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
+MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
+coin.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `contract_address` | [string](#string) |  | ERC20 token contract address registered on erc20 bridge |
-| `amount` | [string](#string) |  | amount of ERC20 tokens to mint |
-| `receiver` | [string](#string) |  | bech32 address to receive SDK coins. |
+| `contract_address` | [string](#string) |  | ERC20 token contract address registered in a token pair |
+| `amount` | [string](#string) |  | amount of ERC20 tokens to convert |
+| `receiver` | [string](#string) |  | bech32 address to receive native Cosmos coins |
 | `sender` | [string](#string) |  | sender hex address from the owner of the given ERC20 tokens |
 
 <a name="evmos.erc20.v1.MsgConvertERC20Response"></a>
@@ -753,8 +741,8 @@ Msg defines the erc20 Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the SDK Coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
-| `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
+| `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the native Cosmos coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
+| `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a native Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
 
  <!-- end services -->
 
@@ -1405,6 +1393,24 @@ Params holds parameters for the inflation module.
 
 ## evmos/inflation/v1/query.proto
 
+<a name="evmos.inflation.v1.QueryCirculatingSupplyRequest"></a>
+
+### QueryCirculatingSupplyRequest
+
+QueryCirculatingSupplyRequest is the request type for the
+Query/CirculatingSupply RPC method.
+
+<a name="evmos.inflation.v1.QueryCirculatingSupplyResponse"></a>
+
+### QueryCirculatingSupplyResponse
+
+QueryCirculatingSupplyResponse is the response type for the
+Query/CirculatingSupply RPC method.
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `circulating_supply` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | total amount of coins in circulation |
+
 <a name="evmos.inflation.v1.QueryEpochMintProvisionRequest"></a>
 
 ### QueryEpochMintProvisionRequest
@@ -1427,13 +1433,15 @@ Query/EpochMintProvision RPC method.
 
 ### QueryInflationRateRequest
 
-QueryInflationRateRequest is the request type for the Query/InflationRate RPC method.
+QueryInflationRateRequest is the request type for the Query/InflationRate RPC
+method.
 
 <a name="evmos.inflation.v1.QueryInflationRateResponse"></a>
 
 ### QueryInflationRateResponse
 
-QueryInflationRateResponse is the response type for the Query/InflationRate RPC method.
+QueryInflationRateResponse is the response type for the Query/InflationRate
+RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1475,33 +1483,19 @@ QueryPeriodResponse is the response type for the Query/Period RPC method.
 
 ### QuerySkippedEpochsRequest
 
-QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC method.
+QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC
+method.
 
 <a name="evmos.inflation.v1.QuerySkippedEpochsResponse"></a>
 
 ### QuerySkippedEpochsResponse
 
-QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs RPC method.
+QuerySkippedEpochsResponse is the response type for the Query/SkippedEpochs
+RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `skipped_epochs` | [uint64](#uint64) |  | number of epochs that the inflation module has been disabled. |
-
-<a name="evmos.inflation.v1.QueryTotalSupplyRequest"></a>
-
-### QueryTotalSupplyRequest
-
-QueryTotalSupplyRequest is the request type for the Query/TotalSupply RPC method.
-
-<a name="evmos.inflation.v1.QueryTotalSupplyResponse"></a>
-
-### QueryTotalSupplyResponse
-
-QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC method.
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `total_supply` | [cosmos.base.v1beta1.DecCoin](#cosmos.base.v1beta1.DecCoin) |  | total amount of coins in circulation |
 
  <!-- end messages -->
 
@@ -1520,7 +1514,7 @@ Query provides defines the gRPC querier service.
 | `Period` | [QueryPeriodRequest](#evmos.inflation.v1.QueryPeriodRequest) | [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse) | Period retrieves current period. | GET|/evmos/inflation/v1/period|
 | `EpochMintProvision` | [QueryEpochMintProvisionRequest](#evmos.inflation.v1.QueryEpochMintProvisionRequest) | [QueryEpochMintProvisionResponse](#evmos.inflation.v1.QueryEpochMintProvisionResponse) | EpochMintProvision retrieves current minting epoch provision value. | GET|/evmos/inflation/v1/epoch_mint_provision|
 | `SkippedEpochs` | [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest) | [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse) | SkippedEpochs retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/skipped_epochs|
-| `TotalSupply` | [QueryTotalSupplyRequest](#evmos.inflation.v1.QueryTotalSupplyRequest) | [QueryTotalSupplyResponse](#evmos.inflation.v1.QueryTotalSupplyResponse) | TotalSupply retrieves the total number of skipped epochs. | GET|/evmos/inflation/v1/total_supply|
+| `CirculatingSupply` | [QueryCirculatingSupplyRequest](#evmos.inflation.v1.QueryCirculatingSupplyRequest) | [QueryCirculatingSupplyResponse](#evmos.inflation.v1.QueryCirculatingSupplyResponse) | CirculatingSupply retrieves the total number of tokens that are in circulation (i.e. excluding unvested tokens). | GET|/evmos/inflation/v1/circulating_supply|
 | `InflationRate` | [QueryInflationRateRequest](#evmos.inflation.v1.QueryInflationRateRequest) | [QueryInflationRateResponse](#evmos.inflation.v1.QueryInflationRateResponse) | InflationRate retrieves the inflation rate of the current period. | GET|/evmos/inflation/v1/inflation_rate|
 | `Params` | [QueryParamsRequest](#evmos.inflation.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.inflation.v1.QueryParamsResponse) | Params retrieves the total set of minting parameters. | GET|/evmos/inflation/v1/params|
 

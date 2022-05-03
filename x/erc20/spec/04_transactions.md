@@ -100,12 +100,12 @@ Message stateless validation fails if:
 - Receiver bech32 address is invalid
 - Sender hex address is invalid
 
-## `ToggleTokenRelayProposal`
+## `ToggleTokenConversionProposal`
 
-A gov Content type to toggle the internal relaying of a token pair.
+A gov Content type to toggle the internal conversion of a token pair.
 
 ```go
-type ToggleTokenRelayProposal struct {
+type ToggleTokenConversionProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// proposal description
@@ -113,22 +113,5 @@ type ToggleTokenRelayProposal struct {
 	// token identifier can be either the hex contract address of the ERC20 or the
 	// Cosmos base denomination
 	Token string `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
-}
-```
-
-## `UpdateTokenPairERC20Proposal`
-
-A gov Content type to update a token pair's ERC20 contract address.
-
-```go
-type UpdateTokenPairERC20Proposal struct {
-	// title of the proposal
-	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	// proposal description
-	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// contract address of ERC20 token
-	Erc20Address string `protobuf:"bytes,3,opt,name=erc20_address,json=erc20Address,proto3" json:"erc20_address,omitempty"`
-	// new address of ERC20 token contract
-	NewErc20Address string `protobuf:"bytes,4,opt,name=new_erc20_address,json=newErc20Address,proto3" json:"new_erc20_address,omitempty"`
 }
 ```
