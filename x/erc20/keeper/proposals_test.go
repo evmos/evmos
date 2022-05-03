@@ -5,11 +5,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tharsis/ethermint/tests"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	"github.com/tharsis/evmos/v3/x/erc20/keeper"
 	"github.com/tharsis/evmos/v3/x/erc20/types"
 	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
 )
@@ -205,6 +208,34 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			},
 			true,
 		},
+		{
+			"force fail evm",
+			func() {
+				metadata.Base = cosmosTokenBase
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				suite.Require().NoError(err)
+
+				mockEVMKeeper := &MockEVMKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper)
+				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
+				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
+			},
+			false,
+		},
+		{
+			"force delete module account evm",
+			func() {
+				metadata.Base = cosmosTokenBase
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
+				suite.Require().NoError(err)
+
+				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
+				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -276,6 +307,18 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 			"ok",
 			func() {},
 			true,
+		},
+		{
+			"force fail evm",
+			func() {
+				mockEVMKeeper := &MockEVMKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper)
+				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
+				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
+			},
+			false,
 		},
 	}
 	for _, tc := range testCases {
