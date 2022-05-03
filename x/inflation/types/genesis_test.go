@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
 )
 
 type GenesisTestSuite struct {
@@ -21,7 +22,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 	// Team Address needs to be set manually at Genesis
 	validParams := DefaultParams()
 
-	newGen := NewGenesisState(validParams, uint64(0), "day", 365, 0)
+	newGen := NewGenesisState(validParams, uint64(0), epochstypes.DayEpochID, 365, 0)
 
 	testCases := []struct {
 		name     string
@@ -48,7 +49,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			&GenesisState{
 				Params:          validParams,
 				Period:          uint64(5),
-				EpochIdentifier: "day",
+				EpochIdentifier: epochstypes.DayEpochID,
 				EpochsPerPeriod: 365,
 			},
 			true,
@@ -75,7 +76,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			&GenesisState{
 				Params:          validParams,
 				Period:          uint64(5),
-				EpochIdentifier: "day",
+				EpochIdentifier: epochstypes.DayEpochID,
 				EpochsPerPeriod: 0,
 			},
 			false,

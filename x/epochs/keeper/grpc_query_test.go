@@ -26,7 +26,7 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				req = &types.QueryEpochsInfoRequest{}
 
 				day := types.EpochInfo{
-					Identifier:              "day",
+					Identifier:              types.DayEpochID,
 					StartTime:               time.Time{},
 					Duration:                time.Hour * 24,
 					CurrentEpoch:            0,
@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				day.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 
 				week := types.EpochInfo{
-					Identifier:              "week",
+					Identifier:              types.WeekEpochID,
 					StartTime:               time.Time{},
 					Duration:                time.Hour * 24 * 7,
 					CurrentEpoch:            0,
@@ -63,7 +63,7 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 			"set epoch info",
 			func() {
 				day := types.EpochInfo{
-					Identifier:              "day",
+					Identifier:              types.DayEpochID,
 					StartTime:               time.Time{},
 					Duration:                time.Hour * 24,
 					CurrentEpoch:            0,
@@ -75,7 +75,7 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				day.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 
 				week := types.EpochInfo{
-					Identifier:              "week",
+					Identifier:              types.WeekEpochID,
 					StartTime:               time.Time{},
 					Duration:                time.Hour * 24 * 7,
 					CurrentEpoch:            0,
@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) TestCurrentEpoch() {
 			"week - default currentEpoch",
 			func() {
 				defaultCurrentEpoch := int64(0)
-				req = &types.QueryCurrentEpochRequest{Identifier: "week"}
+				req = &types.QueryCurrentEpochRequest{Identifier: types.WeekEpochID}
 				expRes = &types.QueryCurrentEpochResponse{
 					CurrentEpoch: defaultCurrentEpoch,
 				}
@@ -167,7 +167,7 @@ func (suite *KeeperTestSuite) TestCurrentEpoch() {
 			"day - default currentEpoch",
 			func() {
 				defaultCurrentEpoch := int64(0)
-				req = &types.QueryCurrentEpochRequest{Identifier: "day"}
+				req = &types.QueryCurrentEpochRequest{Identifier: types.DayEpochID}
 				expRes = &types.QueryCurrentEpochResponse{
 					CurrentEpoch: defaultCurrentEpoch,
 				}
