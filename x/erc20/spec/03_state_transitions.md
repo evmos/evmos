@@ -58,7 +58,7 @@ Conversion of a registered `TokenPair` can be done via:
 2. Check if conversion is allowed for the pair, sender and recipient
     - global parameter is enabled
     - token pair is enabled
-    - sender tokens are not vesting
+    - sender tokens are not vesting (checked in the bank module)
     - recipient address is not blocklisted
 3. If Coin is a native Cosmos Coin and Token Owner is `ModuleAccount`
     1. Escrow Cosmos coin by sending them to the erc20 module account
