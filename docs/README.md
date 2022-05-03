@@ -5,7 +5,7 @@ description: Evmos is a scalable and interoperable Ethereum, built on Proof-of-S
 sections:
   - title: Introduction
     desc: Read a high-level overview of Evmos and its architecture.
-    url: /intro
+    url: /about/intro/overview
     icon: ethereum-intro
   - title: Basics
     desc: Start with the basic concepts of Evmos, like accounts and transactions.
