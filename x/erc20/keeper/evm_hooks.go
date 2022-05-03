@@ -29,8 +29,11 @@ func (k Keeper) Hooks() Hooks {
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing. The EVM hooks allows
 // users to convert ERC20s to Cosmos Coins by sending an Ethereum tx transfer to
-// the module account address. This hook applies to both tokenpairs that have
-// been registered through a native Cosmos coin or an ERC20 token.
+// the module account address. This hook applies to both token pairs that have
+// been registered through a native Cosmos coin or an ERC20 token. If token pair
+// has been registered with:
+//  - coin -> burn tokens and transfer escrowed coins on module to sender
+//  - token -> escrow tokens on module account and mint & transfer coins to senderƒ
 //
 // Note that the PostTxProcessing hook is only called by sending an EVM
 // transaction that triggers `ApplyTransaction`. A cosmos tx with a
@@ -50,7 +53,7 @@ func (h Hooks) PostTxProcessing(
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	for i, log := range receipt.Logs {
-		// Note: the transfer event contains 3 topics
+		// Note: the `Transfer` event contains 3 topics (id, from, to)
 		if len(log.Topics) != 3 {
 			continue
 		}
@@ -96,7 +99,13 @@ func (h Hooks) PostTxProcessing(
 			continue
 		}
 
-		// Check that conversion for the pair is enabled
+		// Check if tokens are sent to module address
+		to := common.BytesToAddress(log.Topics[2].Bytes())
+		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
+			continue
+		}
+
+		// Check that conversion for the pair is enabled. Fail
 		if !pair.Enabled {
 			// continue to allow transfers for the ERC20 in case the token pair is
 			// disabled
@@ -107,20 +116,11 @@ func (h Hooks) PostTxProcessing(
 			continue
 		}
 
-		// Check if tokens are sent to module address
-		to := common.BytesToAddress(log.Topics[2].Bytes())
-		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
-			continue
-		}
-
 		// create the corresponding sdk.Coin that is paired with ERC20
 		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
 
-		// Perform token conversion.
-		// Assume the sender of a registered token wants to mint a Cosmos coin. If
-		// token pair has been registered with:
-		//  - coin -> burn tokens and transfer escrowed coins on module to sender
-		//  - token -> escrow tokens on module account and mint & transfer coins to sender
+		// Perform token conversion. We can now assume that the sender of a
+		// registered token wants to mint a Cosmos coin.
 		switch pair.ContractOwner {
 		case types.OWNER_MODULE:
 			_, err = h.k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)
