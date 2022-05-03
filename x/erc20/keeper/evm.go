@@ -6,10 +6,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tharsis/ethermint/server/config"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
@@ -17,15 +19,57 @@ import (
 	"github.com/tharsis/evmos/v3/x/erc20/types"
 )
 
+// DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
+// erc20 module account as owner.
+func (k Keeper) DeployERC20Contract(
+	ctx sdk.Context,
+	coinMetadata banktypes.Metadata,
+) (common.Address, error) {
+	decimals := uint8(0)
+	if len(coinMetadata.DenomUnits) > 0 {
+		decimalsIdx := len(coinMetadata.DenomUnits) - 1
+		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
+	}
+	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
+		"",
+		coinMetadata.Name,
+		coinMetadata.Symbol,
+		decimals,
+	)
+	if err != nil {
+		return common.Address{}, sdkerrors.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+	}
+
+	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
+	copy(data[:len(contracts.ERC20MinterBurnerDecimalsContract.Bin)], contracts.ERC20MinterBurnerDecimalsContract.Bin)
+	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], ctorArgs)
+
+	nonce, err := k.accountKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
+	_, err = k.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
+	if err != nil {
+		return common.Address{}, sdkerrors.Wrapf(err, "failed to deploy contract for %s", coinMetadata.Name)
+	}
+
+	return contractAddr, nil
+}
+
 // QueryERC20 returns the data of a deployed ERC20 contract
-func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC20Data, error) {
+func (k Keeper) QueryERC20(
+	ctx sdk.Context,
+	contract common.Address,
+) (types.ERC20Data, error) {
 	var (
 		nameRes    types.ERC20StringResponse
 		symbolRes  types.ERC20StringResponse
 		decimalRes types.ERC20Uint8Response
 	)
 
-	erc20 := contracts.ERC20BurnableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	// Name
 	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, false, "name")
@@ -34,7 +78,9 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	if err := erc20.UnpackIntoInterface(&nameRes, "name", res.Ret); err != nil {
-		return types.ERC20Data{}, sdkerrors.Wrapf(types.ErrABIUnpack, "failed to unpack name: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(
+			types.ErrABIUnpack, "failed to unpack name: %s", err.Error(),
+		)
 	}
 
 	// Symbol
@@ -44,7 +90,9 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	if err := erc20.UnpackIntoInterface(&symbolRes, "symbol", res.Ret); err != nil {
-		return types.ERC20Data{}, sdkerrors.Wrapf(types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(
+			types.ErrABIUnpack, "failed to unpack symbol: %s", err.Error(),
+		)
 	}
 
 	// Decimals
@@ -54,7 +102,9 @@ func (k Keeper) QueryERC20(ctx sdk.Context, contract common.Address) (types.ERC2
 	}
 
 	if err := erc20.UnpackIntoInterface(&decimalRes, "decimals", res.Ret); err != nil {
-		return types.ERC20Data{}, sdkerrors.Wrapf(types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error())
+		return types.ERC20Data{}, sdkerrors.Wrapf(
+			types.ErrABIUnpack, "failed to unpack decimals: %s", err.Error(),
+		)
 	}
 
 	return types.NewERC20Data(nameRes.Value, symbolRes.Value, decimalRes.Value), nil
@@ -166,4 +216,25 @@ func (k Keeper) CallEVMWithData(
 	}
 
 	return res, nil
+}
+
+// monitorApprovalEvent returns an error if the given transactions logs include
+// an unexpected `Approval` event
+func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error {
+	if res == nil || len(res.Logs) == 0 {
+		return nil
+	}
+
+	logApprovalSig := []byte("Approval(address,address,uint256)")
+	logApprovalSigHash := crypto.Keccak256Hash(logApprovalSig)
+
+	for _, log := range res.Logs {
+		if log.Topics[0] == logApprovalSigHash.Hex() {
+			return sdkerrors.Wrapf(
+				types.ErrUnexpectedEvent, "unexpected Approval event",
+			)
+		}
+	}
+
+	return nil
 }

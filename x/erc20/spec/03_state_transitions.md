@@ -10,7 +10,7 @@ The erc20 modules allows for two types of registration state transitions. Depend
 
 ### 1. Register Coin
 
-A user registers a native Cosmos Coin. Once the proposal passes (i.e is approved by governance), the ERC20 module uses a factory pattern to deploy an ERC20 token contract representation of the Cosmos Coin.
+A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approvald by governance), the ERC20 module uses a factory pattern to deploy an ERC20 token contract representation of the Cosmos Coin.
 
 1. User submits a `RegisterCoinProposal`
 2. Validators of the Evmos Hub vote on the proposal using `MsgVote` and proposal passes
@@ -20,7 +20,7 @@ A user registers a native Cosmos Coin. Once the proposal passes (i.e is approved
 
 ### 2. Register ERC20
 
-A user registers a ERC20 token contract that is already deployed on the EVM module. Once the proposal passes (i.e is approved by governance), the ERC20 module creates an Cosmos coin representation of the ERC20 token.
+A user registers a ERC20 token contract that is already deployed on the EVM module. Once the proposal passes (i.e is approved by governance), the ERC20 module creates a Cosmos coin representation of the ERC20 token.
 
 1. User submits a `RegisterERC20Proposal`
 2. Validators of the EVMOS chain vote on the proposal using `MsgVote` and proposal passes
@@ -58,19 +58,18 @@ Conversion of a registered `TokenPair` can be done via:
 2. Check if conversion is allowed for the pair, sender and recipient
     - global parameter is enabled
     - token pair is enabled
-    - sender tokens are not vesting
-    - recipient address is not blacklisted
-3. If Coin is a native Cosmos Coin  && Token Owner is `ModuleAccount`
+    - sender tokens are not vesting (checked in the bank module)
+    - recipient address is not blocklisted
+3. If Coin is a native Cosmos Coin and Token Owner is `ModuleAccount`
     1. Escrow Cosmos coin by sending them to the erc20 module account
-    2. Call `mint()` ERC20 tokens from the `ModuleAccount` address
-    3. Send minted Tokens to recipient address
+    2. Call `mint()` ERC20 tokens from the `ModuleAccount` address and send minted tokens to recipient address
 4. Check if token balance increased by amount
 
 #### 1.2 ERC20 to Coin
 
 1. User submits a `ConvertERC20` Tx
 2. Check if conversion is allowed for the pair, sender and recipient (see [1.1 Coin to ERC20](#11-coin-to-erc20))
-3. If token is a ERC20 && Token Owner is `ModuleAccount`
+3. If token is a ERC20 and Token Owner is `ModuleAccount`
     1. Call `burnCoins()` on ERC20 to burn ERC20 tokens from the user balance
     2. Send Coins (previously escrowed, see [1.1 Coin to ERC20](#11-coin-to-erc20)) from module to the recipient address.
 4. Check if
@@ -96,22 +95,21 @@ Conversion of a registered `TokenPair` can be done via:
 
 1. User submits a `ConvertERC20` Tx
 2. Check if conversion is allowed for the pair, sender and recipient (See [1.1 Coin to ERC20](#11-coin-to-erc20))
-3. If token is a ERC20 &&  Token Owner is **not** `ModuleAccount`
+3. If token is a ERC20 and Token Owner is **not** `ModuleAccount`
     1. Escrow ERC20 token by sending them to the erc20 module account
-    2. Mint Cosmos coins of the corresponding token pair denomination
-    3. Send coins to the recipient address
+    2. Mint Cosmos coins of the corresponding token pair denomination and send coins to the recipient address
 4. Check if
    - Coin balance increased by amount
    - Token balance decreased by amount
-5. Fail if unexpected `approve` event found in logs to prevent malicious contract behaviour
+5. Fail if unexpected `Approval` event found in logs to prevent malicious contract behaviour
 
 #### 2.2 Coin to ERC20
 
 1. User submits `ConvertCoin` Tx
 2. Check if conversion is allowed for the pair, sender and recipient
-3. If coin is a native Cosmos coin && Token Owner is **not** `ModuleAccount`
+3. If coin is a native Cosmos coin and Token Owner is **not** `ModuleAccount`
     1. Escrow Cosmos Coins by sending them to the erc20 module account
     2. Unlock escrowed ERC20 from the module address by sending it to the recipient
     3. Burn escrowed Cosmos coins
 4. Check if token balance increased by amount
-5. Fail if unexpected `approve` event found in logs to prevent malicious contract behaviour
+5. Fail if unexpected `Approval` event found in logs to prevent malicious contract behaviour

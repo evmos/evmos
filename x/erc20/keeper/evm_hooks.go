@@ -15,22 +15,29 @@ import (
 	"github.com/tharsis/evmos/v3/x/erc20/types"
 )
 
+var _ evmtypes.EvmHooks = Hooks{}
+
 // Hooks wrapper struct for erc20 keeper
 type Hooks struct {
 	k Keeper
 }
-
-var _ evmtypes.EvmHooks = Hooks{}
 
 // Return the wrapper struct
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
-// TODO: Make sure that if ConvertERC20 is called, that the Hook doesn't trigger
-// if it does, delete minting from ConvertErc20
-
-// PostTxProcessing implements EvmHooks.PostTxProcessing
+// PostTxProcessing implements EvmHooks.PostTxProcessing. The EVM hooks allows
+// users to convert ERC20s to Cosmos Coins by sending an Ethereum tx transfer to
+// the module account address. This hook applies to both token pairs that have
+// been registered through a native Cosmos coin or an ERC20 token. If token pair
+// has been registered with:
+//  - coin -> burn tokens and transfer escrowed coins on module to sender
+//  - token -> escrow tokens on module account and mint & transfer coins to senderƒ
+//
+// Note that the PostTxProcessing hook is only called by sending an EVM
+// transaction that triggers `ApplyTransaction`. A cosmos tx with a
+// `ConvertERC20` msg does not trigger the hook as it only calls `ApplyMessage`.
 func (h Hooks) PostTxProcessing(
 	ctx sdk.Context,
 	msg core.Message,
@@ -38,26 +45,27 @@ func (h Hooks) PostTxProcessing(
 ) error {
 	params := h.k.GetParams(ctx)
 	if !params.EnableErc20 || !params.EnableEVMHook {
-		// no error is returned to allow for other post processing txs
-		// to pass
+		// no error is returned to avoid reverting the tx and allow for other post
+		// processing txs to pass and
 		return nil
 	}
 
-	erc20 := contracts.ERC20BurnableContract.ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	for i, log := range receipt.Logs {
-		if len(log.Topics) < 3 {
+		// Note: the `Transfer` event contains 3 topics (id, from, to)
+		if len(log.Topics) != 3 {
 			continue
 		}
 
-		eventID := log.Topics[0] // event ID
-
+		// Check if event is included in ERC20
+		eventID := log.Topics[0]
 		event, err := erc20.EventByID(eventID)
 		if err != nil {
-			// invalid event for ERC20
 			continue
 		}
 
+		// Check if event is a `Transfer` event.
 		if event.Name != types.ERC20EventTransfer {
 			h.k.Logger(ctx).Info("emitted event", "name", event.Name, "signature", event.Sig)
 			continue
@@ -79,13 +87,10 @@ func (h Hooks) PostTxProcessing(
 			continue
 		}
 
-		// check that the contract is a registered token pair
+		// Check that the contract is a registered token pair
 		contractAddr := log.Address
-
 		id := h.k.GetERC20Map(ctx, contractAddr)
-
 		if len(id) == 0 {
-			// no token is registered for the caller contract
 			continue
 		}
 
@@ -94,9 +99,16 @@ func (h Hooks) PostTxProcessing(
 			continue
 		}
 
-		// check that conversion for the pair is enabled
+		// Check if tokens are sent to module address
+		to := common.BytesToAddress(log.Topics[2].Bytes())
+		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
+			continue
+		}
+
+		// Check that conversion for the pair is enabled. Fail
 		if !pair.Enabled {
-			// continue to allow transfers for the ERC20 in case the token pair is disabled
+			// continue to allow transfers for the ERC20 in case the token pair is
+			// disabled
 			h.k.Logger(ctx).Debug(
 				"ERC20 token -> Cosmos coin conversion is disabled for pair",
 				"coin", pair.Denom, "contract", pair.Erc20Address,
@@ -104,19 +116,11 @@ func (h Hooks) PostTxProcessing(
 			continue
 		}
 
-		// ignore as the burning always transfers to the zero address
-		to := common.BytesToAddress(log.Topics[2].Bytes())
-		if !bytes.Equal(to.Bytes(), types.ModuleAddress.Bytes()) {
-			continue
-		}
-
-		// check that the event is Burn from the ERC20Burnable interface
-		// NOTE: assume that if they are burning the token that has been registered as a pair, they want to mint a Cosmos coin
-
 		// create the corresponding sdk.Coin that is paired with ERC20
 		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
 
-		// Mint the coin only if ERC20 is external
+		// Perform token conversion. We can now assume that the sender of a
+		// registered token wants to mint a Cosmos coin.
 		switch pair.ContractOwner {
 		case types.OWNER_MODULE:
 			_, err = h.k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)

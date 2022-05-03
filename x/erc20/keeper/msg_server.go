@@ -7,9 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/v3/contracts"
 	"github.com/tharsis/evmos/v3/x/erc20/types"
@@ -119,26 +116,27 @@ func (k Keeper) convertCoinNativeCoin(
 	contract := pair.GetERC20Contract()
 	balanceToken := k.BalanceOf(ctx, erc20, contract, receiver)
 
-	// Escrow Coins on module account
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins); err != nil {
+	// Escrow coins on module account
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins)
+	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to escrow coins")
 	}
 
-	// Mint Tokens and send to receiver
-	_, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, msg.Coin.Amount.BigInt())
+	// Mint tokens and send to receiver
+	_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, msg.Coin.Amount.BigInt())
 	if err != nil {
 		return nil, err
 	}
 
-	// Check expected Receiver balance after transfer execution
+	// Check expected receiver balance after transfer
 	tokens := msg.Coin.Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
-	exp := big.NewInt(0).Add(balanceToken, tokens)
+	expToken := big.NewInt(0).Add(balanceToken, tokens)
 
-	if r := balanceTokenAfter.Cmp(exp); r != 0 {
+	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
 		return nil, sdkerrors.Wrapf(
 			types.ErrBalanceInvariance,
-			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
+			"invalid token balance - expected: %v, actual: %v", expToken, balanceTokenAfter,
 		)
 	}
 
@@ -173,7 +171,6 @@ func (k Keeper) convertERC20NativeCoin(
 ) (*types.MsgConvertERC20Response, error) {
 	// NOTE: coin fields already validated
 	coins := sdk.Coins{sdk.Coin{Denom: pair.Denom, Amount: msg.Amount}}
-
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceCoin := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
@@ -185,12 +182,13 @@ func (k Keeper) convertERC20NativeCoin(
 		return nil, err
 	}
 
-	// Unescrow Coins and send to receiver
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins); err != nil {
+	// Unescrow coins and send to receiver
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, receiver, coins)
+	if err != nil {
 		return nil, err
 	}
 
-	// Check expected Receiver balance after transfer execution
+	// Check expected receiver balance after transfer
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	expCoin := balanceCoin.Add(coins[0])
 	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
@@ -201,7 +199,7 @@ func (k Keeper) convertERC20NativeCoin(
 		)
 	}
 
-	// Check expected Sender balance after transfer execution
+	// Check expected Sender balance after transfer
 	tokens := coins[0].Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, sender)
 	expToken := big.NewInt(0).Sub(balanceToken, tokens)
@@ -236,7 +234,7 @@ func (k Keeper) convertERC20NativeCoin(
 //  - send minted coins to the receiver
 //  - check if coin balance increased by amount
 //  - check if token balance decreased by amount
-//  - check for unexpected `appove` event in logs
+//  - check for unexpected `Approval` event in logs
 func (k Keeper) convertERC20NativeToken(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -262,7 +260,7 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
-	// Check unpackedRet execution
+	// Check evm call response
 	var unpackedRet types.ERC20BoolResponse
 	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", res.Ret); err != nil {
 		return nil, err
@@ -295,7 +293,7 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
-	// Check expected Receiver balance after transfer execution
+	// Check expected receiver balance after transfer
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	expCoin := balanceCoin.Add(coins[0])
 
@@ -307,7 +305,7 @@ func (k Keeper) convertERC20NativeToken(
 		)
 	}
 
-	// Check for unexpected `appove` event in logs
+	// Check for unexpected `Approval` event in logs
 	if err := k.monitorApprovalEvent(res); err != nil {
 		return nil, err
 	}
@@ -334,7 +332,7 @@ func (k Keeper) convertERC20NativeToken(
 //  - unescrow Tokens that have been previously escrowed with ConvertERC20 and send to receiver
 //  - burn escrowed Coins
 //  - check if token balance increased by amount
-//  - check for unexpected `appove` event in logs
+//  - check for unexpected `Approval` event in logs
 func (k Keeper) convertCoinNativeERC20(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -388,7 +386,7 @@ func (k Keeper) convertCoinNativeERC20(
 		return nil, sdkerrors.Wrap(err, "failed to burn coins")
 	}
 
-	// Check for unexpected `appove` event in logs
+	// Check for unexpected `Approval` event in logs
 	if err := k.monitorApprovalEvent(res); err != nil {
 		return nil, err
 	}
@@ -407,25 +405,4 @@ func (k Keeper) convertCoinNativeERC20(
 	)
 
 	return &types.MsgConvertCoinResponse{}, nil
-}
-
-// monitorApprovalEvent returns an error if the given transactions logs include
-// an unexpected `approve` event
-func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error {
-	if res == nil || len(res.Logs) == 0 {
-		return nil
-	}
-
-	logApprovalSig := []byte("Approval(address,address,uint256)")
-	logApprovalSigHash := crypto.Keccak256Hash(logApprovalSig)
-
-	for _, log := range res.Logs {
-		if log.Topics[0] == logApprovalSigHash.Hex() {
-			return sdkerrors.Wrapf(
-				types.ErrUnexpectedEvent, "unexpected Approval event",
-			)
-		}
-	}
-
-	return nil
 }
