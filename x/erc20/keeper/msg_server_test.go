@@ -250,6 +250,32 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			},
 			false,
 		},
+		{"fail - force fail unescrow", 100, 10, 5,
+			func() {
+				mockBankKeeper := &MockBankKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, mockBankKeeper, suite.app.EvmKeeper)
+
+				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+			},
+			false,
+		},
+		{"fail - force fail balance after transfer", 100, 10, 5,
+			func() {
+				mockBankKeeper := &MockBankKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, mockBankKeeper, suite.app.EvmKeeper)
+
+				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "acoin", Amount: sdk.OneInt()})
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -310,6 +336,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 
 func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 	var contractAddr common.Address
+	var coinName string
 
 	testCases := []struct {
 		name           string
@@ -525,6 +552,69 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			false,
 			false,
 		},
+		{
+			"fail - force mint fail",
+			100,
+			10,
+			func(common.Address) {},
+			func() {
+				mockBankKeeper := &MockBankKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, mockBankKeeper, suite.app.EvmKeeper)
+
+				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to mint"))
+				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+
+			},
+			contractMinterBurner,
+			false,
+			false,
+		},
+		{
+			"fail - force send minted fail",
+			100,
+			10,
+			func(common.Address) {},
+			func() {
+				mockBankKeeper := &MockBankKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, mockBankKeeper, suite.app.EvmKeeper)
+
+				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+
+			},
+			contractMinterBurner,
+			false,
+			false,
+		},
+		{
+			"fail - force bank balance fail",
+			100,
+			10,
+			func(common.Address) {},
+			func() {
+				mockBankKeeper := &MockBankKeeper{}
+				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				suite.Require().True(found)
+				suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, mockBankKeeper, suite.app.EvmKeeper)
+
+				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: sdk.NewInt(int64(10))})
+
+			},
+			contractMinterBurner,
+			false,
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -537,7 +627,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			suite.Require().NotNil(contractAddr)
 			suite.Commit()
 
-			coinName := types.CreateDenom(contractAddr.String())
+			coinName = types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertERC20(
 				sdk.NewInt(tc.transfer),
