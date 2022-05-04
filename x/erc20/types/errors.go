@@ -17,5 +17,4 @@ var (
 	ErrABIUnpack              = sdkerrors.Register(ModuleName, 10, "contract ABI unpack failed")
 	ErrEVMDenom               = sdkerrors.Register(ModuleName, 11, "EVM denomination registration")
 	ErrEVMCall                = sdkerrors.Register(ModuleName, 12, "EVM call unexpected error")
-	ErrInvalidMetadata        = sdkerrors.Register(ModuleName, 13, "invalid metadata provided")
 )

@@ -28,89 +28,200 @@ func TestSanitizeERC20Name(t *testing.T) {
 }
 
 func TestEqualMetadata(t *testing.T) {
-
-	base := "CoinBase"
-	display := "CoinDisplay"
-	name := "CoinName"
-	symbol := "CoinATOM"
-	description := "ATOM Coin"
-	decimal := uint32(18)
-
-	// for metadata_A
-	denomUnits_A := []*banktypes.DenomUnit{
+	testCases := []struct {
+		name      string
+		metadataA banktypes.Metadata
+		metadataB banktypes.Metadata
+		expError  bool
+	}{
 		{
-			Denom:    base,
-			Exponent: 0,
-			Aliases:  []string{base, "moreInfo"},
+			"equal metadata",
+			banktypes.Metadata{
+				Base:        "aevmos",
+				Display:     "evmos",
+				Name:        "Evmos",
+				Symbol:      "EVMOS",
+				Description: "EVM, staking and governance denom of Evmos",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    "aevmos",
+						Exponent: 0,
+						Aliases:  []string{"atto evmos"},
+					},
+					{
+						Denom:    "evmos",
+						Exponent: 18,
+					},
+				},
+			},
+			banktypes.Metadata{
+				Base:        "aevmos",
+				Display:     "evmos",
+				Name:        "Evmos",
+				Symbol:      "EVMOS",
+				Description: "EVM, staking and governance denom of Evmos",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    "aevmos",
+						Exponent: 0,
+						Aliases:  []string{"atto evmos"},
+					},
+					{
+						Denom:    "evmos",
+						Exponent: 18,
+					},
+				},
+			},
+			false,
 		},
 		{
-			Denom:    display,
-			Exponent: decimal,
-			Aliases:  []string{display, "moreInfo"},
-		}}
-	metadata_A := banktypes.Metadata{
-		Base:        base,
-		Display:     display,
-		Name:        name,
-		Symbol:      symbol,
-		Description: description,
-		DenomUnits:  denomUnits_A,
-	}
-
-	// for metadata_B
-	denomUnits_B := []*banktypes.DenomUnit{
-		{
-			Denom:    base,
-			Exponent: 0,
-			Aliases:  []string{"moreInfo", base},
+			"different base field",
+			banktypes.Metadata{
+				Base: "aevmos",
+			},
+			banktypes.Metadata{
+				Base: "taevmos",
+			},
+			true,
 		},
 		{
-			Denom:    display,
-			Exponent: decimal,
-			Aliases:  []string{display, "moreInfo"},
-		}}
-	metadata_B := banktypes.Metadata{
-		Base:        base,
-		Display:     display,
-		Name:        name,
-		Symbol:      symbol,
-		Description: description,
-		DenomUnits:  denomUnits_B,
-	}
-
-	// for metadata_C
-	denomUnits_C := []*banktypes.DenomUnit{
-		{
-			Denom:    base,
-			Exponent: 0,
-			Aliases:  []string{"moreInfo_YES", base},
+			"different denom units length",
+			banktypes.Metadata{
+				Base:        "aevmos",
+				Display:     "evmos",
+				Name:        "Evmos",
+				Symbol:      "EVMOS",
+				Description: "EVM, staking and governance denom of Evmos",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    "aevmos",
+						Exponent: 0,
+						Aliases:  []string{"atto evmos"},
+					},
+					{
+						Denom:    "evmos",
+						Exponent: 18,
+					},
+				},
+			},
+			banktypes.Metadata{
+				Base:        "aevmos",
+				Display:     "evmos",
+				Name:        "Evmos",
+				Symbol:      "EVMOS",
+				Description: "EVM, staking and governance denom of Evmos",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    "aevmos",
+						Exponent: 0,
+						Aliases:  []string{"atto evmos"},
+					},
+				},
+			},
+			true,
 		},
 		{
-			Denom:    display,
-			Exponent: decimal,
-			Aliases:  []string{display, "moreInfo"},
-		}}
-	metadata_C := banktypes.Metadata{
-		Base:        base,
-		Display:     display,
-		Name:        name,
-		Symbol:      symbol,
-		Description: description,
-		DenomUnits:  denomUnits_C,
+			"different denom units",
+			banktypes.Metadata{
+				Base:        "aevmos",
+				Display:     "evmos",
+				Name:        "Evmos",
+				Symbol:      "EVMOS",
+				Description: "EVM, staking and governance denom of Evmos",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    "aevmos",
+						Exponent: 0,
+						Aliases:  []string{"atto evmos"},
+					},
+					{
+						Denom:    "uevmos",
+						Exponent: 12,
+						Aliases:  []string{"micro evmos"},
+					},
+					{
+						Denom:    "evmos",
+						Exponent: 18,
+					},
+				},
+			},
+			banktypes.Metadata{
+				Base:        "aevmos",
+				Display:     "evmos",
+				Name:        "Evmos",
+				Symbol:      "EVMOS",
+				Description: "EVM, staking and governance denom of Evmos",
+				DenomUnits: []*banktypes.DenomUnit{
+					{
+						Denom:    "aevmos",
+						Exponent: 0,
+						Aliases:  []string{"atto evmos"},
+					},
+					{
+						Denom:    "Uevmos",
+						Exponent: 12,
+						Aliases:  []string{"micro evmos"},
+					},
+					{
+						Denom:    "evmos",
+						Exponent: 18,
+					},
+				},
+			},
+			true,
+		},
 	}
 
-	// metadata list
-	metadataList := []*banktypes.Metadata{
-		&metadata_A,
-		&metadata_B,
-		&metadata_C,
+	for _, tc := range testCases {
+		err := EqualMetadata(tc.metadataA, tc.metadataB)
+		if tc.expError {
+			require.Error(t, err)
+		} else {
+			require.NoError(t, err)
+		}
+	}
+}
+
+func TestEqualAliases(t *testing.T) {
+	testCases := []struct {
+		name     string
+		aliasesA []string
+		aliasesB []string
+		expEqual bool
+	}{
+		{
+			"empty",
+			[]string{},
+			[]string{},
+			true,
+		},
+		{
+			"different lengths",
+			[]string{},
+			[]string{"atto evmos"},
+			false,
+		},
+		{
+			"different values",
+			[]string{"attoevmos"},
+			[]string{"atto evmos"},
+			false,
+		},
+		{
+			"same values, unsorted",
+			[]string{"atto evmos", "aevmos"},
+			[]string{"aevmos", "atto evmos"},
+			false,
+		},
+		{
+			"same values, sorted",
+			[]string{"aevmos", "atto evmos"},
+			[]string{"aevmos", "atto evmos"},
+			true,
+		},
 	}
 
-	// validate each metadata
-	for _, md := range metadataList {
-		require.NoError(t, md.Validate())
+	for _, tc := range testCases {
+		require.Equal(t, tc.expEqual, EqualStringSlice(tc.aliasesA, tc.aliasesB), tc.name)
 	}
-
-	require.NoError(t, EqualMetadata(metadata_A, metadata_B))
-	require.NotEqual(t, EqualMetadata(metadata_A, metadata_C), nil)
 }
