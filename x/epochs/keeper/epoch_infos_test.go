@@ -36,10 +36,10 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	allEpochs := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)
 	suite.Require().Len(allEpochs, 3)
 
-	// descending numerical order
-	suite.Require().Equal(allEpochs[0].Identifier, "monthly")
-	suite.Require().Equal(allEpochs[1].Identifier, types.WeekEpochID)
+	// ascending numerical order
 	suite.Require().Equal(allEpochs[2].Identifier, types.DayEpochID)
+	suite.Require().Equal(allEpochs[1].Identifier, types.WeekEpochID)
+	suite.Require().Equal(allEpochs[0].Identifier, "monthly")
 }
 
 func (suite *KeeperTestSuite) TestIterateEpochInfo() {
@@ -141,7 +141,7 @@ func (suite *KeeperTestSuite) TestAllEpochInfos() {
 		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epochInfo)
 	}
 
-	// sorts epochs by duration DESC
+	// sorts epochs by ascending duration
 	sort.Sort(epochInfos)
 	storedEpochInfos := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)
 	for i, epochInfo := range storedEpochInfos {

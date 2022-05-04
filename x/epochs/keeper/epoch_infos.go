@@ -82,11 +82,11 @@ func (k Keeper) deleteEpoch(ctx sdk.Context, duration []byte) {
 	store.Delete(duration)
 }
 
-// IterateEpochInfo iterate through epochs DESC by duration
+// IterateEpochInfo iterate through epochs in ascending numerical order, by duration
 func (k Keeper) IterateEpochInfo(ctx sdk.Context, fn func(index int64, epochInfo types.EpochInfo) (stop bool)) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
 
-	iterator := sdk.KVStoreReversePrefixIterator(store, nil)
+	iterator := sdk.KVStorePrefixIterator(store, nil)
 	defer iterator.Close()
 
 	i := int64(0)
