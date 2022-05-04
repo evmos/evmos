@@ -1,10 +1,21 @@
 package keeper_test
 
 import (
+	"sort"
 	"time"
 
 	"github.com/tharsis/evmos/v3/x/epochs/types"
 )
+
+type sortEpochInfos []types.EpochInfo
+
+func (s sortEpochInfos) Len() int { return len(s) }
+func (s sortEpochInfos) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s sortEpochInfos) Less(i, j int) bool {
+	return s[i].Duration > s[j].Duration
+}
 
 func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	suite.SetupTest()
@@ -24,7 +35,118 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 
 	allEpochs := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)
 	suite.Require().Len(allEpochs, 3)
-	suite.Require().Equal(allEpochs[0].Identifier, types.DayEpochID) // alphabetical order
-	suite.Require().Equal(allEpochs[1].Identifier, "monthly")
-	suite.Require().Equal(allEpochs[2].Identifier, types.WeekEpochID)
+
+	// descending numerical order
+	suite.Require().Equal(allEpochs[0].Identifier, "monthly")
+	suite.Require().Equal(allEpochs[1].Identifier, types.WeekEpochID)
+	suite.Require().Equal(allEpochs[2].Identifier, types.DayEpochID)
+}
+
+func (suite *KeeperTestSuite) TestIterateEpochInfo() {
+	suite.SetupTest()
+
+	epochInfos := sortEpochInfos{
+		{
+			Identifier:              "day",
+			StartTime:               time.Time{},
+			Duration:                time.Hour * 24,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+		{
+			Identifier:              "hour",
+			StartTime:               time.Time{},
+			Duration:                time.Hour,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+		{
+			Identifier:            "monthly",
+			StartTime:             time.Time{},
+			Duration:              time.Hour * 24 * 30,
+			CurrentEpoch:          0,
+			CurrentEpochStartTime: time.Time{},
+			EpochCountingStarted:  false,
+		},
+		{
+			Identifier:              "week",
+			StartTime:               time.Time{},
+			Duration:                time.Hour * 24 * 7,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+	}
+
+	for _, epochInfo := range epochInfos {
+		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epochInfo)
+	}
+
+	sort.Sort(epochInfos)
+	suite.app.EpochsKeeper.IterateEpochInfo(suite.ctx, func(index int64, epochInfo types.EpochInfo) bool {
+		expectedEpoch := epochInfos[index]
+		suite.Require().Equal(expectedEpoch.Identifier, epochInfo.Identifier)
+		suite.Require().Equal(expectedEpoch.Duration, epochInfo.Duration)
+		return false
+	})
+}
+
+func (suite *KeeperTestSuite) TestAllEpochInfos() {
+	suite.SetupTest()
+
+	epochInfos := sortEpochInfos{
+		{
+			Identifier:              "day",
+			StartTime:               time.Time{},
+			Duration:                time.Hour * 24,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+		{
+			Identifier:              "hour",
+			StartTime:               time.Time{},
+			Duration:                time.Hour,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+		{
+			Identifier:            "monthly",
+			StartTime:             time.Time{},
+			Duration:              time.Hour * 24 * 30,
+			CurrentEpoch:          0,
+			CurrentEpochStartTime: time.Time{},
+			EpochCountingStarted:  false,
+		},
+		{
+			Identifier:              "week",
+			StartTime:               time.Time{},
+			Duration:                time.Hour * 24 * 7,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+	}
+
+	for _, epochInfo := range epochInfos {
+		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epochInfo)
+	}
+
+	// sorts epochs by duration DESC
+	sort.Sort(epochInfos)
+	storedEpochInfos := suite.app.EpochsKeeper.AllEpochInfos(suite.ctx)
+	for i, epochInfo := range storedEpochInfos {
+		expectedEpoch := epochInfos[i]
+		suite.Require().Equal(expectedEpoch.Identifier, epochInfo.Identifier)
+		suite.Require().Equal(expectedEpoch.Duration, epochInfo.Duration)
+	}
 }

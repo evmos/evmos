@@ -102,7 +102,7 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 
 				req = &types.QueryEpochsInfoRequest{}
 				expRes = &types.QueryEpochsInfoResponse{
-					Epochs: []types.EpochInfo{day, quarter, week},
+					Epochs: []types.EpochInfo{day, week, quarter},
 					Pagination: &query.PageResponse{
 						NextKey: nil,
 						Total:   uint64(3),
