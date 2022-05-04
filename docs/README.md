@@ -9,12 +9,8 @@ sections:
     icon: ethereum-intro
   - title: Basics
     desc: Start with the basic concepts of Evmos, like accounts and transactions.
-    url: /basics
+    url: /users/basics/transactions
     icon: basics
-  - title: Core Concepts
-    desc: Read about the core concepts like encoding and events.
-    url: /core
-    icon: core
 stack:
   - title: Cosmos SDK
     desc: The SDK is the world’s most popular framework for building application-specific blockchains.
