@@ -27,6 +27,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	"google.golang.org/grpc"
 
+	"github.com/Canto-Network/canto/v3/app"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -48,7 +49,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tharsis/ethermint/crypto/hd"
-	"github.com/tharsis/evmos/v3/app"
 
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/server/config"

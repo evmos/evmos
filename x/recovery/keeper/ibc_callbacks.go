@@ -14,9 +14,9 @@ import (
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v3/ibc"
-	evmos "github.com/tharsis/evmos/v3/types"
-	"github.com/tharsis/evmos/v3/x/recovery/types"
+	"github.com/Canto-Network/canto/v3/ibc"
+	evmos "github.com/Canto-Network/canto/v3/types"
+	"github.com/Canto-Network/canto/v3/x/recovery/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It returns the tokens that

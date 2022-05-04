@@ -36,9 +36,9 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v3/app"
-	"github.com/tharsis/evmos/v3/contracts"
-	"github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/Canto-Network/canto/v3/app"
+	"github.com/Canto-Network/canto/v3/contracts"
+	"github.com/Canto-Network/canto/v3/x/incentives/types"
 )
 
 var (

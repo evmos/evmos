@@ -16,8 +16,8 @@ import (
 
 	"github.com/tharsis/ethermint/testutil/network"
 
-	evmosnetwork "github.com/tharsis/evmos/v3/testutil/network"
-	"github.com/tharsis/evmos/v3/x/erc20/client/cli"
+	evmosnetwork "github.com/Canto-Network/canto/v3/testutil/network"
+	"github.com/Canto-Network/canto/v3/x/erc20/client/cli"
 )
 
 type IntegrationTestSuite struct {

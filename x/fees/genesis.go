@@ -5,8 +5,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/v3/x/fees/keeper"
-	"github.com/tharsis/evmos/v3/x/fees/types"
+	"github.com/Canto-Network/canto/v3/x/fees/keeper"
+	"github.com/Canto-Network/canto/v3/x/fees/types"
 )
 
 // InitGenesis import module genesis

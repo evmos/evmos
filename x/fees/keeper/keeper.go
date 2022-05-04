@@ -8,7 +8,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/tharsis/evmos/v3/x/fees/types"
+	"github.com/Canto-Network/canto/v3/x/fees/types"
 )
 
 // Keeper of this module maintains collections of fee information for contracts

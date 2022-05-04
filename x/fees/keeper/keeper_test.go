@@ -12,6 +12,9 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
+	"github.com/Canto-Network/canto/v3/app"
+	claimtypes "github.com/Canto-Network/canto/v3/x/claims/types"
+	"github.com/Canto-Network/canto/v3/x/fees/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,9 +29,6 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v3/app"
-	claimtypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/fees/types"
 )
 
 type KeeperTestSuite struct {
