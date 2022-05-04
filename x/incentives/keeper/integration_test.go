@@ -77,13 +77,9 @@ var _ = Describe("Distribution", Ordered, func() {
 		s.Require().True(ok)
 		s.Require().Equal(ethermint.AccountTypeEOA, ethAccount.Type())
 
-		// Deploy contract
-		var err error
-		contractAddr, err = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
-		s.Require().NoError(err)
-
+		contractAddr = contract
 		// Create incentive
-		_, err = s.app.IncentivesKeeper.RegisterIncentive(
+		_, err := s.app.IncentivesKeeper.RegisterIncentive(
 			s.ctx,
 			contractAddr,
 			mintAllocations,
