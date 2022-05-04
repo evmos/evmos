@@ -4,7 +4,7 @@ order: 3
 
 # Deterministic Builds
 
-Build the `evmosd` binary deterministically using Docker. {synopsis}
+Build the `cantod` binary deterministically using Docker. {synopsis}
 
 ## Pre-requisites
 
@@ -48,13 +48,13 @@ The `artifacts/build_report` file contains the list of the build artifacts and t
 build sanity. An example of its contents follows:
 
 ```
-App: evmosd
+App: cantod
 Version: 0.4.0
 Commit: b7e46982d1dc2d4c34fcd3b52f1edfd2e589d370
 Files:
- 7594279acff34ff18ea9d896d217a6db  evmosd-0.4.0-linux-amd64
- c083e812acbfa7d6e02583386b371b93  evmosd-0.4.0.tar.gz
+ 7594279acff34ff18ea9d896d217a6db  cantod-0.4.0-linux-amd64
+ c083e812acbfa7d6e02583386b371b93  cantod-0.4.0.tar.gz
 Checksums-Sha256:
- d087053050ce888c21d26e40869105163c5521cb5b291443710961ac0c892e81  evmosd-0.4.0-linux-amd64
- 6ca3e5e40240f5e433088fd9b7370440f3f94116803934c21257e1c78fb9653d  evmosd-0.4.0.tar.gz
+ d087053050ce888c21d26e40869105163c5521cb5b291443710961ac0c892e81  cantod-0.4.0-linux-amd64
+ 6ca3e5e40240f5e433088fd9b7370440f3f94116803934c21257e1c78fb9653d  cantod-0.4.0.tar.gz
 ```

@@ -34,7 +34,7 @@ If the new version you are upgrading to has breaking changes, you will have to:
 
 This needs to be done to prevent [double signing or halting the chain during consensus](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
 
-To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `evmosd export` command.
+To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `cantod export` command.
 
 ### Minor Upgrades
 

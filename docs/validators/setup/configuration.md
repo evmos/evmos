@@ -6,7 +6,7 @@ order: 2
 
 ## Peers
 
-In `~/.evmosd/config/config.toml` you can set your peers.
+In `~/.cantod/config/config.toml` you can set your peers.
 
 See the [Add persistent peers section](https://evmos.dev/testnet/join.html#add-persistent-peers) in our docs for an automated method, but field should look something like a comma separated string of peers (do not copy this, just an example):
 
@@ -19,7 +19,7 @@ persistent_peers = "5576b0160761fe81ccdf88e06031a01bc8643d51@195.201.108.97:2465
 You can see and share your peer with the `tendermint show-node-id` command
 
 ```bash
-evmosd tendermint show-node-id
+cantod tendermint show-node-id
 ac29d21d0a6885465048a4481d16c12f59b2e58b
 ```
 
