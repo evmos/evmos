@@ -18,6 +18,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	skippedEpochs := k.GetSkippedEpochs(ctx)
 
 	// Skip inflation if it is disabled and increment number of skipped epochs
+	//updating to make it daily skips instead of weekly
 	if !params.EnableInflation {
 		skippedEpochs++
 		k.SetSkippedEpochs(ctx, skippedEpochs)
