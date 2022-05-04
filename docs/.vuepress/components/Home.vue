@@ -11,13 +11,13 @@
     .h2 Getting Started
     .p__alt Read all about Evmos or dive straight into the code with guides.
     .features
-      router-link(to="/quickstart").features__item.features__item__light
+      router-link(to="/validators/overview").features__item.features__item__light
         .features__item__image
           icon-rocket.features__item__image__img
         .features__item__text
           .features__item__text__h2 read
-          .features__item__text__h1 Quick start
-          .features__item__text__p Deploy your own node, setup your testnet and more.
+          .features__item__text__h1 Validators
+          .features__item__text__p Everything you need to know as an Evmos validator.
       router-link(to="/developers/overview").features__item.features__item__dark
         .features__item__image
           icon-code.features__item__image__img
