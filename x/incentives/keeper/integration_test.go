@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	types "github.com/tharsis/evmos/v3/x/incentives/types"
+	types "github.com/tharsis/evmos/v4/x/incentives/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
