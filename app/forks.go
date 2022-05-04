@@ -20,8 +20,6 @@ func BeginBlockForks(ctx sdk.Context, app *Evmos) {
 	} else if strings.HasPrefix(ctx.ChainID(), TestnetChainID) {
 		scheduleTestnetUpgrades(ctx, app)
 	}
-
-	return
 }
 
 func scheduleMainnetUpgrades(ctx sdk.Context, app *Evmos) {
