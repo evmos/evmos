@@ -10,7 +10,6 @@ import (
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	length "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type ProposalTestSuite struct {
@@ -26,10 +25,8 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 	suite.Require().Equal("RegisterCoin", (&RegisterCoinProposal{}).ProposalType())
 	suite.Require().Equal("erc20", (&RegisterERC20Proposal{}).ProposalRoute())
 	suite.Require().Equal("RegisterERC20", (&RegisterERC20Proposal{}).ProposalType())
-	suite.Require().Equal("erc20", (&UpdateTokenPairERC20Proposal{}).ProposalRoute())
-	suite.Require().Equal("UpdateTokenPairERC20", (&UpdateTokenPairERC20Proposal{}).ProposalType())
-	suite.Require().Equal("erc20", (&ToggleTokenRelayProposal{}).ProposalRoute())
-	suite.Require().Equal("ToggleTokenRelay", (&ToggleTokenRelayProposal{}).ProposalType())
+	suite.Require().Equal("erc20", (&ToggleTokenConversionProposal{}).ProposalRoute())
+	suite.Require().Equal("ToggleTokenConversion", (&ToggleTokenConversionProposal{}).ProposalType())
 }
 
 func (suite *ProposalTestSuite) TestValidateErc20Denom() {
@@ -45,7 +42,7 @@ func (suite *ProposalTestSuite) TestValidateErc20Denom() {
 		},
 		{
 			"without /",
-			"intrarelayerCoin",
+			"conversionCoin",
 			false,
 		},
 		{
@@ -198,7 +195,7 @@ func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
 	}
 }
 
-func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
+func (suite *ProposalTestSuite) TestToggleTokenConversionProposal() {
 	testCases := []struct {
 		msg         string
 		title       string
@@ -206,27 +203,27 @@ func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
 		token       string
 		expectPass  bool
 	}{
-		{msg: "Enable token relay proposal - valid denom", title: "test", description: "test desc", token: "test", expectPass: true},
-		{msg: "Enable token relay proposal - valid address", title: "test", description: "test desc", token: "0x5dCA2483280D9727c80b5518faC4556617fb194F", expectPass: true},
-		{msg: "Enable token relay proposal - invalid address", title: "test", description: "test desc", token: "0x123", expectPass: false},
+		{msg: "Enable token conversion proposal - valid denom", title: "test", description: "test desc", token: "test", expectPass: true},
+		{msg: "Enable token conversion proposal - valid address", title: "test", description: "test desc", token: "0x5dCA2483280D9727c80b5518faC4556617fb194F", expectPass: true},
+		{msg: "Enable token conversion proposal - invalid address", title: "test", description: "test desc", token: "0x123", expectPass: false},
 
 		// Invalid missing params
-		{msg: "Enable token relay proposal - valid missing title", title: "", description: "test desc", token: "test", expectPass: false},
-		{msg: "Enable token relay proposal - valid missing description", title: "test", description: "", token: "test", expectPass: false},
-		{msg: "Enable token relay proposal - invalid missing token", title: "test", description: "test desc", token: "", expectPass: false},
+		{msg: "Enable token conversion proposal - valid missing title", title: "", description: "test desc", token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - valid missing description", title: "test", description: "", token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid missing token", title: "test", description: "test desc", token: "", expectPass: false},
 
 		// Invalid regex
-		{msg: "Enable token relay proposal - invalid denom", title: "test", description: "test desc", token: "^test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid denom", title: "test", description: "test desc", token: "^test", expectPass: false},
 		// Invalid length
-		{msg: "Enable token relay proposal - invalid length (1)", title: "test", description: "test desc", token: "a", expectPass: false},
-		{msg: "Enable token relay proposal - invalid length (128)", title: "test", description: "test desc", token: strings.Repeat("a", 129), expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length (1)", title: "test", description: "test desc", token: "a", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length (128)", title: "test", description: "test desc", token: strings.Repeat("a", 129), expectPass: false},
 
-		{msg: "Enable token relay proposal - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", token: "test", expectPass: false},
-		{msg: "Enable token relay proposal - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", token: "test", expectPass: false},
+		{msg: "Enable token conversion proposal - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), token: "test", expectPass: false},
 	}
 
 	for i, tc := range testCases {
-		tx := NewToggleTokenRelayProposal(tc.title, tc.description, tc.token)
+		tx := NewToggleTokenConversionProposal(tc.title, tc.description, tc.token)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
@@ -235,69 +232,4 @@ func (suite *ProposalTestSuite) TestToggleTokenRelayProposal() {
 			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
 		}
 	}
-}
-
-func (suite *ProposalTestSuite) TestUpdateTokenPairERC20Proposal() {
-	testCases := []struct {
-		msg          string
-		title        string
-		description  string
-		erc20Addr    common.Address
-		newErc20Addr common.Address
-		expectPass   bool
-	}{
-		{msg: "update token pair erc20 - pass", title: "test", description: "test desc", erc20Addr: tests.GenerateAddress(), newErc20Addr: tests.GenerateAddress(), expectPass: true},
-		{msg: "update token pair erc20 - missing title", title: "", description: "test desc", erc20Addr: tests.GenerateAddress(), newErc20Addr: tests.GenerateAddress(), expectPass: false},
-		{msg: "update token pair erc20 - missing description", title: "test", description: "", erc20Addr: tests.GenerateAddress(), newErc20Addr: tests.GenerateAddress(), expectPass: false},
-	}
-
-	for i, tc := range testCases {
-		tx := NewUpdateTokenPairERC20Proposal(tc.title, tc.description, tc.erc20Addr.Hex(), tc.newErc20Addr.Hex())
-		err := tx.ValidateBasic()
-
-		if tc.expectPass {
-			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
-		} else {
-			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
-		}
-	}
-}
-
-func (suite *ProposalTestSuite) TestUpdateTokenPairERC20ProposalWithoutConstructor() {
-	testCases := []struct {
-		msg          string
-		title        string
-		description  string
-		erc20Addr    string
-		newErc20Addr string
-		expectPass   bool
-	}{
-		{msg: "update token pair erc20 without constructor - valid", title: "test", description: "desc", erc20Addr: tests.GenerateAddress().String(), newErc20Addr: tests.GenerateAddress().String(), expectPass: true},
-		{msg: "update token pair erc20 without constructor- invalid address 1", title: "test", description: "desc", erc20Addr: tests.GenerateAddress().String(), newErc20Addr: "1x5dCA2483280D9727c80b5518faC4556617fb19F", expectPass: false},
-		{msg: "update token pair erc20 without constructor- invalid address 2", title: "test", description: "desc", erc20Addr: "1x5dCA2483280D9727c80b5518faC4556617fb19F", newErc20Addr: tests.GenerateAddress().String(), expectPass: false},
-	}
-
-	for i, tc := range testCases {
-		tx := UpdateTokenPairERC20Proposal{
-			Title:           tc.title,
-			Description:     tc.description,
-			Erc20Address:    tc.erc20Addr,
-			NewErc20Address: tc.newErc20Addr,
-		}
-		err := tx.ValidateBasic()
-
-		if tc.expectPass {
-			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
-		} else {
-			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
-		}
-	}
-}
-
-func (suite *ProposalTestSuite) TestUpdateTokenPairERC20ProposalGetERC20Addresses() {
-	addr := tests.GenerateAddress()
-	addrNew := tests.GenerateAddress()
-	proposal := UpdateTokenPairERC20Proposal{"test", "desc", addr.String(), addrNew.String()}
-	suite.Require().Equal(addr, proposal.GetERC20Address())
-	suite.Require().Equal(addrNew, proposal.GetNewERC20Address())
 }

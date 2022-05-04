@@ -22,7 +22,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 		expPass  bool
 	}{
 		{
-			"intrarelaying is disabled globally",
+			"conversion is disabled globally",
 			func() {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
@@ -36,7 +36,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 			false,
 		},
 		{
-			"intrarelaying is disabled for the given pair",
+			"conversion is disabled for the given pair",
 			func() {
 				expPair.Enabled = false
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
