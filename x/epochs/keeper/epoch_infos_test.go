@@ -14,7 +14,7 @@ func (s sortEpochInfos) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 func (s sortEpochInfos) Less(i, j int) bool {
-	return s[i].Duration > s[j].Duration
+	return s[i].Duration < s[j].Duration
 }
 
 func (suite *KeeperTestSuite) TestEpochLifeCycle() {
@@ -37,9 +37,9 @@ func (suite *KeeperTestSuite) TestEpochLifeCycle() {
 	suite.Require().Len(allEpochs, 3)
 
 	// ascending numerical order
-	suite.Require().Equal(allEpochs[2].Identifier, types.DayEpochID)
+	suite.Require().Equal(allEpochs[0].Identifier, types.DayEpochID)
 	suite.Require().Equal(allEpochs[1].Identifier, types.WeekEpochID)
-	suite.Require().Equal(allEpochs[0].Identifier, "monthly")
+	suite.Require().Equal(allEpochs[2].Identifier, "monthly")
 }
 
 func (suite *KeeperTestSuite) TestIterateEpochInfo() {
