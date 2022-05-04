@@ -160,13 +160,13 @@ This step should be done automatically by the same service that generated the me
 
 Cosmos `secp256k1` keys are not supported on Evmos with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
 
-2. **I can’t generate keys using the CLI with `evmosd` with the `--ledger` flag**
+2. **I can’t generate keys using the CLI with `cantod` with the `--ledger` flag**
 
-CLI bindings with `evmosd` binary are not currently supported. In the meantime, you can use the Ethereum Ledger App with EIP712 using [evmos.me](https://evmos.me). See the [`EIP712 Signing`](#eip712-signing) section for reference.
+CLI bindings with `cantod` binary are not currently supported. In the meantime, you can use the Ethereum Ledger App with EIP712 using [evmos.me](https://evmos.me). See the [`EIP712 Signing`](#eip712-signing) section for reference.
 
-3. **I can’t generate a key for the Evmos native multisig using the `evmosd` CLI and and Ledger**
+3. **I can’t generate a key for the Evmos native multisig using the `cantod` CLI and and Ledger**
 
-You can generate a multisig wallet using the `evmosd` CLI, although the `--ledger` option is not available at the moment.
+You can generate a multisig wallet using the `cantod` CLI, although the `--ledger` option is not available at the moment.
 
 4. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
 

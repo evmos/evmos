@@ -54,7 +54,7 @@ module.exports = {
       name: 'Evmos',
       denom: 'Evmos',
       ticker: 'EVMOS',
-      binary: 'evmosd',
+      binary: 'cantod',
       testnet_denom: 'tEvmos',
       testnet_ticker: 'tEVMOS',
       rpc_url: 'https://eth.bd.evmos.org:8545',
@@ -185,7 +185,7 @@ module.exports = {
             },
             {
               title: 'Evmos Go API',
-              path: 'https://pkg.go.dev/github.com/tharsis/evmos'
+              path: 'https://pkg.go.dev/github.com/Canto-Network/canto'
             },
             {
               title: 'Ethermint Library Go API',
@@ -296,7 +296,7 @@ module.exports = {
       services: [
         {
           service: "github",
-          url: 'https://github.com/tharsis/evmos'
+          url: 'https://github.com/Canto-Network/canto'
         },
         {
           service: "twitter",

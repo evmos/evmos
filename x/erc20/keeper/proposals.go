@@ -9,8 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/tharsis/evmos/v3/contracts"
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/Canto-Network/canto/v3/contracts"
+	"github.com/Canto-Network/canto/v3/x/erc20/types"
 )
 
 // RegisterCoin deploys an erc20 contract and creates the token pair for the existing cosmos coin

@@ -38,16 +38,16 @@ import (
 	servercfg "github.com/tharsis/ethermint/server/config"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 
-	"github.com/tharsis/evmos/v3/app"
-	cmdcfg "github.com/tharsis/evmos/v3/cmd/config"
-	evmoskr "github.com/tharsis/evmos/v3/crypto/keyring"
+	"github.com/Canto-Network/canto/v3/app"
+	cmdcfg "github.com/Canto-Network/canto/v3/cmd/config"
+	evmoskr "github.com/Canto-Network/canto/v3/crypto/keyring"
 )
 
 const (
 	EnvPrefix = "EVMOS"
 )
 
-// NewRootCmd creates a new root command for evmosd. It is called once in the
+// NewRootCmd creates a new root command for cantod. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)

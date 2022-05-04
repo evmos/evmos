@@ -105,38 +105,38 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/evmos/v3/client/docs/statik"
+	_ "github.com/Canto-Network/canto/v3/client/docs/statik"
 
-	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
-	"github.com/tharsis/evmos/v3/x/claims"
-	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/v3/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
-	"github.com/tharsis/evmos/v3/x/erc20"
-	erc20client "github.com/tharsis/evmos/v3/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
-	"github.com/tharsis/evmos/v3/x/fees"
-	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
-	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
-	"github.com/tharsis/evmos/v3/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
-	"github.com/tharsis/evmos/v3/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
-	"github.com/tharsis/evmos/v3/x/recovery"
-	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
-	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
-	"github.com/tharsis/evmos/v3/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/Canto-Network/canto/v3/app/ante"
+	v2 "github.com/Canto-Network/canto/v3/app/upgrades/mainnet/v2"
+	v3 "github.com/Canto-Network/canto/v3/app/upgrades/mainnet/v3"
+	tv3 "github.com/Canto-Network/canto/v3/app/upgrades/testnet/v3"
+	"github.com/Canto-Network/canto/v3/x/claims"
+	claimskeeper "github.com/Canto-Network/canto/v3/x/claims/keeper"
+	claimstypes "github.com/Canto-Network/canto/v3/x/claims/types"
+	"github.com/Canto-Network/canto/v3/x/epochs"
+	epochskeeper "github.com/Canto-Network/canto/v3/x/epochs/keeper"
+	epochstypes "github.com/Canto-Network/canto/v3/x/epochs/types"
+	"github.com/Canto-Network/canto/v3/x/erc20"
+	erc20client "github.com/Canto-Network/canto/v3/x/erc20/client"
+	erc20keeper "github.com/Canto-Network/canto/v3/x/erc20/keeper"
+	erc20types "github.com/Canto-Network/canto/v3/x/erc20/types"
+	"github.com/Canto-Network/canto/v3/x/fees"
+	feeskeeper "github.com/Canto-Network/canto/v3/x/fees/keeper"
+	feestypes "github.com/Canto-Network/canto/v3/x/fees/types"
+	"github.com/Canto-Network/canto/v3/x/incentives"
+	incentivesclient "github.com/Canto-Network/canto/v3/x/incentives/client"
+	incentiveskeeper "github.com/Canto-Network/canto/v3/x/incentives/keeper"
+	incentivestypes "github.com/Canto-Network/canto/v3/x/incentives/types"
+	"github.com/Canto-Network/canto/v3/x/inflation"
+	inflationkeeper "github.com/Canto-Network/canto/v3/x/inflation/keeper"
+	inflationtypes "github.com/Canto-Network/canto/v3/x/inflation/types"
+	"github.com/Canto-Network/canto/v3/x/recovery"
+	recoverykeeper "github.com/Canto-Network/canto/v3/x/recovery/keeper"
+	recoverytypes "github.com/Canto-Network/canto/v3/x/recovery/types"
+	"github.com/Canto-Network/canto/v3/x/vesting"
+	vestingkeeper "github.com/Canto-Network/canto/v3/x/vesting/keeper"
+	vestingtypes "github.com/Canto-Network/canto/v3/x/vesting/types"
 )
 
 func init() {
@@ -145,7 +145,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".evmosd")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".cantod")
 
 	// manually update the power reduction by replacing micro (u) -> atto (a) evmos
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
@@ -153,7 +153,7 @@ func init() {
 
 const (
 	// Name defines the application binary name
-	Name = "evmosd"
+	Name = "cantod"
 	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
 	MainnetChainID = "evmos_9001"
 	// TestnetChainID defines the Evmos EIP155 chain ID for testnet

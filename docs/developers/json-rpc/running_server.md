@@ -11,7 +11,7 @@ Learn how to run and setup the JSON-RPC server on Evmos. {synopsis}
 To enable RPC server use the following flag (set to true by default).
 
 ```bash
-evmosd start --json-rpc.enable
+cantod start --json-rpc.enable
 ```
 
 ## Defining Namespaces
@@ -19,7 +19,7 @@ evmosd start --json-rpc.enable
 `Eth`,`Net` and `Web3` [namespaces](./namespaces) are enabled by default. In order to enable other namespaces use flag `--json-rpc.api`.
 
 ```bash
-evmosd start --json-rpc.api eth,txpool,personal,net,debug,web3,miner
+cantod start --json-rpc.api eth,txpool,personal,net,debug,web3,miner
 ```
 
 ## Set a Gas Cap
@@ -28,10 +28,10 @@ evmosd start --json-rpc.api eth,txpool,personal,net,debug,web3,miner
 
 ```bash
 # set gas cap to 85M
-evmosd start --json-rpc.gas-cap 85000000000
+cantod start --json-rpc.gas-cap 85000000000
 
 # set gas cap to infinite (=0)
-evmosd start --json-rpc.gas-cap 0
+cantod start --json-rpc.gas-cap 0
 ```
 
 ## CORS

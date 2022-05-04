@@ -10,8 +10,8 @@ import (
 
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/Canto-Network/canto/v3/x/erc20/types"
+	inflationtypes "github.com/Canto-Network/canto/v3/x/inflation/types"
 )
 
 const (

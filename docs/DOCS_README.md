@@ -1,6 +1,6 @@
 # Updating the docs
 
-If you want to open a PR on the Cosmos SDK to update the documentation, please follow the guidelines in the [`CONTRIBUTING.md`](https://github.com/tharsis/evmos/tree/main/CONTRIBUTING.md#updating-documentation)
+If you want to open a PR on the Cosmos SDK to update the documentation, please follow the guidelines in the [`CONTRIBUTING.md`](https://github.com/Canto-Network/canto/tree/main/CONTRIBUTING.md#updating-documentation)
 
 ## Translating
 
@@ -14,7 +14,7 @@ If you want to open a PR on the Cosmos SDK to update the documentation, please f
 The documentation for Evmos is hosted at [evmos.dev](https://evmos.dev/)
 
 built from the files in this (`/docs`) directory for
-[master](https://github.com/tharsis/evmos/tree/main/docs).
+[master](https://github.com/Canto-Network/canto/tree/main/docs).
 
 ### How It Works
 
@@ -104,7 +104,7 @@ We are using [Algolia](https://www.algolia.com) to power full-text search. This 
    1. Directly Edit API docs manually: `client/lcd/swagger-ui/swagger.yaml`.
    2. Edit API docs within the [Swagger Editor](https://editor.swagger.io/). Please refer to this [document](https://swagger.io/docs/specification/2-0/basic-structure/) for the correct structure in `.yaml`.
 3. Download `swagger.yaml` and replace the old `swagger.yaml` under fold `client/lcd/swagger-ui`.
-4. Compile evmosd
+4. Compile cantod
 
    ```bash
    make install

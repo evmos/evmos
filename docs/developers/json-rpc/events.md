@@ -85,7 +85,7 @@ To start a connection with the Tendermint websocket you need to define the addre
 flag when starting the node (default `tcp://127.0.0.1:26657`):
 
 ```bash
-evmosd start --rpc.laddr="tcp://127.0.0.1:26657"
+cantod start --rpc.laddr="tcp://127.0.0.1:26657"
 ```
 
 Then, start a websocket subscription with [ws](https://github.com/hashrocket/ws)
@@ -109,7 +109,7 @@ You can start a connection with the Ethereum websocket using the `--json-rpc.ws-
 the node (default `"0.0.0.0:8546"`):
 
 ```bash
-evmosd start  --json-rpc.address"0.0.0.0:8545" --json-rpc.ws-address="0.0.0.0:8546" --evm.rpc.api="eth,web3,net,txpool,debug" --json-rpc.enable
+cantod start  --json-rpc.address"0.0.0.0:8545" --json-rpc.ws-address="0.0.0.0:8546" --evm.rpc.api="eth,web3,net,txpool,debug" --json-rpc.enable
 ```
 
 Then, start a websocket subscription with [`ws`](https://github.com/hashrocket/ws)

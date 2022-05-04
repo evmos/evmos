@@ -18,7 +18,7 @@ Additionally, validators can choose how to manage the upgrade according to their
 
 ## Breaking and Non-Breaking Upgrades
 
-Upgrades can be categorized as breaking or non-breaking according to the Semantic versioning ([Semver](https://semver.org/)) of the corresponding software [release version](https://github.com/tharsis/evmos/releases) (*i.e* `vX.Y.Z`):
+Upgrades can be categorized as breaking or non-breaking according to the Semantic versioning ([Semver](https://semver.org/)) of the corresponding software [release version](https://github.com/Canto-Network/canto/releases) (*i.e* `vX.Y.Z`):
 
 - **Major version (`X`)**: backward incompatible API and state machine breaking changes.
 - **Minor version (`Y`)**: new backward compatible features. These can be also be state machine breaking.
@@ -34,7 +34,7 @@ If the new version you are upgrading to has breaking changes, you will have to:
 
 This needs to be done to prevent [double signing or halting the chain during consensus](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
 
-To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `evmosd export` command.
+To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `cantod export` command.
 
 ### Minor Upgrades
 

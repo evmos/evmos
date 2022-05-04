@@ -12,8 +12,8 @@ import (
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v3/contracts"
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/Canto-Network/canto/v3/contracts"
+	"github.com/Canto-Network/canto/v3/x/erc20/types"
 )
 
 var _ types.MsgServer = &Keeper{}

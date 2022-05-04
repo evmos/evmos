@@ -18,9 +18,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/tharsis/evmos/v3/x/vesting/client/cli"
-	"github.com/tharsis/evmos/v3/x/vesting/keeper"
-	"github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/Canto-Network/canto/v3/x/vesting/client/cli"
+	"github.com/Canto-Network/canto/v3/x/vesting/keeper"
+	"github.com/Canto-Network/canto/v3/x/vesting/types"
 )
 
 var (

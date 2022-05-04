@@ -6,10 +6,10 @@ order: 8
 
 ## CLI
 
-Find below a list of  `evmosd` commands added with the  `x/fees` module. You can obtain the full list by using the `evmosd -h` command. A CLI command can look like this:
+Find below a list of  `cantod` commands added with the  `x/fees` module. You can obtain the full list by using the `cantod -h` command. A CLI command can look like this:
 
 ```bash
-evmosd query fees params
+cantod query fees params
 ```
 
 ### Queries

@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
-	"github.com/tharsis/evmos/v3/x/epochs/types"
+	"github.com/Canto-Network/canto/v3/x/epochs/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

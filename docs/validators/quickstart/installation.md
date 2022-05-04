@@ -22,7 +22,7 @@ go version
 ```
 
 :::tip
-If the `evmosd: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
+If the `cantod: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
 
 ```bash
 export PATH=$PATH:$(go env GOPATH)/bin
@@ -33,7 +33,7 @@ export PATH=$PATH:$(go env GOPATH)/bin
 ## Install Binaries
 
 ::: tip
-The latest {{ $themeConfig.project.name }} [version](https://github.com/tharsis/evmos/releases) is `{{ $themeConfig.project.binary }} {{ $themeConfig.project.latest_version }}`
+The latest {{ $themeConfig.project.name }} [version](https://github.com/Canto-Network/canto/releases) is `{{ $themeConfig.project.binary }} {{ $themeConfig.project.latest_version }}`
 :::
 
 ### GitHub
@@ -41,7 +41,7 @@ The latest {{ $themeConfig.project.name }} [version](https://github.com/tharsis/
 Clone and build {{ $themeConfig.project.name }} using `git`:
 
 ```bash
-git clone https://github.com/tharsis/evmos.git
+git clone https://github.com/Canto-Network/canto.git
 cd evmos
 make install
 ```
@@ -49,7 +49,7 @@ make install
 Check that the `{{ $themeConfig.project.binary }}` binaries have been successfully installed:
 
 ```bash
-evmosd version
+cantod version
 ```
 
 ### Docker
@@ -60,22 +60,22 @@ You can build {{ $themeConfig.project.name }} using Docker by running:
 make build-docker
 ```
 
-The command above will create a docker container: `tharsishq/evmos:latest`. Now you can run `evmosd` in the container.
+The command above will create a docker container: `tharsishq/evmos:latest`. Now you can run `cantod` in the container.
 
 ```bash
-docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd version
+docker run -it -p 26657:26657 -p 26656:26656 -v ~/.cantod/:/root/.cantod tharsishq/evmos:latest cantod version
 
 # To initialize
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd init test-chain --chain-id test_9000-2
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.cantod/:/root/.cantod tharsishq/evmos:latest cantod init test-chain --chain-id test_9000-2
 
 # To run
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd start
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.cantod/:/root/.cantod tharsishq/evmos:latest cantod start
 ```
 
 ### Releases
 
-You can also download a specific release available on the {{ $themeConfig.project.name }} [repository](https://github.com/tharsis/evmos/releases) or via command line:
+You can also download a specific release available on the {{ $themeConfig.project.name }} [repository](https://github.com/Canto-Network/canto/releases) or via command line:
 
 ```bash
-go install github.com/tharsis/evmos@latest
+go install github.com/Canto-Network/canto@latest
 ```

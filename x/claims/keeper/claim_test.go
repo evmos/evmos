@@ -14,10 +14,10 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/tests"
 	ethermint "github.com/tharsis/ethermint/types"
-	"github.com/tharsis/evmos/v3/testutil"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/Canto-Network/canto/v3/testutil"
+	inflationtypes "github.com/Canto-Network/canto/v3/x/inflation/types"
 
-	"github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/Canto-Network/canto/v3/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
