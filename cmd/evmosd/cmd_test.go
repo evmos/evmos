@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/tharsis/evmos/v3/app"
-	evmosd "github.com/tharsis/evmos/v3/cmd/evmosd"
+	cantod "github.com/tharsis/evmos/v3/cmd/cantod"
 )
 
 func TestInitCmd(t *testing.T) {
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := cantod.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"init",       // Test the init cmd
 		"evmos-test", // Moniker
@@ -27,7 +27,7 @@ func TestInitCmd(t *testing.T) {
 }
 
 func TestAddKeyLedgerCmd(t *testing.T) {
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := cantod.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"keys",
 		"add",
