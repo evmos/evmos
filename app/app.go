@@ -112,7 +112,6 @@ import (
 	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
 	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
 	v4 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v4"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
@@ -1036,11 +1035,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v3.UpgradeName,
 		v3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// testnet upgrade v3 handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		tv3.UpgradeName,
-		tv3.CreateUpgradeHandler(app.mm, app.configurator),
-	)
 	// v4 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v4.UpgradeName,
@@ -1072,10 +1066,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v2
 	case v3.UpgradeName:
 		// no store upgrades in v3
-	case tv3.UpgradeName:
-		// no store upgrades in testnet v3
 	case v4.UpgradeName:
-		// no store upgrades in v3
+		// no store upgrades in v4
 	}
 
 	if storeUpgrades != nil {
