@@ -79,9 +79,8 @@ var _ = Describe("Distribution", Ordered, func() {
 		s.Require().Equal(ethermint.AccountTypeEOA, ethAccount.Type())
 
 		contractAddr = contract
-		module := s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName)
-		moduleAcc = module.GetAddress()
-		participantAcc = sdk.AccAddress(s.address.Bytes())
+		moduleAcc = s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
+		participantAcc = acc.GetAddress()
 		// Create incentive
 		_, err := s.app.IncentivesKeeper.RegisterIncentive(
 			s.ctx,
