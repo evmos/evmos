@@ -95,7 +95,7 @@ func (msg MsgConvertERC20) ValidateBasic() error {
 	}
 	_, err := sdk.AccAddressFromBech32(msg.Receiver)
 	if err != nil {
-		return sdkerrors.Wrap(err, "invalid reciver address")
+		return sdkerrors.Wrap(err, "invalid receiver address")
 	}
 	if !common.IsHexAddress(msg.Sender) {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender hex address %s", msg.Sender)

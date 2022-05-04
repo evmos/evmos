@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -38,15 +37,13 @@ func EqualMetadata(a, b banktypes.Metadata) error {
 }
 
 // EqualStringSlice checks if two string slices are equal.
-func EqualStringSlice(a, b []string) bool {
-	if len(a) != len(b) {
+func EqualStringSlice(aliasesA, aliasesB []string) bool {
+	if len(aliasesA) != len(aliasesB) {
 		return false
 	}
 
-	sort.Strings(a)
-	sort.Strings(b)
-	for idx := len(a) - 1; idx > -1; idx-- {
-		if a[idx] != b[idx] {
+	for i := 0; i < len(aliasesA); i++ {
+		if aliasesA[i] != aliasesB[i] {
 			return false
 		}
 	}
