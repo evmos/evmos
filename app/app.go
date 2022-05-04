@@ -111,6 +111,7 @@ import (
 	"github.com/tharsis/evmos/v3/app/ante"
 	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
 	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
+	v4 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v4"
 	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
@@ -1040,6 +1041,17 @@ func (app *Evmos) setupUpgradeHandlers() {
 		tv3.UpgradeName,
 		tv3.CreateUpgradeHandler(app.mm, app.configurator),
 	)
+	// v4 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v4.UpgradeName,
+		v4.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.IBCKeeper.ClientKeeper,
+			app.SlashingKeeper,
+			app.FeeMarketKeeper,
+			app.ClaimsKeeper,
+		),
+	)
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
@@ -1062,6 +1074,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v3
 	case tv3.UpgradeName:
 		// no store upgrades in testnet v3
+	case v4.UpgradeName:
+		// no store upgrades in v3
 	}
 
 	if storeUpgrades != nil {
