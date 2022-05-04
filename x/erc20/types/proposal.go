@@ -72,14 +72,16 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 		return err
 	}
 
-	if err := validateIBC(rtbp.Metadata); err != nil {
+	if err := validateIBCVoucherMetadata(rtbp.Metadata); err != nil {
 		return err
 	}
 
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-func validateIBC(metadata banktypes.Metadata) error {
+// validateIBCVoucherMetadata checks that the coin metadata fields are consistent
+// with an IBC voucher denomination.
+func validateIBCVoucherMetadata(metadata banktypes.Metadata) error {
 	// Check ibc/ denom
 	denomSplit := strings.SplitN(metadata.Base, "/", 2)
 
@@ -94,11 +96,11 @@ func validateIBC(metadata banktypes.Metadata) error {
 	}
 
 	if !strings.Contains(metadata.Name, "channel-") {
-		return fmt.Errorf("invalid metadata (Name) for ibc. %s should include channel", metadata.Name)
+		return fmt.Errorf("invalid metadata (Name) for IBC. %s should include channel", metadata.Name)
 	}
 
 	if !strings.HasPrefix(metadata.Symbol, "ibc") {
-		return fmt.Errorf("invalid metadata (Symbol) for ibc. %s should include \"ibc\" prefix", metadata.Symbol)
+		return fmt.Errorf("invalid metadata (Symbol) for IBC. %s should include \"ibc\" prefix", metadata.Symbol)
 	}
 
 	return nil
@@ -159,14 +161,14 @@ func (*ToggleTokenConversionProposal) ProposalType() string {
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
-func (etrp *ToggleTokenConversionProposal) ValidateBasic() error {
+func (ttcp *ToggleTokenConversionProposal) ValidateBasic() error {
 	// check if the token is a hex address, if not, check if it is a valid SDK
 	// denom
-	if err := ethermint.ValidateAddress(etrp.Token); err != nil {
-		if err := sdk.ValidateDenom(etrp.Token); err != nil {
+	if err := ethermint.ValidateAddress(ttcp.Token); err != nil {
+		if err := sdk.ValidateDenom(ttcp.Token); err != nil {
 			return err
 		}
 	}
 
-	return govtypes.ValidateAbstract(etrp)
+	return govtypes.ValidateAbstract(ttcp)
 }
