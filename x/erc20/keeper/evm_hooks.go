@@ -33,7 +33,7 @@ func (k Keeper) Hooks() Hooks {
 // been registered through a native Cosmos coin or an ERC20 token. If token pair
 // has been registered with:
 //  - coin -> burn tokens and transfer escrowed coins on module to sender
-//  - token -> escrow tokens on module account and mint & transfer coins to senderƒ
+//  - token -> escrow tokens on module account and mint & transfer coins to sender
 //
 // Note that the PostTxProcessing hook is only called by sending an EVM
 // transaction that triggers `ApplyTransaction`. A cosmos tx with a

@@ -211,6 +211,6 @@ func (k Keeper) verifyMetadata(
 		return nil
 	}
 
-	// If it already existed, Check that is equal to what is stored
+	// If it already existed, check that is equal to what is stored
 	return types.EqualMetadata(meta, coinMetadata)
 }
