@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tharsis/evmos/v3/x/inflation/types"
+	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
@@ -15,12 +16,12 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 	}{
 		{
 			"correct epoch identifier",
-			"day",
+			epochstypes.DayEpochID,
 			true,
 		},
 		{
 			"incorrect epoch identifier",
-			"week",
+			epochstypes.WeekEpochID,
 			false,
 		},
 	}

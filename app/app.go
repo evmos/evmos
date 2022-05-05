@@ -87,6 +87,7 @@ import (
 	ibc "github.com/cosmos/ibc-go/v3/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
@@ -105,38 +106,38 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/evmos/v3/client/docs/statik"
+	_ "github.com/tharsis/evmos/v4/client/docs/statik"
 
-	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
-	"github.com/tharsis/evmos/v3/x/claims"
-	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/v3/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
-	"github.com/tharsis/evmos/v3/x/erc20"
-	erc20client "github.com/tharsis/evmos/v3/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
-	"github.com/tharsis/evmos/v3/x/fees"
-	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
-	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
-	"github.com/tharsis/evmos/v3/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
-	"github.com/tharsis/evmos/v3/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
-	"github.com/tharsis/evmos/v3/x/recovery"
-	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
-	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
-	"github.com/tharsis/evmos/v3/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v4/app/ante"
+	v2 "github.com/tharsis/evmos/v4/app/upgrades/mainnet/v2"
+	v3 "github.com/tharsis/evmos/v4/app/upgrades/mainnet/v3"
+	tv3 "github.com/tharsis/evmos/v4/app/upgrades/testnet/v3"
+	"github.com/tharsis/evmos/v4/x/claims"
+	claimskeeper "github.com/tharsis/evmos/v4/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/v4/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/erc20"
+	erc20client "github.com/tharsis/evmos/v4/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/v4/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/v4/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/fees"
+	feeskeeper "github.com/tharsis/evmos/v4/x/fees/keeper"
+	feestypes "github.com/tharsis/evmos/v4/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/v4/x/incentives/client"
+	incentiveskeeper "github.com/tharsis/evmos/v4/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/v4/x/incentives/types"
+	"github.com/tharsis/evmos/v4/x/inflation"
+	inflationkeeper "github.com/tharsis/evmos/v4/x/inflation/keeper"
+	inflationtypes "github.com/tharsis/evmos/v4/x/inflation/types"
+	"github.com/tharsis/evmos/v4/x/recovery"
+	recoverykeeper "github.com/tharsis/evmos/v4/x/recovery/keeper"
+	recoverytypes "github.com/tharsis/evmos/v4/x/recovery/types"
+	"github.com/tharsis/evmos/v4/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/v4/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
 func init() {
@@ -178,8 +179,7 @@ var (
 			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
 			ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 			// Evmos proposal types
-			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
-			erc20client.ToggleTokenRelayProposalHandler, erc20client.UpdateTokenPairERC20ProposalHandler,
+			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
 		),
 		params.AppModuleBasic{},
@@ -422,7 +422,7 @@ func NewEvmos(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
 		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
 

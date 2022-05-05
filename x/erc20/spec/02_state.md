@@ -8,11 +8,11 @@ order: 2
 
 The `x/erc20` module keeps the following objects in state:
 
-| State Object        | Description                                    | Key                         | Value               |
-| ------------------- | ---------------------------------------------- | --------------------------- | ------------------- |
-| Token Pair          | Token Pair bytecode                            | `[]byte{1} + []byte(id)`    | `[]byte{tokenPair}` |
-| Token Pair by ERC20 | Token Pair id bytecode by erc20 contract bytes | `[]byte{2} + []byte(erc20)` | `[]byte(id)`        |
-| Token Pair by Denom | Token Pair id bytecode by denom string         | `[]byte{3} + []byte(denom)` | `[]byte(id)`        |
+| State Object       | Description                                    | Key                         | Value               | Store    |
+| ------------------ | ---------------------------------------------- | --------------------------- | ------------------- | --- |
+| `TokenPair`        | Token Pair bytecode                            | `[]byte{1} + []byte(id)`    | `[]byte{tokenPair}` | KV    |
+| `TokenPairByERC20` | Token Pair id bytecode by erc20 contract bytes | `[]byte{2} + []byte(erc20)` | `[]byte(id)`        | KV    |
+| `TokenPairByDenom` | Token Pair id bytecode by denom string         | `[]byte{3} + []byte(denom)` | `[]byte(id)`        | KV    |
 
 ### Token Pair
 
@@ -41,7 +41,7 @@ tokenPairId = sha256(erc20 + "|" + denom)
 
 ### Token Origin
 
-The `ConvertCoin` and `ConvertERC20` functionality need to check if the token being used is a native Coin or a native ERC20. The owner field is based on the token registration proposal type (`RegisterCoinProposal` = 1, `RegisterERC20Proposal` = 2).
+The `ConvertCoin` and `ConvertERC20` functionalities use the owner field to check whether the token being used is a native Coin or a native ERC20. The field is based on the token registration proposal type (`RegisterCoinProposal` = 1, `RegisterERC20Proposal` = 2).
 
 The `Owner` enumerates the ownership of a ERC20 contract.
 
@@ -73,6 +73,10 @@ func (tp TokenPair) IsNativeERC20() bool {
 	return tp.ContractOwner == OWNER_EXTERNAL
 }
 ```
+
+### Token Pair by ERC20 and by Denom
+
+`TokenPairByERC20` and `TokenPairByDenom` are additional state objects for querying a token pair id.
 
 ## Genesis State
 

@@ -7,7 +7,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestMintingEnabled() {
@@ -22,7 +22,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 		expPass  bool
 	}{
 		{
-			"intrarelaying is disabled globally",
+			"conversion is disabled globally",
 			func() {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
@@ -36,7 +36,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 			false,
 		},
 		{
-			"intrarelaying is disabled for the given pair",
+			"conversion is disabled for the given pair",
 			func() {
 				expPair.Enabled = false
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)

@@ -21,7 +21,7 @@ protoc_gen_doc
 proto_dirs=$(find ./proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 # TODO: migrate to `buf build`
 for dir in $proto_dirs; do
-  buf protoc \
+  buf alpha protoc \
   -I "proto" \
   -I "third_party/proto" \
   --gocosmos_out=plugins=interfacetype+grpc,\
@@ -33,10 +33,10 @@ done
 
 # command to generate docs using protoc-gen-doc
 # TODO: migrate to `buf build`
-buf protoc \
+buf alpha protoc \
 -I "proto" \
 -I "third_party/proto" \
---doc_out=./docs/api \
+--doc_out=./docs/protocol \
 --doc_opt=./docs/protodoc-markdown.tmpl,proto-docs.md \
 $(find "$(pwd)/proto" -maxdepth 5 -name '*.proto')
 

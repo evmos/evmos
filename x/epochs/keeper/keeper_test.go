@@ -19,8 +19,8 @@ import (
 
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v3/app"
-	"github.com/tharsis/evmos/v3/x/epochs/types"
+	"github.com/tharsis/evmos/v4/app"
+	"github.com/tharsis/evmos/v4/x/epochs/types"
 )
 
 var denomMint = evm.DefaultEVMDenom
@@ -89,7 +89,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	// Set epoch start time and height for all epoch identifiers
-	identifiers := []string{"week", "day"}
+	identifiers := []string{types.WeekEpochID, types.DayEpochID}
 	for _, identifier := range identifiers {
 		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
 		suite.Require().True(found)

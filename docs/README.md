@@ -45,7 +45,7 @@ aside: false
 ## Reference
 
 - **[Basics](./basics/)**: Documentation on the basic concepts of Evmos, like the standard anatomy of an application, the transaction lifecycle and accounts management.
-- **[Core](./core/)**: Documentation on the core concepts of Evmos, like `encoding`, and `events`.
+- **[Technical](./technical_concepts/)**: Documentation on the technical concepts of Evmos, like its architecture, `encoding`, and `events`.
 - **[Building Modules](./building-modules/)**: Important concepts for module developers like `message`s, `keeper`s, `handler`s and `querier`s.
 - **[Interfaces](./interfaces/)**: Documentation on building interfaces for Evmos applications.
 
