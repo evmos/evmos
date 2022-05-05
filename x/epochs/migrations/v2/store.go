@@ -40,12 +40,6 @@ func MigrateStore(ctx sdk.Context, storeKey sdk.StoreKey, cdc codec.Codec) error
 	return nil
 }
 
-// MigrateJSON accepts exported 1 x/epochs genesis state and migrates it
-// to 2 x/epochs genesis state. The genesis data remains unchanged.
-func MigrateJSON(oldState types.GenesisState) types.GenesisState {
-	return oldState
-}
-
 // durationToBz parses time duration to maintain number-compatible ordering
 func DurationToBz(duration time.Duration) []byte {
 	// 13 digits left padded with zero, allows for 300 year durations

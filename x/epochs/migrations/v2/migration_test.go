@@ -25,7 +25,7 @@ func TestStoreMigration(t *testing.T) {
 	durationStore := prefix.NewStore(store, v2.KeyPrefixEpochDuration)
 	epochStore := oldstore
 
-	// store pre-migration epochs
+	// Store pre-migration epochs
 	epochWeek := types.EpochInfo{
 		Identifier:              types.WeekEpochID,
 		StartTime:               time.Time{},
@@ -53,7 +53,7 @@ func TestStoreMigration(t *testing.T) {
 	bzEpochDay := encCfg.Marshaler.MustMarshal(&epochDay)
 	oldstore.Set(keyEpochDay, bzEpochDay)
 
-	// check pre-migration state is intact
+	// Check pre-migration state is intact
 	require.True(t, oldstore.Has(keyEpochWeek))
 	require.True(t, oldstore.Has(keyEpochDay))
 	require.Equal(t, oldstore.Get(keyEpochWeek), bzEpochWeek)
@@ -77,4 +77,55 @@ func TestStoreMigration(t *testing.T) {
 	require.True(t, durationStore.Has(keyEpochDay))
 	require.Equal(t, durationWeek, durationStore.Get(keyEpochWeek))
 	require.Equal(t, durationDay, durationStore.Get(keyEpochDay))
+}
+
+func TestJSONMigration(t *testing.T) {
+	// Pre-migration epochs
+	oldEpochs := []types.EpochInfo{
+		{
+			Identifier:              types.WeekEpochID,
+			StartTime:               time.Time{},
+			Duration:                time.Hour * 24 * 7,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+		{
+			Identifier:              types.DayEpochID,
+			StartTime:               time.Time{},
+			Duration:                time.Hour * 24,
+			CurrentEpoch:            0,
+			CurrentEpochStartHeight: 0,
+			CurrentEpochStartTime:   time.Time{},
+			EpochCountingStarted:    false,
+		},
+	}
+
+	// Run genesis state migration
+	oldGenesis := types.GenesisState{Epochs: oldEpochs}
+	newGenesis := v2.MigrateJSON(oldGenesis)
+
+	require.Equal(t, 4, len(newGenesis.Epochs))
+
+	for i, epoch := range oldEpochs {
+		require.Equal(t, epoch.Identifier, newGenesis.Epochs[i].Identifier)
+		require.Equal(t, epoch.StartTime, newGenesis.Epochs[i].StartTime)
+		require.Equal(t, epoch.Duration, newGenesis.Epochs[i].Duration)
+		require.Equal(t, epoch.CurrentEpoch, newGenesis.Epochs[i].CurrentEpoch)
+		require.Equal(t, epoch.CurrentEpochStartHeight, newGenesis.Epochs[i].CurrentEpochStartHeight)
+		require.Equal(t, epoch.CurrentEpochStartTime, newGenesis.Epochs[i].CurrentEpochStartTime)
+		require.Equal(t, epoch.EpochCountingStarted, newGenesis.Epochs[i].EpochCountingStarted)
+	}
+
+	for _i, epoch := range v2.NewEpochs {
+		i := _i + 2
+		require.Equal(t, epoch.Identifier, newGenesis.Epochs[i].Identifier)
+		require.Equal(t, epoch.StartTime, newGenesis.Epochs[i].StartTime)
+		require.Equal(t, epoch.Duration, newGenesis.Epochs[i].Duration)
+		require.Equal(t, epoch.CurrentEpoch, newGenesis.Epochs[i].CurrentEpoch)
+		require.Equal(t, epoch.CurrentEpochStartHeight, newGenesis.Epochs[i].CurrentEpochStartHeight)
+		require.Equal(t, epoch.CurrentEpochStartTime, newGenesis.Epochs[i].CurrentEpochStartTime)
+		require.Equal(t, epoch.EpochCountingStarted, newGenesis.Epochs[i].EpochCountingStarted)
+	}
 }
