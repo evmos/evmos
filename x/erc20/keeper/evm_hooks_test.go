@@ -23,7 +23,7 @@ func (suite *KeeperTestSuite) ensureHooksSet() {
 	suite.app.EvmKeeper.SetHooks(suite.app.Erc20Keeper.Hooks())
 }
 
-func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
+func (suite *KeeperTestSuite) TestEvmHooksRegisteredERC20() {
 	testCases := []struct {
 		name     string
 		malleate func(common.Address)
@@ -40,7 +40,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+				_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(10))
 			},
 			true,
 		},
@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+				_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(10))
 			},
 			false,
 		},
@@ -80,7 +80,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+				_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(10))
 			},
 			false,
 		},
@@ -99,7 +99,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 				suite.Commit()
 
 				// Burn the 10 tokens of suite.address (owner)
-				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
+				_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(10))
 			},
 			false,
 		},
@@ -131,7 +131,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 	suite.mintFeeCollector = false
 }
 
-func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
+func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 	testCases := []struct {
 		name      string
 		mint      int64
@@ -177,7 +177,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
 			// Burn the 10 tokens of suite.address (owner)
-			_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(tc.reconvert))
+			_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(tc.reconvert))
 
 			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
@@ -196,7 +196,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 	suite.mintFeeCollector = false
 }
 
-func (suite *KeeperTestSuite) TestEvmHooksForceError() {
+func (suite *KeeperTestSuite) TestPostTxProcessing() {
 	msg := ethtypes.NewMessage(
 		types.ModuleAddress,
 		&common.Address{},
