@@ -10,9 +10,9 @@ import (
 	feemarketv010 "github.com/tharsis/ethermint/x/feemarket/migrations/v010"
 	feemarketv09types "github.com/tharsis/ethermint/x/feemarket/migrations/v09/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	v1claims "github.com/tharsis/evmos/v3/x/claims/migrations/v1/types"
-	v2claims "github.com/tharsis/evmos/v3/x/claims/migrations/v2"
-	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
+	v1claims "github.com/tharsis/evmos/v4/x/claims/migrations/v1/types"
+	v2claims "github.com/tharsis/evmos/v4/x/claims/migrations/v2"
+	claimstypes "github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v3

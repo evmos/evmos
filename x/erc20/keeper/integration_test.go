@@ -6,7 +6,6 @@ import (
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
-
 	BeforeEach(func() {
 		s.SetupTest()
 
