@@ -36,20 +36,19 @@ aside: false
 
 ## Get Started
 
-- **[Introduction](./intro/overview.md)**: High-level overview of Evmos.
+- **[Introduction](./about/intro/overview.md)**: High-level overview of Evmos.
 
 ## Reference
 
-- **[Basics](./basics/)**: Documentation on the basic concepts of Evmos, like the standard anatomy of an application, the transaction lifecycle and accounts management.
-- **[Technical](./technical_concepts/)**: Documentation on the technical concepts of Evmos, like its architecture, `encoding`, and `events`.
-- **[Building Modules](./building-modules/)**: Important concepts for module developers like `message`s, `keeper`s, `handler`s and `querier`s.
-- **[Interfaces](./interfaces/)**: Documentation on building interfaces for Evmos applications.
+- **[Users](./users/)**: Documentation on relevant technical concepts for users like `accounts`, `gas`, `tokens` or `transactions` on Evmos as well as more advanced topics.
+- **[Developers](./developers/)**: Documentation on `block explorers`, `clients`, the `JSON-RPC` implementation or the testnet `faucet` can be found here.
+- **[Validators](./validators/)**: Documentation on how to become an Evmos validator, hardware requirements, configuring a `node` and connecting to the `testnet` and `mainnet`, 
 
 ## Other Resources
 
 - **[Module Directory](../x/)**: Module implementations and their respective documentation.
 - **[Ethermint API Reference](https://godoc.org/github.com/tharsis/ethermint)**: Godocs of Ethermint.
-- **[gRPC Gateway API Reference](https://api.evmos.org/)**: List of gRPC Gateway endpoints to interact with an full-node through REST.
+- **[gRPC Gateway API Reference](https://api.evmos.dev/)**: List of gRPC Gateway endpoints to interact with an full-node through REST.
 
 ## Contribute
 
