@@ -4,12 +4,18 @@ import (
 	"math/big"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	types "github.com/tharsis/evmos/v4/x/incentives/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/ethereum/go-ethereum/common"
+
+	ethermint "github.com/tharsis/ethermint/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	"github.com/tharsis/evmos/v4/x/incentives/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
@@ -58,16 +64,26 @@ var _ = Describe("Distribution", Ordered, func() {
 		params.EnableInflation = true
 		s.app.InflationKeeper.SetParams(s.ctx, params)
 
+		// set a EOA account for the address
+		eoa := &ethermint.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(s.address.Bytes()), nil, 0, 0),
+			CodeHash:    common.Bytes2Hex(evmtypes.EmptyCodeHash),
+		}
+		s.app.AccountKeeper.RemoveAccount(s.ctx, eoa)
+		s.app.AccountKeeper.SetAccount(s.ctx, eoa)
+
+		acc := s.app.AccountKeeper.GetAccount(s.ctx, s.address.Bytes())
+		s.Require().NotNil(acc)
+
+		ethAccount, ok := acc.(ethermint.EthAccountI)
+		s.Require().True(ok)
+		s.Require().Equal(ethermint.AccountTypeEOA, ethAccount.Type())
+
+		contractAddr = contract
 		moduleAcc = s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
-		participantAcc = sdk.AccAddress(s.address.Bytes())
-
-		// Deploy contract
-		var err error
-		contractAddr, err = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
-		s.Require().NoError(err)
-
+		participantAcc = acc.GetAddress()
 		// Create incentive
-		_, err = s.app.IncentivesKeeper.RegisterIncentive(
+		_, err := s.app.IncentivesKeeper.RegisterIncentive(
 			s.ctx,
 			contractAddr,
 			mintAllocations,
