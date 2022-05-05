@@ -2,9 +2,12 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/tharsis/evmos/v4/x/incentives/types"
@@ -27,6 +30,17 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 
 	// If theres no incentive registered for the contract, do nothing
 	if contract == nil || !h.k.IsIncentiveRegistered(ctx, *contract) {
+		return nil
+	}
+
+	// safety check: only distribute incentives to EOAs.
+	acc := h.k.accountKeeper.GetAccount(ctx, participant.Bytes())
+	if acc == nil {
+		return nil
+	}
+
+	ethAccount, ok := acc.(ethermint.EthAccountI)
+	if !ok || ethAccount.Type() != ethermint.AccountTypeEOA {
 		return nil
 	}
 
