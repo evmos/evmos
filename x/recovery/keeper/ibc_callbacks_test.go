@@ -401,7 +401,6 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 					Counterparty: channeltypes.NewCounterparty("t", "channel-292"),
 				}
 				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "t", "channel-3", channel)
-
 			},
 			true,
 			"", "",
@@ -420,7 +419,6 @@ func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
 					Counterparty: channeltypes.NewCounterparty("transfer", "channel-292"),
 				}
 				suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "transfer", "c-3", channel)
-
 			},
 			true,
 			"", "",

@@ -81,7 +81,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Burn the 10 tokens of suite.address (owner)
 				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-
 			},
 			false,
 		},
@@ -101,13 +100,11 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterERC20() {
 
 				// Burn the 10 tokens of suite.address (owner)
 				_ = suite.BurnERC20Token(contractAddr, suite.address, big.NewInt(10))
-
 			},
 			false,
 		},
 	}
 	for _, tc := range testCases {
-
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
@@ -200,7 +197,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisterCoin() {
 }
 
 func (suite *KeeperTestSuite) TestEvmHooksForceError() {
-
 	msg := ethtypes.NewMessage(
 		types.ModuleAddress,
 		&common.Address{},
@@ -281,7 +277,6 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 
 				tokens, _ := transferEvent[0].(*big.Int)
 				suite.Require().Equal(cosmosBalance.Amount.String(), tokens.String())
-
 			},
 		},
 		{
@@ -438,7 +433,6 @@ func (suite *KeeperTestSuite) TestEvmHooksForceError() {
 			suite.ensureHooksSet()
 
 			tc.test()
-
 		})
 	}
 	suite.mintFeeCollector = false
