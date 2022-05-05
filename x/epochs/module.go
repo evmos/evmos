@@ -136,6 +136,13 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	migrator := keeper.NewMigrator(am.keeper)
+
+	// register v1 -> v2 migration
+	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // RegisterInvariants registers the epochs module's invariants.
@@ -196,4 +203,4 @@ func (am AppModule) WeightedOperations(simState module.SimulationState) []simtyp
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return 2 }
