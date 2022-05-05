@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tharsis/ethermint/encoding"
-	"github.com/tharsis/evmos/v3/app"
-	v2 "github.com/tharsis/evmos/v3/x/epochs/migrations/v2"
-	types "github.com/tharsis/evmos/v3/x/epochs/types"
+	"github.com/tharsis/evmos/v4/app"
+	v2 "github.com/tharsis/evmos/v4/x/epochs/migrations/v2"
+	types "github.com/tharsis/evmos/v4/x/epochs/types"
 )
 
 func TestStoreMigration(t *testing.T) {
