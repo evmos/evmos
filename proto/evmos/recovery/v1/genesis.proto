@@ -4,7 +4,7 @@ package evmos.recovery.v1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/tharsis/evmos/v3/x/recovery/types";
+option go_package = "github.com/tharsis/evmos/v4/x/recovery/types";
 
 // GenesisState defines the recovery module's genesis state.
 message GenesisState {

@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
+	v2 "github.com/tharsis/evmos/v4/app/upgrades/mainnet/v2"
+	tv3 "github.com/tharsis/evmos/v4/app/upgrades/testnet/v3"
 )
 
 // BeginBlockForks executes any necessary fork logic based upon the current block height.

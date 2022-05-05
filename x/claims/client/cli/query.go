@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module
