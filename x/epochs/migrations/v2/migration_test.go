@@ -68,7 +68,7 @@ func TestStoreMigration(t *testing.T) {
 
 	// Make sure epoch info values have been moved with duration as key
 	require.True(t, epochStore.Has(durationWeek))
-	// require.True(t, epochStore.Has(durationDay))
+	require.True(t, epochStore.Has(durationDay))
 	require.Equal(t, bzEpochWeek, epochStore.Get(durationWeek))
 	require.Equal(t, bzEpochDay, epochStore.Get(durationDay))
 
