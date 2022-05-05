@@ -5,7 +5,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -14,7 +13,6 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"github.com/tharsis/evmos/v4/x/erc20/keeper"
 	"github.com/tharsis/evmos/v4/x/erc20/types"
-	inflationtypes "github.com/tharsis/evmos/v4/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
@@ -27,8 +25,24 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 		expPass        bool
 		selfdestructed bool
 	}{
-		{"ok - sufficient funds", 100, 10, func(common.Address) {}, func() {}, true, false},
-		{"ok - equal funds", 10, 10, func(common.Address) {}, func() {}, true, false},
+		{
+			"ok - sufficient funds",
+			100,
+			10,
+			func(common.Address) {},
+			func() {},
+			true,
+			false,
+		},
+		{
+			"ok - equal funds",
+			10,
+			10,
+			func(common.Address) {},
+			func() {},
+			true,
+			false,
+		},
 		{
 			"ok - suicided contract",
 			10,
@@ -43,7 +57,15 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			true,
 			true,
 		},
-		{"fail - insufficient funds", 0, 10, func(common.Address) {}, func() {}, false, false},
+		{
+			"fail - insufficient funds",
+			0,
+			10,
+			func(common.Address) {},
+			func() {},
+			false,
+			false,
+		},
 		{
 			"fail - minting disabled",
 			100,
@@ -883,33 +905,6 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 		})
 	}
 	suite.mintFeeCollector = false
-}
-
-func (suite *KeeperTestSuite) TestConvertNativeIBC() {
-	suite.SetupTest()
-	base := "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2"
-
-	validMetadata := banktypes.Metadata{
-		Description: "ATOM IBC voucher (channel 14)",
-		Base:        base,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    base,
-				Exponent: 0,
-			},
-		},
-		Name:    "ATOM channel-14",
-		Symbol:  "ibcATOM-14",
-		Display: base,
-	}
-
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(base, 1)})
-	suite.Require().NoError(err)
-
-	_, err = suite.app.Erc20Keeper.RegisterCoin(suite.ctx, validMetadata)
-	suite.Require().NoError(err)
-	suite.Commit()
 }
 
 func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {

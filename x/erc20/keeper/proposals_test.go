@@ -358,6 +358,33 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestRegisterNativeIBC() {
+	suite.SetupTest()
+	base := "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2"
+
+	validMetadata := banktypes.Metadata{
+		Description: "ATOM IBC voucher (channel 14)",
+		Base:        base,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    base,
+				Exponent: 0,
+			},
+		},
+		Name:    "ATOM channel-14",
+		Symbol:  "ibcATOM-14",
+		Display: base,
+	}
+
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(base, 1)})
+	suite.Require().NoError(err)
+
+	_, err = suite.app.Erc20Keeper.RegisterCoin(suite.ctx, validMetadata)
+	suite.Require().NoError(err)
+	suite.Commit()
+}
+
 func (suite KeeperTestSuite) TestToggleConverision() {
 	var (
 		contractAddr common.Address
