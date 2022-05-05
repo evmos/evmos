@@ -6,9 +6,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/tharsis/ethermint/tests"
+	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
+	"github.com/tharsis/evmos/v4/testutil"
 	"github.com/tharsis/evmos/v4/x/incentives/types"
 )
 
@@ -41,8 +47,42 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			false,
 		},
 		{
+			"from address doesn't have an account",
+			func(contractAddr common.Address) {
+				// remove the contract
+				contract := &ethermint.EthAccount{
+					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+					CodeHash:    common.Bytes2Hex(crypto.Keccak256([]byte{0, 1, 2, 2})),
+				}
+				suite.app.AccountKeeper.RemoveAccount(suite.ctx, contract)
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
+			},
+			false,
+		},
+		{
+			"from address is not an EOA",
+			func(contractAddr common.Address) {
+				// set a contract account for the address
+				contract := &ethermint.EthAccount{
+					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+					CodeHash:    common.Bytes2Hex(crypto.Keccak256([]byte{0, 1, 2, 2})),
+				}
+				suite.app.AccountKeeper.SetAccount(suite.ctx, contract)
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
+			},
+			false,
+		},
+		{
 			"correct execution - one tx",
 			func(contractAddr common.Address) {
+				acc := &ethermint.EthAccount{
+					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
+				}
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
 				expGasUsed = res.AsTransaction().Gas()
 			},
@@ -51,6 +91,12 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 		{
 			"correct execution - two tx",
 			func(contractAddr common.Address) {
+				acc := &ethermint.EthAccount{
+					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
+				}
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
 				res2 := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(500))
 				expGasUsed = res.AsTransaction().Gas() + res2.AsTransaction().Gas()
@@ -87,14 +133,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 
 			// Mint coins to pay gas fee
 			coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(30000000)))
-			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-
-			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(
-				suite.ctx,
-				types.ModuleName,
-				sdk.AccAddress(suite.address.Bytes()),
-				coins,
-			)
+			err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, sdk.AccAddress(suite.address.Bytes()), coins)
 			suite.Require().NoError(err)
 
 			// Submit tx
