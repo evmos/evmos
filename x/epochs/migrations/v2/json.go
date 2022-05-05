@@ -3,7 +3,7 @@ package v2
 import (
 	"time"
 
-	"github.com/tharsis/evmos/v3/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/epochs/types"
 )
 
 var NewEpochs = []types.EpochInfo{
