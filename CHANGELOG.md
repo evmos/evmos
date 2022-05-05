@@ -45,8 +45,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### API Breaking
 
 - (inflation) [\#536](https://github.com/tharsis/evmos/pull/536) Rename inflation endpoint `/evmos/inflation/v1/total_supply` -> `/evmos/inflation/v1/circulating_supply`
-- (erc20) [\#544](https://github.com/tharsis/evmos/pull/544) Remove `updateTokenPairERC20Proposal` functionality
-rename `relay` to `conversion`
+- (erc20) [\#544](https://github.com/tharsis/evmos/pull/544) Remove `updateTokenPairERC20Proposal` functionality rename `relay` to `conversion`
+- (upgrade) [\#557](https://github.com/tharsis/evmos/pull/557) Update Evmos go.mod version `v3` -> `v4`
 
 ### Improvements
 

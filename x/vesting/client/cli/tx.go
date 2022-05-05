@@ -16,7 +16,7 @@ import (
 	sdkvestcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
 // Transaction command flags
