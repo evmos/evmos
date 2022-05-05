@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/tharsis/evmos/v3/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/epochs/types"
 )
 
 var _ types.QueryServer = Keeper{}

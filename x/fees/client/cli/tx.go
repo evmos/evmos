@@ -12,7 +12,7 @@ import (
 
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/v3/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/fees/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/erc20 transaction commands.

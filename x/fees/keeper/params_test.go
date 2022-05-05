@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/tharsis/evmos/v3/x/fees/types"
+import "github.com/tharsis/evmos/v4/x/fees/types"
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.FeesKeeper.GetParams(suite.ctx)
