@@ -24,6 +24,7 @@ Please find the following resources for in-depth information:
 ### Remote Procedure Calls (RPCs)
 
 As Evmos lives at the crossroads of Cosmos and Ethereum, there are RPC connections available for all corresponding interfaces:
+
   - **[JSON-RPC Server](./json-rpc/server.md)**: General information about the JSON-RPC server provided by Evmos.
   - **[Running The Server](./json-rpc/running_server.md)**: Instructions on how to set up the server when running a node.
   - **[Namespaces](./json-rpc/namespaces.md)**: Description of the available JSON-RPC namespaces.
@@ -35,6 +36,7 @@ As Evmos lives at the crossroads of Cosmos and Ethereum, there are RPC connectio
 ### Tutorials For Ethereum Devs
 
 To welcome Ethereum developers, there is a selection of tutorials available showcasing some widely used developer tools:
+
   - **[Remix](./tools/remix.md)**: Instructions to deploy a smart contract on Evmos with [Remix IDE](http://remix.ethereum.org/).
   - **[Hardhat](./tools/hardhat.md)**: Instructions to deploy a smart contract on Evmos with the [Hardhat](https://hardhat.org/) suite of development tools.
   - **[Truffle](./tools/truffle.md)**: Instructions to deploy a smart contract on Evmos using the [Truffle](https://www.trufflesuite.com/truffle) framework.
