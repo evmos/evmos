@@ -131,6 +131,11 @@ module.exports = {
           title: 'For dApp Devs',
           children: [
             {
+              title: 'Overview',
+              directory: false,
+              path: '/developers/overview'
+            },
+            {
               title: 'Quick Connect',
               directory: false,
               path: '/developers/connect'

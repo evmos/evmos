@@ -8,7 +8,7 @@ Learn about the the different types of tokens available in Evmos. {synopsis}
 
 ## Introduction
 
-Evmos is a Cosmos-based chain with full Ethereum Virtual Machine (EVM) support. Because of this [architecture](./../technical_concepts/architecture), tokens and assets in the network may come from different independent sources.
+Evmos is a Cosmos-based chain with full Ethereum Virtual Machine (EVM) support. Because of this [architecture](./../technical_concepts/architecture.md), tokens and assets in the network may come from different independent sources.
 
 ## The EVMOS Token
 
