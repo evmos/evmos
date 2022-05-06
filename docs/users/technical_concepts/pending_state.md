@@ -8,7 +8,7 @@ Learn how Evmos handles pending state queries. {synopsis}
 
 ## Pre-requisite Readings
 
-- [Tendermint Mempool](https://docs.tendermint.com/master/tendermint-core/mempool.htm) {prereq}
+- [Tendermint Mempool](https://docs.tendermint.com/master/tendermint-core/mempool/) {prereq}
 
 ## Evmos vs Ethereum
 
@@ -25,7 +25,7 @@ all (if not most) of the transactions will be committed to the next block (avg. 
 few hiccups in terms of the Ethereum Web3-compatible queries that can be made to pending state.
 
 Another significant difference with Ethereum, is that blocks are produced by validators or block producers, who include transactions from their local mempool into blocks in a
-first-in-first-out (FIFO) fashion. Transactions on Evmos cannot be ordered or cherry picked out from the Tendermint node [mempool](https://docs.tendermint.com/master/tendermint-core/mempool.html#transaction-ordering).
+first-in-first-out (FIFO) fashion. Transactions on Evmos cannot be ordered or cherry picked out from the Tendermint node [mempool](https://docs.tendermint.com/master/tendermint-core/mempool/).
 
 ## Pending State Queries
 
@@ -41,5 +41,5 @@ different nodes.
 - [`eth_getBlockTransactionCountByNumber`](./../../developers/json-rpc/endpoints.md#eth-getblocktransactioncountbynumber)
 - [`eth_getBlockByNumber`](./../../developers/json-rpc/endpoints.md#eth-getblockbynumber)
 - [`eth_getTransactionByHash`](./../../developers/json-rpc/endpoints.md#eth-gettransactionbyhash)
-- [`eth_getTransactionByBlockNumberAndIndex`](./../../developers/json-rpc/endpoints.html#eth-gettransactionbyblockhashandindex)
+- [`eth_getTransactionByBlockNumberAndIndex`](./../../developers/json-rpc/endpoints.md#eth-gettransactionbyblockhashandindex)
 - [`eth_sendTransaction`](./../../developers/json-rpc/endpoints.md#eth-sendtransaction)
