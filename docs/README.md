@@ -42,7 +42,7 @@ aside: false
 
 - **[Users](./users/)**: Documentation on relevant technical concepts for users like `accounts`, `gas`, `tokens` or `transactions` on Evmos as well as more advanced topics.
 - **[Developers](./developers/)**: Documentation on `block explorers`, `clients`, the `JSON-RPC` implementation or the testnet `faucet` can be found here.
-- **[Validators](./validators/)**: Documentation on how to become an Evmos validator, hardware requirements, configuring a `node` and connecting to the `testnet` and `mainnet`, 
+- **[Validators](./validators/)**: Documentation on how to become an Evmos validator, hardware requirements, configuring a `node` and connecting to the `testnet` and `mainnet`,
 
 ## Other Resources
 
