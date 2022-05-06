@@ -81,15 +81,6 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	expParams := types.DefaultParams()
-
-	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(expParams, res.Params)
-}
-
 func (suite *KeeperTestSuite) TestTokenPair() {
 	var (
 		req    *types.QueryTokenPairRequest
@@ -167,4 +158,13 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestQueryParams() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	expParams := types.DefaultParams()
+
+	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expParams, res.Params)
 }
