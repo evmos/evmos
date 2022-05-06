@@ -12,9 +12,9 @@ import (
 
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v3/x/erc20/keeper"
-	"github.com/tharsis/evmos/v3/x/erc20/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/tharsis/evmos/v4/x/erc20/keeper"
+	"github.com/tharsis/evmos/v4/x/erc20/types"
+	inflationtypes "github.com/tharsis/evmos/v4/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {

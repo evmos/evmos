@@ -106,38 +106,37 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/evmos/v3/client/docs/statik"
+	_ "github.com/tharsis/evmos/v4/client/docs/statik"
 
-	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
-	v4 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v4"
-	"github.com/tharsis/evmos/v3/x/claims"
-	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/v3/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
-	"github.com/tharsis/evmos/v3/x/erc20"
-	erc20client "github.com/tharsis/evmos/v3/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
-	"github.com/tharsis/evmos/v3/x/fees"
-	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
-	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
-	"github.com/tharsis/evmos/v3/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
-	"github.com/tharsis/evmos/v3/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
-	"github.com/tharsis/evmos/v3/x/recovery"
-	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
-	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
-	"github.com/tharsis/evmos/v3/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v4/app/ante"
+	v2 "github.com/tharsis/evmos/v4/app/upgrades/v2"
+	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
+	"github.com/tharsis/evmos/v4/x/claims"
+	claimskeeper "github.com/tharsis/evmos/v4/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/v4/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/erc20"
+	erc20client "github.com/tharsis/evmos/v4/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/v4/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/v4/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/fees"
+	feeskeeper "github.com/tharsis/evmos/v4/x/fees/keeper"
+	feestypes "github.com/tharsis/evmos/v4/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/v4/x/incentives/client"
+	incentiveskeeper "github.com/tharsis/evmos/v4/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/v4/x/incentives/types"
+	"github.com/tharsis/evmos/v4/x/inflation"
+	inflationkeeper "github.com/tharsis/evmos/v4/x/inflation/keeper"
+	inflationtypes "github.com/tharsis/evmos/v4/x/inflation/types"
+	"github.com/tharsis/evmos/v4/x/recovery"
+	recoverykeeper "github.com/tharsis/evmos/v4/x/recovery/keeper"
+	recoverytypes "github.com/tharsis/evmos/v4/x/recovery/types"
+	"github.com/tharsis/evmos/v4/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/v4/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
 func init() {
@@ -1030,20 +1029,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// v3 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v3.UpgradeName,
-		v3.CreateUpgradeHandler(app.mm, app.configurator),
-	)
+
+	// NOTE: no v3 upgrade handler as it required an unscheduled manual upgrade.
+
 	// v4 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v4.UpgradeName,
 		v4.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.IBCKeeper.ClientKeeper,
-			app.SlashingKeeper,
-			app.FeeMarketKeeper,
-			app.ClaimsKeeper,
 		),
 	)
 
@@ -1064,8 +1058,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 	switch upgradeInfo.Name {
 	case v2.UpgradeName:
 		// no store upgrades in v2
-	case v3.UpgradeName:
-		// no store upgrades in v3
 	case v4.UpgradeName:
 		// no store upgrades in v4
 	}

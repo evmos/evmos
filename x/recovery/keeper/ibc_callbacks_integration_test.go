@@ -8,10 +8,10 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/tharsis/evmos/v3/app"
-	"github.com/tharsis/evmos/v3/testutil"
-	claimtypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/recovery/types"
+	"github.com/tharsis/evmos/v4/app"
+	"github.com/tharsis/evmos/v4/testutil"
+	claimtypes "github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/recovery/types"
 )
 
 var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
@@ -52,7 +52,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 	})
 
 	Describe("from an authorized, non-EVM chain (e.g. Osmosis)", func() {
-
 		Describe("to a different account on Evmos (sender != recipient)", func() {
 			BeforeEach(func() {
 				sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
@@ -174,7 +173,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 			Context("without a sender's claims record", func() {
 				When("recipient has no ibc vouchers that originated from other chains", func() {
-
 					It("should transfer and recover tokens", func() {
 						// aevmos & ibc tokens that originated from the sender's chain
 						s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, coinOsmo.Denom, coinOsmo.Amount.Int64(), sender, receiver, 1)
@@ -218,7 +216,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 						params.EnableRecovery = true
 						s.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(s.EvmosChain.GetContext(), params)
-
 					})
 					It("should not recover tokens that originated from other chains", func() {
 						// Send uosmo from Osmosis to Evmos
@@ -295,7 +292,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 						params.EnableRecovery = true
 						s.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(s.EvmosChain.GetContext(), params)
-
 					})
 					It("should not recover tokens that originated from other chains", func() {
 						s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", 10, sender, receiver, 2)

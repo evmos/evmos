@@ -7,68 +7,51 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	v4 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v4"
-	tv4 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v4"
+	v2 "github.com/tharsis/evmos/v4/app/upgrades/v2"
+	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
 )
 
 // BeginBlockForks executes any necessary fork logic for based upon the current
-// block height.
+// block height and chain ID (mainnet or testnet). It sets an upgrade plan once
+// the chain reaches the pre-defined upgrade height.
+//
+// CONTRACT: for this logic to work properly it is required to:
+//
+// 	1) Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
+// 	2) Release the software defined in the upgrade-info
 func BeginBlockForks(ctx sdk.Context, app *Evmos) {
+	upgradePlan := upgradetypes.Plan{
+		Height: ctx.BlockHeight(),
+	}
+
 	if strings.HasPrefix(ctx.ChainID(), MainnetChainID) {
-		scheduleMainnetUpgrades(ctx, app)
+		// handle mainnet forks
+		switch ctx.BlockHeight() {
+		case v2.MainnetUpgradeHeight:
+			upgradePlan.Name = v2.UpgradeName
+			upgradePlan.Info = v2.UpgradeInfo
+		case v4.MainnetUpgradeHeight:
+			upgradePlan.Name = v4.UpgradeName
+			upgradePlan.Info = v4.UpgradeInfo
+		default:
+			// No-op
+			return
+		}
 	} else if strings.HasPrefix(ctx.ChainID(), TestnetChainID) {
-		scheduleTestnetUpgrades(ctx, app)
-	}
-}
-
-func scheduleMainnetUpgrades(ctx sdk.Context, app *Evmos) {
-	upgradePlan := upgradetypes.Plan{}
-
-	switch ctx.BlockHeight() {
-	case v2.UpgradeHeight:
-		upgradePlan = upgradetypes.Plan{
-			Name:   v2.UpgradeName,
-			Info:   v2.UpgradeInfo,
-			Height: v2.UpgradeHeight,
+		// handle testnet forks
+		switch ctx.BlockHeight() {
+		case v4.TestnetUpgradeHeight:
+			upgradePlan.Name = v4.UpgradeName
+			upgradePlan.Info = v4.UpgradeInfo
+		default:
+			// No-op
+			return
 		}
-	case v4.UpgradeHeight:
-		upgradePlan = upgradetypes.Plan{
-			Name:   v4.UpgradeName,
-			Info:   v4.UpgradeInfo,
-			Height: v4.UpgradeHeight,
-		}
-	default:
+	} else {
 		return
 	}
 
-	err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
-	if err != nil {
-		panic(
-			fmt.Errorf(
-				"failed to schedule upgrade %s during BeginBlock at height %d: %w",
-				upgradePlan.Name, ctx.BlockHeight(), err,
-			),
-		)
-	}
-}
-
-func scheduleTestnetUpgrades(ctx sdk.Context, app *Evmos) {
-	upgradePlan := upgradetypes.Plan{}
-
-	switch ctx.BlockHeight() {
-	case tv4.UpgradeHeight:
-		upgradePlan = upgradetypes.Plan{
-			Name:   tv4.UpgradeName,
-			Info:   tv4.UpgradeInfo,
-			Height: tv4.UpgradeHeight,
-		}
-	default:
-		return
-	}
-
-	err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
-	if err != nil {
+	if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan); err != nil {
 		panic(
 			fmt.Errorf(
 				"failed to schedule upgrade %s during BeginBlock at height %d: %w",

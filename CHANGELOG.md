@@ -45,14 +45,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### API Breaking
 
 - (inflation) [\#536](https://github.com/tharsis/evmos/pull/536) Rename inflation endpoint `/evmos/inflation/v1/total_supply` -> `/evmos/inflation/v1/circulating_supply`
-- (erc20) [\#544](https://github.com/tharsis/evmos/pull/544) Remove `updateTokenPairERC20Proposal` functionality
-rename `relay` to `conversion`
+- (erc20) [\#544](https://github.com/tharsis/evmos/pull/544) Remove `updateTokenPairERC20Proposal` functionality rename `relay` to `conversion`
+- (upgrade) [\#557](https://github.com/tharsis/evmos/pull/557) Update Evmos go.mod version `v3` -> `v4`
 
 ### Improvements
 
+- (incentives) [\#551](https://github.com/tharsis/evmos/pull/551) Add additional check to only distribute incentives to EOAs.
 - (cmd) [\#543](https://github.com/tharsis/evmos/pull/543) Update mainnet default `min-gas-price` to `0.0025aevmos`.
+- (p2p) [\#541](https://github.com/tharsis/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
 - (epochs) [\#539](https://github.com/tharsis/evmos/pull/539) Use constants for epoch identifiers.
 - (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
+- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) remove deprecated migrations
 
 ### Bug Fixes
 
