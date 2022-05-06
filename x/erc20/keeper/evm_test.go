@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"fmt"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/mock"
 	"github.com/tharsis/ethermint/tests"
@@ -13,55 +12,6 @@ import (
 	"github.com/tharsis/evmos/v4/x/erc20/keeper"
 	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
-
-func (suite *KeeperTestSuite) TestDeployERC20Contract() {
-
-	testCases := []struct {
-		name     string
-		metadata banktypes.Metadata
-		expPass  bool
-	}{
-		{
-			"nil metadata",
-			banktypes.Metadata{
-				Name: "",
-			},
-			false,
-		},
-		{
-			"ok",
-			banktypes.Metadata{
-				Description: "description of the token",
-				Base:        cosmosTokenBase,
-				// NOTE: Denom units MUST be increasing
-				DenomUnits: []*banktypes.DenomUnit{
-					{
-						Denom:    cosmosTokenBase,
-						Exponent: 0,
-					},
-					{
-						Denom:    cosmosTokenBase[1:],
-						Exponent: uint32(18),
-					},
-				},
-				Name:    cosmosTokenBase,
-				Symbol:  erc20Symbol,
-				Display: cosmosTokenBase,
-			},
-			true,
-		},
-	}
-	for _, tc := range testCases {
-		suite.SetupTest() // reset
-
-		_, err := suite.app.Erc20Keeper.DeployERC20Contract(suite.ctx, tc.metadata)
-		if tc.expPass {
-			suite.Require().NoError(err)
-		} else {
-			suite.Require().Error(err)
-		}
-	}
-}
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
 	var contract common.Address
