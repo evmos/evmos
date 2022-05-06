@@ -75,7 +75,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 	})
 })
 
-var _ = Describe("ERC20: Convert", Ordered, func() {
+var _ = Describe("ERC20: Converting", Ordered, func() {
 	amt := sdk.NewInt(100)
 	priv, _ := ethsecp256k1.GenerateKey()
 	addrBz := priv.PubKey().Address().Bytes()
