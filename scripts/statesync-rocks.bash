@@ -17,15 +17,15 @@ export PATH=$PATH:~/go/bin
 go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb' -tags rocksdb ./...
 
 # MAKE HOME FOLDER AND GET GENESIS
-osmosisd init osmosis-rocks
-wget -O ~/.osmosisd/config/genesis.json https://cloudflare-ipfs.com/ipfs/QmXRvBT3hgoXwwPqbK6a2sXUuArGM8wPyo1ybskyyUwUxs
+evmosd init evmos-rocks
+wget -O ~/.evmosd/config/genesis.json https://cloudflare-ipfs.com/ipfs/QmYmcmveFYMdA1NRAvAa3hKM8HQRdiwfmYtf3GgyJGTMEa
 
 # this will let tendermint know that we want rocks
-sed -i 's/goleveldb/rocksdb/' ~/.osmosisd/config/config.toml
+sed -i 's/goleveldb/rocksdb/' ~/.evmosd/config/config.toml
 
 
 # Uncomment if resyncing a server
-# osmosisd unsafe-reset-all --home /osmosis/osmosis
+# evmosd unsafe-reset-all 
 
 
 
@@ -33,9 +33,9 @@ INTERVAL=1500
 
 # GET TRUST HASH AND TRUST HEIGHT
 
-LATEST_HEIGHT=$(curl -s https://osmosis.validator.network/block | jq -r .result.block.header.height);
+LATEST_HEIGHT=$(curl -s https://tendermint.bd.evmos.org:26657/block | jq -r .result.block.header.height);
 BLOCK_HEIGHT=$(($LATEST_HEIGHT-$INTERVAL))
-TRUST_HASH=$(curl -s "https://osmosis.validator.network/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+TRUST_HASH=$(curl -s "https://tendermint.bd.evmos.org:26657/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
 
 
 # TELL USER WHAT WE ARE DOING
@@ -44,11 +44,12 @@ echo "TRUST HASH: $TRUST_HASH"
 
 
 # export state sync vars
-export OSMOSISD_P2P_MAX_NUM_OUTBOUND_PEERS=200
-export OSMOSISD_STATESYNC_ENABLE=true
-export OSMOSISD_STATESYNC_RPC_SERVERS="https://osmosis.validator.network:443,https://rpc.osmosis.notional.ventures:443,https://rpc-osmosis.ecostake.com:443"
-export OSMOSISD_STATESYNC_TRUST_HEIGHT=$BLOCK_HEIGHT
-export OSMOSISD_STATESYNC_TRUST_HASH=$TRUST_HASH
+export EVMOSD_P2P_SEEDS="906840c2f447915f3d0e37bc68221f5494f541db@3.39.58.32:26656,7aa31684d201f8ebc0b1e832d90d7490345d77ee@52.10.99.253:26656,5740e4a36e646e80cc5648daf5e983e5b5d8f265@54.39.18.27:26656,de2c5e946e21360d4ffa3885579fa038a7d9776e@46.101.148.190:26656"
+export EVMOSD_P2P_MAX_NUM_OUTBOUND_PEERS=200
+export EVMOSD_STATESYNC_ENABLE=true
+export EVMOSD_STATESYNC_RPC_SERVERS="https://osmosis.validator.network:443,https://rpc.osmosis.notional.ventures:443,https://rpc-osmosis.ecostake.com:443"
+export EVMOSD_STATESYNC_TRUST_HEIGHT=$BLOCK_HEIGHT
+export EVMOSD_STATESYNC_TRUST_HASH=$TRUST_HASH
 
 # Rockdb won't make this folder, so we make it 
 # we can remove this if my changes are accepted upstream
