@@ -35,8 +35,6 @@ const (
 )
 
 func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Address {
-	suite.SetupTest()
-
 	var contractAddr common.Address
 	// Deploy contract
 	switch contractType {
@@ -55,7 +53,6 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Ad
 }
 
 func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
-	suite.SetupTest()
 	validMetadata := banktypes.Metadata{
 		Description: "description of the token",
 		Base:        cosmosTokenBase,
