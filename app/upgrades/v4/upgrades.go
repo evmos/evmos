@@ -32,16 +32,16 @@ func CreateUpgradeHandler(
 func updateIBCClients(ctx sdk.Context, k ibcclientkeeper.Keeper) error {
 	proposalOsmosis := &ibcclienttypes.ClientUpdateProposal{
 		Title:              "Update expired Osmosis IBC client",
-		Description:        "Update existing Cosmos Hub IBC client on Evmos (07-tendermint-0) in order to resume packet transfers between both chains.",
-		SubjectClientId:    "07-tendermint-0",  // Osmosis
-		SubstituteClientId: "07-tendermint-27", // TODO: verify
+		Description:        "Update the existing expired Cosmos Hub IBC client on Evmos (07-tendermint-0) in order to resume packet transfers between both chains.",
+		SubjectClientId:    "07-tendermint-0",  // Osmosis Expired channel
+		SubstituteClientId: "07-tendermint-27", // Cosmos Hub Active channel
 	}
 
 	proposalCosmosHub := &ibcclienttypes.ClientUpdateProposal{
 		Title:              "Update expired Cosmos Hub IBC client",
-		Description:        "Update existing Cosmos Hub IBC client on Evmos (07-tendermint-3) in order to resume packet transfers between both chains.",
-		SubjectClientId:    "07-tendermint-3", // Cosmos Hub
-		SubstituteClientId: "07-tendermint-20",
+		Description:        "Update the existing expired Cosmos Hub IBC client on Evmos (07-tendermint-3) in order to resume packet transfers between both chains.",
+		SubjectClientId:    "07-tendermint-3",  // Cosmos Hub Expired channel
+		SubstituteClientId: "07-tendermint-20", // Cosmos Hub Active channel
 	}
 
 	if err := k.ClientUpdateProposal(ctx, proposalOsmosis); err != nil {
