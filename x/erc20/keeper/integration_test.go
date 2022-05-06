@@ -75,7 +75,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 	})
 })
 
-var _ = Describe("ERC20: Coverting", Ordered, func() {
+var _ = Describe("ERC20: Convert", Ordered, func() {
 	amt := sdk.NewInt(100)
 	priv, _ := ethsecp256k1.GenerateKey()
 	addrBz := priv.PubKey().Address().Bytes()
@@ -93,7 +93,6 @@ var _ = Describe("ERC20: Coverting", Ordered, func() {
 	})
 
 	Context("with a registered coin", func() {
-
 		BeforeEach(func() {
 			_, pair = s.setupRegisterCoin()
 			coin = sdk.NewCoin(pair.Denom, amt)
@@ -118,7 +117,7 @@ var _ = Describe("ERC20: Coverting", Ordered, func() {
 				Expect(balanceCoin).To(Equal(coin))
 			})
 
-			It("should mint and send tokens to receiver", func() {
+			It("should mint tokens and send to receiver", func() {
 				balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), addr).(*big.Int)
 				Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
 			})
@@ -149,7 +148,6 @@ var _ = Describe("ERC20: Coverting", Ordered, func() {
 	})
 
 	Context("with a registered ERC20", func() {
-
 		BeforeEach(func() {
 			contract := s.setupRegisterERC20Pair(contractMinterBurner)
 			id := s.app.Erc20Keeper.GetTokenPairID(s.ctx, contract.String())
@@ -189,7 +187,7 @@ var _ = Describe("ERC20: Coverting", Ordered, func() {
 			BeforeEach(func() {
 				convertERC20(priv, amt, pair.GetERC20Contract())
 				s.Commit()
-				convertCoin(priv, sdk.NewCoin(pair.Denom, amt))
+				convertCoin(priv, coin)
 			})
 
 			It("should increase tokens on the sender account", func() {
@@ -227,7 +225,6 @@ func convertERC20(priv *ethsecp256k1.PrivKey, amt sdk.Int, contract common.Addre
 	s.Require().True(res.IsOK())
 }
 
-// TODO move to testutil
 func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())

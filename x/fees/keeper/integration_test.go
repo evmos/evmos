@@ -913,7 +913,7 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-	txBuilder.SetGasLimit(1000000)
+	txBuilder.SetGasLimit(100000000)
 	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: sdk.NewInt(1)}})
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)
