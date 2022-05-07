@@ -15,7 +15,7 @@ This document outlines the steps to join an existing testnet {synopsis}
 You need to set the **genesis file** and **seeds**. If you need more information about past networks, check our [mainnet repo](https://github.com/tharsis/mainnet).
 
 ::: warning
-**IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security.md) recommendations!
+**IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security/security.md) recommendations!
 :::
 
 | Chain ID       | Description   | Site                                                               | Version                                               | Status     |
@@ -36,7 +36,7 @@ Make sure you have the right version of `{{ $themeConfig.project.binary }}` inst
 We recommend saving the mainnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
 
 ::: tip
-See the Official [Chain IDs](./../users/technical_concepts/chain_id#official-chain-ids) for reference.
+See the Official [Chain IDs](./../users/technical_concepts/chain_id.md#official-chain-ids) for reference.
 :::
 
 ```bash

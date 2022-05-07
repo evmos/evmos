@@ -19,7 +19,7 @@ You specify the network you want to join by setting the **genesis file** and **s
 
 ## Install `evmosd`
 
-Follow the [installation](./../users/quickstart/installation.md) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
+Follow the [installation](./quickstart/installation.md) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
 Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
