@@ -27,7 +27,7 @@ to keep your binaries and configuration files.
 ## Manual deployment
 
 The instructions for setting up a brand new full node from scratch are the the same as running a
-[single node local testnet](./../guides/localnet/single_node.md#manual-localnet).
+[single node local testnet](./../../developers/localnet/single_node.md#manual-localnet).
 
 ## Start node
 
@@ -55,7 +55,7 @@ You can generate a new key/mnemonic with:
 evmosd keys add $KEY
 ```
 
-To export your evmos key as an Ethereum private key (for use with [Metamask](./../guides/keys-wallets/metamask) for example):
+To export your evmos key as an Ethereum private key (for use with [Metamask](./../../users/wallets/metamask.md) for example):
 
 ```bash
 evmosd keys unsafe-export-eth-key $KEY
@@ -81,7 +81,7 @@ evmosd config keyring-backend file
 ```
 
 :::tip
-For more information about the Keyring and its backend options, click [here](./../guides/keys-wallets/keyring).
+For more information about the Keyring and its backend options, click [here](./../../users/keys/keyring.md).
 :::
 
 ## Clearing data from chain
@@ -154,4 +154,4 @@ which will show the rate of transactions processed.
 
 ## Next {hide}
 
-Learn about running a Evmos [testnet](./testnet.md) {hide}
+Learn about running a Evmos [testnet](./../testnet.md) {hide}

@@ -18,7 +18,7 @@ Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet
 
 ![chain add request](./../img/keplr_approve_chain.png)
 
-After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../users/technical_concepts/accounts#address-formats-for-clients) on the testnet.
+After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](./../users/technical_concepts/accounts.md#address-formats-for-clients) on the testnet.
 
 ::: warning
 **Note**: only Ethereum compatible addresses (i.e `eth_secp256k1` keys) are supported on Evmos.
@@ -29,7 +29,7 @@ After approval, you can see a transaction confirmation informing you that {{ $th
 Alternatively you can also fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
 
 ::: warning
-If you use your Bech32 address, make sure you input the [account address](./../technical_concepts/accounts#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
+If you use your Bech32 address, make sure you input the [account address](./../users/technical_concepts/accounts.md#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
 :::
 
 ![faucet site](./../img/faucet_web_page.png)
@@ -46,7 +46,7 @@ View your account balance either by clicking on the Keplr extension or by [inter
 All addresses **MUST** be authenticated using ReCAPTCHA before requesting tokens.
 :::
 
-To prevent the faucet account from draining the available funds, the Evmos testnet faucet imposes a maximum number of requests for a period of time. By default, the faucet service accepts 1 request per day per address. You can request {{ $themeConfig.project.testnet_denom }} from the [Faucet](./../../developers/faucet) for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
+To prevent the faucet account from draining the available funds, the Evmos testnet faucet imposes a maximum number of requests for a period of time. By default, the faucet service accepts 1 request per day per address. You can request {{ $themeConfig.project.testnet_denom }} from the faucet for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
 
 ## Amount
 
