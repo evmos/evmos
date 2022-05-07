@@ -113,6 +113,7 @@ The validator operator's "self-bond" refers to the amount of EVMOS stake delegat
 
 ### Is there a testnet faucet?
 
+<!-- markdown-link-check-disable-next-line -->
 If you want to obtain coins for the testnet, you can do so by using the [faucet](https://faucet.evmos.dev/).
 
 ### Is there a minimum amount of EVMOS that must be staked to be an active (bonded) validator?
