@@ -118,6 +118,7 @@ Assume that many people will stop reading at this point. However it is important
 
 The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMd](https://hackmd.io/). Markdown
 is a simple and accessible format for writing plain text files that is easy to
+<!-- markdown-link-check-disable-next-line -->
 learn. See the [Github Markdown Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for details on
 writing markdown files.
 

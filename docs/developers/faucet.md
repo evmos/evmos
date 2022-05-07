@@ -14,6 +14,7 @@ Follow the [Metamask](./../guides/keys-wallets/metamask.md), [Keplr](./../users/
 
 ## Request Testnet tokens
 
+<!-- markdown-link-check-disable-next-line -->
 Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evmos.dev/) to request tokens for the testnet. Click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (`evmos_{{ $themeConfig.project.testnet_chain_id }}-{{ $themeConfig.project.testnet_version_number }}`) to Keplr and approve the connection.
 
 ![chain add request](./../img/keplr_approve_chain.png)
