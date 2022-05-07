@@ -121,7 +121,7 @@ To clear all data except key storage (if keyring backend chosen) and then you ca
 
 In order to get a progressive value of the transactions per second, we use Prometheus to return the values.
 <!-- markdown-link-check-disable-next-line -->
-The Prometheus exporter runs at address http://localhost:8877 so please add this 
+The Prometheus exporter runs at address http://localhost:8877 so please add this
 section to your [Prometheus installation](https://opencensus.io/codelabs/prometheus/#1) config.yaml file like this
 
 ```yaml
