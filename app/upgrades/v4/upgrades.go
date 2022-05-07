@@ -9,6 +9,13 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 )
 
+const (
+	ExpiredOsmosisClient   = "07-tendermint-0"
+	ActiveOsmosisClient    = "07-tendermint-27"
+	ExpiredCosmosHubClient = "07-tendermint-3"
+	ActiveCosmosHubClient  = "07-tendermint-20"
+)
+
 // CreateUpgradeHandler creates an SDK upgrade handler for v4
 func CreateUpgradeHandler(
 	mm *module.Manager,
@@ -19,7 +26,7 @@ func CreateUpgradeHandler(
 		// Refs:
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
-		if err := updateIBCClients(ctx, clientKeeper); err != nil {
+		if err := UpdateIBCClients(ctx, clientKeeper); err != nil {
 			return vm, err
 		}
 
@@ -28,20 +35,20 @@ func CreateUpgradeHandler(
 	}
 }
 
-// updateIBCClients updates the IBC client IDs for the Osmosis and Cosmos Hub IBC channels.
-func updateIBCClients(ctx sdk.Context, k ibcclientkeeper.Keeper) error {
+// UpdateIBCClients updates the IBC client IDs for the Osmosis and Cosmos Hub IBC channels.
+func UpdateIBCClients(ctx sdk.Context, k ibcclientkeeper.Keeper) error {
 	proposalOsmosis := &ibcclienttypes.ClientUpdateProposal{
 		Title:              "Update expired Osmosis IBC client",
 		Description:        "Update the existing expired Cosmos Hub IBC client on Evmos (07-tendermint-0) in order to resume packet transfers between both chains.",
-		SubjectClientId:    "07-tendermint-0",  // Osmosis Expired channel
-		SubstituteClientId: "07-tendermint-27", // Cosmos Hub Active channel
+		SubjectClientId:    ExpiredOsmosisClient, // Osmosis Expired client
+		SubstituteClientId: ActiveOsmosisClient,  // Osmosis Active client
 	}
 
 	proposalCosmosHub := &ibcclienttypes.ClientUpdateProposal{
 		Title:              "Update expired Cosmos Hub IBC client",
 		Description:        "Update the existing expired Cosmos Hub IBC client on Evmos (07-tendermint-3) in order to resume packet transfers between both chains.",
-		SubjectClientId:    "07-tendermint-3",  // Cosmos Hub Expired channel
-		SubstituteClientId: "07-tendermint-20", // Cosmos Hub Active channel
+		SubjectClientId:    ExpiredCosmosHubClient, // Cosmos Hub Expired client
+		SubstituteClientId: ActiveCosmosHubClient,  // Cosmos Hub Active client
 	}
 
 	if err := k.ClientUpdateProposal(ctx, proposalOsmosis); err != nil {
