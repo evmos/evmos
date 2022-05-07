@@ -17,18 +17,27 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	params := k.GetParams(ctx)
 	skippedEpochs := k.GetSkippedEpochs(ctx)
 
+	//manually correcting the skipped epochs by subtracting the derived falseSkipped epoch from the stored skipped epochs
+	// falseSkippedEpochs := uint64(4)
+	// skippedEpochs = skippedEpochs - falseSkippedEpochs
+
 	// Skip inflation if it is disabled and increment number of skipped epochs
-	//updating to make it daily skips instead of weekly
 	if !params.EnableInflation {
-		skippedEpochs++
-		k.SetSkippedEpochs(ctx, skippedEpochs)
-		k.Logger(ctx).Debug(
-			"skipping inflation mint and distribution",
-			"height", ctx.BlockHeight(),
-			"epoch-id", epochIdentifier,
-			"epoch-number", epochNumber,
-			"skipped-epochs", skippedEpochs,
-		)
+		//updating to make it daily skips instead of weekly
+		//check if the epochIdentifier is day before incrementing.
+		epochIdentifier := k.GetEpochIdentifier(ctx)
+		if epochIdentifier == "day" {
+			skippedEpochs++
+
+			k.SetSkippedEpochs(ctx, skippedEpochs)
+			k.Logger(ctx).Debug(
+				"skipping inflation mint and distribution",
+				"height", ctx.BlockHeight(),
+				"epoch-id", epochIdentifier,
+				"epoch-number", epochNumber,
+				"skipped-epochs", skippedEpochs,
+			)
+		}
 		return
 	}
 
