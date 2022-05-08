@@ -158,4 +158,4 @@ replace (
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
 
-replace github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220506123029-11887b3a06be
+replace github.com/tendermint/tm-db => github.com/notional-labs/tm-db v0.6.7-0.20220507163227-f480355a00b7
