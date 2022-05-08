@@ -9,13 +9,6 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 )
 
-const (
-	ExpiredOsmosisClient   = "07-tendermint-0"
-	ActiveOsmosisClient    = "07-tendermint-27"
-	ExpiredCosmosHubClient = "07-tendermint-3"
-	ActiveCosmosHubClient  = "07-tendermint-20"
-)
-
 // CreateUpgradeHandler creates an SDK upgrade handler for v4
 func CreateUpgradeHandler(
 	mm *module.Manager,
