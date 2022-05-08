@@ -6,7 +6,6 @@
 # PRINT EVERY COMMAND
 set -ux
 
-# uncomment the three lines below to build osmosis
 
 export GOPATH=~/go
 export PATH=$PATH:~/go/bin
@@ -56,4 +55,4 @@ export EVMOSD_STATESYNC_TRUST_HASH=$TRUST_HASH
 # mkdir -p ~/.osmosisd/data/snapshots/metadata.db
 
 # THIS WILL FAIL BECAUSE THE APP VERSION IS CORRECTLY SET IN OSMOSIS
-evmosd start --json-rpc.enable=true --json-rpc.api="eth,web3,net" --p2p.seeds e3e11fca4ecf4035a751f3fea90e3a821e274487@bd-evmos-mainnet-seed-node-01.bdnodes.net:26656,fc86e7e75c5d2e4699535e1b1bec98ae55b16826@bd-evmos-mainnet-seed-node-02.bdnodes.net:26656,40f4fac63da8b1ce8f850b0fa0f79b2699d2ce72@seed.evmos.jerrychong.com:26656 --x-crisis-skip-assert-invariants --db_backend rocksdb
+evmosd start --json-rpc.enable=true --json-rpc.api="eth,web3,net" --x-crisis-skip-assert-invariants --db_backend rocksdb
