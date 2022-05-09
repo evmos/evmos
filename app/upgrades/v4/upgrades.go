@@ -18,13 +18,15 @@ func CreateUpgradeHandler(
 	clientKeeper ibcclientkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		logger := ctx.Logger()
 		// Refs:
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
 
 		if types.IsMainnet(ctx.ChainID()) {
 			if err := UpdateIBCClients(ctx, clientKeeper); err != nil {
-				return vm, err
+				// log error instead of aborting the upgrade
+				logger.Error("FAILED TO UPDATE IBC CLIENTS", "error", err.Error())
 			}
 		}
 
