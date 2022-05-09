@@ -85,7 +85,7 @@ The main events you can subscribe to are:
 - `ValidatorSetUpdates`: Contains validator set updates for the block.
 
 ::: tip
-👉 The list of events types and values for each Cosmos SDK module can be found in the [Modules Specification](./modules) section.
+👉 The list of events types and values for each Cosmos SDK module can be found in the [Modules Specification](./../modules/README.md) section.
 Check the `Events` page to obtain the event list of each supported module on Evmos.
 :::
 
