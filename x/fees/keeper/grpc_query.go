@@ -72,11 +72,11 @@ func (k Keeper) DevFeeInfo(
 		)
 	}
 
-	// check if the contract is a hex address
-	if err := ethermint.ValidateAddress(req.ContractAddress); err != nil {
+	// check if the contract is a non-zero hex address
+	if err := ethermint.ValidateNonZeroAddress(req.ContractAddress); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for contract %s, should be hex ('0x...')", req.ContractAddress,
+			"invalid format for contract %s, should be non-zero hex ('0x...')", req.ContractAddress,
 		)
 	}
 
