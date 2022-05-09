@@ -1,56 +1,53 @@
 package app
 
 import (
-	"strings"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	v2 "github.com/tharsis/evmos/v4/app/upgrades/mainnet/v2"
-	tv3 "github.com/tharsis/evmos/v4/app/upgrades/testnet/v3"
+	v2 "github.com/tharsis/evmos/v4/app/upgrades/v2"
+	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
+	"github.com/tharsis/evmos/v4/types"
 )
 
-// BeginBlockForks executes any necessary fork logic based upon the current block height.
-func BeginBlockForks(ctx sdk.Context, app *Evmos) {
-	switch ctx.BlockHeight() {
-	case v2.UpgradeHeight:
-		// NOTE: only run for mainnet
-		if !strings.HasPrefix(ctx.ChainID(), MainnetChainID) {
-			return
-		}
-
-		upgradePlan := upgradetypes.Plan{
-			Name:   v2.UpgradeName,
-			Info:   v2.UpgradeInfo,
-			Height: v2.UpgradeHeight,
-		}
-
-		err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
-		if err != nil {
-			panic(err)
-		}
-
-	// NOTE: THIS UPGRADE PLAN SHOULD BE ADDED TO VERSION 1.0.0-beta1
-	// This will create the upgrade plan on the defined height
-	// and will stop the chain once the height is reached.
-	// The new version should have the upgrade migration logic under the upgradeName
-	case tv3.UpgradeHeight:
-		// NOTE: only run for testnet
-		if !strings.HasPrefix(ctx.ChainID(), TestnetChainID) {
-			return
-		}
-
-		upgradePlan := upgradetypes.Plan{
-			Name:   tv3.UpgradeName,
-			Info:   tv3.UpgradeInfo,
-			Height: tv3.UpgradeHeight + 1,
-		}
-		err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
-		if err != nil {
-			panic(err)
-		}
-	default:
-		// do nothing
+// ScheduleForkUpgrade executes any necessary fork logic for based upon the current
+// block height and chain ID (mainnet or testnet). It sets an upgrade plan once
+// the chain reaches the pre-defined upgrade height.
+//
+// CONTRACT: for this logic to work properly it is required to:
+//
+// 	1) Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
+// 	2) Release the software defined in the upgrade-info
+func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
+	// NOTE: there are no testnet forks for the existing versions
+	if !types.IsMainnet(ctx.ChainID()) {
 		return
+	}
+
+	upgradePlan := upgradetypes.Plan{
+		Height: ctx.BlockHeight(),
+	}
+
+	// handle mainnet forks
+	switch ctx.BlockHeight() {
+	case v2.MainnetUpgradeHeight:
+		upgradePlan.Name = v2.UpgradeName
+		upgradePlan.Info = v2.UpgradeInfo
+	case v4.MainnetUpgradeHeight:
+		upgradePlan.Name = v4.UpgradeName
+		upgradePlan.Info = v4.UpgradeInfo
+	default:
+		// No-op
+		return
+	}
+
+	if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan); err != nil {
+		panic(
+			fmt.Errorf(
+				"failed to schedule upgrade %s during BeginBlock at height %d: %w",
+				upgradePlan.Name, ctx.BlockHeight(), err,
+			),
+		)
 	}
 }

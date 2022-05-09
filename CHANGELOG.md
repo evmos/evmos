@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (app) [\#555](https://github.com/tharsis/evmos/pull/555) Improve upgrade logic and comments.
 - (gitpod) [\#564](https://github.com/tharsis/evmos/pull/564) Add one-click development environment
 - (incentives) [\#551](https://github.com/tharsis/evmos/pull/551) Add additional check to only distribute incentives to EOAs.
 - (cmd) [\#543](https://github.com/tharsis/evmos/pull/543) Update mainnet default `min-gas-price` to `0.0025aevmos`.
