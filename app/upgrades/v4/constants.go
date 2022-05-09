@@ -17,5 +17,5 @@ const (
 	// ExpiredCosmosHubClient defines the client ID of the expired Cosmos Hub IBC client
 	ExpiredCosmosHubClient = "07-tendermint-3"
 	// ActiveCosmosHubClient defines the client ID of the active CosmosHub IBC client
-	ActiveCosmosHubClient = "07-tendermint-20"
+	ActiveCosmosHubClient = "07-tendermint-29"
 )

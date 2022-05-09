@@ -14,7 +14,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 	tmclient "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
 
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
@@ -30,10 +29,12 @@ type UpgradeTestSuite struct {
 	ctx                    sdk.Context
 	app                    *app.Evmos
 	consAddress            sdk.ConsAddress
-	expiredOsmoClient      exported.ClientState
-	activeOsmoClient       exported.ClientState
-	expiredCosmosHubClient exported.ClientState
-	activeCosmosHubClient  exported.ClientState
+	expiredOsmoClient      *tmclient.ClientState
+	activeOsmoClient       *tmclient.ClientState
+	expiredCosmosHubClient *tmclient.ClientState
+	activeCosmosHubClient  *tmclient.ClientState
+	osmoConsState          *tmclient.ConsensusState
+	cosmosHubConsState     *tmclient.ConsensusState
 }
 
 func (suite *UpgradeTestSuite) SetupTest() {
@@ -48,7 +49,7 @@ func (suite *UpgradeTestSuite) SetupTest() {
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
+		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
 		ProposerAddress: suite.consAddress.Bytes(),
 
 		Version: tmversion.Consensus{
@@ -69,6 +70,72 @@ func (suite *UpgradeTestSuite) SetupTest() {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
+
+	// set expired clients
+	suite.expiredOsmoClient = &tmclient.ClientState{
+		ChainId:                      "osmosis-1",
+		TrustLevel:                   tmclient.DefaultTrustLevel,
+		TrustingPeriod:               10 * 24 * time.Hour,
+		UnbondingPeriod:              14 * 24 * time.Hour,
+		MaxClockDrift:                25 * time.Second,
+		FrozenHeight:                 clienttypes.NewHeight(0, 0),
+		LatestHeight:                 clienttypes.NewHeight(1, 3484087),
+		UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
+		AllowUpdateAfterExpiry:       true,
+		AllowUpdateAfterMisbehaviour: true,
+	}
+
+	// set active clients
+	suite.activeOsmoClient = &tmclient.ClientState{
+		ChainId:                      "osmosis-1",
+		TrustLevel:                   tmclient.DefaultTrustLevel,
+		TrustingPeriod:               10 * 24 * time.Hour,
+		UnbondingPeriod:              14 * 24 * time.Hour,
+		MaxClockDrift:                25 * time.Second,
+		FrozenHeight:                 clienttypes.NewHeight(0, 0),
+		LatestHeight:                 clienttypes.NewHeight(1, 4264373),
+		UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
+		AllowUpdateAfterExpiry:       true,
+		AllowUpdateAfterMisbehaviour: true,
+	}
+
+	suite.expiredCosmosHubClient = &tmclient.ClientState{
+		ChainId:                      "cosmoshub-4",
+		TrustLevel:                   tmclient.DefaultTrustLevel,
+		TrustingPeriod:               10 * 24 * time.Hour,
+		UnbondingPeriod:              21 * 24 * time.Hour,
+		MaxClockDrift:                20 * time.Second,
+		FrozenHeight:                 clienttypes.NewHeight(0, 0),
+		LatestHeight:                 clienttypes.NewHeight(4, 9659547),
+		UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
+		AllowUpdateAfterExpiry:       true,
+		AllowUpdateAfterMisbehaviour: true,
+	}
+
+	suite.activeCosmosHubClient = &tmclient.ClientState{
+		ChainId:                      "cosmoshub-4",
+		TrustLevel:                   tmclient.DefaultTrustLevel,
+		TrustingPeriod:               10 * 24 * time.Hour,
+		UnbondingPeriod:              21 * 24 * time.Hour,
+		MaxClockDrift:                20 * time.Second,
+		FrozenHeight:                 clienttypes.NewHeight(0, 0),
+		LatestHeight:                 clienttypes.NewHeight(4, 10409568),
+		UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
+		AllowUpdateAfterExpiry:       true,
+		AllowUpdateAfterMisbehaviour: true,
+	}
+
+	suite.osmoConsState = &tmclient.ConsensusState{
+		Timestamp: time.Date(2022, 5, 4, 23, 41, 9, 152600097, time.UTC),
+		// Root:               types.NewMerkleRoot([]byte("q3R1c0MR0+nJqcIMJzcEZYmB0Q1wNammv+yU6IVowro=")),
+		// NextValidatorsHash: tmbytes.HexBytes("195FC0E44AC0AA591F72AF0FEADD8F6279B2174353C05965850360532FE1E5A8"),
+	}
+
+	suite.cosmosHubConsState = &tmclient.ConsensusState{
+		Timestamp: time.Date(2022, 4, 29, 11, 9, 59, 595932461, time.UTC),
+		// Root:               types.NewMerkleRoot([]byte("q3lQF/LzwRElBj7V1LW9O/yote+/yfzOfOE/o94phsNQ=")),
+		// NextValidatorsHash: tmbytes.HexBytes("FADA047AE843608F6C3639E7C82199E5F36B791CB1EB1B2CC034B00C68FC6B6D"),
+	}
 
 	// FIXME: unmarshal client and consensus state
 	// var expiredOsmoClientRes *clienttypes.QueryClientStateResponse
@@ -94,99 +161,61 @@ func (suite *UpgradeTestSuite) TestUpdateIBCClients() {
 			"IBC clients updated successfully",
 			func() {
 				// set expired clients
-				expiredOsmoClient := &tmclient.ClientState{
-					ChainId:                      "osmosis-1",
-					TrustLevel:                   tmclient.DefaultTrustLevel,
-					TrustingPeriod:               10 * 24 * time.Hour,
-					UnbondingPeriod:              14 * 24 * time.Hour,
-					MaxClockDrift:                25 * time.Second,
-					FrozenHeight:                 clienttypes.NewHeight(0, 0),
-					LatestHeight:                 clienttypes.NewHeight(1, 3484087),
-					UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
-					AllowUpdateAfterExpiry:       true,
-					AllowUpdateAfterMisbehaviour: true,
-				}
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredOsmosisClient, suite.expiredOsmoClient)
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredCosmosHubClient, suite.expiredCosmosHubClient)
 
 				// set active clients
-				activeOsmoClient := &tmclient.ClientState{
-					ChainId:                      "osmosis-1",
-					TrustLevel:                   tmclient.DefaultTrustLevel,
-					TrustingPeriod:               10 * 24 * time.Hour,
-					UnbondingPeriod:              14 * 24 * time.Hour,
-					MaxClockDrift:                25 * time.Second,
-					FrozenHeight:                 clienttypes.NewHeight(0, 0),
-					LatestHeight:                 clienttypes.NewHeight(1, 4264373),
-					UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
-					AllowUpdateAfterExpiry:       true,
-					AllowUpdateAfterMisbehaviour: true,
-				}
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ActiveOsmosisClient, suite.activeOsmoClient)
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ActiveCosmosHubClient, suite.activeCosmosHubClient)
 
-				expiredCosmosHubClient := &tmclient.ClientState{
-					ChainId:                      "cosmoshub-4",
-					TrustLevel:                   tmclient.DefaultTrustLevel,
-					TrustingPeriod:               10 * 24 * time.Hour,
-					UnbondingPeriod:              21 * 24 * time.Hour,
-					MaxClockDrift:                20 * time.Second,
-					FrozenHeight:                 clienttypes.NewHeight(0, 0),
-					LatestHeight:                 clienttypes.NewHeight(4, 9659547),
-					UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
-					AllowUpdateAfterExpiry:       true,
-					AllowUpdateAfterMisbehaviour: true,
-				}
+				// set active consensus states
+				suite.app.IBCKeeper.ClientKeeper.SetClientConsensusState(suite.ctx, v4.ActiveOsmosisClient, suite.activeOsmoClient.GetLatestHeight(), suite.osmoConsState)
+				suite.app.IBCKeeper.ClientKeeper.SetClientConsensusState(suite.ctx, v4.ActiveCosmosHubClient, suite.activeCosmosHubClient.GetLatestHeight(), suite.cosmosHubConsState)
 
-				activeCosmosHubClient := &tmclient.ClientState{
-					ChainId:                      "cosmoshub-4",
-					TrustLevel:                   tmclient.DefaultTrustLevel,
-					TrustingPeriod:               14 * 24 * time.Hour,
-					UnbondingPeriod:              21 * 24 * time.Hour,
-					MaxClockDrift:                2530 * time.Second,
-					FrozenHeight:                 clienttypes.NewHeight(0, 0),
-					LatestHeight:                 clienttypes.NewHeight(4, 10293839),
-					UpgradePath:                  []string{"upgrade", "upgradedIBCState"},
-					AllowUpdateAfterExpiry:       true,
-					AllowUpdateAfterMisbehaviour: true,
-				}
+				activeOsmoStore := suite.app.IBCKeeper.ClientKeeper.ClientStore(suite.ctx, v4.ActiveOsmosisClient)
+				activeHubStore := suite.app.IBCKeeper.ClientKeeper.ClientStore(suite.ctx, v4.ActiveCosmosHubClient)
 
-				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredOsmosisClient, expiredOsmoClient)
-				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredCosmosHubClient, expiredCosmosHubClient)
+				// set processing time and height
+				tmclient.SetProcessedHeight(activeOsmoStore, suite.activeOsmoClient.LatestHeight, suite.activeOsmoClient.LatestHeight)
+				tmclient.SetProcessedHeight(activeHubStore, suite.activeCosmosHubClient.LatestHeight, suite.activeCosmosHubClient.LatestHeight)
 
-				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ActiveOsmosisClient, activeOsmoClient)
-				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ActiveCosmosHubClient, activeCosmosHubClient)
-
-				canUpdateClient := tmclient.IsMatchingClientState(*expiredOsmoClient, *activeOsmoClient)
-				suite.Require().True(canUpdateClient, "cannot update non-matching osmosis client")
-
-				canUpdateClient = tmclient.IsMatchingClientState(*expiredCosmosHubClient, *activeCosmosHubClient)
-				suite.Require().True(canUpdateClient, "cannot update non-matching cosmos hub client")
-
-				// FIXME: get latest values
-				osmoConsState := &tmclient.ConsensusState{
-					Timestamp: time.Date(2022, 5, 4, 23, 41, 9, 152600097, time.UTC),
-					// Root:               types.NewMerkleRoot([]byte("q3R1c0MR0+nJqcIMJzcEZYmB0Q1wNammv+yU6IVowro=")),
-					// NextValidatorsHash: tmbytes.HexBytes("195FC0E44AC0AA591F72AF0FEADD8F6279B2174353C05965850360532FE1E5A8"),
-				}
-
-				cosmosHubConsState := &tmclient.ConsensusState{
-					Timestamp: time.Date(2022, 4, 29, 11, 9, 59, 595932461, time.UTC),
-					// Root:               types.NewMerkleRoot([]byte("q3R1c0MR0+nJqcIMJzcEZYmB0Q1wNammv+yU6IVowro=")),
-					// NextValidatorsHash: tmbytes.HexBytes("195FC0E44AC0AA591F72AF0FEADD8F6279B2174353C05965850360532FE1E5A8"),
-				}
-
-				suite.app.IBCKeeper.ClientKeeper.SetClientConsensusState(suite.ctx, v4.ExpiredCosmosHubClient, activeCosmosHubClient.GetLatestHeight(), cosmosHubConsState)
-				suite.app.IBCKeeper.ClientKeeper.SetClientConsensusState(suite.ctx, v4.ActiveOsmosisClient, activeOsmoClient.GetLatestHeight(), osmoConsState)
+				tmclient.SetProcessedTime(activeOsmoStore, suite.activeOsmoClient.LatestHeight, suite.osmoConsState.GetTimestamp())
+				tmclient.SetProcessedTime(activeHubStore, suite.activeCosmosHubClient.LatestHeight, suite.cosmosHubConsState.GetTimestamp())
 			},
 			false,
 		},
-		// {
-		// 	"Osmosis IBC client update failed",
-		// 	func() {},
-		// 	false,
-		// },
-		// {
-		// 	"Cosmos Hub IBC client update failed",
-		// 	func() {},
-		// 	false,
-		// },
+		{
+			"Osmosis IBC client update failed",
+			func() {
+				// set expired clients
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredOsmosisClient, suite.expiredOsmoClient)
+
+				// set active clients
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ActiveCosmosHubClient, suite.activeCosmosHubClient)
+			},
+			true,
+		},
+		{
+			"Cosmos Hub IBC client update failed",
+			func() {
+				// set expired clients
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredOsmosisClient, suite.expiredOsmoClient)
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ExpiredCosmosHubClient, suite.expiredCosmosHubClient)
+
+				// set active clients
+				suite.app.IBCKeeper.ClientKeeper.SetClientState(suite.ctx, v4.ActiveOsmosisClient, suite.activeOsmoClient)
+
+				// set active consensus states
+				suite.app.IBCKeeper.ClientKeeper.SetClientConsensusState(suite.ctx, v4.ActiveOsmosisClient, suite.activeOsmoClient.GetLatestHeight(), suite.osmoConsState)
+
+				activeOsmoStore := suite.app.IBCKeeper.ClientKeeper.ClientStore(suite.ctx, v4.ActiveOsmosisClient)
+
+				// set processing time and height
+				tmclient.SetProcessedHeight(activeOsmoStore, suite.activeOsmoClient.LatestHeight, suite.activeOsmoClient.LatestHeight)
+				tmclient.SetProcessedTime(activeOsmoStore, suite.activeOsmoClient.LatestHeight, suite.osmoConsState.GetTimestamp())
+			},
+			true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -194,6 +223,13 @@ func (suite *UpgradeTestSuite) TestUpdateIBCClients() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
+
+			// test if we can update the clients
+			canUpdateClient := tmclient.IsMatchingClientState(*suite.expiredOsmoClient, *suite.activeOsmoClient)
+			suite.Require().True(canUpdateClient, "cannot update non-matching osmosis client")
+
+			canUpdateClient = tmclient.IsMatchingClientState(*suite.expiredCosmosHubClient, *suite.activeCosmosHubClient)
+			suite.Require().True(canUpdateClient, "cannot update non-matching cosmos hub client")
 
 			err := v4.UpdateIBCClients(suite.ctx, suite.app.IBCKeeper.ClientKeeper)
 			if tc.expError {
