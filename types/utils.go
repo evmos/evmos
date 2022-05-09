@@ -26,7 +26,7 @@ func IsMainnet(chainID string) bool {
 
 // IsTestnet returns true if the chain-id has the Evmos testnet EIP155 chain prefix.
 func IsTestnet(chainID string) bool {
-	return strings.HasPrefix(chainID, MainnetChainID)
+	return strings.HasPrefix(chainID, TestnetChainID)
 }
 
 // IsSupportedKey returns true if the pubkey type is supported by the chain
