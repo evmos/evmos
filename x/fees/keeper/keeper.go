@@ -18,7 +18,6 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	evmKeeper        types.EVMKeeper
 	feeCollectorName string
@@ -29,7 +28,6 @@ func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
-	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
 	feeCollector string,
@@ -43,7 +41,6 @@ func NewKeeper(
 		storeKey:         storeKey,
 		cdc:              cdc,
 		paramstore:       ps,
-		accountKeeper:    ak,
 		bankKeeper:       bk,
 		evmKeeper:        evmKeeper,
 		feeCollectorName: feeCollector,
