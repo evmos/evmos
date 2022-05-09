@@ -36,27 +36,24 @@ const (
 )
 
 func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Address {
-	suite.SetupTest()
-
-	var contractAddr common.Address
+	var contract common.Address
 	// Deploy contract
 	switch contractType {
 	case contractDirectBalanceManipulation:
-		contractAddr = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
+		contract = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
 	case contractMaliciousDelayed:
-		contractAddr = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
+		contract = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
 	default:
-		contractAddr, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+		contract, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 	}
 	suite.Commit()
 
-	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contract)
 	suite.Require().NoError(err)
-	return contractAddr
+	return contract
 }
 
 func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
-	suite.SetupTest()
 	validMetadata := banktypes.Metadata{
 		Description: "description of the token",
 		Base:        cosmosTokenBase,
