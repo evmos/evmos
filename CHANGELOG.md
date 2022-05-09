@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v4.0.0] - 2022-05-09
 
 ### State Machine Breaking
 
@@ -52,7 +52,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (deps) [\#580](https://github.com/tharsis/evmos/pull/580) Bump Ethermint to [`v0.15.0`](https://github.com/tharsis/ethermint/releases/tag/v0.15.0)
 - (gitpod) [\#564](https://github.com/tharsis/evmos/pull/564) Add one-click development environment
-- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) remove deprecated migrations
+- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) Remove deprecated migrations.
 - (incentives) [\#551](https://github.com/tharsis/evmos/pull/551) Add additional check to only distribute incentives to EOAs.
 - (cmd) [\#543](https://github.com/tharsis/evmos/pull/543) Update mainnet default `min-gas-price` to `0.0025aevmos`.
 - (epochs) [\#539](https://github.com/tharsis/evmos/pull/539) Use constants for epoch identifiers.
