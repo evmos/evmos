@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,8 +16,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	"github.com/tharsis/evmos/v4/app"
 	v3 "github.com/tharsis/evmos/v4/app/upgrades/v3"
+	"github.com/tharsis/evmos/v4/types"
 )
 
 // FlagGenesisTime defines the genesis time in string format
@@ -29,8 +28,8 @@ var migrationMap = genutiltypes.MigrationMap{
 }
 
 // GetMigrationCallback returns a MigrationCallback for a given version.
-func GetMigrationCallback(version string, isMainnet bool) genutiltypes.MigrationCallback {
-	if !isMainnet {
+func GetMigrationCallback(version, chainID string) genutiltypes.MigrationCallback {
+	if !types.IsMainnet(chainID) {
 		version = fmt.Sprintf("%s%s", "t", version)
 	}
 
@@ -69,9 +68,7 @@ func MigrateGenesisCmd() *cobra.Command {
 				genDoc.ChainID = chainID
 			}
 
-			isMainnet := strings.HasPrefix(chainID, app.MainnetChainID)
-
-			migrationFn := GetMigrationCallback(target, isMainnet)
+			migrationFn := GetMigrationCallback(target, chainID)
 			if migrationFn == nil {
 				return fmt.Errorf("unknown migration function for version: %s", target)
 			}

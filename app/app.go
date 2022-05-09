@@ -151,14 +151,8 @@ func init() {
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
 }
 
-const (
-	// Name defines the application binary name
-	Name = "evmosd"
-	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
-	MainnetChainID = "evmos_9001"
-	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
-	TestnetChainID = "evmos_9000"
-)
+// Name defines the application binary name
+const Name = "evmosd"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon

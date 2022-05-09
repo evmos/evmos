@@ -2,13 +2,13 @@ package app
 
 import (
 	"fmt"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	v2 "github.com/tharsis/evmos/v4/app/upgrades/v2"
 	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
+	"github.com/tharsis/evmos/v4/types"
 )
 
 // ScheduleForkUpgrade executes any necessary fork logic for based upon the current
@@ -21,7 +21,7 @@ import (
 // 	2) Release the software defined in the upgrade-info
 func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	// NOTE: there are no testnet forks for the existing versions
-	if !strings.HasPrefix(ctx.ChainID(), MainnetChainID) {
+	if !types.IsMainnet(ctx.ChainID()) {
 		return
 	}
 

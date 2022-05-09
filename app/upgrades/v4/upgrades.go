@@ -7,6 +7,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcclientkeeper "github.com/cosmos/ibc-go/v3/modules/core/02-client/keeper"
 	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+
+	"github.com/tharsis/evmos/v4/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v4
@@ -19,8 +21,11 @@ func CreateUpgradeHandler(
 		// Refs:
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
-		if err := UpdateIBCClients(ctx, clientKeeper); err != nil {
-			return vm, err
+
+		if types.IsMainnet(ctx.ChainID()) {
+			if err := UpdateIBCClients(ctx, clientKeeper); err != nil {
+				return vm, err
+			}
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
