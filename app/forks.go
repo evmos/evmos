@@ -11,7 +11,7 @@ import (
 	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
 )
 
-// BeginBlockForks executes any necessary fork logic for based upon the current
+// ScheduleForkUpgrade executes any necessary fork logic for based upon the current
 // block height and chain ID (mainnet or testnet). It sets an upgrade plan once
 // the chain reaches the pre-defined upgrade height.
 //
@@ -19,7 +19,7 @@ import (
 //
 // 	1) Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
 // 	2) Release the software defined in the upgrade-info
-func BeginBlockForks(ctx sdk.Context, app *Evmos) {
+func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	// NOTE: there are no testnet forks for the existing versions
 	if !strings.HasPrefix(ctx.ChainID(), MainnetChainID) {
 		return
