@@ -1027,6 +1027,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 	switch upgradeInfo.Name {
 	case v2.UpgradeName:
 		// no store upgrades in v2
+	default:
+		// no-op
 	}
 
 	if storeUpgrades != nil {
