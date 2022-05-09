@@ -35,7 +35,7 @@ If you use your Bech32 address, make sure you input the [account address](./../u
 
 ![faucet site](./../img/faucet_web_page.png)
 
-View your account balance either by clicking on the Keplr extension or by [interacting with the node](../../quickstart/interact_node).
+View your account balance either by clicking on the Keplr extension or by using the [Testnet Explorer](https://testnet.mintscan.io/evmos-testnet).
 
 ::: tip
 **Note**: Keplr might not display the amount of {{ $themeConfig.project.testnet_denom }} transferred by the faucet, as it might be smaller than the number of decimals displayed in the Keplr extension.

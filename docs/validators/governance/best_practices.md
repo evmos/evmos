@@ -54,7 +54,7 @@ The next major section outlines and describes some potential elements of draftin
 
 It will be important to balance two things: being detailed and being concise. You'll want to be concise so that people can assess your proposal quickly. You'll want to be detailed so that voters will have a clear, meaningful understanding of what the changes are and how they are likely to be impacted.
 
-There is a [proposal template](./proposals/proposal-template.md) with suggested sections. Each proposal should contain a summary with key details:
+Each proposal should contain a summary with key details:
 
 - who is submitting the proposal
 - the amount of the proposal or parameter(s) being changed;
