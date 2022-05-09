@@ -108,9 +108,7 @@ import (
 	_ "github.com/tharsis/evmos/v3/client/docs/statik"
 
 	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
+	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
 	"github.com/tharsis/evmos/v3/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
@@ -148,14 +146,8 @@ func init() {
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
 }
 
-const (
-	// Name defines the application binary name
-	Name = "evmosd"
-	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
-	MainnetChainID = "evmos_9001"
-	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
-	TestnetChainID = "evmos_9000"
-)
+// Name defines the application binary name
+const Name = "evmosd"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -779,9 +771,12 @@ func NewEvmos(
 // Name returns the name of the App
 func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
-// BeginBlocker updates every begin block
+// BeginBlocker runs the Tendermint ABCI BeginBlock logic. It executes state changes at the beginning
+// of the new block for every registered module. If there is a registered fork at the current height,
+// BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	BeginBlockForks(ctx, app)
+	// Perform any scheduled forks before executing the modules logic
+	app.ScheduleForkUpgrade(ctx)
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -1012,16 +1007,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// v3 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v3.UpgradeName,
-		v3.CreateUpgradeHandler(app.mm, app.configurator),
-	)
-	// testnet upgrade v3 handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		tv3.UpgradeName,
-		tv3.CreateUpgradeHandler(app.mm, app.configurator),
-	)
+
+	// NOTE: no v3 upgrade handler as it required an unscheduled manual upgrade.
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
@@ -1040,10 +1027,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 	switch upgradeInfo.Name {
 	case v2.UpgradeName:
 		// no store upgrades in v2
-	case v3.UpgradeName:
-		// no store upgrades in v3
-	case tv3.UpgradeName:
-		// no store upgrades in testnet v3
+	default:
+		// no-op
 	}
 
 	if storeUpgrades != nil {
