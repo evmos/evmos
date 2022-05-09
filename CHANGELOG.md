@@ -44,26 +44,31 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### API Breaking
 
-- (inflation) [\#536](https://github.com/tharsis/evmos/pull/536) Rename inflation endpoint `/evmos/inflation/v1/total_supply` -> `/evmos/inflation/v1/circulating_supply`
-- (erc20) [\#544](https://github.com/tharsis/evmos/pull/544) Remove `updateTokenPairERC20Proposal` functionality rename `relay` to `conversion`
 - (upgrade) [\#557](https://github.com/tharsis/evmos/pull/557) Update Evmos go.mod version `v3` -> `v4`
+- (erc20) [\#544](https://github.com/tharsis/evmos/pull/544) Remove `updateTokenPairERC20Proposal` functionality rename `relay` to `conversion`
+- (inflation) [\#536](https://github.com/tharsis/evmos/pull/536) Rename inflation endpoint `/evmos/inflation/v1/total_supply` -> `/evmos/inflation/v1/circulating_supply`
 
 ### Improvements
 
-- (app) [\#555](https://github.com/tharsis/evmos/pull/555) Improve upgrade logic and comments.
+- (deps) [\#580](https://github.com/tharsis/evmos/pull/580) Bump Ethermint to [`v0.15.0`](https://github.com/tharsis/ethermint/releases/tag/v0.15.0)
 - (gitpod) [\#564](https://github.com/tharsis/evmos/pull/564) Add one-click development environment
+- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) remove deprecated migrations
 - (incentives) [\#551](https://github.com/tharsis/evmos/pull/551) Add additional check to only distribute incentives to EOAs.
 - (cmd) [\#543](https://github.com/tharsis/evmos/pull/543) Update mainnet default `min-gas-price` to `0.0025aevmos`.
-- (p2p) [\#541](https://github.com/tharsis/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
 - (epochs) [\#539](https://github.com/tharsis/evmos/pull/539) Use constants for epoch identifiers.
-- (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
-- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) remove deprecated migrations
-- (deps) [\#580](https://github.com/tharsis/evmos/pull/580) Bump Ethermint to [`v0.15.0`](https://github.com/tharsis/ethermint/releases/tag/v0.15.0)
 
 ### Bug Fixes
 
 - (erc20) [\#530](https://github.com/tharsis/evmos/pull/530) Fix `Metadata` equal check for denom units.
 - (app) [\#523](https://github.com/tharsis/evmos/pull/523) Fix testnet upgrade store loader.
+
+## [v3.0.1] - 2022-05-09
+
+### Improvements
+
+- (app) [\#555](https://github.com/tharsis/evmos/pull/555) `v4.0.0` upgrade logic.
+- (p2p) [\#541](https://github.com/tharsis/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
+- (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4) 
 
 ## [v3.0.0] - 2022-04-22
 
