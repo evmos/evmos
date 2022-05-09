@@ -12,9 +12,10 @@ Below is a list of publicly available endpoints that you can use to connect to t
 public testnets:
 
 ::: tip
-You can also use [chainlist.org](https://chainlist.org/) to add the node directly to [Metamask](./../users/wallets/metamask#automatic-import).
+You can also use [chainlist.org](https://chainlist.org/) to add the node directly to [Metamask](./../users/wallets/metamask.md#automatic-import).
 :::
 
+<!-- markdown-link-check-disable -->
 :::: tabs
 ::: tab Mainnet
 
@@ -27,6 +28,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `wss://eth.bd.evmos.org:8546`           | `Ethereum` `Websocket` | [Blockdaemon](https://blockdaemon.com/) |
 :::
 ::: tab Testnet
+<!-- markdown-link-check-disable -->
 
 | Address                                 | Category               | Maintainer                              |
 | --------------------------------------- | ---------------------- | --------------------------------------- |

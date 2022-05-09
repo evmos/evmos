@@ -19,7 +19,7 @@ If you are planning on developing on Evmos locally and you haven’t already set
 Open the MetaMask extension on your browser, you may have to log in to your MetaMask account if you are not already. Then click the top right circle and go to `Settings` > `Networks` > `Add Network` and fill the form as shown below.
 
 ::: tip
-You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) `Chain ID` by referring to [chainlist.org](https://chainlist.org/). Alternatively, to get the full Chain ID from Genesis, check the [Chain ID](../../users/technical_concepts/chain_id) documentation page.
+You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) `Chain ID` by referring to [chainlist.org](https://chainlist.org/). Alternatively, to get the full Chain ID from Genesis, check the [Chain ID](../../users/technical_concepts/chain_id.md) documentation page.
 :::
 
 ![metamask networks settings](./../../img/metamask_network_settings.png)

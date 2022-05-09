@@ -27,7 +27,7 @@ to keep your binaries and configuration files.
 ## Manual deployment
 
 The instructions for setting up a brand new full node from scratch are the the same as running a
-[single node local testnet](./../guides/localnet/single_node.md#manual-localnet).
+[single node local testnet](./../../developers/localnet/single_node.md#manual-localnet).
 
 ## Start node
 
@@ -55,7 +55,7 @@ You can generate a new key/mnemonic with:
 evmosd keys add $KEY
 ```
 
-To export your evmos key as an Ethereum private key (for use with [Metamask](./../guides/keys-wallets/metamask) for example):
+To export your evmos key as an Ethereum private key (for use with [Metamask](./../../users/wallets/metamask.md) for example):
 
 ```bash
 evmosd keys unsafe-export-eth-key $KEY
@@ -81,7 +81,7 @@ evmosd config keyring-backend file
 ```
 
 :::tip
-For more information about the Keyring and its backend options, click [here](./../guides/keys-wallets/keyring).
+For more information about the Keyring and its backend options, click [here](./../../users/keys/keyring.md).
 :::
 
 ## Clearing data from chain
@@ -120,7 +120,9 @@ To clear all data except key storage (if keyring backend chosen) and then you ca
 ## Recording Transactions Per Second (TPS)
 
 In order to get a progressive value of the transactions per second, we use Prometheus to return the values.
-The Prometheus exporter runs at address "http://localhost:8877" so please add this section to your [Prometheus installation](https://opencensus.io/codelabs/prometheus/#1) config.yaml file like this
+<!-- markdown-link-check-disable-next-line -->
+The Prometheus exporter runs at address http://localhost:8877 so please add this
+section to your [Prometheus installation](https://opencensus.io/codelabs/prometheus/#1) config.yaml file like this
 
 ```yaml
 global:
@@ -144,6 +146,7 @@ and then run Prometheus like this
 prometheus --config.file=prom_config.yaml
 ```
 
+<!-- markdown-link-check-disable-next-line -->
 and then visit the Prometheus dashboard at http://localhost:9090/ then navigate to the expression area and enter the following expression
 
 ```shell
@@ -154,4 +157,4 @@ which will show the rate of transactions processed.
 
 ## Next {hide}
 
-Learn about running a Evmos [testnet](./testnet.md) {hide}
+Learn about running a Evmos [testnet](./../testnet.md) {hide}

@@ -8,14 +8,14 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 ## Pre-requisite Readings
 
-- [Validator Security](./security.md) {prereq}
+- [Validator Security](./security/security.md) {prereq}
 
 ## Mainnet
 
 You need to set the **genesis file** and **seeds**. If you need more information about past networks, check our [mainnet repo](https://github.com/tharsis/mainnet).
 
 ::: warning
-**IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security.md) recommendations!
+**IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security/security.md) recommendations!
 :::
 
 | Chain ID       | Description     | Site                                                               | Version                                                      | Status  |
@@ -25,7 +25,7 @@ You need to set the **genesis file** and **seeds**. If you need more information
 
 ## Install `evmosd`
 
-Follow the [installation](./../quickstart/installation) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
+Follow the [installation](./quickstart/installation.md) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
 Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
@@ -36,7 +36,7 @@ Make sure you have the right version of `{{ $themeConfig.project.binary }}` inst
 We recommend saving the mainnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
 
 ::: tip
-See the Official [Chain IDs](./../technical_concepts/chain_id#official-chain-ids) for reference.
+See the Official [Chain IDs](./../users/technical_concepts/chain_id.md#official-chain-ids) for reference.
 :::
 
 ```bash
@@ -143,14 +143,14 @@ evmosd tx staking create-validator \
 ```
 
 ::: danger
-🚨 **DANGER**: <u>Never</u> create your validator keys using a [`test`](./../guides/keys-wallets/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+🚨 **DANGER**: <u>Never</u> create your validator keys using a [`test`](./../users/keys/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
 
 Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
 
 ## Start mainnet
 
-The final step is to [start the nodes](./quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the node will start producing blocks.
+The final step is to [start the nodes](./quickstart/run_node.md#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the node will start producing blocks.
 
 ```bash
 evmosd start
