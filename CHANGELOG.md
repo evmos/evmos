@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v4.0.0] - 2022-05-09
 
 ### State Machine Breaking
 
@@ -57,7 +57,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (p2p) [\#541](https://github.com/tharsis/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
 - (epochs) [\#539](https://github.com/tharsis/evmos/pull/539) Use constants for epoch identifiers.
 - (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
-- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) remove deprecated migrations
+- (erc20) [\#556](https://github.com/tharsis/evmos/pull/556) Remove deprecated migrations
 - (deps) [\#580](https://github.com/tharsis/evmos/pull/580) Bump Ethermint to [`v0.15.0`](https://github.com/tharsis/ethermint/releases/tag/v0.15.0)
 
 ### Bug Fixes
