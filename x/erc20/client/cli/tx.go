@@ -41,7 +41,7 @@ func NewTxCmd() *cobra.Command {
 func NewConvertCoinCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "convert-coin [coin] [receiver_hex]",
-		Short: "Convert a Cosmos coin to ERC20. When the receiver [optional] is ommited, the ERC20 tokens are transferred to the sender.",
+		Short: "Convert a Cosmos coin to ERC20. When the receiver [optional] is omitted, the ERC20 tokens are transferred to the sender.",
 		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -88,7 +88,7 @@ func NewConvertCoinCmd() *cobra.Command {
 func NewConvertERC20Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "convert-erc20 [contract-address] [amount] [receiver]",
-		Short: "Convert an ERC20 token to Cosmos coin.  When the receiver [optional] is ommited, the Cosmos coins are transferred to the sender.",
+		Short: "Convert an ERC20 token to Cosmos coin.  When the receiver [optional] is omitted, the Cosmos coins are transferred to the sender.",
 		Args:  cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
