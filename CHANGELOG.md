@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v4.0.0] - 2022-05-09
 
+(erc20) [\#588](https://github.com/tharsis/evmos/pull/588) Revert PR [\#556](https://github.com/tharsis/evmos/pull/556).
+
+## [v4.0.0] - 2022-05-09
+
 ### State Machine Breaking
 
 - (app) [\#537](https://github.com/tharsis/evmos/pull/537) Fix router key for IBC client proposals.
