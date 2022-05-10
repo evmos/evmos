@@ -8,8 +8,8 @@ import (
 	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
-// GetAllTokenPairs - get all registered token tokenPairs
-func (k Keeper) GetAllTokenPairs(ctx sdk.Context) []types.TokenPair {
+// GetTokenPairs - get all registered token tokenPairs
+func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 	tokenPairs := []types.TokenPair{}
 
 	store := ctx.KVStore(k.storeKey)

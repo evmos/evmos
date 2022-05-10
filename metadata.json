@@ -1,0 +1,18 @@
+{
+    "description": "The native staking and governance token of the Evmos testnet",
+    "denom_units": [
+          {
+              "denom": "aevmos",
+              "exponent": 0,
+              "aliases": ["atto evmos"]
+          },
+          {
+              "denom": "evmos",
+              "exponent": 18
+          }
+      ],
+      "base": "aevmos",
+      "display": "evmos",
+      "name": "Local Evmos",
+      "symbol": "EVMOS"
+  }
