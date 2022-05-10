@@ -22,9 +22,7 @@ See documentation [here](https://github.com/strangelove-ventures/horcrux/blob/ma
 
 ## Tendermint KMS
 
-[Tendermint KMS](../kms/kms) is a signature service with support for Hardware Security Modules (HSMs), such as YubiHSM2 and Ledger Nano . It’s intended to be run alongside Cosmos Validators, ideally on separate physical hosts, providing defense-in-depth for online validator signing keys, double signing protection, and functioning as a central signing service that can be used when operating multiple validators in several Cosmos Zones.
-
-For more details, please see [Tendermint KMS](../kms/kms.md)
+[Tendermint KMS](./kms.md) is a signature service with support for Hardware Security Modules (HSMs), such as YubiHSM2 and Ledger Nano . It’s intended to be run alongside Cosmos Validators, ideally on separate physical hosts, providing defense-in-depth for online validator signing keys, double signing protection, and functioning as a central signing service that can be used when operating multiple validators in several Cosmos Zones.
 
 ## Hardware HSM
 

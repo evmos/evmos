@@ -10,7 +10,7 @@ Check the FAQ for running a validator on Evmos {synopsis}
 
 ### What is a validator?
 
-Evmos is powered by [Tendermint](https://tendermint.com/docs/introduction/what-is-tendermint.html) Core, which relies on a set of validators to secure the network. Validators run a full node and participate in consensus by broadcasting votes which contain cryptographic signatures signed by their private key. Validators commit new blocks in the blockchain and receive revenue in exchange for their work. They also participate in on-procotol treasury governance by voting on governance proposals. A validator's voting influence is weighted according to their total stake.
+Evmos is powered by [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) Core, which relies on a set of validators to secure the network. Validators run a full node and participate in consensus by broadcasting votes which contain cryptographic signatures signed by their private key. Validators commit new blocks in the blockchain and receive revenue in exchange for their work. They also participate in on-procotol treasury governance by voting on governance proposals. A validator's voting influence is weighted according to their total stake.
 
 ### What is "staking"?
 
@@ -67,7 +67,7 @@ evmosd tx staking create-validator
 ```
 
 ::: danger
-🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a [`test`](./../../keys/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a [`test`](./../users/keys/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
 
 Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
@@ -113,7 +113,8 @@ The validator operator's "self-bond" refers to the amount of EVMOS stake delegat
 
 ### Is there a testnet faucet?
 
-If you want to obtain coins for the testnet, you can do so by using the [faucet](https://faucet.evmos.org/).
+<!-- markdown-link-check-disable-next-line -->
+If you want to obtain coins for the testnet, you can do so by using the [faucet](https://faucet.evmos.dev/).
 
 ### Is there a minimum amount of EVMOS that must be staked to be an active (bonded) validator?
 
@@ -165,7 +166,7 @@ Even though delegated funds cannot be stolen by their validators, delegators are
 
 The validator that is selected to mine the next block is called the **proposer**, the "leader" in the consensus for the round. Each proposer is selected deterministically, and the frequency of being chosen is equal to the relative total stake (where total stake = self-bonded stake + delegators stake) of the validator. For example, if the total bonded stake across all validators is 100 EVMOS, and a validator's total stake is 10 EVMOS, then this validator will be chosen 10% of the time as the proposer.
 
-To understand more about the proposer selection process in Tendermint BFT consensus, read more [in their official docs](https://docs.tendermint.com/master/spec/reactors/consensus/proposer-selection.html).
+To understand more about the proposer selection process in Tendermint BFT consensus, read more [in their official docs](https://docs.tendermint.com/master/spec/consensus/proposer-selection.html).
 
 ## Incentives
 
