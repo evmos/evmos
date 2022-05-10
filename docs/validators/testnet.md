@@ -19,7 +19,7 @@ You specify the network you want to join by setting the **genesis file** and **s
 
 ## Install `evmosd`
 
-Follow the [installation](./../users/quickstart/installation) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
+Follow the [installation](./quickstart/installation.md) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
 Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
@@ -30,7 +30,7 @@ Make sure you have the right version of `{{ $themeConfig.project.binary }}` inst
 We recommend saving the testnet `chain-id` into your `{{ $themeConfig.project.binary }}`'s `client.toml`. This will make it so you do not have to manually pass in the `chain-id` flag for every CLI command.
 
 ::: tip
-See the Official [Chain IDs](./../users/technical_concepts/chain_id#official-chain-ids) for reference.
+See the Official [Chain IDs](./../users/technical_concepts/chain_id.md#official-chain-ids) for reference.
 :::
 
 ```bash
@@ -143,7 +143,7 @@ evmosd tx staking create-validator \
 
 ## Start testnet
 
-The final step is to [start the nodes](./../users/quickstart/run_node#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the testnet will start producing blocks.
+The final step is to [start the nodes](./quickstart/run_node.md#start-node). Once enough voting power (+2/3) from the genesis validators is up-and-running, the testnet will start producing blocks.
 
 ```bash
 evmosd start

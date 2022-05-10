@@ -7,7 +7,7 @@ order: 3
 
 The `{{ $themeConfig.project.binary }} testnet` subcommand makes it easy to initialize and start a simulated test network for testing purposes. {synopsis}
 
-In addition to the commands for [running a node](./../../quickstart/run_node.md), the `{{ $themeConfig.project.binary }}` binary also includes a `testnet` command that allows you to start a simulated test network in-process or to initialize files for a simulated test network that runs in a separate process.
+In addition to the commands for [running a node](./../../validators/quickstart/run_node.md), the `{{ $themeConfig.project.binary }}` binary also includes a `testnet` command that allows you to start a simulated test network in-process or to initialize files for a simulated test network that runs in a separate process.
 
 ## Initialize Files
 

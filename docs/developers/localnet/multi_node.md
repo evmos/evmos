@@ -6,17 +6,19 @@ order: 2
 
 ## Pre-requisite Readings
 
-- [Install Starport](https://docs.starport.network/#install-starport)  {prereq}
+- [Install Ignite CLI](https://docs.ignite.com/guide/install.html)  {prereq}
 - [Install Docker](https://docs.docker.com/engine/installation/)  {prereq}
 - [Install docker-compose](https://docs.docker.com/compose/install/)  {prereq}
 
-## Automated Localnet with Starport
+## Automated Localnet with Ignite CLI
 
-Once you have installed `starport`, just run the localnet by using
+Once you have installed `ignite`, just run the localnet by using
 
 ```bash
-starport chain serve --reset-once -v -c ./starport.yml
+ignite chain serve 
 ```
+
+Detailed instructions can be found in the [Ignite CLI documentation](https://docs.ignite.com/kb/serve.html)
 
 ## Automated Localnet with Docker
 
@@ -186,7 +188,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1
 The IP address will be the public IP of the docker container.
 :::
 
-Additional instructions on how to interact with the WebSocket can be found on the [events documentation](./events.md#ethereum-websocket).
+Additional instructions on how to interact with the WebSocket can be found on the [events documentation](./../json-rpc/events.md#ethereum-websocket).
 
 ### Keys & Accounts
 

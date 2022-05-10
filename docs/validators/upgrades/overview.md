@@ -72,7 +72,7 @@ With every new software release, we strongly recommend full nodes and validator 
 
 You can upgrade your node by either:
 
-- [automatically](./automated) bumping the software version and restart the node once the upgrade occurs, or
-- download the new binary and perform a [manual upgrade](manual)
+- [automatically](./automated.md) bumping the software version and restart the node once the upgrade occurs, or
+- download the new binary and perform a [manual upgrade](./manual.md)
 
 Follow the links in the options above to learn how to upgrade your node according to your preferred option.

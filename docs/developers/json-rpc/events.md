@@ -18,7 +18,7 @@ messages and index transactions. {synopsis}
 ### Cosmos and Tendermint Events
 
 ::: tip
-Check the [Tendermint Websocket](./../clients#tendermint-websocket) in the Clients documentation for reference.
+Check the [Tendermint Websocket](./../clients.md#tendermint-websocket) in the Clients documentation for reference.
 :::
 
 It is possible to subscribe to `Events` via Tendermint's [Websocket](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html).
@@ -35,7 +35,7 @@ This is done by calling the `subscribe` RPC method via Websocket:
 }
 ```
 
-These events are triggered after a block is committed. You can get the full list of `event` categories and values [here](./../clients#list-of-tendermint-events).
+These events are triggered after a block is committed. You can get the full list of `event` categories and values [here](./../clients.md#list-of-tendermint-events).
 
 The `type` and `attribute` value of the `query` allow you to filter the specific `event` you are
 looking for. For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
@@ -56,7 +56,7 @@ where `hexAddress` is an Ethereum hex address (eg: `0x11223344556677889900112233
 
 ### Ethereum Events
 
-Evmos also supports the Ethereum [JSON-RPC](./server) filters calls to
+Evmos also supports the Ethereum [JSON-RPC](./server.md) filters calls to
 subscribe to [state logs](https://eth.wiki/json-rpc/API#eth_newfilter),
 [blocks](https://eth.wiki/json-rpc/API#eth_newblockfilter) or [pending transactions](https://eth.wiki/json-rpc/API#eth_newpendingtransactionfilter) changes.
 

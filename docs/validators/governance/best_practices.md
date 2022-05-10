@@ -54,7 +54,7 @@ The next major section outlines and describes some potential elements of draftin
 
 It will be important to balance two things: being detailed and being concise. You'll want to be concise so that people can assess your proposal quickly. You'll want to be detailed so that voters will have a clear, meaningful understanding of what the changes are and how they are likely to be impacted.
 
-There is a [proposal template](./proposals/proposal-template.md) with suggested sections. Each proposal should contain a summary with key details:
+Each proposal should contain a summary with key details:
 
 - who is submitting the proposal
 - the amount of the proposal or parameter(s) being changed;
@@ -118,7 +118,8 @@ Assume that many people will stop reading at this point. However it is important
 
 The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMd](https://hackmd.io/). Markdown
 is a simple and accessible format for writing plain text files that is easy to
-learn. See the [Github Markdown Guide](https://guides.github.com/features/mastering-markdown/) for details on
+<!-- markdown-link-check-disable-next-line -->
+learn. See the [Github Markdown Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for details on
 writing markdown files.
 
 ### Engage the community with your draft proposal
