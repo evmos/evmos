@@ -9,12 +9,6 @@ import (
 	"github.com/tharsis/evmos/v4/x/fees/types"
 )
 
-var (
-	contract = tests.GenerateAddress()
-	deployer = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	withdraw = sdk.AccAddress(tests.GenerateAddress().Bytes())
-)
-
 func (suite *KeeperTestSuite) TestGetAllFees() {
 	var expRes []types.DevFeeInfo
 

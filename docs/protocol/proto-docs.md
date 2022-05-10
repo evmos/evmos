@@ -763,10 +763,6 @@ for the owner of a given smart contract
 | `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
 
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->

@@ -129,15 +129,28 @@ func (k Keeper) DevFeeInfosPerDeployer(
 		)
 	}
 
-	contractAddresses := k.GetFeesInverse(ctx, deployer)
 	var feeInfos []types.DevFeeInfo
+	store := prefix.NewStore(
+		ctx.KVStore(k.storeKey),
+		types.GetKeyPrefixInverseDeployer(deployer),
+	)
 
-	for _, contractAddress := range contractAddresses {
-		feeInfo, found := k.GetFeeInfo(ctx, contractAddress)
-		if found {
-			feeInfos = append(feeInfos, feeInfo)
-		}
+	pageRes, err := query.Paginate(
+		store,
+		req.Pagination,
+		func(key, value []byte) error {
+			feeInfo, found := k.GetFeeInfo(ctx, common.BytesToAddress(key))
+			if found {
+				feeInfos = append(feeInfos, feeInfo)
+			}
+			return nil
+		},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-
-	return &types.QueryDevFeeInfosPerDeployerResponse{Fees: feeInfos}, nil
+	return &types.QueryDevFeeInfosPerDeployerResponse{
+		Fees:       feeInfos,
+		Pagination: pageRes,
+	}, nil
 }
