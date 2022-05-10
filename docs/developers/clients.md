@@ -36,10 +36,10 @@ See the list of supported gRPC-Gateway API endpoints for the Evmos testnet [here
 
 <!-- TODO: Link JSON-RPC docs -->
 
-Evmos supports most of the standard [JSON-RPC APIs](./json-rpc/server) to connect with existing Ethereum-compatible web3 tooling.
+Evmos supports most of the standard [JSON-RPC APIs](./json-rpc/server.md) to connect with existing Ethereum-compatible web3 tooling.
 
 ::: tip
-Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints) and [namespaces](./../api/json-rpc/namespaces).
+Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints.md) and [namespaces](./json-rpc/namespaces.md).
 :::
 
 ## Ethereum Websocket
@@ -85,7 +85,8 @@ The main events you can subscribe to are:
 - `ValidatorSetUpdates`: Contains validator set updates for the block.
 
 ::: tip
-👉 The list of events types and values for each Cosmos SDK module can be found in the [Modules Specification](./modules) section.
+<!-- markdown-link-check-disable-next-line -->
+👉 The list of events types and values for each Cosmos SDK module can be found in the [Modules Specification](./../modules/README.md) section.
 Check the `Events` page to obtain the event list of each supported module on Evmos.
 :::
 
@@ -163,7 +164,7 @@ though the CLI.
 
 ::: tip
 👉 To use the CLI, you will need to provide a Tendermint RPC address for the `--node` flag.
-Look for a publicly available addresses for testnet and mainnet in the [Quick Connect](./connect) page.
+Look for a publicly available addresses for testnet and mainnet in the [Quick Connect](./connect.md) page.
 :::
 
 - **Transactions**: `{{ $themeConfig.project.binary }} tx`

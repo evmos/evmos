@@ -6,7 +6,7 @@ order: 1
 
 ## Pre-requisite Readings
 
-- [Install Binary](./../../quickstart/installation)  {prereq}
+- [Install Binary](./../../validators/quickstart/installation.md)  {prereq}
 
 ## Automated Localnet (script)
 
@@ -55,16 +55,16 @@ evmosd init $MONIKER --chain-id=$CHAINID
 ```
 
 ::: tip
-You can [edit](./../../quickstart/binary.md#configuring-the-node) this `moniker` later by updating the `config.toml` file.
+You can [edit](./../../validators/quickstart/binary.md#configuring-the-node) this `moniker` later by updating the `config.toml` file.
 :::
 
-The command above creates all the configuration files needed for your node and validator to run, as well as a default genesis file, which defines the initial state of the network. All these [configuration files](./../../quickstart/binary.md#configuring-the-node) are in `~/.evmosd` by default, but you can overwrite the location of this folder by passing the `--home` flag.
+The command above creates all the configuration files needed for your node and validator to run, as well as a default genesis file, which defines the initial state of the network. All these [configuration files](./../../validators/quickstart/binary.md#configuring-the-node) are in `~/.evmosd` by default, but you can overwrite the location of this folder by passing the `--home` flag.
 
 ### Genesis Procedure
 
 ### Adding Genesis Accounts
 
-Before starting the chain, you need to populate the state with at least one account using the [keyring](./../keys-wallets/keyring.md#add-keys):
+Before starting the chain, you need to populate the state with at least one account using the [keyring](./../../users/keys/keyring.md#add-keys):
 
 ```bash
 evmosd keys add my_validator
