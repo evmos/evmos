@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v3.0.2] - 2022-05-10
+
+### Bug Fixes
+
+- (app) [\#590](https://github.com/tharsis/evmos/pull/590) Update v4 `UpgradeInfo` to [`v4.0.1`](https://github.com/tharsis/evmos/releases/tag/v4.0.1) 
+
 ## [v3.0.1] - 2022-05-09
 
 ### Improvements
