@@ -50,7 +50,6 @@ $ npm -v
 To create a new project, navigate to your project directory and run:
 
 ```bash
-
 $ npx hardhat
 
 888    888                      888 888               888
