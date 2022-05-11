@@ -162,8 +162,8 @@ Where metadata.json contains (example):
 		}
 	],
 	"base": "ibc/<HASH>",
-	"display": "ibcOSMOS",
-	"name": "IBC Osmo",
+	"display": "ibcOSMO",
+	"name": "Osmo channel-0",
 	"symbol": "ibcOSMO"
 }`, version.AppName,
 		),
