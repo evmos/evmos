@@ -811,6 +811,7 @@ Params defines the fees module params
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
 | `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | parameter to configure the cost of address derivation |
+| `min_gas_price` | [string](#string) |  | parameter to configure the minimum gas price value for transactions |
 
  <!-- end messages -->
 
