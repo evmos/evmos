@@ -38,6 +38,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Unreleased
 
 (erc20) [\#588](https://github.com/tharsis/evmos/pull/588) Revert PR [\#556](https://github.com/tharsis/evmos/pull/556).
+(erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Completeness audit
 
 ## [v4.0.0] - 2022-05-09
 
@@ -72,7 +73,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (app) [\#555](https://github.com/tharsis/evmos/pull/555) `v4.0.0` upgrade logic.
 - (p2p) [\#541](https://github.com/tharsis/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
-- (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4) 
+- (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
 
 ## [v3.0.0] - 2022-04-22
 
