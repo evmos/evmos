@@ -157,6 +157,7 @@ Where metadata.json contains (example):
 			"aliases": ["atto evmos"]
 		},
 		{
+<<<<<<< HEAD
 			"denom": "evmos",
 			"exponent": 18
 		}
@@ -165,6 +166,16 @@ Where metadata.json contains (example):
 	"display: "evmos",
 	"name": "Evmos",
 	"symbol": "EVMOS"
+=======
+				"denom": "ibcOSMO-0",
+				"exponent": 6
+		}
+	],
+	"base": "ibc/<HASH>",
+	"display": "ibcOSMO-0",
+	"name": "Osmo channel-0",
+	"symbol": "ibcOSMO-0"
+>>>>>>> 7a5c766 (impr(erc20): fix cli register ibc coin template (#598))
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
