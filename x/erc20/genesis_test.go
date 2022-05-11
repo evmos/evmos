@@ -100,7 +100,7 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		})
 		params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 
-		tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+		tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 		suite.Require().Equal(tc.genesisState.Params, params)
 		if len(tokenPairs) > 0 {
 			suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs)
@@ -145,7 +145,7 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 			params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 			suite.Require().Equal(genesisExported.Params, params)
 
-			tokenPairs := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+			tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 			if len(tokenPairs) > 0 {
 				suite.Require().Equal(genesisExported.TokenPairs, tokenPairs)
 			} else {
