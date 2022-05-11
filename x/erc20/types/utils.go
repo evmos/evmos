@@ -2,19 +2,46 @@ package types
 
 import (
 	"fmt"
-	"strings"
+	"log"
+	"regexp"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-// SanitizeERC20Name enforces snake_case and removes all "coin" and "token"
-// strings from the ERC20 name.
+const (
+	// (?m)^(\d+) remove leading numbers
+	reLeadingNumbers = `(?m)^(\d+)`
+	// ^[^A-Za-z] forces first chars to be letters
+	// [^a-zA-Z0-9/-] deletes special characters
+	reDnmString = `^[^A-Za-z]|[^a-zA-Z0-9/-]`
+)
+
+func removeLeadingNumbers(str string) string {
+	re, err := regexp.Compile(reLeadingNumbers)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return re.ReplaceAllString(str, "")
+}
+
+func removeSpecialChars(str string) string {
+	re, err := regexp.Compile(reDnmString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return re.ReplaceAllString(str, "")
+}
+
+// SanitizeERC20Name enforces 128 max string length, deletes leading numbers
+// removes special characters  (except /)  and spaces from the ERC20 name
 func SanitizeERC20Name(name string) string {
-	name = strings.ToLower(name)
-	name = strings.ReplaceAll(name, " token", "")
-	name = strings.ReplaceAll(name, " coin", "")
-	name = strings.TrimSpace(name)
-	name = strings.ReplaceAll(name, " ", "_")
+
+	name = removeLeadingNumbers(name)
+	name = removeSpecialChars(name)
+	if len(name) > 128 {
+		name = name[:127]
+	}
+
 	return name
 }
 

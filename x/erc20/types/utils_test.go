@@ -1,8 +1,10 @@
 package types
 
 import (
+	"strings"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 )
@@ -13,17 +15,26 @@ func TestSanitizeERC20Name(t *testing.T) {
 		erc20Name    string
 		expErc20Name string
 	}{
-		{"name contains ' Token'", "Lucky Token", "lucky"},
-		{"name contains ' Coin'", "Otter Coin", "otter"},
-		{"name contains ' Token' and ' Coin'", "Lucky Token Coin", "lucky"},
-		{"multiple words", "Hextris Early Access Demo", "hextris_early_access_demo"},
-		{"single word name: Token", "Token", "token"},
-		{"single word name: Coin", "Coin", "coin"},
+		{"name contains 'Special Characters'", "*Special _ []{}||*¼^%  &Token", "SpecialToken"},
+		{"name contains 'Spaces'", "   Spaces   Token", "SpacesToken"},
+		{"name contains 'Leading Numbers'", "12313213  Number     Coin", "NumberCoin"},
+		{"name contains 'Numbers in the middle'", "  Other    Erc20 Coin ", "OtherErc20Coin"},
+		{"name contains '/'", "USD/Coin", "USD/Coin"},
+		{"name contains '/'", "/SlashCoin", "SlashCoin"},
+		{"name contains '/'", "O/letter", "O/letter"},
+		{"name contains '/'", "Ot/2letters", "Ot/2letters"},
+		{"name contains '/'", "123/leadingslash", "leadingslash"},
+		{"name contains '-'", "Dash-Coin", "Dash-Coin"},
+		{"really long word", strings.Repeat("a", 150), strings.Repeat("a", 127)},
+		{"single word name: Token", "Token", "Token"},
+		{"single word name: Coin", "Coin", "Coin"},
 	}
 
 	for _, tc := range testCases {
 		name := SanitizeERC20Name(tc.erc20Name)
 		require.Equal(t, tc.expErc20Name, name, tc.name)
+		err := sdk.ValidateDenom(name)
+		require.NoError(t, err)
 	}
 }
 
