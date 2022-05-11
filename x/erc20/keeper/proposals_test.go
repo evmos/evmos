@@ -32,30 +32,28 @@ const (
 	cosmosDecimals     = uint8(6)
 	defaultExponent    = uint32(18)
 	zeroExponent       = uint32(0)
+	ibcBase            = "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2"
 )
 
 func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Address {
-	suite.SetupTest()
-
-	var contractAddr common.Address
+	var contract common.Address
 	// Deploy contract
 	switch contractType {
 	case contractDirectBalanceManipulation:
-		contractAddr = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
+		contract = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
 	case contractMaliciousDelayed:
-		contractAddr = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
+		contract = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
 	default:
-		contractAddr, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+		contract, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 	}
 	suite.Commit()
 
-	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contract)
 	suite.Require().NoError(err)
-	return contractAddr
+	return contract
 }
 
 func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
-	suite.SetupTest()
 	validMetadata := banktypes.Metadata{
 		Description: "description of the token",
 		Base:        cosmosTokenBase,
@@ -73,6 +71,34 @@ func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.To
 		Name:    cosmosTokenBase,
 		Symbol:  erc20Symbol,
 		Display: cosmosTokenBase,
+	}
+
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+	suite.Require().NoError(err)
+
+	// pair := types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
+	pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, validMetadata)
+	suite.Require().NoError(err)
+	suite.Commit()
+	return validMetadata, pair
+}
+
+func (suite *KeeperTestSuite) setupRegisterIBCVoucher() (banktypes.Metadata, *types.TokenPair) {
+	suite.SetupTest()
+
+	validMetadata := banktypes.Metadata{
+		Description: "ATOM IBC voucher (channel 14)",
+		Base:        ibcBase,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    ibcBase,
+				Exponent: 0,
+			},
+		},
+		Name:    "ATOM channel-14",
+		Symbol:  "ibcATOM-14",
+		Display: ibcBase,
 	}
 
 	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
@@ -356,6 +382,10 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestRegisterIBCVoucher() {
+	suite.setupRegisterIBCVoucher()
 }
 
 func (suite KeeperTestSuite) TestToggleConverision() {

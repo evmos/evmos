@@ -31,7 +31,7 @@ type TokenPair struct {
 }
 ```
 
-### **Token pair ID**
+### Token pair ID
 
 The unique identifier of a `TokenPair` is obtained by obtaining the SHA256 hash of the ERC20 hex contract address and the Coin denomination using the following function:
 

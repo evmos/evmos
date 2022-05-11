@@ -17,6 +17,7 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v4/cmd/config"
+	"github.com/tharsis/evmos/v4/types"
 )
 
 func init() {
@@ -80,7 +81,7 @@ func Setup(
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         MainnetChainID + "-1",
+				ChainId:         types.MainnetChainID + "-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,

@@ -14,7 +14,7 @@ Set up Tendermint KMS with the Tendermint Ledger app {synopsis}
 ## Checklist
 
 ::: warning
-🚧  The following instructions are a brief walkthrough and not a comprehensive guideline. You should consider and research more about the [security implications](../validators/security.md) of activating an external KMS.
+🚧  The following instructions are a brief walkthrough and not a comprehensive guideline. You should consider and research more about the [security implications](./security.md) of activating an external KMS.
 :::
 
 - ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
