@@ -10,7 +10,7 @@ import (
 	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
-func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
+func (suite *KeeperTestSuite) TestGetTokenPairs() {
 	var expRes []types.TokenPair
 
 	testCases := []struct {
@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-			res := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+			res := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 
 			suite.Require().ElementsMatch(expRes, res, tc.name)
 		})
