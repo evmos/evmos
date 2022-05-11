@@ -38,6 +38,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Unreleased
 
 (erc20) [\#588](https://github.com/tharsis/evmos/pull/588) Revert PR [\#556](https://github.com/tharsis/evmos/pull/556).
+(app) [\#596](https://github.com/tharsis/evmos/pull/596) fix invalid json-rpc parameter in ignite yml
 
 ## [v4.0.0] - 2022-05-09
 
