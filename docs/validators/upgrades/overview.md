@@ -52,7 +52,7 @@ Unplanned upgrades are upgrades where all the validators need to gracefully halt
 If there are breaking changes during an unplanned upgrade (see below), validators will need to migrate the state and genesis before restarting their nodes.
 
 ::: tip
-The main consideration with unplanned upgrades is that the genesis state needs to be exported and the blockchain data needs to be [reset](data-reset-upgrades). This mainly affects infrastructure providers, tools and clients like block explorers and clients, which have to use archival nodes to serve queries for the pre-upgrade heights.
+The main consideration with unplanned upgrades is that the genesis state needs to be exported and the blockchain data needs to be [reset](#data-reset-upgrades). This mainly affects infrastructure providers, tools and clients like block explorers and clients, which have to use archival nodes to serve queries for the pre-upgrade heights.
 :::
 
 ### Breaking and Non-Breaking Upgrades
