@@ -17,4 +17,5 @@ var (
 	ErrABIUnpack              = sdkerrors.Register(ModuleName, 10, "contract ABI unpack failed")
 	ErrEVMDenom               = sdkerrors.Register(ModuleName, 11, "EVM denomination registration")
 	ErrEVMCall                = sdkerrors.Register(ModuleName, 12, "EVM call unexpected error")
+	ErrERC20TokenPairDisabled = sdkerrors.Register(ModuleName, 13, "erc20 token pair is disabled")
 )
