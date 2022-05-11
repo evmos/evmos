@@ -1,7 +1,6 @@
 package v2
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -48,7 +47,5 @@ func MigrateJSON(oldState types.GenesisState) types.GenesisState {
 
 // durationToBz parses time duration to maintain number-compatible ordering
 func DurationToBz(duration time.Duration) []byte {
-	// 13 digits left padded with zero, allows for 300 year durations
-	s := fmt.Sprintf("%013d", duration.Milliseconds())
-	return []byte(s)
+	return sdk.Uint64ToBigEndian(uint64(duration.Milliseconds()))
 }

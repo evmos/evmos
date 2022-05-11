@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -116,7 +115,5 @@ func (k Keeper) AllEpochInfos(ctx sdk.Context) []types.EpochInfo {
 
 // durationToBz parses time duration to maintain number-compatible ordering
 func durationToBz(duration time.Duration) []byte {
-	// 13 digits left padded with zero, allows for 300 year durations
-	s := fmt.Sprintf("%013d", duration.Milliseconds())
-	return []byte(s)
+	return sdk.Uint64ToBigEndian(uint64(duration.Milliseconds()))
 }
