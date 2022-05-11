@@ -17,11 +17,10 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	params := k.GetParams(ctx)
 	skippedEpochs := k.GetSkippedEpochs(ctx)
 
-	// check if the epochIdentifier is "day" before incrementing.
-	if epochIdentifier == epochstypes.DayEpochID {
-
-		// Skip inflation if it is disabled and increment number of skipped epochs
-		if !params.EnableInflation {
+	// Skip inflation if it is disabled and increment number of skipped epochs
+	if !params.EnableInflation {
+		// check if the epochIdentifier is "day" before incrementing.
+		if epochIdentifier == epochstypes.DayEpochID {
 			skippedEpochs++
 
 			k.SetSkippedEpochs(ctx, skippedEpochs)
