@@ -42,7 +42,7 @@ period. This makes them ideal for coordinating security vulnerabilities and patc
 The upgrade (fork) block height is set in the `BeginBlock` of the application (i.e before the transactions are processed for the block). Once the blockchain reaches that height, it automatically schedules an upgrade `Plan` for the same height and then triggers the upgrade process. After upgrading, the block operations (`BeginBlock`, transaction processing and state `Commit`) continue normally.
 
 ::: tip
-In order to execute an upgrade hard fork, a [patch version](#patch-versions) needs to first be released with the `BeginBlock` upgrade scheduling logic. After a +2/3 of the validators upgrade to the new patch version, their nodes will automatically halt and upgrade the binary. 
+In order to execute an upgrade hard fork, a [patch version](#patch-versions) needs to first be released with the `BeginBlock` upgrade scheduling logic. After a +2/3 of the validators upgrade to the new patch version, their nodes will automatically halt and upgrade the binary.
 :::
 
 ### Unplanned Upgrades
