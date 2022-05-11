@@ -95,6 +95,15 @@ func (suite *KeeperTestSuite) TestDevFeeInfos() {
 	}
 }
 
+// Cases that cannot be tested in TestDevFeeInfos
+func (suite *KeeperTestSuite) TestDevFeeInfosKeeper() {
+	suite.SetupTest()
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	res, err := suite.app.FeesKeeper.DevFeeInfos(ctx, nil)
+	suite.Require().Error(err)
+	suite.Require().Nil(res)
+}
+
 func (suite *KeeperTestSuite) TestDevFeeInfo() {
 	var (
 		req    *types.QueryDevFeeInfoRequest
@@ -167,6 +176,15 @@ func (suite *KeeperTestSuite) TestDevFeeInfo() {
 			}
 		})
 	}
+}
+
+// Cases that cannot be tested in TestDevFeeInfo
+func (suite *KeeperTestSuite) TestDevFeeInfoKeeper() {
+	suite.SetupTest()
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	res, err := suite.app.FeesKeeper.DevFeeInfo(ctx, nil)
+	suite.Require().Error(err)
+	suite.Require().Nil(res)
 }
 
 func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
@@ -268,6 +286,15 @@ func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
 			}
 		})
 	}
+}
+
+// Cases that cannot be tested in TestDevFeeInfosPerDeployer
+func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployerKeeper() {
+	suite.SetupTest()
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	res, err := suite.app.FeesKeeper.DevFeeInfosPerDeployer(ctx, nil)
+	suite.Require().Error(err)
+	suite.Require().Nil(res)
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {

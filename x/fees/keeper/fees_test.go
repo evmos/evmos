@@ -66,6 +66,65 @@ func (suite *KeeperTestSuite) TestGetAllFees() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestIterateFees() {
+	var expRes []types.DevFeeInfo
+
+	testCases := []struct {
+		name     string
+		malleate func()
+	}{
+		{
+			"no fees registered",
+			func() { expRes = []types.DevFeeInfo{} },
+		},
+		{
+			"one fee registered with withdraw address",
+			func() {
+				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
+				expRes = []types.DevFeeInfo{
+					types.NewDevFeeInfo(contract, deployer, withdraw),
+				}
+			},
+		},
+		{
+			"one fee registered with no withdraw address",
+			func() {
+				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, nil)
+				expRes = []types.DevFeeInfo{
+					types.NewDevFeeInfo(contract, deployer, nil),
+				}
+			},
+		},
+		{
+			"multiple fees registered",
+			func() {
+				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+				contract2 := tests.GenerateAddress()
+				contract3 := tests.GenerateAddress()
+				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
+				suite.app.FeesKeeper.SetFee(suite.ctx, contract2, deployer, nil)
+				suite.app.FeesKeeper.SetFee(suite.ctx, contract3, deployer2, nil)
+				expRes = []types.DevFeeInfo{
+					types.NewDevFeeInfo(contract, deployer, withdraw),
+					types.NewDevFeeInfo(contract2, deployer, nil),
+					types.NewDevFeeInfo(contract3, deployer2, nil),
+				}
+			},
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+			tc.malleate()
+
+			suite.app.FeesKeeper.IterateFees(suite.ctx, func(fee types.DevFeeInfo) (stop bool) {
+				suite.Require().Contains(expRes, fee, tc.name)
+				return false
+			})
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestGetFeeInfo() {
 	testCases := []struct {
 		name        string

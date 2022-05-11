@@ -56,7 +56,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
 			true,
 		},
 		{
