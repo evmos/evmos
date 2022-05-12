@@ -68,3 +68,17 @@ A valid token pair can be modified through several governance proposals. The int
 Once a token pair proposal passes, the module allows for the conversion of that token pair. Holders of native Cosmos coins and IBC vouchers on the Evmos chain can convert their Coin into ERC20 Tokens, which can then be used in Evmos EVM, by creating a `ConvertCoin` Tx. Vice versa, the `ConvertERC20` Tx allows holders of ERC20 tokens on the Evmos chain to convert ERC-20 tokens back to their native Cosmos Coin representation.
 
 Depending on the ownership of the ERC20 contract, the ERC20 tokens either follow a burn/mint or a transfer/escrow mechanism during conversion.
+
+## Malicious Contracts
+
+The ERC20 standard is an interface that defines a set of method signatures (name, arguments and output) without defining its methods' internal logic. Therefore it is possible for developers to deploy contracts that contain hidden malicious behaviour within those methods. For instance, the ERC20 `transfer` method, which is responsible for sending an `amount` of tokens to a given `recipient` could include code to siphon some amount of tokens intended for the recipient into a different predefined account, which is owned by the malicious contract deployer.
+
+More sophisticated malicious implementations might also inherit code from customized ERC20 contracts that include malicous behaviour. For an overview of more extensive examples, plese review the x/erc20 audit, section `IF-EVMOS-06: IERC20 Contracts may execute arbitrary code`.
+
+As the `x/erc20` module allows any arbitrary ERC20 contract to be registered through governance, it is essential that the proposer or the voters manually verify during voting phase that the proposed contract uses the default ERC20.sol implementation.
+
+Here are our recommendations for the reviewing process:
+
+- contract solidity code should be verified and accessable (e.g. using an explorer)
+- contract should be audited by a reputabele auditor
+- inherited contracts need to be verified for correctness
