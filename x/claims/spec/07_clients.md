@@ -22,20 +22,20 @@ Allows users to query total amount of unclaimed tokens from the airdrop.
 evmosd query claims total-unclaimed [flags]
 ```
 
-**`claims-records`**
+**`records`**
 
 Allows users to query all the claims records available.
 
 ```bash
-evmosd query claims claims-records [flags]
+evmosd query claims records [flags]
 ```
 
-**`claims-record`**
+**`record`**
 
 Allows users to query a claims record for a given user.
 
 ```bash
-evmosd query claims claims-record [address] [flags]
+evmosd query claims record [address] [flags]
 ```
 
 **`params`**

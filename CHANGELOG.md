@@ -39,7 +39,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-(claims) [\#605](https://github.com/tharsis/evmos/pull/592) Remove duplicated `SetClaimsRecord`.
+(claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
+
+### API Breaking
+
+(claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
 (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Finish module completeness audit.
 
 ## [v4.0.1] - 2022-05-10
