@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -17,31 +16,23 @@ const (
 )
 
 func removeLeadingNumbers(str string) string {
-	re, err := regexp.Compile(reLeadingNumbers)
-	if err != nil {
-		log.Fatal(err)
-	}
+	re := regexp.MustCompile(reLeadingNumbers)
 	return re.ReplaceAllString(str, "")
 }
 
 func removeSpecialChars(str string) string {
-	re, err := regexp.Compile(reDnmString)
-	if err != nil {
-		log.Fatal(err)
-	}
+	re := regexp.MustCompile(reDnmString)
 	return re.ReplaceAllString(str, "")
 }
 
 // SanitizeERC20Name enforces 128 max string length, deletes leading numbers
 // removes special characters  (except /)  and spaces from the ERC20 name
 func SanitizeERC20Name(name string) string {
-
 	name = removeLeadingNumbers(name)
 	name = removeSpecialChars(name)
 	if len(name) > 128 {
 		name = name[:127]
 	}
-
 	return name
 }
 
