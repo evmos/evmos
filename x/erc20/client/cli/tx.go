@@ -149,33 +149,22 @@ The proposal details must be supplied via a JSON file.`,
 Where metadata.json contains (example):
 
 {
-  "description": "staking, gas and governance token of the Evmos testnets"
-  "denom_units": [
+	"description": "The native staking and governance token of the Osmosis chain",
+	"denom_units": [
 		{
-			"denom": "aevmos",
+			"denom": "ibc/<HASH>",
 			"exponent": 0,
-			"aliases": ["atto evmos"]
+			"aliases": ["ibcuosmo"]
 		},
 		{
-<<<<<<< HEAD
-			"denom": "evmos",
-			"exponent": 18
-		}
-	],
-	"base": "aevmos",
-	"display: "evmos",
-	"name": "Evmos",
-	"symbol": "EVMOS"
-=======
-				"denom": "ibcOSMO-0",
-				"exponent": 6
+			"denom": "ibcOSMO-0",
+			"exponent": 6
 		}
 	],
 	"base": "ibc/<HASH>",
 	"display": "ibcOSMO-0",
 	"name": "Osmo channel-0",
 	"symbol": "ibcOSMO-0"
->>>>>>> 7a5c766 (impr(erc20): fix cli register ibc coin template (#598))
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
