@@ -184,7 +184,8 @@ func (k Keeper) OnRecvPacket(
 			break
 		}
 
-		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
+		// delete the claims record from sender
+		// NOTE: claim record is migrated to the recipient in CLaimCoinsForAction
 		k.DeleteClaimsRecord(ctx, sender)
 
 		logger.Debug(
