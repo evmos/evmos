@@ -110,6 +110,14 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 			[]uint64{},
 			false,
 		},
+		{
+			"invalid nonces - array length must be less than 20",
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
+			[]uint64{1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			false,
+		},
 	}
 
 	for i, tc := range testCases {
