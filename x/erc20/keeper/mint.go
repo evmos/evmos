@@ -41,7 +41,7 @@ func (k Keeper) MintingEnabled(
 
 	if !pair.Enabled {
 		return types.TokenPair{}, sdkerrors.Wrapf(
-			types.ErrERC20Disabled, "minting token '%s' is not enabled by governance", token,
+			types.ErrERC20TokenPairDisabled, "minting token '%s' is not enabled by governance", token,
 		)
 	}
 

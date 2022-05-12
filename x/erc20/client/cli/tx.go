@@ -149,22 +149,22 @@ The proposal details must be supplied via a JSON file.`,
 Where metadata.json contains (example):
 
 {
-  "description": "staking, gas and governance token of the Evmos testnets"
-  "denom_units": [
+	"description": "The native staking and governance token of the Osmosis chain",
+	"denom_units": [
 		{
-			"denom": "aevmos",
+			"denom": "ibc/<HASH>",
 			"exponent": 0,
-			"aliases": ["atto evmos"]
+			"aliases": ["ibcuosmo"]
 		},
 		{
-			"denom": "evmos",
-			"exponent": 18
+			"denom": "ibcOSMO-0",
+			"exponent": 6
 		}
 	],
-	"base": "aevmos",
-	"display: "evmos",
-	"name": "Evmos",
-	"symbol": "EVMOS"
+	"base": "ibc/<HASH>",
+	"display": "ibcOSMO-0",
+	"name": "Osmo channel-0",
+	"symbol": "ibcOSMO-0"
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
