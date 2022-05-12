@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
@@ -25,14 +26,26 @@ func removeSpecialChars(str string) string {
 	return re.ReplaceAllString(str, "")
 }
 
+// recursively remove every invalid prefix
+func removeInvalidPrefixes(str string) string {
+	if strings.HasPrefix(str, "ibc/") {
+		return removeInvalidPrefixes(str[4:])
+	}
+	if strings.HasPrefix(str, "erc20/") {
+		return removeInvalidPrefixes(str[6:])
+	}
+	return str
+}
+
 // SanitizeERC20Name enforces 128 max string length, deletes leading numbers
 // removes special characters  (except /)  and spaces from the ERC20 name
 func SanitizeERC20Name(name string) string {
 	name = removeLeadingNumbers(name)
 	name = removeSpecialChars(name)
 	if len(name) > 128 {
-		name = name[:127]
+		name = name[:128]
 	}
+	name = removeInvalidPrefixes(name)
 	return name
 }
 
