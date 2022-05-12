@@ -79,7 +79,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 			false,
 		},
 		{
-			"address must not be empty",
+			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
 			suite.deployerStr,
@@ -171,7 +171,7 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 			false,
 		},
 		{
-			"address must not be empty",
+			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
 			false,
@@ -238,7 +238,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
 			false,
 		},
 		{
-			"address must not be empty",
+			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
 			withdrawStr,

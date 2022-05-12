@@ -464,7 +464,7 @@ func NewEvmos(
 
 	app.FeesKeeper = feeskeeper.NewKeeper(
 		keys[feestypes.StoreKey], appCodec, app.GetSubspace(feestypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+		app.BankKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
 	)
 

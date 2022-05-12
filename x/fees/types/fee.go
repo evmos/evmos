@@ -2,7 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 )
@@ -22,15 +21,8 @@ func NewDevFeeInfo(
 
 // Validate performs a stateless validation of a DevFeeInfo
 func (i DevFeeInfo) Validate() error {
-	if err := ethermint.ValidateAddress(i.ContractAddress); err != nil {
+	if err := ethermint.ValidateNonZeroAddress(i.ContractAddress); err != nil {
 		return err
-	}
-
-	if ethermint.IsZeroAddress(i.ContractAddress) {
-		return sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
-			i.ContractAddress,
-		)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(i.DeployerAddress); err != nil {

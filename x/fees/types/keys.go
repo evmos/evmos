@@ -1,5 +1,7 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 // constants
 const (
 	// module name
@@ -25,3 +27,9 @@ var (
 	KeyPrefixFeeWithdrawal = []byte{prefixFeeWithdrawal}
 	KeyPrefixInverse       = []byte{prefixFeeInverse}
 )
+
+// GetKeyPrefixInverseDeployer returns the KVStore key prefix for storing
+// registered fee infos for a deployer
+func GetKeyPrefixInverseDeployer(deployerAddress sdk.AccAddress) []byte {
+	return append(KeyPrefixInverse, deployerAddress.Bytes()...)
+}
