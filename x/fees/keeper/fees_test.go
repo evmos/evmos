@@ -147,7 +147,7 @@ func (suite *KeeperTestSuite) TestGetFeeInfo() {
 			false,
 		},
 		{
-			"fee with widthdraw address same as deployer",
+			"fee with withdraw address same as deployer",
 			contract,
 			deployer,
 			deployer,
@@ -158,7 +158,7 @@ func (suite *KeeperTestSuite) TestGetFeeInfo() {
 			false,
 		},
 		{
-			"fee with widthdraw address same as contract",
+			"fee with withdraw address same as contract",
 			contract,
 			deployer,
 			sdk.AccAddress(contract.Bytes()),
@@ -169,7 +169,7 @@ func (suite *KeeperTestSuite) TestGetFeeInfo() {
 			true,
 		},
 		{
-			"fee with widthdraw address different than deployer",
+			"fee with withdraw address different than deployer",
 			contract,
 			deployer,
 			withdraw,
