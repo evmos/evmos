@@ -106,38 +106,37 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/evmos/v3/client/docs/statik"
+	_ "github.com/tharsis/evmos/v4/client/docs/statik"
 
-	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v2"
-	v3 "github.com/tharsis/evmos/v3/app/upgrades/mainnet/v3"
-	tv3 "github.com/tharsis/evmos/v3/app/upgrades/testnet/v3"
-	"github.com/tharsis/evmos/v3/x/claims"
-	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/v3/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
-	"github.com/tharsis/evmos/v3/x/erc20"
-	erc20client "github.com/tharsis/evmos/v3/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
-	"github.com/tharsis/evmos/v3/x/fees"
-	feeskeeper "github.com/tharsis/evmos/v3/x/fees/keeper"
-	feestypes "github.com/tharsis/evmos/v3/x/fees/types"
-	"github.com/tharsis/evmos/v3/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
-	"github.com/tharsis/evmos/v3/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
-	"github.com/tharsis/evmos/v3/x/recovery"
-	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
-	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
-	"github.com/tharsis/evmos/v3/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v4/app/ante"
+	v2 "github.com/tharsis/evmos/v4/app/upgrades/v2"
+	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
+	"github.com/tharsis/evmos/v4/x/claims"
+	claimskeeper "github.com/tharsis/evmos/v4/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/v4/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/erc20"
+	erc20client "github.com/tharsis/evmos/v4/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/v4/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/v4/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/fees"
+	feeskeeper "github.com/tharsis/evmos/v4/x/fees/keeper"
+	feestypes "github.com/tharsis/evmos/v4/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/v4/x/incentives/client"
+	incentiveskeeper "github.com/tharsis/evmos/v4/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/v4/x/incentives/types"
+	"github.com/tharsis/evmos/v4/x/inflation"
+	inflationkeeper "github.com/tharsis/evmos/v4/x/inflation/keeper"
+	inflationtypes "github.com/tharsis/evmos/v4/x/inflation/types"
+	"github.com/tharsis/evmos/v4/x/recovery"
+	recoverykeeper "github.com/tharsis/evmos/v4/x/recovery/keeper"
+	recoverytypes "github.com/tharsis/evmos/v4/x/recovery/types"
+	"github.com/tharsis/evmos/v4/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/v4/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
 func init() {
@@ -152,14 +151,8 @@ func init() {
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
 }
 
-const (
-	// Name defines the application binary name
-	Name = "evmosd"
-	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
-	MainnetChainID = "evmos_9001"
-	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
-	TestnetChainID = "evmos_9000"
-)
+// Name defines the application binary name
+const Name = "evmosd"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -471,7 +464,7 @@ func NewEvmos(
 
 	app.FeesKeeper = feeskeeper.NewKeeper(
 		keys[feestypes.StoreKey], appCodec, app.GetSubspace(feestypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+		app.BankKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
 	)
 
@@ -796,9 +789,12 @@ func NewEvmos(
 // Name returns the name of the App
 func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
-// BeginBlocker updates every begin block
+// BeginBlocker runs the Tendermint ABCI BeginBlock logic. It executes state changes at the beginning
+// of the new block for every registered module. If there is a registered fork at the current height,
+// BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	BeginBlockForks(ctx, app)
+	// Perform any scheduled forks before executing the modules logic
+	app.ScheduleForkUpgrade(ctx)
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -1030,15 +1026,16 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
-	// v3 upgrade handler
+
+	// NOTE: no v3 upgrade handler as it required an unscheduled manual upgrade.
+
+	// v4 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v3.UpgradeName,
-		v3.CreateUpgradeHandler(app.mm, app.configurator),
-	)
-	// testnet upgrade v3 handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		tv3.UpgradeName,
-		tv3.CreateUpgradeHandler(app.mm, app.configurator),
+		v4.UpgradeName,
+		v4.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.IBCKeeper.ClientKeeper,
+		),
 	)
 
 	// When a planned update height is reached, the old binary will panic
@@ -1058,10 +1055,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 	switch upgradeInfo.Name {
 	case v2.UpgradeName:
 		// no store upgrades in v2
-	case v3.UpgradeName:
-		// no store upgrades in v3
-	case tv3.UpgradeName:
-		// no store upgrades in testnet v3
+	case v4.UpgradeName:
+		// no store upgrades in v4
 	}
 
 	if storeUpgrades != nil {

@@ -79,7 +79,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 			false,
 		},
 		{
-			"address must not be empty",
+			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
 			suite.deployerStr,
@@ -108,6 +108,14 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 			suite.deployerStr,
 			suite.deployerStr,
 			[]uint64{},
+			false,
+		},
+		{
+			"invalid nonces - array length must be less than 20",
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
+			[]uint64{1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 			false,
 		},
 	}
@@ -163,7 +171,7 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 			false,
 		},
 		{
-			"address must not be empty",
+			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
 			false,
@@ -230,7 +238,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
 			false,
 		},
 		{
-			"address must not be empty",
+			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
 			withdrawStr,

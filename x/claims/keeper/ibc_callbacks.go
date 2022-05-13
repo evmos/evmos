@@ -7,9 +7,9 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/tharsis/evmos/v3/ibc"
-	evmos "github.com/tharsis/evmos/v3/types"
-	"github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/tharsis/evmos/v4/ibc"
+	evmos "github.com/tharsis/evmos/v4/types"
+	"github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 // OnAcknowledgementPacket performs an IBC send callback. Once a user submits an
@@ -111,7 +111,7 @@ func (k Keeper) OnRecvPacket(
 	sameAddress := sender.Equals(recipient)
 	fromEVMChain := params.IsEVMChannel(packet.DestinationChannel)
 
-	// If the packet is sent from a non-EVM chain, the sender addresss is not an
+	// If the packet is sent from a non-EVM chain, the sender address is not an
 	// ethereum key (i.e. `ethsecp256k1`). Thus, if `sameAddress` is true, the
 	// recipient address must be a non-ethereum key as well, which is not
 	// supported on Evmos. To prevent funds getting stuck, return an error, unless
@@ -184,7 +184,8 @@ func (k Keeper) OnRecvPacket(
 			break
 		}
 
-		k.SetClaimsRecord(ctx, recipient, senderClaimsRecord)
+		// delete the claims record from sender
+		// NOTE: claim record is migrated to the recipient in ClaimCoinsForAction
 		k.DeleteClaimsRecord(ctx, sender)
 
 		logger.Debug(

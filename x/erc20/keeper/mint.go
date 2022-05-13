@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
 // MintingEnabled checks that:
@@ -41,7 +41,7 @@ func (k Keeper) MintingEnabled(
 
 	if !pair.Enabled {
 		return types.TokenPair{}, sdkerrors.Wrapf(
-			types.ErrERC20Disabled, "minting token '%s' is not enabled by governance", token,
+			types.ErrERC20TokenPairDisabled, "minting token '%s' is not enabled by governance", token,
 		)
 	}
 

@@ -12,7 +12,7 @@ import (
 
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/v3/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/fees/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/erc20 transaction commands.
@@ -51,7 +51,7 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if err := ethermint.ValidateAddress(contract); err != nil {
+			if err := ethermint.ValidateNonZeroAddress(contract); err != nil {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
@@ -103,7 +103,7 @@ func NewCancelDevFeeInfo() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if err := ethermint.ValidateAddress(contract); err != nil {
+			if err := ethermint.ValidateNonZeroAddress(contract); err != nil {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
@@ -141,7 +141,7 @@ func NewUpdateDevFeeInfo() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if err := ethermint.ValidateAddress(contract); err != nil {
+			if err := ethermint.ValidateNonZeroAddress(contract); err != nil {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 

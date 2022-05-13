@@ -8,7 +8,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/tharsis/evmos/v3/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/fees/types"
 )
 
 // Keeper of this module maintains collections of fee information for contracts
@@ -18,7 +18,6 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	evmKeeper        types.EVMKeeper
 	feeCollectorName string
@@ -29,7 +28,6 @@ func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
-	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
 	feeCollector string,
@@ -43,7 +41,6 @@ func NewKeeper(
 		storeKey:         storeKey,
 		cdc:              cdc,
 		paramstore:       ps,
-		accountKeeper:    ak,
 		bankKeeper:       bk,
 		evmKeeper:        evmKeeper,
 		feeCollectorName: feeCollector,

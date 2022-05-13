@@ -11,12 +11,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
 var _ types.QueryServer = Keeper{}
 
-// TokenPairs return registered pairs
+// TokenPairs returns all registered pairs
 func (k Keeper) TokenPairs(c context.Context, req *types.QueryTokenPairsRequest) (*types.QueryTokenPairsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
