@@ -36,6 +36,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Unreleased
+
+### Bug Fixes
 - (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
 
 ### State Machine Breaking
