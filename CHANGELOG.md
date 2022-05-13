@@ -36,6 +36,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Unreleased
+- (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
 
 ### State Machine Breaking
 
@@ -58,7 +59,6 @@ rename `relay` to `conversion`
 
 - (erc20) [\#530](https://github.com/tharsis/evmos/pull/530) Fix `Metadata` equal check for denom units.
 - (app) [\#523](https://github.com/tharsis/evmos/pull/523) Fix testnet upgrade store loader.
-- (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
 
 ## [v3.0.0] - 2022-04-22
 
