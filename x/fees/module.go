@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/tharsis/evmos/v3/x/fees/client/cli"
-	"github.com/tharsis/evmos/v3/x/fees/keeper"
-	"github.com/tharsis/evmos/v3/x/fees/types"
+	"github.com/tharsis/evmos/v4/x/fees/client/cli"
+	"github.com/tharsis/evmos/v4/x/fees/keeper"
+	"github.com/tharsis/evmos/v4/x/fees/types"
 )
 
 // type check to ensure the interface is properly implemented
@@ -163,7 +163,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 	var genesisState types.GenesisState
 
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, am.ak, genesisState)
+	InitGenesis(ctx, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 

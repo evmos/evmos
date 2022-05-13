@@ -6,7 +6,7 @@ title: "Overview"
 # Governance Overview
 
 The Evmos has an on-chain governance mechanism for passing
-text proposals, changing [chain parameters](./param_change), and spending [funds from the community pool](./community_pool).
+text proposals, changing [chain parameters](./param_change.md), and spending [funds from the community pool](./community_pool.md).
 
 ## On- and off-chain Governance Structure
 

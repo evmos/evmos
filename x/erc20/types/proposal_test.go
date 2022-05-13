@@ -29,6 +29,52 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 	suite.Require().Equal("ToggleTokenConversion", (&ToggleTokenConversionProposal{}).ProposalType())
 }
 
+func (suite *ProposalTestSuite) TestCreateDenomDescription() {
+	testCases := []struct {
+		name      string
+		denom     string
+		expString string
+	}{
+		{
+			"with valid address",
+			"0xdac17f958d2ee523a2206206994597c13d831ec7",
+			"Cosmos coin token representation of 0xdac17f958d2ee523a2206206994597c13d831ec7",
+		},
+		{
+			"with empty string",
+			"",
+			"Cosmos coin token representation of ",
+		},
+	}
+	for _, tc := range testCases {
+		desc := CreateDenomDescription(tc.denom)
+		suite.Require().Equal(desc, tc.expString)
+	}
+}
+
+func (suite *ProposalTestSuite) TestCreateDenom() {
+	testCases := []struct {
+		name      string
+		denom     string
+		expString string
+	}{
+		{
+			"with valid address",
+			"0xdac17f958d2ee523a2206206994597c13d831ec7",
+			"erc20/0xdac17f958d2ee523a2206206994597c13d831ec7",
+		},
+		{
+			"with empty string",
+			"",
+			"erc20/",
+		},
+	}
+	for _, tc := range testCases {
+		desc := CreateDenom(tc.denom)
+		suite.Require().Equal(desc, tc.expString)
+	}
+}
+
 func (suite *ProposalTestSuite) TestValidateErc20Denom() {
 	testCases := []struct {
 		name    string

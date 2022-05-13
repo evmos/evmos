@@ -7,7 +7,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestMintingEnabled() {
@@ -70,11 +70,25 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 			false,
 		},
 		{
+			"receiver address is blocked (module account)",
+			func() {
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
+
+				acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, types.ModuleName)
+				receiver = acc.GetAddress()
+			},
+			false,
+		},
+		{
 			"ok",
 			func() {
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
 				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
+
+				receiver = sdk.AccAddress(tests.GenerateAddress().Bytes())
 			},
 			true,
 		},

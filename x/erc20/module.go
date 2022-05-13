@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/tharsis/evmos/v3/x/erc20/client/cli"
-	"github.com/tharsis/evmos/v3/x/erc20/keeper"
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v4/x/erc20/client/cli"
+	"github.com/tharsis/evmos/v4/x/erc20/keeper"
+	"github.com/tharsis/evmos/v4/x/erc20/types"
 )
 
 // type check to ensure the interface is properly implemented
@@ -130,6 +130,9 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
 	migrator := keeper.NewMigrator(am.keeper)
+
+	// NOTE: the migrations below will only run if the consensus version has changed
+	// since the last release
 
 	// register v1 -> v2 migration
 	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {

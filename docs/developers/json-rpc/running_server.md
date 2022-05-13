@@ -16,7 +16,7 @@ evmosd start --json-rpc.enable
 
 ## Defining Namespaces
 
-`Eth`,`Net` and `Web3` [namespaces](./namespaces) are enabled by default. In order to enable other namespaces use flag `--json-rpc.api`.
+`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default. In order to enable other namespaces use flag `--json-rpc.api`.
 
 ```bash
 evmosd start --json-rpc.api eth,txpool,personal,net,debug,web3,miner

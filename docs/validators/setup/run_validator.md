@@ -8,8 +8,8 @@ Learn how to run a validator node {synopsis}
 
 ## Pre-requisite Readings
 
-- [Validator Overview](./../overview) {prereq}
-- [Validator Security](./../security/security) {prereq}
+- [Validator Overview](./../overview.md) {prereq}
+- [Validator Security](./../security/security.md) {prereq}
 
 ::: tip
 If you plan to use a Key Management System (KMS), you should go through these steps first: [Using a KMS](./../security/kms.md).

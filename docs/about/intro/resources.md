@@ -49,8 +49,8 @@ Note: most of these articles are outdated as they refer to the previous Ethermin
 ## Previous Ethermint implementations
 
 - [Ethermint ABCI:](https://github.com/cosmos/ethermint_abci) This project was the first and original Tendermint ABCI application with EVM support. Not built with Cosmos SDK.
-- [Ethermint (archive):](https://github.com/tharsis/ethermint-archive) Precursor implementation of the current project, developed by [All in Bits Inc](https://tendermint.com/). It was aiming to implement [Erigon](https://github.com/ledgerwatch/erigon) as the EVM for scalability improvements.
+- [Ethermint (archive):](https://github.com/cosmos/ethermint-archive) Precursor implementation of the current project, developed by [All in Bits Inc](https://tendermint.com/). It was aiming to implement [Erigon](https://github.com/ledgerwatch/erigon) as the EVM for scalability improvements.
 
 ## Next {hide}
 
-Learn how to run an Evmos [node](./../quickstart/run_node.md) {hide}
+Learn how to run an Evmos [node](./../../validators/quickstart/run_node.md) {hide}
