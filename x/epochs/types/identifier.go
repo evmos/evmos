@@ -21,14 +21,16 @@ const (
 	HourEpochDuration = time.Hour
 )
 
-// Human-readable identifiers used by other modules
-// If genesis is changed, these maps need to be updated too
+// IdentifierToDuration maps a human-readable identifier to the appropriate duration
+// If genesis is changed, this map needs to be updated
 var IdentifierToDuration = map[string]time.Duration{
 	WeekEpochID: WeekEpochDuration,
 	DayEpochID:  DayEpochDuration,
 	HourEpochID: HourEpochDuration,
 }
 
+// DurationToIdentifier maps a duration to a human-readable identifier
+// If genesis is changed, this map needs to be updated
 var DurationToIdentifier = map[time.Duration]string{
 	WeekEpochDuration: WeekEpochID,
 	DayEpochDuration:  DayEpochID,
