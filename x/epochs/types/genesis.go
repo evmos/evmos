@@ -42,7 +42,7 @@ func (gs GenesisState) Validate() error {
 
 	for _, epoch := range gs.Epochs {
 		if epochIdentifiers[epoch.Duration.String()] {
-			return fmt.Errorf("duplicated epoch entry %s", epoch.Duration)
+			return fmt.Errorf("duplicated epoch entry %s", DurationToIdentifier[epoch.Duration])
 		}
 		if err := epoch.Validate(); err != nil {
 			return err

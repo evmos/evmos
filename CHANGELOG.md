@@ -46,7 +46,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### API Breaking
 
-- (epochs) [\#553](https://github.com/tharsis/evmos/pull/553) Store epoch information by duration and by identifier.
+- (epochs) [\#553](https://github.com/tharsis/evmos/pull/553) Store epoch information by duration.
 - (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
 - (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Finish module completeness audit.
 

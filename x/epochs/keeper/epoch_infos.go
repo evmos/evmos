@@ -26,7 +26,7 @@ func (k Keeper) GetEpochInfo(ctx sdk.Context, identifier string) (types.EpochInf
 	return epoch, true
 }
 
-// SetEpochInfo set epoch duration by identifier
+// SetEpochInfo set epoch info
 func (k Keeper) SetEpochInfo(ctx sdk.Context, epoch types.EpochInfo) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
 	bz := k.cdc.MustMarshal(&epoch)
@@ -39,7 +39,7 @@ func (k Keeper) DeleteEpochInfo(ctx sdk.Context, duration time.Duration) {
 	store.Delete(types.DurationToBz(duration))
 }
 
-// IterateEpochInfo iterate through epochs in ascending numerical order, by duration
+// IterateEpochInfo iterate through epochs in ascending order by duration
 func (k Keeper) IterateEpochInfo(ctx sdk.Context, fn func(index int64, epochInfo types.EpochInfo) (stop bool)) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
 
