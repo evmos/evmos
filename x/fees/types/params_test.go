@@ -4,8 +4,19 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 )
+
+func TestParamKeyTable(t *testing.T) {
+	require.IsType(t, paramtypes.KeyTable{}, ParamKeyTable())
+	require.NotEmpty(t, ParamKeyTable())
+}
+
+func TestParamSetPairs(t *testing.T) {
+	params := DefaultParams()
+	require.NotEmpty(t, params.ParamSetPairs())
+}
 
 func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
@@ -45,7 +56,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
 			true,
 		},
 		{
@@ -53,10 +64,42 @@ func TestParamsValidate(t *testing.T) {
 			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate},
 			true,
 		},
+		{
+			"invalid: wrong address derivation cost",
+			NewParams(true, devShares, validatorShares, 50),
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
 		err := tc.params.Validate()
+
+		if tc.expError {
+			require.Error(t, err, tc.name)
+		} else {
+			require.NoError(t, err, tc.name)
+		}
+	}
+}
+
+func TestParamsValidateShares(t *testing.T) {
+	testCases := []struct {
+		name     string
+		value    interface{}
+		expError bool
+	}{
+		{"valid", sdk.NewDecFromInt(sdk.NewInt(1)), false},
+		{"invalid - wrong type - bool", false, true},
+		{"invalid - wrong type - string", "", true},
+		{"invalid - wrong type - int64", int64(123), true},
+		{"invalid - wrong type - sdk.Int", sdk.NewInt(1), true},
+		{"invalid - is nil", nil, true},
+		{"invalid - is negative", sdk.NewDecFromInt(sdk.NewInt(-1)), true},
+		{"invalid - is > 1", sdk.NewDecFromInt(sdk.NewInt(2)), true},
+	}
+
+	for _, tc := range testCases {
+		err := validateShares(tc.value)
 
 		if tc.expError {
 			require.Error(t, err, tc.name)

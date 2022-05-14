@@ -104,7 +104,8 @@ func (k Keeper) CancelDevFeeInfo(
 		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
 	}
 
-	deployerAddress, found := k.GetDeployer(ctx, common.HexToAddress(msg.ContractAddress))
+	contractAddress := common.HexToAddress(msg.ContractAddress)
+	deployerAddress, found := k.GetDeployer(ctx, contractAddress)
 	if !found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress)
 	}
@@ -113,8 +114,8 @@ func (k Keeper) CancelDevFeeInfo(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
-	k.DeleteFee(ctx, common.HexToAddress(msg.ContractAddress))
-	k.DeleteFeeInverse(ctx, deployerAddress)
+	k.DeleteFee(ctx, contractAddress)
+	k.DeleteFeeInverse(ctx, deployerAddress, contractAddress)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

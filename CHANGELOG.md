@@ -37,10 +37,22 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Bug Fixes
+- (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
+
+### State Machine Breaking
+
+- (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
+
+### API Breaking
+
 - (epochs) [\#553](https://github.com/tharsis/evmos/pull/553) Store epoch information by duration and by identifier.
-- (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Completeness audit
+- (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
+- (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Finish module completeness audit.
 
 ## [v4.0.1] - 2022-05-10
+
+### Bug Fixes
 
 - (erc20) [\#588](https://github.com/tharsis/evmos/pull/588) Revert PR [\#556](https://github.com/tharsis/evmos/pull/556).
 
