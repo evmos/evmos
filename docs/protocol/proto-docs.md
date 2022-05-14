@@ -402,7 +402,6 @@ Query defines the gRPC querier service.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `identifier` | [string](#string) |  |  |
 | `start_time` | [google.protobuf.Timestamp](#google.protobuf.Timestamp) |  |  |
 | `duration` | [google.protobuf.Duration](#google.protobuf.Duration) |  |  |
 | `current_epoch` | [int64](#int64) |  |  |

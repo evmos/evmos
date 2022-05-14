@@ -52,3 +52,9 @@ func (suite *EpochIdentifierTestSuite) TestValidateEpochIdentifierInterface() {
 		}
 	}
 }
+
+func (suite *EpochIdentifierTestSuite) TestEnums() {
+	suite.Require().Equal("week", DurationToIdentifier[IdentifierToDuration[WeekEpochID]])
+	suite.Require().Equal("day", DurationToIdentifier[IdentifierToDuration[DayEpochID]])
+	suite.Require().Equal("hour", DurationToIdentifier[IdentifierToDuration[HourEpochID]])
+}

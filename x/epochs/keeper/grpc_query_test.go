@@ -26,9 +26,8 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				req = &types.QueryEpochsInfoRequest{}
 
 				day := types.EpochInfo{
-					Identifier:              types.DayEpochID,
 					StartTime:               time.Time{},
-					Duration:                time.Hour * 24,
+					Duration:                types.DayEpochDuration,
 					CurrentEpoch:            0,
 					CurrentEpochStartHeight: 1,
 					CurrentEpochStartTime:   time.Time{},
@@ -38,9 +37,8 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				day.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 
 				week := types.EpochInfo{
-					Identifier:              types.WeekEpochID,
 					StartTime:               time.Time{},
-					Duration:                time.Hour * 24 * 7,
+					Duration:                types.WeekEpochDuration,
 					CurrentEpoch:            0,
 					CurrentEpochStartHeight: 1,
 					CurrentEpochStartTime:   time.Time{},
@@ -63,9 +61,8 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 			"set epoch info",
 			func() {
 				day := types.EpochInfo{
-					Identifier:              types.DayEpochID,
 					StartTime:               time.Time{},
-					Duration:                time.Hour * 24,
+					Duration:                types.DayEpochDuration,
 					CurrentEpoch:            0,
 					CurrentEpochStartHeight: 1,
 					CurrentEpochStartTime:   time.Time{},
@@ -75,9 +72,8 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				day.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 
 				week := types.EpochInfo{
-					Identifier:              types.WeekEpochID,
 					StartTime:               time.Time{},
-					Duration:                time.Hour * 24 * 7,
+					Duration:                types.WeekEpochDuration,
 					CurrentEpoch:            0,
 					CurrentEpochStartHeight: 1,
 					CurrentEpochStartTime:   time.Time{},
@@ -87,7 +83,6 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 				week.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 
 				quarter := types.EpochInfo{
-					Identifier:              "quarter",
 					StartTime:               time.Time{},
 					Duration:                time.Hour * 24 * 7 * 13,
 					CurrentEpoch:            0,

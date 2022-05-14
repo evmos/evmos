@@ -24,16 +24,20 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 		shouldEpochEnd := ctx.BlockTime().After(epochEndTime) && !shouldInitialEpochStart && !epochInfo.StartTime.After(ctx.BlockTime())
 
 		epochInfo.CurrentEpochStartHeight = ctx.BlockHeight()
+		identifier, exists := types.DurationToIdentifier[epochInfo.Duration]
+		if !exists {
+			return false
+		}
 
 		switch {
 		case shouldInitialEpochStart:
 			epochInfo.StartInitialEpoch()
 
-			logger.Info("starting epoch", "identifier", epochInfo.Identifier)
+			logger.Info("starting epoch", "identifier", identifier)
 		case shouldEpochEnd:
 			epochInfo.EndEpoch()
 
-			logger.Info("ending epoch", "identifier", epochInfo.Identifier)
+			logger.Info("ending epoch", "identifier", identifier)
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -41,7 +45,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 					sdk.NewAttribute(types.AttributeEpochNumber, strconv.FormatInt(epochInfo.CurrentEpoch, 10)),
 				),
 			)
-			k.AfterEpochEnd(ctx, epochInfo.Identifier, epochInfo.CurrentEpoch)
+			k.AfterEpochEnd(ctx, identifier, epochInfo.CurrentEpoch)
 		default:
 			// continue
 			return false
@@ -57,7 +61,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 			),
 		)
 
-		k.BeforeEpochStart(ctx, epochInfo.Identifier, epochInfo.CurrentEpoch)
+		k.BeforeEpochStart(ctx, identifier, epochInfo.CurrentEpoch)
 
 		return false
 	})

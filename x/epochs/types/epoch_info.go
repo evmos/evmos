@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"strings"
 )
 
 // StartInitialEpoch sets the epoch info fields to their start values
@@ -21,9 +20,6 @@ func (ei *EpochInfo) EndEpoch() {
 
 // Validate performs a stateless validation of the epoch info fields
 func (ei EpochInfo) Validate() error {
-	if strings.TrimSpace(ei.Identifier) == "" {
-		return errors.New("epoch identifier cannot be blank")
-	}
 	if ei.Duration == 0 {
 		return errors.New("epoch duration cannot be 0")
 	}

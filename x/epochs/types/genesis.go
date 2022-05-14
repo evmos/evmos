@@ -11,21 +11,21 @@ func NewGenesisState(epochs []EpochInfo) *GenesisState {
 }
 
 // DefaultGenesisState returns the default epochs genesis state
+// Changing genesis state requires updating the IdentifierToDuration
+// and DurationToIdentifier maps
 func DefaultGenesisState() *GenesisState {
 	epochs := []EpochInfo{
 		{
-			Identifier:              WeekEpochID,
 			StartTime:               time.Time{},
-			Duration:                time.Hour * 24 * 7,
+			Duration:                WeekEpochDuration,
 			CurrentEpoch:            0,
 			CurrentEpochStartHeight: 0,
 			CurrentEpochStartTime:   time.Time{},
 			EpochCountingStarted:    false,
 		},
 		{
-			Identifier:              DayEpochID,
 			StartTime:               time.Time{},
-			Duration:                time.Hour * 24,
+			Duration:                DayEpochDuration,
 			CurrentEpoch:            0,
 			CurrentEpochStartHeight: 0,
 			CurrentEpochStartTime:   time.Time{},
@@ -41,13 +41,13 @@ func (gs GenesisState) Validate() error {
 	epochIdentifiers := make(map[string]bool)
 
 	for _, epoch := range gs.Epochs {
-		if epochIdentifiers[epoch.Identifier] {
-			return fmt.Errorf("duplicated epoch entry %s", epoch.Identifier)
+		if epochIdentifiers[epoch.Duration.String()] {
+			return fmt.Errorf("duplicated epoch entry %s", epoch.Duration)
 		}
 		if err := epoch.Validate(); err != nil {
 			return err
 		}
-		epochIdentifiers[epoch.Identifier] = true
+		epochIdentifiers[epoch.Duration.String()] = true
 	}
 
 	return nil

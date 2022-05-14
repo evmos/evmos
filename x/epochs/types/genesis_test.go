@@ -45,18 +45,16 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			&GenesisState{
 				Epochs: []EpochInfo{
 					{
-						Identifier:              WeekEpochID,
 						StartTime:               time.Time{},
-						Duration:                time.Hour * 24 * 7,
+						Duration:                WeekEpochDuration,
 						CurrentEpoch:            0,
 						CurrentEpochStartHeight: 0,
 						CurrentEpochStartTime:   time.Time{},
 						EpochCountingStarted:    false,
 					},
 					{
-						Identifier:              DayEpochID,
 						StartTime:               time.Time{},
-						Duration:                time.Hour * 24,
+						Duration:                DayEpochDuration,
 						CurrentEpoch:            0,
 						CurrentEpochStartHeight: 0,
 						CurrentEpochStartTime:   time.Time{},
@@ -67,22 +65,20 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			true,
 		},
 		{
-			"invalid genesis - duplicated incentive",
+			"invalid genesis - duplicated epoch",
 			&GenesisState{
 				Epochs: []EpochInfo{
 					{
-						Identifier:              WeekEpochID,
 						StartTime:               time.Time{},
-						Duration:                time.Hour * 24 * 7,
+						Duration:                WeekEpochDuration,
 						CurrentEpoch:            0,
 						CurrentEpochStartHeight: 0,
 						CurrentEpochStartTime:   time.Time{},
 						EpochCountingStarted:    false,
 					},
 					{
-						Identifier:              WeekEpochID,
 						StartTime:               time.Time{},
-						Duration:                time.Hour * 24 * 7,
+						Duration:                WeekEpochDuration,
 						CurrentEpoch:            0,
 						CurrentEpochStartHeight: 0,
 						CurrentEpochStartTime:   time.Time{},
@@ -97,9 +93,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			&GenesisState{
 				Epochs: []EpochInfo{
 					{
-						Identifier:              WeekEpochID,
 						StartTime:               time.Time{},
-						Duration:                time.Hour * 24 * 7,
+						Duration:                WeekEpochDuration,
 						CurrentEpoch:            -1,
 						CurrentEpochStartHeight: 0,
 						CurrentEpochStartTime:   time.Time{},

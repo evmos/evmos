@@ -3,7 +3,6 @@ package v2_test
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -11,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/evmos/v4/app"
+	v1 "github.com/tharsis/evmos/v4/x/epochs/migrations/v1"
 	v2 "github.com/tharsis/evmos/v4/x/epochs/migrations/v2"
 	types "github.com/tharsis/evmos/v4/x/epochs/types"
 )
@@ -21,29 +21,13 @@ func TestStoreMigration(t *testing.T) {
 	tEpochsKey := sdk.NewTransientStoreKey(fmt.Sprintf("%s_test", types.StoreKey))
 	ctx := testutil.DefaultContext(epochsKey, tEpochsKey)
 	store := ctx.KVStore(epochsKey)
-	oldstore := prefix.NewStore(store, v2.KeyPrefixEpoch)
-	durationStore := prefix.NewStore(store, v2.KeyPrefixEpochDuration)
-	epochStore := oldstore
+	oldstore := prefix.NewStore(store, types.KeyPrefixEpoch)
+	newstore := oldstore
 
 	// store pre-migration epochs
-	epochWeek := types.EpochInfo{
-		Identifier:              types.WeekEpochID,
-		StartTime:               time.Time{},
-		Duration:                time.Hour * 24 * 7,
-		CurrentEpoch:            0,
-		CurrentEpochStartHeight: 0,
-		CurrentEpochStartTime:   time.Time{},
-		EpochCountingStarted:    false,
-	}
-	epochDay := types.EpochInfo{
-		Identifier:              types.DayEpochID,
-		StartTime:               time.Time{},
-		Duration:                time.Hour * 24,
-		CurrentEpoch:            0,
-		CurrentEpochStartHeight: 0,
-		CurrentEpochStartTime:   time.Time{},
-		EpochCountingStarted:    false,
-	}
+	oldGenesis := v1.DefaultGenesisState()
+	epochWeek := oldGenesis.Epochs[0]
+	epochDay := oldGenesis.Epochs[1]
 
 	keyEpochWeek := []byte(epochWeek.Identifier)
 	bzEpochWeek := encCfg.Marshaler.MustMarshal(&epochWeek)
@@ -63,18 +47,38 @@ func TestStoreMigration(t *testing.T) {
 	err := v2.MigrateStore(ctx, epochsKey, encCfg.Marshaler)
 	require.NoError(t, err)
 
-	durationWeek := v2.DurationToBz(epochWeek.Duration)
-	durationDay := v2.DurationToBz(epochDay.Duration)
+	durationWeek := types.DurationToBz(epochWeek.Duration)
+	durationDay := types.DurationToBz(epochDay.Duration)
 
 	// Make sure epoch info values have been moved with duration as key
-	require.True(t, epochStore.Has(durationWeek))
-	require.True(t, epochStore.Has(durationDay))
-	require.Equal(t, bzEpochWeek, epochStore.Get(durationWeek))
-	require.Equal(t, bzEpochDay, epochStore.Get(durationDay))
+	require.True(t, newstore.Has(durationWeek))
+	require.True(t, newstore.Has(durationDay))
+	require.Equal(t, bzEpochWeek, newstore.Get(durationWeek))
+	require.Equal(t, bzEpochDay, newstore.Get(durationDay))
 
-	// Make sure the new identifier => duration store has correct values
-	require.True(t, durationStore.Has(keyEpochWeek))
-	require.True(t, durationStore.Has(keyEpochDay))
-	require.Equal(t, durationWeek, durationStore.Get(keyEpochWeek))
-	require.Equal(t, durationDay, durationStore.Get(keyEpochDay))
+	// Old keys have been removed
+	require.False(t, newstore.Has(keyEpochWeek))
+	require.False(t, newstore.Has(keyEpochDay))
+}
+
+func TestMigrateJSON(t *testing.T) {
+	oldGenesis := v1.DefaultGenesisState()
+
+	// Check identifiers exist in old genesis state
+	require.Equal(t, oldGenesis.Epochs[0].Identifier, types.WeekEpochID)
+	require.Equal(t, oldGenesis.Epochs[1].Identifier, types.DayEpochID)
+
+	newGenesis := v2.MigrateJSON(*oldGenesis)
+
+	for i, epoch := range oldGenesis.Epochs {
+		newepoch := newGenesis.Epochs[i]
+
+		// Check all other field values aside from identifiers are correct
+		require.Equal(t, epoch.StartTime, newepoch.StartTime)
+		require.Equal(t, epoch.Duration, newepoch.Duration)
+		require.Equal(t, epoch.CurrentEpoch, newepoch.CurrentEpoch)
+		require.Equal(t, epoch.CurrentEpochStartHeight, newepoch.CurrentEpochStartHeight)
+		require.Equal(t, epoch.CurrentEpochStartTime, newepoch.CurrentEpochStartTime)
+		require.Equal(t, epoch.EpochCountingStarted, newepoch.EpochCountingStarted)
+	}
 }

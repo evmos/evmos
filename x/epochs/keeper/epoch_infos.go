@@ -11,28 +11,13 @@ import (
 
 // GetEpochInfo returns epoch info by identifier
 func (k Keeper) GetEpochInfo(ctx sdk.Context, identifier string) (types.EpochInfo, bool) {
-	duration, found := k.GetEpochDuration(ctx, identifier)
-	if !found {
-		return types.EpochInfo{}, false
-	}
-	return k.GetEpoch(ctx, duration)
-}
-
-// GetEpochDuration returns epoch duration by identifier
-func (k Keeper) GetEpochDuration(ctx sdk.Context, identifier string) ([]byte, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpochDuration)
-	bz := store.Get([]byte(identifier))
-	if len(bz) == 0 {
-		return make([]byte, 0), false
-	}
-	return bz, true
-}
-
-// GetEpochInfo returns epoch info by duration
-func (k Keeper) GetEpoch(ctx sdk.Context, duration []byte) (types.EpochInfo, bool) {
 	epoch := types.EpochInfo{}
+	duration, exists := types.IdentifierToDuration[identifier]
+	if !exists {
+		return epoch, false
+	}
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
-	bz := store.Get(duration)
+	bz := store.Get(types.DurationToBz(duration))
 	if len(bz) == 0 {
 		return epoch, false
 	}
@@ -41,44 +26,17 @@ func (k Keeper) GetEpoch(ctx sdk.Context, duration []byte) (types.EpochInfo, boo
 	return epoch, true
 }
 
-// SetEpochInfo set epoch info
-func (k Keeper) SetEpochInfo(ctx sdk.Context, epoch types.EpochInfo) {
-	k.setEpochDuration(ctx, epoch)
-	k.setEpoch(ctx, epoch)
-}
-
-// SetEpochDuration set epoch duration by identifier
-func (k Keeper) setEpochDuration(ctx sdk.Context, epoch types.EpochInfo) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpochDuration)
-	store.Set([]byte(epoch.Identifier), durationToBz(epoch.Duration))
-}
-
 // SetEpochInfo set epoch duration by identifier
-func (k Keeper) setEpoch(ctx sdk.Context, epoch types.EpochInfo) {
+func (k Keeper) SetEpochInfo(ctx sdk.Context, epoch types.EpochInfo) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
 	bz := k.cdc.MustMarshal(&epoch)
-	store.Set(durationToBz(epoch.Duration), bz)
+	store.Set(types.DurationToBz(epoch.Duration), bz)
 }
 
 // DeleteEpochInfo delete epoch info
-func (k Keeper) DeleteEpochInfo(ctx sdk.Context, identifier string) {
-	duration, found := k.GetEpochDuration(ctx, identifier)
-	if found {
-		k.deleteEpochDuration(ctx, identifier)
-		k.deleteEpoch(ctx, duration)
-	}
-}
-
-// DeleteEpochDuration delete epoch duration by identifier
-func (k Keeper) deleteEpochDuration(ctx sdk.Context, identifier string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpochDuration)
-	store.Delete([]byte(identifier))
-}
-
-// DeleteEpoch delete epoch info
-func (k Keeper) deleteEpoch(ctx sdk.Context, duration []byte) {
+func (k Keeper) DeleteEpochInfo(ctx sdk.Context, duration time.Duration) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixEpoch)
-	store.Delete(duration)
+	store.Delete(types.DurationToBz(duration))
 }
 
 // IterateEpochInfo iterate through epochs in ascending numerical order, by duration
@@ -111,9 +69,4 @@ func (k Keeper) AllEpochInfos(ctx sdk.Context) []types.EpochInfo {
 		return false
 	})
 	return epochs
-}
-
-// durationToBz parses time duration to maintain number-compatible ordering
-func durationToBz(duration time.Duration) []byte {
-	return sdk.Uint64ToBigEndian(uint64(duration.Milliseconds()))
 }

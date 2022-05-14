@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -13,6 +14,7 @@ type EpochInfoTestSuite struct {
 
 func TestEpochInfoTestSuite(t *testing.T) {
 	suite.Run(t, new(EpochInfoTestSuite))
+	fmt.Println("WeekEpochDuration", WeekEpochDuration, DurationToBz(WeekEpochDuration))
 }
 
 func (suite *EpochInfoTestSuite) TestStartEndEpoch() {
@@ -37,22 +39,8 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		expectPass bool
 	}{
 		{
-			"invalid - blank identifier",
-			EpochInfo{
-				"  ",
-				time.Now(),
-				time.Hour * 24,
-				1,
-				time.Now(),
-				true,
-				1,
-			},
-			false,
-		},
-		{
 			"invalid - epoch duration zero",
 			EpochInfo{
-				WeekEpochID,
 				time.Now(),
 				time.Hour * 0,
 				1,
@@ -65,7 +53,6 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"invalid - negative current epoch",
 			EpochInfo{
-				WeekEpochID,
 				time.Now(),
 				time.Hour * 24,
 				-1,
@@ -78,7 +65,6 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"invalid - negative epoch start height",
 			EpochInfo{
-				WeekEpochID,
 				time.Now(),
 				time.Hour * 24,
 				1,
@@ -91,7 +77,6 @@ func (suite *EpochInfoTestSuite) TestValidateEpochInfo() {
 		{
 			"pass",
 			EpochInfo{
-				WeekEpochID,
 				time.Now(),
 				time.Hour * 24,
 				1,

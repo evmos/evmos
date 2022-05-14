@@ -8,7 +8,9 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/tharsis/evmos/v4/x/epochs/types";
 
 message EpochInfo {
-  string identifier = 1;
+  // DEPRECATED: Identifier has been removed;
+  reserved 1;
+  reserved "identifier";
   google.protobuf.Timestamp start_time = 2 [
     (gogoproto.stdtime) = true,
     (gogoproto.nullable) = false,
