@@ -49,6 +49,12 @@ type KeeperTestSuite struct {
 
 var s *KeeperTestSuite
 
+var (
+	contract = tests.GenerateAddress()
+	deployer = sdk.AccAddress(tests.GenerateAddress().Bytes())
+	withdraw = sdk.AccAddress(tests.GenerateAddress().Bytes())
+)
+
 func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)
 	suite.Run(t, s)

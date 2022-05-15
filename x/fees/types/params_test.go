@@ -4,8 +4,19 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 )
+
+func TestParamKeyTable(t *testing.T) {
+	require.IsType(t, paramtypes.KeyTable{}, ParamKeyTable())
+	require.NotEmpty(t, ParamKeyTable())
+}
+
+func TestParamSetPairs(t *testing.T) {
+	params := DefaultParams()
+	require.NotEmpty(t, params.ParamSetPairs())
+}
 
 func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
@@ -46,7 +57,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate, minGasPrice},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate, minGasPrice},
 			true,
 		},
 		{
@@ -58,6 +69,11 @@ func TestParamsValidate(t *testing.T) {
 			"invalid: min gas price negative",
 			Params{true, devShares, validatorShares, derivCostCreate, sdk.NewDecFromInt(sdk.NewInt(-1))},
 			true,
+		},
+		{
+			"invalid: wrong address derivation cost",
+			NewParams(true, devShares, validatorShares, 50),
+			false,
 		},
 	}
 
