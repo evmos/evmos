@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/snapshots"
@@ -92,7 +91,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := initAppConfig(initClientCtx.ChainID)
+			customAppTemplate, customAppConfig := initAppConfig()
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 		},
@@ -193,17 +192,12 @@ func txCommand() *cobra.Command {
 
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
-func initAppConfig(chainID string) (string, interface{}) {
+func initAppConfig() (string, interface{}) {
 	customAppTemplate, customAppConfig := servercfg.AppConfig(cmdcfg.BaseDenom)
 
 	srvCfg, ok := customAppConfig.(servercfg.Config)
 	if !ok {
 		panic(fmt.Errorf("unknown app config type %T", customAppConfig))
-	}
-
-	// define a non-zero default minimum gas price on Evmos Mainnet
-	if strings.HasPrefix(chainID, "evmos_9001-") && (srvCfg.MinGasPrices == "" || srvCfg.MinGasPrices == "0aevmos") {
-		srvCfg.MinGasPrices = "0.0025aevmos"
 	}
 
 	srvCfg.StateSync.SnapshotInterval = 1500
@@ -243,6 +237,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	if err != nil {
 		panic(err)
 	}
+	cliMinGasPrices := cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))
 
 	evmosApp := app.NewEvmos(
 		logger, db, traceStore, true, skipUpgradeHeights,
@@ -250,8 +245,9 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		cast.ToUint(appOpts.Get(sdkserver.FlagInvCheckPeriod)),
 		a.encCfg,
 		appOpts,
+		cliMinGasPrices,
 		baseapp.SetPruning(pruningOpts),
-		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))),
+		baseapp.SetMinGasPrices(cliMinGasPrices),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltHeight))),
 		baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltTime))),
 		baseapp.SetMinRetainBlocks(cast.ToUint64(appOpts.Get(sdkserver.FlagMinRetainBlocks))),
@@ -279,13 +275,13 @@ func (a appCreator) appExport(
 	}
 
 	if height != -1 {
-		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
+		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), a.encCfg, appOpts, "")
 
 		if err := evmosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
+		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), a.encCfg, appOpts, "")
 	}
 
 	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)

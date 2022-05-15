@@ -72,7 +72,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: wrong address derivation cost",
-			NewParams(true, devShares, validatorShares, 50),
+			NewParams(true, devShares, validatorShares, 50, minGasPrice),
 			false,
 		},
 	}

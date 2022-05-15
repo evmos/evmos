@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -287,6 +288,8 @@ type Evmos struct {
 	configurator module.Configurator
 
 	tpsCounter *tpsCounter
+
+	cliMinGasPrices string
 }
 
 // NewEvmos returns a reference to a new initialized Ethermint application.
@@ -300,6 +303,7 @@ func NewEvmos(
 	invCheckPeriod uint,
 	encodingConfig simappparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
+	cliMinGasPrices string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *Evmos {
 	appCodec := encodingConfig.Marshaler
@@ -348,6 +352,7 @@ func NewEvmos(
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+		cliMinGasPrices:   cliMinGasPrices,
 	}
 
 	// init params keeper and subspaces
@@ -827,7 +832,32 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
-	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+
+	// Set MinGasPrices
+	feeparams := app.FeesKeeper.GetParams(ctx)
+	minGasPrices := sdk.DecCoins{sdk.DecCoin{
+		Denom:  app.EvmKeeper.GetParams(ctx).EvmDenom,
+		Amount: feeparams.MinGasPrice,
+	}}
+
+	// parsing error is checked in cmd/evmosd/root
+	cliMinGasPrices, _ := sdk.ParseDecCoins(app.cliMinGasPrices)
+	_, IsNegative := cliMinGasPrices.SafeSub(minGasPrices)
+	if !IsNegative {
+		minGasPrices = cliMinGasPrices
+	} else {
+		app.Logger().Error(fmt.Sprintf(
+			"%s %s must be higher than global MinGasPrice value %s. %s is set as default value",
+			sdkserver.FlagMinGasPrices,
+			cliMinGasPrices.String(),
+			minGasPrices.String(),
+			minGasPrices.String(),
+		))
+	}
+
+	baseapp.SetMinGasPrices(minGasPrices.String())(app.BaseApp)
+	return res
 }
 
 // LoadHeight loads state at a particular height
