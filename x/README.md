@@ -16,4 +16,4 @@ Here are some production-grade modules that can be used in Evmos applications, a
 - [vesting](vesting/spec/README.md) - Vesting accounts with lockup and clawback capabilities.
 
 ### Module Accounts
-- [Module Accounts](moduleaccounts.md) - A table of module wallet addresses and permissions.
+- [Module Accounts](MODULEACCOUNTS.md) - A table of module wallet addresses and permissions.
