@@ -83,7 +83,7 @@ func TestEpochsInitGenesis(t *testing.T) {
 			},
 		},
 	}
-	require.EqualError(t, genesisState.Validate(), "duplicated epoch entry monthly")
+	require.EqualError(t, genesisState.Validate(), "duplicated epoch entry day")
 
 	genesisState = types.GenesisState{
 		Epochs: []types.EpochInfo{
@@ -99,7 +99,7 @@ func TestEpochsInitGenesis(t *testing.T) {
 	}
 
 	epochs.InitGenesis(ctx, app.EpochsKeeper, genesisState)
-	epochInfo, found := app.EpochsKeeper.GetEpochInfo(ctx, "daily")
+	epochInfo, found := app.EpochsKeeper.GetEpochInfo(ctx, "day")
 	require.True(t, found)
 	require.Equal(t, epochInfo.StartTime.UTC().String(), now.UTC().String())
 	require.Equal(t, epochInfo.Duration, time.Hour*24)
