@@ -13,7 +13,6 @@ The `burner` permission means this account has the permission to burn or destroy
 The `minter` permission means this account has permission to mint or create new tokens.
 The `staking` permission means this account has permission to stake tokens on behalf of it's owner.
 
-
 | Name                    | Address                                             | Permissions        |
 | :---------------------- | :-------------------------------------------------- | :----------------- |
 | `claims`                | [evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz](https://www.mintscan.io/evmos/account/evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz)   | `none`             |
