@@ -24,7 +24,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -757,6 +756,7 @@ func NewEvmos(
 		FeegrantKeeper:  app.FeeGrantKeeper,
 		IBCKeeper:       app.IBCKeeper,
 		FeeMarketKeeper: app.FeeMarketKeeper,
+		FeesKeeper:      app.FeesKeeper,
 		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:  SigVerificationGasConsumer,
 		Cdc:             appCodec,
@@ -832,32 +832,7 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
-	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-
-	// Set MinGasPrices
-	feeparams := app.FeesKeeper.GetParams(ctx)
-	minGasPrices := sdk.DecCoins{sdk.DecCoin{
-		Denom:  app.EvmKeeper.GetParams(ctx).EvmDenom,
-		Amount: feeparams.MinGasPrice,
-	}}
-
-	// parsing error is checked in cmd/evmosd/root
-	cliMinGasPrices, _ := sdk.ParseDecCoins(app.cliMinGasPrices)
-	_, IsNegative := cliMinGasPrices.SafeSub(minGasPrices)
-	if !IsNegative {
-		minGasPrices = cliMinGasPrices
-	} else {
-		app.Logger().Error(fmt.Sprintf(
-			"%s %s must be higher than global MinGasPrice value %s. %s is set as default value",
-			sdkserver.FlagMinGasPrices,
-			cliMinGasPrices.String(),
-			minGasPrices.String(),
-			minGasPrices.String(),
-		))
-	}
-
-	baseapp.SetMinGasPrices(minGasPrices.String())(app.BaseApp)
-	return res
+	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
 // LoadHeight loads state at a particular height

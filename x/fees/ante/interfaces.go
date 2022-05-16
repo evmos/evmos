@@ -1,0 +1,17 @@
+package ante
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/tharsis/evmos/v4/x/fees/types"
+)
+
+// FeesKeeper defines the expected keeper interface used on the AnteHandler
+type FeesKeeper interface {
+	GetParams(ctx sdk.Context) (params types.Params)
+}
+
+// EvmKeeper defines the expected keeper interface used on the AnteHandler
+type EvmKeeper interface {
+	GetParams(ctx sdk.Context) (params evmtypes.Params)
+}

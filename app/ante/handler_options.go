@@ -14,6 +14,7 @@ import (
 	ethante "github.com/tharsis/ethermint/app/ante"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	feesante "github.com/tharsis/evmos/v4/x/fees/ante"
 	vestingtypes "github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
@@ -27,6 +28,7 @@ type HandlerOptions struct {
 	StakingKeeper   vestingtypes.StakingKeeper
 	EvmKeeper       ethante.EVMKeeper
 	FeegrantKeeper  ante.FeegrantKeeper
+	FeesKeeper      feesante.FeesKeeper
 	SignModeHandler authsigning.SignModeHandler
 	SigGasConsumer  func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 	Cdc             codec.BinaryCodec
@@ -53,6 +55,9 @@ func (options HandlerOptions) Validate() error {
 	if options.EvmKeeper == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrLogic, "evm keeper is required for AnteHandler")
 	}
+	if options.FeesKeeper == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrLogic, "fees keeper is required for AnteHandler")
+	}
 	return nil
 }
 
@@ -78,6 +83,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSetUpContextDecorator(),
 		ante.NewRejectExtensionOptionsDecorator(),
 		ante.NewMempoolFeeDecorator(),
+		feesante.NewMinPriceFeeDecorator(options.FeesKeeper, options.EvmKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
@@ -101,6 +107,7 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
 		ante.NewMempoolFeeDecorator(),
+		feesante.NewMinPriceFeeDecorator(options.FeesKeeper, options.EvmKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),

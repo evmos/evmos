@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/json"
 	"math"
 	"math/big"
 	"strings"
@@ -26,8 +27,13 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
+	"github.com/cosmos/cosmos-sdk/simapp"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 )
 
 var contractCode = "600661000e60003960066000f300612222600055"
@@ -111,7 +117,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				[]uint64{1},
 			)
 
-			res := deliverTx(deployerKey, msg)
+			res := deliverTx(deployerKey, nil, msg)
 			Expect(res.IsOK()).To(Equal(false), "registration should have failed")
 			Expect(
 				strings.Contains(res.GetLog(),
@@ -140,7 +146,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				deployerAddress,
 				withdrawAddress,
 			)
-			res := deliverTx(deployerKey, msg)
+			res := deliverTx(deployerKey, nil, msg)
 			Expect(res.IsOK()).To(Equal(false), "update should have failed")
 			Expect(
 				strings.Contains(res.GetLog(),
@@ -151,7 +157,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		It("should not allow cancellations of previously registered contracts", func() {
 			msg := types.NewMsgCancelDevFeeInfo(registeredContract, deployerAddress)
-			res := deliverTx(deployerKey, msg)
+			res := deliverTx(deployerKey, nil, msg)
 			Expect(res.IsOK()).To(Equal(false), "cancel should have failed")
 			Expect(
 				strings.Contains(res.GetLog(),
@@ -398,7 +404,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						withdrawAddress,
 					)
 
-					res := deliverTx(deployerKey, msg)
+					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(true),
 						"withdraw update failed: "+res.GetLog(),
@@ -451,7 +457,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						deployerAddress,
 					)
 
-					res := deliverTx(deployerKey, msg)
+					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(false),
 						"withdraw update failed: "+res.GetLog(),
@@ -474,7 +480,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						withdrawAddress,
 					)
 
-					res := deliverTx(deployerKey, msg)
+					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(false),
 						"withdraw update failed: "+res.GetLog(),
@@ -507,7 +513,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 				It("should be possible", func() {
 					msg := types.NewMsgCancelDevFeeInfo(contractAddress, deployerAddress)
-					res := deliverTx(deployerKey, msg)
+					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(Equal(true), "withdraw update failed: "+res.GetLog())
 					s.Commit()
 
@@ -535,7 +541,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				It("should not be possible", func() {
 					contractAddress := tests.GenerateAddress()
 					msg := types.NewMsgCancelDevFeeInfo(contractAddress, deployerAddress)
-					res := deliverTx(deployerKey, msg)
+					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(false),
 						"cancelling failed: "+res.GetLog(),
@@ -567,7 +573,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						nil,
 						[]uint64{factoryNonce, contractNonce},
 					)
-					res := deliverTx(deployerKey, msg)
+					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 					s.Commit()
 
@@ -694,6 +700,131 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 	})
 })
 
+var _ = Describe("Evmos App min gas prices setting: ", func() {
+	var (
+		privKey *ethsecp256k1.PrivKey
+		address sdk.AccAddress
+		msg     banktypes.MsgSend
+	)
+
+	var setupTest = func(cliMinGasPrices string) {
+		db := dbm.NewMemDB()
+		newapp := app.NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, app.DefaultNodeHome, 5, encoding.MakeConfig(app.ModuleBasics), simapp.EmptyAppOptions{}, cliMinGasPrices)
+
+		genesisState := app.NewDefaultGenesisState()
+		genesisState[feemarkettypes.ModuleName] = newapp.AppCodec().MustMarshalJSON(feemarkettypes.DefaultGenesisState())
+
+		stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
+		s.Require().NoError(err)
+
+		// Initialize the chain
+		newapp.InitChain(
+			abci.RequestInitChain{
+				ChainId:         "evmos_9001-1",
+				Validators:      []abci.ValidatorUpdate{},
+				AppStateBytes:   stateBytes,
+				ConsensusParams: simapp.DefaultConsensusParams,
+			},
+		)
+
+		s.app = newapp
+		s.SetupApp()
+
+		privKey, address = generateKey()
+		initBalance := sdk.Coins{sdk.Coin{
+			Denom:  s.denom,
+			Amount: sdk.NewInt(1000000000000),
+		}}
+		testutil.FundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+
+		msg = banktypes.MsgSend{
+			FromAddress: address.String(),
+			ToAddress:   address.String(),
+			Amount: sdk.Coins{sdk.Coin{
+				Denom:  s.denom,
+				Amount: sdk.NewInt(10000),
+			}},
+		}
+		s.Commit()
+	}
+
+	Context("with cli min-gas-prices < MinGasPrices fees param", func() {
+		BeforeEach(func() {
+			setupTest("1" + s.denom)
+			params := types.DefaultParams()
+			params.MinGasPrice = sdk.NewDecWithPrec(3, 0)
+			s.app.FeesKeeper.SetParams(s.ctx, params)
+		})
+
+		It("should reject transactions with fees < than the MinGasPrices fees param", func() {
+			gasPrice := sdk.NewInt(2)
+			res := checkTx(privKey, &gasPrice, &msg)
+			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+			Expect(
+				strings.Contains(res.GetLog(),
+					"gas price less than fees module MinGasPrices"),
+			).To(BeTrue(), res.GetLog())
+		})
+
+		It("should accept transactions with fees >= than the MinGasPrices fees param", func() {
+			gasPrice := sdk.NewInt(3)
+			res := checkTx(privKey, &gasPrice, &msg)
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded")
+		})
+	})
+
+	Context("with cli min-gas-prices == MinGasPrices fees param", func() {
+		BeforeEach(func() {
+			setupTest("3" + s.denom)
+			params := types.DefaultParams()
+			params.MinGasPrice = sdk.NewDecWithPrec(3, 0)
+			s.app.FeesKeeper.SetParams(s.ctx, params)
+		})
+
+		It("should reject transactions with fees < than the MinGasPrices fees param", func() {
+			gasPrice := sdk.NewInt(2)
+			res := checkTx(privKey, &gasPrice, &msg)
+			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+			Expect(
+				strings.Contains(res.GetLog(),
+					"gas price less than fees module MinGasPrices"),
+			).To(BeTrue(), res.GetLog())
+		})
+
+		It("should accept transactions with fees >= than the MinGasPrices fees param", func() {
+			gasPrice := sdk.NewInt(3)
+			res := checkTx(privKey, &gasPrice, &msg)
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded")
+		})
+	})
+
+	Context("with cli min-gas-prices >= MinGasPrices fees param", func() {
+		BeforeEach(func() {
+			setupTest("5" + s.denom)
+			params := types.DefaultParams()
+			params.MinGasPrice = sdk.NewDecWithPrec(3, 0)
+			s.app.FeesKeeper.SetParams(s.ctx, params)
+		})
+
+		It("should reject transactions with fees < than min-gas-prices fees param", func() {
+			gasPrice := sdk.NewInt(4)
+			res := checkTx(privKey, &gasPrice, &msg)
+			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+			Expect(
+				strings.Contains(res.GetLog(),
+					"gas price less than fees module MinGasPrices"),
+			).To(BeTrue(), res.GetLog())
+		})
+
+		It("should accept transactions with fees >= than min-gas-prices", func() {
+			gasPrice := sdk.NewInt(5)
+			res := checkTx(privKey, &gasPrice, &msg)
+			fmt.Println("res.GetLog()", res.GetLog())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded")
+		})
+	})
+})
+
 func calculateFees(
 	denom string,
 	params types.Params,
@@ -725,7 +856,7 @@ func registerDevFeeInfo(
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	msg := types.NewMsgRegisterDevFeeInfo(*contractAddress, deployerAddress, withdrawAddress, nonces)
 
-	res := deliverTx(priv, msg)
+	res := deliverTx(priv, nil, msg)
 	s.Commit()
 	Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
@@ -878,7 +1009,7 @@ func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	return res
 }
 
-func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
+func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.Msg) []byte {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
@@ -886,7 +1017,12 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(1000000)
-	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: sdk.NewInt(1)}})
+	if gasPrice == nil {
+		_gasPrice := sdk.NewInt(1)
+		gasPrice = &_gasPrice
+	}
+	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(1000000)}}
+	txBuilder.SetFeeAmount(*fees)
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)
 
@@ -930,8 +1066,19 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	// bz are bytes to be broadcasted over the network
 	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
 	s.Require().NoError(err)
+	return bz
+}
 
+func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx {
+	bz := prepareCosmosTx(priv, gasPrice, msgs...)
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
+	return res
+}
+
+func checkTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.Msg) abci.ResponseCheckTx {
+	bz := prepareCosmosTx(priv, gasPrice, msgs...)
+	req := abci.RequestCheckTx{Tx: bz}
+	res := s.app.BaseApp.CheckTx(req)
 	return res
 }
