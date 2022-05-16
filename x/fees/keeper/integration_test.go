@@ -701,7 +701,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 	})
 })
 
-var _ = Describe("Evmos App min gas prices setting: ", func() {
+var _ = Describe("Evmos App min gas prices settings: ", func() {
 	var (
 		privKey *ethsecp256k1.PrivKey
 		address sdk.AccAddress
@@ -764,7 +764,7 @@ var _ = Describe("Evmos App min gas prices setting: ", func() {
 		s.Commit()
 	}
 
-	Context("with cli min-gas-prices < MinGasPrices fees param", func() {
+	Context("with min-gas-prices (local) < MinGasPrices (fees param)", func() {
 		BeforeEach(func() {
 			setupTest("1" + s.denom)
 			params := types.DefaultParams()
@@ -773,40 +773,44 @@ var _ = Describe("Evmos App min gas prices setting: ", func() {
 			s.Commit()
 		})
 
-		It("should reject transactions with fees < than the MinGasPrices fees param in CheckTx", func() {
-			gasPrice := sdk.NewInt(2)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"gas price less than fees module MinGasPrices"),
-			).To(BeTrue(), res.GetLog())
+		Context("during CheckTx", func() {
+			It("should reject transactions with fees < MinGasPrices", func() {
+				gasPrice := sdk.NewInt(2)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"gas price less than fees module MinGasPrices"),
+				).To(BeTrue(), res.GetLog())
+			})
+
+			It("should accept transactions with fees >= MinGasPrices", func() {
+				gasPrice := sdk.NewInt(3)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 		})
 
-		It("should reject transactions with fees < than the MinGasPrices fees param in DeliverTx", func() {
-			gasPrice := sdk.NewInt(2)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"gas price less than fees module MinGasPrices"),
-			).To(BeTrue(), res.GetLog())
-		})
+		Context("during DeliverTx", func() {
+			It("should reject transactions with fees < than the MinGasPrices fees param", func() {
+				gasPrice := sdk.NewInt(2)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"gas price less than fees module MinGasPrices"),
+				).To(BeTrue(), res.GetLog())
+			})
 
-		It("should accept transactions with fees >= than the MinGasPrices fees param in CheckTx", func() {
-			gasPrice := sdk.NewInt(3)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-		})
-
-		It("should accept transactions with fees >= than the MinGasPrices fees param in DeliverTx", func() {
-			gasPrice := sdk.NewInt(3)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			It("should accept transactions with fees >= MinGasPrices", func() {
+				gasPrice := sdk.NewInt(3)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 		})
 	})
 
-	Context("with cli min-gas-prices == MinGasPrices fees param", func() {
+	Context("with min-gas-prices (local) == MinGasPrices (fees param)", func() {
 		BeforeEach(func() {
 			setupTest("3" + s.denom)
 			params := types.DefaultParams()
@@ -815,40 +819,44 @@ var _ = Describe("Evmos App min gas prices setting: ", func() {
 			s.Commit()
 		})
 
-		It("should reject transactions with fees < than the min-gas-prices fees param in CheckTx", func() {
-			gasPrice := sdk.NewInt(2)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"insufficient fees"),
-			).To(BeTrue(), res.GetLog())
+		Context("during CheckTx", func() {
+			It("should reject transactions with fees < min-gas-prices", func() {
+				gasPrice := sdk.NewInt(2)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"insufficient fees"),
+				).To(BeTrue(), res.GetLog())
+			})
+
+			It("should accept transactions with fees >= MinGasPrices", func() {
+				gasPrice := sdk.NewInt(3)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 		})
 
-		It("should reject transactions with fees < than the MinGasPrices fees param in DeliverTx", func() {
-			gasPrice := sdk.NewInt(2)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"gas price less than fees module MinGasPrices"),
-			).To(BeTrue(), res.GetLog())
-		})
+		Context("during DeliverTx", func() {
+			It("should reject transactions with fees < MinGasPrices", func() {
+				gasPrice := sdk.NewInt(2)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"gas price less than fees module MinGasPrices"),
+				).To(BeTrue(), res.GetLog())
+			})
 
-		It("should accept transactions with fees >= than the MinGasPrices fees param in CheckTx", func() {
-			gasPrice := sdk.NewInt(3)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-		})
-
-		It("should accept transactions with fees >= than the MinGasPrices fees param in DeliverTx", func() {
-			gasPrice := sdk.NewInt(3)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			It("should accept transactions with fees >= MinGasPrices", func() {
+				gasPrice := sdk.NewInt(3)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 		})
 	})
 
-	Context("with cli min-gas-prices >= MinGasPrices fees param", func() {
+	Context("with min-gas-prices (local) >= MinGasPrices (fees param)", func() {
 		BeforeEach(func() {
 			setupTest("5" + s.denom)
 			params := types.DefaultParams()
@@ -857,52 +865,56 @@ var _ = Describe("Evmos App min gas prices setting: ", func() {
 			s.Commit()
 		})
 
-		It("should reject transactions with fees < MinGasPrices fees param in CheckTx", func() {
-			gasPrice := sdk.NewInt(2)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"insufficient fees"),
-			).To(BeTrue(), res.GetLog())
+		Context("during CheckTx", func() {
+			It("should reject transactions with fees < MinGasPrices", func() {
+				gasPrice := sdk.NewInt(2)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"insufficient fees"),
+				).To(BeTrue(), res.GetLog())
+			})
+
+			It("should reject transactions with fees < min-gas-prices", func() {
+				gasPrice := sdk.NewInt(4)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"insufficient fees"),
+				).To(BeTrue(), res.GetLog())
+			})
+
+			It("should accept transactions with fees >= min-gas-prices", func() {
+				gasPrice := sdk.NewInt(5)
+				res := checkTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 		})
 
-		It("should reject transactions with fees < MinGasPrices fees param in DeliverTx", func() {
-			gasPrice := sdk.NewInt(2)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"gas price less than fees module MinGasPrices"),
-			).To(BeTrue(), res.GetLog())
-		})
+		Context("during DeliverTx", func() {
+			It("should reject transactions with fees < MinGasPrices", func() {
+				gasPrice := sdk.NewInt(2)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+				Expect(
+					strings.Contains(res.GetLog(),
+						"gas price less than fees module MinGasPrices"),
+				).To(BeTrue(), res.GetLog())
+			})
 
-		It("should reject transactions with fees < than min-gas-prices fees param in CheckTx", func() {
-			gasPrice := sdk.NewInt(4)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
-			Expect(
-				strings.Contains(res.GetLog(),
-					"insufficient fees"),
-			).To(BeTrue(), res.GetLog())
-		})
+			It("should accept transactions with MinGasPrices < fees < than min-gas-prices", func() {
+				gasPrice := sdk.NewInt(4)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 
-		It("should accept transactions with MinGasPrices < fees < than min-gas-prices fees param in DeliverTx", func() {
-			gasPrice := sdk.NewInt(4)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-		})
-
-		It("should accept transactions with fees >= than min-gas-prices in CheckTx", func() {
-			gasPrice := sdk.NewInt(5)
-			res := checkTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-		})
-
-		It("should accept transactions with fees >= than min-gas-prices in DeliverTx", func() {
-			gasPrice := sdk.NewInt(5)
-			res := deliverTx(privKey, &gasPrice, &msg)
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			It("should accept transactions with fees >= min-gas-prices", func() {
+				gasPrice := sdk.NewInt(5)
+				res := deliverTx(privKey, &gasPrice, &msg)
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+			})
 		})
 	})
 })
