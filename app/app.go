@@ -287,8 +287,6 @@ type Evmos struct {
 	configurator module.Configurator
 
 	tpsCounter *tpsCounter
-
-	cliMinGasPrices string
 }
 
 // NewEvmos returns a reference to a new initialized Ethermint application.
@@ -302,7 +300,6 @@ func NewEvmos(
 	invCheckPeriod uint,
 	encodingConfig simappparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
-	cliMinGasPrices string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *Evmos {
 	appCodec := encodingConfig.Marshaler
@@ -351,7 +348,6 @@ func NewEvmos(
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
-		cliMinGasPrices:   cliMinGasPrices,
 	}
 
 	// init params keeper and subspaces
