@@ -15,7 +15,7 @@ var (
 	// Cost for executing `crypto.CreateAddress`
 	// must be at least 36 gas for the contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate       = uint64(50)
-	DefaultMinGasPrice                    = sdk.NewDecWithPrec(25, 4) // 0.0025
+	DefaultMinGasPrice                    = sdk.NewDec(0)
 	ParamStoreKeyEnableFees               = []byte("EnableFees")
 	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
 	ParamStoreKeyValidatorShares          = []byte("ValidatorShares")
