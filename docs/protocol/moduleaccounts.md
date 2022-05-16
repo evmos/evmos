@@ -4,8 +4,7 @@ order: 1
 
 # Module Accounts
 
-Some modules have their own module account. Think of this as a wallet that can only be controlled by that module. 
-Below is a table of modules, their respective wallet addresses and permissions.
+Some modules have their own module account. Think of this as a wallet that can only be controlled by that module. Below is a table of modules, their respective wallet addresses and permissions.
 
 ### Account Permisions and their meaning
 
