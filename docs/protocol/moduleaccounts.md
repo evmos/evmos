@@ -7,7 +7,6 @@ order: 1
 All modules have their own module account. Think of this as a wallet that can only be controlled by that module. 
 Below is a table of modules, their respective wallet addresses and permissions.
 
-
 | Name                    | Address                                             | Permissions        |
 | :---------------------- | :-------------------------------------------------- | :----------------- |
 | `claims`                | [evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz](https://www.mintscan.io/evmos/account/evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz)   | `none`             |

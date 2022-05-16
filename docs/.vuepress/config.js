@@ -183,7 +183,6 @@ module.exports = {
         {
           title: 'For Protocol Devs',
           children: [
-
             {
               title: 'Module Accounts',
               directory: false,
