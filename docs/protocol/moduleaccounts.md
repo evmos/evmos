@@ -1,9 +1,3 @@
-<!--
-order: 0
-title: "Claims Overview"
-parent:
-  title: "claims"
--->
 
 # Module Accounts
 

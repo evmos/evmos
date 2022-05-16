@@ -183,6 +183,12 @@ module.exports = {
         {
           title: 'For Protocol Devs',
           children: [
+
+            {
+              title: 'Evmos Module Accounts',
+              directory: false,
+              path: '/protocol/moduleaccounts'
+            },
             {
               title: 'Module Specifications',
               directory: true,
