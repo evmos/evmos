@@ -105,7 +105,7 @@ func TestParamsValidateMinGasPrice(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := validateShares(tc.value)
+		err := validateMinGasPrice(tc.value)
 
 		if tc.expError {
 			require.Error(t, err, tc.name)
