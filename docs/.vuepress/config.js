@@ -185,7 +185,7 @@ module.exports = {
           children: [
 
             {
-              title: 'Evmos Module Accounts',
+              title: 'Module Accounts',
               directory: false,
               path: '/protocol/moduleaccounts'
             },
