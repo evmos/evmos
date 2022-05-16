@@ -127,10 +127,10 @@ global:
   scrape_interval: 10s
 
   external_labels:
-    monitor: 'evmos'
+    monitor: 'canto'
 
 scrape_configs:
-  - job_name: 'evmos'
+  - job_name: 'canto'
 
     scrape_interval: 10s
 

@@ -59,7 +59,7 @@ if [[ ! "$DATA_DIR" ]]; then
     exit 1
 fi
 
-# Compile evmos
+# Compile canto
 echo "compiling evmos"
 make build
 

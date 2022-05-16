@@ -35,7 +35,7 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (
 	}
 
 	// validate the recipient bech32 address from the counterparty chain
-	// and change the bech32 human readable prefix (HRP) of the recipient to `evmos`
+	// and change the bech32 human readable prefix (HRP) of the recipient to `canto`
 	recipient, err = canto.GetCantoAddressFromBech32(data.Receiver)
 	if err != nil {
 		return nil, nil, "", "", sdkerrors.Wrap(err, "invalid recipient")

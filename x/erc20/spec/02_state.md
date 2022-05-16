@@ -27,7 +27,7 @@ type TokenPair struct {
 	// shows token mapping enable status
 	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address
-	ContractOwner Owner `protobuf:"varint,4,opt,name=contract_owner,json=contractOwner,proto3,enum=evmos.erc20.v1.Owner" json:"contract_owner,omitempty"`
+	ContractOwner Owner `protobuf:"varint,4,opt,name=contract_owner,json=contractOwner,proto3,enum=canto.erc20.v1.Owner" json:"contract_owner,omitempty"`
 }
 ```
 
