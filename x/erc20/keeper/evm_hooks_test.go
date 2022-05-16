@@ -111,7 +111,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredERC20() {
 
 			suite.ensureHooksSet()
 
-			contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
+			contractAddr, err := suite.DeployContract("coin test erc20", "token", erc20Decimals)
 			suite.Require().NoError(err)
 			suite.Commit()
 

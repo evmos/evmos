@@ -43,6 +43,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
+(erc20) [\#602](https://github.com/tharsis/evmos/pull/602) Modified `RegisterERC20` proposals. Fix erc20 name sanitization to allow spaces on token name.
 
 ### API Breaking
 
