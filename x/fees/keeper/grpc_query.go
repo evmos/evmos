@@ -125,7 +125,7 @@ func (k Keeper) DevFeeInfosPerDeployer(
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for deployer %s, should be bech32 ('evmos...')", req.DeployerAddress,
+			"invalid format for deployer %s, should be bech32 ('canto...')", req.DeployerAddress,
 		)
 	}
 

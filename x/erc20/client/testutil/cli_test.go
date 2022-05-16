@@ -16,7 +16,7 @@ import (
 
 	"github.com/tharsis/ethermint/testutil/network"
 
-	evmosnetwork "github.com/Canto-Network/canto/v3/testutil/network"
+	cantonetwork "github.com/Canto-Network/canto/v3/testutil/network"
 	"github.com/Canto-Network/canto/v3/x/erc20/client/cli"
 )
 
@@ -39,7 +39,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	var err error
-	s.cfg = evmosnetwork.DefaultConfig()
+	s.cfg = cantonetwork.DefaultConfig()
 	s.cfg.NumValidators = 1
 
 	s.network, err = network.New(s.T(), s.T().TempDir(), s.cfg)

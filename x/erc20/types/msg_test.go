@@ -94,7 +94,7 @@ func (suite *MsgsTestSuite) TestMsgConvertCoin() {
 			"msg convert coin - invalid sender",
 			sdk.NewCoin("coin", sdk.NewInt(100)),
 			tests.GenerateAddress().String(),
-			"evmosinvalid",
+			"cantoinvalid",
 			false,
 		},
 		{

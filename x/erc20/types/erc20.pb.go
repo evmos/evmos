@@ -399,15 +399,15 @@ func (m *UpdateTokenPairERC20Proposal) GetNewErc20Address() string {
 }
 
 func init() {
-	proto.RegisterEnum("evmos.erc20.v1.Owner", Owner_name, Owner_value)
-	proto.RegisterType((*TokenPair)(nil), "evmos.erc20.v1.TokenPair")
-	proto.RegisterType((*RegisterCoinProposal)(nil), "evmos.erc20.v1.RegisterCoinProposal")
-	proto.RegisterType((*RegisterERC20Proposal)(nil), "evmos.erc20.v1.RegisterERC20Proposal")
-	proto.RegisterType((*ToggleTokenRelayProposal)(nil), "evmos.erc20.v1.ToggleTokenRelayProposal")
-	proto.RegisterType((*UpdateTokenPairERC20Proposal)(nil), "evmos.erc20.v1.UpdateTokenPairERC20Proposal")
+	proto.RegisterEnum("canto.erc20.v1.Owner", Owner_name, Owner_value)
+	proto.RegisterType((*TokenPair)(nil), "canto.erc20.v1.TokenPair")
+	proto.RegisterType((*RegisterCoinProposal)(nil), "canto.erc20.v1.RegisterCoinProposal")
+	proto.RegisterType((*RegisterERC20Proposal)(nil), "canto.erc20.v1.RegisterERC20Proposal")
+	proto.RegisterType((*ToggleTokenRelayProposal)(nil), "canto.erc20.v1.ToggleTokenRelayProposal")
+	proto.RegisterType((*UpdateTokenPairERC20Proposal)(nil), "canto.erc20.v1.UpdateTokenPairERC20Proposal")
 }
 
-func init() { proto.RegisterFile("evmos/erc20/v1/erc20.proto", fileDescriptor_668d5dc537f45142) }
+func init() { proto.RegisterFile("canto/erc20/v1/erc20.proto", fileDescriptor_668d5dc537f45142) }
 
 var fileDescriptor_668d5dc537f45142 = []byte{
 	// 525 bytes of a gzipped FileDescriptorProto

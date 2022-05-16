@@ -97,7 +97,7 @@ func (k Keeper) GetProportions(
 }
 
 func (k Keeper) isMainnetChainID(ctx sdk.Context) bool {
-	return strings.Contains(ctx.ChainID(), "evmos_9001-")
+	return strings.Contains(ctx.ChainID(), "canto_9001-")
 }
 
 // BondedRatio the fraction of the staking tokens which are currently bonded

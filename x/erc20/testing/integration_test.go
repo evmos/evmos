@@ -70,7 +70,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	s.grpcQueryClient = types.NewQueryClient(grpcConn)
 
-	// FIXME: "unknown service evmos.erc20.v1.Msg"
+	// FIXME: "unknown service canto.erc20.v1.Msg"
 	s.grpcTxClient = types.NewMsgClient(grpcConn)
 }
 

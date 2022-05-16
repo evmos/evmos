@@ -30,7 +30,7 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 		{
 			"Register incentive - pass",
 			tests.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 			10,
 			true,
 		},
@@ -51,21 +51,21 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 		{
 			"Register incentive - invalid allocation amount (0)",
 			tests.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(0, 2))},
 			10,
 			false,
 		},
 		{
 			"Register incentive - invalid allocation amount (> 1)",
 			tests.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(101, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(101, 2))},
 			10,
 			false,
 		},
 		{
 			"Register incentive - zero epochs",
 			tests.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 			0,
 			false,
 		},
@@ -93,7 +93,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"Register incentive - invalid address (no hex)",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -104,7 +104,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"Register incentive - invalid address (invalid length 1)",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -115,7 +115,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"Register incentive - invalid address (invalid length 2)",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -126,7 +126,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"pass",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -156,7 +156,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 			"pass",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -167,7 +167,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 			"epoch is zero",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				0,
 				time.Now(),
 				0,
