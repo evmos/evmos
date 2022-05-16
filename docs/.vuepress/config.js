@@ -74,8 +74,8 @@ module.exports = {
       src: '/evmos-black.svg',
     },
     algolia: {
-      id: 'BH4D9OD16A',
-      key: 'a5d55fe5f540cc3bd28fa2c72f2b5bd8',
+      id: '03ZGNVGBA8',
+      key: '56dbc1a7c67f8549b76a383447e246ab',
       index: 'evmos'
     },
     topbar: {
