@@ -147,7 +147,7 @@ func init() {
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".cantod")
 
-	// manually update the power reduction by replacing micro (u) -> atto (a) evmos
+	// manually update the power reduction by replacing micro (u) -> atto (a) canto
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
 }
 
@@ -155,9 +155,9 @@ const (
 	// Name defines the application binary name
 	Name = "cantod"
 	// MainnetChainID defines the Canto EIP155 chain ID for mainnet
-	MainnetChainID = "evmos_9001"
+	MainnetChainID = "canto_9001"
 	// TestnetChainID defines the Canto EIP155 chain ID for testnet
-	TestnetChainID = "evmos_9000"
+	TestnetChainID = "canto_9000"
 )
 
 var (
@@ -296,8 +296,8 @@ type Canto struct {
 	tpsCounter *tpsCounter
 }
 
-// NewEvmos returns a reference to a new initialized Ethermint application.
-func NewEvmos(
+// NewCanto returns a reference to a new initialized Ethermint application.
+func NewCanto(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -336,7 +336,7 @@ func NewEvmos(
 		ibchost.StoreKey, ibctransfertypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
-		// evmos keys
+		// canto keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 		feestypes.StoreKey,
@@ -1014,7 +1014,7 @@ func initParamsKeeper(
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
-	// evmos subspaces
+	// canto subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)

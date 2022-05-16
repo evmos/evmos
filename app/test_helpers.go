@@ -59,7 +59,7 @@ func Setup(
 	feemarketGenesis *feemarkettypes.GenesisState,
 ) *Canto {
 	db := dbm.NewMemDB()
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
+	app := NewCanto(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()
@@ -95,6 +95,6 @@ func Setup(
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	db := dbm.NewMemDB()
 	cfg := encoding.MakeConfig(ModuleBasics)
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
+	app := NewCanto(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
 	return app, NewDefaultGenesisState()
 }
