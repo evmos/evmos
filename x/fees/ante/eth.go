@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
@@ -21,9 +22,9 @@ func NewEthMinPriceFeeDecorator(fk FeesKeeper, ek EvmKeeper) EthMinPriceFeeDecor
 	return EthMinPriceFeeDecorator{feesKeeper: fk, evmKeeper: ek}
 }
 
-func (mpd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	evmDenom := mpd.evmKeeper.GetParams(ctx).EvmDenom
-	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
+func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	evmDenom := empd.evmKeeper.GetParams(ctx).EvmDenom
+	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
 	minGasPrices := sdk.DecCoins{sdk.DecCoin{
 		Denom:  evmDenom,
 		Amount: minGasPrice,
@@ -37,6 +38,19 @@ func (mpd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			}
 
 			feeAmt := ethMsg.GetFee()
+
+			// For dynamic transactions, GetFee() uses the GasFeeCap value, which
+			// is the maximum gas price that the signer can pay. In practice, the
+			// signer can pay less, if the block's base fee is lower. In this case,
+			// we use the effective price
+			txData, err := evmtypes.UnpackTxData(ethMsg.Data)
+			if err == nil && txData.TxType() != ethtypes.LegacyTxType {
+				paramsEvm := empd.evmKeeper.GetParams(ctx)
+				ethCfg := paramsEvm.ChainConfig.EthereumConfig(empd.evmKeeper.ChainID())
+				baseFee := empd.evmKeeper.GetBaseFee(ctx, ethCfg)
+				feeAmt = ethMsg.GetEffectiveFee(baseFee)
+			}
+
 			glDec := sdk.NewDec(int64(ethMsg.GetGas()))
 			requiredFee := minGasPrices.AmountOf(evmDenom).Mul(glDec)
 
