@@ -111,6 +111,7 @@ import (
 	"github.com/tharsis/evmos/v4/app/ante"
 	v2 "github.com/tharsis/evmos/v4/app/upgrades/v2"
 	v4 "github.com/tharsis/evmos/v4/app/upgrades/v4"
+	v5 "github.com/tharsis/evmos/v4/app/upgrades/v5"
 	"github.com/tharsis/evmos/v4/x/claims"
 	claimskeeper "github.com/tharsis/evmos/v4/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v4/x/claims/types"
@@ -1038,6 +1039,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v5 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v5.UpgradeName,
+		v5.CreateUpgradeHandler(app.mm, app.configurator),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1057,6 +1064,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v2
 	case v4.UpgradeName:
 		// no store upgrades in v4
+	case v5.UpgradeName:
+		// no store upgrades in v5
 	}
 
 	if storeUpgrades != nil {
