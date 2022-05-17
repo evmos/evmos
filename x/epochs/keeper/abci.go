@@ -24,11 +24,12 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 		shouldEpochEnd := ctx.BlockTime().After(epochEndTime) && !shouldInitialEpochStart && !epochInfo.StartTime.After(ctx.BlockTime())
 
 		epochInfo.CurrentEpochStartHeight = ctx.BlockHeight()
-		identifier, exists := types.DurationToIdentifier[epochInfo.Duration]
-		if !exists {
-			// continue
-			return false
-		}
+		// identifier, exists := types.DurationToIdentifier[epochInfo.Duration]
+		// if !exists {
+		// 	// continue
+		// 	return false
+		// }
+		identifier := ""
 
 		switch {
 		case shouldInitialEpochStart:
