@@ -1015,6 +1015,8 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 2000), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
+					// the base fee decreases in this test and even if 1001 > 1000 (MinGasPrices)
+					// the effective gas price value is < MinGasPrices
 					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 1001), big.NewInt(1001), &ethtypes.AccessList{}}
 					}),
