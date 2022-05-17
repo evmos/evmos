@@ -1016,22 +1016,6 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 						return txParams{nil, big.NewInt(baseFee + 2000), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
 				)
-
-				DescribeTable("should accept transactions with fees >= MinGasPrices",
-					func(malleate getprices) {
-						p := malleate()
-						to := tests.GenerateAddress()
-						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
-						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-					},
-					Entry("legacy tx", func() txParams {
-						return txParams{big.NewInt(baseFee + 1001), nil, nil, nil}
-					}),
-					Entry("dynamic tx", func() txParams {
-						return txParams{nil, big.NewInt(baseFee + 1001), big.NewInt(1001), &ethtypes.AccessList{}}
-					}),
-				)
 			})
 		})
 
