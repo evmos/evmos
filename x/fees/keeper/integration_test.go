@@ -1015,6 +1015,27 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 2000), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
+					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
+						return txParams{nil, big.NewInt(baseFee + 1001), big.NewInt(1001), &ethtypes.AccessList{}}
+					}),
+				)
+
+				DescribeTable("should accept transactions with fees >= MinGasPrices",
+					func(malleate getprices) {
+						p := malleate()
+						to := tests.GenerateAddress()
+						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
+						res := deliverEthTx(privKey, msgEthereumTx)
+						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+					},
+					Entry("legacy tx", func() txParams {
+						return txParams{big.NewInt(baseFee + 1001), nil, nil, nil}
+					}),
+					// the base fee decreases in this test, so we use a large gas tip
+					// to maintain an effective fee > MinGasPrices
+					Entry("dynamic tx, effective fee > MinGasPrices", func() txParams {
+						return txParams{nil, big.NewInt(baseFee + 875000000), big.NewInt(875000000), &ethtypes.AccessList{}}
+					}),
 				)
 			})
 		})
