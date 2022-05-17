@@ -26,6 +26,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) {
 		epochInfo.CurrentEpochStartHeight = ctx.BlockHeight()
 		identifier, exists := types.DurationToIdentifier[epochInfo.Duration]
 		if !exists {
+			// continue
 			return false
 		}
 

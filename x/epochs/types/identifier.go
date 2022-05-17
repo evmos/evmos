@@ -14,9 +14,9 @@ const (
 	// HourEpochID defines the identifier for hourly epochs
 	HourEpochID = "hour"
 	// WeekEpochDuration defines the duration for weekly epochs
-	WeekEpochDuration = time.Hour * 24 * 7
+	WeekEpochDuration = DayEpochDuration * 7
 	// DayEpochDuration defines the duration for daily epochs
-	DayEpochDuration = time.Hour * 24
+	DayEpochDuration = HourEpochDuration * 24
 	// HourEpochDuration defines the duration for hourly epochs
 	HourEpochDuration = time.Hour
 )
