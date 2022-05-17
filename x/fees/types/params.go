@@ -15,7 +15,7 @@ var (
 	// Cost for executing `crypto.CreateAddress`
 	// must be at least 36 gas for the contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate       = uint64(50)
-	DefaultMinGasPrice                    = sdk.NewDec(0)
+	DefaultMinGasPrice                    = sdk.ZeroDec()
 	ParamStoreKeyEnableFees               = []byte("EnableFees")
 	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
 	ParamStoreKeyValidatorShares          = []byte("ValidatorShares")
@@ -118,7 +118,7 @@ func validateMinGasPrice(i interface{}) error {
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("value cannot be negative: %T", i)
+		return fmt.Errorf("value cannot be negative: %s", i)
 	}
 
 	return nil
@@ -140,9 +140,5 @@ func (p Params) Validate() error {
 	if err := validateUint64(p.AddrDerivationCostCreate); err != nil {
 		return err
 	}
-	if err := validateMinGasPrice(p.MinGasPrice); err != nil {
-		return err
-	}
-
-	return nil
+	return validateMinGasPrice(p.MinGasPrice)
 }
