@@ -8,5 +8,5 @@ import (
 
 // DurationToBz parses time duration to maintain number-compatible ordering
 func DurationToBz(duration time.Duration) []byte {
-	return sdk.Uint64ToBigEndian(uint64(duration.Milliseconds()))
+	return sdk.Uint64ToBigEndian(uint64(duration.Nanoseconds()))
 }
