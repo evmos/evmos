@@ -41,8 +41,12 @@ func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 			// For dynamic transactions, GetFee() uses the GasFeeCap value, which
 			// is the maximum gas price that the signer can pay. In practice, the
-			// signer can pay less, if the block's base fee is lower. In this case,
-			// we use the effective price
+			// signer can pay less, if the block's BaseFee is lower. So, in this case,
+			// we use the EffectiveFee. If the feemarket formula results in a BaseFee
+			// that lowers EffectivePrice until it is < MinGasPrices, the users must
+			// increase the GasTipCap (priority fee) until EffectivePrice > MinGasPrices.
+			// Transactions with MinGasPrices * gasUsed < tx fees < EffectiveFee are rejected
+			// by the feemarket AnteHandle
 			txData, err := evmtypes.UnpackTxData(ethMsg.Data)
 			if err == nil && txData.TxType() != ethtypes.LegacyTxType {
 				paramsEvm := empd.evmKeeper.GetParams(ctx)

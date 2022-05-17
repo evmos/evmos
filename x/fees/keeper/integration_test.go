@@ -947,7 +947,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 				s.Commit()
 			})
 			Context("during CheckTx", func() {
-				DescribeTable("should reject transactions with EffectiveFee < MinGasPrices",
+				DescribeTable("should reject transactions with EffectivePrice < MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -965,15 +965,15 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Entry("dynamic tx", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 10), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
-					Entry("dynamic tx with cap < MinGasPrices", func() txParams {
+					Entry("dynamic tx with GasFeeCap < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 900), big.NewInt(2000), &ethtypes.AccessList{}}
 					}),
-					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
+					Entry("dynamic tx with GasFeeCap > MinGasPrices, EffectivePrice < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 2000), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
 				)
 
-				DescribeTable("should accept transactions with fees >= MinGasPrices",
+				DescribeTable("should accept transactions with fees >= MinGasPrices * gasUsed",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -991,7 +991,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 			})
 
 			Context("during DeliverTx", func() {
-				DescribeTable("should reject transactions with fees < MinGasPrices",
+				DescribeTable("should reject transactions with fees < MinGasPrices * gasUsed",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1009,20 +1009,20 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Entry("dynamic tx", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 10), big.NewInt(10), &ethtypes.AccessList{}}
 					}),
-					Entry("dynamic tx with cap < MinGasPrices", func() txParams {
+					Entry("dynamic tx with GasFeeCap < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 900), big.NewInt(2000), &ethtypes.AccessList{}}
 					}),
-					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
+					Entry("dynamic tx with GasFeeCap > MinGasPrices, EffectivePrice < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 2000), big.NewInt(0), &ethtypes.AccessList{}}
 					}),
 					// the base fee decreases in this test and even if 1001 > 1000 (MinGasPrices)
 					// the effective gas price value is < MinGasPrices
-					Entry("dynamic tx with cap > MinGasPrices, effective fee < MinGasPrices", func() txParams {
+					Entry("dynamic tx with GasFeeCap > MinGasPrices, EffectivePrice < MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 1001), big.NewInt(1001), &ethtypes.AccessList{}}
 					}),
 				)
 
-				DescribeTable("should accept transactions with fees >= MinGasPrices",
+				DescribeTable("should accept transactions with fees >= MinGasPrices * gasUsed",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1034,8 +1034,8 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 						return txParams{big.NewInt(baseFee + 1001), nil, nil, nil}
 					}),
 					// the base fee decreases in this test, so we use a large gas tip
-					// to maintain an effective fee > MinGasPrices
-					Entry("dynamic tx, effective fee > MinGasPrices", func() txParams {
+					// to maintain an EffectivePrice > MinGasPrices
+					Entry("dynamic tx, EffectivePrice > MinGasPrices", func() txParams {
 						return txParams{nil, big.NewInt(baseFee + 875000000), big.NewInt(875000000), &ethtypes.AccessList{}}
 					}),
 				)
@@ -1054,7 +1054,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 			})
 
 			Context("during CheckTx", func() {
-				DescribeTable("should reject transactions with fees < MinGasPrices",
+				DescribeTable("should reject transactions with fees < MinGasPrices * gasUsed",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1074,7 +1074,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					}),
 				)
 
-				DescribeTable("should reject transactions with MinGasPrices < fees < BaseFee",
+				DescribeTable("should reject transactions with MinGasPrices * gasUsed < tx fees < EffectiveFee",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1094,7 +1094,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					}),
 				)
 
-				DescribeTable("should accept transactions with fees > BaseFee",
+				DescribeTable("should accept transactions with fees > EffectiveFee",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1112,7 +1112,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 			})
 
 			Context("during DeliverTx", func() {
-				DescribeTable("should reject transactions with fees < MinGasPrices",
+				DescribeTable("should reject transactions with fees < MinGasPrices * gasUsed",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1132,7 +1132,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					}),
 				)
 
-				DescribeTable("should reject transactions with MinGasPrices < fees < BaseFee",
+				DescribeTable("should reject transactions with MinGasPrices * gasUsed < fees < Effective Fee",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
@@ -1152,7 +1152,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					}),
 				)
 
-				DescribeTable("should accept transactions with fees > BaseFee",
+				DescribeTable("should accept transactions with fees > EffectiveFee",
 					func(malleate getprices) {
 						p := malleate()
 						to := tests.GenerateAddress()
