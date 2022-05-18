@@ -675,6 +675,11 @@ func NewEvmos(
 		distrtypes.ModuleName,
 		// NOTE: staking requires the claiming hook
 		claimstypes.ModuleName,
+		// evm module denomination is used by the fees module, in AnteHandle
+		evmtypes.ModuleName,
+		// NOTE: fees need to be initialized before gentx transactions are sent
+		// if the cosmos & evm AnteHandles are used
+		feestypes.ModuleName,
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
@@ -687,7 +692,7 @@ func NewEvmos(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		// Ethermint modules
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		feemarkettypes.ModuleName,
 		// Evmos modules
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
@@ -695,7 +700,6 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
-		feestypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
