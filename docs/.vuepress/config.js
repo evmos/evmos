@@ -44,8 +44,8 @@ module.exports = {
     // ['link', { rel: "apple-touch-icon-precomposed", href: "/apple-touch-icon-precomposed.png" }],
   ],
   themeConfig: {
-    repo: 'tharsis/evmos',
-    docsRepo: 'tharsis/evmos',
+    repo: 'tharsis/canto',
+    docsRepo: 'tharsis/canto',
     docsBranch: 'main',
     docsDir: 'docs',
     editLinks: true,
@@ -71,12 +71,12 @@ module.exports = {
       cosmos_explorer_url: 'https://www.mintscan.io/evmos',
     },
     logo: {
-      src: '/evmos-black.svg',
+      src: '/canto-black.svg',
     },
     algolia: {
       id: 'BH4D9OD16A',
       key: 'a5d55fe5f540cc3bd28fa2c72f2b5bd8',
-      index: 'evmos'
+      index: 'canto'
     },
     topbar: {
       banner: false
@@ -288,9 +288,9 @@ module.exports = {
       }
     },
     footer: {
-      logo: '/evmos-black.svg',
+      logo: '/canto-black.svg',
       textLink: {
-        text: "evmos.org",
+        text: "canto.org",
         url: 'https://evmos.org'
       },
       services: [

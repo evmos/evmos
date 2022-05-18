@@ -11,7 +11,7 @@ import (
 )
 
 // BeginBlockForks executes any necessary fork logic based upon the current block height.
-func BeginBlockForks(ctx sdk.Context, app *Evmos) {
+func BeginBlockForks(ctx sdk.Context, app *Canto) {
 	switch ctx.BlockHeight() {
 	case v2.UpgradeHeight:
 		// NOTE: only run for mainnet

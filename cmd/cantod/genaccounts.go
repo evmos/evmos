@@ -24,7 +24,7 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	evmoskr "github.com/Canto-Network/canto/v3/crypto/keyring"
+	cantokr "github.com/Canto-Network/canto/v3/crypto/keyring"
 
 	vestingcli "github.com/Canto-Network/canto/v3/x/vesting/client/cli"
 	vestingtypes "github.com/Canto-Network/canto/v3/x/vesting/types"
@@ -68,7 +68,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 						keyringBackend,
 						clientCtx.HomeDir,
 						inBuf,
-						evmoskr.Option(),
+						cantokr.Option(),
 					)
 					if err != nil {
 						return err

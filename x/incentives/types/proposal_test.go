@@ -39,7 +39,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -65,7 +65,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -78,7 +78,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -91,7 +91,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				"",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -104,7 +104,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -117,7 +117,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -130,7 +130,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(101, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(101, 2))},
 				10,
 				time.Now(),
 				0,
@@ -143,7 +143,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(0, 2))},
 				10,
 				time.Now(),
 				0,
@@ -156,7 +156,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				0,
 				time.Now(),
 				0,
@@ -169,7 +169,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(0, 2))},
 				10,
 				time.Now(),
 				0,
@@ -209,7 +209,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				5,
 				time.Now(),
 				0,
@@ -222,7 +222,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test desc",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -235,7 +235,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"",
 			Incentive{
 				tests.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -248,7 +248,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test desc",
 			Incentive{
 				"035dCA2483280D9727c80b5518faC4556617fb19ZZ",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -261,7 +261,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test desc",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -274,7 +274,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test desc",
 			Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("acanto", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,

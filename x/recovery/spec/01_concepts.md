@@ -16,7 +16,7 @@ Some chains use different elliptic curves for generating public keys. An example
 ethPrivKey, err := ethsecp256k1.GenerateKey()
 ethsecpAddr := sdk.AccAddress(ethPrivKey.PubKey().Address())
 
-// Bech32 "evmos" address
+// Bech32 "canto" address
 ethsecpAddrEvmos := sdk.AccAddress(ethPk.PubKey().Address()).String()
 
 // We can also change the HRP to use "cosmos"
