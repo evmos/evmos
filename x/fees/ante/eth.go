@@ -59,7 +59,7 @@ func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 			requiredFee := minGasPrices.AmountOf(evmDenom).Mul(glDec)
 
 			if sdk.NewDecFromBigInt(feeAmt).LT(requiredFee) {
-				return ctx, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "gas price less than fees module MinGasPrices; got: %s required: %s", feeAmt, requiredFee)
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "provided fee < minimum global fee (%s < %s). Please increase the priority tip (for EIP-1559 txs) or the gas prices (for access list or legacy txs)", feeAmt, requiredFee)
 			}
 		}
 	}
