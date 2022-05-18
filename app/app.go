@@ -675,15 +675,15 @@ func NewEvmos(
 		distrtypes.ModuleName,
 		// NOTE: staking requires the claiming hook
 		claimstypes.ModuleName,
-		// evm module denomination is used by the fees module, in AnteHandle
-		evmtypes.ModuleName,
-		// NOTE: fees need to be initialized before gentx transactions are sent
-		// if the cosmos & evm AnteHandles are used
-		feestypes.ModuleName,
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		ibchost.ModuleName,
+		// evm module denomination is used by the fees module, in AnteHandle
+		evmtypes.ModuleName,
+		// NOTE: fees need to be initialized before genutil module:
+		// gentx transactions use MinPriceFeeDecorator.AnteHandle
+		feestypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
