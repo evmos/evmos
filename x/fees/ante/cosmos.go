@@ -46,7 +46,7 @@ func (mpd MinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		}
 
 		if !feeCoins.IsAnyGTE(requiredFees) {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "gas price less than fees module MinGasPrices; got: %s required: %s", feeCoins, requiredFees)
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "provided fee < minimum global fee (%s < %s). Please increase the gas price.", feeCoins, requiredFees)
 		}
 	}
 

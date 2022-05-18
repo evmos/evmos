@@ -783,7 +783,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 					Expect(
 						strings.Contains(res.GetLog(),
-							"gas price less than fees module MinGasPrices"),
+							"provided fee < minimum global fee"),
 					).To(BeTrue(), res.GetLog())
 				})
 
@@ -801,7 +801,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 					Expect(
 						strings.Contains(res.GetLog(),
-							"gas price less than fees module MinGasPrices"),
+							"provided fee < minimum global fee"),
 					).To(BeTrue(), res.GetLog())
 				})
 
@@ -847,7 +847,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 					Expect(
 						strings.Contains(res.GetLog(),
-							"gas price less than fees module MinGasPrices"),
+							"provided fee < minimum global fee"),
 					).To(BeTrue(), res.GetLog())
 				})
 
@@ -903,7 +903,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 					Expect(
 						strings.Contains(res.GetLog(),
-							"gas price less than fees module MinGasPrices"),
+							"provided fee < minimum global fee"),
 					).To(BeTrue(), res.GetLog())
 				})
 
@@ -956,7 +956,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 						Expect(
 							strings.Contains(res.GetLog(),
-								"gas price less than fees module MinGasPrices"),
+								"provided fee < minimum global fee"),
 						).To(BeTrue(), res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
@@ -1000,7 +1000,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 						Expect(
 							strings.Contains(res.GetLog(),
-								"gas price less than fees module MinGasPrices"),
+								"provided fee < minimum global fee"),
 						).To(BeTrue(), res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
@@ -1063,7 +1063,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 						Expect(
 							strings.Contains(res.GetLog(),
-								"gas price less than fees module MinGasPrices"),
+								"provided fee < minimum global fee"),
 						).To(BeTrue(), res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
@@ -1121,7 +1121,7 @@ var _ = Describe("Evmos App min gas prices settings: ", func() {
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 						Expect(
 							strings.Contains(res.GetLog(),
-								"gas price less than fees module MinGasPrices"),
+								"provided fee < minimum global fee"),
 						).To(BeTrue(), res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
