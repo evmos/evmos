@@ -2,11 +2,15 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/tharsis/evmos/v4/x/incentives/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}
@@ -14,20 +18,38 @@ var _ evmtypes.EvmHooks = Hooks{}
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the participants's GasUsed is
 // added to its gasMeter.
+<<<<<<< HEAD
 func (h Hooks) PostTxProcessing(
 	ctx sdk.Context,
 	participant common.Address,
 	contract *common.Address,
 	receipt *ethtypes.Receipt,
 ) error {
+=======
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+>>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	// check if the Incentives are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableIncentives {
 		return nil
 	}
 
+	contract := msg.To()
+	participant := msg.From()
+
 	// If theres no incentive registered for the contract, do nothing
 	if contract == nil || !h.k.IsIncentiveRegistered(ctx, *contract) {
+		return nil
+	}
+
+	// safety check: only distribute incentives to EOAs.
+	acc := h.k.accountKeeper.GetAccount(ctx, participant.Bytes())
+	if acc == nil {
+		return nil
+	}
+
+	ethAccount, ok := acc.(ethermint.EthAccountI)
+	if !ok || ethAccount.Type() != ethermint.AccountTypeEOA {
 		return nil
 	}
 

@@ -14,6 +14,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/tharsis/ethermint/encoding"
+	"github.com/tharsis/evmos/v4/types"
 )
 
 func TestEvmosExport(t *testing.T) {
@@ -27,7 +28,7 @@ func TestEvmosExport(t *testing.T) {
 	// Initialize the chain
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:       MainnetChainID + "-1",
+			ChainId:       types.MainnetChainID + "-1",
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},

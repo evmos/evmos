@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -111,7 +111,7 @@ func (k Keeper) ClaimsRecord(
 
 	claims := make([]types.Claim, len(actions))
 	for i, action := range actions {
-		claimableAmt, _ := k.GetClaimableAmountForAction(ctx, claimsRecord, action, params)
+		claimableAmt, _ := k.ClaimableAmountForAction(ctx, claimsRecord, action, params)
 
 		claims[i] = types.Claim{
 			Action:          action,

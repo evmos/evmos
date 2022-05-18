@@ -62,9 +62,9 @@ module.exports = {
       rpc_url_local: 'http://localhost:8545/',
       chain_id: '9001',
       testnet_chain_id: '9000',
-      latest_version: 'v3.0.0-beta',
+      latest_version: 'v4.0.1',
       version_number: '2',
-      testnet_version_number: '3',
+      testnet_version_number: '4',
       testnet_evm_explorer_url: 'https://evm.evmos.dev',
       evm_explorer_url: 'https://evm.evmos.org',
       testnet_cosmos_explorer_url: 'https://explorer.evmos.dev/',
@@ -74,8 +74,8 @@ module.exports = {
       src: '/evmos-black.svg',
     },
     algolia: {
-      id: 'BH4D9OD16A',
-      key: 'a5d55fe5f540cc3bd28fa2c72f2b5bd8',
+      id: '03ZGNVGBA8',
+      key: '56dbc1a7c67f8549b76a383447e246ab',
       index: 'evmos'
     },
     topbar: {
@@ -85,149 +85,185 @@ module.exports = {
       auto: false,
       nav: [
         {
-          title: 'Reference',
+          title: 'About Evmos',
           children: [
             {
               title: 'Introduction',
               directory: true,
-              path: '/intro'
+              path: '/about/intro'
             },
             {
-              title: 'Quick Start',
-              directory: true,
-              path: '/quickstart'
+              title: 'Evmos Ecosystem',
+              path: 'https://evmos.space/'
             },
             {
-              title: 'Basics',
-              directory: true,
-              path: '/basics'
-            },
-            {
-              title: 'Core Concepts',
-              directory: true,
-              path: '/core'
+              title: 'Awesome Evmos',
+              path: 'https://github.com/tharsis/awesome'
             },
           ]
         },
         {
-          title: 'Governance',
+          title: 'For Users',
           children: [
             {
-              title: 'Evmos Governance',
+              title: 'Basic Concepts',
               directory: true,
-              path: '/governance'
+              path: '/users/basics'
+            },
+            {
+              title: 'Digital Wallets',
+              directory: true,
+              path: '/users/wallets'
+            },
+            {
+              title: 'Account Keys',
+              directory: true,
+              path: '/users/keys'
+            },
+            {
+              title: 'Technical Concepts',
+              directory: true,
+              path: '/users/technical_concepts'
             },
           ]
         },
         {
-          title: 'Guides',
+          title: 'For dApp Devs',
           children: [
             {
-              title: 'Localnet',
-              directory: true,
-              path: '/guides/localnet'
+              title: 'Overview',
+              directory: false,
+              path: '/developers/overview'
             },
             {
-              title: 'Keys and Wallets',
-              directory: true,
-              path: '/guides/keys-wallets'
+              title: 'Quick Connect',
+              directory: false,
+              path: '/developers/connect'
+            },
+            {
+              title: 'Evmos Clients',
+              directory: false,
+              path: '/developers/clients'
+            },
+            {
+              title: 'Testnet Faucet',
+              directory: false,
+              path: '/developers/faucet'
             },
             {
               title: 'Ethereum Tooling',
               directory: true,
-              path: '/guides/tools'
+              path: '/developers/tools'
             },
             {
-              title: 'Validators',
+              title: 'Localnet',
               directory: true,
-              path: '/guides/validators'
+              path: '/developers/localnet'
             },
             {
-              title: 'Upgrades',
+              title: 'Libraries',
               directory: true,
-              path: '/guides/upgrades'
+              path: '/developers/libraries'
             },
             {
-              title: 'Key Management System',
+              title: 'Ethereum JSON-RPC',
               directory: true,
-              path: '/guides/kms'
+              path: '/developers/json-rpc'
+            },
+            {
+              title: 'Cosmos gRPC & REST',
+              path: 'https://api.evmos.dev/'
+            },
+            {
+              title: 'Tendermint RPC',
+              path: 'https://docs.tendermint.com/v0.34/rpc/'
             },
           ]
         },
         {
-          title: 'APIs',
+          title: 'For Protocol Devs',
           children: [
             {
-              title: 'JSON-RPC',
+              title: 'Module Accounts',
+              directory: false,
+              path: '/protocol/moduleaccounts'
+            },
+            {
+              title: 'Module Specifications',
               directory: true,
-              path: '/api/json-rpc'
+              path: '/modules'
             },
             {
-              title: 'Protobuf Reference',
-              directory: false,
-              path: '/api/proto-docs'
-            },
-          ]
-        },
-        // {
-        //   title: 'Clients',
-        //   children: [
-        //     {
-        //       title: 'APIs',
-        //       directory: false,
-        //       path: '/clients/apis'
-        //     },
-        //     {
-        //       title: 'Evmosjs',
-        //       directory: false,
-        //       path: '/clients/evmosjs'
-        //     },
-        //   ]
-        // },
-        {
-          title: 'Mainnet',
-          children: [
-            {
-              title: 'Join Mainnet',
-              directory: false,
-              path: '/mainnet/join'
-            },
-          ]
-        },
-        {
-          title: 'Testnet',
-          children: [
-            {
-              title: 'Join Testnet',
-              directory: false,
-              path: '/testnet/join'
+              title: 'Evmos Go API',
+              path: 'https://pkg.go.dev/github.com/tharsis/evmos'
             },
             {
-              title: 'Token Faucet',
-              directory: false,
-              path: '/testnet/faucet'
+              title: 'Ethermint Library Go API',
+              path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
             },
             {
-              title: 'Deploy Node on Cloud',
+              title: 'Evmos Protobuf',
               directory: false,
-              path: '/testnet/cloud_providers'
+              path: '/protocol/proto-docs'
             }
           ]
         },
         {
-          title: 'Specifications',
-          children: [{
-            title: 'Modules',
-            directory: true,
-            path: '/modules'
-          }]
+          title: 'For Validators',
+          children: [
+            {
+              title: 'Validators Overview',
+              directory: false,
+              path: '/validators/overview'
+            },
+            {
+              title: 'Setup & Configuration',
+              directory: true,
+              path: '/validators/setup'
+            },
+            {
+              title: 'Installation & Quick Start',
+              directory: true,
+              path: '/validators/quickstart'
+            },
+            {
+              title: 'Join Testnet',
+              directory: false,
+              path: '/validators/testnet'
+            },
+            {
+              title: 'Join Mainnet',
+              directory: false,
+              path: '/validators/mainnet'
+            },
+            {
+              title: 'Security',
+              directory: true,
+              path: '/validators/security'
+            },
+            {
+              title: 'Software Upgrade Guide',
+              directory: true,
+              path: '/validators/upgrades'
+            },
+            {
+              title: 'Evmos Governance',
+              directory: true,
+              path: '/validators/governance'
+            },
+            {
+              title: 'FAQ',
+              directory: false,
+              path: '/validators/faq'
+            }
+          ]
         },
         {
           title: 'Block Explorers',
           children: [
             {
               title: 'Block Explorers',
-              path: '/tools/explorers'
+              path: '/developers/explorers'
             },
             {
               title: 'Blockscout (EVM)',
@@ -239,56 +275,21 @@ module.exports = {
             },
           ]
         },
-        {
-          title: 'Ecosystem',
-          children: [
-            {
-              title: 'Awesome Evmos',
-              path: 'https://github.com/tharsis/awesome'
-            },
-            {
-              title: 'Evmos Space',
-              path: 'https://evmos.space/'
-            }
-          ]
-        },
-        {
-          title: 'Resources',
-          children: [
-            {
-              title: 'Evmos Go API',
-              path: 'https://pkg.go.dev/github.com/tharsis/evmos'
-            },
-            {
-              title: 'Ethermint Library Go API',
-              path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
-            },
-            {
-              title: 'Evmos gRPC Gateway API',
-              path: 'https://api.evmos.dev/'
-            },
-            {
-              title: 'JSON-RPC API',
-              path: '/api/json-rpc/endpoints'
-            }
-          ]
-        }
       ]
     },
     gutter: {
       title: 'Help & Support',
       chat: {
-        title: 'Developer Chat',
-        text: 'Chat with Evmos developers on Discord.',
+        title: 'Discord Channel',
+        text: 'Chat with Evmos users and team on Discord.',
         url: 'https://discord.gg/evmos',
         bg: 'linear-gradient(103.75deg, #1B1E36 0%, #22253F 100%)'
       },
       forum: {
-        title: 'Evmos Developer Forum',
-        text: 'Join the Evmos Developer Forum to learn more.',
-        url: 'https://forum.cosmos.network/c/ethermint', // TODO: replace with commonwealth link
+        title: 'Commonwealth Forum',
+        text: 'Join the Evmos Commonwealth forum',
+        url: 'https://commonwealth.im/evmos', 
         bg: 'linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)',
-        logo: 'ethereum-white'
       },
       github: {
         title: 'Found an Issue?',
@@ -299,12 +300,12 @@ module.exports = {
     footer: {
       logo: '/evmos-black.svg',
       textLink: {
-        text: 'evmos.org',
+        text: "evmos.org",
         url: 'https://evmos.org'
       },
       services: [
         {
-          service: 'github',
+          service: "github",
           url: 'https://github.com/tharsis/evmos'
         },
         {
@@ -326,10 +327,11 @@ module.exports = {
       ],
       smallprint: 'This website is maintained by Tharsis Labs Ltd.',
       links: [{
-        title: 'Documentation',
-        children: [{
+        title: 'Ecosystem Documentation',
+        children: [
+        {
           title: 'Cosmos SDK Docs',
-          url: 'https://docs.cosmos.network/master/'
+          url: 'https://docs.cosmos.network'
         },
         {
           title: 'Ethereum Docs',
@@ -343,17 +345,22 @@ module.exports = {
       },
       {
         title: 'Community',
-        children: [{
-          title: 'Evmos Community',
-          url: 'https://discord.gg/evmos'
-        },
+        children: [
+          {
+            title: 'Evmos Discord Community',
+            url: 'https://discord.gg/evmos'
+          },
+          {
+            title: 'Evmos Commonwealth Forum',
+            url: 'https://commonwealth.im/evmos'
+          },
         ]
       },
       {
-        title: 'Tharsis',
+        title: 'Evmos',
         children: [
           {
-            title: 'Jobs at Tharsis',
+            title: 'Jobs at Evmos',
             url: 'https://tharsis.notion.site/'
           }
         ]

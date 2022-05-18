@@ -13,7 +13,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -38,19 +38,12 @@ func (k Keeper) CreateClawbackVestingAccount(
 		)
 	}
 
-	vestingCoins := sdk.NewCoins()
-	for _, period := range msg.VestingPeriods {
-		vestingCoins = vestingCoins.Add(period.Amount...)
-	}
-
-	lockupCoins := sdk.NewCoins()
-	for _, period := range msg.LockupPeriods {
-		lockupCoins = lockupCoins.Add(period.Amount...)
-	}
+	vestingCoins := msg.VestingPeriods.TotalAmount()
+	lockupCoins := msg.LockupPeriods.TotalAmount()
 
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
-		msg.LockupPeriods = []sdkvesting.Period{
+		msg.LockupPeriods = sdkvesting.Periods{
 			{Length: 0, Amount: vestingCoins},
 		}
 		lockupCoins = vestingCoins
@@ -58,7 +51,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	// If vesting absent, default to an instant vesting schedule
 	if !lockupCoins.IsZero() && len(msg.VestingPeriods) == 0 {
-		msg.VestingPeriods = []sdkvesting.Period{
+		msg.VestingPeriods = sdkvesting.Periods{
 			{Length: 0, Amount: lockupCoins},
 		}
 		vestingCoins = lockupCoins
@@ -207,6 +200,11 @@ func (k Keeper) Clawback(
 		)
 	}
 
+	// Return error if clawback is attempted before start time
+	if ctx.BlockTime().Before(va.StartTime) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
+	}
+
 	// Perform clawback transfer
 	if err := k.transferClawback(ctx, *va, dest); err != nil {
 		return nil, err
@@ -232,12 +230,12 @@ func (k Keeper) addGrant(
 	ctx sdk.Context,
 	va *types.ClawbackVestingAccount,
 	grantStartTime int64,
-	grantLockupPeriods, grantVestingPeriods []sdkvesting.Period,
+	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
 	grantCoins sdk.Coins,
 ) {
 	// how much is really delegated?
-	bondedAmt := k.GetDelegatorBonded(ctx, va.GetAddress())
-	unbondingAmt := k.GetDelegatorUnbonding(ctx, va.GetAddress())
+	bondedAmt := k.stakingKeeper.GetDelegatorBonded(ctx, va.GetAddress())
+	unbondingAmt := k.stakingKeeper.GetDelegatorUnbonding(ctx, va.GetAddress())
 	delegatedAmt := bondedAmt.Add(unbondingAmt)
 	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
 
@@ -267,7 +265,7 @@ func (k Keeper) addGrant(
 
 	// cap DV at the current unvested amount, DF rounds out to current delegated
 	unvested := va.GetVestingCoins(ctx.BlockTime())
-	va.DelegatedVesting = types.CoinsMin(delegated, unvested)
+	va.DelegatedVesting = delegated.Min(unvested)
 	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
 }
 
@@ -281,15 +279,30 @@ func (k Keeper) transferClawback(
 	// Compute clawback amount, unlock unvested tokens and remove future vesting events
 	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
 	if toClawBack.IsZero() {
+		// no-op, nothing to transfer
 		return nil
 	}
 
+<<<<<<< HEAD
+=======
+	// set the account with the updated values of the vesting schedule
+>>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	k.accountKeeper.SetAccount(ctx, &updatedAcc)
 
-	// Transfer clawback
 	addr := updatedAcc.GetAddress()
+<<<<<<< HEAD
 	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
 	transferAmt := types.CoinsMin(toClawBack, spendable)
 
 	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
+=======
+
+	// NOTE: don't use `SpendableCoins` to get the minimum value to clawback since
+	// the amount is retrieved from `ComputeClawback`, which ensures correctness.
+	// `SpendableCoins` can result in gas exhaustion if the user has too many
+	// different denoms (because of store iteration).
+
+	// Transfer clawback to the destination (funder)
+	return k.bankKeeper.SendCoins(ctx, addr, dest, toClawBack)
+>>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 }

@@ -23,7 +23,7 @@ func NewMsgCreateClawbackVestingAccount(
 	fromAddr, toAddr sdk.AccAddress,
 	startTime time.Time,
 	lockupPeriods,
-	vestingPeriods []sdkvesting.Period,
+	vestingPeriods sdkvesting.Periods,
 	merge bool,
 ) *MsgCreateClawbackVestingAccount {
 	return &MsgCreateClawbackVestingAccount{

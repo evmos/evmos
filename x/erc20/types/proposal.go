@@ -9,35 +9,30 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 )
 
 // constants
 const (
-	ProposalTypeRegisterCoin         string = "RegisterCoin"
-	ProposalTypeRegisterERC20        string = "RegisterERC20"
-	ProposalTypeToggleTokenRelay     string = "ToggleTokenRelay" // #nosec
-	ProposalTypeUpdateTokenPairERC20 string = "UpdateTokenPairERC20"
+	ProposalTypeRegisterCoin          string = "RegisterCoin"
+	ProposalTypeRegisterERC20         string = "RegisterERC20"
+	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
 )
 
 // Implements Proposal Interface
 var (
 	_ govtypes.Content = &RegisterCoinProposal{}
 	_ govtypes.Content = &RegisterERC20Proposal{}
-	_ govtypes.Content = &ToggleTokenRelayProposal{}
-	_ govtypes.Content = &UpdateTokenPairERC20Proposal{}
+	_ govtypes.Content = &ToggleTokenConversionProposal{}
 )
 
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeRegisterCoin)
 	govtypes.RegisterProposalType(ProposalTypeRegisterERC20)
-	govtypes.RegisterProposalType(ProposalTypeToggleTokenRelay)
-	govtypes.RegisterProposalType(ProposalTypeUpdateTokenPairERC20)
+	govtypes.RegisterProposalType(ProposalTypeToggleTokenConversion)
 	govtypes.RegisterProposalTypeCodec(&RegisterCoinProposal{}, "erc20/RegisterCoinProposal")
 	govtypes.RegisterProposalTypeCodec(&RegisterERC20Proposal{}, "erc20/RegisterERC20Proposal")
-	govtypes.RegisterProposalTypeCodec(&ToggleTokenRelayProposal{}, "erc20/ToggleTokenRelayProposal")
-	govtypes.RegisterProposalTypeCodec(&UpdateTokenPairERC20Proposal{}, "erc20/UpdateTokenPairERC20Proposal")
+	govtypes.RegisterProposalTypeCodec(&ToggleTokenConversionProposal{}, "erc20/ToggleTokenConversionProposal")
 }
 
 // CreateDenomDescription generates a string with the coin description
@@ -77,14 +72,16 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 		return err
 	}
 
-	if err := validateIBC(rtbp.Metadata); err != nil {
+	if err := validateIBCVoucherMetadata(rtbp.Metadata); err != nil {
 		return err
 	}
 
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-func validateIBC(metadata banktypes.Metadata) error {
+// validateIBCVoucherMetadata checks that the coin metadata fields are consistent
+// with an IBC voucher denomination.
+func validateIBCVoucherMetadata(metadata banktypes.Metadata) error {
 	// Check ibc/ denom
 	denomSplit := strings.SplitN(metadata.Base, "/", 2)
 
@@ -99,11 +96,11 @@ func validateIBC(metadata banktypes.Metadata) error {
 	}
 
 	if !strings.Contains(metadata.Name, "channel-") {
-		return fmt.Errorf("invalid metadata (Name) for ibc. %s should include channel", metadata.Name)
+		return fmt.Errorf("invalid metadata (Name) for IBC. %s should include channel", metadata.Name)
 	}
 
 	if !strings.HasPrefix(metadata.Symbol, "ibc") {
-		return fmt.Errorf("invalid metadata (Symbol) for ibc. %s should include \"ibc\" prefix", metadata.Symbol)
+		return fmt.Errorf("invalid metadata (Symbol) for IBC. %s should include \"ibc\" prefix", metadata.Symbol)
 	}
 
 	return nil
@@ -146,9 +143,9 @@ func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(rtbp)
 }
 
-// NewToggleTokenRelayProposal returns new instance of ToggleTokenRelayProposal
-func NewToggleTokenRelayProposal(title, description string, token string) govtypes.Content {
-	return &ToggleTokenRelayProposal{
+// NewToggleTokenConversionProposal returns new instance of ToggleTokenConversionProposal
+func NewToggleTokenConversionProposal(title, description string, token string) govtypes.Content {
+	return &ToggleTokenConversionProposal{
 		Title:       title,
 		Description: description,
 		Token:       token,
@@ -156,63 +153,22 @@ func NewToggleTokenRelayProposal(title, description string, token string) govtyp
 }
 
 // ProposalRoute returns router key for this proposal
-func (*ToggleTokenRelayProposal) ProposalRoute() string { return RouterKey }
+func (*ToggleTokenConversionProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type for this proposal
-func (*ToggleTokenRelayProposal) ProposalType() string {
-	return ProposalTypeToggleTokenRelay
+func (*ToggleTokenConversionProposal) ProposalType() string {
+	return ProposalTypeToggleTokenConversion
 }
 
 // ValidateBasic performs a stateless check of the proposal fields
-func (etrp *ToggleTokenRelayProposal) ValidateBasic() error {
+func (ttcp *ToggleTokenConversionProposal) ValidateBasic() error {
 	// check if the token is a hex address, if not, check if it is a valid SDK
 	// denom
-	if err := ethermint.ValidateAddress(etrp.Token); err != nil {
-		if err := sdk.ValidateDenom(etrp.Token); err != nil {
+	if err := ethermint.ValidateAddress(ttcp.Token); err != nil {
+		if err := sdk.ValidateDenom(ttcp.Token); err != nil {
 			return err
 		}
 	}
 
-	return govtypes.ValidateAbstract(etrp)
-}
-
-// NewUpdateTokenPairERC20Proposal returns new instance of UpdateTokenPairERC20Proposal
-func NewUpdateTokenPairERC20Proposal(title, description, erc20Addr, newERC20Addr string) govtypes.Content {
-	return &UpdateTokenPairERC20Proposal{
-		Title:           title,
-		Description:     description,
-		Erc20Address:    erc20Addr,
-		NewErc20Address: newERC20Addr,
-	}
-}
-
-// ProposalRoute returns router key for this proposal
-func (*UpdateTokenPairERC20Proposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type for this proposal
-func (*UpdateTokenPairERC20Proposal) ProposalType() string {
-	return ProposalTypeUpdateTokenPairERC20
-}
-
-// ValidateBasic performs a stateless check of the proposal fields
-func (p *UpdateTokenPairERC20Proposal) ValidateBasic() error {
-	if err := ethermint.ValidateAddress(p.Erc20Address); err != nil {
-		return sdkerrors.Wrap(err, "ERC20 address")
-	}
-
-	if err := ethermint.ValidateAddress(p.NewErc20Address); err != nil {
-		return sdkerrors.Wrap(err, "new ERC20 address")
-	}
-
-	return govtypes.ValidateAbstract(p)
-}
-
-// GetERC20Address returns the common.Address representation of the ERC20 hex address
-func (p UpdateTokenPairERC20Proposal) GetERC20Address() common.Address {
-	return common.HexToAddress(p.Erc20Address)
-}
-
-// GetNewERC20Address returns the common.Address representation of the new ERC20 hex address
-func (p UpdateTokenPairERC20Proposal) GetNewERC20Address() common.Address {
-	return common.HexToAddress(p.NewErc20Address)
+	return govtypes.ValidateAbstract(ttcp)
 }

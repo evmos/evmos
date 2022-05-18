@@ -25,6 +25,9 @@ docs/_build
 docs/tutorial
 docs/node_modules
 docs/modules
+docs/cosmos-sdk
+docs/ethermint
+docs/ibc-go
 dist
 tools-stamp
 docs-tools-stamp

@@ -7,7 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 
-	"github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 // EndBlocker checks if the airdrop claiming period has ended in order to
@@ -78,20 +78,22 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	return nil
 }
 
-// ClawbackEmptyAccounts performs the clawback of all allocated tokens
-// from airdrop recipient accounts with a sequence number of 0 (i.e the account
-// hasn't performed a single tx during the claim window).
-// Once the account is clawbacked, the claims record is deleted from state.
+// ClawbackEmptyAccounts performs the clawback of all allocated tokens from
+// airdrop recipient accounts with a sequence number of 0 (i.e the account
+// hasn't performed a single tx during the claim window). Once the account is
+// clawbacked, the claims record is deleted from state.
 func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
-	totalClawback := sdk.Coin{Denom: claimsDenom, Amount: sdk.ZeroInt()}
+	totalClawback := sdk.Coins{}
 	logger := k.Logger(ctx)
 
+	accPruned := int64(0)
 	accClawbacked := int64(0)
 
 	var addresses []sdk.AccAddress
 
 	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, _ types.ClaimsRecord) (stop bool) {
 		// NOTE: we cannot delete the record while iterating over it
+		// Ref: https://github.com/cosmos/cosmos-sdk/blob/c2fd51b4c5f41efc56c9aec1f44b4ce9e963dfc3/store/types/store.go#L215-L221
 		defer func() {
 			addresses = append(addresses, addr)
 		}()
@@ -123,9 +125,12 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		balance := k.bankKeeper.GetBalance(ctx, addr, claimsDenom)
+		clawbackCoin := k.bankKeeper.GetBalance(ctx, addr, claimsDenom)
+
 		// prune empty accounts from the airdrop
-		if balance.IsZero() {
+		if clawbackCoin.IsZero() {
+			k.accountKeeper.RemoveAccount(ctx, acc)
+			accPruned++
 			return false
 		}
 
@@ -134,16 +139,16 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		// "Unclaimed" tokens are defined as being in wallets which have a sequence
 		// number = 0, which means the address has NOT performed a single action
 		// during the airdrop claim window.
-		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{balance}, addr); err != nil {
+		if err := k.distrKeeper.FundCommunityPool(ctx, sdk.Coins{clawbackCoin}, addr); err != nil {
 			logger.Debug(
 				"not enough balance to clawback account",
 				"address", addr.String(),
-				"amount", balance.String(),
+				"amount", clawbackCoin.String(),
 			)
 			return false
 		}
 
-		totalClawback = totalClawback.Add(balance)
+		totalClawback = totalClawback.Add(clawbackCoin)
 		accClawbacked++
 
 		return false
@@ -158,5 +163,6 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		"clawed back funds into community pool",
 		"total", totalClawback.String(),
 		"clawbacked-accounts", strconv.FormatInt(accClawbacked, 10),
+		"pruned-accounts", strconv.FormatInt(accPruned, 10),
 	)
 }

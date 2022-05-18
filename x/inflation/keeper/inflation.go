@@ -1,14 +1,13 @@
 package keeper
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethermint "github.com/tharsis/ethermint/types"
 
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
-	"github.com/tharsis/evmos/v3/x/inflation/types"
+	evmos "github.com/tharsis/evmos/v4/types"
+	incentivestypes "github.com/tharsis/evmos/v4/x/incentives/types"
+	"github.com/tharsis/evmos/v4/x/inflation/types"
 )
 
 // 200M token at year 4 allocated to the team
@@ -96,16 +95,12 @@ func (k Keeper) GetProportions(
 	)
 }
 
-func (k Keeper) isMainnetChainID(ctx sdk.Context) bool {
-	return strings.Contains(ctx.ChainID(), "evmos_9001-")
-}
-
 // BondedRatio the fraction of the staking tokens which are currently bonded
 // It doesn't consider team allocation for inflation
 func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
 
-	isMainnet := k.isMainnetChainID(ctx)
+	isMainnet := evmos.IsMainnet(ctx.ChainID())
 
 	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
 		return sdk.ZeroDec()
@@ -119,20 +114,20 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	return k.stakingKeeper.TotalBondedTokens(ctx).ToDec().QuoInt(stakeSupply)
 }
 
-// GetTotalSupply returns the bank supply of the mintDenom excluding the team
-// allocation in the first year
-func (k Keeper) GetTotalSupply(ctx sdk.Context) sdk.Dec {
+// GetCirculatingSupply returns the bank supply of the mintDenom excluding the
+// team allocation in the first year
+func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
 	mintDenom := k.GetParams(ctx).MintDenom
 
-	totalSupply := k.bankKeeper.GetSupply(ctx, mintDenom).Amount.ToDec()
+	circulatingSupply := k.bankKeeper.GetSupply(ctx, mintDenom).Amount.ToDec()
 	teamAllocation := teamAlloc.ToDec()
 
 	// Consider team allocation only on mainnet chain id
-	if k.isMainnetChainID(ctx) {
-		totalSupply = totalSupply.Sub(teamAllocation)
+	if evmos.IsMainnet(ctx.ChainID()) {
+		circulatingSupply = circulatingSupply.Sub(teamAllocation)
 	}
 
-	return totalSupply
+	return circulatingSupply
 }
 
 // GetInflationRate returns the inflation rate for the current period.
@@ -149,11 +144,11 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 
 	epochsPerPeriod := sdk.NewDec(epp)
 
-	totalSupply := k.GetTotalSupply(ctx)
-	if totalSupply.IsZero() {
+	circulatingSupply := k.GetCirculatingSupply(ctx)
+	if circulatingSupply.IsZero() {
 		return sdk.ZeroDec()
 	}
 
-	// EpochMintProvision * 365 / totalSupply * 100
-	return epochMintProvision.Mul(epochsPerPeriod).Quo(totalSupply).Mul(sdk.NewDec(100))
+	// EpochMintProvision * 365 / circulatingSupply * 100
+	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
 }

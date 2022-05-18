@@ -84,13 +84,14 @@ Install the theme and all dependencies.
 yarn run serve
 ```
 
+<!-- markdown-link-check-disable-next-line -->
 Run `pre` and `post` hooks and start a hot-reloading web-server. See output of this command for the URL (it is often [https://localhost:8080](https://localhost:8080)).
 
 To build documentation as a static website run `yarn run build`. You will find the website in `.vuepress/dist` directory.
 
 ## Search
 
-We are using [Algolia](https://www.algolia.com) to power full-text search. This uses a public API search-only key in the `config.js` as well as a [cosmos_network.json](https://github.com/algolia/docsearch-configs/blob/main/configs/cosmos_network.json) configuration file that we can update with PRs.
+We are using [Algolia](https://www.algolia.com) to power full-text search. This uses a public API search-only key in the `config.js` as well as a [cosmos_network.json](https://github.com/algolia/docsearch-configs/blob/master/configs/cosmos-sdk.json) configuration file that we can update with PRs.
 
 ### Update and Build the RPC docs
 

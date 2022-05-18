@@ -9,10 +9,9 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/v3/testutil"
-	"github.com/tharsis/evmos/v3/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
-	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	"github.com/tharsis/evmos/v4/testutil"
+	"github.com/tharsis/evmos/v4/x/claims/types"
+	vestingtypes "github.com/tharsis/evmos/v4/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {
@@ -111,9 +110,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				vestingAcc := vestingtypes.NewClawbackVestingAccount(bAcc, funder, coins, time.Now().UTC(), nil, nil)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
 
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, addr, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -143,7 +140,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"multiple accounts, all clawed back ",
+			"multiple accounts, all clawed back",
 			amount * 3,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
@@ -155,7 +152,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.Require().NoError(err)
 				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr2, coins)
 				suite.Require().NoError(err)
-				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr2, coins)
+				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr3, coins)
 				suite.Require().NoError(err)
 
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
