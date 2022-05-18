@@ -118,7 +118,7 @@ linters-settings:
       disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
     - name: bare-return
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#blank-imports
     - name: blank-imports
@@ -143,7 +143,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#confusing-results
     - name: confusing-results
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#constant-logical-expr
     - name: constant-logical-expr
@@ -151,7 +151,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-as-argument
     - name: context-as-argument
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#context-keys-type
     - name: context-keys-type
@@ -176,15 +176,15 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#duplicated-imports
     - name: duplicated-imports
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#early-return
     - name: early-return
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#empty-block
     - name: empty-block
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#empty-lines
     - name: empty-lines
@@ -204,7 +204,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#errorf
     - name: errorf
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#exported
     - name: exported
@@ -235,7 +235,7 @@ linters-settings:
       arguments: [10, 0]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#get-return
     - name: get-return
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#identical-branches
     - name: identical-branches
@@ -243,15 +243,15 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#if-return
     - name: if-return
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#increment-decrement
     - name: increment-decrement
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#indent-error-flow
     - name: indent-error-flow
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#imports-blacklist
     - name: imports-blacklist
@@ -316,11 +316,11 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#string-of-int
     - name: string-of-int
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#string-format
     - name: string-format
-      severity: error
+      severity: warning
       disabled: false
       arguments:
         - - 'core.WriteError[1].Message'
@@ -338,11 +338,11 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#superfluous-else
     - name: superfluous-else
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#time-equal
     - name: time-equal
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#time-naming
     - name: time-naming
@@ -368,11 +368,11 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unexported-return
     - name: unexported-return
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unhandled-error
     - name: unhandled-error
-      severity: error
+      severity: warning
       disabled: false
       arguments:
         - "fmt.Printf"
@@ -384,7 +384,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unreachable-code
     - name: unreachable-code
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-parameter
     - name: unused-parameter
@@ -396,7 +396,7 @@ linters-settings:
       disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#useless-break
     - name: useless-break
-      severity: error
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#waitgroup-by-value
     - name: waitgroup-by-value
