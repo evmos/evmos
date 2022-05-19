@@ -3,7 +3,7 @@ package unigov
 import (
 	"math/rand"
 
-	"github.com/Canto-Network/canto/v3/testutil/sample"
+	//"github.com/Canto-Network/canto/v3/testutil/sample"
 	unigovsimulation "github.com/Canto-Network/canto/v3/x/unigov/simulation"
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -16,7 +16,7 @@ import (
 
 // avoid unused import issue
 var (
-	_ = sample.AccAddress
+	//_ = sample.AccAddress
 	_ = unigovsimulation.FindAccount
 	_ = simappparams.StakePerAccount
 	_ = simulation.MsgEntryKind
