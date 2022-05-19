@@ -71,14 +71,9 @@ func NewEthMinPriceFeeDecorator(fk FeesKeeper, ek EvmKeeper) EthMinPriceFeeDecor
 }
 
 func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	evmDenom := empd.evmKeeper.GetParams(ctx).EvmDenom
 	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
-	minGasPrices := sdk.DecCoins{sdk.DecCoin{
-		Denom:  evmDenom,
-		Amount: minGasPrice,
-	}}
 
-	if !minGasPrices.IsZero() {
+	if !minGasPrice.IsZero() {
 		for _, msg := range tx.GetMsgs() {
 			ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
 			if !ok {
@@ -104,7 +99,7 @@ func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 			}
 
 			glDec := sdk.NewDec(int64(ethMsg.GetGas()))
-			requiredFee := minGasPrices.AmountOf(evmDenom).Mul(glDec)
+			requiredFee := minGasPrice.Mul(glDec)
 
 			if sdk.NewDecFromBigInt(feeAmt).LT(requiredFee) {
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "provided fee < minimum global fee (%s < %s). Please increase the priority tip (for EIP-1559 txs) or the gas prices (for access list or legacy txs)", feeAmt, requiredFee)
