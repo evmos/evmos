@@ -65,7 +65,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
 		ethante.NewEthMempoolFeeDecorator(options.EvmKeeper),   // Check eth effective gas price against minimal-gas-prices
-		NewEthMinPriceFeeDecorator(options.FeesKeeper, options.EvmKeeper),
+		NewEthMinGasPriceDecorator(options.FeesKeeper, options.EvmKeeper),
 		ethante.NewEthValidateBasicDecorator(options.EvmKeeper),
 		ethante.NewEthSigVerificationDecorator(options.EvmKeeper),
 		ethante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
@@ -83,7 +83,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSetUpContextDecorator(),
 		ante.NewRejectExtensionOptionsDecorator(),
 		ante.NewMempoolFeeDecorator(),
-		NewMinPriceFeeDecorator(options.FeesKeeper, options.EvmKeeper),
+		NewMinGasPriceDecorator(options.FeesKeeper, options.EvmKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
@@ -107,7 +107,7 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
 		ante.NewMempoolFeeDecorator(),
-		NewMinPriceFeeDecorator(options.FeesKeeper, options.EvmKeeper),
+		NewMinGasPriceDecorator(options.FeesKeeper, options.EvmKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),

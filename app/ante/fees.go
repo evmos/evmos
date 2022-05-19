@@ -8,21 +8,21 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
-// MinPriceFeeDecorator will check if the transaction's fee is at least as large
+// MinGasPriceDecorator will check if the transaction's fee is at least as large
 // as the MinGasPrices param. If fee is too low, decorator returns error and tx
 // is rejected. This applies for both CheckTx and DeliverTx
 // If fee is high enough, then call next AnteHandler
-// CONTRACT: Tx must implement FeeTx to use MinPriceFeeDecorator
-type MinPriceFeeDecorator struct {
+// CONTRACT: Tx must implement FeeTx to use MinGasPriceDecorator
+type MinGasPriceDecorator struct {
 	feesKeeper FeesKeeper
 	evmKeeper  EvmKeeper
 }
 
-func NewMinPriceFeeDecorator(fk FeesKeeper, ek EvmKeeper) MinPriceFeeDecorator {
-	return MinPriceFeeDecorator{feesKeeper: fk, evmKeeper: ek}
+func NewMinGasPriceDecorator(fk FeesKeeper, ek EvmKeeper) MinGasPriceDecorator {
+	return MinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
 }
 
-func (mpd MinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
 	minGasPrices := sdk.DecCoins{sdk.DecCoin{
 		Denom:  mpd.evmKeeper.GetParams(ctx).EvmDenom,
@@ -56,21 +56,21 @@ func (mpd MinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	return next(ctx, tx, simulate)
 }
 
-// EthMinPriceFeeDecorator will check if the transaction's fee is at least as large
+// EthMinGasPriceDecorator will check if the transaction's fee is at least as large
 // as the MinGasPrices param. If fee is too low, decorator returns error and tx
 // is rejected. This applies for both CheckTx and DeliverTx. This applies regardless
 // if london fork or feemarket are enabled
 // If fee is high enough, then call next AnteHandler
-type EthMinPriceFeeDecorator struct {
+type EthMinGasPriceDecorator struct {
 	feesKeeper FeesKeeper
 	evmKeeper  EvmKeeper
 }
 
-func NewEthMinPriceFeeDecorator(fk FeesKeeper, ek EvmKeeper) EthMinPriceFeeDecorator {
-	return EthMinPriceFeeDecorator{feesKeeper: fk, evmKeeper: ek}
+func NewEthMinGasPriceDecorator(fk FeesKeeper, ek EvmKeeper) EthMinGasPriceDecorator {
+	return EthMinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
 }
 
-func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
 
 	if !minGasPrice.IsZero() {

@@ -25,7 +25,7 @@ func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
 
-func (s AnteTestSuite) TestMinPriceFeeDecorator() {
+func (s AnteTestSuite) TestMinGasPriceDecorator() {
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
@@ -104,7 +104,7 @@ func (s AnteTestSuite) TestMinPriceFeeDecorator() {
 		for _, tc := range testCases {
 			s.Run(et.name+"_"+tc.name, func() {
 				s.SetupTest(et.deliverTx)
-				dec := ante.NewMinPriceFeeDecorator(s.app.FeesKeeper, s.app.EvmKeeper)
+				dec := ante.NewMinGasPriceDecorator(s.app.FeesKeeper, s.app.EvmKeeper)
 				_, err := dec.AnteHandle(s.ctx, tc.malleate(), et.simulate, nextFn)
 
 				if tc.expPass {
@@ -118,7 +118,7 @@ func (s AnteTestSuite) TestMinPriceFeeDecorator() {
 	}
 }
 
-func (s AnteTestSuite) TestEthMinPriceFeeDecorator() {
+func (s AnteTestSuite) TestEthMinGasPriceDecorator() {
 	from := tests.GenerateAddress()
 	to := tests.GenerateAddress()
 	emptyAccessList := ethtypes.AccessList{}
@@ -294,7 +294,7 @@ func (s AnteTestSuite) TestEthMinPriceFeeDecorator() {
 		for _, tc := range testCases {
 			s.Run(et.name+"_"+tc.name, func() {
 				s.SetupTest(et.deliverTx)
-				dec := ante.NewEthMinPriceFeeDecorator(s.app.FeesKeeper, s.app.EvmKeeper)
+				dec := ante.NewEthMinGasPriceDecorator(s.app.FeesKeeper, s.app.EvmKeeper)
 				_, err := dec.AnteHandle(s.ctx, tc.malleate(), et.simulate, nextFn)
 
 				if tc.expPass {

@@ -682,7 +682,7 @@ func NewEvmos(
 		// evm module denomination is used by the fees module, in AnteHandle
 		evmtypes.ModuleName,
 		// NOTE: fees need to be initialized before genutil module:
-		// gentx transactions use MinPriceFeeDecorator.AnteHandle
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
 		feestypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
