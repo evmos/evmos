@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -37,10 +38,10 @@ func NewTxCmd() *cobra.Command {
 // contract for fee distribution
 func NewRegisterDevFeeInfo() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "register-fee [contract_hex] [withdraw_bech32]",
+		Use:   "register-fee [contract_hex] [nonces] [withdraw_bech32]",
 		Short: "Register a contract for fee distribution",
-		Long:  "Register a contract for fee distribution. Only the contract deployer can register a contract. \nThe withdraw address defaults to the deployer address if not provided.",
-		Args:  cobra.RangeArgs(1, 2),
+		Long:  "Register a contract for fee distribution.\nOnly the contract deployer can register a contract.\nProvide the account nonce(s) used to derive the contract address. E.g.: you have an account nonce of 4 when you send a deployment transaction for a contract A; you use this contract as a factory, to create another contract B. If you register A, the nonces value is \"4\". If you register B, the nonces value is \"4,1\" (B is the first contract created by A). \nThe withdraw address defaults to the deployer address if not provided.",
+		Args:  cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -55,8 +56,13 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
-			if len(args) == 2 {
-				withdraw = args[1]
+			var nonces []uint64
+			if err = json.Unmarshal([]byte("["+args[1]+"]"), &nonces); err != nil {
+				return fmt.Errorf("invalid nonces %w", err)
+			}
+
+			if len(args) == 3 {
+				withdraw = args[2]
 				if _, err := sdk.AccAddressFromBech32(withdraw); err != nil {
 					return fmt.Errorf("invalid withdraw bech32 address %w", err)
 				}
@@ -72,6 +78,7 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
 				WithdrawAddress: withdraw,
+				Nonces:          nonces,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
