@@ -63,7 +63,7 @@ contract ProposalStore {
         bool executed;
 
         /// @notice Receipts of ballots for the entire set of voters
-        mapping (address => Receipt) receipts;
+        //mapping (address => Receipt) receipts;
     }
 	modifier OnlyUniGov {
 	require (msg.sender == UniGovModAcct);
@@ -74,14 +74,14 @@ contract ProposalStore {
 	UniGovModAcct == msg.sender;
     }
     
-    function AddProposal(Proposal prop) OnlyUniGov external {
+    function AddProposal(Proposal memory prop) OnlyUniGov external {
 	proposals[prop.id] = prop;
     }
 
-    function QueryProp(uint propId) external returns(Proposal){
-	if (proposals[propId] == propId) {
+    function QueryProp(uint propId) external returns(Proposal memory){
+	if (proposals[propId].id == propId) {
 	    return proposals[propId];
 	}
-	return 0;
+	return Proposal();
     }
 }
