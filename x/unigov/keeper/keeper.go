@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
-	
 )
 
 type (
@@ -20,7 +19,7 @@ type (
 		memKey   	sdk.StoreKey
 		paramstore	paramtypes.Subspace
 		
-        govKeeper types.GovKeeper
+		erc20Keeper types.ERC20Keeper
 	}
 )
 
@@ -30,7 +29,7 @@ func NewKeeper(
     memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
     
-    govKeeper types.GovKeeper,
+    erc20Keeper types.ERC20Keeper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -43,7 +42,7 @@ func NewKeeper(
 		storeKey: 	storeKey,
 		memKey:   	memKey,
 		paramstore:	ps,
-		govKeeper: govKeeper,
+		erc20Keeper:    erc20Keeper,
 	}
 }
 

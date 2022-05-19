@@ -1,0 +1,24 @@
+syntax = "proto3";
+package canto.unigov.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/gov/v1beta1/gov.proto";
+
+option go_package = "github.com/Canto-Network/canto/v3/x/unigov/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+
+}
+
+//Define this object so that the unigov.pb.go file is generated&
+message CompoundProposal {
+  option (gogoproto.equal) = false;
+  //title
+  string title = 1; //
+  
+  string description = 2;
+
+  cosmos.gov.v1beta1.Proposal proposal = 3 [ (gogoproto.nullable) = false];
+}

@@ -1,5 +1,11 @@
 package types
 
+import (
+	"github.com/ethereum/go-ethereum/common"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+)
+
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "unigov"
@@ -19,7 +25,11 @@ const (
     
 )
 
+var ModuleAddress commmon.Address
 
+func init() {
+	ModuleAddress = common.Bytes2Address(authtypes.NewModuleAddres(ModuleName).Bytes())
+}
 
 func KeyPrefix(p string) []byte {
     return []byte(p)
