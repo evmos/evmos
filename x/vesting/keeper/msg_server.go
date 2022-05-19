@@ -283,19 +283,10 @@ func (k Keeper) transferClawback(
 		return nil
 	}
 
-<<<<<<< HEAD
-=======
 	// set the account with the updated values of the vesting schedule
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	k.accountKeeper.SetAccount(ctx, &updatedAcc)
 
 	addr := updatedAcc.GetAddress()
-<<<<<<< HEAD
-	spendable := k.bankKeeper.SpendableCoins(ctx, addr)
-	transferAmt := types.CoinsMin(toClawBack, spendable)
-
-	return k.bankKeeper.SendCoins(ctx, addr, dest, transferAmt)
-=======
 
 	// NOTE: don't use `SpendableCoins` to get the minimum value to clawback since
 	// the amount is retrieved from `ComputeClawback`, which ensures correctness.
@@ -304,5 +295,4 @@ func (k Keeper) transferClawback(
 
 	// Transfer clawback to the destination (funder)
 	return k.bankKeeper.SendCoins(ctx, addr, dest, toClawBack)
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 }

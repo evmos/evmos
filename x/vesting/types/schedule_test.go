@@ -33,17 +33,6 @@ func (suite *ScheduleTestSuite) TestReadSchedule() {
 		periods    sdkvesting.Periods
 		expAmount  sdk.Coins
 	}{
-<<<<<<< HEAD
-		{0, 0},
-		{100, 0},
-		{105, 0},
-		{110, 10},
-		{120, 10},
-		{130, 30},
-		{150, 30},
-		{170, 70},
-		{180, 70},
-=======
 		{
 			name:       "empty",
 			startTime:  0,
@@ -125,7 +114,6 @@ func (suite *ScheduleTestSuite) TestReadSchedule() {
 			periods:    sdkvesting.Periods{period(25, 10), period(50, 20), period(25, 40)},
 			expAmount:  sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 30)),
 		},
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
@@ -144,17 +132,6 @@ func (suite *ScheduleTestSuite) TestReadPastPeriodCount() {
 		periods   sdkvesting.Periods
 		expCount  int
 	}{
-<<<<<<< HEAD
-		{0, 0},
-		{100, 0},
-		{105, 0},
-		{110, 1},
-		{120, 1},
-		{130, 2},
-		{150, 2},
-		{170, 3},
-		{180, 3},
-=======
 		{
 			name:      "empty",
 			startTime: 0,
@@ -219,7 +196,6 @@ func (suite *ScheduleTestSuite) TestReadPastPeriodCount() {
 			periods:   sdkvesting.Periods{period(25, 10), period(50, 20), period(25, 40)},
 			expCount:  3,
 		},
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	}
 
 	for _, tc := range testCases {

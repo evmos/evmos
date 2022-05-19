@@ -84,20 +84,6 @@ func ReadPastPeriodCount(
 // their start times and periods. Returns new start time, new end time, and
 // merged vesting events, relative to the new start time.
 func DisjunctPeriods(
-<<<<<<< HEAD
-	startP, startQ int64,
-	periodsP, periodsQ []sdkvesting.Period,
-) (startTime, endTime int64, mergedPeriods []sdkvesting.Period) {
-	timeP := startP // time of last merged p event, next p event is relative to this time
-	timeQ := startQ // time of last merged q event, next q event is relative to this time
-	iP := 0         // p indexes before this have been merged
-	iQ := 0         // q indexes before this have been merged
-	lenP := len(periodsP)
-	lenQ := len(periodsQ)
-	startTime = Min64(startP, startQ) // we pick the earlier time
-	time := startTime                 // time of last merged event, or the start time
-	merged := []sdkvesting.Period{}
-=======
 	startTimePeriodsA, startTimePeriodsB int64,
 	periodsA, periodsB sdkvesting.Periods,
 ) (startTime, endTime int64, periods sdkvesting.Periods) {
@@ -112,7 +98,6 @@ func DisjunctPeriods(
 	startTime = Min64(startTimePeriodsA, startTimePeriodsB) // we pick the earlier time
 	endTime = startTime                                     // time of last merged event, or the start time
 	periods = sdkvesting.Periods{}                          // merged periods
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 
 	// emit adds an output period and updates the last event time
 	emit := func(nextTime int64, amount sdk.Coins) {
@@ -306,13 +291,6 @@ func AlignSchedules(
 	if len(periodsB) > 0 {
 		periodsB[0].Length += startTimePeriodB - startTime
 	}
-<<<<<<< HEAD
-	endQ := startTime
-	for _, period := range q {
-		endQ += period.Length
-	}
-	endTime = Max64(endP, endQ)
-=======
 
 	endPeriodsA := startTime + periodsA.TotalLength()
 	endPeriodsB := startTime + periodsB.TotalLength()
@@ -320,6 +298,5 @@ func AlignSchedules(
 	// the end time between the 2 periods is the max length
 	endTime = Max64(endPeriodsA, endPeriodsB)
 
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	return startTime, endTime
 }

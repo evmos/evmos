@@ -18,16 +18,7 @@ var _ evmtypes.EvmHooks = Hooks{}
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the participants's GasUsed is
 // added to its gasMeter.
-<<<<<<< HEAD
-func (h Hooks) PostTxProcessing(
-	ctx sdk.Context,
-	participant common.Address,
-	contract *common.Address,
-	receipt *ethtypes.Receipt,
-) error {
-=======
 func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
->>>>>>> ffff90cc83bb057af68ca2f5d9b6007df3161298
 	// check if the Incentives are globally enabled
 	params := h.k.GetParams(ctx)
 	if !params.EnableIncentives {
