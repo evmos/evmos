@@ -11,8 +11,8 @@ message Params {
   option (gogoproto.goproto_stringer) = false;
 }
 
-//Define this object so that the unigov.pb.go file is generated&
-message CompoundProposal {
+//Define this object so that the unigov.pb.go file is generate
+message LendingMarketProposal {
   option (gogoproto.equal) = false;
   //title
   string title = 1; //

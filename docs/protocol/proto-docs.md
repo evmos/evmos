@@ -163,7 +163,7 @@
     - [Query](#canto.recovery.v1.Query)
   
 - [canto/unigov/v1/unigov.proto](#canto/unigov/v1/unigov.proto)
-    - [CompoundProposal](#canto.unigov.v1.CompoundProposal)
+    - [LendingMarketProposal](#canto.unigov.v1.LendingMarketProposal)
     - [Params](#canto.unigov.v1.Params)
   
 - [canto/unigov/v1/genesis.proto](#canto/unigov/v1/genesis.proto)
@@ -2157,10 +2157,10 @@ Query defines the gRPC querier service.
 
 
 
-<a name="canto.unigov.v1.CompoundProposal"></a>
+<a name="canto.unigov.v1.LendingMarketProposal"></a>
 
-### CompoundProposal
-Define this object so that the unigov.pb.go file is generated&
+### LendingMarketProposal
+Define this object so that the unigov.pb.go file is generate
 
 
 | Field | Type | Label | Description |

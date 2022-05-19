@@ -30,13 +30,25 @@ require (
 
 require (
 	github.com/DataDog/zstd v1.4.8 // indirect
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver v1.5.0 // indirect
+	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
+	github.com/aokoli/goutils v1.1.1 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.3 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
+	github.com/envoyproxy/protoc-gen-validate v0.6.7 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/google/btree v1.0.1 // indirect
+	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
 	github.com/prometheus/tsdb v0.10.0 // indirect
+	github.com/pseudomuto/protoc-gen-doc v1.5.1 // indirect
+	github.com/pseudomuto/protokit v0.2.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/rs/zerolog v1.26.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
