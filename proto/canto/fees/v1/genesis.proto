@@ -1,6 +1,6 @@
 syntax = "proto3";
-package evmos.fees.v1;
-import "evmos/fees/v1/fees.proto";
+package canto.fees.v1;
+import "canto/fees/v1/fees.proto";
 
 import "gogoproto/gogo.proto";
 

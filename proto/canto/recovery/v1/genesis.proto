@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.recovery.v1;
+package canto.recovery.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";

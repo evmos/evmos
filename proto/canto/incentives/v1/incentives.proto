@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.incentives.v1;
+package canto.incentives.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";

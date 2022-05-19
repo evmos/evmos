@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.vesting.v1;
+package canto.vesting.v1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
@@ -13,11 +13,11 @@ service Msg {
   // CreateClawbackVestingAccount creats a vesting account that is subject to
   // clawback and the configuration of vesting and lockup schedules.
   rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount) returns (MsgCreateClawbackVestingAccountResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/tx/create_clawback_vesting_account";
+    option (google.api.http).get = "/canto/vesting/v1/tx/create_clawback_vesting_account";
   };
   // Clawback removes the unvested tokens from a ClawbackVestingAccount.
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/tx/clawback";
+    option (google.api.http).get = "/canto/vesting/v1/tx/clawback";
   };
 }
 

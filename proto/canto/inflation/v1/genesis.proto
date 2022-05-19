@@ -1,9 +1,9 @@
 syntax = "proto3";
-package evmos.inflation.v1;
+package canto.inflation.v1;
 
 import "gogoproto/gogo.proto";
 
-import "evmos/inflation/v1/inflation.proto";
+import "canto/inflation/v1/inflation.proto";
 
 option go_package = "github.com/Canto-Network/canto/v3/x/inflation/types";
 

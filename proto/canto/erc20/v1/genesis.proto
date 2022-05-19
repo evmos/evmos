@@ -1,6 +1,6 @@
 syntax = "proto3";
-package evmos.erc20.v1;
-import "evmos/erc20/v1/erc20.proto";
+package canto.erc20.v1;
+import "canto/erc20/v1/erc20.proto";
 
 import "gogoproto/gogo.proto";
 

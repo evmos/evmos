@@ -1,5 +1,5 @@
 syntax = "proto3";
-package CantoNetwork.canto.unigov;
+package canto.unigov.v1;
 
 // this line is used by starport scaffolding # proto/tx/import
 

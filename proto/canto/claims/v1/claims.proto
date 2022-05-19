@@ -28,7 +28,7 @@ enum Action {
 // Claim defines the action, completed flag and the remaining claimable amount
 // for a given user. This is only used during client queries.
 message Claim {
-	// action enum
+	// action enumg
 	Action action = 1;
 	// true if the action has been completed
 	bool completed = 2;

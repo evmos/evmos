@@ -1,10 +1,10 @@
 syntax = "proto3";
-package evmos.claims.v1;
+package canto.claims.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "evmos/claims/v1/claims.proto";
+import "canto/claims/v1/claims.proto";
 
 option go_package = "github.com/Canto-Network/canto/v3/x/claims/types";
 

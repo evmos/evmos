@@ -1,10 +1,11 @@
 syntax = "proto3";
-package CantoNetwork.canto.unigov;
+package canto.unigov.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "unigov/params.proto";
+import "canto/unigov/v1/unigov.proto";
+
 // this line is used by starport scaffolding # 1
 
 option go_package = "github.com/Canto-Network/canto/v3/x/unigov/types";

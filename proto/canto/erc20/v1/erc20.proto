@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.erc20.v1;
+package canto.erc20.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/bank/v1beta1/bank.proto";

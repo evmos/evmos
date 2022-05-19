@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.vesting.v1;
+package canto.vesting.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";

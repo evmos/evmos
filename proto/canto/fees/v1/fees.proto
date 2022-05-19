@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.fees.v1;
+package canto.fees.v1;
 
 option go_package = "github.com/Canto-Network/canto/v3/x/fees/types";
 

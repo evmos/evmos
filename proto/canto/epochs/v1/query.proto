@@ -1,10 +1,10 @@
 syntax = "proto3";
-package evmos.epochs.v1;
+package canto.epochs.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/epochs/v1/genesis.proto";
+import "canto/epochs/v1/genesis.proto";
 
 option go_package = "github.com/Canto-Network/canto/v3/x/epochs/types";
 
@@ -12,12 +12,12 @@ option go_package = "github.com/Canto-Network/canto/v3/x/epochs/types";
 service Query {
   // EpochInfos provide running epochInfos
   rpc EpochInfos(QueryEpochsInfoRequest) returns (QueryEpochsInfoResponse) {
-    option (google.api.http).get = "/evmos/epochs/v1/epochs";
+    option (google.api.http).get = "/canto/epochs/v1/epochs";
   }
   // CurrentEpoch provide current epoch of specified identifier
   rpc CurrentEpoch(QueryCurrentEpochRequest)
       returns (QueryCurrentEpochResponse) {
-    option (google.api.http).get = "/evmos/epochs/v1/current_epoch";
+    option (google.api.http).get = "/canto/epochs/v1/current_epoch";
   }
 }
 
