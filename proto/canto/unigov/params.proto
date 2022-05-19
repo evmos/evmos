@@ -1,0 +1,12 @@
+syntax = "proto3";
+package CantoNetwork.canto.unigov;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/Canto-Network/canto/v3/x/unigov/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+}

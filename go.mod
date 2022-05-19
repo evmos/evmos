@@ -1,6 +1,6 @@
 module github.com/Canto-Network/canto/v3
 
-go 1.17
+go 1.16
 
 require (
 	github.com/armon/go-metrics v0.3.11
@@ -33,10 +33,11 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.3 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
-	github.com/golang/glog v0.0.0-20210429001901-424d2337a529 // indirect
 	github.com/google/btree v1.0.1 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0 // indirect
 	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/rs/zerolog v1.26.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
