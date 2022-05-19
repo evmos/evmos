@@ -45,3 +45,7 @@ If the contract was created by a smart contract, through the `CREATE` opcode, we
 ::: tip
 **Note**: Even if `MyContract` is created from `FactoryB` through a transaction sent by an account different from `DeployerEOA`, only `DeployerEOA` can register `MyContract`.
 :::
+
+## Global Minimum Gas Price
+
+The minimum gas price needed for transactions to be processed by Evmos. It applies to both Cosmos and EVM transactions. This value can be changed by governance, as a `fees` module parameter. If the `feemarket` gas price or the minimum gas price set by the validator is lower than the global `MinGasPrice`, `MinGasPrice` is used as a lower bound. If transactions are rejected due to having a gas price lower than `MinGasPrice`, users need to resend the transactions with a gas price higher than `MinGasPrice`. In the case of EIP-1559, dynamic EVM transactions, users must increase the priority fee.

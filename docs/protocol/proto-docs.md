@@ -801,7 +801,6 @@ Params defines the fees module params
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
 | `min_gas_price` | [string](#string) |  | min_gas_price defines the minimum gas price value for cosmos and eth transactions |
 
-
  <!-- end messages -->
 
  <!-- end enums -->
