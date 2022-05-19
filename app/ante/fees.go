@@ -42,9 +42,9 @@ func (mpd MinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 		// Determine the required fees by multiplying each required minimum gas
 		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(int64(gas))
+		gasLimit := sdk.NewDec(int64(gas))
 		for i, gp := range minGasPrices {
-			fee := gp.Amount.Mul(glDec)
+			fee := gp.Amount.Mul(gasLimit)
 			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
 		}
 
@@ -98,8 +98,8 @@ func (empd EthMinPriceFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 				feeAmt = ethMsg.GetEffectiveFee(baseFee)
 			}
 
-			glDec := sdk.NewDec(int64(ethMsg.GetGas()))
-			requiredFee := minGasPrice.Mul(glDec)
+			gasLimit := sdk.NewDec(int64(ethMsg.GetGas()))
+			requiredFee := minGasPrice.Mul(gasLimit)
 
 			if sdk.NewDecFromBigInt(feeAmt).LT(requiredFee) {
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "provided fee < minimum global fee (%s < %s). Please increase the priority tip (for EIP-1559 txs) or the gas prices (for access list or legacy txs)", feeAmt, requiredFee)

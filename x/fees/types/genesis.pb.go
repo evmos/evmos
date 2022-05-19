@@ -89,9 +89,10 @@ type Params struct {
 	// developer_shares defines the proportion of the transaction fees to be
 	// distributed to validators
 	ValidatorShares github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=validator_shares,json=validatorShares,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"validator_shares"`
-	// parameter to configure the cost of address derivation
+	// addr_derivation_cost_create defines the cost of address derivation for
+	// verifying the contract deployer at fee registration
 	AddrDerivationCostCreate uint64 `protobuf:"varint,4,opt,name=addr_derivation_cost_create,json=addrDerivationCostCreate,proto3" json:"addr_derivation_cost_create,omitempty"`
-	// parameter to configure the minimum gas price value for transactions
+	// min_gas_price defines the minimum gas price value for cosmos and eth transactions
 	MinGasPrice github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=min_gas_price,json=minGasPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_gas_price"`
 }
 
