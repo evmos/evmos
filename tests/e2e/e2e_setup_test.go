@@ -20,8 +20,8 @@ import (
 
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
-	"github.com/tharsis/evmos/v3/tests/e2e/chain"
-	"github.com/tharsis/evmos/v3/tests/e2e/util"
+	"github.com/tharsis/evmos/v4/tests/e2e/chain"
+	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
 
 var (

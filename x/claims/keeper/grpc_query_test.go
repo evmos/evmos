@@ -1,11 +1,13 @@
 package keeper_test
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/v3/x/claims/types"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
+	"github.com/tharsis/evmos/v4/testutil"
+	"github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {
@@ -23,9 +25,7 @@ func (suite *KeeperTestSuite) TestTotalUnclaimed() {
 		{
 			"non-empty balance",
 			func() {
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
-				suite.Require().NoError(err)
-				err = suite.app.BankKeeper.SendCoinsFromModuleToModule(suite.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			}, coins,
 		},
@@ -176,6 +176,34 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 		{
 			"valid, non empty claimable amounts",
 			func() {
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
+				req = &types.QueryClaimsRecordRequest{
+					Address: addr.String(),
+				}
+			},
+			false,
+		},
+		{
+			"valid, non empty claimable amounts if Claims disabled",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.EnableClaims = false
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
+				req = &types.QueryClaimsRecordRequest{
+					Address: addr.String(),
+				}
+			},
+			false,
+		},
+		{
+			"valid, non empty claimable amounts if Claims didnt start",
+			func() {
+				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
+				params.AirdropStartTime = time.Now().Add(time.Hour * 24)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 				req = &types.QueryClaimsRecordRequest{

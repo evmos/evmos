@@ -22,13 +22,16 @@ git clone https://github.com/cosmos/cosmos-sdk.git
 mv cosmos-sdk/x/auth/spec/ ./modules/auth
 mv cosmos-sdk/x/bank/spec/ ./modules/bank
 mv cosmos-sdk/x/crisis/spec/ ./modules/crisis
-mv cosmos-sdk/x/distribution/spec/ ./modules/distribution 
+mv cosmos-sdk/x/distribution/spec/ ./modules/distribution
+mv cosmos-sdk/x/evidence/spec/ ./modules/evidence
 mv cosmos-sdk/x/gov/spec/ ./modules/gov
 mv cosmos-sdk/x/slashing/spec/ ./modules/slashing
 mv cosmos-sdk/x/staking/spec/ ./modules/staking
+mv cosmos-sdk/x/upgrade/spec/ ./modules/upgrade
 rm -rf cosmos-sdk
 
 # Include the specs from IBC go
 git clone https://github.com/cosmos/ibc-go.git
 mv ibc-go/modules/apps/transfer/spec/ ./modules/transfer
+mv ibc-go/modules/core/spec/ ./modules/ibc-core
 rm -rf ibc-go

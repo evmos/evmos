@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
-	"github.com/tharsis/evmos/v3/x/inflation/types"
+	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
+	"github.com/tharsis/evmos/v4/x/inflation/types"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here
@@ -19,7 +19,12 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 	// Skip inflation if it is disabled and increment number of skipped epochs
 	if !params.EnableInflation {
+		// check if the epochIdentifier is "day" before incrementing.
+		if epochIdentifier != epochstypes.DayEpochID {
+			return
+		}
 		skippedEpochs++
+
 		k.SetSkippedEpochs(ctx, skippedEpochs)
 		k.Logger(ctx).Debug(
 			"skipping inflation mint and distribution",

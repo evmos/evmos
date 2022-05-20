@@ -31,14 +31,14 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgConvertCoin defines a Msg to convert a Cosmos Coin to a ERC20 token
+// MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
 type MsgConvertCoin struct {
-	// Cosmos coin which denomination is registered on erc20 bridge.
-	// The coin amount defines the total ERC20 tokens to convert.
+	// Cosmos coin which denomination is registered in a token pair. The coin
+	// amount defines the amount of coins to convert.
 	Coin types.Coin `protobuf:"bytes,1,opt,name=coin,proto3" json:"coin"`
 	// recipient hex address to receive ERC20 token
 	Receiver string `protobuf:"bytes,2,opt,name=receiver,proto3" json:"receiver,omitempty"`
-	// cosmos bech32 address from the owner of the given ERC20 tokens
+	// cosmos bech32 address from the owner of the given Cosmos coins
 	Sender string `protobuf:"bytes,3,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -133,13 +133,14 @@ func (m *MsgConvertCoinResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgConvertCoinResponse proto.InternalMessageInfo
 
-// MsgConvertERC20 defines a Msg to convert an ERC20 token to a Cosmos SDK coin.
+// MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
+// coin.
 type MsgConvertERC20 struct {
-	// ERC20 token contract address registered on erc20 bridge
+	// ERC20 token contract address registered in a token pair
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
-	// amount of ERC20 tokens to mint
+	// amount of ERC20 tokens to convert
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
-	// bech32 address to receive SDK coins.
+	// bech32 address to receive native Cosmos coins
 	Receiver string `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty"`
 	// sender hex address from the owner of the given ERC20 tokens
 	Sender string `protobuf:"bytes,4,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -290,11 +291,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// ConvertCoin mints a ERC20 representation of the SDK Coin denom that is
-	// registered on the token mapping.
-	ConvertCoin(ctx context.Context, in *MsgConvertCoin, opts ...grpc.CallOption) (*MsgConvertCoinResponse, error)
-	// ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract
+	// ConvertCoin mints a ERC20 representation of the native Cosmos coin denom
 	// that is registered on the token mapping.
+	ConvertCoin(ctx context.Context, in *MsgConvertCoin, opts ...grpc.CallOption) (*MsgConvertCoinResponse, error)
+	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
+	// contract that is registered on the token mapping.
 	ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts ...grpc.CallOption) (*MsgConvertERC20Response, error)
 }
 
@@ -326,11 +327,11 @@ func (c *msgClient) ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts 
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// ConvertCoin mints a ERC20 representation of the SDK Coin denom that is
-	// registered on the token mapping.
-	ConvertCoin(context.Context, *MsgConvertCoin) (*MsgConvertCoinResponse, error)
-	// ConvertERC20 mints a Cosmos coin representation of the ERC20 token contract
+	// ConvertCoin mints a ERC20 representation of the native Cosmos coin denom
 	// that is registered on the token mapping.
+	ConvertCoin(context.Context, *MsgConvertCoin) (*MsgConvertCoinResponse, error)
+	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
+	// contract that is registered on the token mapping.
 	ConvertERC20(context.Context, *MsgConvertERC20) (*MsgConvertERC20Response, error)
 }
 

@@ -5,7 +5,7 @@ func EnableObservability() error {
 	// if true {
 	// Temporarily disabling this until we can configure out port reuse
 	// fast enough or enabling observability through the config.
-	// Please see https://github.com/tharsis/evmos/v3/issues/84
+	// Please see https://github.com/tharsis/evmos/v4/issues/84
 	// return nil
 	// }
 

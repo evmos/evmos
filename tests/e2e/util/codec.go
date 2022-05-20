@@ -11,7 +11,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/tharsis/ethermint/encoding"
-	evmosApp "github.com/tharsis/evmos/v3/app"
+	evmosApp "github.com/tharsis/evmos/v4/app"
 )
 
 var (

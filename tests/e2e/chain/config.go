@@ -19,7 +19,7 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tharsis/ethermint/server/config"
 
-	"github.com/tharsis/evmos/v3/tests/e2e/util"
+	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
 
 type ValidatorConfig struct {

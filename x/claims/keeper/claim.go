@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tharsis/evmos/v3/x/claims/types"
+	"github.com/tharsis/evmos/v4/x/claims/types"
 )
 
 // ClaimCoinsForAction removes the claimable amount entry from a claims record
@@ -99,30 +99,23 @@ func (k Keeper) MergeClaimsRecords(
 	// the recipient or sender has completed an action but the other hasn't
 	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 	for _, action := range actions {
-		senderCompleted := senderClaimsRecord.HasClaimedAction(action)
+
+		// Safety check: the sender record cannot have any claimed actions, as
+		//  - the sender is not an evmos address and can't claim vote, delegation or evm actions
+		//  - the first attempt to perform an ibc callback from the senders account will merge/migrate the entire claims record
+		if senderClaimsRecord.HasClaimedAction(action) {
+			return types.ClaimsRecord{}, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "non-evmos sender must not have claimed action: %v", action)
+		}
+
 		recipientCompleted := recipientClaimsRecord.HasClaimedAction(action)
 
-		switch {
-		case senderCompleted && recipientCompleted:
-			// Both sender and recipient completed the action.
-			// Only mark the action as completed
-			mergedRecord.MarkClaimed(action)
-
-		case recipientCompleted && !senderCompleted:
+		if recipientCompleted {
 			// claim action for sender since the recipient completed it
 			amt, remainder := k.GetClaimableAmountForAction(ctx, senderClaimsRecord, action, params)
 			claimedAmt = claimedAmt.Add(amt)
 			remainderAmt = remainderAmt.Add(remainder)
 			mergedRecord.MarkClaimed(action)
-
-		case !recipientCompleted && senderCompleted:
-			// claim action for recipient since the sender completed it
-			amt, remainder := k.GetClaimableAmountForAction(ctx, recipientClaimsRecord, action, params)
-			claimedAmt = claimedAmt.Add(amt)
-			remainderAmt = remainderAmt.Add(remainder)
-			mergedRecord.MarkClaimed(action)
-
-		case !senderCompleted && !recipientCompleted:
+		} else {
 			// Neither sender or recipient completed the action.
 			if action != types.ActionIBCTransfer {
 				// No-op if the action is not IBC transfer
@@ -173,7 +166,25 @@ func (k Keeper) MergeClaimsRecords(
 
 // GetClaimableAmountForAction returns claimable amount for a specific action
 // done by an address
+// returns zero if airdrop didn't start, isn't enabled or has finished
 func (k Keeper) GetClaimableAmountForAction(
+	ctx sdk.Context,
+	claimsRecord types.ClaimsRecord,
+	action types.Action,
+	params types.Params,
+) (claimableCoins, remainder sdk.Int) {
+	// check if the entire airdrop has completed. This shouldn't occur since at
+	// the end of the airdrop, the EnableClaims param is disabled.
+	if !params.IsClaimsActive(ctx.BlockTime()) {
+		return sdk.ZeroInt(), sdk.ZeroInt()
+	}
+
+	return k.ClaimableAmountForAction(ctx, claimsRecord, action, params)
+}
+
+// ClaimableAmountForAction returns claimable amount for a specific action
+// done by an address
+func (k Keeper) ClaimableAmountForAction(
 	ctx sdk.Context,
 	claimsRecord types.ClaimsRecord,
 	action types.Action,
@@ -181,12 +192,6 @@ func (k Keeper) GetClaimableAmountForAction(
 ) (claimableCoins, remainder sdk.Int) {
 	// return zero if there are no coins to claim
 	if claimsRecord.InitialClaimableAmount.IsNil() || claimsRecord.InitialClaimableAmount.IsZero() {
-		return sdk.ZeroInt(), sdk.ZeroInt()
-	}
-
-	// check if the entire airdrop has completed. This shouldn't occur since at
-	// the end of the airdrop, the EnableClaims param is disabled.
-	if !params.IsClaimsActive(ctx.BlockTime()) {
 		return sdk.ZeroInt(), sdk.ZeroInt()
 	}
 
