@@ -22,10 +22,10 @@ const (
 	MemStoreKey = "mem_unigov"
 )
 
-var ModuleAddress commmon.Address
+var ModuleAddress common.Address
 
 func init() {
-	ModuleAddress = common.Bytes2Address(authtypes.NewModuleAddres(ModuleName).Bytes())
+	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
 }
 
 func KeyPrefix(p string) []byte {
