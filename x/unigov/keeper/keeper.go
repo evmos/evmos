@@ -34,7 +34,7 @@ func NewKeeper(
 
 	
 	
-	mapContractAddr common.Address
+	addr common.Address
 	ak   types.AccountKeeper,
 	ek types.ERC20Keeper,
 	
@@ -49,7 +49,7 @@ func NewKeeper(
 		cdc:      	cdc,
 		storeKey: 	storeKey,
 		memKey:   	memKey,
-		mapContractAddr: common.Address(0),
+		mapContractAddr: addr,
 		paramstore:	ps,
 		accKeeper:      ak,
 		erc20Keeper:    ek,
