@@ -20,7 +20,7 @@ type (
 		memKey   	sdk.StoreKey
 		paramstore	paramtypes.Subspace
 
-		mapContractAddr *common.Address
+		mapContractAddr common.Address
 		accKeeper   types.AccountKeeper
 		erc20Keeper types.ERC20Keeper
 	}
@@ -49,7 +49,7 @@ func NewKeeper(
 		cdc:      	cdc,
 		storeKey: 	storeKey,
 		memKey:   	memKey,
-		mapContractAddr: &common.Address{},
+		mapContractAddr: common.Address(0),
 		paramstore:	ps,
 		accKeeper:      ak,
 		erc20Keeper:    ek,
