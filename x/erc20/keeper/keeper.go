@@ -27,6 +27,7 @@ func NewKeeper(
 	storeKey sdk.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
+
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,

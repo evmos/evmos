@@ -1,10 +1,9 @@
 package types
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/ethereum/go-ethereum/common"
 )
-
 
 const (
 	// ModuleName defines the module name
@@ -21,16 +20,14 @@ const (
 
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "mem_unigov"
-
-    
 )
 
-var ModuleAddress commmon.Address
+var ModuleAddress common.Address
 
 func init() {
-	ModuleAddress = common.Bytes2Address(authtypes.NewModuleAddres(ModuleName).Bytes())
+	ModuleAddress = common.BytesToAddress(authtypes.NewModuleAddress(ModuleName).Bytes())
 }
 
 func KeyPrefix(p string) []byte {
-    return []byte(p)
+	return []byte(p)
 }
