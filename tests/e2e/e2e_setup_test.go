@@ -125,7 +125,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {
-	if str := os.Getenv("OSMOSIS_E2E_SKIP_CLEANUP"); len(str) > 0 {
+	if str := os.Getenv("EVMOS_E2E_SKIP_CLEANUP"); len(str) > 0 {
 		skipCleanup, err := strconv.ParseBool(str)
 		s.Require().NoError(err)
 
@@ -156,7 +156,7 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 }
 
 func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
-	s.T().Logf("starting Osmosis %s validator containers...", c.ChainMeta.Id)
+	s.T().Logf("starting Evmos %s validator containers...", c.ChainMeta.Id)
 	s.valResources[c.ChainMeta.Id] = make([]*dockertest.Resource, len(c.Validators))
 	for i, val := range c.Validators {
 		runOpts := &dockertest.RunOptions{
@@ -195,7 +195,7 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 		s.Require().NoError(err)
 
 		s.valResources[c.ChainMeta.Id][i] = resource
-		s.T().Logf("started Osmosis %s validator container: %s", c.ChainMeta.Id, resource.Container.ID)
+		s.T().Logf("started Evmos %s validator container: %s", c.ChainMeta.Id, resource.Container.ID)
 	}
 
 	rpcClient, err := rpchttp.New("tcp://localhost:26657", "/websocket")
@@ -220,7 +220,7 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 		},
 		5*time.Minute,
 		time.Second,
-		"Osmosis node failed to produce blocks",
+		"Evmos node failed to produce blocks",
 	)
 }
 
@@ -444,14 +444,14 @@ func (s *IntegrationTestSuite) upgrade() {
 				NetworkID:  s.dkrNet.Network.ID,
 				User:       "root:root",
 				Mounts: []string{
-					fmt.Sprintf("%s/:/osmosis/.evmosd", val.ConfigDir),
+					fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
 				},
 			}
 			resource, err := s.dkrPool.RunWithOptions(runOpts, noRestart)
 			s.Require().NoError(err)
 
 			s.valResources[chain.ChainMeta.Id][i] = resource
-			s.T().Logf("started Osmosis %s validator container: %s", chain.ChainMeta.Id, resource.Container.ID)
+			s.T().Logf("started Evmos %s validator container: %s", chain.ChainMeta.Id, resource.Container.ID)
 		}
 	}
 

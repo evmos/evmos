@@ -333,7 +333,7 @@ build-docs-versioned:
 
 test: test-unit
 test-all: test-unit test-race
-PACKAGES_UNIT=$(shell go list ./...)
+PACKAGES_UNIT=$(shell go list ./...  | grep -v /tests/)
 TEST_PACKAGES=./...
 TEST_TARGETS := test-unit test-unit-cover test-race
 
@@ -421,6 +421,10 @@ test-sim-benchmark-invariants
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
 .PHONY: benchmark
+
+
+E2E_UNIT=$(shell go list ./...  | grep /tests/)
+test-e2e: run-tests E2E_UNIT
 
 ###############################################################################
 ###                                Linting                                  ###
