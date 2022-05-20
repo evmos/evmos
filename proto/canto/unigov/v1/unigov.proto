@@ -2,7 +2,6 @@ syntax = "proto3";
 package canto.unigov.v1;
 
 import "gogoproto/gogo.proto";
-import "ethermint/types/v1/account.proto";
 import "cosmos/auth/v1beta1/auth.proto";
 import "cosmos_proto/cosmos.proto";
 
@@ -24,11 +23,16 @@ message LendingMarketProposal {
   
   string description = 2;
 
-  repeated ethermint.types.v1.EthAccount Account = 3 [(gogoproto.nullable) = true];
+  LendingMarketMetadata metadata = 3;
+}
+
+
+message LendingMarketMetadata {
+  repeated bytes Account = 3 [(gogoproto.nullable) = true];
 
   uint64 PropId = 4;
 
   repeated uint64 values = 5 [(gogoproto.nullable) = true];
- 
+
   repeated bytes calldatas = 6 [(gogoproto.nullable) = true];
 }
