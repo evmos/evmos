@@ -91,7 +91,10 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 			// Transactions with MinGasPrices * gasUsed < tx fees < EffectiveFee are rejected
 			// by the feemarket AnteHandle
 			txData, err := evmtypes.UnpackTxData(ethMsg.Data)
-			if err == nil && txData.TxType() != ethtypes.LegacyTxType {
+			if err != nil {
+				return ctx, sdkerrors.Wrapf(err, "failed to unpack tx data %s", ethMsg.Hash)
+			}
+			if txData.TxType() != ethtypes.LegacyTxType {
 				paramsEvm := empd.evmKeeper.GetParams(ctx)
 				ethCfg := paramsEvm.ChainConfig.EthereumConfig(empd.evmKeeper.ChainID())
 				baseFee := empd.evmKeeper.GetBaseFee(ctx, ethCfg)
