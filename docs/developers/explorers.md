@@ -19,22 +19,18 @@ Below is a list of public block explorers that support Evmos Mainnet and Testnet
 :::: tabs
 ::: tab Mainnet
 
-|           | Category | URL                                                    |
-| --------- | -------- | ------------------------------------------------------ |
-| BigDipper | `cosmos` | [evmos.bigdipper.live/](https://evmos.bigdipper.live/) |
-<!-- markdown-link-check-disable-next-line -->
-| Blockscout | `evm`    | [evm.evmos.org](https://evm.evmos.org/)          |
-| M--------n | `------` | [----------------------------------------------) |
-| ATOMScan   | `cosmos` | [atomscan.com/evmos](https://atomscan.com/evmos) |
+|            | Category | URL                                                    |
+| ---------- | -------- | ------------------------------------------------------ |
+| BigDipper  | `cosmos` | [evmos.bigdipper.live/](https://evmos.bigdipper.live/) |
+| Blockscout | `evm`    | [evm.evmos.org](https://evm.evmos.org/)                |
+| ATOMScan   | `cosmos` | [atomscan.com/evmos](https://atomscan.com/evmos)       |
 :::
 ::: tab Testnet
 
-|           | Category | URL                                                             |
-| --------- | -------- | --------------------------------------------------------------- |
-| BigDipper | `cosmos` | [testnet.bigdipper.live](https://testnet.evmos.bigdipper.live/) |
-<!-- markdown-link-check-disable-next-line -->
+|            | Category | URL                                                                            |
+| ---------- | -------- | ------------------------------------------------------------------------------ |
+| BigDipper  | `cosmos` | [testnet.bigdipper.live](https://testnet.evmos.bigdipper.live/)                |
 | Blockscout | `evm`    | [evm.evmos.dev](https://evm.evmos.dev/)                                        |
-| E--------s | `------` | [----------------------------------------------------------------------------) |
 | Mintscan   | `cosmos` | [testnet.mintscan.io/evmos-testnet](https://testnet.mintscan.io/evmos-testnet) |
 :::
 ::::
