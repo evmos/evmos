@@ -18,7 +18,7 @@ type ERC20Keeper interface {
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
 type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) types.Account
+	//GetAccount(ctx sdk.Context, addr sdk.AccAddress) types.Account
 	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetSequence(sdk.Context, []bytes)
 }

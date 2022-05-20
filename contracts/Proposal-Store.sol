@@ -24,7 +24,6 @@ contract ProposalStore {
 
         /// @notice The ordered list of function signatures to be called
         string[] signatures;
-
         /// @notice The ordered list of calldata to be passed to each call
         bytes[] calldatas;
     }
@@ -37,15 +36,16 @@ contract ProposalStore {
 	UniGovModAcct == msg.sender;
     }
     
-    function AddProposal(uint propId, string title, string desc, address[] targets, uint[] values, string[] signatures, bytes[] calldatas) OnlyUniGov external {
-	prop = Proposal(propId, title, desc, targets, values, signatures, calldatas);
+    function AddProposal(uint propId, string memory title, string memory desc, address[] memory targets,
+			 uint[] memory values, string[] memory signatures, bytes[] memory calldatas) OnlyUniGov external {
+	Proposal memory prop = Proposal(propId, title, desc, targets, values, signatures, calldatas);
 	proposals[prop.id] = prop;
     }
 
-    function QueryProp(uint propId) external returns(Proposal memory){
+    function QueryProp(uint propId) external view returns(Proposal memory){
 	if (proposals[propId].id == propId) {
 	    return proposals[propId];
 	}
-	return Proposal(0, "", "");
-    }
+	return Proposal(0, "", "", new address[](0), new uint[](0), new string[](0), new bytes[](0));
+    } 
 }

@@ -31,8 +31,6 @@ func NewKeeper(
 	storeKey,
 	memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
-
-	
 	
 	addr common.Address
 	ak   types.AccountKeeper,
