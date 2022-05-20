@@ -1,6 +1,6 @@
 package types
 
-import(
+import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -12,7 +12,6 @@ var (
 	_ govtypes.Content = &LendingMarketProposal{}
 )
 
-
 //Register Compound Proposal type as a valid proposal type in goveranance module
 func init() {
 	govtypes.RegisterProposalType(ProposalTypeLendingMarket)
@@ -21,19 +20,18 @@ func init() {
 
 func NewLendingMarketProposal(title, description string, propMetaData govtypes.Proposal) govtypes.Content {
 	return &LendingMarketProposal{
-		Title: title,
+		Title:       title,
 		Description: description,
-		proposal: propMetaData,
+		Proposal:    propMetaData,
 	}
 }
 
-func (*LendingMarketProposal) ProposalRoute() string {return RouterKey}
-
+func (*LendingMarketProposal) ProposalRoute() string { return RouterKey }
 
 func (*LendingMarketProposal) ProposalType() string {
 	return ProposalTypeLendingMarket
 }
 
 func (lm *LendingMarketProposal) ValidateBasic() error {
-	return lm.Proposal.ValidateAbstract(lm.Proposal)
+	return govtypes.ValidateAbstract(lm)
 }

@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -137,6 +138,12 @@ import (
 	"github.com/Canto-Network/canto/v3/x/vesting"
 	vestingkeeper "github.com/Canto-Network/canto/v3/x/vesting/keeper"
 	vestingtypes "github.com/Canto-Network/canto/v3/x/vesting/types"
+
+	// unigov imports
+	"github.com/Canto-Network/canto/v3/x/unigov"
+	unigovclient "github.com/Canto-Network/canto/v3/x/unigov/client"
+	unigovkeeper "github.com/Canto-Network/canto/v3/x/unigov/keeper"
+	unigovtypes "github.com/Canto-Network/canto/v3/x/unigov/types"
 )
 
 func init() {
@@ -180,7 +187,7 @@ var (
 			// Canto proposal types
 			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
 			erc20client.ToggleTokenRelayProposalHandler, erc20client.UpdateTokenPairERC20ProposalHandler,
-			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
+			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler, unigovclient.LendingMarketProposalHandler, // <----- uni gov proposal handler
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -196,6 +203,7 @@ var (
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
 		erc20.AppModuleBasic{},
+		unigov.AppModuleBasic{}, // <------ unigov app module basic
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
@@ -214,6 +222,7 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		unigovtypes.ModuleName:         {authtypes.Minter, authtypes.Burner}, // <-------- unigovtypes.ModuleName
 		claimstypes.ModuleName:         nil,
 		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	}
@@ -278,6 +287,7 @@ type Canto struct {
 	InflationKeeper  inflationkeeper.Keeper
 	ClaimsKeeper     *claimskeeper.Keeper
 	Erc20Keeper      erc20keeper.Keeper
+	UnigovKeeper     unigovkeeper.Keeper // <------- unigov keeper
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
@@ -294,6 +304,9 @@ type Canto struct {
 	configurator module.Configurator
 
 	tpsCounter *tpsCounter
+
+	// unigov map contract address
+	mca common.Address
 }
 
 // NewCanto returns a reference to a new initialized Ethermint application.
@@ -424,7 +437,8 @@ func NewCanto(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
-		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
+		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper)).
+		AddRoute(unigovtypes.RouterKey, unigov.NewUniGovProposalHandler(&app.UnigovKeeper)) // <------- unigov router for proposal handler
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName),
@@ -462,6 +476,12 @@ func NewCanto(
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+	)
+
+	// unigov keeper instantiated
+	app.UnigovKeeper = unigovkeeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec, app.GetSubspace(unigovtypes.ModuleName),
+		app.mca, app.AccountKeeper, app.Erc20Keeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
@@ -590,7 +610,8 @@ func NewCanto(
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Canto app modules
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper),
-		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper), // <--------- erc 20 new app module
+		unigov.NewAppModule(app.UnigovKeeper, app.AccountKeeper),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
@@ -630,6 +651,7 @@ func NewCanto(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
+		unigovtypes.ModuleName, // <--------- unigov types module name
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
@@ -664,6 +686,7 @@ func NewCanto(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
+		unigovtypes.ModuleName, // <--------- unigov types module name
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
 		feestypes.ModuleName,
@@ -699,6 +722,7 @@ func NewCanto(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
+		unigovtypes.ModuleName, // <--------- unigov types module name
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
