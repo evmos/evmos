@@ -58,8 +58,8 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 // EthMinGasPriceDecorator will check if the transaction's fee is at least as large
 // as the MinGasPrices param. If fee is too low, decorator returns error and tx
-// is rejected. This applies for both CheckTx and DeliverTx. This applies regardless
-// if london fork or feemarket are enabled
+// is rejected. This applies to both CheckTx and DeliverTx and regardless
+// if London hard fork or fee market params (EIP-1559) are enabled.
 // If fee is high enough, then call next AnteHandler
 type EthMinGasPriceDecorator struct {
 	feesKeeper FeesKeeper
