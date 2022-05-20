@@ -2,10 +2,9 @@ syntax = "proto3";
 package canto.unigov.v1;
 
 import "gogoproto/gogo.proto";
-import "cosmos/gov/v1beta1/gov.proto";
+import "ethermint/types/v1/account.proto";
 import "cosmos/auth/v1beta1/auth.proto";
 import "cosmos_proto/cosmos.proto";
-
 
 option go_package = "github.com/Canto-Network/canto/v3/x/unigov/types";
 
@@ -18,20 +17,18 @@ message Params {
 message LendingMarketProposal {
   option (gogoproto.equal) = false;
   option (cosmos_proto.implements_interface) =
-    "github.com/cosmos/cosmos-sdk/x/gov/types.Content"
+    "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1.Content";
 
   //title
   string title = 1; //
   
   string description = 2;
 
-  cosmos.gov.v1beta1.Proposal proposal = 3 [ (gogoproto.nullable) = false];
+  repeated ethermint.types.v1.EthAccount Account = 3 [(gogoproto.nullable) = true];
 
-  repeated ethermint.types.v1.EthAccount Account = 4 [(gogoproto.nullable) = true];
+  uint64 PropId = 4;
 
-  uint64 PropId = 5;
-
-  repeated uint64 values = 6 [(gogoproto.nuillable) = true];
-
-  
+  repeated uint64 values = 5 [(gogoproto.nullable) = true];
+ 
+  repeated bytes calldatas = 6 [(gogoproto.nullable) = true];
 }

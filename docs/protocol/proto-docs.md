@@ -2160,14 +2160,17 @@ Query defines the gRPC querier service.
 <a name="canto.unigov.v1.LendingMarketProposal"></a>
 
 ### LendingMarketProposal
-Define this object so that the unigov.pb.go file is generate
+Define this object so that the unigov.pb.go file is generate, implements govtypes.Content
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title |
 | `description` | [string](#string) |  |  |
-| `proposal` | [cosmos.gov.v1beta1.Proposal](#cosmos.gov.v1beta1.Proposal) |  |  |
+| `Account` | [ethermint.types.v1.EthAccount](#ethermint.types.v1.EthAccount) | repeated |  |
+| `PropId` | [uint64](#uint64) |  |  |
+| `values` | [uint64](#uint64) | repeated |  |
+| `calldatas` | [bytes](#bytes) | repeated |  |
 
 
 
