@@ -9,13 +9,7 @@ import (
 
 // ClaimCoinsForAction removes the claimable amount entry from a claims record
 // and transfers it to the user's account
-func (k Keeper) ClaimCoinsForAction(
-	ctx sdk.Context,
-	addr sdk.AccAddress,
-	claimsRecord types.ClaimsRecord,
-	action types.Action,
-	params types.Params,
-) (sdk.Int, error) {
+func (k Keeper) ClaimCoinsForAction(ctx sdk.Context, addr sdk.AccAddress, claimsRecord types.ClaimsRecord, action types.Action, params types.Params) (sdk.Int, error) {
 	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
@@ -81,13 +75,7 @@ func (k Keeper) ClaimCoinsForAction(
 // This method additionally:
 //  - Always claims the IBC action, assuming both record haven't claimed it.
 //  - Marks an action as claimed for the new instance by performing an XOR operation between the 2 provided records: `merged completed action = sender completed action XOR recipient completed action`
-func (k Keeper) MergeClaimsRecords(
-	ctx sdk.Context,
-	recipient sdk.AccAddress,
-	senderClaimsRecord,
-	recipientClaimsRecord types.ClaimsRecord,
-	params types.Params,
-) (mergedRecord types.ClaimsRecord, err error) {
+func (k Keeper) MergeClaimsRecords(ctx sdk.Context, recipient sdk.AccAddress, senderClaimsRecord, recipientClaimsRecord types.ClaimsRecord, params types.Params) (mergedRecord types.ClaimsRecord, err error) {
 	claimedAmt := sdk.ZeroInt()
 	remainderAmt := sdk.ZeroInt()
 
@@ -99,7 +87,6 @@ func (k Keeper) MergeClaimsRecords(
 	// the recipient or sender has completed an action but the other hasn't
 	actions := []types.Action{types.ActionVote, types.ActionDelegate, types.ActionEVM, types.ActionIBCTransfer}
 	for _, action := range actions {
-
 		// Safety check: the sender record cannot have any claimed actions, as
 		//  - the sender is not an evmos address and can't claim vote, delegation or evm actions
 		//  - the first attempt to perform an ibc callback from the senders account will merge/migrate the entire claims record
