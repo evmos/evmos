@@ -43,8 +43,8 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 	require.NoError(t, err)
 	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
 
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.app = app.Setup(isCheckTx, feemarkettypes.DefaultGenesisState())
+	suite.ctx = suite.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),

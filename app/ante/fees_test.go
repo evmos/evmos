@@ -12,13 +12,11 @@ import (
 
 var execTypes = []struct {
 	name      string
-	deliverTx bool
+	isCheckTx bool
 	simulate  bool
 }{
-	{"deliverTx", true, false},
-	{"deliverTxSimulate", true, true},
-	// {"checkTx", false, false},
-	// {"checkTxSimulate", false, true},
+	{"deliverTx", false, false},
+	{"deliverTxSimulate", false, true},
 }
 
 func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
@@ -103,7 +101,7 @@ func (s AnteTestSuite) TestMinGasPriceDecorator() {
 	for _, et := range execTypes {
 		for _, tc := range testCases {
 			s.Run(et.name+"_"+tc.name, func() {
-				s.SetupTest(et.deliverTx)
+				s.SetupTest(et.isCheckTx)
 				dec := ante.NewMinGasPriceDecorator(s.app.FeesKeeper, s.app.EvmKeeper)
 				_, err := dec.AnteHandle(s.ctx, tc.malleate(), et.simulate, nextFn)
 
@@ -293,7 +291,7 @@ func (s AnteTestSuite) TestEthMinGasPriceDecorator() {
 	for _, et := range execTypes {
 		for _, tc := range testCases {
 			s.Run(et.name+"_"+tc.name, func() {
-				s.SetupTest(et.deliverTx)
+				s.SetupTest(et.isCheckTx)
 				dec := ante.NewEthMinGasPriceDecorator(s.app.FeesKeeper, s.app.EvmKeeper)
 				_, err := dec.AnteHandle(s.ctx, tc.malleate(), et.simulate, nextFn)
 
