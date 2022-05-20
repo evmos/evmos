@@ -15,15 +15,15 @@ func NewUniGovProposalHandler(k *keeper.Keeper) govtypes.Handler {
 	return func(ctx sdk.Context, content govtypes.Content) error {
 		switch c: content.(type) {
 		case *types.CompoundProposal:
-			return handleCompoundProposal(ctx, k, c)
+			return handleLendingMarketProposal(ctx, k, c)
 		default:
 			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
 	}
 }
 
-func handleCompoundProposal(ctx sdk.Context, k *keeper.Keeper, p *types.CompoundProposal) error {
-	prop, err := k.CompoundProposal(ctx, p.Proposal) //Defined analogous to (erc20)k.RegisterCoin 
+func handleLendingMarketProposal(ctx sdk.PContext, k *keeper.Keeper, p *types.LendingMarketProposal) error {
+	addr, err := k.AppendLendingMarketProposal(ctx, p.Proposal) //Defined analogous to (erc20)k.RegisterCoin 
 	if err != nil {
 		return err
 	}

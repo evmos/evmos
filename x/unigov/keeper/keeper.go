@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
+	"github.com/ethereum/go-ethereum/"
 )
 
 type (
@@ -18,18 +19,25 @@ type (
 		storeKey 	sdk.StoreKey
 		memKey   	sdk.StoreKey
 		paramstore	paramtypes.Subspace
-		
+
+		mapContractAddr common.Address
+		accKeeper   types.AccountKeeper
 		erc20Keeper types.ERC20Keeper
 	}
 )
 
 func NewKeeper(
-    cdc codec.BinaryCodec,
-    storeKey,
-    memKey sdk.StoreKey,
+	cdc codec.BinaryCodec,
+	storeKey,
+	memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
-    
-    erc20Keeper types.ERC20Keeper,
+
+	
+	
+	mapContractAddr common.Address
+	ak   types.AccountKeeper,
+	ek types.ERC20Keeper,
+	
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -41,8 +49,10 @@ func NewKeeper(
 		cdc:      	cdc,
 		storeKey: 	storeKey,
 		memKey:   	memKey,
+		mapContractAddr: nil,
 		paramstore:	ps,
-		erc20Keeper:    erc20Keeper,
+		accKeeper:      ak,
+		erc20Keeper:    ek,
 	}
 }
 
