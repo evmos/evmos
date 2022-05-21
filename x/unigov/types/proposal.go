@@ -21,17 +21,11 @@ func init() {
 	govtypes.RegisterProposalTypeCodec(&LendingMarketProposal{}, "unigov/LendingMarketProposal")
 }
 
-func NewLendingMarketProposal(title, description string, accounts [][]byte, propId uint64,
-	values []uint64, calldatas [][]byte,
-	signatures []string) govtypes.Content {
+func NewLendingMarketProposal(title, description string, m *LendingMarketMetadata) govtypes.Content {
 	return &LendingMarketProposal{
 		Title:       title,
 		Description: description,
-		Account:     accounts,
-		PropId:      propId,
-		Values:      values,
-		Calldatas:   calldatas,
-		Signatures:  signatures,
+		Metadata:    m,
 	}
 }
 
@@ -46,7 +40,9 @@ func (lm *LendingMarketProposal) ValidateBasic() error {
 		return err
 	}
 
-	cd, vals, sigs := len(lm.Calldatas), len(lm.Values), len(lm.Signatures)
+	m := lm.GetMetadata()
+	
+	cd, vals, sigs := len(m.GetCalldatas()), len(m.GetValues()), len(m.GetSignatures())
 
 	if cd != vals {
 		return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal array arguments must be same length")

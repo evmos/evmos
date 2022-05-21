@@ -9,7 +9,6 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	_ "github.com/regen-network/cosmos-proto"
-	_ "github.com/tharsis/ethermint/types"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -65,13 +64,9 @@ var xxx_messageInfo_Params proto.InternalMessageInfo
 //Define this object so that the unigov.pb.go file is generate, implements govtypes.Content
 type LendingMarketProposal struct {
 	//title
-	Title       string   `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Description string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Account     [][]byte `protobuf:"bytes,3,rep,name=Account,proto3" json:"Account,omitempty"`
-	PropId      uint64   `protobuf:"varint,4,opt,name=PropId,proto3" json:"PropId,omitempty"`
-	Values      []uint64 `protobuf:"varint,5,rep,packed,name=values,proto3" json:"values,omitempty"`
-	Calldatas   [][]byte `protobuf:"bytes,6,rep,name=calldatas,proto3" json:"calldatas,omitempty"`
-	Signatures  []string `protobuf:"bytes,7,rep,name=signatures,proto3" json:"signatures,omitempty"`
+	Title       string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Metadata    *LendingMarketMetadata `protobuf:"bytes,3,opt,name=metadata,proto3" json:"metadata,omitempty"`
 }
 
 func (m *LendingMarketProposal) Reset()         { *m = LendingMarketProposal{} }
@@ -121,35 +116,83 @@ func (m *LendingMarketProposal) GetDescription() string {
 	return ""
 }
 
-func (m *LendingMarketProposal) GetAccount() [][]byte {
+func (m *LendingMarketProposal) GetMetadata() *LendingMarketMetadata {
+	if m != nil {
+		return m.Metadata
+	}
+	return nil
+}
+
+type LendingMarketMetadata struct {
+	Account    [][]byte `protobuf:"bytes,1,rep,name=Account,proto3" json:"Account,omitempty"`
+	PropId     uint64   `protobuf:"varint,2,opt,name=PropId,proto3" json:"PropId,omitempty"`
+	Values     []uint64 `protobuf:"varint,3,rep,packed,name=values,proto3" json:"values,omitempty"`
+	Calldatas  [][]byte `protobuf:"bytes,4,rep,name=calldatas,proto3" json:"calldatas,omitempty"`
+	Signatures []string `protobuf:"bytes,5,rep,name=signatures,proto3" json:"signatures,omitempty"`
+}
+
+func (m *LendingMarketMetadata) Reset()         { *m = LendingMarketMetadata{} }
+func (m *LendingMarketMetadata) String() string { return proto.CompactTextString(m) }
+func (*LendingMarketMetadata) ProtoMessage()    {}
+func (*LendingMarketMetadata) Descriptor() ([]byte, []int) {
+	return fileDescriptor_62cc251d4f9933da, []int{2}
+}
+func (m *LendingMarketMetadata) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *LendingMarketMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_LendingMarketMetadata.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *LendingMarketMetadata) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LendingMarketMetadata.Merge(m, src)
+}
+func (m *LendingMarketMetadata) XXX_Size() int {
+	return m.Size()
+}
+func (m *LendingMarketMetadata) XXX_DiscardUnknown() {
+	xxx_messageInfo_LendingMarketMetadata.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LendingMarketMetadata proto.InternalMessageInfo
+
+func (m *LendingMarketMetadata) GetAccount() [][]byte {
 	if m != nil {
 		return m.Account
 	}
 	return nil
 }
 
-func (m *LendingMarketProposal) GetPropId() uint64 {
+func (m *LendingMarketMetadata) GetPropId() uint64 {
 	if m != nil {
 		return m.PropId
 	}
 	return 0
 }
 
-func (m *LendingMarketProposal) GetValues() []uint64 {
+func (m *LendingMarketMetadata) GetValues() []uint64 {
 	if m != nil {
 		return m.Values
 	}
 	return nil
 }
 
-func (m *LendingMarketProposal) GetCalldatas() [][]byte {
+func (m *LendingMarketMetadata) GetCalldatas() [][]byte {
 	if m != nil {
 		return m.Calldatas
 	}
 	return nil
 }
 
-func (m *LendingMarketProposal) GetSignatures() []string {
+func (m *LendingMarketMetadata) GetSignatures() []string {
 	if m != nil {
 		return m.Signatures
 	}
@@ -159,38 +202,40 @@ func (m *LendingMarketProposal) GetSignatures() []string {
 func init() {
 	proto.RegisterType((*Params)(nil), "canto.unigov.v1.Params")
 	proto.RegisterType((*LendingMarketProposal)(nil), "canto.unigov.v1.LendingMarketProposal")
+	proto.RegisterType((*LendingMarketMetadata)(nil), "canto.unigov.v1.LendingMarketMetadata")
 }
 
 func init() { proto.RegisterFile("canto/unigov/v1/unigov.proto", fileDescriptor_62cc251d4f9933da) }
 
 var fileDescriptor_62cc251d4f9933da = []byte{
-	// 405 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x4c, 0x52, 0x31, 0x6f, 0xd4, 0x30,
-	0x14, 0x4e, 0x7a, 0x69, 0xaa, 0x33, 0x08, 0x24, 0xab, 0xa0, 0x50, 0x55, 0xbe, 0xe8, 0xc4, 0x90,
-	0xe5, 0x62, 0xa2, 0x2e, 0xa8, 0x13, 0xb4, 0x13, 0x08, 0x50, 0x75, 0x23, 0x0b, 0xf2, 0x25, 0x56,
-	0xce, 0xba, 0xc4, 0x8e, 0xec, 0x97, 0x50, 0xfe, 0x05, 0x23, 0x63, 0xff, 0x02, 0x12, 0x3f, 0xa2,
-	0xe3, 0x89, 0x89, 0x09, 0xa1, 0xbb, 0x85, 0x9f, 0x81, 0x12, 0xfb, 0x44, 0x26, 0xbf, 0xef, 0xfb,
-	0x9e, 0x3f, 0x5b, 0xef, 0x7b, 0xe8, 0x3c, 0x67, 0x12, 0x14, 0x6d, 0xa5, 0x28, 0x55, 0x47, 0xbb,
-	0xcc, 0x55, 0x69, 0xa3, 0x15, 0x28, 0xfc, 0x78, 0x50, 0x53, 0xc7, 0x75, 0xd9, 0xd9, 0x69, 0xa9,
-	0x4a, 0x35, 0x68, 0xb4, 0xaf, 0x6c, 0xdb, 0x59, 0xcc, 0x61, 0xcd, 0x75, 0x2d, 0x24, 0x50, 0xf8,
-	0xd2, 0x70, 0xd3, 0xfb, 0xb0, 0x3c, 0x57, 0xad, 0x04, 0xd7, 0x41, 0x72, 0x65, 0x6a, 0x65, 0x28,
-	0x6b, 0x61, 0x4d, 0xbb, 0x6c, 0xc5, 0x81, 0x65, 0x03, 0x70, 0xfa, 0x33, 0xab, 0x7f, 0xb2, 0xd6,
-	0x16, 0x58, 0x69, 0xfe, 0x08, 0x85, 0x37, 0x4c, 0xb3, 0xda, 0x5c, 0x06, 0xdf, 0xee, 0x66, 0xde,
-	0xfc, 0xfb, 0x11, 0x7a, 0xf2, 0x8e, 0xcb, 0x42, 0xc8, 0xf2, 0x3d, 0xd3, 0x1b, 0x0e, 0x37, 0x5a,
-	0x35, 0xca, 0xb0, 0x0a, 0x9f, 0xa2, 0x63, 0x10, 0x50, 0xf1, 0xc8, 0x8f, 0xfd, 0x64, 0xba, 0xb4,
-	0x00, 0xc7, 0xe8, 0x41, 0xc1, 0x4d, 0xae, 0x45, 0x03, 0x42, 0xc9, 0xe8, 0x68, 0xd0, 0xc6, 0x14,
-	0x26, 0xe8, 0xe4, 0xb5, 0xfd, 0x6d, 0x34, 0x89, 0x27, 0xc9, 0xc3, 0xab, 0xe0, 0xfe, 0xf7, 0xcc,
-	0x5f, 0x1e, 0x48, 0xfc, 0x14, 0x85, 0xfd, 0x1b, 0x6f, 0x8a, 0x28, 0x88, 0xfd, 0x24, 0x58, 0x3a,
-	0x84, 0xcf, 0x51, 0xd8, 0xb1, 0xaa, 0xe5, 0x26, 0x3a, 0x8e, 0x27, 0x49, 0xe0, 0xae, 0x39, 0x0e,
-	0xcf, 0xd1, 0x34, 0x67, 0x55, 0x55, 0x30, 0x60, 0x26, 0x0a, 0x47, 0xbe, 0xff, 0x69, 0xfc, 0x1c,
-	0x21, 0x23, 0x4a, 0xc9, 0xa0, 0xd5, 0xdc, 0x44, 0x27, 0xf1, 0x24, 0x99, 0xba, 0xa6, 0x11, 0x7f,
-	0xf9, 0xea, 0xef, 0xdd, 0xcc, 0xfb, 0xf9, 0x63, 0xf1, 0xb2, 0x14, 0xb0, 0x6e, 0x57, 0x69, 0xae,
-	0x6a, 0x37, 0x22, 0x77, 0x2c, 0x4c, 0xb1, 0xa1, 0xb7, 0xb4, 0x4f, 0xf0, 0x30, 0xff, 0x61, 0xc2,
-	0xe9, 0xb5, 0x92, 0xc0, 0x25, 0x5c, 0xbd, 0xbd, 0xdf, 0x11, 0x7f, 0xbb, 0x23, 0xfe, 0x9f, 0x1d,
-	0xf1, 0xbf, 0xee, 0x89, 0xb7, 0xdd, 0x13, 0xef, 0xd7, 0x9e, 0x78, 0x1f, 0x5f, 0x8c, 0x3c, 0xaf,
-	0xfb, 0xb0, 0x17, 0x1f, 0x38, 0x7c, 0x56, 0x7a, 0x43, 0xed, 0x62, 0x74, 0x17, 0xf4, 0xf6, 0xb0,
-	0x1d, 0x83, 0xf7, 0x2a, 0x1c, 0x62, 0xb9, 0xf8, 0x17, 0x00, 0x00, 0xff, 0xff, 0xae, 0x2b, 0x12,
-	0xc9, 0x3a, 0x02, 0x00, 0x00,
+	// 422 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x52, 0x41, 0x6b, 0xd4, 0x40,
+	0x14, 0xce, 0x98, 0x74, 0x75, 0xa7, 0xa2, 0x30, 0x54, 0x89, 0xa5, 0xcc, 0x86, 0x45, 0x24, 0x97,
+	0xcd, 0x18, 0x7b, 0x91, 0x9e, 0x74, 0x7b, 0x52, 0xac, 0x94, 0x1c, 0xbd, 0xc8, 0x6c, 0x32, 0xa4,
+	0x61, 0x93, 0x99, 0x90, 0x79, 0x89, 0xf5, 0x5f, 0x78, 0xf4, 0xd8, 0x1f, 0x21, 0xf8, 0x17, 0x7a,
+	0x2c, 0x82, 0xe0, 0x49, 0x64, 0xf7, 0xe2, 0xcf, 0x90, 0x24, 0x13, 0x8d, 0x7b, 0xca, 0xfb, 0xbe,
+	0xef, 0xbd, 0x3c, 0xbe, 0x6f, 0x1e, 0x3e, 0x8a, 0xb9, 0x04, 0xc5, 0x6a, 0x99, 0xa5, 0xaa, 0x61,
+	0x4d, 0x68, 0xaa, 0xa0, 0xac, 0x14, 0x28, 0x72, 0xbf, 0x53, 0x03, 0xc3, 0x35, 0xe1, 0xe1, 0x41,
+	0xaa, 0x52, 0xd5, 0x69, 0xac, 0xad, 0xfa, 0xb6, 0x43, 0x1a, 0x2b, 0x5d, 0x28, 0xcd, 0x78, 0x0d,
+	0x17, 0xac, 0x09, 0x57, 0x02, 0x78, 0xd8, 0x01, 0xa3, 0x3f, 0xea, 0xf5, 0xf7, 0xfd, 0x60, 0x0f,
+	0x7a, 0x69, 0x7e, 0x0f, 0x4f, 0xce, 0x79, 0xc5, 0x0b, 0x7d, 0xe2, 0x7c, 0xbe, 0x9a, 0x59, 0xf3,
+	0xef, 0x08, 0x3f, 0x78, 0x23, 0x64, 0x92, 0xc9, 0xf4, 0x8c, 0x57, 0x6b, 0x01, 0xe7, 0x95, 0x2a,
+	0x95, 0xe6, 0x39, 0x39, 0xc0, 0x7b, 0x90, 0x41, 0x2e, 0x5c, 0xe4, 0x21, 0x7f, 0x1a, 0xf5, 0x80,
+	0x78, 0x78, 0x3f, 0x11, 0x3a, 0xae, 0xb2, 0x12, 0x32, 0x25, 0xdd, 0x5b, 0x9d, 0x36, 0xa6, 0xc8,
+	0x12, 0xdf, 0x29, 0x04, 0xf0, 0x84, 0x03, 0x77, 0x6d, 0x0f, 0xf9, 0xfb, 0xcf, 0x9e, 0x04, 0x3b,
+	0xb6, 0x82, 0xff, 0x36, 0x9e, 0x99, 0xee, 0xe8, 0xef, 0xdc, 0xc9, 0x8b, 0xdf, 0x57, 0x33, 0xeb,
+	0xdb, 0x97, 0xc5, 0xf3, 0x34, 0x83, 0x8b, 0x7a, 0x15, 0xc4, 0xaa, 0x30, 0x36, 0xcc, 0x67, 0xa1,
+	0x93, 0x35, 0xbb, 0x64, 0x6d, 0x86, 0xf0, 0xb1, 0x14, 0x7a, 0x48, 0x21, 0x38, 0x55, 0x12, 0x84,
+	0x84, 0xf9, 0xd7, 0x5d, 0x5f, 0xc3, 0x16, 0x42, 0xf1, 0xed, 0x97, 0x71, 0xac, 0x6a, 0x09, 0x2e,
+	0xf2, 0x6c, 0xff, 0xee, 0xd2, 0xb9, 0xfe, 0x39, 0x43, 0xd1, 0x40, 0x92, 0x87, 0x78, 0xd2, 0x66,
+	0xf0, 0x2a, 0xe9, 0xcc, 0x39, 0x91, 0x41, 0xe4, 0x08, 0x4f, 0x1a, 0x9e, 0xd7, 0x42, 0xbb, 0xb6,
+	0x67, 0xfb, 0x8e, 0x19, 0x33, 0x1c, 0x99, 0xe3, 0x69, 0xcc, 0xf3, 0xbc, 0xdd, 0xa0, 0x5d, 0x67,
+	0xf4, 0xdf, 0x7f, 0x34, 0x79, 0x8c, 0xb1, 0xce, 0x52, 0xc9, 0xa1, 0xae, 0x84, 0x76, 0xf7, 0x3c,
+	0xdb, 0x9f, 0x9a, 0xa6, 0x11, 0xbf, 0x7c, 0x7d, 0xbd, 0xa1, 0xe8, 0x66, 0x43, 0xd1, 0xaf, 0x0d,
+	0x45, 0x9f, 0xb6, 0xd4, 0xba, 0xd9, 0x52, 0xeb, 0xc7, 0x96, 0x5a, 0xef, 0x9e, 0x8e, 0xd2, 0x38,
+	0x6d, 0x13, 0x5d, 0xbc, 0x15, 0xf0, 0x41, 0x55, 0x6b, 0xd6, 0x1f, 0x55, 0x73, 0xcc, 0x2e, 0x87,
+	0xcb, 0xea, 0x52, 0x59, 0x4d, 0xba, 0x47, 0x3f, 0xfe, 0x13, 0x00, 0x00, 0xff, 0xff, 0x37, 0x86,
+	0x5e, 0x6f, 0x76, 0x02, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -236,55 +281,17 @@ func (m *LendingMarketProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Signatures) > 0 {
-		for iNdEx := len(m.Signatures) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Signatures[iNdEx])
-			copy(dAtA[i:], m.Signatures[iNdEx])
-			i = encodeVarintUnigov(dAtA, i, uint64(len(m.Signatures[iNdEx])))
-			i--
-			dAtA[i] = 0x3a
-		}
-	}
-	if len(m.Calldatas) > 0 {
-		for iNdEx := len(m.Calldatas) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Calldatas[iNdEx])
-			copy(dAtA[i:], m.Calldatas[iNdEx])
-			i = encodeVarintUnigov(dAtA, i, uint64(len(m.Calldatas[iNdEx])))
-			i--
-			dAtA[i] = 0x32
-		}
-	}
-	if len(m.Values) > 0 {
-		dAtA2 := make([]byte, len(m.Values)*10)
-		var j1 int
-		for _, num := range m.Values {
-			for num >= 1<<7 {
-				dAtA2[j1] = uint8(uint64(num)&0x7f | 0x80)
-				num >>= 7
-				j1++
+	if m.Metadata != nil {
+		{
+			size, err := m.Metadata.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
 			}
-			dAtA2[j1] = uint8(num)
-			j1++
+			i -= size
+			i = encodeVarintUnigov(dAtA, i, uint64(size))
 		}
-		i -= j1
-		copy(dAtA[i:], dAtA2[:j1])
-		i = encodeVarintUnigov(dAtA, i, uint64(j1))
 		i--
-		dAtA[i] = 0x2a
-	}
-	if m.PropId != 0 {
-		i = encodeVarintUnigov(dAtA, i, uint64(m.PropId))
-		i--
-		dAtA[i] = 0x20
-	}
-	if len(m.Account) > 0 {
-		for iNdEx := len(m.Account) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Account[iNdEx])
-			copy(dAtA[i:], m.Account[iNdEx])
-			i = encodeVarintUnigov(dAtA, i, uint64(len(m.Account[iNdEx])))
-			i--
-			dAtA[i] = 0x1a
-		}
+		dAtA[i] = 0x1a
 	}
 	if len(m.Description) > 0 {
 		i -= len(m.Description)
@@ -299,6 +306,79 @@ func (m *LendingMarketProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintUnigov(dAtA, i, uint64(len(m.Title)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *LendingMarketMetadata) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *LendingMarketMetadata) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LendingMarketMetadata) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signatures) > 0 {
+		for iNdEx := len(m.Signatures) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Signatures[iNdEx])
+			copy(dAtA[i:], m.Signatures[iNdEx])
+			i = encodeVarintUnigov(dAtA, i, uint64(len(m.Signatures[iNdEx])))
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.Calldatas) > 0 {
+		for iNdEx := len(m.Calldatas) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Calldatas[iNdEx])
+			copy(dAtA[i:], m.Calldatas[iNdEx])
+			i = encodeVarintUnigov(dAtA, i, uint64(len(m.Calldatas[iNdEx])))
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if len(m.Values) > 0 {
+		dAtA3 := make([]byte, len(m.Values)*10)
+		var j2 int
+		for _, num := range m.Values {
+			for num >= 1<<7 {
+				dAtA3[j2] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j2++
+			}
+			dAtA3[j2] = uint8(num)
+			j2++
+		}
+		i -= j2
+		copy(dAtA[i:], dAtA3[:j2])
+		i = encodeVarintUnigov(dAtA, i, uint64(j2))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.PropId != 0 {
+		i = encodeVarintUnigov(dAtA, i, uint64(m.PropId))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Account) > 0 {
+		for iNdEx := len(m.Account) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Account[iNdEx])
+			copy(dAtA[i:], m.Account[iNdEx])
+			i = encodeVarintUnigov(dAtA, i, uint64(len(m.Account[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -337,6 +417,19 @@ func (m *LendingMarketProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovUnigov(uint64(l))
 	}
+	if m.Metadata != nil {
+		l = m.Metadata.Size()
+		n += 1 + l + sovUnigov(uint64(l))
+	}
+	return n
+}
+
+func (m *LendingMarketMetadata) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	if len(m.Account) > 0 {
 		for _, b := range m.Account {
 			l = len(b)
@@ -519,6 +612,92 @@ func (m *LendingMarketProposal) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Metadata", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowUnigov
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthUnigov
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthUnigov
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Metadata == nil {
+				m.Metadata = &LendingMarketMetadata{}
+			}
+			if err := m.Metadata.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipUnigov(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthUnigov
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *LendingMarketMetadata) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowUnigov
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: LendingMarketMetadata: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: LendingMarketMetadata: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Account", wireType)
 			}
 			var byteLen int
@@ -549,7 +728,7 @@ func (m *LendingMarketProposal) Unmarshal(dAtA []byte) error {
 			m.Account = append(m.Account, make([]byte, postIndex-iNdEx))
 			copy(m.Account[len(m.Account)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PropId", wireType)
 			}
@@ -568,7 +747,7 @@ func (m *LendingMarketProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 5:
+		case 3:
 			if wireType == 0 {
 				var v uint64
 				for shift := uint(0); ; shift += 7 {
@@ -644,7 +823,7 @@ func (m *LendingMarketProposal) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Values", wireType)
 			}
-		case 6:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Calldatas", wireType)
 			}
@@ -676,7 +855,7 @@ func (m *LendingMarketProposal) Unmarshal(dAtA []byte) error {
 			m.Calldatas = append(m.Calldatas, make([]byte, postIndex-iNdEx))
 			copy(m.Calldatas[len(m.Calldatas)-1], dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signatures", wireType)
 			}

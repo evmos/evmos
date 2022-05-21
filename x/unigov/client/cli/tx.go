@@ -13,6 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
 )
 
@@ -48,7 +50,7 @@ func NewLendingMarketProposalCmd() *cobra.Command {
 		Long: `Submit a proposal for the Canto Lending Market along with an initial deposit.
 Upon passing, the
 The proposal details must be supplied via a JSON file.`,
-		Example: fmt.Sprintf(`$ %s tx gov submit-proposal lending-market <path/to/metadata.json> --from=<key_or_address>
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal lending-market <path/to/metadata.json> --from=<key_or_address> --title=<title> --description=<description>
 
 Where metadata.json contains (example):
 
@@ -87,13 +89,12 @@ Where metadata.json contains (example):
 
 			propMetaData, err := ParseMetadata(clientCtx.Codec, args[0])
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "Failure to parse JSON object")
 			}
 
 			from := clientCtx.GetFromAddress()
 
-			content := types.NewLendingMarketProposal(title, description, propMetaData.Account,
-				propMetaData.PropId, propMetaData.Values, propMetaData.Calldatas, propMetaData.Signatures)
+			content := types.NewLendingMarketProposal(title, description, &propMetaData)
 
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {

@@ -1,7 +1,7 @@
 {
-	"Account"       : ["address", "addressss"],
+    "Account"       : [],
     "PropId"        : 1,
-	"values"        : [1, 2],
-	"calldatas"      : ["calldata", "calldatas"],
-    "signatures"    : ["func", "func"]
+    "values"        : [1,1],
+    "calldatas"     : [""],
+    "signatures"    : ["a", "b"]
 }

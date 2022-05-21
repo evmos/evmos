@@ -11,8 +11,8 @@ import (
 // PARSING METADATA ACCORDING TO PROPOSAL STRUCT IN GOVTYPES TYPE IN UNIGOV
 
 // ParseRegisterCoinProposal reads and parses a ParseRegisterCoinProposal from a file.
-func ParseMetadata(cdc codec.JSONCodec, metadataFile string) (types.LendingMarketProposal, error) {
-	propMetaData := types.LendingMarketProposal{}
+func ParseMetadata(cdc codec.JSONCodec, metadataFile string) (types.LendingMarketMetadata, error) {
+	propMetaData := types.LendingMarketMetadata{}
 
 	contents, err := ioutil.ReadFile(filepath.Clean(metadataFile))
 	if err != nil {

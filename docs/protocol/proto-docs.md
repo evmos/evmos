@@ -163,6 +163,7 @@
     - [Query](#canto.recovery.v1.Query)
   
 - [canto/unigov/v1/unigov.proto](#canto/unigov/v1/unigov.proto)
+    - [LendingMarketMetadata](#canto.unigov.v1.LendingMarketMetadata)
     - [LendingMarketProposal](#canto.unigov.v1.LendingMarketProposal)
     - [Params](#canto.unigov.v1.Params)
   
@@ -2157,6 +2158,25 @@ Query defines the gRPC querier service.
 
 
 
+<a name="canto.unigov.v1.LendingMarketMetadata"></a>
+
+### LendingMarketMetadata
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `Account` | [bytes](#bytes) | repeated |  |
+| `PropId` | [uint64](#uint64) |  |  |
+| `values` | [uint64](#uint64) | repeated |  |
+| `calldatas` | [bytes](#bytes) | repeated |  |
+| `signatures` | [string](#string) | repeated |  |
+
+
+
+
+
+
 <a name="canto.unigov.v1.LendingMarketProposal"></a>
 
 ### LendingMarketProposal
@@ -2167,10 +2187,7 @@ Define this object so that the unigov.pb.go file is generate, implements govtype
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title |
 | `description` | [string](#string) |  |  |
-| `Account` | [ethermint.types.v1.EthAccount](#ethermint.types.v1.EthAccount) | repeated |  |
-| `PropId` | [uint64](#uint64) |  |  |
-| `values` | [uint64](#uint64) | repeated |  |
-| `calldatas` | [bytes](#bytes) | repeated |  |
+| `metadata` | [LendingMarketMetadata](#canto.unigov.v1.LendingMarketMetadata) |  |  |
 
 
 

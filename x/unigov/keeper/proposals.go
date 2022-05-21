@@ -25,9 +25,11 @@ func (k Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMa
 
 	//Any other checks needed for Proposal
 
+	m := lm.GetMetadata()
+	
 	args, err := contracts.ProposalStoreContract.ABI.Pack(
-		"AddProposal", lm.PropId, lm.GetTitle(), lm.GetDescription(),
-		lm.Account, lm.Values, lm.Signatures, lm.Calldatas,
+		"AddProposal", m.GetPropId(), lm.GetTitle(), lm.GetDescription(),
+		m.GetAccount(), m.GetValues(), m.GetSignatures(), m.GetCalldatas(),
 	)
 
 	data := make([]byte, len(contracts.ProposalStoreContract.Bin)+len(args))

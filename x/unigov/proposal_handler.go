@@ -26,6 +26,13 @@ func handleLendingMarketProposal(ctx sdk.Context, k *keeper.Keeper, p *types.Len
 	if err != nil {
 		return err
 	}
-	//ctx.EventManager().EmitEvent(sdk.NewEvent(args))
+
+	// ctx.EventManager().EmitEvent(
+	// 	sdk.NewEvent(
+	// 		types.EventLendingMarketProposal,
+			
+	// 	)
+	// )
+
 	return nil
 }
