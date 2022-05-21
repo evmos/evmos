@@ -1045,6 +1045,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
 	paramsKeeper.Subspace(feestypes.ModuleName)
+	paramsKeeper.Subspace(unigovtypes.ModuleName)
 	return paramsKeeper
 }
 

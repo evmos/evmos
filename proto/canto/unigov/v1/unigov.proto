@@ -28,13 +28,13 @@ message LendingMarketProposal {
 
 
 message LendingMarketMetadata {
-  repeated bytes Account = 1 [(gogoproto.nullable) = true];
+  repeated bytes Account = 1;
 
   uint64 PropId = 2;
 
-  repeated uint64 values = 3 [(gogoproto.nullable) = true];
+  repeated uint64 values = 3;
 
-  repeated bytes calldatas = 4 [(gogoproto.nullable) = true];
+  repeated bytes calldatas = 4;
 
-  repeated string signatures = 5 [(gogoproto.nullable) = true];
+  repeated string signatures = 5;
 }
