@@ -137,13 +137,13 @@ func (k Keeper) BalanceOf(
 // CallEVM performs a smart contract method call using given args
 func (k Keeper) CallEVM(
 	ctx sdk.Context,
-	abi abi.ABI,
+	callAbi abi.ABI,
 	from, contract common.Address,
 	commit bool,
 	method string,
 	args ...interface{},
 ) (*evmtypes.MsgEthereumTxResponse, error) {
-	data, err := abi.Pack(method, args...)
+	data, err := callAbi.Pack(method, args...)
 	if err != nil {
 		return nil, sdkerrors.Wrap(
 			types.ErrABIPack,
