@@ -113,15 +113,15 @@ func (k Keeper) QueryERC20(
 // BalanceOf queries an account's balance for a given ERC20 contract
 func (k Keeper) BalanceOf(
 	ctx sdk.Context,
-	abi abi.ABI,
+	balAbi abi.ABI,
 	contract, account common.Address,
 ) *big.Int {
-	res, err := k.CallEVM(ctx, abi, types.ModuleAddress, contract, false, "balanceOf", account)
+	res, err := k.CallEVM(ctx, balAbi, types.ModuleAddress, contract, false, "balanceOf", account)
 	if err != nil {
 		return nil
 	}
 
-	unpacked, err := abi.Unpack("balanceOf", res.Ret)
+	unpacked, err := balAbi.Unpack("balanceOf", res.Ret)
 	if err != nil || len(unpacked) == 0 {
 		return nil
 	}

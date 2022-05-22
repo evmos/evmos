@@ -100,7 +100,6 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 		k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 		ak.SetAccount(ctx, vestingAcc)
-
 	} else {
 		baseAcc := authtypes.NewBaseAccountWithAddress(to)
 		vestingAcc = types.NewClawbackVestingAccount(
