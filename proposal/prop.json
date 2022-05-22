@@ -1,0 +1,19 @@
+{
+    "description": "staking, gas and governance token of the Canto testnets",
+    "denom_units": [
+	{
+	    "denom": "acanto",
+	    "exponent": 0,
+	    "aliases": ["atto canto"]
+	},
+	{
+	    "denom": "canto",
+	    "exponent": 18
+	}
+	],
+    "base": "acanto",
+    "display": "canto",
+    "name": "Canto",
+    "symbol": "CANTO"
+}
+

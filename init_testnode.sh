@@ -31,7 +31,20 @@ cat $HOME/.cantod/config/genesis.json | jq '.app_state["crisis"]["constant_fee"]
 cat $HOME/.cantod/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="acanto"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
 cat $HOME/.cantod/config/genesis.json | jq '.app_state["evm"]["params"]["evm_denom"]="acanto"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
 cat $HOME/.cantod/config/genesis.json | jq '.app_state["inflation"]["params"]["mint_denom"]="acanto"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
-cat $HOME/.cantod/config/genesis.json | jq '.app_state["gov"]["voting_params]["voting_period"] = 20s'
+
+##Change voting params so that submitted proposals pass immediately for testing
+cat $HOME/.cantod/config/genesis.json| jq '.app_state.gov.voting_params.voting_period="60s"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
+
+cat $HOME/.cantod/config/genesis.json| jq '.app_state.gov.tally_params.threshold="0.000000000000000000"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
+
+cat $HOME/.cantod/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["amount"]="1"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
+
+
+cat $HOME/.cantod/config/genesis.json| jq '.app_state.gov.tally_params.veto_threshold="0.000000000000000000"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
+
+
+
+
 # Set gas limit in genesis
 cat $HOME/.cantod/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
 
