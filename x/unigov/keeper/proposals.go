@@ -16,9 +16,6 @@ import (
 )
 
 func (k Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMarketProposal) (*types.LendingMarketProposal, error) {
-	l := log.New(os.Stdout, "", 0)
-	l.Println("Proposal submitted here: " + lm.String() + common.Bytes2Hex(k.mapContractAddr.Bytes()))
-	
 	if err := lm.ValidateBasic(); err != nil {
 		return &types.LendingMarketProposal{}, err
 	}
@@ -28,29 +25,18 @@ func (k Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMa
 			return nil, err
 		}
 	}
-
+	
+	l := log.New(os.Stdout, "", 0)
+	l.Println("Proposal submitted here: " + lm.String() + common.Bytes2Hex(k.mapContractAddr.Bytes()))
 	//print what the code/storage contents of the map contract are each iteration
 	
 	//Any other checks needed for Proposal
 
 	m := lm.GetMetadata()
 	
-	args, err := contracts.ProposalStoreContract.ABI.Pack(
-		"AddProposal", m.GetPropId(), lm.GetTitle(), lm.GetDescription(),
-		m.GetAccount(), m.GetValues(), m.GetSignatures(), m.GetCalldatas(),
-	)
-
-	if err != nil {
-		sdkerrors.Wrap(err, "Error packing arguments")
-	}
-	
-	// data := make([]byte, len(contracts.ProposalStoreContract.ABI)+len(args))
-	// copy(data[:len(contracts.ProposalStoreContract.ABI)], contracts.ProposalStoreContract.ABI)
-	// copy(data[len(contracts.ProposalStoreContract.Bin):], args)
-
-	l.Println("TRANSACTION: " + common.Bytes2Hex(args))
-	
-	_, err = k.erc20Keeper.CallEVMWithData(ctx, types.ModuleAddress, &k.mapContractAddr, args, true)
+	_, err := k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, k.mapContractAddr, true,
+		"AddProposal", m.GetPropId(), lm.GetTitle(), lm.GetDescription(), m.GetAccount(),
+		m.GetValues(), m.GetSignatures(), m.GetCalldatas())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Error in EVM Call")
 	}

@@ -16,6 +16,7 @@ import (
 // RegisterCoin deploys an erc20 contract and creates the token pair for the existing cosmos coin
 func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (*types.TokenPair, error) {
 	// check if the conversion is globally enabled
+
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
 		return nil, sdkerrors.Wrap(types.ErrERC20Disabled, "registration is currently disabled by governance")
@@ -47,7 +48,7 @@ func (k Keeper) RegisterCoin(ctx sdk.Context, coinMetadata banktypes.Metadata) (
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create wrapped coin denom metadata for ERC20")
 	}
-
+	
 	pair := types.NewTokenPair(addr, coinMetadata.Base, true, types.OWNER_MODULE)
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())

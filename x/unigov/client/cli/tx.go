@@ -3,9 +3,6 @@ package cli
 import (
 	"fmt"
 	"time"
-	"os"
-	"log"
-	
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -99,11 +96,6 @@ Where metadata.json contains (example):
 
 			content := types.NewLendingMarketProposal(title, description, &propMetaData)
 
-			
-			//LendingMarketProposal Object
-			l := log.New(os.Stdout, "", 0)
-			l.Println(content.String() + ": changeedLendingMarketProposal")
-			//LendingMarketProposal Object
 			
 			
 			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
