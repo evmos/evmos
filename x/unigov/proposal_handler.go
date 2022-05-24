@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"fmt"
 )
 
 //Return governance handler to process Compound Proposal
@@ -28,8 +27,6 @@ func handleLendingMarketProposal(ctx sdk.Context, k *keeper.Keeper, p *types.Len
 		return err
 	}
 
-	fmt.Println("Proposal was here" + p.String() + "\n\n\n\n\n")
-	
 	// ctx.EventManager().EmitEvent(
 	// 	sdk.NewEvent(
 	// 		types.EventLendingMarketProposal,

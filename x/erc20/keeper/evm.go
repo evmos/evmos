@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"math/big"
 
+	"fmt" //testing
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -78,6 +80,7 @@ func (k Keeper) CallEVM(
 	}
 
 	resp, err := k.CallEVMWithData(ctx, from, &contract, data, commit)
+	
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "contract call failed: method '%s', contract '%s'", method, contract)
 	}
@@ -134,12 +137,16 @@ func (k Keeper) CallEVMWithData(
 
 	res, err := k.evmKeeper.ApplyMessage(ctx, msg, evmtypes.NewNoOpTracer(), commit)
 	if err != nil {
+		fmt.Println("ApplyMessage Error")
 		return nil, err
 	}
 
+	// fmt.Println(res)
+	
 	if res.Failed() {
+		fmt.Println("error in EthereumTxResponse")
 		return nil, sdkerrors.Wrap(evmtypes.ErrVMExecution, res.VmError)
 	}
-
+	
 	return res, nil
 }

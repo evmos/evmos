@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/common"
+	//"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -305,8 +305,8 @@ type Canto struct {
 
 	tpsCounter *tpsCounter
 
-	// unigov map contract address
-	mca common.Address
+	// // unigov map contract address
+	// mca common.Address
 }
 
 // NewCanto returns a reference to a new initialized Ethermint application.
@@ -481,7 +481,7 @@ func NewCanto(
 	// unigov keeper instantiated
 	app.UnigovKeeper = unigovkeeper.NewKeeper(
 		keys[unigovtypes.StoreKey], appCodec, app.GetSubspace(unigovtypes.ModuleName),
-		app.mca, app.AccountKeeper, app.Erc20Keeper,
+		app.AccountKeeper, app.Erc20Keeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(

@@ -2166,10 +2166,10 @@ Query defines the gRPC querier service.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `Account` | [bytes](#bytes) | repeated |  |
+| `Account` | [string](#string) | repeated |  |
 | `PropId` | [uint64](#uint64) |  |  |
 | `values` | [uint64](#uint64) | repeated |  |
-| `calldatas` | [bytes](#bytes) | repeated |  |
+| `calldatas` | [string](#string) | repeated |  |
 | `signatures` | [string](#string) | repeated |  |
 
 

@@ -19,29 +19,30 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 	if err := lm.ValidateBasic(); err != nil {
 		return &types.LendingMarketProposal{}, err
 	}
-
+	
 	var err error
 	
 	if *k.mapContractAddr == common.HexToAddress("0000000000000000000000000000000000000000") {
-		k.mapContractAddr = &common.Address{}
+	       k.mapContractAddr = &common.Address{}
 		if *k.mapContractAddr, err = k.DeployMapContract(ctx); err != nil {
-			return nil, err
+		       return nil, err
 		}
 	}
 
 	m := lm.GetMetadata()
-
-
-	// _, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true, "QueryProp", sdk.NewIntFromUint64(m.GetPropId()).BigInt())
-	
  	_, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true,
 		"AddProposal", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
 		ToBigInt(m.GetValues()), m.GetSignatures(), ToBytes(m.GetCalldatas()))
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Error in EVM Call")
 	}
+	
 
-	fmt.Println("proposal added to map \n\n\n\n" )
+
+	
+	msg, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true, "QueryProp", sdk.NewIntFromUint64(m.GetPropId()).BigInt())
+
+	fmt.Println(msg)
 	
 	return lm, nil
 }

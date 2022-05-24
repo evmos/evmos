@@ -28,13 +28,13 @@ message LendingMarketProposal {
 
 
 message LendingMarketMetadata {
-  repeated bytes Account = 1;
+  repeated string Account = 1;
 
   uint64 PropId = 2;
 
   repeated uint64 values = 3;
 
-  repeated bytes calldatas = 4;
+  repeated string calldatas = 4;
 
   repeated string signatures = 5;
 }

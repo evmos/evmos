@@ -43,7 +43,7 @@ cat $HOME/.cantod/config/genesis.json | jq '.app_state["gov"]["deposit_params"][
 cat $HOME/.cantod/config/genesis.json| jq '.app_state.gov.tally_params.veto_threshold="0.000000000000000000"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
 
 
-
+cat $HOME/.cantod/config/genesis.json| jq '.app_state.gov.tally_params.quorum="0.000000000000000000"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
 
 # Set gas limit in genesis
 cat $HOME/.cantod/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.cantod/config/tmp_genesis.json && mv $HOME/.cantod/config/tmp_genesis.json $HOME/.cantod/config/genesis.json
