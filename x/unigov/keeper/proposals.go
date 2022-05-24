@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"math/big"
 	"github.com/Canto-Network/canto/v3/contracts"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,10 +22,11 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 	var err error
 	
 	if *k.mapContractAddr == common.HexToAddress("0000000000000000000000000000000000000000") {
-	       k.mapContractAddr = &common.Address{}
-		if *k.mapContractAddr, err = k.DeployMapContract(ctx); err != nil {
-		       return nil, err
+		k.mapContractAddr = &common.Address{}
+		if *k.mapContractAddr, err = k.DeployMapContract(ctx, lm); err != nil {
+			return nil, err
 		}
+		return lm, nil
 	}
 
 	m := lm.GetMetadata()
@@ -37,18 +37,16 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 		return nil, sdkerrors.Wrap(err, "Error in EVM Call")
 	}
 	
-
-
-	
-	msg, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true, "QueryProp", sdk.NewIntFromUint64(m.GetPropId()).BigInt())
-
-	fmt.Println(msg)
-	
 	return lm, nil
 }
 
-func (k Keeper) DeployMapContract(ctx sdk.Context) (common.Address, error) {
-	ctorArgs, err := contracts.ProposalStoreContract.ABI.Pack("") //Call empty constructor of Proposal-Store
+func (k Keeper) DeployMapContract(ctx sdk.Context, lm *types.LendingMarketProposal) (common.Address, error) {
+
+	m:=lm.GetMetadata()
+
+	ctorArgs, err := contracts.ProposalStoreContract.ABI.Pack("", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
+		ToBigInt(m.GetValues()), m.GetSignatures(), ToBytes(m.GetCalldatas())) //Call empty constructor of Proposal-Store
+
 	if err != nil {
 		return common.Address{} ,sdkerrors.Wrapf(erc20types.ErrABIPack, "Contract deployment failure: %s", err.Error())
 	}
