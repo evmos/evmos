@@ -6,8 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"fmt"
-	
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
 	
 	erc20types "github.com/Canto-Network/canto/v3/x/erc20/types"
@@ -21,22 +19,27 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 		return &types.LendingMarketProposal{}, err
 	}
 	
-	var err error
+	nonce, err := k.accKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
+
+	if err != nil {
+		sdkerrors.Wrap(err, "error in obtaining account nonce")
+	}
 	
-	if *k.mapContractAddr == common.HexToAddress("0000000000000000000000000000000000000000") {
-		k.mapContractAddr = &common.Address{}
-		if *k.mapContractAddr, err = k.DeployMapContract(ctx, lm); err != nil {
+	if nonce == 0 {
+		*k.mapContractAddr, err = k.DeployMapContract(ctx, lm)
+		if err != nil {
 			return nil, err
 		}
 		return lm, nil
 	}
 
 	m := lm.GetMetadata()
- 	msg, err := k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true,
-		"AddProposal", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
-		ToBigInt(m.GetValues()), m.GetSignatures(), ToBytes(m.GetCalldatas()))
 
-	fmt.Println(common.Bytes2Hex(msg.Ret))
+	_, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true,
+	    "AddProposal", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
+	    ToBigInt(m.GetValues()), m.GetSignatures(), ToBytes(m.GetCalldatas()))
+
+
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Error in EVM Call")
 	}
@@ -75,31 +78,6 @@ func (k Keeper) DeployMapContract(ctx sdk.Context, lm *types.LendingMarketPropos
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrap(err, "failed to deploy contract")
 	}
-
-	// fmt.Println(common.Bytes2Hex(msg.Ret))
-
-	contractAddr2 := crypto.CreateAddress(types.ModuleAddress, nonce + 100)
-
-	
-	ctorArgs2, err := contracts.NoArgsContract.ABI.Pack("", sdk.NewIntFromUint64(m.GetPropId()).BigInt())
-
-	if err != nil {
-		return common.Address{}, sdkerrors.Wrap(err, "Error in pacing NoArgs Data")
-	}
-	
-	data2 := make([]byte, len(contracts.NoArgsContract.Bin)+len(ctorArgs2))
-	copy(data2[:len(contracts.NoArgsContract.Bin)], contracts.NoArgsContract.Bin)
-	copy(data2[len(contracts.NoArgsContract.Bin):], ctorArgs2)
-
-	_, err = k.erc20Keeper.CallEVMWithData(ctx, types.ModuleAddress, nil, data2, true)
-
-	if err != nil {
-		return common.Address{}, sdkerrors.Wrap(err, "Error in deploying NoArgs contracts")
-	}
-
-	fmt.Println("\n\n\n\n")
-	fmt.Println(contractAddr2)
-	fmt.Println("\n\n\n\n")
 	// k.mapContractAddr = contractAddr
 	return contractAddr, nil
 }
