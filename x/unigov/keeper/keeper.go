@@ -18,7 +18,7 @@ type (
 		cdc        codec.BinaryCodec
 		paramstore paramtypes.Subspace
 
-		mapContractAddr common.Address
+		mapContractAddr *common.Address
 		accKeeper       types.AccountKeeper
 		erc20Keeper     types.ERC20Keeper
 	}
@@ -29,7 +29,6 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
 
-	mca common.Address,
 	ak types.AccountKeeper,
 	ek types.ERC20Keeper,
 
@@ -39,8 +38,8 @@ func NewKeeper(
 		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
 
-	mca = common.HexToAddress("0000000000000000000000000000000000000000")
-
+	mca := new(common.Address)
+	
 	return Keeper{
 
 		cdc:             cdc,

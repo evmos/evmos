@@ -1,57 +1,55 @@
 package keeper
 
 import (
-	"log" // testing
-	"os" // testing
+	"fmt"
+	"math/big"
 	"github.com/Canto-Network/canto/v3/contracts"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
-
+	
 	erc20types "github.com/Canto-Network/canto/v3/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	//"github.com/tharsis/ethermint/x/evm/keeper"
 )
 
-func (k Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMarketProposal) (*types.LendingMarketProposal, error) {
+func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMarketProposal) (*types.LendingMarketProposal, error) {
 	if err := lm.ValidateBasic(); err != nil {
 		return &types.LendingMarketProposal{}, err
 	}
 
-	if k.mapContractAddr == common.HexToAddress("0000000000000000000000000000000000000000") {
-		if err := k.DeployMapContract(ctx); err != nil {
+	var err error
+	
+	if *k.mapContractAddr == common.HexToAddress("0000000000000000000000000000000000000000") {
+		k.mapContractAddr = &common.Address{}
+		if *k.mapContractAddr, err = k.DeployMapContract(ctx); err != nil {
 			return nil, err
 		}
 	}
-	
-	l := log.New(os.Stdout, "", 0)
-	l.Println("Proposal submitted here: " + lm.String() + common.Bytes2Hex(k.mapContractAddr.Bytes()))
-	//print what the code/storage contents of the map contract are each iteration
-	
-	//Any other checks needed for Proposal
 
 	m := lm.GetMetadata()
+
+
+	// _, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true, "QueryProp", sdk.NewIntFromUint64(m.GetPropId()).BigInt())
 	
-	_, err := k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, k.mapContractAddr, true,
-		"AddProposal", m.GetPropId(), lm.GetTitle(), lm.GetDescription(), m.GetAccount(),
-		m.GetValues(), m.GetSignatures(), m.GetCalldatas())
+ 	_, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true,
+		"AddProposal", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
+		ToBigInt(m.GetValues()), m.GetSignatures(), ToBytes(m.GetCalldatas()))
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Error in EVM Call")
 	}
 
+	fmt.Println("proposal added to map \n\n\n\n" )
+	
 	return lm, nil
 }
 
-func (k Keeper) DeployMapContract(ctx sdk.Context) error {
-
-	
-	
+func (k Keeper) DeployMapContract(ctx sdk.Context) (common.Address, error) {
 	ctorArgs, err := contracts.ProposalStoreContract.ABI.Pack("") //Call empty constructor of Proposal-Store
-
 	if err != nil {
-		return sdkerrors.Wrapf(erc20types.ErrABIPack, "Contract deployment failure: %s", err.Error())
+		return common.Address{} ,sdkerrors.Wrapf(erc20types.ErrABIPack, "Contract deployment failure: %s", err.Error())
 	}
 
 	data := make([]byte, len(contracts.ProposalStoreContract.Bin)+len(ctorArgs))
@@ -61,16 +59,59 @@ func (k Keeper) DeployMapContract(ctx sdk.Context) error {
 	nonce, err := k.accKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
 
 	if err != nil {
-		return sdkerrors.Wrap(err, "failure in obtaining account nonce")
+		return common.Address{}, sdkerrors.Wrap(err, "failure in obtaining account nonce")
 	}
 
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
 	_, err = k.erc20Keeper.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
-
+	
 	if err != nil {
-		return sdkerrors.Wrap(err, "failed to deploy contract")
+		return common.Address{}, sdkerrors.Wrap(err, "failed to deploy contract")
+	}
+	
+	// k.mapContractAddr = contractAddr
+	return contractAddr, nil
+}
+
+
+func ToAddress(addrs []string) []common.Address {
+	if addrs == nil {
+		return make([]common.Address, 0)
 	}
 
-	k.mapContractAddr = contractAddr
-	return nil
+	arr := make([]common.Address, len(addrs))
+
+	for i,v := range addrs {
+		arr[i] = common.HexToAddress(v)
+	}
+
+	return arr
 }
+
+func ToBytes(strs []string) [][]byte {
+	if strs == nil {
+		return make([][]byte, 0)
+	}
+	
+	arr := make([][]byte, len(strs))
+
+	for i, v := range strs {
+		arr[i] = common.Hex2Bytes(v)
+	}
+	return arr
+}
+
+func ToBigInt(ints []uint64) []*big.Int {
+	if ints == nil {
+		return make([]*big.Int, 0)
+	}
+	
+	arr := make([]*big.Int, len(ints))
+
+	for i, a := range ints {
+		arr[i] = sdk.NewIntFromUint64(a).BigInt()
+	}
+
+	return arr
+}
+	
