@@ -55,5 +55,9 @@ contract ProposalStore {
             return proposals[propId];
         }
 	    return Proposal(0, "", "", new address[](0), new uint[](0), new string[](0), new bytes[](0));
-    } 
+    }
+
+    function EasyFunc() external view returns(string memory) {
+	return "teststring";
+    }
 }
