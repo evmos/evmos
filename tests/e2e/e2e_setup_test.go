@@ -102,7 +102,7 @@ func TestIntegrationTestSuite(t *testing.T) {
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up e2e integration test suite...")
 
-	s.chains = make([]*chain.Chain, 0, 2)
+	s.chains = make([]*chain.Chain, 0, 1)
 
 	// The e2e test flow is as follows:
 	//
@@ -118,7 +118,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.configureChain(chain.ChainBID, validatorConfigsChainB)
 
 	s.runValidators(s.chains[0], 0)
-	s.runValidators(s.chains[1], 10)
+	//s.runValidators(s.chains[1], 10)
 	// s.runIBCRelayer()
 	s.initUpgrade()
 	s.upgrade()
@@ -165,8 +165,8 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 			Mounts: []string{
 				fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
 			},
-			Repository: "evmos",
-			Tag:        "debug",
+			Repository: "tharsishq/evmos",
+			Tag:        "v3.0.2",
 			Cmd: []string{
 				"/usr/bin/evmosd",
 				"start",
@@ -397,81 +397,80 @@ func noRestart(config *docker.HostConfig) {
 func (s *IntegrationTestSuite) initUpgrade() {
 	// submit, deposit, and vote for upgrade proposal
 	s.submitProposal(s.chains[0])
-	s.submitProposal(s.chains[1])
+	//s.submitProposal(s.chains[1])
 	s.depositProposal(s.chains[0])
-	s.depositProposal(s.chains[1])
+	//s.depositProposal(s.chains[1])
 	s.voteProposal(s.chains[0])
-	s.voteProposal(s.chains[1])
+	//s.voteProposal(s.chains[1])
 
 	// wait till all chains halt at upgrade height
-	for _, chain := range s.chains {
-		for i := range chain.Validators {
-			s.T().Logf("waiting to reach upgrade height on %s validator container: %s", chain.ChainMeta.Id, s.valResources[chain.ChainMeta.Id][i].Container.ID)
-			s.Require().Eventually(
-				func() bool {
-					out := s.chainStatus(s.valResources[chain.ChainMeta.Id][i].Container.ID)
-					var syncInfo syncInfo
-					json.Unmarshal(out, &syncInfo)
-					if syncInfo.SyncInfo.LatestHeight != "75" {
-						s.T().Logf("current block height is %v, waiting for block 75 container: %s", syncInfo.SyncInfo.LatestHeight, s.valResources[chain.ChainMeta.Id][i].Container.ID)
-					}
-					return syncInfo.SyncInfo.LatestHeight == "75"
-				},
-				2*time.Minute,
-				5*time.Second,
-			)
-			s.T().Logf("reached upgrade height on %s validator container: %s", chain.ChainMeta.Id, s.valResources[chain.ChainMeta.Id][i].Container.ID)
-		}
+
+	for i := range s.chains[0].Validators {
+		s.T().Logf("waiting to reach upgrade height on %s validator container: %s", s.chains[0].ChainMeta.Id, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+		s.Require().Eventually(
+			func() bool {
+				height, _ := s.chainStatus(s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+				if height != 75 {
+					s.T().Logf("current block height is %v, waiting for block 75 container: %s", height, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+				}
+				return height == 75
+			},
+			2*time.Minute,
+			5*time.Second,
+		)
+		s.T().Logf("reached upgrade height on %s validator container: %s", s.chains[0].ChainMeta.Id, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
 	}
 
 	// remove all containers so we can upgrade them to the new version
-	for _, chain := range s.chains {
-		for i := range chain.Validators {
-			s.Require().NoError(s.dkrPool.RemoveContainerByName(s.valResources[chain.ChainMeta.Id][i].Container.Name))
-		}
+	for i := range s.chains[0].Validators {
+		s.Require().NoError(s.dkrPool.RemoveContainerByName(s.valResources[s.chains[0].ChainMeta.Id][i].Container.Name))
 	}
+
 }
 
 func (s *IntegrationTestSuite) upgrade() {
 	// upgrade containers to the locally compiled daemon
-	for _, chain := range s.chains {
-		s.T().Logf("starting upgrade for chain-id: %s...", chain.ChainMeta.Id)
-		for i, val := range chain.Validators {
-			runOpts := &dockertest.RunOptions{
-				Name:       val.Name,
-				Repository: "evmos",
-				Tag:        "debug",
-				NetworkID:  s.dkrNet.Network.ID,
-				User:       "root:root",
-				Mounts: []string{
-					fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
-				},
-			}
-			resource, err := s.dkrPool.RunWithOptions(runOpts, noRestart)
-			s.Require().NoError(err)
-
-			s.valResources[chain.ChainMeta.Id][i] = resource
-			s.T().Logf("started Evmos %s validator container: %s", chain.ChainMeta.Id, resource.Container.ID)
+	chain := s.chains[0]
+	s.T().Logf("starting upgrade for chain-id: %s...", chain.ChainMeta.Id)
+	for i, val := range chain.Validators {
+		runOpts := &dockertest.RunOptions{
+			Name:       val.Name,
+			Repository: "evmos",
+			Tag:        "debug",
+			NetworkID:  s.dkrNet.Network.ID,
+			User:       "root:root",
+			Mounts: []string{
+				fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
+			},
+			Cmd: []string{
+				"/usr/bin/evmosd",
+				"start",
+				"--home",
+				"/evmos/.evmosd",
+			},
 		}
+		resource, err := s.dkrPool.RunWithOptions(runOpts, noRestart)
+		s.Require().NoError(err)
+
+		s.valResources[chain.ChainMeta.Id][i] = resource
+		s.T().Logf("started Evmos upgraded %s validator container: %s", chain.ChainMeta.Id, resource.Container.ID)
 	}
 
 	// check that we are hitting blocks again
-	for _, chain := range s.chains {
-		for i := range chain.Validators {
-			s.Require().Eventually(
-				func() bool {
-					out := s.chainStatus(s.valResources[chain.ChainMeta.Id][i].Container.ID)
-					var syncInfo syncInfo
-					json.Unmarshal(out, &syncInfo)
-					if syncInfo.SyncInfo.LatestHeight <= "75" {
-						fmt.Printf("current block height is %v, waiting to hit blocks\n", syncInfo.SyncInfo.LatestHeight)
-					}
-					return syncInfo.SyncInfo.LatestHeight > "75"
-				},
-				2*time.Minute,
-				5*time.Second,
-			)
-			s.T().Logf("upgrade successful on %s validator container: %s", chain.ChainMeta.Id, s.valResources[chain.ChainMeta.Id][i].Container.ID)
-		}
+
+	for i := range chain.Validators {
+		s.Require().Eventually(
+			func() bool {
+				height, _ := s.chainStatus(s.valResources[chain.ChainMeta.Id][i].Container.ID)
+				if height <= 75 {
+					fmt.Printf("current block height is %v, waiting to hit blocks\n", height)
+				}
+				return height > 75
+			},
+			2*time.Minute,
+			5*time.Second,
+		)
+		s.T().Logf("upgrade successful on %s validator container: %s", chain.ChainMeta.Id, s.valResources[chain.ChainMeta.Id][i].Container.ID)
 	}
+
 }

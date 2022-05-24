@@ -32,20 +32,20 @@ type ValidatorConfig struct {
 
 const (
 	// common
-	OsmoDenom     = "uosmo"
+	CoinDenom     = "ucoin"
 	StakeDenom    = "stake"
 	IbcDenom      = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
 	MinGasPrice   = "0.000"
 	IbcSendAmount = 3300000000
 	VotingPeriod  = 30000000000 // 30 seconds
 	// chainA
-	ChainAID      = "evmos_9000-1"
-	OsmoBalanceA  = 2000000000000000000
+	ChainAID      = "evmos_9001-1"
+	CoinBalanceA  = 2000000000000000000
 	StakeBalanceA = 1100000000000000000
 	StakeAmountA  = 1000000000000000000
 	// chainB
 	ChainBID      = "evmos_9001-1"
-	OsmoBalanceB  = 5000000000000000000
+	CoinBalanceB  = 5000000000000000000
 	StakeBalanceB = 4400000000000000000
 	StakeAmountB  = 4000000000000000000
 )
@@ -56,8 +56,8 @@ var (
 	StakeAmountIntB  = sdk.NewInt(StakeAmountB)
 	StakeAmountCoinB = sdk.NewCoin(StakeDenom, StakeAmountIntB)
 
-	InitBalanceStrA = fmt.Sprintf("%d%s,%d%s", OsmoBalanceA, OsmoDenom, StakeBalanceA, StakeDenom)
-	InitBalanceStrB = fmt.Sprintf("%d%s,%d%s", OsmoBalanceB, OsmoDenom, StakeBalanceB, StakeDenom)
+	InitBalanceStrA = fmt.Sprintf("%d%s,%d%s", CoinBalanceA, CoinDenom, StakeBalanceA, StakeDenom)
+	InitBalanceStrB = fmt.Sprintf("%d%s,%d%s", CoinBalanceB, CoinDenom, StakeBalanceB, StakeDenom)
 )
 
 func addAccount(path, moniker, amountStr string, accAddr sdk.AccAddress) error {
@@ -151,13 +151,13 @@ func initGenesis(c *internalChain) error {
 
 	bankGenState.DenomMetadata = append(bankGenState.DenomMetadata, banktypes.Metadata{
 		Description: "An example stable token",
-		Display:     OsmoDenom,
-		Base:        OsmoDenom,
-		Symbol:      OsmoDenom,
-		Name:        OsmoDenom,
+		Display:     CoinDenom,
+		Base:        CoinDenom,
+		Symbol:      CoinDenom,
+		Name:        CoinDenom,
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    OsmoDenom,
+				Denom:    CoinDenom,
 				Exponent: 0,
 			},
 		},
@@ -323,7 +323,7 @@ func initValidatorConfigs(c *internalChain, validatorConfigs []*ValidatorConfig)
 		appConfig.BaseConfig.PruningKeepRecent = validatorConfigs[i].PruningKeepRecent
 		appConfig.BaseConfig.PruningInterval = validatorConfigs[i].PruningInterval
 		appConfig.API.Enable = true
-		appConfig.MinGasPrices = fmt.Sprintf("%s%s", MinGasPrice, OsmoDenom)
+		appConfig.MinGasPrices = fmt.Sprintf("%s%s", MinGasPrice, CoinDenom)
 		appConfig.StateSync.SnapshotInterval = validatorConfigs[i].SnapshotInterval
 		appConfig.StateSync.SnapshotKeepRecent = validatorConfigs[i].SnapshotKeepRecent
 

@@ -31,7 +31,7 @@ func main() {
 	valConfig = make([]*chain.ValidatorConfig, 2)
 	valConfig[0] = &chain.ValidatorConfig{Pruning: "default", PruningKeepRecent: "0", PruningInterval: "0"}
 	valConfig[1] = &chain.ValidatorConfig{Pruning: "default", PruningKeepRecent: "0", PruningInterval: "0"}
-	// chainId = "evmos_9000-1"
+	// chainId = "evmos_9001-1"
 	// dataDir = "/home/rama/chain"
 	if len(dataDir) == 0 {
 		panic("data-dir is required")

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -125,7 +126,7 @@ func (s *IntegrationTestSuite) submitProposal(c *chain.Chain) {
 			"/usr/bin/evmosd",
 			"--home",
 			"/evmos/.evmosd",
-			"tx", "gov", "submit-proposal", "software-upgrade", "v8", "--title=\"v8 upgrade\"", "--description=\"v8 upgrade proposal\"", "--upgrade-height=75", "--upgrade-info=\"\"", fmt.Sprintf("--chain-id=%s", c.ChainMeta.Id), "--from=val", "-b=block", "--yes", "--keyring-backend=test", "--log_format=json",
+			"tx", "gov", "submit-proposal", "software-upgrade", "v4.0.0", "--title=\"v4.0.0\"", "--description=\"v4 upgrade proposal\"", "--upgrade-height=75", "--upgrade-info=\"\"", fmt.Sprintf("--chain-id=%s", c.ChainMeta.Id), "--from=val", "-b=block", "--yes", "--keyring-backend=test", "--log_format=json",
 		},
 	})
 	s.Require().NoError(err)
@@ -248,7 +249,7 @@ func (s *IntegrationTestSuite) voteProposal(c *chain.Chain) {
 	}
 }
 
-func (s *IntegrationTestSuite) chainStatus(containerId string) []byte {
+func (s *IntegrationTestSuite) chainStatus(containerId string) (int, []byte) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
@@ -262,7 +263,8 @@ func (s *IntegrationTestSuite) chainStatus(containerId string) []byte {
 			"/usr/bin/evmosd",
 			"--home",
 			"/evmos/.evmosd",
-			"status",
+			"q",
+			"block",
 		},
 	})
 	s.Require().NoError(err)
@@ -284,7 +286,12 @@ func (s *IntegrationTestSuite) chainStatus(containerId string) []byte {
 		"failed to query height; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
 	)
 
+	fmt.Println(outBuf.String())
+	index := strings.Index(outBuf.String(), "\"height\":")
+	qq := outBuf.String()[index+10 : index+12]
+	h, _ := strconv.Atoi(qq)
+
 	errBufByte := errBuf.Bytes()
-	return errBufByte
+	return h, errBufByte
 
 }
