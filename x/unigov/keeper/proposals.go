@@ -11,29 +11,33 @@ import (
 	erc20types "github.com/Canto-Network/canto/v3/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	//"github.com/tharsis/ethermint/x/evm/keeper"
 )
 
 func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMarketProposal) (*types.LendingMarketProposal, error) {
-	if err := lm.ValidateBasic(); err != nil {
+	err := lm.ValidateBasic()
+	if err != nil {
 		return &types.LendingMarketProposal{}, err
+	}
+	m := lm.GetMetadata()
+	m.PropId, err = k.govKeeper.GetProposalID(ctx)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "Error obtaining Proposal ID")
 	}
 	
 	nonce, err := k.accKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
-
-	if err != nil {
-		sdkerrors.Wrap(err, "error in obtaining account nonce")
-	}
-	
 	if nonce == 0 {
+
+		if err != nil {
+			return nil, sdkerrors.Wrap(err, "error obtian")
+		}
+
 		*k.mapContractAddr, err = k.DeployMapContract(ctx, lm)
 		if err != nil {
 			return nil, err
 		}
 		return lm, nil
 	}
-
-	m := lm.GetMetadata()
 
 	_, err = k.erc20Keeper.CallEVM(ctx, contracts.ProposalStoreContract.ABI, types.ModuleAddress, *k.mapContractAddr, true,
 	    "AddProposal", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
@@ -49,13 +53,13 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 
 func (k Keeper) DeployMapContract(ctx sdk.Context, lm *types.LendingMarketProposal) (common.Address, error) {
 
-	m:=lm.GetMetadata()
+	m := lm.GetMetadata()
 
 	ctorArgs, err := contracts.ProposalStoreContract.ABI.Pack("", sdk.NewIntFromUint64(m.GetPropId()).BigInt(), lm.GetTitle(), lm.GetDescription(), ToAddress(m.GetAccount()),
 		ToBigInt(m.GetValues()), m.GetSignatures(), ToBytes(m.GetCalldatas())) //Call empty constructor of Proposal-Store
 
 	if err != nil {
-		return common.Address{} ,sdkerrors.Wrapf(erc20types.ErrABIPack, "Contract deployment failure: %s", err.Error())
+		return common.Address{}, sdkerrors.Wrapf(erc20types.ErrABIPack, "Contract deployment failure: %s", err.Error())
 	}
 
 	data := make([]byte, len(contracts.ProposalStoreContract.Bin)+len(ctorArgs))
@@ -68,17 +72,13 @@ func (k Keeper) DeployMapContract(ctx sdk.Context, lm *types.LendingMarketPropos
 		return common.Address{}, sdkerrors.Wrap(err, "failure in obtaining account nonce")
 	}
 
-	// fmt.Println("\n\n\n\n")
-	// fmt.Println(common.Bytes2Hex(data))
-	// fmt.Println("\n\n\n\n")
-
 	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
 	_, err = k.erc20Keeper.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
 	
 	if err != nil {
 		return common.Address{}, sdkerrors.Wrap(err, "failed to deploy contract")
 	}
-	// k.mapContractAddr = contractAddr
+
 	return contractAddr, nil
 }
 

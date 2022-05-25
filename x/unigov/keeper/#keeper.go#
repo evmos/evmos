@@ -41,7 +41,6 @@ func NewKeeper(
 	}
 
 	mca := new(common.Address)
-	
 	return Keeper{
 
 		cdc:             cdc,

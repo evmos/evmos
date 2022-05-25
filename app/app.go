@@ -481,7 +481,7 @@ func NewCanto(
 	// unigov keeper instantiated
 	app.UnigovKeeper = unigovkeeper.NewKeeper(
 		keys[unigovtypes.StoreKey], appCodec, app.GetSubspace(unigovtypes.ModuleName),
-		app.AccountKeeper, app.Erc20Keeper,
+		app.AccountKeeper, app.Erc20Keeper, govKeeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(

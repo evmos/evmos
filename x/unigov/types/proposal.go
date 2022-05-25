@@ -1,7 +1,7 @@
 package types
 
 import (
-	//sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -40,16 +40,16 @@ func (lm *LendingMarketProposal) ValidateBasic() error {
 		return err
 	}
 
-	//m := lm.GetMetadata()
+	m := lm.GetMetadata()
 	
-	// cd, vals, sigs := len(m.GetCalldatas()), len(m.GetValues()), len(m.GetSignatures())
+	cd, vals, sigs := len(m.GetCalldatas()), len(m.GetValues()), len(m.GetSignatures())
 
-	// if cd != vals {
-	// 	return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal array arguments must be same length")
-	// }
+	if cd != vals {
+		return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal array arguments must be same length")
+	}
 
-	// if vals != sigs {
-	// 	return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal array arguments must be same length")
-	// }
+	if vals != sigs {
+		return sdkerrors.Wrapf(govtypes.ErrInvalidProposalContent, "proposal array arguments must be same length")
+	}
 	return nil
 }

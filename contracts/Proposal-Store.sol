@@ -27,37 +27,32 @@ contract ProposalStore {
         bytes[] calldatas;
     }
 	
-    /* modifier OnlyUniGov { */
-    /* 	require(msg.sender == UniGovModAcct); */
-    /* 	_; */
-    /* } */
+    modifier OnlyUniGov {
+	require(msg.sender == UniGovModAcct);
+	_;
+    }
 
-    /* address private UniGovModAcct; */
+    address private UniGovModAcct;
     
     mapping(uint => Proposal) private proposals;
 
     constructor(uint propId, string memory title, string memory desc, address[] memory targets, 
                         uint[] memory values, string[] memory signatures, bytes[] memory calldatas) {
-	/* UniGovModAcct = msg.sender; */
+	UniGovModAcct = msg.sender;
 	Proposal memory prop = Proposal(propId, title, desc, targets, values, signatures, calldatas);
 	proposals[propId] = prop;
     }
     
     function AddProposal(uint propId, string memory title, string memory desc, address[] memory targets, 
                         uint[] memory values, string[] memory signatures, bytes[] memory calldatas) public {
-        //Proposal storage prop = Proposal(propId, title, desc, targets, values, signatures, calldatas);
         Proposal memory newProp = Proposal(propId, title, desc, targets, values, signatures, calldatas);
         proposals[propId] = newProp;
     }
 
-    function QueryProp(uint propId) external view returns(Proposal memory){
+    function QueryProp(uint propId) public view returns(Proposal memory){
         if (proposals[propId].id == propId) {
             return proposals[propId];
         }
 	    return Proposal(0, "", "", new address[](0), new uint[](0), new string[](0), new bytes[](0));
-    }
-
-    function EasyFunc() external view returns(string memory) {
-	return "teststring";
     }
 }
