@@ -4,6 +4,8 @@ order: 3
 
 # State Transitions
 
+## Client-Side
+
 The `x/fees` module allows for three types of state transitions: `RegisterDevFeeInfo`, `UpdateDevFeeInfo` and `CancelDevFeeInfo`. The logic for *distributing transaction fees*, is handled through [Hooks](./05_hooks.md).
 
 ### Fee Info Registration
@@ -45,3 +47,18 @@ A developer cancels receiving fees for a registered contract, defining the contr
     3. the signer of the transaction is the same as the contract deployer
 3. The fee information is removed from storage
 4. The developer no longer receives fees from transactions sent to this contract
+
+## Server-Side
+
+### AnteHandler
+
+The `anteHandler` is run for every transaction. It runs through a series of options and their `AnteHandle` functions for each `Tx`:
+
+- `MinGasPriceDecorator(feesKeeper, evmKeeper)`: rejects Cosmos transactions with transaction fees lower than `MinGasPrice * GasLimit`
+- `EthMinGasPriceDecorator(feesKeeper, evmKeeper)`: rejects EVM transactions with transactions fees lower than `MinGasPrice * gasLimit`.
+    - For `LegacyTx` and `AccessListTx`, the `GasPrice * GasLimit` is used.
+    - For EIP-1559 (*aka.* `DynamicFeeTx`), the `EffectivePrice * GasLimit` is used.
+
+::: tip
+**Note**: For dynamic transactions, if the `feemarket` formula results in a `BaseFee` that lowers `EffectivePrice < MinGasPrices`, the users must increase the `GasTipCap` (priority fee) until `EffectivePrice > MinGasPrices`. Transactions with `MinGasPrices * GasLimit < transaction fee < EffectiveFee` are rejected by the `feemarket` `AnteHandle`.
+:::

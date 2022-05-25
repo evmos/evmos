@@ -26,6 +26,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://tendermint.bd.evmos.org:26657` | `Tendermint` `RPC`     | [Blockdaemon](https://blockdaemon.com/) |
 | `https://eth.bd.evmos.org:8545`         | `Ethereum` `JSON-RPC`  | [Blockdaemon](https://blockdaemon.com/) |
 | `wss://eth.bd.evmos.org:8546`           | `Ethereum` `Websocket` | [Blockdaemon](https://blockdaemon.com/) |
+| `https://evmos-json-rpc.stakely.io`     | `Ethereum` `JSON-RPC`  | [Stakely](https://stakely.io/)          |
 :::
 ::: tab Testnet
 <!-- markdown-link-check-disable -->
