@@ -423,8 +423,7 @@ benchmark:
 .PHONY: benchmark
 
 
-E2E_UNIT=$(shell go list ./...  | grep /tests/)
-test-e2e: run-tests E2E_UNIT
+test-e2e: run-tests
 
 ###############################################################################
 ###                                Linting                                  ###

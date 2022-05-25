@@ -25,7 +25,7 @@ import (
 	"github.com/tendermint/tendermint/privval"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	osmosisApp "github.com/tharsis/evmos/v4/app"
+	evmosApp "github.com/tharsis/evmos/v4/app"
 	evmoskr "github.com/tharsis/evmos/v4/crypto/keyring"
 	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
@@ -229,7 +229,7 @@ func (v *internalValidator) init() error {
 		return err
 	}
 
-	appState, err := json.MarshalIndent(osmosisApp.ModuleBasics.DefaultGenesis(util.Cdc), "", " ")
+	appState, err := json.MarshalIndent(evmosApp.ModuleBasics.DefaultGenesis(util.Cdc), "", " ")
 	if err != nil {
 		return fmt.Errorf("failed to JSON encode app genesis state: %w", err)
 	}

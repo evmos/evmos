@@ -4,12 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"path"
-	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
@@ -21,7 +17,6 @@ import (
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	"github.com/tharsis/evmos/v4/tests/e2e/chain"
-	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
 
 var (
@@ -106,20 +101,14 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	// The e2e test flow is as follows:
 	//
-	// 1. Configure two chains - chan A and chain B.
-	//   * For each chain, set up two validators
+	// 1. Configure evmos chain with two validators
 	//   * Initialize configs and genesis for all validators.
-	// 2. Start both networks.
-	// 3. Run IBC relayer betweeen the two chains.
-	// 4. Execute various e2e tests, including IBC.
-	s.configureDockerResources(chain.ChainAID, chain.ChainBID)
+	// 2. Start the networks.
+	// 3. Upgrade the network
+	// 4. Execute various e2e tests
 
 	s.configureChain(chain.ChainAID, validatorConfigsChainA)
-	s.configureChain(chain.ChainBID, validatorConfigsChainB)
-
 	s.runValidators(s.chains[0], 0)
-	//s.runValidators(s.chains[1], 10)
-	// s.runIBCRelayer()
 	s.initUpgrade()
 	s.upgrade()
 }
@@ -135,8 +124,6 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 	}
 
 	s.T().Log("tearing down e2e integration test suite...")
-
-	//s.Require().NoError(s.dkrPool.Purge(s.hermesResource))
 
 	for _, vr := range s.valResources {
 		for _, r := range vr {
@@ -224,101 +211,6 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 	)
 }
 
-func (s *IntegrationTestSuite) runIBCRelayer() {
-	s.T().Log("starting Hermes relayer container...")
-
-	tmpDir, err := ioutil.TempDir("", "osmosis-e2e-testnet-hermes-")
-	s.Require().NoError(err)
-	s.tmpDirs = append(s.tmpDirs, tmpDir)
-
-	osmoAVal := s.chains[0].Validators[0]
-	osmoBVal := s.chains[1].Validators[0]
-	hermesCfgPath := path.Join(tmpDir, "hermes")
-
-	s.Require().NoError(os.MkdirAll(hermesCfgPath, 0o755))
-	_, err = util.CopyFile(
-		filepath.Join("./scripts/", "hermes_bootstrap.sh"),
-		filepath.Join(hermesCfgPath, "hermes_bootstrap.sh"),
-	)
-	s.Require().NoError(err)
-
-	s.hermesResource, err = s.dkrPool.RunWithOptions(
-		&dockertest.RunOptions{
-			Name:       fmt.Sprintf("%s-%s-relayer", s.chains[0].ChainMeta.Id, s.chains[1].ChainMeta.Id),
-			Repository: "osmolabs/hermes",
-			Tag:        "0.13.0",
-			NetworkID:  s.dkrNet.Network.ID,
-			Cmd: []string{
-				"start",
-			},
-			User: "root:root",
-			Mounts: []string{
-				fmt.Sprintf("%s/:/root/hermes", hermesCfgPath),
-			},
-			ExposedPorts: []string{
-				"3031",
-			},
-			PortBindings: map[docker.Port][]docker.PortBinding{
-				"3031/tcp": {{HostIP: "", HostPort: "3031"}},
-			},
-			Env: []string{
-				fmt.Sprintf("OSMO_A_E2E_CHAIN_ID=%s", s.chains[0].ChainMeta.Id),
-				fmt.Sprintf("OSMO_B_E2E_CHAIN_ID=%s", s.chains[1].ChainMeta.Id),
-				fmt.Sprintf("OSMO_A_E2E_VAL_MNEMONIC=%s", osmoAVal.Mnemonic),
-				fmt.Sprintf("OSMO_B_E2E_VAL_MNEMONIC=%s", osmoBVal.Mnemonic),
-				fmt.Sprintf("OSMO_A_E2E_VAL_HOST=%s", s.valResources[s.chains[0].ChainMeta.Id][0].Container.Name[1:]),
-				fmt.Sprintf("OSMO_B_E2E_VAL_HOST=%s", s.valResources[s.chains[1].ChainMeta.Id][0].Container.Name[1:]),
-			},
-			Entrypoint: []string{
-				"sh",
-				"-c",
-				"chmod +x /root/hermes/hermes_bootstrap.sh && /root/hermes/hermes_bootstrap.sh",
-			},
-		},
-		noRestart,
-	)
-	s.Require().NoError(err)
-
-	endpoint := fmt.Sprintf("http://%s/state", s.hermesResource.GetHostPort("3031/tcp"))
-	s.Require().Eventually(
-		func() bool {
-			resp, err := http.Get(endpoint)
-			if err != nil {
-				return false
-			}
-
-			defer resp.Body.Close()
-
-			bz, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return false
-			}
-
-			var respBody map[string]interface{}
-			if err := json.Unmarshal(bz, &respBody); err != nil {
-				return false
-			}
-
-			status := respBody["status"].(string)
-			result := respBody["result"].(map[string]interface{})
-
-			return status == "success" && len(result["chains"].([]interface{})) == 2
-		},
-		5*time.Minute,
-		time.Second,
-		"hermes relayer not healthy",
-	)
-
-	s.T().Logf("started Hermes relayer container: %s", s.hermesResource.Container.ID)
-
-	// XXX: Give time to both networks to start, otherwise we might see gRPC
-	// transport errors.
-	time.Sleep(10 * time.Second)
-
-	// create the client, connection and channel between the two Osmosis chains
-	s.connectIBCChains()
-}
-
 func (s *IntegrationTestSuite) configureChain(chainId string, validatorConfigs []*chain.ValidatorConfig) {
 
 	s.T().Logf("starting e2e infrastructure for chain-id: %s", chainId)
@@ -376,17 +268,6 @@ func (s *IntegrationTestSuite) configureChain(chainId string, validatorConfigs [
 	s.Require().NoError(s.dkrPool.Purge(s.initResource))
 }
 
-func (s *IntegrationTestSuite) configureDockerResources(chainIDOne, chainIDTwo string) {
-	var err error
-	s.dkrPool, err = dockertest.NewPool("")
-	s.Require().NoError(err)
-
-	s.dkrNet, err = s.dkrPool.CreateNetwork(fmt.Sprintf("%s-%s-testnet", chainIDOne, chainIDTwo))
-	s.Require().NoError(err)
-
-	s.valResources = make(map[string][]*dockertest.Resource)
-}
-
 func noRestart(config *docker.HostConfig) {
 	// in this case we don't want the nodes to restart on failure
 	config.RestartPolicy = docker.RestartPolicy{
@@ -397,14 +278,10 @@ func noRestart(config *docker.HostConfig) {
 func (s *IntegrationTestSuite) initUpgrade() {
 	// submit, deposit, and vote for upgrade proposal
 	s.submitProposal(s.chains[0])
-	//s.submitProposal(s.chains[1])
 	s.depositProposal(s.chains[0])
-	//s.depositProposal(s.chains[1])
 	s.voteProposal(s.chains[0])
-	//s.voteProposal(s.chains[1])
 
 	// wait till all chains halt at upgrade height
-
 	for i := range s.chains[0].Validators {
 		s.T().Logf("waiting to reach upgrade height on %s validator container: %s", s.chains[0].ChainMeta.Id, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
 		s.Require().Eventually(
@@ -457,7 +334,6 @@ func (s *IntegrationTestSuite) upgrade() {
 	}
 
 	// check that we are hitting blocks again
-
 	for i := range chain.Validators {
 		s.Require().Eventually(
 			func() bool {
