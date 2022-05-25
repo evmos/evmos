@@ -40,10 +40,13 @@ The native Cosmos Coin contains a more extensive metadata than the ERC20 and inc
 
 #### IBC voucher Metadata to ERC20 details
 
-IBC vouchers should comply to the following standard:
+IBC vouchers should comply to the following standard.
 
-- **Name**: `{NAME} channel-{channel}`
-- **Symbol**:  `ibc{NAME}-{channel}`
+- **Name**: `{NAME}` 
+- **Symbol**:  `{NAME}` or `{NAME}-{channel-number}` 
+
+Note: We shouldn't specify a channel number to the symbol `{NAME}` on the first coin registration. E.g. whatever is picked as the canonical channel should be symbol `{NAME}` and if a secondary representation of that IBC token is registered in the evm then a suffix to the symbol `{NAME}-{channel-number}` should be added. 
+
 - **Decimals**:  derived from bank `Metadata`
 
 #### ERC20 details to Coin Metadata
