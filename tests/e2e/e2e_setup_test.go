@@ -106,11 +106,23 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	// 2. Start the networks.
 	// 3. Upgrade the network
 	// 4. Execute various e2e tests
+	s.configureDockerResources(chain.ChainAID, chain.ChainBID)
 
 	s.configureChain(chain.ChainAID, validatorConfigsChainA)
 	s.runValidators(s.chains[0], 0)
 	s.initUpgrade()
 	s.upgrade()
+}
+
+func (s *IntegrationTestSuite) configureDockerResources(chainIDOne, chainIDTwo string) {
+	var err error
+	s.dkrPool, err = dockertest.NewPool("")
+	s.Require().NoError(err)
+
+	s.dkrNet, err = s.dkrPool.CreateNetwork(fmt.Sprintf("%s-%s-testnet", chainIDOne, chainIDTwo))
+	s.Require().NoError(err)
+
+	s.valResources = make(map[string][]*dockertest.Resource)
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {

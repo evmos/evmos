@@ -332,15 +332,18 @@ build-docs-versioned:
 ###############################################################################
 
 test: test-unit
-test-all: test-unit test-race
+test-all: test-race
 PACKAGES_UNIT=$(shell go list ./...  | grep -v /tests/)
 TEST_PACKAGES=./...
-TEST_TARGETS := test-unit test-unit-cover test-race
+TEST_TARGETS := test-unit test-unit-cover test-race test-e2e
 
 # Test runs-specific rules. To add a new test target, just add
 # a new rule, customise ARGS or TEST_PACKAGES ad libitum, and
 # append the new rule to the TEST_TARGETS list.
 test-unit: ARGS=-timeout=10m -race
+test-unit: TEST_PACKAGES=$(PACKAGES_UNIT)
+
+
 test-unit: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-race: ARGS=-race
@@ -350,12 +353,16 @@ $(TEST_TARGETS): run-tests
 test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
+
+test-e2e: TEST_PACKAGES=$(shell go list ./... | grep /tests/)
+
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
 	go test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
 else
 	go test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
 endif
+
 
 test-import:
 	@go test ./tests/importer -v --vet=off --run=TestImportBlocks --datadir tmp \
@@ -422,8 +429,6 @@ benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
 .PHONY: benchmark
 
-
-test-e2e: run-tests
 
 ###############################################################################
 ###                                Linting                                  ###
