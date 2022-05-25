@@ -12,8 +12,7 @@ import (
 	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
 
-func (s *IntegrationTestSuite) RunTest() {
-	s.SetupSuite()
+func (s *IntegrationTestSuite) TestEmpty() {
 	s.Require().True(true)
 }
 
