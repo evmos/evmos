@@ -22,6 +22,7 @@ func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
 	validatorShares := sdk.NewDecWithPrec(40, 2)
 	derivCostCreate := uint64(50)
+	minGasPrice := sdk.NewDecWithPrec(20, 4)
 
 	testCases := []struct {
 		name     string
@@ -31,17 +32,17 @@ func TestParamsValidate(t *testing.T) {
 		{"default", DefaultParams(), false},
 		{
 			"valid: enabled",
-			NewParams(true, devShares, validatorShares, derivCostCreate),
+			NewParams(true, devShares, validatorShares, derivCostCreate, minGasPrice),
 			false,
 		},
 		{
 			"valid: disabled",
-			NewParams(false, devShares, validatorShares, derivCostCreate),
+			NewParams(false, devShares, validatorShares, derivCostCreate, minGasPrice),
 			false,
 		},
 		{
 			"valid: 100% devs",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate, minGasPrice},
 			false,
 		},
 		{
@@ -51,22 +52,27 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share > 1",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate, minGasPrice},
 			true,
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate, minGasPrice},
 			true,
 		},
 		{
 			"invalid: sum shares > 1 ",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate, minGasPrice},
+			true,
+		},
+		{
+			"invalid: min gas price negative",
+			Params{true, devShares, validatorShares, derivCostCreate, sdk.NewDecFromInt(sdk.NewInt(-1))},
 			true,
 		},
 		{
 			"invalid: wrong address derivation cost",
-			NewParams(true, devShares, validatorShares, 50),
+			NewParams(true, devShares, validatorShares, 50, minGasPrice),
 			false,
 		},
 	}
@@ -82,12 +88,41 @@ func TestParamsValidate(t *testing.T) {
 	}
 }
 
+func TestParamsValidateMinGasPrice(t *testing.T) {
+	testCases := []struct {
+		name     string
+		value    interface{}
+		expError bool
+	}{
+		{"default", DefaultMinGasPrice, false},
+		{"valid", sdk.NewDecFromInt(sdk.NewInt(1)), false},
+		{"invalid - wrong type - bool", false, true},
+		{"invalid - wrong type - string", "", true},
+		{"invalid - wrong type - int64", int64(123), true},
+		{"invalid - wrong type - sdk.Int", sdk.NewInt(1), true},
+		{"invalid - is nil", nil, true},
+		{"invalid - is negative", sdk.NewDecFromInt(sdk.NewInt(-1)), true},
+	}
+
+	for _, tc := range testCases {
+		err := validateMinGasPrice(tc.value)
+
+		if tc.expError {
+			require.Error(t, err, tc.name)
+		} else {
+			require.NoError(t, err, tc.name)
+		}
+	}
+}
+
 func TestParamsValidateShares(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    interface{}
 		expError bool
 	}{
+		{"default", DefaultDeveloperShares, false},
+		{"default", DefaultValidatorShares, false},
 		{"valid", sdk.NewDecFromInt(sdk.NewInt(1)), false},
 		{"invalid - wrong type - bool", false, true},
 		{"invalid - wrong type - string", "", true},
@@ -110,7 +145,9 @@ func TestParamsValidateShares(t *testing.T) {
 }
 
 func TestParamsValidateBool(t *testing.T) {
-	err := validateBool(true)
+	err := validateBool(DefaultEnableFees)
+	require.NoError(t, err)
+	err = validateBool(true)
 	require.NoError(t, err)
 	err = validateBool(false)
 	require.NoError(t, err)
@@ -121,7 +158,9 @@ func TestParamsValidateBool(t *testing.T) {
 }
 
 func TestParamsValidateUint64(t *testing.T) {
-	err := validateUint64(uint64(0))
+	err := validateUint64(DefaultAddrDerivationCostCreate)
+	require.NoError(t, err)
+	err = validateUint64(uint64(0))
 	require.NoError(t, err)
 	err = validateUint64(uint64(1))
 	require.NoError(t, err)
