@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 func CopyFile(src, dst string) (int64, error) {
@@ -17,17 +18,27 @@ func CopyFile(src, dst string) (int64, error) {
 		return 0, fmt.Errorf("%s is not a regular file", src)
 	}
 
-	source, err := os.Open(src)
+	source, err := os.Open(filepath.Clean(src))
 	if err != nil {
 		return 0, err
 	}
-	defer source.Close()
+	defer func() {
+		cerr := source.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
 
-	destination, err := os.Create(dst)
+	destination, err := os.Create(filepath.Clean(dst))
 	if err != nil {
 		return 0, err
 	}
-	defer destination.Close()
+	defer func() {
+		cerr := destination.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
 
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err

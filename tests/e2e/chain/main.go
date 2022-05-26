@@ -1,10 +1,8 @@
 package chain
 
 func Init(id, dataDir string, validatorConfigs []*ValidatorConfig) (*Chain, error) {
-	chain, err := new(id, dataDir)
-	if err != nil {
-		return nil, err
-	}
+	chain := new(id, dataDir)
+
 	if err := initNodes(chain, len(validatorConfigs)); err != nil {
 		return nil, err
 	}

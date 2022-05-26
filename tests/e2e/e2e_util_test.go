@@ -15,7 +15,7 @@ import (
 )
 
 func (s *IntegrationTestSuite) connectIBCChains() {
-	s.T().Logf("connecting %s and %s chains via IBC", s.chains[0].ChainMeta.Id, s.chains[1].ChainMeta.Id)
+	s.T().Logf("connecting %s and %s chains via IBC", s.chains[0].ChainMeta.ID, s.chains[1].ChainMeta.ID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -30,8 +30,8 @@ func (s *IntegrationTestSuite) connectIBCChains() {
 			"hermes",
 			"create",
 			"channel",
-			s.chains[0].ChainMeta.Id,
-			s.chains[1].ChainMeta.Id,
+			s.chains[0].ChainMeta.ID,
+			s.chains[1].ChainMeta.ID,
 			"--port-a=transfer",
 			"--port-b=transfer",
 		},
@@ -60,7 +60,7 @@ func (s *IntegrationTestSuite) connectIBCChains() {
 		"failed to connect chains via IBC: %s", errBuf.String(),
 	)
 
-	s.T().Logf("connected %s and %s chains via IBC", s.chains[0].ChainMeta.Id, s.chains[1].ChainMeta.Id)
+	s.T().Logf("connected %s and %s chains via IBC", s.chains[0].ChainMeta.ID, s.chains[1].ChainMeta.ID)
 }
 
 func (s *IntegrationTestSuite) sendIBC(srcChainID, dstChainID, recipient string, token sdk.Coin) {
@@ -115,12 +115,12 @@ func (s *IntegrationTestSuite) submitProposal(c *chain.Chain) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	s.T().Logf("submitting upgrade proposal for chain-id: %s", c.ChainMeta.Id)
+	s.T().Logf("submitting upgrade proposal for chain-id: %s", c.ChainMeta.ID)
 	exec, err := s.dkrPool.Client.CreateExec(docker.CreateExecOptions{
 		Context:      ctx,
 		AttachStdout: true,
 		AttachStderr: true,
-		Container:    s.valResources[c.ChainMeta.Id][0].Container.ID,
+		Container:    s.valResources[c.ChainMeta.ID][0].Container.ID,
 		User:         "root",
 		Cmd: []string{
 			"/usr/bin/evmosd",
@@ -132,7 +132,7 @@ func (s *IntegrationTestSuite) submitProposal(c *chain.Chain) {
 			"--description=\"v4 upgrade proposal\"",
 			"--upgrade-height=75",
 			"--upgrade-info=\"\"",
-			fmt.Sprintf("--chain-id=%s", c.ChainMeta.Id),
+			fmt.Sprintf("--chain-id=%s", c.ChainMeta.ID),
 			"--from=val", "-b=block",
 			"--yes", "--keyring-backend=test",
 			"--log_format=json",
@@ -169,18 +169,18 @@ func (s *IntegrationTestSuite) depositProposal(c *chain.Chain) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	s.T().Logf("depositing to upgrade proposal for chain-id: %s", c.ChainMeta.Id)
+	s.T().Logf("depositing to upgrade proposal for chain-id: %s", c.ChainMeta.ID)
 	exec, err := s.dkrPool.Client.CreateExec(docker.CreateExecOptions{
 		Context:      ctx,
 		AttachStdout: true,
 		AttachStderr: true,
-		Container:    s.valResources[c.ChainMeta.Id][0].Container.ID,
+		Container:    s.valResources[c.ChainMeta.ID][0].Container.ID,
 		User:         "root",
 		Cmd: []string{
 			"/usr/bin/evmosd",
 			"--home",
 			"/evmos/.evmosd",
-			"tx", "gov", "deposit", "1", "10000000stake", "--from=val", fmt.Sprintf("--chain-id=%s", c.ChainMeta.Id), "-b=block", "--yes", "--keyring-backend=test",
+			"tx", "gov", "deposit", "1", "10000000stake", "--from=val", fmt.Sprintf("--chain-id=%s", c.ChainMeta.ID), "-b=block", "--yes", "--keyring-backend=test",
 		},
 	})
 	s.Require().NoError(err)
@@ -215,19 +215,19 @@ func (s *IntegrationTestSuite) voteProposal(c *chain.Chain) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	s.T().Logf("voting for upgrade proposal for chain-id: %s", c.ChainMeta.Id)
+	s.T().Logf("voting for upgrade proposal for chain-id: %s", c.ChainMeta.ID)
 	for i := range c.Validators {
 		exec, err := s.dkrPool.Client.CreateExec(docker.CreateExecOptions{
 			Context:      ctx,
 			AttachStdout: true,
 			AttachStderr: true,
-			Container:    s.valResources[c.ChainMeta.Id][i].Container.ID,
+			Container:    s.valResources[c.ChainMeta.ID][i].Container.ID,
 			User:         "root",
 			Cmd: []string{
 				"/usr/bin/evmosd",
 				"--home",
 				"/evmos/.evmosd",
-				"tx", "gov", "vote", "1", "yes", "--from=val", fmt.Sprintf("--chain-id=%s", c.ChainMeta.Id), "-b=block", "--yes", "--keyring-backend=test",
+				"tx", "gov", "vote", "1", "yes", "--from=val", fmt.Sprintf("--chain-id=%s", c.ChainMeta.ID), "-b=block", "--yes", "--keyring-backend=test",
 			},
 		})
 		s.Require().NoError(err)
@@ -254,7 +254,7 @@ func (s *IntegrationTestSuite) voteProposal(c *chain.Chain) {
 			"tx returned non code 0",
 		)
 
-		s.T().Logf("successfully voted for proposal on container: %s", s.valResources[c.ChainMeta.Id][i].Container.ID)
+		s.T().Logf("successfully voted for proposal on container: %s", s.valResources[c.ChainMeta.ID][i].Container.ID)
 	}
 }
 

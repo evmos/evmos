@@ -195,7 +195,7 @@ func initGenesis(c *internalChain) error {
 	genTxs := make([]json.RawMessage, len(c.validators))
 	for i, val := range c.validators {
 		stakeAmountCoin := StakeAmountCoinA
-		if c.chainMeta.Id != ChainAID {
+		if c.chainMeta.ID != ChainAID {
 			stakeAmountCoin = StakeAmountCoinB
 		}
 		createValmsg, err := val.buildCreateValidatorMsg(stakeAmountCoin)
@@ -253,11 +253,11 @@ func initNodes(c *internalChain, numVal int) error {
 	// initialize a genesis file for the first validator
 	val0ConfigDir := c.validators[0].configDir()
 	for _, val := range c.validators {
-		if c.chainMeta.Id == ChainAID {
+		if c.chainMeta.ID == ChainAID {
 			if err := addAccount(val0ConfigDir, "", InitBalanceStrA, val.getKeyInfo().GetAddress()); err != nil {
 				return err
 			}
-		} else if c.chainMeta.Id == ChainBID {
+		} else if c.chainMeta.ID == ChainBID {
 			if err := addAccount(val0ConfigDir, "", InitBalanceStrB, val.getKeyInfo().GetAddress()); err != nil {
 				return err
 			}

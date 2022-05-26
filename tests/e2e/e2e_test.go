@@ -15,7 +15,7 @@ import (
 func (s *IntegrationTestSuite) TestUpgrade() {
 	s.initUpgrade()
 	s.upgrade()
-	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chains[0].ChainMeta.Id][0].GetHostPort("1317/tcp"))
+	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chains[0].ChainMeta.ID][0].GetHostPort("1317/tcp"))
 	balancesA, err := queryBalances(chainAAPIEndpoint, s.chains[0].Validators[0].PublicAddress)
 	s.Require().NoError(err)
 	s.Require().NotNil(balancesA)

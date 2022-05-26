@@ -33,7 +33,7 @@ func main() {
 		panic("data-dir is required")
 	}
 
-	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+	if err := os.MkdirAll(dataDir, 0o644); err != nil {
 		panic(err)
 	}
 
@@ -44,7 +44,7 @@ func main() {
 
 	b, _ := json.Marshal(createdChain)
 	fileName := fmt.Sprintf("%v/%v-encode", dataDir, chainId)
-	if err = os.WriteFile(fileName, b, 0o777); err != nil {
+	if err = os.WriteFile(fileName, b, 0o644); err != nil {
 		panic(err)
 	}
 }

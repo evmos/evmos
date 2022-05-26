@@ -6,24 +6,23 @@ import (
 
 const (
 	keyringPassphrase = "testpassphrase"
-	keyringAppName    = "testnet"
 )
 
 // internalChain contains the same info as chain, but with the validator structs instead using the internal validator
 // representation, with more derived data
 type internalChain struct {
-	chainMeta  ChainMeta
+	chainMeta  Meta
 	validators []*internalValidator
 }
 
-func new(id, dataDir string) (*internalChain, error) {
-	chainMeta := ChainMeta{
-		Id:      id,
+func new(id, dataDir string) *internalChain {
+	chainMeta := Meta{
+		ID:      id,
 		DataDir: dataDir,
 	}
 	return &internalChain{
 		chainMeta: chainMeta,
-	}, nil
+	}
 }
 
 func (c *internalChain) createAndInitValidators(count int) error {
@@ -52,38 +51,11 @@ func (c *internalChain) createAndInitValidators(count int) error {
 	return nil
 }
 
-func (c *internalChain) createAndInitValidatorsWithMnemonics(count int, mnemonics []string) error {
-	for i := 0; i < count; i++ {
-		// create node
-		node := c.createValidator(i)
-
-		// generate genesis files
-		if err := node.init(); err != nil {
-			return err
-		}
-
-		c.validators = append(c.validators, node)
-
-		// create keys
-		if err := node.createKeyFromMnemonic("val", mnemonics[i]); err != nil {
-			return err
-		}
-		if err := node.createNodeKey(); err != nil {
-			return err
-		}
-		if err := node.createConsensusKey(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (c *internalChain) createValidator(index int) *internalValidator {
 	return &internalValidator{
 		chain:   c,
 		index:   index,
-		moniker: fmt.Sprintf("%s-%d", c.chainMeta.Id, index+1),
+		moniker: fmt.Sprintf("%s-%d", c.chainMeta.ID, index+1),
 	}
 }
 

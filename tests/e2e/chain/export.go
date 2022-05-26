@@ -2,9 +2,9 @@ package chain
 
 import "fmt"
 
-type ChainMeta struct {
+type Meta struct {
 	DataDir string `json:"dataDir"`
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 }
 
 type Validator struct {
@@ -16,10 +16,10 @@ type Validator struct {
 }
 
 type Chain struct {
-	ChainMeta  ChainMeta    `json:"chainMeta"`
+	ChainMeta  Meta         `json:"chainMeta"`
 	Validators []*Validator `json:"validators"`
 }
 
-func (c *ChainMeta) configDir() string {
-	return fmt.Sprintf("%s/%s", c.DataDir, c.Id)
+func (c *Meta) configDir() string {
+	return fmt.Sprintf("%s/%s", c.DataDir, c.ID)
 }

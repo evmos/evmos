@@ -31,15 +31,14 @@ import (
 )
 
 type internalValidator struct {
-	chain            *internalChain
-	index            int
-	moniker          string
-	mnemonic         string
-	keyInfo          keyring.Info
-	privateKey       cryptotypes.PrivKey
-	consensusKey     privval.FilePVKey
-	consensusPrivKey cryptotypes.PrivKey
-	nodeKey          p2p.NodeKey
+	chain        *internalChain
+	index        int
+	moniker      string
+	mnemonic     string
+	keyInfo      keyring.Info
+	privateKey   cryptotypes.PrivKey
+	consensusKey privval.FilePVKey
+	nodeKey      p2p.NodeKey
 }
 
 func (v *internalValidator) instanceName() string {
@@ -56,10 +55,6 @@ func (v *internalValidator) getKeyInfo() keyring.Info {
 
 func (v *internalValidator) getMoniker() string {
 	return v.moniker
-}
-
-func (v *internalValidator) getMnemonic() string {
-	return v.mnemonic
 }
 
 func (v *internalValidator) buildCreateValidatorMsg(amount sdk.Coin) (sdk.Msg, error) {
@@ -90,7 +85,7 @@ func (v *internalValidator) buildCreateValidatorMsg(amount sdk.Coin) (sdk.Msg, e
 
 func (v *internalValidator) createConfig() error {
 	p := path.Join(v.configDir(), "config")
-	return os.MkdirAll(p, 0o755)
+	return os.MkdirAll(p, 0o750)
 }
 
 func (v *internalValidator) createNodeKey() error {
@@ -234,7 +229,7 @@ func (v *internalValidator) init() error {
 		return fmt.Errorf("failed to JSON encode app genesis state: %w", err)
 	}
 
-	genDoc.ChainID = v.chain.chainMeta.Id
+	genDoc.ChainID = v.chain.chainMeta.ID
 	genDoc.Validators = nil
 	genDoc.AppState = appState
 
@@ -272,7 +267,7 @@ func (v *internalValidator) signMsg(msgs ...sdk.Msg) (*sdktx.Tx, error) {
 	txBuilder.SetGasLimit(200000)
 
 	signerData := authsigning.SignerData{
-		ChainID:       v.chain.chainMeta.Id,
+		ChainID:       v.chain.chainMeta.ID,
 		AccountNumber: 0,
 		Sequence:      0,
 	}

@@ -107,8 +107,8 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 }
 
 func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
-	s.T().Logf("starting Evmos %s validator containers...", c.ChainMeta.Id)
-	s.valResources[c.ChainMeta.Id] = make([]*dockertest.Resource, len(c.Validators))
+	s.T().Logf("starting Evmos %s validator containers...", c.ChainMeta.ID)
+	s.valResources[c.ChainMeta.ID] = make([]*dockertest.Resource, len(c.Validators))
 	for i, val := range c.Validators {
 		runOpts := &dockertest.RunOptions{
 			Name:      val.Name,
@@ -145,8 +145,8 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 		resource, err := s.dkrPool.RunWithOptions(runOpts, noRestart)
 		s.Require().NoError(err)
 
-		s.valResources[c.ChainMeta.Id][i] = resource
-		s.T().Logf("started Evmos %s validator container: %s", c.ChainMeta.Id, resource.Container.ID)
+		s.valResources[c.ChainMeta.ID][i] = resource
+		s.T().Logf("started Evmos %s validator container: %s", c.ChainMeta.ID, resource.Container.ID)
 	}
 
 	rpcClient, err := rpchttp.New("tcp://localhost:26657", "/websocket")
@@ -243,24 +243,24 @@ func (s *IntegrationTestSuite) initUpgrade() {
 
 	// wait till all chains halt at upgrade height
 	for i := range s.chains[0].Validators {
-		s.T().Logf("waiting to reach upgrade height on %s validator container: %s", s.chains[0].ChainMeta.Id, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+		s.T().Logf("waiting to reach upgrade height on %s validator container: %s", s.chains[0].ChainMeta.ID, s.valResources[s.chains[0].ChainMeta.ID][i].Container.ID)
 		s.Require().Eventually(
 			func() bool {
-				height, _ := s.chainStatus(s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+				height, _ := s.chainStatus(s.valResources[s.chains[0].ChainMeta.ID][i].Container.ID)
 				if height != 75 {
-					s.T().Logf("current block height is %v, waiting for block 75 container: %s", height, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+					s.T().Logf("current block height is %v, waiting for block 75 container: %s", height, s.valResources[s.chains[0].ChainMeta.ID][i].Container.ID)
 				}
 				return height == 75
 			},
 			2*time.Minute,
 			5*time.Second,
 		)
-		s.T().Logf("reached upgrade height on %s validator container: %s", s.chains[0].ChainMeta.Id, s.valResources[s.chains[0].ChainMeta.Id][i].Container.ID)
+		s.T().Logf("reached upgrade height on %s validator container: %s", s.chains[0].ChainMeta.ID, s.valResources[s.chains[0].ChainMeta.ID][i].Container.ID)
 	}
 
 	// remove all containers so we can upgrade them to the new version
 	for i := range s.chains[0].Validators {
-		s.Require().NoError(s.dkrPool.RemoveContainerByName(s.valResources[s.chains[0].ChainMeta.Id][i].Container.Name))
+		s.Require().NoError(s.dkrPool.RemoveContainerByName(s.valResources[s.chains[0].ChainMeta.ID][i].Container.Name))
 	}
 
 }
@@ -268,7 +268,7 @@ func (s *IntegrationTestSuite) initUpgrade() {
 func (s *IntegrationTestSuite) upgrade() {
 	// upgrade containers to the locally compiled daemon
 	chain := s.chains[0]
-	s.T().Logf("starting upgrade for chain-id: %s...", chain.ChainMeta.Id)
+	s.T().Logf("starting upgrade for chain-id: %s...", chain.ChainMeta.ID)
 	for i, val := range chain.Validators {
 		runOpts := &dockertest.RunOptions{
 			Name:       val.Name,
@@ -289,15 +289,15 @@ func (s *IntegrationTestSuite) upgrade() {
 		resource, err := s.dkrPool.RunWithOptions(runOpts, noRestart)
 		s.Require().NoError(err)
 
-		s.valResources[chain.ChainMeta.Id][i] = resource
-		s.T().Logf("started Evmos upgraded %s validator container: %s", chain.ChainMeta.Id, resource.Container.ID)
+		s.valResources[chain.ChainMeta.ID][i] = resource
+		s.T().Logf("started Evmos upgraded %s validator container: %s", chain.ChainMeta.ID, resource.Container.ID)
 	}
 
 	// check that we are hitting blocks again
 	for i := range chain.Validators {
 		s.Require().Eventually(
 			func() bool {
-				height, _ := s.chainStatus(s.valResources[chain.ChainMeta.Id][i].Container.ID)
+				height, _ := s.chainStatus(s.valResources[chain.ChainMeta.ID][i].Container.ID)
 				if height <= 75 {
 					fmt.Printf("current block height is %v, waiting to hit blocks\n", height)
 				}
@@ -306,7 +306,7 @@ func (s *IntegrationTestSuite) upgrade() {
 			2*time.Minute,
 			5*time.Second,
 		)
-		s.T().Logf("upgrade successful on %s validator container: %s", chain.ChainMeta.Id, s.valResources[chain.ChainMeta.Id][i].Container.ID)
+		s.T().Logf("upgrade successful on %s validator container: %s", chain.ChainMeta.ID, s.valResources[chain.ChainMeta.ID][i].Container.ID)
 	}
 
 }
