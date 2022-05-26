@@ -16,8 +16,7 @@ var (
 	// DefaultClaimsDenom is aevmos
 	DefaultClaimsDenom = "aevmos"
 	// DefaultDurationUntilDecay is 1 month = 30.4375 days
-	// DefaultDurationUntilDecay = 2629800 * time.Second
-	DefaultDurationUntilDecay = 2629800 * time.Nanosecond
+	DefaultDurationUntilDecay = 2629800 * time.Second
 	// DefaultDurationOfDecay is 2 months
 	DefaultDurationOfDecay = 2 * DefaultDurationUntilDecay
 	// DefaultChannels defines the list of default IBC authorized channels that can perform
@@ -91,8 +90,8 @@ func DefaultParams() Params {
 		EnableClaims:       true,
 		ClaimsDenom:        DefaultClaimsDenom,
 		AirdropStartTime:   time.Time{},
-		DurationUntilDecay: DefaultDurationUntilDecay,
-		DurationOfDecay:    DefaultDurationOfDecay,
+		DurationUntilDecay: time.Duration(DefaultDurationUntilDecay.Nanoseconds()),
+		DurationOfDecay:    time.Duration(DefaultDurationOfDecay.Nanoseconds()),
 		AuthorizedChannels: DefaultAuthorizedChannels,
 		EVMChannels:        DefaultEVMChannels,
 	}
