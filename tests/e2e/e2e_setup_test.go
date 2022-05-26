@@ -21,53 +21,7 @@ import (
 
 var (
 	// common
-	maxRetries             = 10 // max retries for json unmarshalling
-	validatorConfigsChainA = []*chain.ValidatorConfig{
-		{
-			Pruning:            "default",
-			PruningKeepRecent:  "0",
-			PruningInterval:    "0",
-			SnapshotInterval:   1500,
-			SnapshotKeepRecent: 2,
-		},
-		{
-			Pruning:            "nothing",
-			PruningKeepRecent:  "0",
-			PruningInterval:    "0",
-			SnapshotInterval:   1500,
-			SnapshotKeepRecent: 2,
-		},
-		{
-			Pruning:            "custom",
-			PruningKeepRecent:  "10000",
-			PruningInterval:    "13",
-			SnapshotInterval:   1500,
-			SnapshotKeepRecent: 2,
-		},
-	}
-	validatorConfigsChainB = []*chain.ValidatorConfig{
-		{
-			Pruning:            "default",
-			PruningKeepRecent:  "0",
-			PruningInterval:    "0",
-			SnapshotInterval:   1500,
-			SnapshotKeepRecent: 2,
-		},
-		{
-			Pruning:            "nothing",
-			PruningKeepRecent:  "0",
-			PruningInterval:    "0",
-			SnapshotInterval:   1500,
-			SnapshotKeepRecent: 2,
-		},
-		{
-			Pruning:            "custom",
-			PruningKeepRecent:  "10000",
-			PruningInterval:    "13",
-			SnapshotInterval:   1500,
-			SnapshotKeepRecent: 2,
-		},
-	}
+	maxRetries = 10 // max retries for json unmarshalling
 )
 
 type IntegrationTestSuite struct {
@@ -108,10 +62,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	// 4. Execute various e2e tests
 	s.configureDockerResources(chain.ChainAID, chain.ChainBID)
 
-	s.configureChain(chain.ChainAID, validatorConfigsChainA)
+	s.configureChain(chain.ChainAID)
 	s.runValidators(s.chains[0], 0)
-	s.initUpgrade()
-	s.upgrade()
 }
 
 func (s *IntegrationTestSuite) configureDockerResources(chainIDOne, chainIDTwo string) {
@@ -223,15 +175,12 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 	)
 }
 
-func (s *IntegrationTestSuite) configureChain(chainId string, validatorConfigs []*chain.ValidatorConfig) {
+func (s *IntegrationTestSuite) configureChain(chainId string) {
 
 	s.T().Logf("starting e2e infrastructure for chain-id: %s", chainId)
 	tmpDir, err := ioutil.TempDir("", "evmos-e2e-testnet-")
 
 	s.T().Logf("temp directory for chain-id %v: %v", chainId, tmpDir)
-	s.Require().NoError(err)
-
-	b, err := json.Marshal(validatorConfigs)
 	s.Require().NoError(err)
 
 	s.initResource, err = s.dkrPool.RunWithOptions(
@@ -243,7 +192,6 @@ func (s *IntegrationTestSuite) configureChain(chainId string, validatorConfigs [
 			Cmd: []string{
 				fmt.Sprintf("--data-dir=%s", tmpDir),
 				fmt.Sprintf("--chain-id=%s", chainId),
-				fmt.Sprintf("--config=%s", b),
 			},
 			User: "root:root",
 			Mounts: []string{

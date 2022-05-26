@@ -12,8 +12,14 @@ import (
 	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
 
-func (s *IntegrationTestSuite) TestEmpty() {
-	s.Require().True(true)
+func (s *IntegrationTestSuite) TestUpgrade() {
+	s.initUpgrade()
+	s.upgrade()
+	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chains[0].ChainMeta.Id][0].GetHostPort("1317/tcp"))
+	balancesA, err := queryBalances(chainAAPIEndpoint, s.chains[0].Validators[0].PublicAddress)
+	s.Require().NoError(err)
+	s.Require().NotNil(balancesA)
+	s.Require().Equal(2, len(balancesA))
 }
 
 func queryBalances(endpoint, addr string) (sdk.Coins, error) {
