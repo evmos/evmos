@@ -332,7 +332,7 @@ build-docs-versioned:
 ###############################################################################
 
 test: test-unit
-test-all: test-race
+test-all: test-unit test-race
 PACKAGES_UNIT=$(shell go list ./...  | grep -v /tests/)
 TEST_PACKAGES=./...
 TEST_TARGETS := test-unit test-unit-cover test-race test-e2e
@@ -362,7 +362,6 @@ ifneq (,$(shell which tparse 2>/dev/null))
 else
 	go test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
 endif
-
 
 test-import:
 	@go test ./tests/importer -v --vet=off --run=TestImportBlocks --datadir tmp \
@@ -428,7 +427,6 @@ test-sim-benchmark-invariants
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
 .PHONY: benchmark
-
 
 ###############################################################################
 ###                                Linting                                  ###
