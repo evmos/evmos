@@ -43,8 +43,10 @@ const (
 	CoinBalanceA  = 2000000000000000000
 	StakeBalanceA = 1100000000000000000
 	StakeAmountA  = 1000000000000000000
+
+	// Currently only running one chain, so this is not used
 	// chainB
-	ChainBID      = "evmos_9001-1"
+	ChainBID      = "evmos_9000-1"
 	CoinBalanceB  = 5000000000000000000
 	StakeBalanceB = 4400000000000000000
 	StakeAmountB  = 4000000000000000000

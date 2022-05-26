@@ -14,25 +14,21 @@ func main() {
 		valConfig []*chain.ValidatorConfig
 		dataDir   string
 		chainId   string
-		config    string
 	)
 
 	flag.StringVar(&dataDir, "data-dir", "", "chain data directory")
 	flag.StringVar(&chainId, "chain-id", "", "chain ID")
-	flag.StringVar(&config, "config", "", "serialized config")
 
 	flag.Parse()
-
-	// err := json.Unmarshal([]byte(s), &valConfig)
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	valConfig = make([]*chain.ValidatorConfig, 2)
 	valConfig[0] = &chain.ValidatorConfig{Pruning: "default", PruningKeepRecent: "0", PruningInterval: "0"}
 	valConfig[1] = &chain.ValidatorConfig{Pruning: "default", PruningKeepRecent: "0", PruningInterval: "0"}
+
+	// To test locally
 	// chainId = "evmos_9001-1"
 	// dataDir = "/home/rama/chain"
+
 	if len(dataDir) == 0 {
 		panic("data-dir is required")
 	}
