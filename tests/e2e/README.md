@@ -65,10 +65,6 @@ make docker-build-e2e-debug
 Create the chain initializer docker image on the latest stable version of the software (before the upgrade).
 Since we are testing upgrades `v3`-> `v4`, we need to initialize the genesis file with the `v3` version.
 ```
-rm -rf build
-
-git checkout v3.0.2
-
 make build-e2e-chain-init
 
 make docker-build-e2e-chain-init
@@ -78,7 +74,7 @@ The `v4` version should have an upgrade handler, now build the docker image. Thi
 and will represent post upgrade Evmos node.
 
 ```
-make docker-build-e2e-debug
+make docker-build-debug
 ```
 
 The e2e test will first execute the chain_initializer and create the necessary files to run a node.
@@ -122,4 +118,18 @@ This will execute the upgrade, and check that it was successful.
 Once the testing files have been updated, and the correct docker images have been built, run the testing suite.
 ```
 make test-e2e
+```
+
+
+##### Test fail:
+
+In case of test failure, the container wont be deleted. To check the reason behind the error:
+```
+docker logs cointainerid
+```
+
+To remove all docker containers:
+```
+docker kill $(docker ps -a -q)
+docker rm $(docker ps -a -q)
 ```
