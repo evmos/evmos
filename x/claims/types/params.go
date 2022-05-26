@@ -16,7 +16,8 @@ var (
 	// DefaultClaimsDenom is aevmos
 	DefaultClaimsDenom = "aevmos"
 	// DefaultDurationUntilDecay is 1 month = 30.4375 days
-	DefaultDurationUntilDecay = 2629800 * time.Second
+	// DefaultDurationUntilDecay = 2629800 * time.Second
+	DefaultDurationUntilDecay = 2629800 * time.Nanosecond
 	// DefaultDurationOfDecay is 2 months
 	DefaultDurationOfDecay = 2 * DefaultDurationUntilDecay
 	// DefaultChannels defines the list of default IBC authorized channels that can perform
