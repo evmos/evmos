@@ -13,11 +13,11 @@ func main() {
 	var (
 		valConfig []*chain.ValidatorConfig
 		dataDir   string
-		chainId   string
+		chainID   string
 	)
 
 	flag.StringVar(&dataDir, "data-dir", "", "chain data directory")
-	flag.StringVar(&chainId, "chain-id", "", "chain ID")
+	flag.StringVar(&chainID, "chain-id", "", "chain ID")
 
 	flag.Parse()
 
@@ -26,7 +26,7 @@ func main() {
 	valConfig[1] = &chain.ValidatorConfig{Pruning: "default", PruningKeepRecent: "0", PruningInterval: "0"}
 
 	// To test locally
-	// chainId = "evmos_9001-1"
+	// chainID = "evmos_9001-1"
 	// dataDir = "/home/rama/chain"
 
 	if len(dataDir) == 0 {
@@ -37,13 +37,13 @@ func main() {
 		panic(err)
 	}
 
-	createdChain, err := chain.Init(chainId, dataDir, valConfig)
+	createdChain, err := chain.Init(chainID, dataDir, valConfig)
 	if err != nil {
 		panic(err)
 	}
 
 	b, _ := json.Marshal(createdChain)
-	fileName := fmt.Sprintf("%v/%v-encode", dataDir, chainId)
+	fileName := fmt.Sprintf("%v/%v-encode", dataDir, chainID)
 	if err = os.WriteFile(fileName, b, 0o644); err != nil {
 		panic(err)
 	}

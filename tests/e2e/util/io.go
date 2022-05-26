@@ -45,7 +45,7 @@ func CopyFile(src, dst string) (int64, error) {
 }
 
 func WriteFile(path string, body []byte) error {
-	_, err := os.Create(path)
+	_, err := os.Create(filepath.Clean(path))
 	if err != nil {
 		return err
 	}
