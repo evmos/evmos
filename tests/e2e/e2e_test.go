@@ -14,6 +14,7 @@ import (
 
 func (s *IntegrationTestSuite) TestUpgrade() {
 	s.initUpgrade()
+	// TODO: Migrate genesis file to new version
 	s.upgrade()
 	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chains[0].ChainMeta.ID][0].GetHostPort("1317/tcp"))
 	balancesA, err := queryBalances(chainAAPIEndpoint, s.chains[0].Validators[0].PublicAddress)
