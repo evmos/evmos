@@ -90,8 +90,8 @@ func DefaultParams() Params {
 		EnableClaims:       true,
 		ClaimsDenom:        DefaultClaimsDenom,
 		AirdropStartTime:   time.Time{},
-		DurationUntilDecay: time.Duration(DefaultDurationUntilDecay.Nanoseconds()),
-		DurationOfDecay:    time.Duration(DefaultDurationOfDecay.Nanoseconds()),
+		DurationUntilDecay: DefaultDurationUntilDecay,
+		DurationOfDecay:    DefaultDurationOfDecay,
 		AuthorizedChannels: DefaultAuthorizedChannels,
 		EVMChannels:        DefaultEVMChannels,
 	}
