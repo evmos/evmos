@@ -26,6 +26,31 @@ message LendingMarketProposal {
   LendingMarketMetadata metadata = 3;
 }
 
+//treasury proposal type,
+message TreasuryProposal {
+  option (gogoproto.equal) = false;
+  option (cosmos_proto.implements_interface) =
+    "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1.Content";
+
+  string title = 1;
+
+  string description = 2;
+
+  TreasuryProposalMetadata  metadata = 3;
+}
+
+message TreasuryProposalMetadata {
+  option (gogoproto.equal) = false;
+  
+  uint64 PropID = 1; //proposalID, for querying proposals in EVM side, determined by order in gov propsal queue
+
+  string recipient = 2; //bytestring representing account addresses 
+
+  uint64 amount = 3;
+
+  string denom = 4; //canto or note
+}
+
 
 message LendingMarketMetadata {
   repeated string Account = 1;
@@ -38,3 +63,6 @@ message LendingMarketMetadata {
 
   repeated string signatures = 5;
 }
+
+
+

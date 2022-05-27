@@ -23,8 +23,8 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tharsis/ethermint v0.14.0
 	go.opencensus.io v0.23.0
-	google.golang.org/genproto v0.0.0-20220523171625-347a074981d8
-	google.golang.org/grpc v1.46.0
+	google.golang.org/genproto v0.0.0-20220527130721-00d5c0f3be58
+	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.28.0
 )
 
@@ -41,7 +41,7 @@ require (
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
-	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
 	github.com/prometheus/tsdb v0.10.0 // indirect
@@ -52,7 +52,7 @@ require (
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/rs/zerolog v1.26.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
-	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 // indirect
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	nhooyr.io/websocket v1.8.7 // indirect
 )

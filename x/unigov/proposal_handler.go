@@ -15,6 +15,8 @@ func NewUniGovProposalHandler(k *keeper.Keeper) govtypes.Handler {
 		case *types.LendingMarketProposal:
 			return handleLendingMarketProposal(ctx, k, c)
 
+		case *types.TreasuryProposal:
+			return handleTreasuryProposal(ctx, k, c)
 		default:
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
@@ -22,7 +24,11 @@ func NewUniGovProposalHandler(k *keeper.Keeper) govtypes.Handler {
 }
 
 func handleLendingMarketProposal(ctx sdk.Context, k *keeper.Keeper, p *types.LendingMarketProposal) error {
-	_, err := k.AppendLendingMarketProposal(ctx, p) //Defined analogous to (erc20)k.RegisterCoin
+	err := p.ValidateBasic()
+	if err != nil {
+		return err
+	}
+	_, err = k.AppendLendingMarketProposal(ctx, p) //Defined analogous to (erc20)k.RegisterCoin
 	if err != nil {
 		return err
 	}
@@ -35,4 +41,18 @@ func handleLendingMarketProposal(ctx sdk.Context, k *keeper.Keeper, p *types.Len
 	// )
 
 	return nil
+}
+
+//governance proposal handler
+func handleTreasuryProposal(ctx sdk.Context, k *keeper.Keeper, tp *types.TreasuryProposal) error {
+	err := tp.ValidateBasic()
+	if err != nil {
+		return err 
+	}
+	_, err = k.AppendLendingMarketProposal(ctx, tp.FromTreasuryToLendingMarket())
+	if err != nil {
+		return err
+	}
+
+	return nil 
 }

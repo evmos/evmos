@@ -13,12 +13,11 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
+
+//method for appending UniGov proposal types to the Unigov Map contract
 func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingMarketProposal) (*types.LendingMarketProposal, error) {
-	err := lm.ValidateBasic()
-	if err != nil {
-		return &types.LendingMarketProposal{}, err
-	}
 	m := lm.GetMetadata()
+	var err error
 	m.PropId, err = k.govKeeper.GetProposalID(ctx)
 
 	if err != nil {
@@ -29,7 +28,7 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 	if nonce == 0 {
 
 		if err != nil {
-			return nil, sdkerrors.Wrap(err, "error obtian")
+			return nil, sdkerrors.Wrap(err, "error obtaining account nonce")
 		}
 
 		*k.mapContractAddr, err = k.DeployMapContract(ctx, lm)

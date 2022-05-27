@@ -166,6 +166,8 @@
     - [LendingMarketMetadata](#canto.unigov.v1.LendingMarketMetadata)
     - [LendingMarketProposal](#canto.unigov.v1.LendingMarketProposal)
     - [Params](#canto.unigov.v1.Params)
+    - [TreasuryProposal](#canto.unigov.v1.TreasuryProposal)
+    - [TreasuryProposalMetadata](#canto.unigov.v1.TreasuryProposalMetadata)
   
 - [canto/unigov/v1/genesis.proto](#canto/unigov/v1/genesis.proto)
     - [GenesisState](#canto.unigov.v1.GenesisState)
@@ -2198,6 +2200,41 @@ Define this object so that the unigov.pb.go file is generate, implements govtype
 
 ### Params
 Params defines the parameters for the module.
+
+
+
+
+
+
+<a name="canto.unigov.v1.TreasuryProposal"></a>
+
+### TreasuryProposal
+treasury proposal type,
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `title` | [string](#string) |  |  |
+| `description` | [string](#string) |  |  |
+| `metadata` | [TreasuryProposalMetadata](#canto.unigov.v1.TreasuryProposalMetadata) |  |  |
+
+
+
+
+
+
+<a name="canto.unigov.v1.TreasuryProposalMetadata"></a>
+
+### TreasuryProposalMetadata
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `PropID` | [uint64](#uint64) |  | proposalID, for querying proposals in EVM side, determined by order in gov propsal queue |
+| `recipient` | [string](#string) |  | bytestring representing account addresses |
+| `amount` | [uint64](#uint64) |  |  |
+| `denom` | [string](#string) |  | canto or note |
 
 
 

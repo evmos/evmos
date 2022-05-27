@@ -187,7 +187,7 @@ var (
 			// Canto proposal types
 			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
 			erc20client.ToggleTokenRelayProposalHandler, erc20client.UpdateTokenPairERC20ProposalHandler,
-			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler, unigovclient.LendingMarketProposalHandler, // <----- uni gov proposal handler
+			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler, unigovclient.LendingMarketProposalHandler, unigovclient.TreasuryProposalHandler,// <----- uni gov proposal handler
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},

@@ -18,6 +18,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
 		&LendingMarketProposal{},
+		&TreasuryProposal{},
 	)
 	
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

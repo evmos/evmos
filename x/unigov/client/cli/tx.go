@@ -87,7 +87,7 @@ Where metadata.json contains (example):
 				return err
 			}
 
-			propMetaData, err := ParseMetadata(clientCtx.Codec, args[0])
+			propMetaData, err := ParseLendingMarketMetadata(clientCtx.Codec, args[0])
 			if err != nil {
 				return sdkerrors.Wrap(err, "Failure to parse JSON object")
 			}
@@ -95,6 +95,92 @@ Where metadata.json contains (example):
 			from := clientCtx.GetFromAddress()
 
 			content := types.NewLendingMarketProposal(title, description, &propMetaData)
+
+			
+			
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
+	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
+		panic(err)
+	}
+	return cmd
+}
+
+
+//Register TreasuryProposal submit cmd
+func NewTreasuryProposalCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "treasury-proposal [metadata]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Submit a proposal to the Canto Treasury",
+		Long: `Submit a proposal for the Canto Treasury along with an initial deposit.
+Upon passing, the
+The proposal details must be supplied via a JSON file.`,
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal treasury-proposal <path/to/metadata.json> --from=<key_or_address> --title=<title> --description=<description>
+
+Where metadata.json contains (example):
+
+{
+	"recipient": "0xfffffff...",
+        "PropID":  1,
+	"amount": 1,
+	"denom": "canto/note"
+}`, version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			title, err := cmd.Flags().GetString(cli.FlagTitle)
+			if err != nil {
+				return err
+			}
+
+			description, err := cmd.Flags().GetString(cli.FlagDescription)
+			if err != nil {
+				return err
+			}
+
+			depositStr, err := cmd.Flags().GetString(cli.FlagDeposit)
+			if err != nil {
+				return err
+			}
+
+			deposit, err := sdk.ParseCoinsNormalized(depositStr)
+			if err != nil {
+				return err
+			}
+
+			propMetaData, err := ParseTreasuryMetadata(clientCtx.Codec, args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "Failure to parse JSON object")
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			content := types.NewTreasuryProposal(title, description, &propMetaData)
 
 			
 			
