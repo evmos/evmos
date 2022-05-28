@@ -1,6 +1,6 @@
 {
     "Account"       : ["82826C958b707ddE322A422f8c61E583556E225D"],
-    "PropId"        : 2,
+    "PropId"        : 1,
     "values"        : [2,1],
     "calldatas"     : ["a", "b"],
     "signatures"    : ["a", "a"]

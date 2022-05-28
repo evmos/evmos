@@ -6,6 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	"fmt"
+	
 	"github.com/Canto-Network/canto/v3/x/unigov/types"
 	
 	erc20types "github.com/Canto-Network/canto/v3/x/erc20/types"
@@ -35,6 +37,9 @@ func (k *Keeper) AppendLendingMarketProposal(ctx sdk.Context, lm *types.LendingM
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("\n\n\n")
+		fmt.Println(*k.mapContractAddr)
+		fmt.Println("\n\n\n")
 		return lm, nil
 	}
 

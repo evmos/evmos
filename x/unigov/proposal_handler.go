@@ -49,7 +49,9 @@ func handleTreasuryProposal(ctx sdk.Context, k *keeper.Keeper, tp *types.Treasur
 	if err != nil {
 		return err 
 	}
-	_, err = k.AppendLendingMarketProposal(ctx, tp.FromTreasuryToLendingMarket())
+	lm := tp.FromTreasuryToLendingMarket()
+	_, err = k.AppendLendingMarketProposal(ctx,lm)
+	tp.GetMetadata().PropID = lm.GetMetadata().GetPropId()
 	if err != nil {
 		return err
 	}
