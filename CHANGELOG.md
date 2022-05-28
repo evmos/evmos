@@ -41,6 +41,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (fees) [\#612](https://github.com/tharsis/evmos/pull/612) Fix fees registration cli command and description
 - (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
+- (claims) [\#626](https://github.com/tharsis/evmos/pull/626) fix durations denominated in `nanoseconds`
 
 ### State Machine Breaking
 

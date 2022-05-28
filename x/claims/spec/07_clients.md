@@ -58,5 +58,5 @@ evmosd query claims params [flags]
 | `gRPC` | `evmos.claims.v1.Query/Params`             | Gets claims params                               |
 | `GET`  | `/evmos/claims/v1/total_unclaimed`         | Gets the total unclaimed tokens from the airdrop |
 | `GET`  | `/evmos/claims/v1/claims_records`          | Gets all registered claims records               |
-| `GET`  | `/evmos/claims/v1/claims_record/{address}` | Gets a claims record for a given user            |
+| `GET`  | `/evmos/claims/v1/claims_records/{address}` | Gets a claims record for a given user            |
 | `GET`  | `/evmos/claims/v1/params`                  | Gets claims params                               |
