@@ -154,6 +154,8 @@ type (
 		Config Config
 	}
 
+	JsonrpcDoneBool chan struct{}
+
 	// Validator defines an in-process Tendermint validator node. Through this object,
 	// a client can make RPC and API calls and interact with any client command
 	// or handler.
@@ -178,7 +180,7 @@ type (
 		grpc        *grpc.Server
 		grpcWeb     *http.Server
 		jsonrpc     *http.Server
-		jsonrpcDone chan struct{}
+		jsonrpcDone JsonrpcDoneBool
 	}
 )
 
