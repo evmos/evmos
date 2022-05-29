@@ -632,7 +632,7 @@ func (n *Network) Cleanup() {
 
 		if v.jsonrpc != nil {
 			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancelFn()
+			// defer cancelFn()
 
 			if err := v.jsonrpc.Shutdown(shutdownCtx); err != nil {
 				v.tmNode.Logger.Error("HTTP server shutdown produced a warning", "error", err.Error())
@@ -643,6 +643,7 @@ func (n *Network) Cleanup() {
 				case <-v.jsonrpcDone:
 				}
 			}
+			cancelFn()
 		}
 	}
 
