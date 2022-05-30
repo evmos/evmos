@@ -48,6 +48,8 @@ linters:
     # - whitespace
     # - wsl
 
+default-severity: warning
+
 issues:
   exclude-rules:
     - path: _test\.go
