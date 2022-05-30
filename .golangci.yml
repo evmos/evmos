@@ -4,6 +4,10 @@ run:
   # timeout: 5m
 severity:
   default-severity: info
+  rules:
+    - linters:
+        - dupl
+      severity: info
 
 linters:
   enable:
