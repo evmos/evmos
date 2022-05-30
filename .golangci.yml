@@ -93,6 +93,7 @@ linters-settings:
     skip-tests: true
   revive:
     enable-all-rules: false
+    severity: warning
     rules:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
     - name: add-constant
@@ -113,9 +114,9 @@ linters-settings:
       severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#banned-characters
-    - name: banned-characters
-      severity: warning
-      disabled: true
+    # - name: banned-characters
+    #   severity: warning
+    #   disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
     - name: bare-return
       severity: warning
@@ -287,9 +288,9 @@ linters-settings:
       severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#optimize-operands-order
-    - name: optimize-operands-order
-      severity: warning
-      disabled: false
+    # - name: optimize-operands-order
+    #   severity: warning
+    #   disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#package-comments
     - name: package-comments
       severity: warning
@@ -341,10 +342,10 @@ linters-settings:
       severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#time-equal
-    - name: time-equal
-      severity: warning
-      disabled: false
-    # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#time-naming
+    # - name: time-equal
+    #   severity: warning
+    #   disabled: false
+    # # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#time-naming
     - name: time-naming
       severity: warning
       disabled: false
