@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"github.com/armon/go-metrics"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -46,6 +48,16 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 
 	h.addGasToIncentive(ctx, *contract, receipt.GasUsed)
 	h.addGasToParticipant(ctx, *contract, participant, receipt.GasUsed)
+
+	defer func() {
+		if receipt.GasUsed != 0 {
+			telemetry.SetGaugeWithLabels(
+				[]string{"tx", "msg", "ethereum_tx", "incentive"},
+				float32(int64(receipt.GasUsed)),
+				[]metrics.Label{telemetry.NewLabel("incentive", contract.String())},
+			)
+		}
+	}()
 
 	return nil
 }

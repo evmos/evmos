@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/armon/go-metrics"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
 	"github.com/tharsis/evmos/v4/x/inflation/types"
@@ -79,6 +81,16 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		)
 		k.SetEpochMintProvision(ctx, newProvision)
 	}
+
+	defer func() {
+		if mintedCoin.Amount != sdk.ZeroInt() {
+			telemetry.SetGaugeWithLabels(
+				[]string{"inflation", "allocate"},
+				float32(mintedCoin.Amount.Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
+			)
+		}
+	}()
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
