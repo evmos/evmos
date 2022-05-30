@@ -92,7 +92,7 @@ linters-settings:
     # Should ignore tests.
     skip-tests: true
   revive:
-    enable-all-rules: false
+    enable-all-rules: true
     rules:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
     - name: add-constant
