@@ -3,11 +3,8 @@ run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   # timeout: 5m
 severity:
-  default-severity: info
-  rules:
-    - linters:
-        - dupl
-      severity: info
+  default-severity: warning
+  severity: warning
 
 linters:
   enable:
