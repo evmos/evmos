@@ -184,14 +184,19 @@ module.exports = {
           title: 'For Protocol Devs',
           children: [
             {
+              title: 'Modules',
+              directory: true,
+              path: '/modules'
+            },
+            {
               title: 'Module Accounts',
               directory: false,
               path: '/protocol/moduleaccounts'
             },
             {
-              title: 'Module Specifications',
-              directory: true,
-              path: '/modules'
+              title: 'Telemetry',
+              directory: false,
+              path: '/protocol/telemetry'
             },
             {
               title: 'Evmos Go API',
@@ -288,7 +293,7 @@ module.exports = {
       forum: {
         title: 'Commonwealth Forum',
         text: 'Join the Evmos Commonwealth forum',
-        url: 'https://commonwealth.im/evmos', 
+        url: 'https://commonwealth.im/evmos',
         bg: 'linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)',
       },
       github: {
