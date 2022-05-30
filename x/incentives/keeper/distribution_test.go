@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			)
 			suite.Commit()
 
-			err = suite.app.IncentivesKeeper.DistributeIncentives(suite.ctx)
+			err = suite.app.IncentivesKeeper.DistributeRewards(suite.ctx)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
