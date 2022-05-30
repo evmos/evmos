@@ -45,8 +45,8 @@ path_classifiers:
   # The default behavior is to tag template files as `template`. Results are hidden 
   # for template files. You can tag further files as being template files by adding 
   # them to the `template` section.
-  template:
-    - exclude: path/to/template/code/**/*.c
+  #template:
+  #  - exclude: path/to/template/code/**/*.c
   # Define your own category, for example: 'some_custom_category'.
   some_custom_category:
     # Classify all files in the top-level directory tools/ (or the top-level file 
@@ -68,10 +68,10 @@ queries:
         - "correctness"           
       severity: "error"
   # Specifically hide the results of two queries.
-  - exclude: cpp/use-of-goto
-  - exclude: java/equals-on-unrelated-types
+  #- exclude: cpp/use-of-goto
+  #- exclude: java/equals-on-unrelated-types
   # Refine by including the `java/command-line-injection` query.
-  - include: java/command-line-injection
+  #- include: java/command-line-injection
 
 #########################################################################################
 # Define changes to the default code extraction process.                                #
