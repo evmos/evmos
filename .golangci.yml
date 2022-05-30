@@ -2,6 +2,8 @@ run:
   tests: false
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   # timeout: 5m
+severity:
+  default-severity: info
 
 linters:
   enable:
@@ -48,8 +50,6 @@ linters:
     # - whitespace
     # - wsl
 
-default-severity: warning
-
 issues:
   exclude-rules:
     - path: _test\.go
@@ -94,6 +94,7 @@ linters-settings:
     # Should ignore tests.
     skip-tests: true
   revive:
+    severity: info
     enable-all-rules: true
     rules:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
