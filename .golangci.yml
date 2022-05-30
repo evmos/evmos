@@ -2,9 +2,6 @@ run:
   tests: false
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   # timeout: 5m
-severity:
-  default-severity: warning
-  severity: warning
 
 linters:
   enable:
@@ -406,3 +403,8 @@ linters-settings:
     - name: waitgroup-by-value
       severity: warning
       disabled: false
+
+rules:
+  - linters:
+      - dupl
+    severity: info
