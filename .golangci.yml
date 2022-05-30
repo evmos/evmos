@@ -92,7 +92,9 @@ linters-settings:
     # Should ignore tests.
     skip-tests: true
   revive:
-    severity: info
+    ignore-generated-header: true
+    confidence: 0.5
+    severity: warning
     enable-all-rules: true
     rules:
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
@@ -135,7 +137,7 @@ linters-settings:
       disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#cognitive-complexity
     - name: cognitive-complexity
-      severity: info
+      severity: warning
       disabled: false
       arguments: [7]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#confusing-naming
@@ -160,7 +162,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#cyclomatic
     - name: cyclomatic
-      severity: info
+      severity: warning
       disabled: false
       arguments: [15]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#deep-exit
@@ -277,7 +279,7 @@ linters-settings:
       arguments: [3]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#modifies-parameter
     - name: modifies-parameter
-      severity: info
+      severity: warning
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#modifies-value-receiver
     - name: modifies-value-receiver
@@ -403,3 +405,12 @@ linters-settings:
     - name: waitgroup-by-value
       severity: warning
       disabled: false
+
+severity:
+  default-severity: warning
+  case-sensitive: false
+
+  rules:
+  - linters:
+    - revive
+    severity: info
