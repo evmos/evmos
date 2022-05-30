@@ -63,7 +63,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 		for _, r := range rewards {
 			if r.Amount.IsInt64() {
 				telemetry.SetGaugeWithLabels(
-					[]string{"incentives", "distribute", "rewards"},
+					[]string{types.ModuleName, "distribute", "rewards"},
 					float32(r.Amount.Int64()),
 					[]metrics.Label{telemetry.NewLabel("denom", r.Denom)},
 				)

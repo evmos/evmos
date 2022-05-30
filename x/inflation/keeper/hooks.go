@@ -85,7 +85,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	defer func() {
 		if mintedCoin.Amount.IsInt64() {
 			telemetry.SetGaugeWithLabels(
-				[]string{"inflation", "allocate"},
+				[]string{types.ModuleName, "allocate"},
 				float32(mintedCoin.Amount.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)

@@ -3,6 +3,8 @@ package keeper
 import (
 	"strings"
 
+	"github.com/armon/go-metrics"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -184,6 +186,18 @@ func (k Keeper) OnRecvPacket(
 		"dest-port", packet.DestinationPort,
 		"dest-channel", packet.DestinationChannel,
 	)
+
+	defer func() {
+		for _, b := range balances {
+			if b.Amount.IsInt64() {
+				telemetry.SetGaugeWithLabels(
+					[]string{types.ModuleName, "on", "receive"},
+					float32(b.Amount.Int64()),
+					[]metrics.Label{telemetry.NewLabel("denom", b.Denom)},
+				)
+			}
+		}
+	}()
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
