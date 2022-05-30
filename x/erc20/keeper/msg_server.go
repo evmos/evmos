@@ -4,6 +4,8 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/armon/go-metrics"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -146,6 +148,16 @@ func (k Keeper) convertCoinNativeCoin(
 		)
 	}
 
+	defer func() {
+		if msg.Coin.Amount.IsInt64() {
+			telemetry.SetGaugeWithLabels(
+				[]string{"tx", "msg", "convert", "coin"},
+				float32(msg.Coin.Amount.Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", msg.Coin.Denom)},
+			)
+		}
+	}()
+
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
@@ -223,6 +235,17 @@ func (k Keeper) convertERC20NativeCoin(
 			expToken, balanceTokenAfter,
 		)
 	}
+
+	defer func() {
+		// TODO will IsInt64 work on sdk.Int?
+		if msg.Amount.IsInt64() {
+			telemetry.SetGaugeWithLabels(
+				[]string{"tx", "msg", "convert", "erc20"},
+				float32(msg.Amount.Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", msg.ContractAddress)},
+			)
+		}
+	}()
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -330,6 +353,16 @@ func (k Keeper) convertERC20NativeToken(
 		return nil, err
 	}
 
+	defer func() {
+		if msg.Amount.IsInt64() {
+			telemetry.SetGaugeWithLabels(
+				[]string{"tx", "msg", "convert", "erc20"},
+				float32(msg.Amount.Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", msg.ContractAddress)},
+			)
+		}
+	}()
+
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
@@ -417,6 +450,16 @@ func (k Keeper) convertCoinNativeERC20(
 	if err := k.monitorApprovalEvent(res); err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if msg.Coin.Amount.IsInt64() {
+			telemetry.SetGaugeWithLabels(
+				[]string{"tx", "msg", "convert", "coin"},
+				float32(msg.Coin.Amount.Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", msg.Coin.Denom)},
+			)
+		}
+	}()
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
