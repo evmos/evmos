@@ -135,7 +135,7 @@ linters-settings:
       disabled: true
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#cognitive-complexity
     - name: cognitive-complexity
-      severity: warning
+      severity: info
       disabled: false
       arguments: [7]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#confusing-naming
@@ -160,7 +160,7 @@ linters-settings:
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#cyclomatic
     - name: cyclomatic
-      severity: warning
+      severity: info
       disabled: false
       arguments: [15]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#deep-exit
@@ -277,7 +277,7 @@ linters-settings:
       arguments: [3]
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#modifies-parameter
     - name: modifies-parameter
-      severity: warning
+      severity: info
       disabled: false
     # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#modifies-value-receiver
     - name: modifies-value-receiver
@@ -403,8 +403,3 @@ linters-settings:
     - name: waitgroup-by-value
       severity: warning
       disabled: false
-
-rules:
-  - linters:
-      - dupl
-    severity: info
