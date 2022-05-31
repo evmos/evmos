@@ -23,8 +23,8 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	github.com/tharsis/ethermint v0.15.0
 	go.opencensus.io v0.23.0
-	google.golang.org/genproto v0.0.0-20220429170224-98d788798c3e
-	google.golang.org/grpc v1.45.0
+	google.golang.org/genproto v0.0.0-20220531134929-86cf59382f1b
+	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.28.0
 )
 
@@ -139,7 +139,7 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/zondax/hid v0.9.0 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
-	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f // indirect
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
@@ -149,7 +149,7 @@ require (
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20200619000410-60c24ae608a6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 )
 
