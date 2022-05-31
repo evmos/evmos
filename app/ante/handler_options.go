@@ -27,6 +27,7 @@ type HandlerOptions struct {
 	StakingKeeper   vestingtypes.StakingKeeper
 	EvmKeeper       ethante.EVMKeeper
 	FeegrantKeeper  ante.FeegrantKeeper
+	FeesKeeper      FeesKeeper
 	SignModeHandler authsigning.SignModeHandler
 	SigGasConsumer  func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 	Cdc             codec.BinaryCodec
@@ -53,6 +54,9 @@ func (options HandlerOptions) Validate() error {
 	if options.EvmKeeper == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrLogic, "evm keeper is required for AnteHandler")
 	}
+	if options.FeesKeeper == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrLogic, "fees keeper is required for AnteHandler")
+	}
 	return nil
 }
 
@@ -61,6 +65,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
 		ethante.NewEthMempoolFeeDecorator(options.EvmKeeper),   // Check eth effective gas price against minimal-gas-prices
+		NewEthMinGasPriceDecorator(options.FeesKeeper, options.EvmKeeper),
 		ethante.NewEthValidateBasicDecorator(options.EvmKeeper),
 		ethante.NewEthSigVerificationDecorator(options.EvmKeeper),
 		ethante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
@@ -78,6 +83,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSetUpContextDecorator(),
 		ante.NewRejectExtensionOptionsDecorator(),
 		ante.NewMempoolFeeDecorator(),
+		NewMinGasPriceDecorator(options.FeesKeeper, options.EvmKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
@@ -101,6 +107,7 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
 		ante.NewMempoolFeeDecorator(),
+		NewMinGasPriceDecorator(options.FeesKeeper, options.EvmKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),

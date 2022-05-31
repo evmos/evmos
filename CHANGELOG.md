@@ -37,8 +37,30 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Bug Fixes
+
+- (fees) [\#612](https://github.com/tharsis/evmos/pull/612) Fix fees registration cli command and description
+- (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
+- (claims) [\#626](https://github.com/tharsis/evmos/pull/626) fix durations denominated in `nanoseconds`
+- (epochs) [\#629](https://github.com/tharsis/evmos/pull/629) fix epochs durations denominated in `nanoseconds`
+- (ci) [\#596](https://github.com/tharsis/evmos/pull/596) Fix invalid JSON-RPC parameter in Ignite's CLI `config.yml`
+
+### State Machine Breaking
+
+- (fees) [\#610](https://github.com/tharsis/evmos/pull/610) Enforce a minimum gas price for Cosmos and EVM transactions through the `MinGasPrice` parameter.
+- (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
+- (erc20) [\#602](https://github.com/tharsis/evmos/pull/602) Modified `RegisterERC20` proposals. Fix erc20 name sanitization to allow spaces on token name.
+
+### API Breaking
+
+- (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
+- (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Finish module completeness audit.
+
+## [v4.0.1] - 2022-05-10
+
+### Bug Fixes
+
 (erc20) [\#588](https://github.com/tharsis/evmos/pull/588) Revert PR [\#556](https://github.com/tharsis/evmos/pull/556).
-(ci) [\#596](https://github.com/tharsis/evmos/pull/596) Fix invalid JSON-RPC parameter in Ignite's CLI `config.yml`
 (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Completeness audit
 
 ## [v4.0.0] - 2022-05-09

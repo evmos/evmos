@@ -15,10 +15,12 @@ var (
 	// Cost for executing `crypto.CreateAddress`
 	// must be at least 36 gas for the contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate       = uint64(50)
+	DefaultMinGasPrice                    = sdk.ZeroDec()
 	ParamStoreKeyEnableFees               = []byte("EnableFees")
 	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
 	ParamStoreKeyValidatorShares          = []byte("ValidatorShares")
 	ParamStoreKeyAddrDerivationCostCreate = []byte("AddrDerivationCostCreate")
+	ParamStoreKeyMinGasPrice              = []byte("MinGasPrice")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -32,12 +34,14 @@ func NewParams(
 	developerShares,
 	validatorShares sdk.Dec,
 	addrDerivationCostCreate uint64,
+	minGasPrice sdk.Dec,
 ) Params {
 	return Params{
 		EnableFees:               enableFees,
 		DeveloperShares:          developerShares,
 		ValidatorShares:          validatorShares,
 		AddrDerivationCostCreate: addrDerivationCostCreate,
+		MinGasPrice:              minGasPrice,
 	}
 }
 
@@ -47,6 +51,7 @@ func DefaultParams() Params {
 		DeveloperShares:          DefaultDeveloperShares,
 		ValidatorShares:          DefaultValidatorShares,
 		AddrDerivationCostCreate: DefaultAddrDerivationCostCreate,
+		MinGasPrice:              DefaultMinGasPrice,
 	}
 }
 
@@ -57,6 +62,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperShares, &p.DeveloperShares, validateShares),
 		paramtypes.NewParamSetPair(ParamStoreKeyValidatorShares, &p.ValidatorShares, validateShares),
 		paramtypes.NewParamSetPair(ParamStoreKeyAddrDerivationCostCreate, &p.AddrDerivationCostCreate, validateUint64),
+		paramtypes.NewParamSetPair(ParamStoreKeyMinGasPrice, &p.MinGasPrice, validateMinGasPrice),
 	}
 }
 
@@ -100,6 +106,24 @@ func validateShares(i interface{}) error {
 	return nil
 }
 
+func validateMinGasPrice(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("invalid parameter: nil")
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("value cannot be negative: %s", i)
+	}
+
+	return nil
+}
+
 func (p Params) Validate() error {
 	if err := validateBool(p.EnableFees); err != nil {
 		return err
@@ -116,6 +140,5 @@ func (p Params) Validate() error {
 	if err := validateUint64(p.AddrDerivationCostCreate); err != nil {
 		return err
 	}
-
-	return nil
+	return validateMinGasPrice(p.MinGasPrice)
 }

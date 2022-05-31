@@ -30,6 +30,12 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // parameter to configure the cost of address derivation
+  // addr_derivation_cost_create defines the cost of address derivation for
+  // verifying the contract deployer at fee registration
   uint64 addr_derivation_cost_create = 4;
+  // min_gas_price defines the minimum gas price value for cosmos and eth transactions
+  string min_gas_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

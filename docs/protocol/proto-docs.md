@@ -72,7 +72,6 @@
   
 - [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
     - [DevFeeInfo](#evmos.fees.v1.DevFeeInfo)
-    - [DevFeeInfosPerDeployer](#evmos.fees.v1.DevFeeInfosPerDeployer)
   
 - [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
     - [GenesisState](#evmos.fees.v1.GenesisState)
@@ -764,17 +763,6 @@ for the owner of a given smart contract
 | `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
 | `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
 
-<a name="evmos.fees.v1.DevFeeInfosPerDeployer"></a>
-
-### DevFeeInfosPerDeployer
-
-DevFeeInfosPerDeployer defines an instance that keeps track of all
-contracts registered by a deployer
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `contract_addresses` | [string](#string) | repeated |  |
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -810,7 +798,8 @@ Params defines the fees module params
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
 | `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
-| `addr_derivation_cost_create` | [uint64](#uint64) |  | parameter to configure the cost of address derivation |
+| `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
+| `min_gas_price` | [string](#string) |  | min_gas_price defines the minimum gas price value for cosmos and eth transactions |
 
  <!-- end messages -->
 
@@ -1329,7 +1318,7 @@ f(x)            = (a* (1 - r) ^ x + c)  *(1 + max_variance - bondedRatio*
 InflationDistribution defines the distribution in which inflation is
 allocated through minting on each epoch (staking, incentives, community). It
 excludes the team vesting distribution, as this is minted once at genesis.
-The initial InflationDistribution can be calculated from the Evmvos Token
+The initial InflationDistribution can be calculated from the Evmos Token
 Model like this:
 mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 0.5333333         = 40%           / (1 - 25%)

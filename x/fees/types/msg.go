@@ -46,15 +46,8 @@ func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
-	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
+	if err := ethermint.ValidateNonZeroAddress(msg.ContractAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
-	}
-
-	if ethermint.IsZeroAddress(msg.ContractAddress) {
-		return sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
-			msg.ContractAddress,
-		)
 	}
 
 	// WithdrawAddress can be omitted and it will default to DeployerAddress
@@ -66,6 +59,10 @@ func (msg MsgRegisterDevFeeInfo) ValidateBasic() error {
 
 	if len(msg.Nonces) < 1 {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - empty array")
+	}
+
+	if len(msg.Nonces) > 20 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - array length must be less than 20")
 	}
 
 	return nil
@@ -106,15 +103,8 @@ func (msg MsgCancelDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
-	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
+	if err := ethermint.ValidateNonZeroAddress(msg.ContractAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
-	}
-
-	if ethermint.IsZeroAddress(msg.ContractAddress) {
-		return sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
-			msg.ContractAddress,
-		)
 	}
 
 	return nil
@@ -159,15 +149,8 @@ func (msg MsgUpdateDevFeeInfo) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
-	if err := ethermint.ValidateAddress(msg.ContractAddress); err != nil {
+	if err := ethermint.ValidateNonZeroAddress(msg.ContractAddress); err != nil {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
-	}
-
-	if ethermint.IsZeroAddress(msg.ContractAddress) {
-		return sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidAddress, "address must not be empty %s",
-			msg.ContractAddress,
-		)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
