@@ -298,9 +298,51 @@ func (s *IntegrationTestSuite) chainStatus(containerId string) (int, []byte) {
 	index := strings.Index(outBuf.String(), "\"height\":")
 	qq := outBuf.String()[index+10 : index+12]
 	h, _ := strconv.Atoi(qq)
-	fmt.Println(outBuf.String())
 
 	errBufByte := errBuf.Bytes()
 	return h, errBufByte
+
+}
+
+func (s *IntegrationTestSuite) migrateGenesis(containerId string) []byte {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	exec, err := s.dkrPool.Client.CreateExec(docker.CreateExecOptions{
+		Context:      ctx,
+		AttachStdout: true,
+		AttachStderr: true,
+		Container:    containerId,
+		User:         "root",
+		Cmd: []string{
+			"/usr/bin/evmosd",
+			"--home",
+			"/evmos/.evmosd",
+			"migrate",
+			"v4",
+			"/evmos/.evmosd/config/genesis.json",
+			"--chain-id=evmos_9001-1",
+		},
+	})
+	s.Require().NoError(err)
+
+	var (
+		outBuf bytes.Buffer
+		errBuf bytes.Buffer
+	)
+
+	err = s.dkrPool.Client.StartExec(exec.ID, docker.StartExecOptions{
+		Context:      ctx,
+		Detach:       false,
+		OutputStream: &outBuf,
+		ErrorStream:  &errBuf,
+	})
+
+	s.Require().NoErrorf(
+		err,
+		"failed to query height; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+	)
+
+	return outBuf.Bytes()
 
 }

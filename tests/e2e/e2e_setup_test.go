@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
@@ -17,6 +18,7 @@ import (
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	"github.com/tharsis/evmos/v4/tests/e2e/chain"
+	"github.com/tharsis/evmos/v4/tests/e2e/util"
 )
 
 var (
@@ -177,6 +179,9 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 
 func (s *IntegrationTestSuite) configureChain(chainId string) {
 
+	uid := os.Getuid()
+	user := fmt.Sprintf("%d%s%d", uid, ":", uid)
+
 	s.T().Logf("starting e2e infrastructure for chain-id: %s", chainId)
 	tmpDir, err := ioutil.TempDir("", "evmos-e2e-testnet-")
 
@@ -193,7 +198,7 @@ func (s *IntegrationTestSuite) configureChain(chainId string) {
 				fmt.Sprintf("--data-dir=%s", tmpDir),
 				fmt.Sprintf("--chain-id=%s", chainId),
 			},
-			User: "root:root",
+			User: user,
 			Mounts: []string{
 				fmt.Sprintf("%s:%s", tmpDir, tmpDir),
 			},
@@ -258,11 +263,13 @@ func (s *IntegrationTestSuite) initUpgrade() {
 		s.T().Logf("reached upgrade height on %s validator container: %s", s.chains[0].ChainMeta.ID, s.valResources[s.chains[0].ChainMeta.ID][i].Container.ID)
 	}
 
+}
+
+func (s *IntegrationTestSuite) stopAllNodeContainers() {
 	// remove all containers so we can upgrade them to the new version
 	for i := range s.chains[0].Validators {
 		s.Require().NoError(s.dkrPool.RemoveContainerByName(s.valResources[s.chains[0].ChainMeta.ID][i].Container.Name))
 	}
-
 }
 
 func (s *IntegrationTestSuite) upgrade() {
@@ -298,10 +305,11 @@ func (s *IntegrationTestSuite) upgrade() {
 		s.Require().Eventually(
 			func() bool {
 				height, _ := s.chainStatus(s.valResources[chain.ChainMeta.ID][i].Container.ID)
-				if height <= 75 {
+				s.Require().Greater(height, 75)
+				if height <= 90 {
 					fmt.Printf("current block height is %v, waiting to hit blocks\n", height)
 				}
-				return height > 75
+				return height > 90
 			},
 			2*time.Minute,
 			5*time.Second,
@@ -309,4 +317,19 @@ func (s *IntegrationTestSuite) upgrade() {
 		s.T().Logf("upgrade successful on %s validator container: %s", chain.ChainMeta.ID, s.valResources[chain.ChainMeta.ID][i].Container.ID)
 	}
 
+}
+
+func (s *IntegrationTestSuite) replaceGenesis(newGenesis []byte) {
+	chain := s.chains[0]
+	if len(newGenesis) == 0 {
+		s.T().Logf("Do not perform genesis migration, since its not available on chain-id: %s...", chain.ChainMeta.ID)
+		return
+	}
+
+	s.T().Logf("replacing genesis files for chain-id: %s...", chain.ChainMeta.ID)
+	// write the updated genesis file to each validator
+	for _, val := range chain.Validators {
+		err := util.WriteFile(filepath.Join(val.ConfigDir, "config", "genesis.json"), newGenesis)
+		s.Require().NoError(err)
+	}
 }
