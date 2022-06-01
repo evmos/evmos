@@ -26,3 +26,4 @@ To understand how to use the metrics below, please refer to the [Cosmos SDK tele
 | `inflation_hook_allocate_incentives_total`     | Total amount of tokens allocated through inflation to incentives             | tokens       | counter |
 | `inflation_hook_allocate_community_pool_total` | Total amount of tokens allocated through inflation to community pool         | tokens       | counter |
 | `recovery_ibc_on_recv_total`                   | Total number of recoveries using the ibc `onRecvPacket` callback             | recover      | counter |
+| `recovery_ibc_on_recv_amount_total`            | Total number of recoveries using the ibc `onRecvPacket` callback             | recover      | counter |
