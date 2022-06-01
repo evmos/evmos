@@ -23,15 +23,13 @@ import (
 func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	rewardAllocations, rewardsTotal, err := k.rewardAllocations(ctx)
+	rewardAllocations, err := k.rewardAllocations(ctx)
 	if err != nil {
 		return err
 	}
 
-	var participants uint64
 	k.IterateIncentives(ctx, func(incentive types.Incentive) (stop bool) {
-		rewards, count := k.rewardParticipants(ctx, incentive, rewardAllocations)
-		participants += count
+		rewards, participants := k.rewardParticipants(ctx, incentive, rewardAllocations)
 
 		incentive.Epochs--
 
@@ -48,18 +46,17 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 			)
 		}
 
-		for _, r := range rewards {
-			if r.Amount.IsInt64() {
+		defer func() {
+			if !rewards.IsZero() {
 				telemetry.IncrCounterWithLabels(
-					[]string{"incentives", "distribute", "rewards", "total"},
-					float32(r.Amount.Int64()),
+					[]string{types.ModuleName, "distribute", "participant", "total"},
+					float32(participants),
 					[]metrics.Label{
-						telemetry.NewLabel("denom", r.Denom),
 						telemetry.NewLabel("contract", incentive.Contract),
 					},
 				)
 			}
-		}
+		}()
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -74,15 +71,6 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 		return false
 	})
 
-	defer func() {
-		if !rewardsTotal.IsZero() {
-			telemetry.IncrCounter(
-				float32(participants),
-				types.ModuleName, "distribute", "participants", "total",
-			)
-		}
-	}()
-
 	return nil
 }
 
@@ -92,7 +80,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 //  - check that escrow balance is sufficient
 func (k Keeper) rewardAllocations(
 	ctx sdk.Context,
-) (map[common.Address]sdk.Coins, sdk.Coins, error) {
+) (map[common.Address]sdk.Coins, error) {
 	// Get balances on incentive module account
 	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
@@ -134,14 +122,14 @@ func (k Keeper) rewardAllocations(
 
 	// checks if escrow balance has sufficient balance for allocation
 	if rewards.IsAnyGT(escrow) {
-		return nil, nil, sdkerrors.Wrapf(
+		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"escrowed balance < total coins allocated (%s < %s)",
 			escrow, rewards,
 		)
 	}
 
-	return rewardAllocations, rewards, nil
+	return rewardAllocations, nil
 }
 
 // rewardParticipants reward participants of a given Incentive, delete their gas
@@ -237,6 +225,22 @@ func (k Keeper) rewardParticipants(
 			// Remove gas meter once the rewards are distributed
 			k.DeleteGasMeter(ctx, gm)
 			count++
+
+			defer func() {
+				for _, r := range rewards {
+					if !r.IsZero() {
+						telemetry.IncrCounterWithLabels(
+							[]string{types.ModuleName, "distribute", "reward", "total"},
+							float32(r.Amount.Int64()),
+							[]metrics.Label{
+								telemetry.NewLabel("denom", r.Denom),
+								telemetry.NewLabel("contract", incentive.Contract),
+								telemetry.NewLabel("participant", gm.Participant),
+							},
+						)
+					}
+				}
+			}()
 
 			return false
 		},
