@@ -10,13 +10,13 @@ To understand how to use the metrics below, please refer to the [Cosmos SDK tele
 
 ## Supported Metrics
 
-| Metric                          | Description                                                        | Unit  | Type    |
-| :------------------------------ | :----------------------------------------------------------------- | :---- | :------ |
-| `ethereum_tx`                   | Total number of txs processed via the EVM                          | tx    | counter |
-| `tx_msg_convert_coin`           | The total amount of coins converted with `MsgConvertCoin`          | token | gauge   |
-| `tx_msg_convert_erc20`          | The total amount of erc20 converted with `MsgConvertErc20`         | token | gauge   |
-| `tx_msg_ethereum_tx`            | The total amount of gas used by an etheruem tx                     | token | gauge   |
-| `tx_msg_ethereum_tx_incentives` | The total amount of gas used by a tx with an incentivized contract | token | gauge   |
-| `incentive_distribute_rewards`  | The total amount of tokens transfered to incentive participants    | token | gauge   |
-| `inflation_allocate`            | The total amount of tokens minted through inflation                | token | gauge   |
-| `recovery_on_receive`           | The total amount of tokens recovered through ibc `onRecvPacket`    | token | gauge   |
+| Metric                                | Description                                                             | Unit       | Type    |
+| :------------------------------------ | :---------------------------------------------------------------------- | :--------- | :------ |
+| `ethereum_tx`                         | Total number of txs processed via the EVM                               | tx         | counter |
+| `tx_msg_convert_coin_total`           | Total number of txs with a `ConvertCoin` msg                            | tx         | counter |
+| `tx_msg_convert_erc20_total`          | Total number of txs with a `ConvertERC20` msg                           | tx         | counter |
+| `tx_msg_ethereum_tx`                  | Total number of gas used by an etheruem tx                              | token      | gauge   |
+| `tx_msg_ethereum_tx_incentives_total` | Total number of txs with an incentivized contract processed via the EVM | tx         | counter |
+| `incentives_distribute_total`         | Total number of tokens transferred to incentive participants            | distribute | counter |
+| `inflation_hook_allocate_total`       | Total number of tokens minted and allocated by inflation                | allocate   | counter |
+| `recovery_ibc_on_recv_total`          | Total number of tokens recovered through ibc `onRecvPacket`             | recover    | counter |

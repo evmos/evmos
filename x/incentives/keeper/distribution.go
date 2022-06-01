@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -60,14 +59,11 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	})
 
 	defer func() {
-		for _, r := range rewards {
-			if r.Amount.IsInt64() {
-				telemetry.SetGaugeWithLabels(
-					[]string{types.ModuleName, "distribute", "rewards"},
-					float32(r.Amount.Int64()),
-					[]metrics.Label{telemetry.NewLabel("denom", r.Denom)},
-				)
-			}
+		if !rewards.IsZero() {
+			telemetry.IncrCounter(
+				1,
+				types.ModuleName, "distribute", "total",
+			)
 		}
 	}()
 

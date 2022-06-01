@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
@@ -14,7 +13,7 @@ import (
 func (k Keeper) BeforeEpochStart(_ sdk.Context, _ string, _ int64) {
 }
 
-// AfterEpochEnd mints and distributes coins at the end of each epoch end
+// AfterEpochEnd mints and allocates coins at the end of each epoch end
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {
 	params := k.GetParams(ctx)
 	skippedEpochs := k.GetSkippedEpochs(ctx)
@@ -29,7 +28,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 		k.SetSkippedEpochs(ctx, skippedEpochs)
 		k.Logger(ctx).Debug(
-			"skipping inflation mint and distribution",
+			"skipping inflation mint and allocation",
 			"height", ctx.BlockHeight(),
 			"epoch-id", epochIdentifier,
 			"epoch-number", epochNumber,
@@ -83,13 +82,10 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	}
 
 	defer func() {
-		if mintedCoin.Amount.IsInt64() {
-			telemetry.SetGaugeWithLabels(
-				[]string{types.ModuleName, "allocate"},
-				float32(mintedCoin.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
-			)
-		}
+		telemetry.IncrCounter(
+			1,
+			types.ModuleName, "hook", "allocate", "total",
+		)
 	}()
 
 	ctx.EventManager().EmitEvent(
