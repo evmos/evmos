@@ -96,7 +96,7 @@ func (k Keeper) AllocateExponentialInflation(
 		return nil, nil, nil, err
 	}
 
-	return
+	return staking, incentives, communityPool, nil
 }
 
 // GetAllocationProportion calculates the proportion of coins that is to be

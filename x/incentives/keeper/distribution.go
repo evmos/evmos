@@ -23,7 +23,7 @@ import (
 func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	rewardAllocations, err := k.rewardAllocations(ctx)
+	rewardAllocations, totalRewards, err := k.rewardAllocations(ctx)
 	if err != nil {
 		return err
 	}
@@ -71,6 +71,18 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 		return false
 	})
 
+	defer func() {
+		for _, r := range totalRewards {
+			if !r.IsZero() {
+				telemetry.IncrCounterWithLabels(
+					[]string{types.ModuleName, "distribute", "reward", "total"},
+					float32(r.Amount.Int64()),
+					[]metrics.Label{telemetry.NewLabel("denom", r.Denom)},
+				)
+			}
+		}
+	}()
+
 	return nil
 }
 
@@ -80,7 +92,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 //  - check that escrow balance is sufficient
 func (k Keeper) rewardAllocations(
 	ctx sdk.Context,
-) (map[common.Address]sdk.Coins, error) {
+) (map[common.Address]sdk.Coins, sdk.Coins, error) {
 	// Get balances on incentive module account
 	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
@@ -122,14 +134,14 @@ func (k Keeper) rewardAllocations(
 
 	// checks if escrow balance has sufficient balance for allocation
 	if rewards.IsAnyGT(escrow) {
-		return nil, sdkerrors.Wrapf(
+		return nil, nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"escrowed balance < total coins allocated (%s < %s)",
 			escrow, rewards,
 		)
 	}
 
-	return rewardAllocations, nil
+	return rewardAllocations, rewards, nil
 }
 
 // rewardParticipants reward participants of a given Incentive, delete their gas
@@ -225,22 +237,6 @@ func (k Keeper) rewardParticipants(
 			// Remove gas meter once the rewards are distributed
 			k.DeleteGasMeter(ctx, gm)
 			count++
-
-			defer func() {
-				for _, r := range rewards {
-					if !r.IsZero() {
-						telemetry.IncrCounterWithLabels(
-							[]string{types.ModuleName, "distribute", "reward", "total"},
-							float32(r.Amount.Int64()),
-							[]metrics.Label{
-								telemetry.NewLabel("denom", r.Denom),
-								telemetry.NewLabel("contract", incentive.Contract),
-								telemetry.NewLabel("participant", gm.Participant),
-							},
-						)
-					}
-				}
-			}()
 
 			return false
 		},
