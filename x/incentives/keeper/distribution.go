@@ -73,7 +73,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 
 	defer func() {
 		for _, r := range totalRewards {
-			if !r.IsZero() {
+			if r.Amount.IsInt64() {
 				telemetry.IncrCounterWithLabels(
 					[]string{types.ModuleName, "distribute", "reward", "total"},
 					float32(r.Amount.Int64()),
