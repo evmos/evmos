@@ -55,6 +55,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
 - (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Finish module completeness audit.
 
+### Improvements
+
+- (erc20) [\#642](https://github.com/tharsis/evmos/pull/642) Remove enforcing ibc and channel names during `RegisterCoin`
+
 ## [v4.0.1] - 2022-05-10
 
 ### Bug Fixes
