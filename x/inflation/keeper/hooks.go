@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
@@ -49,7 +50,8 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	}
 
 	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
-	if err := k.MintAndAllocateInflation(ctx, mintedCoin); err != nil {
+	staking, incentives, communityPool, err := k.MintAndAllocateInflation(ctx, mintedCoin)
+	if err != nil {
 		panic(err)
 	}
 
@@ -82,10 +84,34 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	}
 
 	defer func() {
-		telemetry.IncrCounter(
-			1,
-			types.ModuleName, "hook", "allocate", "total",
-		)
+		if mintedCoin.Amount.IsInt64() {
+			telemetry.IncrCounterWithLabels(
+				[]string{types.ModuleName, "hook", "allocate", "total"},
+				float32(mintedCoin.Amount.Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
+			)
+		}
+		if staking.AmountOf(mintedCoin.Denom).IsInt64() {
+			telemetry.IncrCounterWithLabels(
+				[]string{types.ModuleName, "hook", "allocate", "staking", "total"},
+				float32(staking.AmountOf(mintedCoin.Denom).Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
+			)
+		}
+		if incentives.AmountOf(mintedCoin.Denom).IsInt64() {
+			telemetry.IncrCounterWithLabels(
+				[]string{types.ModuleName, "hook", "allocate", "incentives", "total"},
+				float32(incentives.AmountOf(mintedCoin.Denom).Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
+			)
+		}
+		if communityPool.AmountOf(mintedCoin.Denom).IsInt64() {
+			telemetry.IncrCounterWithLabels(
+				[]string{types.ModuleName, "hook", "allocate", "community_pool", "total"},
+				float32(communityPool.AmountOf(mintedCoin.Denom).Int64()),
+				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
+			)
+		}
 	}()
 
 	ctx.EventManager().EmitEvent(

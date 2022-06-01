@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"strconv"
 
+	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -27,8 +28,9 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 		return err
 	}
 
+	var participants uint64
 	k.IterateIncentives(ctx, func(incentive types.Incentive) (stop bool) {
-		k.rewardParticipants(ctx, incentive, rewardAllocations)
+		participants += k.rewardParticipants(ctx, incentive, rewardAllocations)
 
 		incentive.Epochs--
 
@@ -61,9 +63,19 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	defer func() {
 		if !rewards.IsZero() {
 			telemetry.IncrCounter(
-				1,
-				types.ModuleName, "distribute", "total",
+				float32(participants),
+				types.ModuleName, "distribute", "participants", "total",
 			)
+		}
+
+		for _, r := range rewards {
+			if r.Amount.IsInt64() {
+				telemetry.IncrCounterWithLabels(
+					[]string{"incentives", "distribute", "rewards", "total"},
+					float32(r.Amount.Int64()),
+					[]metrics.Label{telemetry.NewLabel("denom", r.Denom)},
+				)
+			}
 		}
 	}()
 
@@ -128,7 +140,8 @@ func (k Keeper) rewardAllocations(
 	return rewardAllocations, rewards, nil
 }
 
-// Reward Participants of a given Incentive and delete their gas meters
+// rewardParticipants reward participants of a given Incentive, delete their gas
+// meters and returns a count of all gas meters
 //  - Check if participants spent gas on interacting with incentive
 //  - Iterate over the incentive participants' gas meters
 //    - Allocate rewards according to participants gasRatio and cap them at 100% of their gas spent on interaction with incentive
@@ -138,7 +151,7 @@ func (k Keeper) rewardParticipants(
 	ctx sdk.Context,
 	incentive types.Incentive,
 	coinsAllocated map[common.Address]sdk.Coins,
-) sdk.Coins {
+) (count uint64) {
 	coinsTotal := sdk.Coins{}
 	logger := k.Logger(ctx)
 
@@ -150,7 +163,7 @@ func (k Keeper) rewardParticipants(
 			"contract allocation coins not found",
 			"contract", incentive.Contract,
 		)
-		return nil
+		return 0
 	}
 
 	// Check if participants spent gas on interacting with incentive
@@ -160,7 +173,7 @@ func (k Keeper) rewardParticipants(
 			"no gas spent on incentive during epoch",
 			"contract", incentive.Contract,
 		)
-		return nil
+		return 0
 	}
 
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
@@ -220,10 +233,11 @@ func (k Keeper) rewardParticipants(
 
 			// Remove gas meter once the rewards are distributed
 			k.DeleteGasMeter(ctx, gm)
+			count++
 
 			return false
 		},
 	)
 
-	return coinsTotal
+	return count
 }
