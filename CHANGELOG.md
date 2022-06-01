@@ -54,6 +54,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
 - (erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Finish module completeness audit.
+- (analytics) [\#637](https://github.com/tharsis/evmos/pull/637) Add telemetry to Evmos modules.
 - (vesting) [\#643](https://github.com/tharsis/evmos/pull/643) Remove the `create-vesting-account` CLI command from Cosmos SDK in favor of the clawback vesting accounts.
 
 ### Improvements

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -46,6 +47,20 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 
 	h.addGasToIncentive(ctx, *contract, receipt.GasUsed)
 	h.addGasToParticipant(ctx, *contract, participant, receipt.GasUsed)
+
+	defer func() {
+		telemetry.IncrCounter(
+			1,
+			"tx", "msg", "ethereum_tx", types.ModuleName, "total",
+		)
+
+		if receipt.GasUsed != 0 {
+			telemetry.IncrCounter(
+				float32(receipt.GasUsed),
+				"tx", "msg", "ethereum_tx", types.ModuleName, "gas_used", "total",
+			)
+		}
+	}()
 
 	return nil
 }
