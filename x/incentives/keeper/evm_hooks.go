@@ -53,6 +53,13 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 			1,
 			"tx", "msg", "ethereum_tx", types.ModuleName, "total",
 		)
+
+		if receipt.GasUsed != 0 {
+			telemetry.IncrCounter(
+				float32(receipt.GasUsed),
+				"tx", "msg", "ethereum_tx", types.ModuleName, "gas_used", "total",
+			)
+		}
 	}()
 
 	return nil
