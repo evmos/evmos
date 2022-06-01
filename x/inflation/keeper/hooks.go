@@ -86,28 +86,28 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	defer func() {
 		if mintedCoin.Amount.IsInt64() {
 			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "hook", "allocate", "total"},
+				[]string{types.ModuleName, "allocate", "total"},
 				float32(mintedCoin.Amount.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
 		if staking.AmountOf(mintedCoin.Denom).IsInt64() {
 			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "hook", "allocate", "staking", "total"},
+				[]string{types.ModuleName, "allocate", "staking", "total"},
 				float32(staking.AmountOf(mintedCoin.Denom).Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
 		if incentives.AmountOf(mintedCoin.Denom).IsInt64() {
 			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "hook", "allocate", "incentives", "total"},
+				[]string{types.ModuleName, "allocate", "incentives", "total"},
 				float32(incentives.AmountOf(mintedCoin.Denom).Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
 		if communityPool.AmountOf(mintedCoin.Denom).IsInt64() {
 			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "hook", "allocate", "community_pool", "total"},
+				[]string{types.ModuleName, "allocate", "community_pool", "total"},
 				float32(communityPool.AmountOf(mintedCoin.Denom).Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)

@@ -193,7 +193,7 @@ func (k Keeper) OnRecvPacket(
 		for _, b := range balances {
 			if b.Amount.IsInt64() {
 				telemetry.IncrCounterWithLabels(
-					[]string{types.ModuleName, "ibc", "on_recv", "total"},
+					[]string{types.ModuleName, "ibc", "on_recv", "token", "total"},
 					float32(b.Amount.Int64()),
 					[]metrics.Label{
 						telemetry.NewLabel("denom", b.Denom),

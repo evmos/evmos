@@ -153,7 +153,7 @@ func (k Keeper) convertCoinNativeCoin(
 			[]string{"tx", "msg", "convert", "coin", "total"},
 			1,
 			[]metrics.Label{
-				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("denom", pair.Denom),
 				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
@@ -162,7 +162,10 @@ func (k Keeper) convertCoinNativeCoin(
 			telemetry.IncrCounterWithLabels(
 				[]string{"tx", "msg", "convert", "coin", "amount", "total"},
 				float32(msg.Coin.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.Coin.Denom)},
+				[]metrics.Label{
+					telemetry.NewLabel("denom", pair.Denom),
+					telemetry.NewLabel("erc20", pair.Erc20Address),
+				},
 			)
 		}
 	}()
@@ -250,7 +253,7 @@ func (k Keeper) convertERC20NativeCoin(
 			[]string{"tx", "msg", "convert", "erc20", "total"},
 			1,
 			[]metrics.Label{
-				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("denom", pair.Denom),
 				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
@@ -259,7 +262,10 @@ func (k Keeper) convertERC20NativeCoin(
 			telemetry.IncrCounterWithLabels(
 				[]string{"tx", "msg", "convert", "erc20", "amount", "total"},
 				float32(msg.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.ContractAddress)},
+				[]metrics.Label{
+					telemetry.NewLabel("denom", pair.Denom),
+					telemetry.NewLabel("erc20", pair.Erc20Address),
+				},
 			)
 		}
 	}()
@@ -379,6 +385,17 @@ func (k Keeper) convertERC20NativeToken(
 				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
+
+		if msg.Amount.IsInt64() {
+			telemetry.IncrCounterWithLabels(
+				[]string{"tx", "msg", "convert", "erc20", "amount", "total"},
+				float32(msg.Amount.Int64()),
+				[]metrics.Label{
+					telemetry.NewLabel("denom", pair.Denom),
+					telemetry.NewLabel("erc20", pair.Erc20Address),
+				},
+			)
+		}
 	}()
 
 	ctx.EventManager().EmitEvents(
@@ -474,7 +491,7 @@ func (k Keeper) convertCoinNativeERC20(
 			[]string{"tx", "msg", "convert", "coin", "total"},
 			1,
 			[]metrics.Label{
-				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("denom", pair.Denom),
 				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
@@ -483,7 +500,10 @@ func (k Keeper) convertCoinNativeERC20(
 			telemetry.IncrCounterWithLabels(
 				[]string{"tx", "msg", "convert", "coin", "amount", "total"},
 				float32(msg.Coin.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.Coin.Denom)},
+				[]metrics.Label{
+					telemetry.NewLabel("denom", pair.Denom),
+					telemetry.NewLabel("erc20", pair.Erc20Address),
+				},
 			)
 		}
 	}()
