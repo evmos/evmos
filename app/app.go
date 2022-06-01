@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/armon/go-metrics"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -31,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -815,34 +813,12 @@ func (app *Evmos) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliver
 	defer func() {
 		// TODO: Record the count along with the code and or reason so as to display
 		// in the transactions per second live dashboards.
-
-		// TODO exclude ethTxs
-		var labels []metrics.Label
 		if res.IsErr() {
 			app.tpsCounter.incrementFailure()
-			labels = []metrics.Label{
-				telemetry.NewLabel("execution", "failure"),
-			}
 		} else {
 			app.tpsCounter.incrementSuccess()
-			labels = []metrics.Label{
-				telemetry.NewLabel("execution", "success"),
-				telemetry.NewLabel("tx_codespace", res.Codespace),
-			}
 		}
-
-		telemetry.SetGauge(
-			float32(res.GasUsed),
-			"tx", "cosmos_tx",
-		)
-
-		telemetry.IncrCounterWithLabels(
-			[]string{"deliver_tx", "cosmos_tx"},
-			1,
-			labels,
-		)
 	}()
-
 	return app.BaseApp.DeliverTx(req)
 }
 

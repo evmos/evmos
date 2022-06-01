@@ -149,13 +149,14 @@ func (k Keeper) convertCoinNativeCoin(
 	}
 
 	defer func() {
-		if msg.Coin.Amount.IsInt64() {
-			telemetry.SetGaugeWithLabels(
-				[]string{"tx", "msg", "convert", "coin"},
-				float32(msg.Coin.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.Coin.Denom)},
-			)
-		}
+		telemetry.IncrCounterWithLabels(
+			[]string{"tx", "msg", "convert", "coin", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("erc20", pair.Erc20Address),
+			},
+		)
 	}()
 
 	ctx.EventManager().EmitEvents(
@@ -237,14 +238,14 @@ func (k Keeper) convertERC20NativeCoin(
 	}
 
 	defer func() {
-		// TODO will IsInt64 work on sdk.Int?
-		if msg.Amount.IsInt64() {
-			telemetry.SetGaugeWithLabels(
-				[]string{"tx", "msg", "convert", "erc20"},
-				float32(msg.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.ContractAddress)},
-			)
-		}
+		telemetry.IncrCounterWithLabels(
+			[]string{"tx", "msg", "convert", "erc20", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("erc20", pair.Erc20Address),
+			},
+		)
 	}()
 
 	ctx.EventManager().EmitEvents(
@@ -354,13 +355,14 @@ func (k Keeper) convertERC20NativeToken(
 	}
 
 	defer func() {
-		if msg.Amount.IsInt64() {
-			telemetry.SetGaugeWithLabels(
-				[]string{"tx", "msg", "convert", "erc20"},
-				float32(msg.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.ContractAddress)},
-			)
-		}
+		telemetry.IncrCounterWithLabels(
+			[]string{"tx", "msg", "convert", "erc20", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("erc20", pair.Erc20Address),
+			},
+		)
 	}()
 
 	ctx.EventManager().EmitEvents(
@@ -452,13 +454,14 @@ func (k Keeper) convertCoinNativeERC20(
 	}
 
 	defer func() {
-		if msg.Coin.Amount.IsInt64() {
-			telemetry.SetGaugeWithLabels(
-				[]string{"tx", "msg", "convert", "coin"},
-				float32(msg.Coin.Amount.Int64()),
-				[]metrics.Label{telemetry.NewLabel("denom", msg.Coin.Denom)},
-			)
-		}
+		telemetry.IncrCounterWithLabels(
+			[]string{"tx", "msg", "convert", "coin", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("coin", pair.Denom),
+				telemetry.NewLabel("erc20", pair.Erc20Address),
+			},
+		)
 	}()
 
 	ctx.EventManager().EmitEvents(
