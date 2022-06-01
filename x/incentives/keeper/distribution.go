@@ -23,14 +23,15 @@ import (
 func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
-	rewardAllocations, rewards, err := k.rewardAllocations(ctx)
+	rewardAllocations, rewardsTotal, err := k.rewardAllocations(ctx)
 	if err != nil {
 		return err
 	}
 
 	var participants uint64
 	k.IterateIncentives(ctx, func(incentive types.Incentive) (stop bool) {
-		participants += k.rewardParticipants(ctx, incentive, rewardAllocations)
+		rewards, count := k.rewardParticipants(ctx, incentive, rewardAllocations)
+		participants += count
 
 		incentive.Epochs--
 
@@ -47,6 +48,19 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 			)
 		}
 
+		for _, r := range rewards {
+			if r.Amount.IsInt64() {
+				telemetry.IncrCounterWithLabels(
+					[]string{"incentives", "distribute", "rewards", "total"},
+					float32(r.Amount.Int64()),
+					[]metrics.Label{
+						telemetry.NewLabel("denom", r.Denom),
+						telemetry.NewLabel("contract", incentive.Contract),
+					},
+				)
+			}
+		}
+
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeDistributeIncentives,
@@ -61,21 +75,11 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	})
 
 	defer func() {
-		if !rewards.IsZero() {
+		if !rewardsTotal.IsZero() {
 			telemetry.IncrCounter(
 				float32(participants),
 				types.ModuleName, "distribute", "participants", "total",
 			)
-		}
-
-		for _, r := range rewards {
-			if r.Amount.IsInt64() {
-				telemetry.IncrCounterWithLabels(
-					[]string{"incentives", "distribute", "rewards", "total"},
-					float32(r.Amount.Int64()),
-					[]metrics.Label{telemetry.NewLabel("denom", r.Denom)},
-				)
-			}
 		}
 	}()
 
@@ -151,8 +155,7 @@ func (k Keeper) rewardParticipants(
 	ctx sdk.Context,
 	incentive types.Incentive,
 	coinsAllocated map[common.Address]sdk.Coins,
-) (count uint64) {
-	coinsTotal := sdk.Coins{}
+) (rewards sdk.Coins, count uint64) {
 	logger := k.Logger(ctx)
 
 	// Check if coin allocation was successful
@@ -163,7 +166,7 @@ func (k Keeper) rewardParticipants(
 			"contract allocation coins not found",
 			"contract", incentive.Contract,
 		)
-		return 0
+		return sdk.Coins{}, 0
 	}
 
 	// Check if participants spent gas on interacting with incentive
@@ -173,7 +176,7 @@ func (k Keeper) rewardParticipants(
 			"no gas spent on incentive during epoch",
 			"contract", incentive.Contract,
 		)
-		return 0
+		return sdk.Coins{}, 0
 	}
 
 	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
@@ -210,7 +213,7 @@ func (k Keeper) rewardParticipants(
 				coins = coins.Add(coin)
 			}
 
-			coinsTotal = coinsTotal.Add(coins...)
+			rewards = rewards.Add(coins...)
 
 			// Send rewards to participant
 			participant := common.HexToAddress(gm.Participant)
@@ -239,5 +242,5 @@ func (k Keeper) rewardParticipants(
 		},
 	)
 
-	return count
+	return rewards, count
 }
