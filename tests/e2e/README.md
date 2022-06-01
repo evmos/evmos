@@ -114,6 +114,19 @@ Modify the proposal to reflect current upgrade.
 After block 75 is reached, it will destroy the previously used docker images, and will run the docker images with the `debug` tag.
 This will execute the upgrade, and check that it was successful.
 
+If the upgrade needs to migrate genesis file to the new version.
+```e2e_util_test.go#L317
+		Cmd: []string{
+			"/usr/bin/evmosd",
+			"--home",
+			"/evmos/.evmosd",
+			"migrate",
+			"v4",            <------ Update the migration version
+			"/evmos/.evmosd/config/genesis.json",
+			"--chain-id=evmos_9001-1",
+		},
+```
+
 ##### Run the e2e upgrade test:
 Once the testing files have been updated, and the correct docker images have been built, run the testing suite.
 ```
