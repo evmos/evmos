@@ -260,7 +260,7 @@ module.exports = {
               title: 'FAQ',
               directory: false,
               path: '/validators/faq'
-            }            
+            }
           ]
         },
         {
