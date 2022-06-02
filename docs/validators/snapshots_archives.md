@@ -1,3 +1,7 @@
+<!--
+order: 6
+-->
+
 # Snapshots & Archive Nodes
 
 Quickly sync your node with Evmos using a snapshot or serve queries for prev versions using archive nodes {synopsis}
