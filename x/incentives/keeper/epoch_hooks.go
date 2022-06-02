@@ -23,7 +23,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		return
 	}
 
-	if err := k.DistributeIncentives(ctx); err != nil {
+	if err := k.DistributeRewards(ctx); err != nil {
 		panic(err)
 	}
 }
