@@ -819,7 +819,6 @@ func (app *Evmos) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliver
 			app.tpsCounter.incrementSuccess()
 		}
 	}()
-
 	return app.BaseApp.DeliverTx(req)
 }
 
