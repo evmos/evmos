@@ -257,6 +257,11 @@ module.exports = {
               path: '/validators/governance'
             },
             {
+              title: 'Snapshots & Archive Nodes',
+              directory: false,
+              path: '/validators/snapshots_archives'
+            },
+            {
               title: 'FAQ',
               directory: false,
               path: '/validators/faq'
