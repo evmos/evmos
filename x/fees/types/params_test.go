@@ -22,7 +22,6 @@ func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
 	validatorShares := sdk.NewDecWithPrec(40, 2)
 	derivCostCreate := uint64(50)
-	minGasPrice := sdk.NewDecWithPrec(20, 4)
 
 	testCases := []struct {
 		name     string
@@ -32,17 +31,17 @@ func TestParamsValidate(t *testing.T) {
 		{"default", DefaultParams(), false},
 		{
 			"valid: enabled",
-			NewParams(true, devShares, validatorShares, derivCostCreate, minGasPrice),
+			NewParams(true, devShares, validatorShares, derivCostCreate),
 			false,
 		},
 		{
 			"valid: disabled",
-			NewParams(false, devShares, validatorShares, derivCostCreate, minGasPrice),
+			NewParams(false, devShares, validatorShares, derivCostCreate),
 			false,
 		},
 		{
 			"valid: 100% devs",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate, minGasPrice},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
 			false,
 		},
 		{
@@ -52,60 +51,28 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share > 1",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate, minGasPrice},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), sdk.NewDecFromInt(sdk.NewInt(0)), derivCostCreate},
 			true,
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate, minGasPrice},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(0)), sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
 			true,
 		},
 		{
 			"invalid: sum shares > 1 ",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate, minGasPrice},
-			true,
-		},
-		{
-			"invalid: min gas price negative",
-			Params{true, devShares, validatorShares, derivCostCreate, sdk.NewDecFromInt(sdk.NewInt(-1))},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate},
 			true,
 		},
 		{
 			"invalid: wrong address derivation cost",
-			NewParams(true, devShares, validatorShares, 50, minGasPrice),
+			NewParams(true, devShares, validatorShares, 50),
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		err := tc.params.Validate()
-
-		if tc.expError {
-			require.Error(t, err, tc.name)
-		} else {
-			require.NoError(t, err, tc.name)
-		}
-	}
-}
-
-func TestParamsValidateMinGasPrice(t *testing.T) {
-	testCases := []struct {
-		name     string
-		value    interface{}
-		expError bool
-	}{
-		{"default", DefaultMinGasPrice, false},
-		{"valid", sdk.NewDecFromInt(sdk.NewInt(1)), false},
-		{"invalid - wrong type - bool", false, true},
-		{"invalid - wrong type - string", "", true},
-		{"invalid - wrong type - int64", int64(123), true},
-		{"invalid - wrong type - sdk.Int", sdk.NewInt(1), true},
-		{"invalid - is nil", nil, true},
-		{"invalid - is negative", sdk.NewDecFromInt(sdk.NewInt(-1)), true},
-	}
-
-	for _, tc := range testCases {
-		err := validateMinGasPrice(tc.value)
 
 		if tc.expError {
 			require.Error(t, err, tc.name)
