@@ -3,7 +3,7 @@ package types
 import (
 	fmt "fmt"
 
-	epochstypes "github.com/tharsis/evmos/v4/x/epochs/types"
+	epochstypes "github.com/tharsis/evmos/v5/x/epochs/types"
 )
 
 // NewGenesisState creates a new GenesisState object

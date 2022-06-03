@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/v4/x/fees/types"
+	"github.com/tharsis/evmos/v5/x/fees/types"
 )
 
 // GetAllFees - get all registered DevFeeInfo instances

@@ -23,8 +23,8 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	"github.com/tharsis/evmos/v4/app"
-	claimstypes "github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/app"
+	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 var s *AnteTestSuite

@@ -11,7 +11,7 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	"github.com/tharsis/ethermint/x/evm/statedb"
 
-	"github.com/tharsis/evmos/v4/x/fees/types"
+	"github.com/tharsis/evmos/v5/x/fees/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {

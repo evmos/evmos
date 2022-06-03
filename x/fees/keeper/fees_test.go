@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/v4/x/fees/types"
+	"github.com/tharsis/evmos/v5/x/fees/types"
 )
 
 func (suite *KeeperTestSuite) TestGetAllFees() {
@@ -316,7 +316,7 @@ func (suite *KeeperTestSuite) TestGetFeesInverse() {
 
 func (suite *KeeperTestSuite) TestDeleteFeeInverse() {
 	contract2 := tests.GenerateAddress()
-	var setup = func() {
+	setup := func() {
 		suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract)
 		suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract2)
 	}
