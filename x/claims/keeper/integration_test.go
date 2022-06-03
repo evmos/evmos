@@ -23,10 +23,10 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v4/app"
-	"github.com/tharsis/evmos/v4/testutil"
-	incentivestypes "github.com/tharsis/evmos/v4/x/incentives/types"
-	inflationtypes "github.com/tharsis/evmos/v4/x/inflation/types"
+	"github.com/tharsis/evmos/v5/app"
+	"github.com/tharsis/evmos/v5/testutil"
+	incentivestypes "github.com/tharsis/evmos/v5/x/incentives/types"
+	inflationtypes "github.com/tharsis/evmos/v5/x/inflation/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -35,8 +35,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tharsis/ethermint/server/config"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v4/contracts"
-	"github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/contracts"
+	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 var _ = Describe("Claiming", Ordered, func() {

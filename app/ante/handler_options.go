@@ -14,7 +14,7 @@ import (
 	ethante "github.com/tharsis/ethermint/app/ante"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	vestingtypes "github.com/tharsis/evmos/v4/x/vesting/types"
+	vestingtypes "github.com/tharsis/evmos/v5/x/vesting/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos

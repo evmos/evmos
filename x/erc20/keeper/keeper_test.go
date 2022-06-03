@@ -46,9 +46,9 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/v4/app"
-	"github.com/tharsis/evmos/v4/contracts"
-	"github.com/tharsis/evmos/v4/x/erc20/types"
+	"github.com/tharsis/evmos/v5/app"
+	"github.com/tharsis/evmos/v5/contracts"
+	"github.com/tharsis/evmos/v5/x/erc20/types"
 )
 
 type KeeperTestSuite struct {
@@ -533,7 +533,6 @@ func (b *MockBankKeeper) GetDenomMetaData(ctx sdk.Context, denom string) (bankty
 }
 
 func (b *MockBankKeeper) SetDenomMetaData(ctx sdk.Context, denomMetaData banktypes.Metadata) {
-
 }
 
 func (b *MockBankKeeper) HasSupply(ctx sdk.Context, denom string) bool {

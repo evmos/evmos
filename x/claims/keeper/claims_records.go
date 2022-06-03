@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 // GetClaimsRecord returns the claims record for a specific address

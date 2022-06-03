@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/tharsis/evmos/v4/x/incentives/types"
+import "github.com/tharsis/evmos/v5/x/incentives/types"
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.IncentivesKeeper.GetParams(suite.ctx)

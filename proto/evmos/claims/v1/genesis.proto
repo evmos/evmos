@@ -6,42 +6,35 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "evmos/claims/v1/claims.proto";
 
-option go_package = "github.com/tharsis/evmos/v4/x/claims/types";
+option go_package = "github.com/tharsis/evmos/v5/x/claims/types";
 
 // GenesisState define the claims module's genesis state.
 message GenesisState {
-	// params defines all the parameters of the module.
-	Params params = 1 [ (gogoproto.nullable) = false ];
-	// list of claim records with the corresponding airdrop recipient
-	repeated ClaimsRecordAddress claims_records = 2 [
-		(gogoproto.nullable) = false
-	];
+  // params defines all the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  // list of claim records with the corresponding airdrop recipient
+  repeated ClaimsRecordAddress claims_records = 2
+      [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the claims module's parameters.
 message Params {
-	// enable claiming process
-	bool enable_claims = 1;
-	// timestamp of the airdrop start
-	google.protobuf.Timestamp airdrop_start_time = 2 [
-		(gogoproto.nullable) = false,
-		(gogoproto.stdtime) = true
-	];
-	// duration until decay of claimable tokens begin
-	google.protobuf.Duration duration_until_decay = 3 [
-		(gogoproto.nullable) = false,
-		(gogoproto.stdduration) = true
-	];
-	// duration of the token claim decay period
-	google.protobuf.Duration duration_of_decay = 4 [
-		(gogoproto.nullable) = false,
-		(gogoproto.stdduration) = true
-	];
-	// denom of claimable coin
-	string claims_denom = 5;
-	// list of authorized channel identifiers that can perform address
-	// attestations via IBC.
-	repeated string authorized_channels = 6;
-	// list of channel identifiers from EVM compatible chains
-	repeated string evm_channels = 7 [(gogoproto.customname) = "EVMChannels"];
+  // enable claiming process
+  bool enable_claims = 1;
+  // timestamp of the airdrop start
+  google.protobuf.Timestamp airdrop_start_time = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  // duration until decay of claimable tokens begin
+  google.protobuf.Duration duration_until_decay = 3
+      [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
+  // duration of the token claim decay period
+  google.protobuf.Duration duration_of_decay = 4
+      [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
+  // denom of claimable coin
+  string claims_denom = 5;
+  // list of authorized channel identifiers that can perform address
+  // attestations via IBC.
+  repeated string authorized_channels = 6;
+  // list of channel identifiers from EVM compatible chains
+  repeated string evm_channels = 7 [ (gogoproto.customname) = "EVMChannels" ];
 }

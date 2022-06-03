@@ -10,5 +10,6 @@ import "gogoproto/gogo.proto";
 // The following parameters may be used to disable the controller submodule.
 message Params {
   // controller_enabled enables or disables the controller submodule.
-  bool controller_enabled = 1 [(gogoproto.moretags) = "yaml:\"controller_enabled\""];
+  bool controller_enabled = 1
+      [ (gogoproto.moretags) = "yaml:\"controller_enabled\"" ];
 }

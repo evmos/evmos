@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/x/claims/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
