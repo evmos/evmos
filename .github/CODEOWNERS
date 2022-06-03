@@ -1,13 +1,17 @@
 # CODEOWNERS: https://help.github.com/articles/about-codeowners/
 
 # Primary (global) repo maintainers
-*       @fedekunze @khoslaventures @jolube 
+*       @fedekunze @khoslaventures @jolube @danburck 
 
 # Documentation
 docs/ @danburck
 
 # Evmos Modules
+x/claims/ @ramacarlucho
 x/epochs/ @ramacarlucho
-x/erc20/ @danburck @hanchon
-x/incentives/ @danburck
-x/claims/ @danburck @prajjwol
+x/erc20/ @ramacarlucho @hanchon
+x/fees/ @ramacarlucho
+x/incentives/ @ramacarlucho
+x/inflation/ @ramacarlucho
+x/recovery/ @ramacarlucho
+x/vesting/ @ramacarlucho
