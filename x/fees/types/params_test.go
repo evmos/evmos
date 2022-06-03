@@ -65,11 +65,6 @@ func TestParamsValidate(t *testing.T) {
 			true,
 		},
 		{
-			"invalid: min gas price negative",
-			Params{true, devShares, validatorShares, derivCostCreate},
-			true,
-		},
-		{
 			"invalid: wrong address derivation cost",
 			NewParams(true, devShares, validatorShares, 50),
 			false,
