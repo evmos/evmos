@@ -11,7 +11,8 @@ import "google/api/annotations.proto";
 service Query {
   // Params queries all parameters of the ICA controller submodule.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/ibc/apps/interchain_accounts/controller/v1/params";
+    option (google.api.http).get =
+        "/ibc/apps/interchain_accounts/controller/v1/params";
   }
 }
 

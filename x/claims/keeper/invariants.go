@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 // RegisterInvariants registers the claims module invariants

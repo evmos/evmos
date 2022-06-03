@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 
 import "evmos/inflation/v1/inflation.proto";
 
-option go_package = "github.com/tharsis/evmos/v4/x/inflation/types";
+option go_package = "github.com/tharsis/evmos/v5/x/inflation/types";
 
 // GenesisState defines the inflation module's genesis state.
 message GenesisState {
@@ -27,10 +27,10 @@ message Params {
   string mint_denom = 1;
   // variables to calculate exponential inflation
   ExponentialCalculation exponential_calculation = 2
-    [ (gogoproto.nullable) = false ];
+      [ (gogoproto.nullable) = false ];
   // inflation distribution of the minted denom
   InflationDistribution inflation_distribution = 3
-    [ (gogoproto.nullable) = false ];
+      [ (gogoproto.nullable) = false ];
   // parameter to enable inflation and halt increasing the skipped_epochs
   bool enable_inflation = 4;
 }

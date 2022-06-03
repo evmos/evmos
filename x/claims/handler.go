@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tharsis/evmos/v4/x/claims/keeper"
-	"github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/x/claims/keeper"
+	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 // NewHandler returns claim module messages

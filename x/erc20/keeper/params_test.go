@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/tharsis/evmos/v4/x/erc20/types"
+import "github.com/tharsis/evmos/v5/x/erc20/types"
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.Erc20Keeper.GetParams(suite.ctx)

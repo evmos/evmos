@@ -11,8 +11,8 @@ import (
 
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v4/x/erc20/keeper"
-	"github.com/tharsis/evmos/v4/x/erc20/types"
+	"github.com/tharsis/evmos/v5/x/erc20/keeper"
+	"github.com/tharsis/evmos/v5/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
@@ -79,13 +79,15 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			false,
 			false,
 		},
-		{"fail - deleted module account - force fail", 100, 10, func(common.Address) {},
+		{
+			"fail - deleted module account - force fail", 100, 10, func(common.Address) {},
 			func() {
 				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			}, false, false,
 		},
-		{"fail - force evm fail", 100, 10, func(common.Address) {},
+		{
+			"fail - force evm fail", 100, 10, func(common.Address) {},
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -100,7 +102,8 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			}, false, false,
 		},
-		{"fail - force evm balance error", 100, 10, func(common.Address) {},
+		{
+			"fail - force evm balance error", 100, 10, func(common.Address) {},
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -116,12 +119,13 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil).Once()
 				// second balance of
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, fmt.Errorf("third")).Once()
-				//Extra call on test
+				// Extra call on test
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			}, false, false,
 		},
-		{"fail - force balance error", 100, 10, func(common.Address) {},
+		{
+			"fail - force balance error", 100, 10, func(common.Address) {},
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -205,14 +209,16 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 		{"ok - equal funds", 10, 10, 10, func() {}, true},
 		{"fail - insufficient funds", 10, 1, 5, func() {}, false},
 		{"fail ", 10, 1, -5, func() {}, false},
-		{"fail - deleted module account - force fail", 100, 10, 5,
+		{
+			"fail - deleted module account - force fail", 100, 10, 5,
 			func() {
 				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			},
 			false,
 		},
-		{"fail - force evm fail", 100, 10, 5,
+		{
+			"fail - force evm fail", 100, 10, 5,
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -228,7 +234,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			},
 			false,
 		},
-		{"fail - force fail second balance", 100, 10, 5,
+		{
+			"fail - force fail second balance", 100, 10, 5,
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -244,13 +251,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil).Once()
 				// second balance of
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, fmt.Errorf("third")).Once()
-				//Extra call on test
+				// Extra call on test
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			},
 			false,
 		},
-		{"fail - force fail second balance", 100, 10, 5,
+		{
+			"fail - force fail second balance", 100, 10, 5,
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -266,13 +274,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil).Once()
 				// second balance of
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: balance}, nil).Once()
-				//Extra call on test
+				// Extra call on test
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			},
 			false,
 		},
-		{"fail - force fail unescrow", 100, 10, 5,
+		{
+			"fail - force fail unescrow", 100, 10, 5,
 			func() {
 				mockBankKeeper := &MockBankKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -285,7 +294,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			},
 			false,
 		},
-		{"fail - force fail balance after transfer", 100, 10, 5,
+		{
+			"fail - force fail balance after transfer", 100, 10, 5,
 			func() {
 				mockBankKeeper := &MockBankKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -474,7 +484,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {
-
 			},
 			func() {
 				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
@@ -589,7 +598,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
 				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
-
 			},
 			contractMinterBurner,
 			false,
@@ -610,7 +618,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
 				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
-
 			},
 			contractMinterBurner,
 			false,
@@ -631,7 +638,6 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
 				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: sdk.NewInt(int64(10))})
-
 			},
 			contractMinterBurner,
 			false,
@@ -1023,13 +1029,15 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 			false,
 			false,
 		},
-		{"fail - deleted module account - force fail", 100, 10, func(common.Address) {},
+		{
+			"fail - deleted module account - force fail", 100, 10, func(common.Address) {},
 			func() {
 				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			}, false, false,
 		},
-		{"fail - force evm fail", 100, 10, func(common.Address) {},
+		{
+			"fail - force evm fail", 100, 10, func(common.Address) {},
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1044,7 +1052,8 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			}, false, false,
 		},
-		{"fail - force evm balance error", 100, 10, func(common.Address) {},
+		{
+			"fail - force evm balance error", 100, 10, func(common.Address) {},
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1060,12 +1069,13 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil).Once()
 				// second balance of
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, fmt.Errorf("third")).Once()
-				//Extra call on test
+				// Extra call on test
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			}, false, false,
 		},
-		{"fail - force balance error", 100, 10, func(common.Address) {},
+		{
+			"fail - force balance error", 100, 10, func(common.Address) {},
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1149,14 +1159,16 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 		{"ok - equal funds", 10, 10, 10, func() {}, true},
 		{"fail - insufficient funds", 10, 1, 5, func() {}, false},
 		{"fail ", 10, 1, -5, func() {}, false},
-		{"fail - deleted module account - force fail", 100, 10, 5,
+		{
+			"fail - deleted module account - force fail", 100, 10, 5,
 			func() {
 				acc := suite.app.AccountKeeper.GetAccount(suite.ctx, types.ModuleAddress.Bytes())
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			},
 			false,
 		},
-		{"fail - force evm fail", 100, 10, 5,
+		{
+			"fail - force evm fail", 100, 10, 5,
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1172,7 +1184,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			},
 			false,
 		},
-		{"fail - force fail second balance", 100, 10, 5,
+		{
+			"fail - force fail second balance", 100, 10, 5,
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1188,13 +1201,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil).Once()
 				// second balance of
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, fmt.Errorf("third")).Once()
-				//Extra call on test
+				// Extra call on test
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			},
 			false,
 		},
-		{"fail - force fail second balance", 100, 10, 5,
+		{
+			"fail - force fail second balance", 100, 10, 5,
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1210,13 +1224,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil).Once()
 				// second balance of
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{Ret: balance}, nil).Once()
-				//Extra call on test
+				// Extra call on test
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 				mockEVMKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(existingAcc, nil)
 			},
 			false,
 		},
-		{"fail - force fail unescrow", 100, 10, 5,
+		{
+			"fail - force fail unescrow", 100, 10, 5,
 			func() {
 				mockBankKeeper := &MockBankKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
@@ -1229,7 +1244,8 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			},
 			false,
 		},
-		{"fail - force fail balance after transfer", 100, 10, 5,
+		{
+			"fail - force fail balance after transfer", 100, 10, 5,
 			func() {
 				mockBankKeeper := &MockBankKeeper{}
 				sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)

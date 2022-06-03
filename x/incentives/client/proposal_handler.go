@@ -3,8 +3,8 @@ package client
 import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 
-	"github.com/tharsis/evmos/v4/x/incentives/client/cli"
-	"github.com/tharsis/evmos/v4/x/incentives/client/rest"
+	"github.com/tharsis/evmos/v5/x/incentives/client/cli"
+	"github.com/tharsis/evmos/v5/x/incentives/client/rest"
 )
 
 var (

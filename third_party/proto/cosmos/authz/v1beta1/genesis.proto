@@ -9,5 +9,6 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/authz";
 
 // GenesisState defines the authz module's genesis state.
 message GenesisState {
-  repeated GrantAuthorization authorization = 1 [(gogoproto.nullable) = false];
+  repeated GrantAuthorization authorization = 1
+      [ (gogoproto.nullable) = false ];
 }

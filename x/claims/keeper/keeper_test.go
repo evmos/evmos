@@ -26,9 +26,9 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v4/app"
-	"github.com/tharsis/evmos/v4/testutil"
-	"github.com/tharsis/evmos/v4/x/claims/types"
+	"github.com/tharsis/evmos/v5/app"
+	"github.com/tharsis/evmos/v5/testutil"
+	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 type KeeperTestSuite struct {

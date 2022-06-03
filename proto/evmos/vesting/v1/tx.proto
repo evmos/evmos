@@ -6,14 +6,16 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 
-option go_package = "github.com/tharsis/evmos/v4/x/vesting/types";
+option go_package = "github.com/tharsis/evmos/v5/x/vesting/types";
 
 // Msg defines the vesting Msg service.
 service Msg {
   // CreateClawbackVestingAccount creats a vesting account that is subject to
   // clawback and the configuration of vesting and lockup schedules.
-  rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount) returns (MsgCreateClawbackVestingAccountResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/tx/create_clawback_vesting_account";
+  rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount)
+      returns (MsgCreateClawbackVestingAccountResponse) {
+    option (google.api.http).get =
+        "/evmos/vesting/v1/tx/create_clawback_vesting_account";
   };
   // Clawback removes the unvested tokens from a ClawbackVestingAccount.
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
@@ -21,7 +23,8 @@ service Msg {
   };
 }
 
-// MsgCreateClawbackVestingAccount defines a message that enables creating a ClawbackVestingAccount.
+// MsgCreateClawbackVestingAccount defines a message that enables creating a
+// ClawbackVestingAccount.
 message MsgCreateClawbackVestingAccount {
   option (gogoproto.equal) = false;
 
@@ -31,19 +34,19 @@ message MsgCreateClawbackVestingAccount {
   // to_address specifies the account to receive the funds
   string to_address = 2;
   // start_time defines the time at which the vesting period begins
-  google.protobuf.Timestamp start_time = 3 [
-    (gogoproto.stdtime) = true,
-    (gogoproto.nullable) = false
-  ];
+  google.protobuf.Timestamp start_time = 3
+      [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
   // lockup_periods defines the unlocking schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+    (gogoproto.castrepeated) =
+        "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
- // vesting_periods defines thevesting schedule relative to the start_time
+  // vesting_periods defines thevesting schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+    (gogoproto.castrepeated) =
+        "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
   // merge specifies a the creation mechanism for existing
   // ClawbackVestingAccounts. If true, merge this new grant into an existing
@@ -62,7 +65,8 @@ message MsgCreateClawbackVestingAccountResponse {}
 message MsgClawback {
   // funder_address is the address which funded the account
   string funder_address = 1;
-  // account_address is the address of the ClawbackVestingAccount to claw back from.
+  // account_address is the address of the ClawbackVestingAccount to claw back
+  // from.
   string account_address = 2;
   // dest_address specifies where the clawed-back tokens should be transferred
   // to. If empty, the tokens will be transferred back to the original funder of

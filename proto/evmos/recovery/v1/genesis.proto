@@ -4,21 +4,19 @@ package evmos.recovery.v1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 
-option go_package = "github.com/tharsis/evmos/v4/x/recovery/types";
+option go_package = "github.com/tharsis/evmos/v5/x/recovery/types";
 
 // GenesisState defines the recovery module's genesis state.
 message GenesisState {
-    // params defines all the paramaters of the module.
-    Params params = 1 [ (gogoproto.nullable) = false ];
+  // params defines all the paramaters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
 // Params holds parameters for the recovery module
 message Params {
-    // enable recovery IBC middleware
-    bool enable_recovery = 1;
-    // duration added to timeout timestamp for balances recovered via IBC packets
-    google.protobuf.Duration packet_timeout_duration = 2 [
-        (gogoproto.nullable) = false,
-        (gogoproto.stdduration) = true
-    ];
+  // enable recovery IBC middleware
+  bool enable_recovery = 1;
+  // duration added to timeout timestamp for balances recovered via IBC packets
+  google.protobuf.Duration packet_timeout_duration = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
 }
