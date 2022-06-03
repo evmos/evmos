@@ -67,7 +67,8 @@ service Query {
     option (google.api.http).get = "/ethermint/evm/v1/trace_tx";
   }
 
-  // TraceBlock implements the `debug_traceBlockByNumber` and `debug_traceBlockByHash` rpc api
+  // TraceBlock implements the `debug_traceBlockByNumber` and
+  // `debug_traceBlockByHash` rpc api
   rpc TraceBlock(QueryTraceBlockRequest) returns (QueryTraceBlockResponse) {
     option (google.api.http).get = "/ethermint/evm/v1/trace_block";
   }
@@ -242,7 +243,8 @@ message QueryTraceTxRequest {
   // block hex hash of requested transaction
   string block_hash = 6;
   // block time of requested transaction
-  google.protobuf.Timestamp block_time = 7 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp block_time = 7
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 }
 
 // QueryTraceTxResponse defines TraceTx response
@@ -262,11 +264,9 @@ message QueryTraceBlockRequest {
   // block hex hash
   string block_hash = 6;
   // block time
-  google.protobuf.Timestamp block_time = 7 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp block_time = 7
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 }
 
 // QueryTraceBlockResponse defines TraceBlock response
-message QueryTraceBlockResponse {
-  bytes data = 1;
-}
-
+message QueryTraceBlockResponse { bytes data = 1; }

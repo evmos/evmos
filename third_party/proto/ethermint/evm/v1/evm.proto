@@ -112,7 +112,8 @@ message ChainConfig {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"arrow_glacier_block\""
   ];
-  // EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in merge proceedings)
+  // EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in merge
+  // proceedings)
   string merge_fork_block = 19 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"merge_fork_block\""
