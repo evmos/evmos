@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
+	epochstypes "github.com/tharsis/evmos/v5/x/epochs/types"
 )
 
 // BeforeEpochStart performs a no-op
@@ -23,7 +23,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _ int64) 
 		return
 	}
 
-	if err := k.DistributeIncentives(ctx); err != nil {
+	if err := k.DistributeRewards(ctx); err != nil {
 		panic(err)
 	}
 }

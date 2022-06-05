@@ -38,9 +38,9 @@ import (
 	servercfg "github.com/tharsis/ethermint/server/config"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 
-	"github.com/tharsis/evmos/v3/app"
-	cmdcfg "github.com/tharsis/evmos/v3/cmd/config"
-	evmoskr "github.com/tharsis/evmos/v3/crypto/keyring"
+	"github.com/tharsis/evmos/v5/app"
+	cmdcfg "github.com/tharsis/evmos/v5/cmd/config"
+	evmoskr "github.com/tharsis/evmos/v5/crypto/keyring"
 )
 
 const (
@@ -91,15 +91,11 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			// TODO: define our own token
 			customAppTemplate, customAppConfig := initAppConfig()
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 		},
 	}
-
-	// TODO: double-check
-	// authclient.Codec = encodingConfig.Marshaler
 
 	cfg := sdk.GetConfig()
 	cfg.Seal()
@@ -109,7 +105,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
-		genutilcli.MigrateGenesisCmd(),
+		MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),

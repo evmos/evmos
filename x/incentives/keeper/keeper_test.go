@@ -36,9 +36,10 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evm "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v3/app"
-	"github.com/tharsis/evmos/v3/contracts"
-	"github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/tharsis/evmos/v5/app"
+	"github.com/tharsis/evmos/v5/contracts"
+	epochstypes "github.com/tharsis/evmos/v5/x/epochs/types"
+	"github.com/tharsis/evmos/v5/x/incentives/types"
 )
 
 var (
@@ -152,7 +153,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
 	// module
-	identifiers := []string{"week", "day"}
+	identifiers := []string{epochstypes.WeekEpochID, epochstypes.DayEpochID}
 	for _, identifier := range identifiers {
 		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
 		suite.Require().True(found)
@@ -165,7 +166,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}
-
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	// Set Validator
@@ -375,7 +375,7 @@ func (suite *KeeperTestSuite) sendTx(
 func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.Int {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "balanceOf", account)
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, false, "balanceOf", account)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res)
 
@@ -391,7 +391,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.I
 func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, "name")
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, false, "name")
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res)
 

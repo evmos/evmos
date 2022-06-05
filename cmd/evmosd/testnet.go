@@ -43,9 +43,9 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	cmdcfg "github.com/tharsis/evmos/v3/cmd/config"
-	evmoskr "github.com/tharsis/evmos/v3/crypto/keyring"
-	"github.com/tharsis/evmos/v3/testutil/network"
+	cmdcfg "github.com/tharsis/evmos/v5/cmd/config"
+	evmoskr "github.com/tharsis/evmos/v5/crypto/keyring"
+	"github.com/tharsis/evmos/v5/testutil/network"
 )
 
 var (

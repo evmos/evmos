@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/tharsis/ethermint/tests"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v5/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestTokenPairs() {
@@ -81,15 +81,6 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	expParams := types.DefaultParams()
-
-	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(expParams, res.Params)
-}
-
 func (suite *KeeperTestSuite) TestTokenPair() {
 	var (
 		req    *types.QueryTokenPairRequest
@@ -135,6 +126,21 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			},
 			true,
 		},
+		{
+			"token pair not found - with erc20 existant",
+			func() {
+				addr := tests.GenerateAddress()
+				pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, addr, pair.GetID())
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, pair.Denom, pair.GetID())
+
+				req = &types.QueryTokenPairRequest{
+					Token: pair.Erc20Address,
+				}
+				expRes = &types.QueryTokenPairResponse{TokenPair: pair}
+			},
+			false,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -152,4 +158,13 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestQueryParams() {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	expParams := types.DefaultParams()
+
+	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(expParams, res.Params)
 }

@@ -3,12 +3,13 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/tharsis/evmos/v3/x/inflation/types"
+	epochstypes "github.com/tharsis/evmos/v5/x/epochs/types"
+	"github.com/tharsis/evmos/v5/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestSetGetEpochIdentifier() {
 	defaultEpochIdentifier := types.DefaultGenesisState().EpochIdentifier
-	expEpochIdentifier := "week"
+	expEpochIdentifier := epochstypes.WeekEpochID
 
 	testCases := []struct {
 		name     string

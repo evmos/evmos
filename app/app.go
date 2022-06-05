@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -28,6 +29,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -85,13 +87,12 @@ import (
 	ibc "github.com/cosmos/ibc-go/v3/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 
-	// unnamed import of statik for swagger UI support
-	_ "github.com/tharsis/ethermint/client/docs/statik"
 	"github.com/tharsis/ethermint/encoding"
 
 	srvflags "github.com/tharsis/ethermint/server/flags"
@@ -100,36 +101,42 @@ import (
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/v3/app/ante"
-	v2 "github.com/tharsis/evmos/v3/app/upgrades/v2"
-	"github.com/tharsis/evmos/v3/x/claims"
-	claimskeeper "github.com/tharsis/evmos/v3/x/claims/keeper"
-	claimstypes "github.com/tharsis/evmos/v3/x/claims/types"
-	"github.com/tharsis/evmos/v3/x/epochs"
-	epochskeeper "github.com/tharsis/evmos/v3/x/epochs/keeper"
-	epochstypes "github.com/tharsis/evmos/v3/x/epochs/types"
-	"github.com/tharsis/evmos/v3/x/erc20"
-	erc20client "github.com/tharsis/evmos/v3/x/erc20/client"
-	erc20keeper "github.com/tharsis/evmos/v3/x/erc20/keeper"
-	erc20types "github.com/tharsis/evmos/v3/x/erc20/types"
-	"github.com/tharsis/evmos/v3/x/incentives"
-	incentivesclient "github.com/tharsis/evmos/v3/x/incentives/client"
-	incentiveskeeper "github.com/tharsis/evmos/v3/x/incentives/keeper"
-	incentivestypes "github.com/tharsis/evmos/v3/x/incentives/types"
-	"github.com/tharsis/evmos/v3/x/inflation"
-	inflationkeeper "github.com/tharsis/evmos/v3/x/inflation/keeper"
-	inflationtypes "github.com/tharsis/evmos/v3/x/inflation/types"
-	"github.com/tharsis/evmos/v3/x/recovery"
-	recoverykeeper "github.com/tharsis/evmos/v3/x/recovery/keeper"
-	recoverytypes "github.com/tharsis/evmos/v3/x/recovery/types"
-	"github.com/tharsis/evmos/v3/x/vesting"
-	vestingkeeper "github.com/tharsis/evmos/v3/x/vesting/keeper"
-	vestingtypes "github.com/tharsis/evmos/v3/x/vesting/types"
+	// unnamed import of statik for swagger UI support
+	_ "github.com/tharsis/evmos/v5/client/docs/statik"
+
+	"github.com/tharsis/evmos/v5/app/ante"
+	v2 "github.com/tharsis/evmos/v5/app/upgrades/v2"
+	v4 "github.com/tharsis/evmos/v5/app/upgrades/v4"
+	"github.com/tharsis/evmos/v5/x/claims"
+	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
+	"github.com/tharsis/evmos/v5/x/epochs"
+	epochskeeper "github.com/tharsis/evmos/v5/x/epochs/keeper"
+	epochstypes "github.com/tharsis/evmos/v5/x/epochs/types"
+	"github.com/tharsis/evmos/v5/x/erc20"
+	erc20client "github.com/tharsis/evmos/v5/x/erc20/client"
+	erc20keeper "github.com/tharsis/evmos/v5/x/erc20/keeper"
+	erc20types "github.com/tharsis/evmos/v5/x/erc20/types"
+	"github.com/tharsis/evmos/v5/x/fees"
+	feeskeeper "github.com/tharsis/evmos/v5/x/fees/keeper"
+	feestypes "github.com/tharsis/evmos/v5/x/fees/types"
+	"github.com/tharsis/evmos/v5/x/incentives"
+	incentivesclient "github.com/tharsis/evmos/v5/x/incentives/client"
+	incentiveskeeper "github.com/tharsis/evmos/v5/x/incentives/keeper"
+	incentivestypes "github.com/tharsis/evmos/v5/x/incentives/types"
+	"github.com/tharsis/evmos/v5/x/inflation"
+	inflationkeeper "github.com/tharsis/evmos/v5/x/inflation/keeper"
+	inflationtypes "github.com/tharsis/evmos/v5/x/inflation/types"
+	"github.com/tharsis/evmos/v5/x/recovery"
+	recoverykeeper "github.com/tharsis/evmos/v5/x/recovery/keeper"
+	recoverytypes "github.com/tharsis/evmos/v5/x/recovery/types"
+	"github.com/tharsis/evmos/v5/x/vesting"
+	vestingkeeper "github.com/tharsis/evmos/v5/x/vesting/keeper"
+	vestingtypes "github.com/tharsis/evmos/v5/x/vesting/types"
 )
 
 func init() {
@@ -144,10 +151,8 @@ func init() {
 	sdk.DefaultPowerReduction = ethermint.PowerReduction
 }
 
-const (
-	// Name defines the application binary name
-	Name = "evmosd"
-)
+// Name defines the application binary name
+const Name = "evmosd"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -167,8 +172,7 @@ var (
 			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
 			ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 			// Evmos proposal types
-			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
-			erc20client.ToggleTokenRelayProposalHandler, erc20client.UpdateTokenPairERC20ProposalHandler,
+			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 			incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
 		),
 		params.AppModuleBasic{},
@@ -189,6 +193,7 @@ var (
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
 		recovery.AppModuleBasic{},
+		fees.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -270,6 +275,7 @@ type Evmos struct {
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
 	RecoveryKeeper   *recoverykeeper.Keeper
+	FeesKeeper       feeskeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -326,6 +332,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
+		feestypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -408,7 +415,7 @@ func NewEvmos(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
 		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
 
@@ -455,6 +462,12 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
 	)
 
+	app.FeesKeeper = feeskeeper.NewKeeper(
+		keys[feestypes.StoreKey], appCodec, app.GetSubspace(feestypes.ModuleName),
+		app.BankKeeper, app.EvmKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
@@ -474,6 +487,7 @@ func NewEvmos(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
+			app.FeesKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
 	)
@@ -575,6 +589,7 @@ func NewEvmos(
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		recovery.NewAppModule(*app.RecoveryKeeper),
+		fees.NewAppModule(app.FeesKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -611,6 +626,7 @@ func NewEvmos(
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
+		feestypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -643,6 +659,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
+		feestypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -662,6 +679,12 @@ func NewEvmos(
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		ibchost.ModuleName,
+		// Ethermint modules
+		// evm module denomination is used by the fees module, in AnteHandle
+		evmtypes.ModuleName,
+		// NOTE: feemarket module needs to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		feemarkettypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -669,8 +692,6 @@ func NewEvmos(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		// Ethermint modules
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
 		// Evmos modules
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
@@ -678,6 +699,7 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
+		feestypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -771,9 +793,12 @@ func NewEvmos(
 // Name returns the name of the App
 func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
-// BeginBlocker updates every begin block
+// BeginBlocker runs the Tendermint ABCI BeginBlock logic. It executes state changes at the beginning
+// of the new block for every registered module. If there is a registered fork at the current height,
+// BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	BeginBlockForks(ctx, app)
+	// Perform any scheduled forks before executing the modules logic
+	app.ScheduleForkUpgrade(ctx)
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -793,7 +818,6 @@ func (app *Evmos) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliver
 			app.tpsCounter.incrementSuccess()
 		}
 	}()
-
 	return app.BaseApp.DeliverTx(req)
 }
 
@@ -803,7 +827,9 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -993,13 +1019,51 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
+	paramsKeeper.Subspace(feestypes.ModuleName)
 	return paramsKeeper
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v2 handler
+	// v2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(app.mm, app.configurator),
 	)
+
+	// NOTE: no v3 upgrade handler as it required an unscheduled manual upgrade.
+
+	// v4 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v4.UpgradeName,
+		v4.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.IBCKeeper.ClientKeeper,
+		),
+	)
+
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	var storeUpgrades *storetypes.StoreUpgrades
+
+	switch upgradeInfo.Name {
+	case v2.UpgradeName:
+		// no store upgrades in v2
+	case v4.UpgradeName:
+		// no store upgrades in v4
+	}
+
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }

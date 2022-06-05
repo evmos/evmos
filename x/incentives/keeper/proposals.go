@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/tharsis/evmos/v5/x/incentives/types"
 )
 
 // RegisterIncentive creates an incentive for a contract
@@ -70,7 +70,7 @@ func (k Keeper) RegisterIncentive(
 		if allocationSum.GT(sdk.OneDec()) {
 			return nil, sdkerrors.Wrapf(
 				types.ErrInternalIncentive,
-				"allocation for denom %s is lager than 100 percent: %v",
+				"allocation for denom %s is larger than 100 percent: %v",
 				al.Denom, allocationSum,
 			)
 		}

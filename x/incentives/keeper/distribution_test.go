@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v3/x/incentives/types"
+	"github.com/tharsis/evmos/v5/x/incentives/types"
 )
 
 func (suite *KeeperTestSuite) TestDistributeIncentives() {
@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			)
 			suite.Commit()
 
-			err = suite.app.IncentivesKeeper.DistributeIncentives(suite.ctx)
+			err = suite.app.IncentivesKeeper.DistributeRewards(suite.ctx)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)

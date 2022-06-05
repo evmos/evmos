@@ -7,10 +7,10 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v3/x/erc20/types"
+	"github.com/tharsis/evmos/v5/x/erc20/types"
 )
 
-func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
+func (suite *KeeperTestSuite) TestGetTokenPairs() {
 	var expRes []types.TokenPair
 
 	testCases := []struct {
@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) TestGetAllTokenPairs() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-			res := suite.app.Erc20Keeper.GetAllTokenPairs(suite.ctx)
+			res := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 
 			suite.Require().ElementsMatch(expRes, res, tc.name)
 		})

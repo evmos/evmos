@@ -10,7 +10,7 @@ The `x/erc20` module maintains a canonical one-to-one mapping of native Cosmos C
 
 ## Token Pair Registration
 
-Users can register a new token pair proposal through the governance module and initiate a vote to include the token pair in the module.
+Users can register a new token pair proposal through the governance module and initiate a vote to include the token pair in the module. Depending on which exists first, the coin or the token, you can either register a Cosmos Coin or a ERC20 Token to create a token pair.
 
 When the proposal passes, the erc20 module registers the Cosmos Coin and ERC20 Token mapping on the application's store.
 
@@ -61,10 +61,24 @@ During the Registration of an ERC20 Token the Coin metadata is derived from the 
 
 ## Token Pair Modifiers
 
-A valid token pair can be modified through several governance proposals. The internal relaying of a token pair can be toggled with `ToggleTokenRelayProposal`, so that the conversions between the token pair's tokens can be enabled or disabled. Additionally, the ERC20 contract address of a token pair can be updated with `UpdateTokenPairERC20Proposal`.
+A valid token pair can be modified through several governance proposals. The internal conversion of a token pair can be toggled with `ToggleTokenConversionProposal`, so that the conversions between the token pair's tokens can be enabled or disabled.
 
 ## Token Conversion
 
 Once a token pair proposal passes, the module allows for the conversion of that token pair. Holders of native Cosmos coins and IBC vouchers on the Evmos chain can convert their Coin into ERC20 Tokens, which can then be used in Evmos EVM, by creating a `ConvertCoin` Tx. Vice versa, the `ConvertERC20` Tx allows holders of ERC20 tokens on the Evmos chain to convert ERC-20 tokens back to their native Cosmos Coin representation.
 
 Depending on the ownership of the ERC20 contract, the ERC20 tokens either follow a burn/mint or a transfer/escrow mechanism during conversion.
+
+## Malicious Contracts
+
+The ERC20 standard is an interface that defines a set of method signatures (name, arguments and output) without defining its methods' internal logic. Therefore it is possible for developers to deploy contracts that contain hidden malicious behaviour within those methods. For instance, the ERC20 `transfer` method, which is responsible for sending an `amount` of tokens to a given `recipient` could include code to siphon some amount of tokens intended for the recipient into a different predefined account, which is owned by the malicious contract deployer.
+
+More sophisticated malicious implementations might also inherit code from customized ERC20 contracts that include malicous behaviour. For an overview of more extensive examples, plese review the x/erc20 audit, section `IF-EVMOS-06: IERC20 Contracts may execute arbitrary code`.
+
+As the `x/erc20` module allows any arbitrary ERC20 contract to be registered through governance, it is essential that the proposer or the voters manually verify during voting phase that the proposed contract uses the default ERC20.sol implementation.
+
+Here are our recommendations for the reviewing process:
+
+- contract solidity code should be verified and accessable (e.g. using an explorer)
+- contract should be audited by a reputabele auditor
+- inherited contracts need to be verified for correctness

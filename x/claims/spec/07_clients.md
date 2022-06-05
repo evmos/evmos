@@ -22,20 +22,20 @@ Allows users to query total amount of unclaimed tokens from the airdrop.
 evmosd query claims total-unclaimed [flags]
 ```
 
-**`claims-records`**
+**`records`**
 
 Allows users to query all the claims records available.
 
 ```bash
-evmosd query claims claims-records [flags]
+evmosd query claims records [flags]
 ```
 
-**`claims-record`**
+**`record`**
 
 Allows users to query a claims record for a given user.
 
 ```bash
-evmosd query claims claims-record [address] [flags]
+evmosd query claims record [address] [flags]
 ```
 
 **`params`**
@@ -58,5 +58,5 @@ evmosd query claims params [flags]
 | `gRPC` | `evmos.claims.v1.Query/Params`             | Gets claims params                               |
 | `GET`  | `/evmos/claims/v1/total_unclaimed`         | Gets the total unclaimed tokens from the airdrop |
 | `GET`  | `/evmos/claims/v1/claims_records`          | Gets all registered claims records               |
-| `GET`  | `/evmos/claims/v1/claims_record/{address}` | Gets a claims record for a given user            |
+| `GET`  | `/evmos/claims/v1/claims_records/{address}` | Gets a claims record for a given user            |
 | `GET`  | `/evmos/claims/v1/params`                  | Gets claims params                               |
