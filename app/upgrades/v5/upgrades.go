@@ -12,6 +12,7 @@ import (
 	"github.com/tharsis/evmos/v5/types"
 )
 
+// TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
 var TestnetDenomMetadata = banktypes.Metadata{
 	Description: "The native EVM, governance and staking token of the Evmos testnet",
 	DenomUnits: []*banktypes.DenomUnit{
