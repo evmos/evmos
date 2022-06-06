@@ -913,6 +913,13 @@ func (app *Evmos) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
+// ModuleManager returns the manager for all the registered modules.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *Evmos) ModuleManager() *module.Manager {
+	return app.mm
+}
+
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
