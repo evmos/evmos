@@ -220,7 +220,7 @@ func convertCoin(priv *ethsecp256k1.PrivKey, coin sdk.Coin) {
 
 	convertCoinMsg := types.NewMsgConvertCoin(coin, common.BytesToAddress(addrBz), sdk.AccAddress(addrBz))
 	res := deliverTx(priv, convertCoinMsg)
-	s.Require().True(res.IsOK(), "failed to convert coin: %s", res.Log)
+	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
 func convertERC20(priv *ethsecp256k1.PrivKey, amt sdk.Int, contract common.Address) {
@@ -228,7 +228,7 @@ func convertERC20(priv *ethsecp256k1.PrivKey, amt sdk.Int, contract common.Addre
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
 	res := deliverTx(priv, convertERC20Msg)
-	s.Require().True(res.IsOK(), "failed to convert ERC20: %s", res.Info)
+	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }
 
 func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
