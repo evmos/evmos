@@ -9,8 +9,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/encoding"
+	ethermint "github.com/tharsis/ethermint/types"
+
 	"github.com/tharsis/evmos/v5/app"
 	"github.com/tharsis/evmos/v5/testutil"
 	"github.com/tharsis/evmos/v5/x/erc20/types"
@@ -98,8 +101,10 @@ var _ = Describe("ERC20: Converting", Ordered, func() {
 			coin = sdk.NewCoin(pair.Denom, amt)
 
 			denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-			testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(1000))))
-			testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(coin))
+			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.TokensFromConsensusPower(100, ethermint.PowerReduction))))
+			s.Require().NoError(err)
+			err = testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(coin))
+			s.Require().NoError(err)
 		})
 
 		Describe("a Cosmos coin into an ERC20 token", func() {
@@ -155,7 +160,8 @@ var _ = Describe("ERC20: Converting", Ordered, func() {
 			coin = sdk.NewCoin(pair.Denom, amt)
 
 			denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-			testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(1000))))
+			err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(1000))))
+			s.Require().NoError(err)
 
 			_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))
 			s.Commit()
@@ -214,7 +220,7 @@ func convertCoin(priv *ethsecp256k1.PrivKey, coin sdk.Coin) {
 
 	convertCoinMsg := types.NewMsgConvertCoin(coin, common.BytesToAddress(addrBz), sdk.AccAddress(addrBz))
 	res := deliverTx(priv, convertCoinMsg)
-	s.Require().True(res.IsOK())
+	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
 func convertERC20(priv *ethsecp256k1.PrivKey, amt sdk.Int, contract common.Address) {
@@ -222,7 +228,7 @@ func convertERC20(priv *ethsecp256k1.PrivKey, amt sdk.Int, contract common.Addre
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
 	res := deliverTx(priv, convertERC20Msg)
-	s.Require().True(res.IsOK())
+	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }
 
 func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
@@ -232,7 +238,7 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-	txBuilder.SetGasLimit(100000000)
+	txBuilder.SetGasLimit(100_000_000)
 	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: sdk.NewInt(1)}})
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)

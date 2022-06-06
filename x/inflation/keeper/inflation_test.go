@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	ethermint "github.com/tharsis/ethermint/types"
 	incentivestypes "github.com/tharsis/evmos/v5/x/incentives/types"
 	"github.com/tharsis/evmos/v5/x/inflation/types"
 )
@@ -127,11 +128,12 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 			tc.malleate()
 
 			// Mint coins to increase supply
-			coin := sdk.NewCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(tc.bankSupply, sdk.DefaultPowerReduction))
+			coin := sdk.NewCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(tc.bankSupply, ethermint.PowerReduction))
 			decCoin := sdk.NewDecCoinFromCoin(coin)
-			suite.app.InflationKeeper.MintCoins(suite.ctx, coin)
+			err := suite.app.InflationKeeper.MintCoins(suite.ctx, coin)
+			suite.Require().NoError(err)
 
-			teamAlloc := sdk.NewDecCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(int64(200_000_000), sdk.DefaultPowerReduction))
+			teamAlloc := sdk.NewDecCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(int64(200_000_000), ethermint.PowerReduction))
 			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx)
 
 			suite.Require().Equal(decCoin.Sub(teamAlloc).Amount, circulatingSupply)
