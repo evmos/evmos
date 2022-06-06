@@ -613,7 +613,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("With factory-created factory", func() {
+			Context("With factory-created factory contract", func() {
 				var (
 					gasUsedOneDerivation int64
 					factory1Nonce        uint64
@@ -765,7 +765,7 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	s.Commit()
 
-	ethereumTx := res.GetEvents()[11]
+	ethereumTx := res.GetEvents()[12]
 	Expect(ethereumTx.Type).To(Equal("tx_log"))
 	Expect(string(ethereumTx.Attributes[0].Key)).To(Equal("txLog"))
 	txLog := string(ethereumTx.Attributes[0].Value)
@@ -804,7 +804,7 @@ func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Addr
 	res := deliverEthTx(priv, msgEthereumTx)
 	s.Commit()
 
-	ethereumTx := res.GetEvents()[10]
+	ethereumTx := res.GetEvents()[11]
 	Expect(ethereumTx.Type).To(Equal("ethereum_tx"))
 	Expect(string(ethereumTx.Attributes[1].Key)).To(Equal("ethereumTxHash"))
 
