@@ -2,8 +2,8 @@ FROM golang:stretch AS build-env
 
 WORKDIR /go/src/github.com/tharsis/evmos
 
-RUN apt update
-RUN apt install git -y
+RUN apt-get update -y
+RUN apt-get install git -y
 
 COPY . .
 
@@ -11,8 +11,8 @@ RUN make build
 
 FROM golang:stretch
 
-RUN apt update
-RUN apt install ca-certificates jq -y
+RUN apt-get update -y
+RUN apt-get install ca-certificates jq -y
 
 WORKDIR /root
 
