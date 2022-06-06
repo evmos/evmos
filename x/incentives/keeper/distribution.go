@@ -16,7 +16,7 @@ import (
 // DistributeRewards transfers the allocated rewards to the participants of a given
 // incentive.
 //  - allocates the amount to be distributed from the inflation pool
-//  - distributes the rewards to all particpants
+//  - distributes the rewards to all participants
 //  - deletes all gas meters
 //  - updates the remaining epochs of each incentive
 //  - sets the cumulative totalGas to zero
@@ -96,13 +96,11 @@ func (k Keeper) rewardAllocations(
 	// Get balances on incentive module account
 	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	escrow := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
-	for _, coin := range escrow {
-		if !coin.Amount.IsPositive() {
-			continue
-		}
+
+	k.bankKeeper.IterateAccountBalances(ctx, moduleAddr, func(coin sdk.Coin) bool {
 		denomBalances[coin.Denom] = coin.Amount
-	}
+		return false
+	})
 
 	rewardAllocations := make(map[common.Address]sdk.Coins)
 	rewards := sdk.Coins{}
