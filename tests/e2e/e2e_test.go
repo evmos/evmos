@@ -14,9 +14,12 @@ import (
 
 func (s *IntegrationTestSuite) TestUpgrade() {
 	s.initUpgrade()
-	newGenesis := s.migrateGenesis(s.valResources[s.chains[0].ChainMeta.ID][0].Container.ID)
+
 	s.stopAllNodeContainers()
+	s.replaceContainers()
+	newGenesis := s.migrateGenesis(s.valResources[s.chains[0].ChainMeta.ID][0].Container.ID)
 	s.replaceGenesis(newGenesis)
+	s.stopAllNodeContainers()
 	s.upgrade()
 	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chains[0].ChainMeta.ID][0].GetHostPort("1317/tcp"))
 	balancesA, err := queryBalances(chainAAPIEndpoint, s.chains[0].Validators[0].PublicAddress)

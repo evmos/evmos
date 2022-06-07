@@ -119,7 +119,7 @@ func (s *IntegrationTestSuite) runValidators(c *chain.Chain, portOffset int) {
 				fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
 			},
 			Repository: "tharsishq/evmos",
-			Tag:        "v3.0.2",
+			Tag:        "v4.0.1",
 			Cmd: []string{
 				"/usr/bin/evmosd",
 				"start",
@@ -331,5 +331,31 @@ func (s *IntegrationTestSuite) replaceGenesis(newGenesis []byte) {
 	for _, val := range chain.Validators {
 		err := util.WriteFile(filepath.Join(val.ConfigDir, "config", "genesis.json"), newGenesis)
 		s.Require().NoError(err)
+	}
+}
+
+func (s *IntegrationTestSuite) replaceContainers() {
+	// upgrade containers to the locally compiled daemon
+	chain := s.chains[0]
+	s.T().Logf("starting upgrade for chain-id: %s...", chain.ChainMeta.ID)
+	for i, val := range chain.Validators {
+		runOpts := &dockertest.RunOptions{
+			Name:       val.Name,
+			Repository: "evmos",
+			Tag:        "debug",
+			NetworkID:  s.dkrNet.Network.ID,
+			User:       "root:root",
+			Mounts: []string{
+				fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
+			},
+			Cmd: []string{
+				"tail", "-f", "/dev/null",
+			},
+		}
+		resource, err := s.dkrPool.RunWithOptions(runOpts, noRestart)
+		s.Require().NoError(err)
+
+		s.valResources[chain.ChainMeta.ID][i] = resource
+		s.T().Logf("started Evmos upgraded %s validator container: %s", chain.ChainMeta.ID, resource.Container.ID)
 	}
 }
