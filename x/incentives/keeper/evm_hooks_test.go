@@ -91,6 +91,17 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			true,
 		},
 		{
+			"correct execution with Base account - one tx",
+			func(contractAddr common.Address) {
+				acc := authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
+			},
+			true,
+		},
+		{
 			"correct execution with Vesting account - one tx",
 			func(contractAddr common.Address) {
 				acc := vestingtypes.NewClawbackVestingAccount(
@@ -121,9 +132,9 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			true,
 		},
 		{
-			"tx with unincentivized contract",
+			"tx with non-incentivized contract",
 			func(_ common.Address) {
-				suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
+				_ = suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
 			},
 			false,
 		},
