@@ -99,7 +99,8 @@ func (k Keeper) rewardAllocations(
 
 	escrow := sdk.Coins{}
 
-	// iterate over the module account balance and
+	// iterate over the module account balance insert elements to the denom -> amount
+	// lookup map
 	k.bankKeeper.IterateAccountBalances(ctx, moduleAddr, func(coin sdk.Coin) bool {
 		denomBalances[coin.Denom] = coin.Amount
 		// NOTE: all coins have different denomination so we can safely append instead
