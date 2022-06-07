@@ -112,15 +112,15 @@ func (k Keeper) rewardAllocations(
 	rewardAllocations := make(map[common.Address]sdk.Coins)
 	rewards := sdk.Coins{}
 
-	// iterate over the incentive allocations to
+	// iterate over all the incentives to define the allocation
+	// amount for each contract
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
 			coins := sdk.Coins{}
 			contract := common.HexToAddress(incentive.Contract)
 
-			// iterate over all the incentives to define the allocation
-			// amount for each contract
+			// calculate allocation for the incentivized contract
 			for _, al := range incentive.Allocations {
 				// Check if a balance to allocate exists
 				if _, ok := denomBalances[al.Denom]; !ok {
