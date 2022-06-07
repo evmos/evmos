@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/suite"
+
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -38,6 +40,7 @@ func (suite *UpgradeTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
+	// FIXME: this is the new binary! not the old one
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
@@ -70,6 +73,55 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
+func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
+	testCases := []struct {
+		name       string
+		preUpdate  func()
+		update     func()
+		postUpdate func()
+	}{
+		{
+			"scheduled upgrade",
+			func() {
+				plan := types.Plan{
+					Name:   v5.UpgradeName,
+					Height: v5.MainnetUpgradeHeight,
+					Info:   v5.UpgradeInfo,
+				}
+				err := suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
+				suite.Require().NoError(err)
+
+				// ensure the plan is scheduled
+				plan, found := suite.app.UpgradeKeeper.GetUpgradePlan(suite.ctx)
+				suite.Require().True(found)
+			},
+			func() {
+				suite.ctx = suite.ctx.WithBlockHeight(v5.MainnetUpgradeHeight)
+				suite.Require().NotPanics(
+					func() {
+						beginBlockRequest := abci.RequestBeginBlock{
+							Header: suite.ctx.BlockHeader(),
+						}
+						suite.app.BeginBlocker(suite.ctx, beginBlockRequest)
+					},
+				)
+			},
+			func() {},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.preUpdate()
+			tc.update()
+			// tc.postUpdate()
+		})
+	}
+}
+
+// FIXME: fix test
 func (suite *UpgradeTestSuite) TestUpgrade() {
 	testCases := []struct {
 		name     string
@@ -95,10 +147,9 @@ func (suite *UpgradeTestSuite) TestUpgrade() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-
-			module.NewManager()
-			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
 			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
+
+			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
 
 			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper)
 			newVM, err := handlerFn(suite.ctx, types.Plan{}, vm)
@@ -107,6 +158,9 @@ func (suite *UpgradeTestSuite) TestUpgrade() {
 			} else {
 				suite.Require().NoError(err)
 				suite.Require().Equal(vm[feemarkettypes.ModuleName]+1, newVM[feemarkettypes.ModuleName], "version should have increased by 1")
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				suite.Require().Equal(feemarkettypes.DefaultMinGasMultiplier, params.MinGasMultiplier)
+				suite.Require().Equal(feemarkettypes.DefaultMinGasPrice, params.MinGasPrice)
 			}
 		})
 	}
