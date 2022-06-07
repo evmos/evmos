@@ -16,6 +16,7 @@ import (
 
 	"github.com/tharsis/evmos/v5/testutil"
 	"github.com/tharsis/evmos/v5/x/incentives/types"
+	vestingtypes "github.com/tharsis/evmos/v5/x/vesting/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
@@ -81,6 +82,21 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
 				}
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
+			},
+			true,
+		},
+		{
+			"correct execution with Vesting account - one tx",
+			func(contractAddr common.Address) {
+				acc := vestingtypes.NewClawbackVestingAccount(
+					authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+					suite.address.Bytes(), nil, suite.ctx.BlockTime(), nil, nil,
+				)
+
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))

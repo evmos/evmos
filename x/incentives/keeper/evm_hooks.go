@@ -41,7 +41,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	}
 
 	ethAccount, ok := acc.(ethermint.EthAccountI)
-	if !ok || ethAccount.Type() != ethermint.AccountTypeEOA {
+	if ok && ethAccount.Type() == ethermint.AccountTypeContract {
 		return nil
 	}
 
