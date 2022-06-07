@@ -69,6 +69,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 					CodeHash:    common.Bytes2Hex(crypto.Keccak256([]byte{0, 1, 2, 2})),
 				}
+
 				suite.app.AccountKeeper.SetAccount(suite.ctx, contract)
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
 				expGasUsed = res.AsTransaction().Gas()
@@ -167,6 +168,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				suite.Require().NoError(err)
 				suite.Require().True(found)
 				suite.Require().NotZero(gm)
+				suite.Require().NotZero(totalGas)
 				suite.Require().Equal(expGasUsed, gm)
 				suite.Require().Equal(expGasUsed, totalGas)
 			} else {
