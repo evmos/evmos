@@ -1,10 +1,12 @@
 syntax = "proto3";
 package evmos.vesting.v1;
 
-import "google/api/annotations.proto";
-import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/vesting/v1beta1/tx.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/tharsis/evmos/v5/x/vesting/types";
 
@@ -12,14 +14,28 @@ option go_package = "github.com/tharsis/evmos/v5/x/vesting/types";
 service Msg {
   // CreateClawbackVestingAccount creats a vesting account that is subject to
   // clawback and the configuration of vesting and lockup schedules.
-  rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount)
-      returns (MsgCreateClawbackVestingAccountResponse) {
+  rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount) returns (MsgCreateClawbackVestingAccountResponse) {
     option (google.api.http).get =
         "/evmos/vesting/v1/tx/create_clawback_vesting_account";
   };
   // Clawback removes the unvested tokens from a ClawbackVestingAccount.
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/tx/clawback";
+  };
+  // CreateVestingAccount defines a method that enables creating a vesting
+  // account.
+  rpc CreateVestingAccount(cosmos.vesting.v1beta1.MsgCreateVestingAccount) returns (cosmos.vesting.v1beta1.MsgCreateVestingAccountResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/tx/create_vesting_account";
+  };
+  // CreatePermanentLockedAccount defines a method that enables creating a
+  // permanent locked account.
+  rpc CreatePermanentLockedAccount(MsgCreatePermanentLockedAccount) returns (MsgCreatePermanentLockedAccountResponse)  {
+    option (google.api.http).get = "/evmos/vesting/v1/tx/create_permanent_locked_account";
+  };
+  // CreatePeriodicVestingAccount defines a method that enables creating a
+  // periodic vesting account.
+  rpc CreatePeriodicVestingAccount(MsgCreatePeriodicVestingAccount) returns (MsgCreatePeriodicVestingAccountResponse)  {
+    option (google.api.http).get = "/evmos/vesting/v1/tx/create_periodic_vesting_account";
   };
 }
 
@@ -76,3 +92,38 @@ message MsgClawback {
 
 // MsgClawbackResponse defines the MsgClawback response type.
 message MsgClawbackResponse {}
+
+// MsgCreatePermanentLockedAccount defines a message that enables creating a
+// permanent locked account.
+message MsgCreatePermanentLockedAccount {
+  option (gogoproto.equal) = true;
+
+  string   from_address                    = 1 [(gogoproto.moretags) = "yaml:\"from_address\""];
+  string   to_address                      = 2 [(gogoproto.moretags) = "yaml:\"to_address\""];
+  repeated cosmos.base.v1beta1.Coin amount = 3
+      [(gogoproto.nullable) = false,
+      (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
+
+// MsgCreatePermanentLockedAccountResponse defines the
+// Msg/CreatePermanentLockedAccount response type.
+message MsgCreatePermanentLockedAccountResponse {}
+
+// MsgCreateVestingAccount defines a message that enables creating a vesting
+// account.
+message MsgCreatePeriodicVestingAccount {
+  option (gogoproto.equal) = false;
+
+  string          from_address    = 1;
+  string          to_address      = 2;
+  int64           start_time      = 3;
+  repeated cosmos.vesting.v1beta1.Period vesting_periods = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) =
+        "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+  ];
+}
+
+// MsgCreateVestingAccountResponse defines the 
+// Msg/CreatePeriodicVestingAccount response type.
+message MsgCreatePeriodicVestingAccountResponse {}

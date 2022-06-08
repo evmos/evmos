@@ -15,6 +15,7 @@ type AccountKeeper interface {
 	SetAccount(sdk.Context, authtypes.AccountI)
 	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	GetNextAccountNumber(ctx sdk.Context) uint64
 }
 
 // BankKeeper defines the expected interface contract the vesting module requires
@@ -24,6 +25,7 @@ type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	BlockedAddr(addr sdk.AccAddress) bool
+	IsSendEnabledCoins(ctx sdk.Context, coins ...sdk.Coin) error
 }
 
 // StakingKeeper defines the expected interface contract the vesting module

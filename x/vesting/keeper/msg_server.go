@@ -41,6 +41,15 @@ func (k Keeper) CreateClawbackVestingAccount(
 	vestingCoins := msg.VestingPeriods.TotalAmount()
 	lockupCoins := msg.LockupPeriods.TotalAmount()
 
+	// check if the vesting or lockup coins are disabled from being transferred
+	if err := bk.IsSendEnabledCoins(ctx, lockupCoins...); err != nil {
+		return nil, err
+	}
+
+	if err := bk.IsSendEnabledCoins(ctx, vestingCoins...); err != nil {
+		return nil, err
+	}
+
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
 		msg.LockupPeriods = sdkvesting.Periods{
@@ -89,6 +98,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	} else {
 		baseAcc := authtypes.NewBaseAccountWithAddress(to)
+
 		vestingAcc = types.NewClawbackVestingAccount(
 			baseAcc,
 			from,
@@ -127,6 +137,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(sdk.AttributeKeyModule, sdkvesting.AttributeValueCategory),
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
 				sdk.NewAttribute(types.AttributeKeyCoins, vestingCoins.String()),
 				sdk.NewAttribute(types.AttributeKeyStartTime, msg.StartTime.String()),
@@ -195,6 +206,7 @@ func (k Keeper) Clawback(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(sdk.AttributeKeyModule, sdkvesting.AttributeValueCategory),
 				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
 				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
 				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
@@ -265,4 +277,197 @@ func (k Keeper) transferClawback(
 
 	// Transfer clawback to the destination (funder)
 	return k.bankKeeper.SendCoins(ctx, addr, dest, toClawBack)
+}
+
+func (k Keeper) CreateVestingAccount(goCtx context.Context, msg *sdkvesting.MsgCreateVestingAccount) (*sdkvesting.MsgCreateVestingAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	ak := k.accountKeeper
+	bk := k.bankKeeper
+
+	if err := bk.IsSendEnabledCoins(ctx, msg.Amount...); err != nil {
+		return nil, err
+	}
+
+	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if bk.BlockedAddr(to) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", msg.ToAddress)
+	}
+
+	if acc := ak.GetAccount(ctx, to); acc != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
+	}
+
+	baseAcc := authtypes.NewBaseAccountWithAddress(to)
+	baseVestingAccount := sdkvesting.NewBaseVestingAccount(baseAcc, msg.Amount.Sort(), msg.EndTime)
+
+	var acc authtypes.AccountI
+
+	if msg.Delayed {
+		acc = sdkvesting.NewDelayedVestingAccountRaw(baseVestingAccount)
+	} else {
+		acc = sdkvesting.NewContinuousVestingAccountRaw(baseVestingAccount, ctx.BlockTime().Unix())
+	}
+	// set the new account sequence
+	acc = ak.NewAccount(ctx, acc)
+	ak.SetAccount(ctx, acc)
+
+	if err := bk.SendCoins(ctx, from, to, msg.Amount); err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		telemetry.IncrCounter(1, "new", "account")
+
+		for _, a := range msg.Amount {
+			if a.Amount.IsInt64() {
+				telemetry.SetGaugeWithLabels(
+					[]string{"tx", "msg", "create_vesting_account"},
+					float32(a.Amount.Int64()),
+					[]metrics.Label{telemetry.NewLabel("denom", a.Denom)},
+				)
+			}
+		}
+	}()
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, sdkvesting.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
+			sdk.NewAttribute(types.AttributeKeyCoins, msg.Amount.String()),
+		),
+	)
+
+	return &sdkvesting.MsgCreateVestingAccountResponse{}, nil
+}
+
+// CreatePermanentLockedAccount creates a new permanently locked vesting account
+func (k Keeper) CreatePermanentLockedAccount(goCtx context.Context, msg *types.MsgCreatePermanentLockedAccount) (*types.MsgCreatePermanentLockedAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	ak := k.accountKeeper
+	bk := k.bankKeeper
+
+	if err := bk.IsSendEnabledCoins(ctx, msg.Amount...); err != nil {
+		return nil, err
+	}
+
+	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if bk.BlockedAddr(to) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", msg.ToAddress)
+	}
+
+	if acc := ak.GetAccount(ctx, to); acc != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
+	}
+
+	baseAcc := authtypes.NewBaseAccountWithAddress(to)
+	lockedAcc := sdkvesting.NewPermanentLockedAccount(baseAcc, msg.Amount)
+	// set the new account sequence
+	acc := ak.NewAccount(ctx, lockedAcc)
+	ak.SetAccount(ctx, acc)
+
+	if err := bk.SendCoins(ctx, from, to, msg.Amount); err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		telemetry.IncrCounter(1, "new", "account")
+
+		for _, a := range msg.Amount {
+			if a.Amount.IsInt64() {
+				telemetry.SetGaugeWithLabels(
+					[]string{"tx", "msg", "create_permanent_locked_account"},
+					float32(a.Amount.Int64()),
+					[]metrics.Label{telemetry.NewLabel("denom", a.Denom)},
+				)
+			}
+		}
+	}()
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, sdkvesting.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
+			sdk.NewAttribute(types.AttributeKeyCoins, msg.Amount.String()),
+		),
+	)
+
+	return &types.MsgCreatePermanentLockedAccountResponse{}, nil
+}
+
+func (k Keeper) CreatePeriodicVestingAccount(goCtx context.Context, msg *types.MsgCreatePeriodicVestingAccount) (*types.MsgCreatePeriodicVestingAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	ak := k.accountKeeper
+	bk := k.bankKeeper
+
+	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if acc := ak.GetAccount(ctx, to); acc != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
+	}
+
+	totalCoins := msg.VestingPeriods.TotalAmount()
+
+	baseAcc := authtypes.NewBaseAccountWithAddress(to)
+	periodicVestingAcc := sdkvesting.NewPeriodicVestingAccount(baseAcc, totalCoins.Sort(), msg.StartTime, msg.VestingPeriods)
+	// set the new account sequence
+	acc := ak.NewAccount(ctx, periodicVestingAcc)
+	ak.SetAccount(ctx, acc)
+
+	if err := bk.SendCoins(ctx, from, to, totalCoins); err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		telemetry.IncrCounter(1, "new", "account")
+
+		for _, a := range totalCoins {
+			if a.Amount.IsInt64() {
+				telemetry.SetGaugeWithLabels(
+					[]string{"tx", "msg", "create_periodic_vesting_account"},
+					float32(a.Amount.Int64()),
+					[]metrics.Label{telemetry.NewLabel("denom", a.Denom)},
+				)
+			}
+		}
+	}()
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, sdkvesting.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
+			sdk.NewAttribute(types.AttributeKeyCoins, totalCoins.String()),
+		),
+	)
+
+	return &types.MsgCreatePeriodicVestingAccountResponse{}, nil
 }

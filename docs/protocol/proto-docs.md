@@ -171,6 +171,10 @@
     - [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse)
     - [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount)
     - [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse)
+    - [MsgCreatePeriodicVestingAccount](#evmos.vesting.v1.MsgCreatePeriodicVestingAccount)
+    - [MsgCreatePeriodicVestingAccountResponse](#evmos.vesting.v1.MsgCreatePeriodicVestingAccountResponse)
+    - [MsgCreatePermanentLockedAccount](#evmos.vesting.v1.MsgCreatePermanentLockedAccount)
+    - [MsgCreatePermanentLockedAccountResponse](#evmos.vesting.v1.MsgCreatePermanentLockedAccountResponse)
   
     - [Msg](#evmos.vesting.v1.Msg)
   
@@ -2226,6 +2230,65 @@ MsgCreateClawbackVestingAccount response type.
 
 
 
+
+<a name="evmos.vesting.v1.MsgCreatePeriodicVestingAccount"></a>
+
+### MsgCreatePeriodicVestingAccount
+MsgCreateVestingAccount defines a message that enables creating a vesting
+account.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `from_address` | [string](#string) |  |  |
+| `to_address` | [string](#string) |  |  |
+| `start_time` | [int64](#int64) |  |  |
+| `vesting_periods` | [cosmos.vesting.v1beta1.Period](#cosmos.vesting.v1beta1.Period) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreatePeriodicVestingAccountResponse"></a>
+
+### MsgCreatePeriodicVestingAccountResponse
+MsgCreateVestingAccountResponse defines the 
+Msg/CreatePeriodicVestingAccount response type.
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreatePermanentLockedAccount"></a>
+
+### MsgCreatePermanentLockedAccount
+MsgCreatePermanentLockedAccount defines a message that enables creating a
+permanent locked account.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `from_address` | [string](#string) |  |  |
+| `to_address` | [string](#string) |  |  |
+| `amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated |  |
+
+
+
+
+
+
+<a name="evmos.vesting.v1.MsgCreatePermanentLockedAccountResponse"></a>
+
+### MsgCreatePermanentLockedAccountResponse
+MsgCreatePermanentLockedAccountResponse defines the
+Msg/CreatePermanentLockedAccount response type.
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -2242,6 +2305,9 @@ Msg defines the vesting Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `CreateClawbackVestingAccount` | [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount) | [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse) | CreateClawbackVestingAccount creats a vesting account that is subject to clawback and the configuration of vesting and lockup schedules. | GET|/evmos/vesting/v1/tx/create_clawback_vesting_account|
 | `Clawback` | [MsgClawback](#evmos.vesting.v1.MsgClawback) | [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse) | Clawback removes the unvested tokens from a ClawbackVestingAccount. | GET|/evmos/vesting/v1/tx/clawback|
+| `CreateVestingAccount` | [.cosmos.vesting.v1beta1.MsgCreateVestingAccount](#cosmos.vesting.v1beta1.MsgCreateVestingAccount) | [.cosmos.vesting.v1beta1.MsgCreateVestingAccountResponse](#cosmos.vesting.v1beta1.MsgCreateVestingAccountResponse) | CreateVestingAccount defines a method that enables creating a vesting account. | GET|/evmos/vesting/v1/tx/create_vesting_account|
+| `CreatePermanentLockedAccount` | [MsgCreatePermanentLockedAccount](#evmos.vesting.v1.MsgCreatePermanentLockedAccount) | [MsgCreatePermanentLockedAccountResponse](#evmos.vesting.v1.MsgCreatePermanentLockedAccountResponse) | CreatePermanentLockedAccount defines a method that enables creating a permanent locked account. | GET|/evmos/vesting/v1/tx/create_permanent_locked_account|
+| `CreatePeriodicVestingAccount` | [MsgCreatePeriodicVestingAccount](#evmos.vesting.v1.MsgCreatePeriodicVestingAccount) | [MsgCreatePeriodicVestingAccountResponse](#evmos.vesting.v1.MsgCreatePeriodicVestingAccountResponse) | CreatePeriodicVestingAccount defines a method that enables creating a periodic vesting account. | GET|/evmos/vesting/v1/tx/create_periodic_vesting_account|
 
  <!-- end services -->
 
