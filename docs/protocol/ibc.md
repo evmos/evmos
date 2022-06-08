@@ -8,7 +8,7 @@ IBC channels are added based on community consensus.
 
 | Chain Name    | Chain ID         | Token      | Evmos      | Foreign     |
 |---------------|------------------|------------|------------| ------------|
-| COSMOS        | cosmoshub-4      | ATOM       | Channel-3  | Channel-292 |
+| COSMOS HUB       | cosmoshub-4      | ATOM       | Channel-3  | Channel-292 |
 | SIFCHAIN      |  sifchain-1      | ROWAN      | channel-7  | channel-55  |
 | OSMOSIS       | osmosis-1        | OSMO       | Channel-0  | Channel-204 |
 | JUNO          | juno-1           | JUNO       | Channel-5  | Channel-70  |
