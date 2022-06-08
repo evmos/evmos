@@ -18,10 +18,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v5/app"
 	v5 "github.com/tharsis/evmos/v5/app/upgrades/v5"
+	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 type UpgradeTestSuite struct {
@@ -121,24 +124,47 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 	}
 }
 
-// FIXME: fix test
-func (suite *UpgradeTestSuite) TestUpgrade() {
+func (suite *UpgradeTestSuite) TestAirdropHandle() {
+
 	testCases := []struct {
 		name     string
-		malleate func()
-		expError bool
+		original []bool
+		expected []bool
 	}{
 		{
-			"mainnet",
-			func() {},
-			false,
+			"EVM-IBC claimed",
+			[]bool{false, false, true, true},
+			// Swap ibc<->vote
+			[]bool{true, false, true, false},
 		},
 		{
-			"testnet",
-			func() {
-				suite.ctx = suite.ctx.WithChainID("evmos_9000-4")
-			},
-			false,
+			"DELEGATE-IBC claimed",
+			[]bool{false, true, false, true},
+			// Swap ibc<->evm
+			[]bool{false, true, true, false},
+		},
+		{
+			"VOTE-IBC claimed",
+			[]bool{true, false, false, true},
+			// Swap ibc<->evm
+			[]bool{true, false, true, false},
+		},
+		{
+			"VOTE claimed",
+			[]bool{true, false, false, false},
+			// Swap vote<->evm
+			[]bool{false, false, true, false},
+		},
+		{
+			"Nothing changes",
+			[]bool{false, false, false, false},
+			[]bool{false, false, false, false},
+		},
+		{
+			"EVM unclaimed",
+			[]bool{true, true, false, true},
+			// Swap ibc<->evm
+			[]bool{true, true, true, false},
 		},
 	}
 
@@ -146,22 +172,27 @@ func (suite *UpgradeTestSuite) TestUpgrade() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			tc.malleate()
+			suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
+			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
 
 			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
 
-			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper)
-			newVM, err := handlerFn(suite.ctx, types.Plan{}, vm)
-			if tc.expError {
-				suite.Require().Error(err)
-			} else {
-				suite.Require().NoError(err)
-				suite.Require().Equal(vm[feemarkettypes.ModuleName]+1, newVM[feemarkettypes.ModuleName], "version should have increased by 1")
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(feemarkettypes.DefaultMinGasMultiplier, params.MinGasMultiplier)
-				suite.Require().Equal(feemarkettypes.DefaultMinGasPrice, params.MinGasPrice)
-			}
+			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper, suite.app.ClaimsKeeper)
+			_, err := handlerFn(suite.ctx, types.Plan{}, vm)
+
+			cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
+			suite.Require().Equal(tc.expected, cr.ActionsCompleted)
+			suite.Require().True(found)
+			suite.Require().NoError(err)
+
 		})
 	}
+}
+
+func addClaimRecord(ctx sdk.Context, k *claimskeeper.Keeper, actions []bool) sdk.AccAddress {
+	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	cr := claimstypes.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(100), ActionsCompleted: actions}
+	k.SetClaimsRecord(ctx, addr, cr)
+	return addr
 }
