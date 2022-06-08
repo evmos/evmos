@@ -5,12 +5,13 @@ order: 5
 # Current IBC channels between Evmos and other chains
 
 IBC channels are added based on community consensus.
+View on [Mintscan](https://www.mintscan.io/evmos/relayers)
 
 | Chain Name    | Chain ID         | Token      | Evmos      | Foreign     |
-|---------------|------------------|------------|------------| ------------|
-| COSMOS HUB       | cosmoshub-4      | ATOM       | Channel-3  | Channel-292 |
-| SIFCHAIN      |  sifchain-1      | ROWAN      | channel-7  | channel-55  |
-| OSMOSIS       | osmosis-1        | OSMO, ION       | Channel-0  | Channel-204 |
+|---------------|------------------|------------|------------|-------------|
+| COSMOS HUB    | cosmoshub-4      | ATOM       | Channel-3  | Channel-292 |
+| SIFCHAIN      | sifchain-1       | ROWAN      | channel-7  | channel-55  |
+| OSMOSIS       | osmosis-1        | OSMO, ION  | Channel-0  | Channel-204 |
 | JUNO          | juno-1           | JUNO       | Channel-5  | Channel-70  |
 | INJECTIVE     | injective-1      | INJ        | Channel-10 | Channel-83  |
 | G-BRIDGE      | gravity-bridge-3 | GRAVITON   | Channel-8  | Channel-65  |
