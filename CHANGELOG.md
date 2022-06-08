@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (incentives) [\#656](https://github.com/tharsis/evmos/pull/656) Fix incentives that were previously only allocated to `EthAccount`s.
 - (fees) [\#612](https://github.com/tharsis/evmos/pull/612) Fix fees registration cli command and description
 - (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
 - (claims) [\#626](https://github.com/tharsis/evmos/pull/626) fix durations denominated in `nanoseconds`

@@ -16,7 +16,7 @@ import (
 // DistributeRewards transfers the allocated rewards to the participants of a given
 // incentive.
 //  - allocates the amount to be distributed from the inflation pool
-//  - distributes the rewards to all particpants
+//  - distributes the rewards to all participants
 //  - deletes all gas meters
 //  - updates the remaining epochs of each incentive
 //  - sets the cumulative totalGas to zero
@@ -96,31 +96,47 @@ func (k Keeper) rewardAllocations(
 	// Get balances on incentive module account
 	denomBalances := make(map[string]sdk.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	escrow := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
-	for _, coin := range escrow {
-		if !coin.Amount.IsPositive() {
-			continue
-		}
+
+	escrow := sdk.Coins{}
+
+	// iterate over the module account balance insert elements to the denom -> amount
+	// lookup map
+	k.bankKeeper.IterateAccountBalances(ctx, moduleAddr, func(coin sdk.Coin) bool {
 		denomBalances[coin.Denom] = coin.Amount
-	}
+		// NOTE: all coins have different denomination so we can safely append instead
+		// of using Add
+		escrow = append(escrow, coin)
+		return false
+	})
 
 	rewardAllocations := make(map[common.Address]sdk.Coins)
 	rewards := sdk.Coins{}
+
+	// iterate over all the incentives to define the allocation
+	// amount for each contract
 	k.IterateIncentives(
 		ctx,
 		func(incentive types.Incentive) (stop bool) {
 			coins := sdk.Coins{}
 			contract := common.HexToAddress(incentive.Contract)
 
+			// calculate allocation for the incentivized contract
 			for _, al := range incentive.Allocations {
 				// Check if a balance to allocate exists
 				if _, ok := denomBalances[al.Denom]; !ok {
 					continue
 				}
 
-				// Create escrow balance for allocation
+				// allocation for the contract is the amount escrowed * the allocation %
 				coinAllocated := denomBalances[al.Denom].ToDec().Mul(al.Amount)
 				amount := coinAllocated.TruncateInt()
+
+				// NOTE: safety check, shouldn't occur since the allocation and balance
+				// are > 0
+				if !amount.IsPositive() {
+					continue
+				}
+
 				coin := sdk.Coin{Denom: al.Denom, Amount: amount}
 				coins = coins.Add(coin)
 			}
@@ -132,7 +148,7 @@ func (k Keeper) rewardAllocations(
 		},
 	)
 
-	// checks if escrow balance has sufficient balance for allocation
+	// checks if module account has sufficient balance for allocation
 	if rewards.IsAnyGT(escrow) {
 		return nil, nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
