@@ -3,6 +3,7 @@ package vesting
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/tharsis/evmos/v5/x/vesting/types"
 )
@@ -19,6 +20,9 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		case *types.MsgClawback:
 			res, err := server.Clawback(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *sdkvestingtypes.MsgCreateVestingAccount:
+			// TODO: add method to Msg Server
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}

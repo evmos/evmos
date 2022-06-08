@@ -50,6 +50,8 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
+		// TODO: add msgs for PeriodicVestingAccount and PermanentLockedAccount
+		&sdkvesting.MsgCreateVestingAccount{},
 		&MsgClawback{},
 		&MsgCreateClawbackVestingAccount{},
 	)

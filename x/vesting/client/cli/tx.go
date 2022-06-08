@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkvestcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/tharsis/evmos/v5/x/vesting/types"
@@ -41,6 +42,7 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(
+		sdkvestcli.NewMsgCreateVestingAccountCmd(),
 		NewMsgCreateClawbackVestingAccountCmd(),
 		NewMsgClawbackCmd(),
 	)
