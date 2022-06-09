@@ -199,6 +199,11 @@ module.exports = {
               path: '/protocol/telemetry'
             },
             {
+              title: 'IBC channels',
+              directory: false,
+              path: '/protocol/ibc'
+            }, 
+            {
               title: 'Evmos Go API',
               path: 'https://pkg.go.dev/github.com/tharsis/evmos'
             },
