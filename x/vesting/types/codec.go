@@ -23,28 +23,19 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"cosmos.vesting.v1beta1.VestingAccount",
 		(*exported.VestingAccount)(nil),
-		&sdkvesting.ContinuousVestingAccount{},
-		&sdkvesting.DelayedVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
-		&sdkvesting.PermanentLockedAccount{},
+		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.AccountI)(nil),
-		&sdkvesting.ContinuousVestingAccount{},
-		&sdkvesting.DelayedVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
-		&sdkvesting.PermanentLockedAccount{},
+		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
-		&sdkvesting.ContinuousVestingAccount{},
-		&sdkvesting.DelayedVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
-		&sdkvesting.PermanentLockedAccount{},
+		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
