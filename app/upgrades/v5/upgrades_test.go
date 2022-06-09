@@ -43,11 +43,11 @@ func (suite *UpgradeTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	// FIXME: this is the new binary! not the old one
+	// NOTE: this is the new binary, not the old one.
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9001-1",
+		ChainID:         "evmos_9001-2",
 		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
 		ProposerAddress: suite.consAddress.Bytes(),
 
@@ -109,7 +109,12 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 					},
 				)
 			},
-			func() {},
+			func() {
+				// check that the default params have been overridden by the init function
+				fmParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				suite.Require().Equal(sdk.NewDecWithPrec(25, 3).String(), fmParams.MinGasPrice.String())
+				suite.Require().Equal(sdk.NewDecWithPrec(5, 1).String(), fmParams.MinGasMultiplier.String())
+			},
 		},
 	}
 
@@ -119,7 +124,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 
 			tc.preUpdate()
 			tc.update()
-			// tc.postUpdate()
+			tc.postUpdate()
 		})
 	}
 }

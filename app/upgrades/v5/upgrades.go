@@ -18,6 +18,12 @@ import (
 	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
 )
 
+func init() {
+	// modify fee market parameter defaults through global
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDecWithPrec(25, 3)     // 0.025 aevmos (or atevmos)
+	feemarkettypes.DefaultMinGasMultiplier = sdk.NewDecWithPrec(5, 1) // 0.5 or 50%
+}
+
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
 var TestnetDenomMetadata = banktypes.Metadata{
 	Description: "The native EVM, governance and staking token of the Evmos testnet",
