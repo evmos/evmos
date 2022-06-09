@@ -1,6 +1,7 @@
 package types
 
 import (
+	fmt "fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,11 +12,17 @@ import (
 var (
 	_ sdk.Msg = &MsgCreateClawbackVestingAccount{}
 	_ sdk.Msg = &MsgClawback{}
+	_ sdk.Msg = &MsgCreatePermanentLockedAccount{}
+	_ sdk.Msg = &MsgCreatePeriodicVestingAccount{}
 )
 
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	TypeMsgClawback                     = "clawback"
+	// TypeMsgCreatePermanentLockedAccount defines the type value for a MsgCreatePermanentLockedAccount.
+	TypeMsgCreatePermanentLockedAccount = "msg_create_permanent_locked_account"
+	// TypeMsgCreatePeriodicVestingAccount defines the type value for a MsgCreateVestingAccount.
+	TypeMsgCreatePeriodicVestingAccount = "msg_create_periodic_vesting_account"
 )
 
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
@@ -119,7 +126,7 @@ func (msg MsgClawback) ValidateBasic() error {
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid addr address")
+		return sdkerrors.Wrapf(err, "invalid account address")
 	}
 
 	if msg.GetDestAddress() != "" {
@@ -143,4 +150,112 @@ func (msg MsgClawback) GetSigners() []sdk.AccAddress {
 		return nil
 	}
 	return []sdk.AccAddress{funder}
+}
+
+// NewMsgCreatePermanentLockedAccount returns a reference to a new MsgCreatePermanentLockedAccount.
+//nolint:interfacer
+func NewMsgCreatePermanentLockedAccount(fromAddr, toAddr sdk.AccAddress, amount sdk.Coins) *MsgCreatePermanentLockedAccount {
+	return &MsgCreatePermanentLockedAccount{
+		FromAddress: fromAddr.String(),
+		ToAddress:   toAddr.String(),
+		Amount:      amount,
+	}
+}
+
+// Route returns the message route for a MsgCreatePermanentLockedAccount.
+func (msg MsgCreatePermanentLockedAccount) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgCreatePermanentLockedAccount.
+func (msg MsgCreatePermanentLockedAccount) Type() string { return TypeMsgCreatePermanentLockedAccount }
+
+// ValidateBasic Implements Msg.
+func (msg MsgCreatePermanentLockedAccount) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid recipient address: %s", err)
+	}
+
+	if len(msg.Amount) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "cannot submit empty coins")
+	}
+
+	if err := msg.Amount.Validate(); err != nil {
+		return sdkerrors.Wrap(err, "invalid coins amount")
+	}
+
+	return nil
+}
+
+// GetSignBytes returns the bytes all expected signers must sign over for a
+// MsgCreatePermanentLockedAccount.
+func (msg MsgCreatePermanentLockedAccount) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners returns the expected signers for a MsgCreatePermanentLockedAccount.
+func (msg MsgCreatePermanentLockedAccount) GetSigners() []sdk.AccAddress {
+	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	return []sdk.AccAddress{from}
+}
+
+// NewMsgCreatePeriodicVestingAccount returns a reference to a new MsgCreatePeriodicVestingAccount.
+//nolint:interfacer
+func NewMsgCreatePeriodicVestingAccount(fromAddr, toAddr sdk.AccAddress, startTime int64, periods sdkvesting.Periods) *MsgCreatePeriodicVestingAccount {
+	return &MsgCreatePeriodicVestingAccount{
+		FromAddress:    fromAddr.String(),
+		ToAddress:      toAddr.String(),
+		StartTime:      startTime,
+		VestingPeriods: periods,
+	}
+}
+
+// Route returns the message route for a MsgCreatePeriodicVestingAccount.
+func (msg MsgCreatePeriodicVestingAccount) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgCreatePeriodicVestingAccount.
+func (msg MsgCreatePeriodicVestingAccount) Type() string { return TypeMsgCreatePeriodicVestingAccount }
+
+// GetSigners returns the expected signers for a MsgCreatePeriodicVestingAccount.
+func (msg MsgCreatePeriodicVestingAccount) GetSigners() []sdk.AccAddress {
+	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{from}
+}
+
+// GetSignBytes returns the bytes all expected signers must sign over for a
+// MsgCreatePeriodicVestingAccount.
+func (msg MsgCreatePeriodicVestingAccount) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+}
+
+// ValidateBasic Implements Msg.
+func (msg MsgCreatePeriodicVestingAccount) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid recipient address: %s", err)
+	}
+
+	if msg.StartTime < 1 {
+		return fmt.Errorf("invalid start time of %d, length must be greater than 0", msg.StartTime)
+	}
+
+	for i, period := range msg.VestingPeriods {
+		if period.Length < 1 {
+			return fmt.Errorf("invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+		}
+		if len(period.Amount) == 0 {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "cannot submit empty amount in period %d", i)
+		}
+		if err := period.Amount.Validate(); err != nil {
+			return sdkerrors.Wrapf(err, "invalid amount in period %d", i)
+		}
+	}
+
+	return nil
 }

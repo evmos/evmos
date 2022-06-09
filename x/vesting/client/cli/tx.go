@@ -1,10 +1,7 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -43,6 +40,8 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		sdkvestcli.NewMsgCreateVestingAccountCmd(),
+		NewMsgCreatePermanentLockedAccountCmd(),
+		NewMsgCreatePeriodicVestingAccountCmd(),
 		NewMsgCreateClawbackVestingAccountCmd(),
 		NewMsgClawbackCmd(),
 	)
@@ -50,48 +49,96 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-type VestingData struct {
-	StartTime int64         `json:"start_time"`
-	Periods   []InputPeriod `json:"periods"`
+// NewMsgCreatePermanentLockedAccountCmd returns a CLI command handler for creating a
+// MsgCreatePermanentLockedAccount transaction.
+func NewMsgCreatePermanentLockedAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-permanent-locked-account [to_address] [amount]",
+		Short: "Create a new permanently locked account funded with an allocation of tokens.",
+		Long: `Create a new account funded with an allocation of permanently locked tokens. These
+tokens may be used for staking but are non-transferable. Staking rewards will acrue as liquid and transferable
+tokens.`,
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			toAddr, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreatePermanentLockedAccount(clientCtx.GetFromAddress(), toAddr, amount)
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
 }
 
-type InputPeriod struct {
-	Coins  string `json:"coins"`
-	Length int64  `json:"length_seconds"`
-}
+// NewMsgCreatePeriodicVestingAccountCmd returns a CLI command handler for creating a
+// MsgCreatePeriodicVestingAccountCmd transaction.
+func NewMsgCreatePeriodicVestingAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-periodic-vesting-account [to_address] [periods_json_file]",
+		Short: "Create a new vesting account funded with an allocation of tokens.",
+		Long: `A sequence of coins and period length in seconds. Periods are sequential, in that the duration of of a period only starts at the end of the previous period. The duration of the first period starts upon account creation. For instance, the following periods.json file shows 20 "test" coins vesting 30 days apart from each other.
+		Where periods.json contains:
 
-// readScheduleFile reads the file at path and unmarshals it to get the schedule.
-// Returns start time, periods, and error.
-func ReadScheduleFile(path string) (int64, sdkvesting.Periods, error) {
-	contents, err := ioutil.ReadFile(filepath.Clean(path))
-	if err != nil {
-		return 0, nil, err
+		An array of coin strings and unix epoch times for coins to vest
+{ "start_time": 1625204910,
+"period":[
+ {
+  "coins": "10test",
+  "length_seconds":2592000 //30 days
+ },
+ {
+	"coins": "10test",
+	"length_seconds":2592000 //30 days
+ },
+]
+	}
+		`,
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			vestingFile := args[1]
+
+			toAddr, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			vestingStart, vestingPeriods, err := ReadScheduleFile(vestingFile)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreatePeriodicVestingAccount(clientCtx.GetFromAddress(), toAddr, vestingStart, vestingPeriods)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
 	}
 
-	var data VestingData
+	flags.AddTxFlagsToCmd(cmd)
 
-	if err = json.Unmarshal(contents, &data); err != nil {
-		return 0, nil, err
-	}
-
-	startTime := data.StartTime
-	periods := make(sdkvesting.Periods, 0, len(data.Periods))
-
-	for i, p := range data.Periods {
-		if p.Length < 1 {
-			return 0, nil, fmt.Errorf("invalid period length of %d in period %d, length must be greater than 0", p.Length, i)
-		}
-
-		amount, err := sdk.ParseCoinsNormalized(p.Coins)
-		if err != nil {
-			return 0, nil, err
-		}
-
-		period := sdkvesting.Period{Length: p.Length, Amount: amount}
-		periods = append(periods, period)
-	}
-
-	return startTime, periods, nil
+	return cmd
 }
 
 // NewMsgCreateClawbackVestingAccountCmd returns a CLI command handler for creating a
