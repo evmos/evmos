@@ -14,7 +14,6 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
@@ -40,11 +39,11 @@ func (suite *UpgradeTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	// FIXME: this is the new binary! not the old one
+	// NOTE: this is the new binary, not the old one.
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9001-1",
+		ChainID:         "evmos_9001-2",
 		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
 		ProposerAddress: suite.consAddress.Bytes(),
 
@@ -106,7 +105,12 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 					},
 				)
 			},
-			func() {},
+			func() {
+				// check that the default params have been overridden by the init function
+				fmParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				suite.Require().Equal(sdk.NewDecWithPrec(25, 3).String(), fmParams.MinGasPrice.String())
+				suite.Require().Equal(sdk.NewDecWithPrec(5, 1).String(), fmParams.MinGasMultiplier.String())
+			},
 		},
 	}
 
@@ -116,52 +120,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 
 			tc.preUpdate()
 			tc.update()
-			// tc.postUpdate()
-		})
-	}
-}
-
-// FIXME: fix test
-func (suite *UpgradeTestSuite) TestUpgrade() {
-	testCases := []struct {
-		name     string
-		malleate func()
-		expError bool
-	}{
-		{
-			"mainnet",
-			func() {},
-			false,
-		},
-		{
-			"testnet",
-			func() {
-				suite.ctx = suite.ctx.WithChainID("evmos_9000-4")
-			},
-			false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
-
-			tc.malleate()
-			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
-
-			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
-
-			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper)
-			newVM, err := handlerFn(suite.ctx, types.Plan{}, vm)
-			if tc.expError {
-				suite.Require().Error(err)
-			} else {
-				suite.Require().NoError(err)
-				suite.Require().Equal(vm[feemarkettypes.ModuleName]+1, newVM[feemarkettypes.ModuleName], "version should have increased by 1")
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(feemarkettypes.DefaultMinGasMultiplier, params.MinGasMultiplier)
-				suite.Require().Equal(feemarkettypes.DefaultMinGasPrice, params.MinGasPrice)
-			}
+			tc.postUpdate()
 		})
 	}
 }
