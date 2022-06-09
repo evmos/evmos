@@ -52,7 +52,7 @@ make docker-build-debug
 
 The e2e test will first execute the chain_initializer and create the necessary files to run a node. Then it will run two validators via docker with the tag provided (pre upgrade tag). Before running the test suite, you need to update the version tags that are relevant for the upgrade (e.g. `v3` -> `v4`):
 
-In `e2e_suite_test.go#L161` update the validator version tag:
+In `e2e_suite_test.go#L114` update the validator version tag:
 
 ```go
 	for i, val := range c.Validators {
