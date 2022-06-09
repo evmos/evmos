@@ -65,7 +65,8 @@
       "url": "./tmp-swagger-gen/ethermint/feemarket/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "FeeMarketParams"
+          "Params": "FeeMarketParams",
+          "BaseFee": "FeeMarketBaseFee"
         }
       }
     },
@@ -158,6 +159,20 @@
       "operationIds": {
         "rename": {
           "Params": "StakingParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/tx/v1beta1/service.swagger.json",
+      "dereference": {
+        "circular": "ignore"
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/base/tendermint/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "BaseParams"
         }
       }
     }
