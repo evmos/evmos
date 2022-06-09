@@ -18,7 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
-	"github.com/cosmos/ibc-go/v3/testing/simapp"
 
 	ethermint "github.com/tharsis/ethermint/types"
 	evmosapp "github.com/tharsis/evmos/v5/app"
@@ -91,7 +90,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 		abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: simapp.DefaultConsensusParams,
+			ConsensusParams: evmosapp.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
