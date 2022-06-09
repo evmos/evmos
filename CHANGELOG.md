@@ -47,7 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (deps) [\#654](https://github.com/tharsis/evmos/pull/654) Bump Ethermint version to [`v0.16.0`](https://github.com/tharsis/ethermint/releases/tag/v0.16.0)
+- (deps) [\#654](https://github.com/tharsis/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/tharsis/ethermint/releases/tag/v0.16.1)
 - (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
 - (erc20) [\#602](https://github.com/tharsis/evmos/pull/602) Modified `RegisterERC20` proposals. Fix erc20 name sanitization to allow spaces on token name.
 
