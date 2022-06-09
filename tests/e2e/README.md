@@ -1,87 +1,60 @@
-# End-to-end Tests
+# End-to-End Testing Suite
 
-# Structure
+The End-to-End (E2E) testing suite provides an environment for running end-to-end tests on Evmos. It is used for testing chain upgrades, as it allows for initializing multiple Evmos chains with different versions.
 
-## `e2e` Package
+## Structure
 
-The `e2e` package defines an integration testing suite used for full end-to-end
-testing functionality. This package is decoupled from depending on the Evmos codebase.
-It initializes the chains for testing via Docker files. As a result, the test suite may
-provide the desired Evmos version to Docker containers during the initialization.
-This design allows for the opportunity of testing chain upgrades in the future by providing
-an older Evmos version to the container, performing the chain upgrade, and running the latest test suite.
+### `e2e` Package
 
-The file e2e_suite_test.go defines the testing suite and contains the core
-bootstrapping logic that creates a testing environment via Docker containers.
-A testing network is created dynamically with 2 test validators.
+The `e2e` package defines an integration testing suite used for full end-to-end testing functionality. This package is decoupled from depending on the Evmos codebase. It initializes the chains for testing via Docker files. As a result, the test suite may provide the desired Evmos version to Docker containers during the initialization. This design allows for the opportunity of testing chain upgrades by providing an older Evmos version to the container, performing the chain upgrade, and running the latest test suite. Here's an overview of the files:
 
-The file e2e_test.go contains the actual end-to-end integration tests that
-utilize the testing suite.
+* `e2e_suite_test.go`: defines the testing suite and contains the core bootstrapping logic that creates a testing environment via Docker containers. A testing network is created dynamically with 2 test validators.
+* `e2e_test.go`: contains the actual end-to-end integration tests that utilize the testing suite.
 
-Currently, there is a single test in `e2e_test.go` to query the balances of a validator.
+### `chain` Package
 
-## `chain` Package
+The `chain` package defines the logic necessary for initializing a chain by creating a genesis file and all required configuration files such as the `app.toml`. This package directly depends on the Evmos codebase.
 
-The `chain` package introduces the logic necessary for initializing a chain by creating a genesis
-file and all required configuration files such as the `app.toml`. This package directly depends on the Evmos codebase.
+## Chain Upgrades
 
-# Running Locally
+Testing a chain upgrade is a three step process:
 
-##### To build chain initializer:
+1. Build a chain initializer docker image with pre-upgrade version (e.g. `v3`)
+2. Build a chain initializer docker image with post-upgrade version (e.g. `v4`)
+3. Run tests on pre-upgrade version
 
-```
-make build-e2e-chain-init
-```
-- The produced binary is an entrypoint to the `evmos-e2e-chain-init:debug` image.
+### Create `pre-upgrade` image
 
-```
+Create the chain initializer docker image on the latest stable version of the software (before the upgrade). Since in this example we are testing an upgrade from `v3` to `v4`, we need to initialize the genesis file with the `v3` version.
+
+```shell
+# checkout pre-upgrade release branch
+git checkout <pre-upgrade version>
+
+# build chain initializer image
+make build-e2e-chain-init # The produced binary is an entrypoint to the `evmos-e2e-chain-init:debug` image.
 make docker-build-e2e-chain-init
 ```
 
-##### To run the chain initialization container locally:
-
-```
-mkdir < path >
-docker run -v < path >:/tmp/evmos-test evmos-e2e-chain-init:debug --data-dir=/tmp/evmos-test
-sudo rm -r < path > # must be root to clean up
-```
-- runs a container with a volume mounted at < path > where all chain initialization files are placed.
-- < path > must be absolute.
-- `--data-dir` flag is needed for outputting the files into a directory inside the container
-
-Example:
-```
-docker run -v /home/rama/test/:/chain evmos-e2e-chain-init:debug --data-dir /chain --chain-id evmos_9001-1
-```
-
-##### To build the debug Evmos image:
-
-```
-make docker-build-e2e-debug
-```
-
-##### Prepare for testing upgrades e2e:
-
-Create the chain initializer docker image on the latest stable version of the software (before the upgrade).
-Since we are testing upgrades `v3`-> `v4`, we need to initialize the genesis file with the `v3` version.
-```
-make build-e2e-chain-init
-
-make docker-build-e2e-chain-init
-```
+### Create`post-upgrade` image
 
 The `v4` version should have an upgrade handler, now build the docker image. This docker image will be tagged as `debug`,
 and will represent post upgrade Evmos node.
 
-```
+```shell
+# checkout post-upgrade release branch
+git checkout <post-upgrade version>
+
 make docker-build-debug
 ```
 
-The e2e test will first execute the chain_initializer and create the necessary files to run a node.
-Then it will run two validators via docker with the tag provided (pre upgrade tag).
+### Run upgrade tests
 
+The e2e test will first execute the chain_initializer and create the necessary files to run a node. Then it will run two validators via docker with the tag provided (pre upgrade tag). Before running the test suite, you need to update the version tags that are relevant for the upgrade (e.g. `v3` -> `v4`):
 
-```e2e_setup_test.go#L161
+In `e2e_suite_test.go#L161` update the validator version tag:
+
+```go
 	for i, val := range c.Validators {
 		runOpts := &dockertest.RunOptions{
 			Name:      val.Name,
@@ -90,7 +63,7 @@ Then it will run two validators via docker with the tag provided (pre upgrade ta
 				fmt.Sprintf("%s/:/evmos/.evmosd", val.ConfigDir),
 			},
 			Repository: "tharsishq/evmos",
-			Tag:        "v3.0.2",  <-------------------- Upgrade this tag to reflect pre upgrade version
+			Tag:        "v3.0.2",  // <-------------------- Upgrade this tag to reflect pre upgrade version
 			Cmd: []string{
 				"/usr/bin/evmosd",
 				"start",
@@ -100,48 +73,55 @@ Then it will run two validators via docker with the tag provided (pre upgrade ta
 		}
 ```
 
-The node will run with the previous version (`v3`), and submit a proposal for upgrading to the post upgrade version.
-Modify the proposal to reflect current upgrade.
+The node will run with the previous version (`v3`), and submit a proposal for upgrading to the post upgrade version. Modify the proposal to reflect current upgrade in `e2e_util_test.go#L129`.
 
-```e2e_util_test.go#L129
+```go
 			"tx", "gov", "submit-proposal",
-			"software-upgrade", "v4.0.0",  <--- Update the upgrade currently in testing
+			"software-upgrade", "v4.0.0", // <--- Update the upgrade currently in testing
 			"--title=\"v4.0.0\"",
 			"--description=\"v4 upgrade proposal\"",
 			"--upgrade-height=75",
 			"--upgrade-info=\"\"",
 ```
-After block 75 is reached, it will destroy the previously used docker images, and will run the docker images with the `debug` tag.
-This will execute the upgrade, and check that it was successful.
+After block 75 is reached, the test suite destroys the previously used docker images and runs the docker images with the `debug` tag. This will execute the upgrade, and check that it was successful.
 
-If the upgrade needs to migrate genesis file to the new version.
-```e2e_util_test.go#L317
+If the upgrade needs to migrate a genesis file to the new version, change the tag in `e2e_util_test.go#L317`:
+
+```go
 		Cmd: []string{
 			"/usr/bin/evmosd",
 			"--home",
 			"/evmos/.evmosd",
 			"migrate",
-			"v4",            <------ Update the migration version
+			"v4",           // <------ Update the migration version
 			"/evmos/.evmosd/config/genesis.json",
 			"--chain-id=evmos_9001-1",
 		},
 ```
 
-##### Run the e2e upgrade test:
-Once the testing files have been updated, and the correct docker images have been built, run the testing suite.
-```
+Once the testing files have been updated, and the correct docker images have been built, run the testing suite :
+
+```shell
 make test-e2e
 ```
 
 
-##### Test fail:
+### Testing Results
 
-In case of test failure, the container wont be deleted. To check the reason behind the error:
-```
+Running the e2e test make script, will output the test results for each testing file. In case of an sucessfull upgrade the script will output `ok  	github.com/tharsis/evmos/v4/tests/e2e	174.137s`.
+
+In case of test failure, the container wont be deleted. To analyze the error, run
+
+```shell
+# check containter id
+docker ps -a
+
+# get logs
 docker logs cointainerid
 ```
 
-To remove all docker containers:
+To rerun the tests, make sure to remove all docker containers first with:
+
 ```
 docker kill $(docker ps -a -q)
 docker rm $(docker ps -a -q)
