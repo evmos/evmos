@@ -7,6 +7,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
+
 	"github.com/tharsis/evmos/v5/x/vesting/types"
 )
 
@@ -38,18 +40,24 @@ func (k Keeper) Balances(
 		)
 	}
 
-	// Check if clawback vesting account
-	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
-	if !isClawback {
+	var locked, unvested, vested sdk.Coins
+	blockTime := ctx.BlockTime()
+
+	switch vestingAcc := acc.(type) {
+	case *types.ClawbackVestingAccount:
+		locked = vestingAcc.GetLockedOnly(blockTime)
+		unvested = vestingAcc.GetUnvestedOnly(blockTime)
+		vested = vestingAcc.GetVestedOnly(blockTime)
+	case vestexported.VestingAccount:
+		locked = vestingAcc.LockedCoins(blockTime)
+		vested = vestingAcc.GetVestedCoins(blockTime)
+		unvested = vestingAcc.GetVestingCoins(blockTime)
+	default:
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			"account at address '%s' is not a vesting account ", req.Address,
 		)
 	}
-
-	locked := clawbackAccount.GetLockedOnly(ctx.BlockTime())
-	unvested := clawbackAccount.GetUnvestedOnly(ctx.BlockTime())
-	vested := clawbackAccount.GetVestedOnly(ctx.BlockTime())
 
 	return &types.QueryBalancesResponse{
 		Locked:   locked,

@@ -62,6 +62,37 @@ func (suite *KeeperTestSuite) TestBalances() {
 			false,
 		},
 		{
+			"invalid account - periodic vesting account",
+			func() {
+				vestingStart := s.ctx.BlockTime()
+				funder := sdk.AccAddress(types.ModuleName)
+				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, funder, balances)
+				suite.Require().NoError(err)
+
+				ctx := sdk.WrapSDKContext(suite.ctx)
+
+				msg := types.NewMsgCreatePeriodicVestingAccount(
+					funder,
+					addr,
+					vestingStart.Unix(),
+					vestingPeriods,
+				)
+
+				_, err = suite.app.VestingKeeper.CreatePeriodicVestingAccount(ctx, msg)
+				suite.Require().NoError(err)
+
+				req = &types.QueryBalancesRequest{
+					Address: addr.String(),
+				}
+				expRes = &types.QueryBalancesResponse{
+					Locked:   balances,
+					Unvested: balances,
+					Vested:   nil,
+				}
+			},
+			true,
+		},
+		{
 			"valid",
 			func() {
 				vestingStart := s.ctx.BlockTime()
