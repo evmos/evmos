@@ -67,7 +67,7 @@ var _ = Describe("Distribution", Ordered, func() {
 		// set a EOA account for the address
 		eoa := &ethermint.EthAccount{
 			BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(s.address.Bytes()), nil, 0, 0),
-			CodeHash:    common.Bytes2Hex(evmtypes.EmptyCodeHash),
+			CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).String(),
 		}
 		s.app.AccountKeeper.RemoveAccount(s.ctx, eoa)
 		s.app.AccountKeeper.SetAccount(s.ctx, eoa)

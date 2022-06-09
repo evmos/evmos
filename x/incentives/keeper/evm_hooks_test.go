@@ -53,7 +53,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				// set a contract account for the address
 				contract := &ethermint.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256([]byte{0, 1, 2, 2})),
+					CodeHash:    common.BytesToHash(crypto.Keccak256([]byte{0, 1, 2, 2})).String(),
 				}
 
 				suite.app.AccountKeeper.SetAccount(suite.ctx, contract)
@@ -67,7 +67,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			func(contractAddr common.Address) {
 				acc := &ethermint.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
+					CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 				}
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
@@ -107,7 +107,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			func(contractAddr common.Address) {
 				acc := &ethermint.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
+					CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 				}
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
