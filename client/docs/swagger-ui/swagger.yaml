@@ -32,7 +32,9 @@ paths:
                       title: slice of the available actions completed
                   description: >-
                     ClaimsRecordAddress is the claims metadata per address that
-                    is used at Genesis.
+                    is used at
+
+                    Genesis.
                 title: claims defines all claims records
               pagination:
                 description: pagination defines the pagination in the response.
@@ -129,7 +131,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -524,7 +528,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -728,7 +734,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -941,7 +949,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -1139,7 +1149,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -1352,7 +1364,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -2409,6 +2423,214 @@ paths:
           in: path
           required: true
           type: string
+      tags:
+        - Query
+  /ethermint/evm/v1/base_fee:
+    get:
+      summary: >-
+        BaseFee queries the base fee of the parent block of the current block,
+
+        it's similar to feemarket module's method, but also checks london
+        hardfork status.
+      operationId: BaseFee
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              base_fee:
+                type: string
+            description: BaseFeeResponse returns the EIP1559 base fee.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                    value:
+                      type: string
+                      format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := ptypes.MarshalAny(foo)
+                         ...
+                         foo := &pb.Foo{}
+                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
       tags:
         - Query
   '/ethermint/evm/v1/codes/{address}':
@@ -4558,12 +4780,6 @@ paths:
           in: query
           required: false
           type: string
-        - name: tx_index
-          description: transaction index.
-          in: query
-          required: false
-          type: string
-          format: uint64
         - name: trace_config.tracer
           description: custom javascript tracer.
           in: query
@@ -4956,7 +5172,7 @@ paths:
   /ethermint/feemarket/v1/base_fee:
     get:
       summary: BaseFee queries the base fee of the parent block of the current block.
-      operationId: BaseFee
+      operationId: FeeMarketBaseFee
       responses:
         '200':
           description: A successful response.
@@ -5070,6 +5286,18 @@ paths:
                   base_fee:
                     type: string
                     description: base fee for EIP-1559 blocks.
+                  min_gas_price:
+                    type: string
+                    title: >-
+                      min_gas_price defines the minimum gas price value for
+                      cosmos and eth transactions
+                  min_gas_multiplier:
+                    type: string
+                    title: >-
+                      min gas denominator bounds the minimum gasUsed to be
+                      charged
+
+                      to senders based on GasLimit
                 title: Params defines the EVM module parameters
             description: >-
               QueryParamsResponse defines the response type for querying x/evm
@@ -5272,7 +5500,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -6088,7 +6318,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -7236,7 +7468,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -9089,7 +9323,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -10691,7 +10927,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -12510,7 +12748,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -13140,7 +13380,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -14602,7 +14844,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -15063,7 +15307,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -15793,7 +16039,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryGrantsResponse is the response type for the
-              Query/Authorizations RPC method.
+              Query/Authorizations RPC
+
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -15995,7 +16243,9 @@ paths:
         - name: msg_type_url
           description: >-
             Optional, msg_type_url, when set, will query only grants matching
-            given msg type.
+            given msg
+
+            type.
           in: query
           required: false
           type: string
@@ -16048,7 +16298,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -16260,9 +16512,9 @@ paths:
                   description: 'Since: cosmos-sdk 0.45.2'
                   title: >-
                     GrantAuthorization extends a grant with both the addresses
-                    of the grantee and granter.
+                    of the grantee and
 
-                    It is used in genesis.proto and query.proto
+                    granter. It is used in genesis.proto and query.proto
                 description: grants is a list of grants granted to the grantee.
               pagination:
                 description: pagination defines an pagination for the response.
@@ -16284,7 +16536,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryGranteeGrantsResponse is the response type for the
-              Query/GranteeGrants RPC method.
+              Query/GranteeGrants
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -16528,7 +16782,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -16740,9 +16996,9 @@ paths:
                   description: 'Since: cosmos-sdk 0.45.2'
                   title: >-
                     GrantAuthorization extends a grant with both the addresses
-                    of the grantee and granter.
+                    of the grantee and
 
-                    It is used in genesis.proto and query.proto
+                    granter. It is used in genesis.proto and query.proto
                 description: grants is a list of grants granted by the granter.
               pagination:
                 description: pagination defines an pagination for the response.
@@ -16764,7 +17020,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryGranterGrantsResponse is the response type for the
-              Query/GranterGrants RPC method.
+              Query/GranterGrants
+
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -17008,7 +17266,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -17145,7 +17405,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -17212,7 +17474,7 @@ paths:
         - Query
   /cosmos/bank/v1beta1/denoms_metadata:
     get:
-      summary: >-
+      summary: |-
         DenomsMetadata queries the client metadata for all registered coin
         denominations.
       operationId: DenomsMetadata
@@ -17318,9 +17580,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryDenomsMetadataResponse is the response type for the
-              Query/DenomsMetadata RPC
+              Query/DenomsMetadata
 
-              method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -17393,7 +17655,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -17415,7 +17679,9 @@ paths:
               metadata:
                 description: >-
                   metadata describes and provides all the client information for
-                  the requested token.
+                  the
+
+                  requested token.
                 type: object
                 properties:
                   description:
@@ -17485,9 +17751,9 @@ paths:
                       Since: cosmos-sdk 0.43
             description: >-
               QueryDenomMetadataResponse is the response type for the
-              Query/DenomMetadata RPC
+              Query/DenomMetadata
 
-              method.
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -17625,9 +17891,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QuerySpendableBalancesResponse defines the gRPC response structure
-              for querying
+              for
 
-              an account's spendable balances.
+              querying an account's spendable balances.
         default:
           description: An unexpected error response.
           schema:
@@ -17705,7 +17971,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -17840,7 +18108,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -18545,7 +18815,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -18577,7 +18849,9 @@ paths:
                     type: string
                     description: >-
                       grantee is the address of the user being granted an
-                      allowance of another user's funds.
+                      allowance of another
+
+                      user's funds.
                   allowance:
                     description: allowance can be any of basic and filtered fee allowance.
                     type: object
@@ -18651,7 +18925,9 @@ paths:
                   context
             description: >-
               QueryAllowanceResponse is the response type for the
-              Query/Allowance RPC method.
+              Query/Allowance RPC
+
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -18852,7 +19128,9 @@ paths:
         - name: grantee
           description: >-
             grantee is the address of the user being granted an allowance of
-            another user's funds.
+            another
+
+            user's funds.
           in: path
           required: true
           type: string
@@ -18882,7 +19160,9 @@ paths:
                       type: string
                       description: >-
                         grantee is the address of the user being granted an
-                        allowance of another user's funds.
+                        allowance of another
+
+                        user's funds.
                     allowance:
                       description: >-
                         allowance can be any of basic and filtered fee
@@ -18977,7 +19257,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryAllowancesResponse is the response type for the
-              Query/Allowances RPC method.
+              Query/Allowances RPC
+
+              method.
         default:
           description: An unexpected error response.
           schema:
@@ -19221,7 +19503,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -19680,7 +19964,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -20805,7 +21091,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -21586,7 +21874,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -22404,7 +22694,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -22776,9 +23068,11 @@ paths:
                         bonded
 
                         in a block and may have signed a precommit or not. This
-                        in conjunction with the
+                        in conjunction with
 
-                        `SignedBlocksWindow` param determines the index in the
+                        the `SignedBlocksWindow` param determines the index in
+                        the
+
                         `MissedBlocksBitArray`.
                     jailed_until:
                       type: string
@@ -22790,10 +23084,12 @@ paths:
                       type: boolean
                       description: >-
                         Whether or not a validator has been tombstoned (killed
-                        out of validator set). It is set
+                        out of validator
 
-                        once the validator commits an equivocation or for any
-                        other configured misbehiavor.
+                        set). It is set once the validator commits an
+                        equivocation or for any other
+
+                        configured misbehiavor.
                     missed_blocks_counter:
                       type: string
                       format: int64
@@ -22912,7 +23208,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -22953,9 +23251,10 @@ paths:
                       bonded
 
                       in a block and may have signed a precommit or not. This in
-                      conjunction with the
+                      conjunction with
 
-                      `SignedBlocksWindow` param determines the index in the
+                      the `SignedBlocksWindow` param determines the index in the
+
                       `MissedBlocksBitArray`.
                   jailed_until:
                     type: string
@@ -22967,10 +23266,12 @@ paths:
                     type: boolean
                     description: >-
                       Whether or not a validator has been tombstoned (killed out
-                      of validator set). It is set
+                      of validator
 
-                      once the validator commits an equivocation or for any
-                      other configured misbehiavor.
+                      set). It is set once the validator commits an equivocation
+                      or for any other
+
+                      configured misbehiavor.
                   missed_blocks_counter:
                     type: string
                     format: int64
@@ -23349,7 +23650,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -23385,12 +23688,16 @@ paths:
                           type: string
                           description: >-
                             validator_src_address is the validator redelegation
-                            source operator address.
+                            source operator
+
+                            address.
                         validator_dst_address:
                           type: string
                           description: >-
                             validator_dst_address is the validator redelegation
-                            destination operator address.
+                            destination operator
+
+                            address.
                         entries:
                           type: array
                           items:
@@ -23418,6 +23725,7 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
+
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -23459,6 +23767,7 @@ paths:
                                 description: >-
                                   shares_dst is the amount of
                                   destination-validator shares created by
+
                                   redelegation.
                             description: >-
                               RedelegationEntry defines a redelegation object
@@ -23758,7 +24067,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -23817,7 +24128,9 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at completion.
+                              scheduled to receive at
+
+                              completion.
                           balance:
                             type: string
                             description: >-
@@ -24099,7 +24412,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -24129,11 +24444,15 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech encoded in JSON.
+                        operator; bech
+
+                        encoded in JSON.
                     consensus_pubkey:
                       description: >-
                         consensus_pubkey is the consensus public key of the
-                        validator, as a Protobuf Any.
+                        validator, as a
+
+                        Protobuf Any.
                       type: object
                       properties:
                         type_url:
@@ -24204,7 +24523,9 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or not.
+                        from bonded status or
+
+                        not.
                     status:
                       description: >-
                         status is the validator status
@@ -24258,13 +24579,17 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator has begun unbonding.
+                        which this validator
+
+                        has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to complete unbonding.
+                        the validator to
+
+                        complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -24272,7 +24597,9 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for creating a validator.
+                            rates to be used for
+
+                            creating a validator.
                           type: object
                           properties:
                             rate:
@@ -24284,13 +24611,16 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever charge, as a fraction.
+                                which validator can ever
+
+                                charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator commission, as a
-                                fraction.
+                                increase of the validator
+
+                                commission, as a fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -24301,7 +24631,9 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self delegation.
+                        minimum self
+
+                        delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -24591,7 +24923,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -24620,11 +24954,15 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech encoded in JSON.
+                      operator; bech
+
+                      encoded in JSON.
                   consensus_pubkey:
                     description: >-
                       consensus_pubkey is the consensus public key of the
-                      validator, as a Protobuf Any.
+                      validator, as a
+
+                      Protobuf Any.
                     type: object
                     properties:
                       type_url:
@@ -24695,7 +25033,9 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or not.
+                      bonded status or
+
+                      not.
                   status:
                     description: >-
                       status is the validator status
@@ -24749,13 +25089,17 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator has begun unbonding.
+                      which this validator
+
+                      has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to complete unbonding.
+                      validator to
+
+                      complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -24763,7 +25107,9 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for creating a validator.
+                          to be used for
+
+                          creating a validator.
                         type: object
                         properties:
                           rate:
@@ -24775,12 +25121,16 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever charge, as a fraction.
+                              validator can ever
+
+                              charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator commission, as a fraction.
+                              of the validator
+
+                              commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -24791,7 +25141,9 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self delegation.
+                      minimum self
+
+                      delegation.
             description: |-
               QueryDelegatorValidatorResponse response type for the
               Query/DelegatorValidator RPC method.
@@ -25097,11 +25449,15 @@ paths:
                           type: string
                           description: >-
                             operator_address defines the address of the
-                            validator's operator; bech encoded in JSON.
+                            validator's operator; bech
+
+                            encoded in JSON.
                         consensus_pubkey:
                           description: >-
                             consensus_pubkey is the consensus public key of the
-                            validator, as a Protobuf Any.
+                            validator, as a
+
+                            Protobuf Any.
                           type: object
                           properties:
                             type_url:
@@ -25172,7 +25528,9 @@ paths:
                           type: boolean
                           description: >-
                             jailed defined whether the validator has been jailed
-                            from bonded status or not.
+                            from bonded status or
+
+                            not.
                         status:
                           description: >-
                             status is the validator status
@@ -25226,13 +25584,17 @@ paths:
                           format: int64
                           description: >-
                             unbonding_height defines, if unbonding, the height
-                            at which this validator has begun unbonding.
+                            at which this validator
+
+                            has begun unbonding.
                         unbonding_time:
                           type: string
                           format: date-time
                           description: >-
                             unbonding_time defines, if unbonding, the min time
-                            for the validator to complete unbonding.
+                            for the validator to
+
+                            complete unbonding.
                         commission:
                           description: commission defines the commission parameters.
                           type: object
@@ -25240,7 +25602,9 @@ paths:
                             commission_rates:
                               description: >-
                                 commission_rates defines the initial commission
-                                rates to be used for creating a validator.
+                                rates to be used for
+
+                                creating a validator.
                               type: object
                               properties:
                                 rate:
@@ -25252,14 +25616,16 @@ paths:
                                   type: string
                                   description: >-
                                     max_rate defines the maximum commission rate
-                                    which validator can ever charge, as a
-                                    fraction.
+                                    which validator can ever
+
+                                    charge, as a fraction.
                                 max_change_rate:
                                   type: string
                                   description: >-
                                     max_change_rate defines the maximum daily
-                                    increase of the validator commission, as a
-                                    fraction.
+                                    increase of the validator
+
+                                    commission, as a fraction.
                             update_time:
                               type: string
                               format: date-time
@@ -25270,7 +25636,9 @@ paths:
                           type: string
                           description: >-
                             min_self_delegation is the validator's self declared
-                            minimum self delegation.
+                            minimum self
+
+                            delegation.
                       description: >-
                         Validator defines a validator, together with the total
                         amount of the
@@ -25523,7 +25891,9 @@ paths:
                     format: int64
                     description: >-
                       max_entries is the max entries for either unbonding
-                      delegation or redelegation (per pair/trio).
+                      delegation or
+
+                      redelegation (per pair/trio).
                   historical_entries:
                     type: integer
                     format: int64
@@ -25956,11 +26326,15 @@ paths:
                       type: string
                       description: >-
                         operator_address defines the address of the validator's
-                        operator; bech encoded in JSON.
+                        operator; bech
+
+                        encoded in JSON.
                     consensus_pubkey:
                       description: >-
                         consensus_pubkey is the consensus public key of the
-                        validator, as a Protobuf Any.
+                        validator, as a
+
+                        Protobuf Any.
                       type: object
                       properties:
                         type_url:
@@ -26031,7 +26405,9 @@ paths:
                       type: boolean
                       description: >-
                         jailed defined whether the validator has been jailed
-                        from bonded status or not.
+                        from bonded status or
+
+                        not.
                     status:
                       description: >-
                         status is the validator status
@@ -26085,13 +26461,17 @@ paths:
                       format: int64
                       description: >-
                         unbonding_height defines, if unbonding, the height at
-                        which this validator has begun unbonding.
+                        which this validator
+
+                        has begun unbonding.
                     unbonding_time:
                       type: string
                       format: date-time
                       description: >-
                         unbonding_time defines, if unbonding, the min time for
-                        the validator to complete unbonding.
+                        the validator to
+
+                        complete unbonding.
                     commission:
                       description: commission defines the commission parameters.
                       type: object
@@ -26099,7 +26479,9 @@ paths:
                         commission_rates:
                           description: >-
                             commission_rates defines the initial commission
-                            rates to be used for creating a validator.
+                            rates to be used for
+
+                            creating a validator.
                           type: object
                           properties:
                             rate:
@@ -26111,13 +26493,16 @@ paths:
                               type: string
                               description: >-
                                 max_rate defines the maximum commission rate
-                                which validator can ever charge, as a fraction.
+                                which validator can ever
+
+                                charge, as a fraction.
                             max_change_rate:
                               type: string
                               description: >-
                                 max_change_rate defines the maximum daily
-                                increase of the validator commission, as a
-                                fraction.
+                                increase of the validator
+
+                                commission, as a fraction.
                         update_time:
                           type: string
                           format: date-time
@@ -26128,7 +26513,9 @@ paths:
                       type: string
                       description: >-
                         min_self_delegation is the validator's self declared
-                        minimum self delegation.
+                        minimum self
+
+                        delegation.
                   description: >-
                     Validator defines a validator, together with the total
                     amount of the
@@ -26418,7 +26805,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -26445,11 +26834,15 @@ paths:
                     type: string
                     description: >-
                       operator_address defines the address of the validator's
-                      operator; bech encoded in JSON.
+                      operator; bech
+
+                      encoded in JSON.
                   consensus_pubkey:
                     description: >-
                       consensus_pubkey is the consensus public key of the
-                      validator, as a Protobuf Any.
+                      validator, as a
+
+                      Protobuf Any.
                     type: object
                     properties:
                       type_url:
@@ -26520,7 +26913,9 @@ paths:
                     type: boolean
                     description: >-
                       jailed defined whether the validator has been jailed from
-                      bonded status or not.
+                      bonded status or
+
+                      not.
                   status:
                     description: >-
                       status is the validator status
@@ -26574,13 +26969,17 @@ paths:
                     format: int64
                     description: >-
                       unbonding_height defines, if unbonding, the height at
-                      which this validator has begun unbonding.
+                      which this validator
+
+                      has begun unbonding.
                   unbonding_time:
                     type: string
                     format: date-time
                     description: >-
                       unbonding_time defines, if unbonding, the min time for the
-                      validator to complete unbonding.
+                      validator to
+
+                      complete unbonding.
                   commission:
                     description: commission defines the commission parameters.
                     type: object
@@ -26588,7 +26987,9 @@ paths:
                       commission_rates:
                         description: >-
                           commission_rates defines the initial commission rates
-                          to be used for creating a validator.
+                          to be used for
+
+                          creating a validator.
                         type: object
                         properties:
                           rate:
@@ -26600,12 +27001,16 @@ paths:
                             type: string
                             description: >-
                               max_rate defines the maximum commission rate which
-                              validator can ever charge, as a fraction.
+                              validator can ever
+
+                              charge, as a fraction.
                           max_change_rate:
                             type: string
                             description: >-
                               max_change_rate defines the maximum daily increase
-                              of the validator commission, as a fraction.
+                              of the validator
+
+                              commission, as a fraction.
                       update_time:
                         type: string
                         format: date-time
@@ -26616,7 +27021,9 @@ paths:
                     type: string
                     description: >-
                       min_self_delegation is the validator's self declared
-                      minimum self delegation.
+                      minimum self
+
+                      delegation.
             title: >-
               QueryValidatorResponse is response type for the Query/Validator
               RPC method
@@ -27142,7 +27549,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -27458,7 +27867,9 @@ paths:
                           type: string
                           description: >-
                             initial_balance defines the tokens initially
-                            scheduled to receive at completion.
+                            scheduled to receive at
+
+                            completion.
                         balance:
                           type: string
                           description: balance defines the tokens to receive at completion.
@@ -27721,7 +28132,9 @@ paths:
                             type: string
                             description: >-
                               initial_balance defines the tokens initially
-                              scheduled to receive at completion.
+                              scheduled to receive at
+
+                              completion.
                           balance:
                             type: string
                             description: >-
@@ -28003,7 +28416,9 @@ paths:
         - name: pagination.reverse
           description: >-
             reverse is set to true if results are to be returned in the
-            descending order.
+            descending
+
+            order.
 
 
             Since: cosmos-sdk 0.43
@@ -28052,10 +28467,9 @@ definitions:
           is set.
       reverse:
         type: boolean
-        description: >-
+        description: |-
           reverse is set to true if results are to be returned in the descending
           order.
-
 
           Since: cosmos-sdk 0.43
     description: |-
@@ -28165,7 +28579,7 @@ definitions:
         items:
           type: boolean
         title: slice of the available actions completed
-    description: >-
+    description: |-
       ClaimsRecordAddress is the claims metadata per address that is used at
       Genesis.
   evmos.claims.v1.Params:
@@ -28268,7 +28682,9 @@ definitions:
               title: slice of the available actions completed
           description: >-
             ClaimsRecordAddress is the claims metadata per address that is used
-            at Genesis.
+            at
+
+            Genesis.
         title: claims defines all claims records
       pagination:
         description: pagination defines the pagination in the response.
@@ -30093,6 +30509,12 @@ definitions:
     description: >-
       QueryBalanceResponse is the response type for the Query/Balance RPC
       method.
+  ethermint.evm.v1.QueryBaseFeeResponse:
+    type: object
+    properties:
+      base_fee:
+        type: string
+    description: BaseFeeResponse returns the EIP1559 base fee.
   ethermint.evm.v1.QueryCodeResponse:
     type: object
     properties:
@@ -30407,6 +30829,16 @@ definitions:
       base_fee:
         type: string
         description: base fee for EIP-1559 blocks.
+      min_gas_price:
+        type: string
+        title: >-
+          min_gas_price defines the minimum gas price value for cosmos and eth
+          transactions
+      min_gas_multiplier:
+        type: string
+        title: |-
+          min gas denominator bounds the minimum gasUsed to be charged
+          to senders based on GasLimit
     title: Params defines the EVM module parameters
   ethermint.feemarket.v1.QueryBaseFeeResponse:
     type: object
@@ -30456,6 +30888,16 @@ definitions:
           base_fee:
             type: string
             description: base fee for EIP-1559 blocks.
+          min_gas_price:
+            type: string
+            title: >-
+              min_gas_price defines the minimum gas price value for cosmos and
+              eth transactions
+          min_gas_multiplier:
+            type: string
+            title: |-
+              min gas denominator bounds the minimum gasUsed to be charged
+              to senders based on GasLimit
         title: Params defines the EVM module parameters
     description: >-
       QueryParamsResponse defines the response type for querying x/evm
@@ -35268,9 +35710,9 @@ definitions:
     description: 'Since: cosmos-sdk 0.45.2'
     title: >-
       GrantAuthorization extends a grant with both the addresses of the grantee
-      and granter.
+      and
 
-      It is used in genesis.proto and query.proto
+      granter. It is used in genesis.proto and query.proto
   cosmos.authz.v1beta1.QueryGranteeGrantsResponse:
     type: object
     properties:
@@ -35458,9 +35900,9 @@ definitions:
           description: 'Since: cosmos-sdk 0.45.2'
           title: >-
             GrantAuthorization extends a grant with both the addresses of the
-            grantee and granter.
+            grantee and
 
-            It is used in genesis.proto and query.proto
+            granter. It is used in genesis.proto and query.proto
         description: grants is a list of grants granted to the grantee.
       pagination:
         description: pagination defines an pagination for the response.
@@ -35482,7 +35924,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryGranteeGrantsResponse is the response type for the
-      Query/GranteeGrants RPC method.
+      Query/GranteeGrants
+
+      RPC method.
   cosmos.authz.v1beta1.QueryGranterGrantsResponse:
     type: object
     properties:
@@ -35670,9 +36114,9 @@ definitions:
           description: 'Since: cosmos-sdk 0.45.2'
           title: >-
             GrantAuthorization extends a grant with both the addresses of the
-            grantee and granter.
+            grantee and
 
-            It is used in genesis.proto and query.proto
+            granter. It is used in genesis.proto and query.proto
         description: grants is a list of grants granted by the granter.
       pagination:
         description: pagination defines an pagination for the response.
@@ -35694,7 +36138,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryGranterGrantsResponse is the response type for the
-      Query/GranterGrants RPC method.
+      Query/GranterGrants
+
+      RPC method.
   cosmos.authz.v1beta1.QueryGrantsResponse:
     type: object
     properties:
@@ -35897,7 +36343,7 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-    description: >-
+    description: |-
       QueryGrantsResponse is the response type for the Query/Authorizations RPC
       method.
   cosmos.bank.v1beta1.DenomUnit:
@@ -36073,7 +36519,7 @@ definitions:
     type: object
     properties:
       metadata:
-        description: >-
+        description: |-
           metadata describes and provides all the client information for the
           requested token.
         type: object
@@ -36140,9 +36586,9 @@ definitions:
               Since: cosmos-sdk 0.43
     description: >-
       QueryDenomMetadataResponse is the response type for the
-      Query/DenomMetadata RPC
+      Query/DenomMetadata
 
-      method.
+      RPC method.
   cosmos.bank.v1beta1.QueryDenomsMetadataResponse:
     type: object
     properties:
@@ -36237,9 +36683,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryDenomsMetadataResponse is the response type for the
-      Query/DenomsMetadata RPC
+      Query/DenomsMetadata
 
-      method.
+      RPC method.
   cosmos.bank.v1beta1.QueryParamsResponse:
     type: object
     properties:
@@ -36302,11 +36748,9 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-    description: >-
+    description: |-
       QuerySpendableBalancesResponse defines the gRPC response structure for
-      querying
-
-      an account's spendable balances.
+      querying an account's spendable balances.
   cosmos.bank.v1beta1.QuerySupplyOfResponse:
     type: object
     properties:
@@ -36704,7 +37148,9 @@ definitions:
         type: string
         description: >-
           grantee is the address of the user being granted an allowance of
-          another user's funds.
+          another
+
+          user's funds.
       allowance:
         description: allowance can be any of basic and filtered fee allowance.
         type: object
@@ -36784,7 +37230,9 @@ definitions:
             type: string
             description: >-
               grantee is the address of the user being granted an allowance of
-              another user's funds.
+              another
+
+              user's funds.
           allowance:
             description: allowance can be any of basic and filtered fee allowance.
             type: object
@@ -36851,7 +37299,7 @@ definitions:
                   Must be a valid serialized protocol buffer of the above
                   specified type.
         title: Grant is stored in the KVStore to record a grant with full context
-    description: >-
+    description: |-
       QueryAllowanceResponse is the response type for the Query/Allowance RPC
       method.
   cosmos.feegrant.v1beta1.QueryAllowancesResponse:
@@ -36871,7 +37319,9 @@ definitions:
               type: string
               description: >-
                 grantee is the address of the user being granted an allowance of
-                another user's funds.
+                another
+
+                user's funds.
             allowance:
               description: allowance can be any of basic and filtered fee allowance.
               type: object
@@ -36959,7 +37409,7 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-    description: >-
+    description: |-
       QueryAllowancesResponse is the response type for the Query/Allowances RPC
       method.
   cosmos.evidence.v1beta1.QueryAllEvidenceResponse:
@@ -38549,9 +38999,10 @@ definitions:
               Index which is incremented each time the validator was a bonded
 
               in a block and may have signed a precommit or not. This in
-              conjunction with the
+              conjunction with
 
-              `SignedBlocksWindow` param determines the index in the
+              the `SignedBlocksWindow` param determines the index in the
+
               `MissedBlocksBitArray`.
           jailed_until:
             type: string
@@ -38563,9 +39014,11 @@ definitions:
             type: boolean
             description: >-
               Whether or not a validator has been tombstoned (killed out of
-              validator set). It is set
+              validator
 
-              once the validator commits an equivocation or for any other
+              set). It is set once the validator commits an equivocation or for
+              any other
+
               configured misbehiavor.
           missed_blocks_counter:
             type: string
@@ -38606,9 +39059,10 @@ definitions:
                 Index which is incremented each time the validator was a bonded
 
                 in a block and may have signed a precommit or not. This in
-                conjunction with the
+                conjunction with
 
-                `SignedBlocksWindow` param determines the index in the
+                the `SignedBlocksWindow` param determines the index in the
+
                 `MissedBlocksBitArray`.
             jailed_until:
               type: string
@@ -38620,9 +39074,11 @@ definitions:
               type: boolean
               description: >-
                 Whether or not a validator has been tombstoned (killed out of
-                validator set). It is set
+                validator
 
-                once the validator commits an equivocation or for any other
+                set). It is set once the validator commits an equivocation or
+                for any other
+
                 configured misbehiavor.
             missed_blocks_counter:
               type: string
@@ -38684,9 +39140,10 @@ definitions:
           Index which is incremented each time the validator was a bonded
 
           in a block and may have signed a precommit or not. This in conjunction
-          with the
+          with
 
-          `SignedBlocksWindow` param determines the index in the
+          the `SignedBlocksWindow` param determines the index in the
+
           `MissedBlocksBitArray`.
       jailed_until:
         type: string
@@ -38698,10 +39155,12 @@ definitions:
         type: boolean
         description: >-
           Whether or not a validator has been tombstoned (killed out of
-          validator set). It is set
+          validator
 
-          once the validator commits an equivocation or for any other configured
-          misbehiavor.
+          set). It is set once the validator commits an equivocation or for any
+          other
+
+          configured misbehiavor.
       missed_blocks_counter:
         type: string
         format: int64
@@ -38734,7 +39193,7 @@ definitions:
     type: object
     properties:
       commission_rates:
-        description: >-
+        description: |-
           commission_rates defines the initial commission rates to be used for
           creating a validator.
         type: object
@@ -38746,12 +39205,16 @@ definitions:
             type: string
             description: >-
               max_rate defines the maximum commission rate which validator can
-              ever charge, as a fraction.
+              ever
+
+              charge, as a fraction.
           max_change_rate:
             type: string
             description: >-
               max_change_rate defines the maximum daily increase of the
-              validator commission, as a fraction.
+              validator
+
+              commission, as a fraction.
       update_time:
         type: string
         format: date-time
@@ -38765,12 +39228,12 @@ definitions:
         description: 'rate is the commission rate charged to delegators, as a fraction.'
       max_rate:
         type: string
-        description: >-
+        description: |-
           max_rate defines the maximum commission rate which validator can ever
           charge, as a fraction.
       max_change_rate:
         type: string
-        description: >-
+        description: |-
           max_change_rate defines the maximum daily increase of the validator
           commission, as a fraction.
     description: >-
@@ -38938,11 +39401,15 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a Protobuf Any.
+                as a
+
+                Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -39012,7 +39479,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -39058,13 +39527,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -39072,7 +39545,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -39084,12 +39559,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -39100,7 +39579,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -39145,7 +39626,7 @@ definitions:
       max_entries:
         type: integer
         format: int64
-        description: >-
+        description: |-
           max_entries is the max entries for either unbonding delegation or
           redelegation (per pair/trio).
       historical_entries:
@@ -39327,7 +39808,9 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at completion.
+                      receive at
+
+                      completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -39372,11 +39855,15 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech encoded in JSON.
+              bech
+
+              encoded in JSON.
           consensus_pubkey:
             description: >-
               consensus_pubkey is the consensus public key of the validator, as
-              a Protobuf Any.
+              a
+
+              Protobuf Any.
             type: object
             properties:
               type_url:
@@ -39444,7 +39931,9 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or not.
+              status or
+
+              not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -39490,13 +39979,17 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator has begun unbonding.
+              validator
+
+              has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to complete unbonding.
+              validator to
+
+              complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -39504,7 +39997,9 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for creating a validator.
+                  used for
+
+                  creating a validator.
                 type: object
                 properties:
                   rate:
@@ -39516,19 +40011,23 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever charge, as a fraction.
+                      validator can ever
+
+                      charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator commission, as a fraction.
+                      validator
+
+                      commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: >-
+            description: |-
               min_self_delegation is the validator's self declared minimum self
               delegation.
     description: |-
@@ -39546,11 +40045,15 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a Protobuf Any.
+                as a
+
+                Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -39620,7 +40123,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -39666,13 +40171,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -39680,7 +40189,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -39692,12 +40203,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -39708,7 +40223,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -39845,11 +40362,15 @@ definitions:
                   type: string
                   description: >-
                     operator_address defines the address of the validator's
-                    operator; bech encoded in JSON.
+                    operator; bech
+
+                    encoded in JSON.
                 consensus_pubkey:
                   description: >-
                     consensus_pubkey is the consensus public key of the
-                    validator, as a Protobuf Any.
+                    validator, as a
+
+                    Protobuf Any.
                   type: object
                   properties:
                     type_url:
@@ -39920,7 +40441,9 @@ definitions:
                   type: boolean
                   description: >-
                     jailed defined whether the validator has been jailed from
-                    bonded status or not.
+                    bonded status or
+
+                    not.
                 status:
                   description: status is the validator status (bonded/unbonding/unbonded).
                   type: string
@@ -39966,13 +40489,17 @@ definitions:
                   format: int64
                   description: >-
                     unbonding_height defines, if unbonding, the height at which
-                    this validator has begun unbonding.
+                    this validator
+
+                    has begun unbonding.
                 unbonding_time:
                   type: string
                   format: date-time
                   description: >-
                     unbonding_time defines, if unbonding, the min time for the
-                    validator to complete unbonding.
+                    validator to
+
+                    complete unbonding.
                 commission:
                   description: commission defines the commission parameters.
                   type: object
@@ -39980,7 +40507,9 @@ definitions:
                     commission_rates:
                       description: >-
                         commission_rates defines the initial commission rates to
-                        be used for creating a validator.
+                        be used for
+
+                        creating a validator.
                       type: object
                       properties:
                         rate:
@@ -39992,12 +40521,16 @@ definitions:
                           type: string
                           description: >-
                             max_rate defines the maximum commission rate which
-                            validator can ever charge, as a fraction.
+                            validator can ever
+
+                            charge, as a fraction.
                         max_change_rate:
                           type: string
                           description: >-
                             max_change_rate defines the maximum daily increase
-                            of the validator commission, as a fraction.
+                            of the validator
+
+                            commission, as a fraction.
                     update_time:
                       type: string
                       format: date-time
@@ -40008,7 +40541,9 @@ definitions:
                   type: string
                   description: >-
                     min_self_delegation is the validator's self declared minimum
-                    self delegation.
+                    self
+
+                    delegation.
               description: >-
                 Validator defines a validator, together with the total amount of
                 the
@@ -40054,7 +40589,7 @@ definitions:
           max_entries:
             type: integer
             format: int64
-            description: >-
+            description: |-
               max_entries is the max entries for either unbonding delegation or
               redelegation (per pair/trio).
           historical_entries:
@@ -40097,12 +40632,16 @@ definitions:
                   type: string
                   description: >-
                     validator_src_address is the validator redelegation source
-                    operator address.
+                    operator
+
+                    address.
                 validator_dst_address:
                   type: string
                   description: >-
                     validator_dst_address is the validator redelegation
-                    destination operator address.
+                    destination operator
+
+                    address.
                 entries:
                   type: array
                   items:
@@ -40129,7 +40668,9 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by redelegation.
+                          shares created by
+
+                          redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -40169,7 +40710,9 @@ definitions:
                         type: string
                         description: >-
                           shares_dst is the amount of destination-validator
-                          shares created by redelegation.
+                          shares created by
+
+                          redelegation.
                     description: >-
                       RedelegationEntry defines a redelegation object with
                       relevant metadata.
@@ -40246,7 +40789,9 @@ definitions:
                   type: string
                   description: >-
                     initial_balance defines the tokens initially scheduled to
-                    receive at completion.
+                    receive at
+
+                    completion.
                 balance:
                   type: string
                   description: balance defines the tokens to receive at completion.
@@ -40342,11 +40887,15 @@ definitions:
             type: string
             description: >-
               operator_address defines the address of the validator's operator;
-              bech encoded in JSON.
+              bech
+
+              encoded in JSON.
           consensus_pubkey:
             description: >-
               consensus_pubkey is the consensus public key of the validator, as
-              a Protobuf Any.
+              a
+
+              Protobuf Any.
             type: object
             properties:
               type_url:
@@ -40414,7 +40963,9 @@ definitions:
             type: boolean
             description: >-
               jailed defined whether the validator has been jailed from bonded
-              status or not.
+              status or
+
+              not.
           status:
             description: status is the validator status (bonded/unbonding/unbonded).
             type: string
@@ -40460,13 +41011,17 @@ definitions:
             format: int64
             description: >-
               unbonding_height defines, if unbonding, the height at which this
-              validator has begun unbonding.
+              validator
+
+              has begun unbonding.
           unbonding_time:
             type: string
             format: date-time
             description: >-
               unbonding_time defines, if unbonding, the min time for the
-              validator to complete unbonding.
+              validator to
+
+              complete unbonding.
           commission:
             description: commission defines the commission parameters.
             type: object
@@ -40474,7 +41029,9 @@ definitions:
               commission_rates:
                 description: >-
                   commission_rates defines the initial commission rates to be
-                  used for creating a validator.
+                  used for
+
+                  creating a validator.
                 type: object
                 properties:
                   rate:
@@ -40486,19 +41043,23 @@ definitions:
                     type: string
                     description: >-
                       max_rate defines the maximum commission rate which
-                      validator can ever charge, as a fraction.
+                      validator can ever
+
+                      charge, as a fraction.
                   max_change_rate:
                     type: string
                     description: >-
                       max_change_rate defines the maximum daily increase of the
-                      validator commission, as a fraction.
+                      validator
+
+                      commission, as a fraction.
               update_time:
                 type: string
                 format: date-time
                 description: update_time is the last time the commission rate was changed.
           min_self_delegation:
             type: string
-            description: >-
+            description: |-
               min_self_delegation is the validator's self declared minimum self
               delegation.
     title: QueryValidatorResponse is response type for the Query/Validator RPC method
@@ -40539,7 +41100,9 @@ definitions:
                     type: string
                     description: >-
                       initial_balance defines the tokens initially scheduled to
-                      receive at completion.
+                      receive at
+
+                      completion.
                   balance:
                     type: string
                     description: balance defines the tokens to receive at completion.
@@ -40585,11 +41148,15 @@ definitions:
               type: string
               description: >-
                 operator_address defines the address of the validator's
-                operator; bech encoded in JSON.
+                operator; bech
+
+                encoded in JSON.
             consensus_pubkey:
               description: >-
                 consensus_pubkey is the consensus public key of the validator,
-                as a Protobuf Any.
+                as a
+
+                Protobuf Any.
               type: object
               properties:
                 type_url:
@@ -40659,7 +41226,9 @@ definitions:
               type: boolean
               description: >-
                 jailed defined whether the validator has been jailed from bonded
-                status or not.
+                status or
+
+                not.
             status:
               description: status is the validator status (bonded/unbonding/unbonded).
               type: string
@@ -40705,13 +41274,17 @@ definitions:
               format: int64
               description: >-
                 unbonding_height defines, if unbonding, the height at which this
-                validator has begun unbonding.
+                validator
+
+                has begun unbonding.
             unbonding_time:
               type: string
               format: date-time
               description: >-
                 unbonding_time defines, if unbonding, the min time for the
-                validator to complete unbonding.
+                validator to
+
+                complete unbonding.
             commission:
               description: commission defines the commission parameters.
               type: object
@@ -40719,7 +41292,9 @@ definitions:
                 commission_rates:
                   description: >-
                     commission_rates defines the initial commission rates to be
-                    used for creating a validator.
+                    used for
+
+                    creating a validator.
                   type: object
                   properties:
                     rate:
@@ -40731,12 +41306,16 @@ definitions:
                       type: string
                       description: >-
                         max_rate defines the maximum commission rate which
-                        validator can ever charge, as a fraction.
+                        validator can ever
+
+                        charge, as a fraction.
                     max_change_rate:
                       type: string
                       description: >-
                         max_change_rate defines the maximum daily increase of
-                        the validator commission, as a fraction.
+                        the validator
+
+                        commission, as a fraction.
                 update_time:
                   type: string
                   format: date-time
@@ -40747,7 +41326,9 @@ definitions:
               type: string
               description: >-
                 min_self_delegation is the validator's self declared minimum
-                self delegation.
+                self
+
+                delegation.
           description: >-
             Validator defines a validator, together with the total amount of the
 
@@ -40799,14 +41380,16 @@ definitions:
         description: delegator_address is the bech32-encoded address of the delegator.
       validator_src_address:
         type: string
-        description: >-
+        description: |-
           validator_src_address is the validator redelegation source operator
           address.
       validator_dst_address:
         type: string
         description: >-
           validator_dst_address is the validator redelegation destination
-          operator address.
+          operator
+
+          address.
       entries:
         type: array
         items:
@@ -40833,7 +41416,9 @@ definitions:
               type: string
               description: >-
                 shares_dst is the amount of destination-validator shares created
-                by redelegation.
+                by
+
+                redelegation.
           description: >-
             RedelegationEntry defines a redelegation object with relevant
             metadata.
@@ -40859,7 +41444,7 @@ definitions:
         description: initial_balance defines the initial balance when redelegation started.
       shares_dst:
         type: string
-        description: >-
+        description: |-
           shares_dst is the amount of destination-validator shares created by
           redelegation.
     description: RedelegationEntry defines a redelegation object with relevant metadata.
@@ -40888,7 +41473,9 @@ definitions:
             type: string
             description: >-
               shares_dst is the amount of destination-validator shares created
-              by redelegation.
+              by
+
+              redelegation.
         description: >-
           RedelegationEntry defines a redelegation object with relevant
           metadata.
@@ -40914,12 +41501,16 @@ definitions:
             type: string
             description: >-
               validator_src_address is the validator redelegation source
-              operator address.
+              operator
+
+              address.
           validator_dst_address:
             type: string
             description: >-
               validator_dst_address is the validator redelegation destination
-              operator address.
+              operator
+
+              address.
           entries:
             type: array
             items:
@@ -40946,7 +41537,9 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by redelegation.
+                    created by
+
+                    redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -40986,7 +41579,9 @@ definitions:
                   type: string
                   description: >-
                     shares_dst is the amount of destination-validator shares
-                    created by redelegation.
+                    created by
+
+                    redelegation.
               description: >-
                 RedelegationEntry defines a redelegation object with relevant
                 metadata.
@@ -41033,7 +41628,9 @@ definitions:
               type: string
               description: >-
                 initial_balance defines the tokens initially scheduled to
-                receive at completion.
+                receive at
+
+                completion.
             balance:
               type: string
               description: balance defines the tokens to receive at completion.
@@ -41057,7 +41654,7 @@ definitions:
         description: completion_time is the unix time for unbonding completion.
       initial_balance:
         type: string
-        description: >-
+        description: |-
           initial_balance defines the tokens initially scheduled to receive at
           completion.
       balance:
@@ -41071,11 +41668,11 @@ definitions:
     properties:
       operator_address:
         type: string
-        description: >-
+        description: |-
           operator_address defines the address of the validator's operator; bech
           encoded in JSON.
       consensus_pubkey:
-        description: >-
+        description: |-
           consensus_pubkey is the consensus public key of the validator, as a
           Protobuf Any.
         type: object
@@ -41142,7 +41739,9 @@ definitions:
         type: boolean
         description: >-
           jailed defined whether the validator has been jailed from bonded
-          status or not.
+          status or
+
+          not.
       status:
         description: status is the validator status (bonded/unbonding/unbonded).
         type: string
@@ -41186,13 +41785,17 @@ definitions:
         format: int64
         description: >-
           unbonding_height defines, if unbonding, the height at which this
-          validator has begun unbonding.
+          validator
+
+          has begun unbonding.
       unbonding_time:
         type: string
         format: date-time
         description: >-
           unbonding_time defines, if unbonding, the min time for the validator
-          to complete unbonding.
+          to
+
+          complete unbonding.
       commission:
         description: commission defines the commission parameters.
         type: object
@@ -41200,7 +41803,9 @@ definitions:
           commission_rates:
             description: >-
               commission_rates defines the initial commission rates to be used
-              for creating a validator.
+              for
+
+              creating a validator.
             type: object
             properties:
               rate:
@@ -41212,19 +41817,23 @@ definitions:
                 type: string
                 description: >-
                   max_rate defines the maximum commission rate which validator
-                  can ever charge, as a fraction.
+                  can ever
+
+                  charge, as a fraction.
               max_change_rate:
                 type: string
                 description: >-
                   max_change_rate defines the maximum daily increase of the
-                  validator commission, as a fraction.
+                  validator
+
+                  commission, as a fraction.
           update_time:
             type: string
             format: date-time
             description: update_time is the last time the commission rate was changed.
       min_self_delegation:
         type: string
-        description: >-
+        description: |-
           min_self_delegation is the validator's self declared minimum self
           delegation.
     description: >-

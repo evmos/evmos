@@ -65,7 +65,8 @@
       "url": "./tmp-swagger-gen/ethermint/feemarket/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "FeeMarketParams"
+          "Params": "FeeMarketParams",
+          "BaseFee": "FeeMarketBaseFee"
         }
       }
     },
