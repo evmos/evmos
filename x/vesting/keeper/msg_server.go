@@ -149,13 +149,15 @@ func (k Keeper) Clawback(
 	ak := k.accountKeeper
 	bk := k.bankKeeper
 
-	// Errors checked during msg validation
-	dest := sdk.MustAccAddressFromBech32(msg.DestAddress)
+	// NOTE: ignore error in case dest address is not defined
+	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
+
+	// NOTE: error checked during msg validation
 	addr := sdk.MustAccAddressFromBech32(msg.AccountAddress)
 
 	// Default destination to funder address
 	if msg.DestAddress == "" {
-		dest = sdk.MustAccAddressFromBech32(msg.FunderAddress)
+		dest, _ = sdk.AccAddressFromBech32(msg.FunderAddress)
 	}
 
 	if bk.BlockedAddr(dest) {
