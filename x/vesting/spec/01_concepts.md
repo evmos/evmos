@@ -12,6 +12,15 @@ Vesting describes the process of converting `unvested` into `vested` tokens with
 
 The lockup describes the schedule by which tokens are converted from a  `locked` to an `unlocked` state. As long as all tokens are locked, the account cannot perform any Ethereum transactions using the `x/evm` module. Additionally, locked tokens cannot be transferred to other accounts. In the case in which tokens are both locked and vested at the same time, it is possible to delegate them to validators, but not transfer them to other accounts.
 
+The following table summarizes the actions that are allowed for tokens that are subject to the combination of vesting and lockup:
+
+| Token Status            | Transfer | Delegate | Vote | Eth Txs |
+| ----------------------- | :------: | :------: | :--: | :-----: |
+| `locked` & `unvested`   |    ❌    |    ❌    |  ❌  |   ❌    |
+| `locked` & `vested`     |    ❌    |    ✅    |  ✅  |   ❌    |
+| `unlocked` & `unvested` |    ❌    |    ❌    |  ❌  |   ❌    |
+| `unlocked` & `vested`   |    ✅    |    ✅    |  ✅  |   ✅    |
+
 ## Schedules
 
 Vesting and lockup schedules specify the amount and time at which tokens are vested or unlocked. They are defined as [`periods`](https://docs.cosmos.network/v0.42/modules/auth/05_vesting.html#period) where each period has its own length and amount. A typical vesting schedule for instance would be defined starting with a one-year period to represent the vesting cliff, followed by several monthly vesting periods until the total allocated vesting amount is vested.
