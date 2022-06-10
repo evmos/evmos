@@ -28,7 +28,7 @@ func (k Keeper) RegisterDevFeeInfo(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract is already registered %s", contract)
 	}
 
-	deployer, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
+	deployer := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
 	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer.Bytes()))
 	if deployerAccount == nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "deployer account not found %s", msg.DeployerAddress)
@@ -39,7 +39,7 @@ func (k Keeper) RegisterDevFeeInfo(
 
 	var withdrawal sdk.AccAddress
 	if msg.WithdrawAddress != "" {
-		withdrawal, _ = sdk.AccAddressFromBech32(msg.WithdrawAddress)
+		withdrawal = sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
 	}
 
 	// the contract can be directly deployed by an EOA or created through one
@@ -150,7 +150,7 @@ func (k Keeper) UpdateDevFeeInfo(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress)
 	}
 
-	withdrawalAddress, _ := sdk.AccAddressFromBech32(msg.WithdrawAddress)
+	withdrawalAddress := sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
 	k.SetWithdrawal(ctx, contractAddress, withdrawalAddress)
 
 	ctx.EventManager().EmitEvents(

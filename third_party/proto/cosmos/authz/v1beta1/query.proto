@@ -18,19 +18,15 @@ service Query {
   // GranterGrants returns list of `GrantAuthorization`, granted by granter.
   //
   // Since: cosmos-sdk 0.45.2
-  rpc GranterGrants(QueryGranterGrantsRequest)
-      returns (QueryGranterGrantsResponse) {
-    option (google.api.http).get =
-        "/cosmos/authz/v1beta1/grants/granter/{granter}";
+  rpc GranterGrants(QueryGranterGrantsRequest) returns (QueryGranterGrantsResponse) {
+    option (google.api.http).get = "/cosmos/authz/v1beta1/grants/granter/{granter}";
   }
 
   // GranteeGrants returns a list of `GrantAuthorization` by grantee.
   //
   // Since: cosmos-sdk 0.45.2
-  rpc GranteeGrants(QueryGranteeGrantsRequest)
-      returns (QueryGranteeGrantsResponse) {
-    option (google.api.http).get =
-        "/cosmos/authz/v1beta1/grants/grantee/{grantee}";
+  rpc GranteeGrants(QueryGranteeGrantsRequest) returns (QueryGranteeGrantsResponse) {
+    option (google.api.http).get = "/cosmos/authz/v1beta1/grants/grantee/{grantee}";
   }
 }
 
@@ -38,15 +34,13 @@ service Query {
 message QueryGrantsRequest {
   string granter = 1;
   string grantee = 2;
-  // Optional, msg_type_url, when set, will query only grants matching given msg
-  // type.
+  // Optional, msg_type_url, when set, will query only grants matching given msg type.
   string msg_type_url = 3;
   // pagination defines an pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 4;
 }
 
-// QueryGrantsResponse is the response type for the Query/Authorizations RPC
-// method.
+// QueryGrantsResponse is the response type for the Query/Authorizations RPC method.
 message QueryGrantsResponse {
   // authorizations is a list of grants granted for grantee by granter.
   repeated Grant grants = 1;
@@ -54,8 +48,7 @@ message QueryGrantsResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryGranterGrantsRequest is the request type for the Query/GranterGrants RPC
-// method.
+// QueryGranterGrantsRequest is the request type for the Query/GranterGrants RPC method.
 message QueryGranterGrantsRequest {
   string granter = 1;
 
@@ -63,8 +56,7 @@ message QueryGranterGrantsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryGranterGrantsResponse is the response type for the Query/GranterGrants
-// RPC method.
+// QueryGranterGrantsResponse is the response type for the Query/GranterGrants RPC method.
 message QueryGranterGrantsResponse {
   // grants is a list of grants granted by the granter.
   repeated GrantAuthorization grants = 1;
@@ -72,8 +64,7 @@ message QueryGranterGrantsResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryGranteeGrantsRequest is the request type for the Query/IssuedGrants RPC
-// method.
+// QueryGranteeGrantsRequest is the request type for the Query/IssuedGrants RPC method.
 message QueryGranteeGrantsRequest {
   string grantee = 1;
 
@@ -81,8 +72,7 @@ message QueryGranteeGrantsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryGranteeGrantsResponse is the response type for the Query/GranteeGrants
-// RPC method.
+// QueryGranteeGrantsResponse is the response type for the Query/GranteeGrants RPC method.
 message QueryGranteeGrantsResponse {
   // grants is a list of grants granted to the grantee.
   repeated GrantAuthorization grants = 1;
