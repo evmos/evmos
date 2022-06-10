@@ -40,7 +40,7 @@ jobs:
             docs/**/*.md
             x/**/*.md
             README.md
-      - uses: nosborn/github-action-markdown-cli@v3.0.1
+      - uses: nosborn/github-action-markdown-cli@v3.1.0
         with:
           files: .
           config_file: .markdownlint.yml

@@ -27,7 +27,7 @@ enum SignMode {
 
   // SIGN_MODE_EIP_191 specifies the sign mode for EIP 191 signing on the Cosmos
   // SDK. Ref: https://eips.ethereum.org/EIPS/eip-191
-  //
+  // 
   // Currently, SIGN_MODE_EIP_191 is registered as a SignMode enum variant,
   // but is not implemented on the SDK by default. To enable EIP-191, you need
   // to pass a custom `TxConfig` that has an implementation of
@@ -55,14 +55,13 @@ message SignatureDescriptor {
   Data data = 2;
 
   // sequence is the sequence of the account, which describes the
-  // number of committed transactions signed by a given address. It is used to
-  // prevent replay attacks.
+  // number of committed transactions signed by a given address. It is used to prevent
+  // replay attacks.
   uint64 sequence = 3;
 
   // Data represents signature data
   message Data {
-    // sum is the oneof that specifies whether this represents single or
-    // multi-signature data
+    // sum is the oneof that specifies whether this represents single or multi-signature data
     oneof sum {
       // single represents a single signer
       Single single = 1;
