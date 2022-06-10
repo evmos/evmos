@@ -15,6 +15,9 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 		totalGasUsed uint64 = 1000
 	)
 
+	// check module balance
+	moduleAddr := suite.app.AccountKeeper.GetModuleAddress(types.ModuleName)
+
 	testCases := []struct {
 		name        string
 		allocations sdk.DecCoins
@@ -48,7 +51,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 			true,
 		},
 		{
-			"pass - with mint denom and ramaining epochs",
+			"pass - with mint denom and remaining epochs",
 			mintAllocations,
 			epochs,
 			denomMint,
@@ -79,9 +82,8 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 
 			regIn, found := suite.app.IncentivesKeeper.GetIncentive(suite.ctx, contract)
 			suite.Require().True(found)
+			suite.Require().Zero(regIn.TotalGas)
 
-			// check module balance
-			moduleAddr := suite.app.AccountKeeper.GetModuleAddress(types.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, moduleAddr, tc.denom)
 			suite.Require().True(balance.IsPositive())
 

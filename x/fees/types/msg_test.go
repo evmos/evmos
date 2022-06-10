@@ -41,7 +41,6 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoGetters() {
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgRegisterDevFeeInfo, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().Nil(msgInvalid.GetSigners())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
@@ -147,7 +146,6 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoGetters() {
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgCancelDevFeeInfo, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().Nil(msgInvalid.GetSigners())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
@@ -210,7 +208,6 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoGetters() {
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgUpdateDevFeeInfo, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().Nil(msgInvalid.GetSigners())
 	suite.Require().NotNil(msg.GetSigners())
 }
 

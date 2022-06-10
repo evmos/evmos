@@ -34,7 +34,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	}
 
 	for _, claimsRecord := range data.ClaimsRecords {
-		addr, _ := sdk.AccAddressFromBech32(claimsRecord.Address)
+		addr := sdk.MustAccAddressFromBech32(claimsRecord.Address)
 		cr := types.ClaimsRecord{
 			InitialClaimableAmount: claimsRecord.InitialClaimableAmount,
 			ActionsCompleted:       claimsRecord.ActionsCompleted,

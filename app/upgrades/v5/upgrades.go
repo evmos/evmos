@@ -145,8 +145,10 @@ func ResolveAirdrop(ctx sdk.Context, k *claimskeeper.Keeper) {
 	for _, claim := range claimsRecords {
 		addr, _ := sdk.AccAddressFromBech32(claim.Address)
 		k.SetClaimsRecord(ctx, addr,
-			claimstypes.ClaimsRecord{InitialClaimableAmount: claim.InitialClaimableAmount,
-				ActionsCompleted: claim.ActionsCompleted})
+			claimstypes.ClaimsRecord{
+				InitialClaimableAmount: claim.InitialClaimableAmount,
+				ActionsCompleted:       claim.ActionsCompleted,
+			})
 	}
 }
 

@@ -132,9 +132,14 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			s.Require().Equal(expVested, vested)
 		})
 
-		It("cannot delegate vested tokens", func() {
-			err := delegate(clawbackAccount, 1)
+		It("can delegate vested tokens", func() {
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
 			Expect(err).To(BeNil())
+		})
+
+		It("cannot delegate unvested tokens", func() {
+			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom).Int64())
+			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot transfer vested tokens", func() {
@@ -168,12 +173,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			err := delegate(clawbackAccount, 1)
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
 			Expect(err).To(BeNil())
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			err := delegate(clawbackAccount, 30)
+			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom).Int64())
 			Expect(err).ToNot(BeNil())
 		})
 

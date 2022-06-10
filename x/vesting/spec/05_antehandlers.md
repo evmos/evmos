@@ -19,7 +19,6 @@ Validates if a transaction contains a staking delegation of unvested coins. This
 - the message is not a `MsgDelegate`
 - sender account cannot be found
 - sender account is not a `ClawbackVestingAccount`
-- the coins are still locked
 - the bond amount is greater than the coins already vested
 
 ### `EthVestingTransactionDecorator`
