@@ -63,13 +63,14 @@ func CreateUpgradeHandler(
 
 		if types.IsMainnet(ctx.ChainID()) {
 			ResolveAirdrop(ctx, ck)
+			MigrateContributorClaim(ctx, ck)
 		}
 
 		// define from versions of the modules that have a new consensus version
 
 		// migrate fee market module, other modules are left as-is to
 		// avoid running InitGenesis.
-		vm[feemarkettypes.ModuleName] = 2
+		vm[feemarkettypes.ModuleName] = 3
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		return mm.RunMigrations(ctx, configurator, vm)
@@ -156,4 +157,19 @@ func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimst
 		return true
 	}
 	return false
+}
+
+// MigrateContributorClaim migrates the claims record of a specific early
+// contributor from one address to another
+func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
+	from, _ := sdk.AccAddressFromBech32(ContributorAddrFrom)
+	to, _ := sdk.AccAddressFromBech32(ContributorAddrTo)
+
+	cr, found := k.GetClaimsRecord(ctx, from)
+	if !found {
+		return
+	}
+
+	k.DeleteClaimsRecord(ctx, from)
+	k.SetClaimsRecord(ctx, to, cr)
 }
