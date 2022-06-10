@@ -116,7 +116,7 @@ func (msg MsgClawback) ValidateBasic() error {
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid addr address")
+		return sdkerrors.Wrapf(err, "invalid account address")
 	}
 
 	if msg.GetDestAddress() != "" {

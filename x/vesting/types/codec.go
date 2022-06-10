@@ -20,31 +20,23 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 // RegisterInterface associates protoName with AccountI and VestingAccount
 // Interfaces and creates a registry of it's concrete implementations
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	// NOTE: BaseVestingAccount is still supported to as it's the underlying embedded
+	// vesting account type in the ClawbackVestingAccount
 	registry.RegisterInterface(
 		"cosmos.vesting.v1beta1.VestingAccount",
 		(*exported.VestingAccount)(nil),
-		&sdkvesting.ContinuousVestingAccount{},
-		&sdkvesting.DelayedVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
-		&sdkvesting.PermanentLockedAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.AccountI)(nil),
-		&sdkvesting.ContinuousVestingAccount{},
-		&sdkvesting.DelayedVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
-		&sdkvesting.PermanentLockedAccount{},
+		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
-		&sdkvesting.ContinuousVestingAccount{},
-		&sdkvesting.DelayedVestingAccount{},
-		&sdkvesting.PeriodicVestingAccount{},
-		&sdkvesting.PermanentLockedAccount{},
+		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
