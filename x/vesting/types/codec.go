@@ -25,7 +25,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"cosmos.vesting.v1beta1.VestingAccount",
 		(*exported.VestingAccount)(nil),
-		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 	)
 
