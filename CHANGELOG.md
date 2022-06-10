@@ -37,14 +37,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-### Bug Fixes
-
-- (incentives) [\#656](https://github.com/tharsis/evmos/pull/656) Fix incentives that were previously only allocated to `EthAccount`s.
-- (fees) [\#612](https://github.com/tharsis/evmos/pull/612) Fix fees registration cli command and description
-- (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
-- (claims) [\#626](https://github.com/tharsis/evmos/pull/626) fix durations denominated in `nanoseconds`
-- (epochs) [\#629](https://github.com/tharsis/evmos/pull/629) fix epochs durations denominated in `nanoseconds`
-
 ### State Machine Breaking
 
 - (deps) [\#654](https://github.com/tharsis/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/tharsis/ethermint/releases/tag/v0.16.1)
@@ -60,7 +52,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (deps) [\#668](https://github.com/tharsis/evmos/pull/668) Bump Cosmos SDK to [`v0.45.5`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.5)
 - (erc20) [\#642](https://github.com/tharsis/evmos/pull/642) Remove enforcing ibc and channel names during `RegisterCoin`
+
+### Bug Fixes
+
+- (incentives) [\#656](https://github.com/tharsis/evmos/pull/656) Fix incentives that were previously only allocated to `EthAccount`s.
+- (fees) [\#612](https://github.com/tharsis/evmos/pull/612) Fix fees registration cli command and description
+- (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
+- (claims) [\#626](https://github.com/tharsis/evmos/pull/626) fix durations denominated in `nanoseconds`
+- (epochs) [\#629](https://github.com/tharsis/evmos/pull/629) fix epochs durations denominated in `nanoseconds`
 
 ## [v4.0.1] - 2022-05-10
 
