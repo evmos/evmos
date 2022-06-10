@@ -1053,6 +1053,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v5.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.BankKeeper,
+			app.ClaimsKeeper,
 		),
 	)
 
@@ -1075,6 +1076,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v2
 	case v4.UpgradeName:
 		// no store upgrades in v4
+	case v5.UpgradeName:
+		// no store upgrades in v5
 	}
 
 	if storeUpgrades != nil {

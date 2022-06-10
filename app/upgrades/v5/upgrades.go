@@ -14,6 +14,8 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/tharsis/evmos/v5/types"
+	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
+	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 func init() {
@@ -47,6 +49,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
+	ck *claimskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		// Refs:
@@ -56,6 +59,10 @@ func CreateUpgradeHandler(
 		// define the denom metadata for the testnet
 		if types.IsTestnet(ctx.ChainID()) {
 			bk.SetDenomMetaData(ctx, TestnetDenomMetadata)
+		}
+
+		if types.IsMainnet(ctx.ChainID()) {
+			ResolveAirdrop(ctx, ck)
 		}
 
 		// define from versions of the modules that have a new consensus version
@@ -98,4 +105,57 @@ func MigrateGenesis(appState genutiltypes.AppMap, clientCtx client.Context) genu
 	appState[feemarkettypes.ModuleName] = feeMarketBz
 
 	return appState
+}
+
+// ResolveAirdrop iterates over all the available claim records and
+// attempts to swap claimed actions and unclaimed actions.
+// The following priority is considered, and only one swap will be performed:
+// 1 - Unclaimed EVM      <-> claimed IBC
+// 2 - Unclaimed EVM      <-> claimed Vote
+// 3 - Unclaimed EVM      <-> claimed Delegate
+// 4 - Unclaimed Vote     <-> claimed IBC
+// 5 - Unclaimed Delegate <-> claimed IBC
+// A few users tokens are still locked due to issues with the airdrop
+// By swapping claimed actions we allow the users to migrate the records via IBC if needed
+// or mark the Evm action as completed for the Keplr users who are not able to complete it
+// Since no actual claiming of action is occurring, balance will remain unchanged
+func ResolveAirdrop(ctx sdk.Context, k *claimskeeper.Keeper) {
+	claimsRecords := []claimstypes.ClaimsRecordAddress{}
+	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, cr claimstypes.ClaimsRecord) (stop bool) {
+		// Perform any possible swap
+		override := swapUnclaimedAction(cr, claimstypes.ActionEVM, claimstypes.ActionIBCTransfer) ||
+			swapUnclaimedAction(cr, claimstypes.ActionEVM, claimstypes.ActionVote) ||
+			swapUnclaimedAction(cr, claimstypes.ActionEVM, claimstypes.ActionDelegate) ||
+			swapUnclaimedAction(cr, claimstypes.ActionVote, claimstypes.ActionIBCTransfer) ||
+			swapUnclaimedAction(cr, claimstypes.ActionDelegate, claimstypes.ActionIBCTransfer)
+
+		// If any actions were swapped, override the previous claims record
+		if override {
+			claim := claimstypes.ClaimsRecordAddress{
+				Address:                addr.String(),
+				InitialClaimableAmount: cr.InitialClaimableAmount,
+				ActionsCompleted:       cr.ActionsCompleted,
+			}
+			claimsRecords = append(claimsRecords, claim)
+		}
+		return false
+	})
+
+	for _, claim := range claimsRecords {
+		addr, _ := sdk.AccAddressFromBech32(claim.Address)
+		k.SetClaimsRecord(ctx, addr,
+			claimstypes.ClaimsRecord{
+				InitialClaimableAmount: claim.InitialClaimableAmount,
+				ActionsCompleted:       claim.ActionsCompleted,
+			})
+	}
+}
+
+func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimstypes.Action) bool {
+	if !cr.HasClaimedAction(unclaimed) && cr.HasClaimedAction(claimed) {
+		cr.ActionsCompleted[unclaimed-1] = true
+		cr.ActionsCompleted[claimed-1] = false
+		return true
+	}
+	return false
 }
