@@ -74,6 +74,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 	if acc != nil {
 		var isClawback bool
 		vestingAcc, isClawback = acc.(*types.ClawbackVestingAccount)
+
 		switch {
 		case !msg.Merge && isClawback:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists; consider using --merge", msg.ToAddress)
@@ -84,9 +85,12 @@ func (k Keeper) CreateClawbackVestingAccount(
 		case msg.FromAddress != vestingAcc.FunderAddress:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, vestingAcc.FunderAddress)
 		}
-		k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
-		ak.SetAccount(ctx, vestingAcc)
 
+		err := k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+		if err != nil {
+			return nil, err
+		}
+		ak.SetAccount(ctx, vestingAcc)
 	} else {
 		baseAcc := authtypes.NewBaseAccountWithAddress(to)
 		vestingAcc = types.NewClawbackVestingAccount(
@@ -215,7 +219,7 @@ func (k Keeper) addGrant(
 	grantStartTime int64,
 	grantLockupPeriods, grantVestingPeriods sdkvesting.Periods,
 	grantCoins sdk.Coins,
-) {
+) error {
 	// how much is really delegated?
 	bondedAmt := k.stakingKeeper.GetDelegatorBonded(ctx, va.GetAddress())
 	unbondingAmt := k.stakingKeeper.GetDelegatorUnbonding(ctx, va.GetAddress())
@@ -226,9 +230,15 @@ func (k Keeper) addGrant(
 	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime, va.LockupPeriods, grantLockupPeriods)
 	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime,
 		va.GetVestingPeriods(), grantVestingPeriods)
+
 	if newLockupStart != newVestingStart {
-		panic("bad start time calculation")
+		return sdkerrors.Wrapf(
+			types.ErrVestingLockup,
+			"vesting start time calculation should match lockup start (%d ≠ %d)",
+			newVestingStart, newLockupStart,
+		)
 	}
+
 	va.StartTime = time.Unix(newLockupStart, 0)
 	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
 	va.LockupPeriods = newLockupPeriods
@@ -239,6 +249,7 @@ func (k Keeper) addGrant(
 	unvested := va.GetVestingCoins(ctx.BlockTime())
 	va.DelegatedVesting = delegated.Min(unvested)
 	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
+	return nil
 }
 
 // transferClawback transfers unvested tokens in a ClawbackVestingAccount to

@@ -240,7 +240,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			"wrong account type",
 			func() {
 				baseAccount := authtypes.NewBaseAccountWithAddress(addr4)
-				acc := sdkvesting.NewDelayedVestingAccount(baseAccount, balances, 500000)
+				acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
 				s.app.AccountKeeper.SetAccount(suite.ctx, acc)
 			},
 			addr,
