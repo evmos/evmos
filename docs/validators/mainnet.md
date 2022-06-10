@@ -62,10 +62,10 @@ In the `config` directory, the most important files for configuration are `app.t
 
 ### Copy the Genesis File
 
-Download the `genesis.json` file from the [`archive`](https://archive.evmos.dev/genesis/genesis.json) and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+Download the `genesis.json` file from the [`archive`](https://archive.evmos.org/mainnet/genesis.json) and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
-wget https://archive.evmos.dev/genesis/genesis.json
+wget https://archive.evmos.org/mainnet/genesis.json
 mv genesis.json ~/.evmosd/config/
 ```
 

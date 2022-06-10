@@ -32,7 +32,6 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgCreateClawbackVestingAccount, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().Nil(msgInvalid.GetSigners())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
@@ -190,7 +189,6 @@ func (suite *MsgsTestSuite) TestMsgClawbackGetters() {
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgClawback, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().Nil(msgInvalid.GetSigners())
 	suite.Require().NotNil(msg.GetSigners())
 }
 

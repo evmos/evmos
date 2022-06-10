@@ -85,10 +85,7 @@ func (msg *MsgCreateClawbackVestingAccount) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
-	if err != nil {
-		return nil
-	}
+	from := sdk.MustAccAddressFromBech32(msg.FromAddress)
 	return []sdk.AccAddress{from}
 }
 
@@ -119,7 +116,7 @@ func (msg MsgClawback) ValidateBasic() error {
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid addr address")
+		return sdkerrors.Wrapf(err, "invalid account address")
 	}
 
 	if msg.GetDestAddress() != "" {
@@ -138,9 +135,6 @@ func (msg *MsgClawback) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgClawback) GetSigners() []sdk.AccAddress {
-	funder, err := sdk.AccAddressFromBech32(msg.FunderAddress)
-	if err != nil {
-		return nil
-	}
+	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	return []sdk.AccAddress{funder}
 }

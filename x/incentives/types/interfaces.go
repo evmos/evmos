@@ -34,6 +34,7 @@ type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	HasSupply(ctx sdk.Context, denom string) bool
+	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(sdk.Coin) bool)
 }
 
 // GovKeeper defines the expected governance keeper interface used on incentives

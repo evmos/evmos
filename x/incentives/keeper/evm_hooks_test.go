@@ -16,6 +16,7 @@ import (
 
 	"github.com/tharsis/evmos/v5/testutil"
 	"github.com/tharsis/evmos/v5/x/incentives/types"
+	vestingtypes "github.com/tharsis/evmos/v5/x/vesting/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
@@ -47,27 +48,14 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			false,
 		},
 		{
-			"from address doesn't have an account",
-			func(contractAddr common.Address) {
-				// remove the contract
-				contract := &ethermint.EthAccount{
-					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256([]byte{0, 1, 2, 2})),
-				}
-				suite.app.AccountKeeper.RemoveAccount(suite.ctx, contract)
-				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
-				expGasUsed = res.AsTransaction().Gas()
-			},
-			false,
-		},
-		{
 			"from address is not an EOA",
 			func(contractAddr common.Address) {
 				// set a contract account for the address
 				contract := &ethermint.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256([]byte{0, 1, 2, 2})),
+					CodeHash:    common.BytesToHash(crypto.Keccak256([]byte{0, 1, 2, 2})).String(),
 				}
+
 				suite.app.AccountKeeper.SetAccount(suite.ctx, contract)
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
 				expGasUsed = res.AsTransaction().Gas()
@@ -79,8 +67,34 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			func(contractAddr common.Address) {
 				acc := &ethermint.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
+					CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 				}
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
+			},
+			true,
+		},
+		{
+			"correct execution with Base account - one tx",
+			func(contractAddr common.Address) {
+				acc := authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
+				expGasUsed = res.AsTransaction().Gas()
+			},
+			true,
+		},
+		{
+			"correct execution with Vesting account - one tx",
+			func(contractAddr common.Address) {
+				acc := vestingtypes.NewClawbackVestingAccount(
+					authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
+					suite.address.Bytes(), nil, suite.ctx.BlockTime(), nil, nil,
+				)
+
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 				res := suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(1000))
@@ -93,7 +107,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			func(contractAddr common.Address) {
 				acc := &ethermint.EthAccount{
 					BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
-					CodeHash:    common.Bytes2Hex(crypto.Keccak256(nil)),
+					CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 				}
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
@@ -104,9 +118,9 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			true,
 		},
 		{
-			"tx with unincentivized contract",
+			"tx with non-incentivized contract",
 			func(_ common.Address) {
-				suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
+				_ = suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
 			},
 			false,
 		},
@@ -151,6 +165,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 				suite.Require().NoError(err)
 				suite.Require().True(found)
 				suite.Require().NotZero(gm)
+				suite.Require().NotZero(totalGas)
 				suite.Require().Equal(expGasUsed, gm)
 				suite.Require().Equal(expGasUsed, totalGas)
 			} else {
