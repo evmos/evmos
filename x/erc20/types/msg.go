@@ -61,11 +61,7 @@ func (msg *MsgConvertCoin) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgConvertCoin) GetSigners() []sdk.AccAddress {
-	addr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return nil
-	}
-
+	addr := sdk.MustAccAddressFromBech32(msg.Sender)
 	return []sdk.AccAddress{addr}
 }
 

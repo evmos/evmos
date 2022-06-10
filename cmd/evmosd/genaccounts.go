@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -32,8 +31,6 @@ import (
 
 const (
 	flagVestingStart = "vesting-start-time"
-	flagVestingEnd   = "vesting-end-time"
-	flagVestingAmt   = "vesting-amount"
 )
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
@@ -93,19 +90,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			vestingStart, err := cmd.Flags().GetInt64(flagVestingStart)
 			if err != nil {
 				return err
-			}
-			vestingEnd, err := cmd.Flags().GetInt64(flagVestingEnd)
-			if err != nil {
-				return err
-			}
-			vestingAmtStr, err := cmd.Flags().GetString(flagVestingAmt)
-			if err != nil {
-				return err
-			}
-
-			vestingAmt, err := sdk.ParseCoinsNormalized(vestingAmtStr)
-			if err != nil {
-				return fmt.Errorf("failed to parse vesting amount: %w", err)
 			}
 
 			// create concrete account type based on input parameters
@@ -213,26 +197,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					vestingPeriods,
 				)
 
-			// SDK vesting types
-			case !vestingAmt.IsZero():
-				baseVestingAccount := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
-
-				if (balances.Coins.IsZero() && !baseVestingAccount.OriginalVesting.IsZero()) ||
-					baseVestingAccount.OriginalVesting.IsAnyGT(balances.Coins) {
-					return errors.New("vesting amount cannot be greater than total amount")
-				}
-
-				switch {
-				case vestingStart != 0 && vestingEnd != 0:
-					genAccount = authvesting.NewContinuousVestingAccountRaw(baseVestingAccount, vestingStart)
-
-				case vestingEnd != 0:
-					genAccount = authvesting.NewDelayedVestingAccountRaw(baseVestingAccount)
-
-				default:
-					return errors.New("invalid vesting parameters; must supply start and end time or end time")
-				}
-
 			default:
 				genAccount = &ethermint.EthAccount{
 					BaseAccount: baseAccount,
@@ -303,13 +267,11 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|kwallet|pass|test)")
-	cmd.Flags().String(flagVestingAmt, "", "amount of coins for vesting accounts")
 	cmd.Flags().Int64(flagVestingStart, 0, "schedule start time (unix epoch) for vesting accounts")
-	cmd.Flags().Int64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
 	cmd.Flags().Bool(vestingcli.FlagClawback, false, "create clawback account")
 	cmd.Flags().String(vestingcli.FlagFunder, "", "funder address for clawback")
-	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods")
-	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods")
+	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods for a clawback vesting account")
+	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods for a clawback vesting account")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd

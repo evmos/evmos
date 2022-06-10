@@ -38,8 +38,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
-			senderAcc, _ = sdk.AccAddressFromBech32(sender)
-			receiverAcc, _ = sdk.AccAddressFromBech32(receiver)
+			senderAcc = sdk.MustAccAddressFromBech32(sender)
+			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
 		})
 		It("should transfer and not recover tokens", func() {
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", 10, sender, receiver, 1)
@@ -56,8 +56,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			BeforeEach(func() {
 				sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 				receiver = s.EvmosChain.SenderAccount.GetAddress().String()
-				senderAcc, _ = sdk.AccAddressFromBech32(sender)
-				receiverAcc, _ = sdk.AccAddressFromBech32(receiver)
+				senderAcc = sdk.MustAccAddressFromBech32(sender)
+				receiverAcc = sdk.MustAccAddressFromBech32(receiver)
 			})
 
 			It("should transfer and not recover tokens", func() {
@@ -74,8 +74,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			BeforeEach(func() {
 				sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 				receiver = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
-				senderAcc, _ = sdk.AccAddressFromBech32(sender)
-				receiverAcc, _ = sdk.AccAddressFromBech32(receiver)
+				senderAcc = sdk.MustAccAddressFromBech32(sender)
+				receiverAcc = sdk.MustAccAddressFromBech32(receiver)
 			})
 
 			Context("with disabled recovery parameter", func() {
