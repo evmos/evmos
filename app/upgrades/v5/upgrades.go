@@ -70,7 +70,7 @@ func CreateUpgradeHandler(
 
 		// migrate fee market module, other modules are left as-is to
 		// avoid running InitGenesis.
-		vm[feemarkettypes.ModuleName] = 3
+		vm[feemarkettypes.ModuleName] = 2
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		return mm.RunMigrations(ctx, configurator, vm)
