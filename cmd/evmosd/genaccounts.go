@@ -93,19 +93,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 			if err != nil {
 				return err
 			}
-			vestingEnd, err := cmd.Flags().GetInt64(flagVestingEnd)
-			if err != nil {
-				return err
-			}
-			vestingAmtStr, err := cmd.Flags().GetString(flagVestingAmt)
-			if err != nil {
-				return err
-			}
-
-			vestingAmt, err := sdk.ParseCoinsNormalized(vestingAmtStr)
-			if err != nil {
-				return fmt.Errorf("failed to parse vesting amount: %w", err)
-			}
 
 			// create concrete account type based on input parameters
 			var genAccount authtypes.GenesisAccount
@@ -282,13 +269,11 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|kwallet|pass|test)")
-	cmd.Flags().String(flagVestingAmt, "", "amount of coins for vesting accounts")
 	cmd.Flags().Int64(flagVestingStart, 0, "schedule start time (unix epoch) for vesting accounts")
-	cmd.Flags().Int64(flagVestingEnd, 0, "schedule end time (unix epoch) for vesting accounts")
 	cmd.Flags().Bool(vestingcli.FlagClawback, false, "create clawback account")
 	cmd.Flags().String(vestingcli.FlagFunder, "", "funder address for clawback")
-	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods")
-	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods")
+	cmd.Flags().String(vestingcli.FlagLockup, "", "path to file containing unlocking periods for a clawback vesting account")
+	cmd.Flags().String(vestingcli.FlagVesting, "", "path to file containing vesting periods for a clawback vesting account")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
