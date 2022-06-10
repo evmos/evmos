@@ -21,7 +21,6 @@ The following table summarizes the actions that are allowed for tokens that are 
 | `unlocked` & `unvested` |    ❌    |    ❌    |  ❌  |   ❌    |
 | `unlocked` & `vested`   |    ✅    |    ✅    |  ✅  |   ✅    |
 
-
 ## Schedules
 
 Vesting and lockup schedules specify the amount and time at which tokens are vested or unlocked. They are defined as [`periods`](https://docs.cosmos.network/v0.42/modules/auth/05_vesting.html#period) where each period has its own length and amount. A typical vesting schedule for instance would be defined starting with a one-year period to represent the vesting cliff, followed by several monthly vesting periods until the total allocated vesting amount is vested.
