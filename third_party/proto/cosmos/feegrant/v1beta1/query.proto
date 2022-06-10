@@ -13,14 +13,12 @@ service Query {
 
   // Allowance returns fee granted to the grantee by the granter.
   rpc Allowance(QueryAllowanceRequest) returns (QueryAllowanceResponse) {
-    option (google.api.http).get =
-        "/cosmos/feegrant/v1beta1/allowance/{granter}/{grantee}";
+    option (google.api.http).get = "/cosmos/feegrant/v1beta1/allowance/{granter}/{grantee}";
   }
 
   // Allowances returns all the grants for address.
   rpc Allowances(QueryAllowancesRequest) returns (QueryAllowancesResponse) {
-    option (google.api.http).get =
-        "/cosmos/feegrant/v1beta1/allowances/{grantee}";
+    option (google.api.http).get = "/cosmos/feegrant/v1beta1/allowances/{grantee}";
   }
 }
 
@@ -29,20 +27,17 @@ message QueryAllowanceRequest {
   // granter is the address of the user granting an allowance of their funds.
   string granter = 1;
 
-  // grantee is the address of the user being granted an allowance of another
-  // user's funds.
+  // grantee is the address of the user being granted an allowance of another user's funds.
   string grantee = 2;
 }
 
-// QueryAllowanceResponse is the response type for the Query/Allowance RPC
-// method.
+// QueryAllowanceResponse is the response type for the Query/Allowance RPC method.
 message QueryAllowanceResponse {
   // allowance is a allowance granted for grantee by granter.
   cosmos.feegrant.v1beta1.Grant allowance = 1;
 }
 
-// QueryAllowancesRequest is the request type for the Query/Allowances RPC
-// method.
+// QueryAllowancesRequest is the request type for the Query/Allowances RPC method.
 message QueryAllowancesRequest {
   string grantee = 1;
 
@@ -50,8 +45,7 @@ message QueryAllowancesRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryAllowancesResponse is the response type for the Query/Allowances RPC
-// method.
+// QueryAllowancesResponse is the response type for the Query/Allowances RPC method.
 message QueryAllowancesResponse {
   // allowances are allowance's granted for grantee by granter.
   repeated cosmos.feegrant.v1beta1.Grant allowances = 1;

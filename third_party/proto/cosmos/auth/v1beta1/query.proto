@@ -43,8 +43,7 @@ message QueryAccountsRequest {
 // Since: cosmos-sdk 0.43
 message QueryAccountsResponse {
   // accounts are the existing accounts
-  repeated google.protobuf.Any accounts = 1
-      [ (cosmos_proto.accepts_interface) = "AccountI" ];
+  repeated google.protobuf.Any accounts = 1 [(cosmos_proto.accepts_interface) = "AccountI"];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -52,7 +51,7 @@ message QueryAccountsResponse {
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
 message QueryAccountRequest {
-  option (gogoproto.equal) = false;
+  option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   // address defines the address to query for.
@@ -62,8 +61,7 @@ message QueryAccountRequest {
 // QueryAccountResponse is the response type for the Query/Account RPC method.
 message QueryAccountResponse {
   // account defines the account of the corresponding address.
-  google.protobuf.Any account = 1
-      [ (cosmos_proto.accepts_interface) = "AccountI" ];
+  google.protobuf.Any account = 1 [(cosmos_proto.accepts_interface) = "AccountI"];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -72,5 +70,5 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }
