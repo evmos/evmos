@@ -29,7 +29,6 @@ func (suite *MsgsTestSuite) TestMsgConvertCoinGetters() {
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgConvertCoin, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().Nil(msgInvalid.GetSigners())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
