@@ -137,27 +137,23 @@ func (suite *UpgradeTestSuite) TestAirdropHandle() {
 		expected []bool
 	}{
 		{
-			"EVM-IBC claimed",
+			"Swap ibc<->vote",
 			[]bool{false, false, true, true},
-			// Swap ibc<->vote
 			[]bool{true, false, true, false},
 		},
 		{
-			"DELEGATE-IBC claimed",
+			"Swap ibc<->evm",
 			[]bool{false, true, false, true},
-			// Swap ibc<->evm
 			[]bool{false, true, true, false},
 		},
 		{
-			"VOTE-IBC claimed",
+			"Swap ibc<->evm",
 			[]bool{true, false, false, true},
-			// Swap ibc<->evm
 			[]bool{true, false, true, false},
 		},
 		{
-			"VOTE claimed",
+			"Swap vote<->evm",
 			[]bool{true, false, false, false},
-			// Swap vote<->evm
 			[]bool{false, false, true, false},
 		},
 		{
@@ -166,9 +162,8 @@ func (suite *UpgradeTestSuite) TestAirdropHandle() {
 			[]bool{false, false, false, false},
 		},
 		{
-			"EVM unclaimed",
+			"Swap ibc<->evm",
 			[]bool{true, true, false, true},
-			// Swap ibc<->evm
 			[]bool{true, true, true, false},
 		},
 	}
@@ -190,7 +185,6 @@ func (suite *UpgradeTestSuite) TestAirdropHandle() {
 			suite.Require().Equal(tc.expected, cr.ActionsCompleted)
 			suite.Require().True(found)
 			suite.Require().NoError(err)
-
 		})
 	}
 }
