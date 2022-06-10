@@ -26,7 +26,7 @@ func (k Keeper) ConvertCoin(
 
 	// Error checked during msg validation
 	receiver := common.HexToAddress(msg.Receiver)
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	sender := sdk.MustAccAddressFromBech32(msg.Sender)
 
 	pair, err := k.MintingEnabled(ctx, sender, receiver.Bytes(), msg.Coin.Denom)
 	if err != nil {
@@ -67,7 +67,7 @@ func (k Keeper) ConvertERC20(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Error checked during msg validation
-	receiver, _ := sdk.AccAddressFromBech32(msg.Receiver)
+	receiver := sdk.MustAccAddressFromBech32(msg.Receiver)
 	sender := common.HexToAddress(msg.Sender)
 
 	pair, err := k.MintingEnabled(ctx, sender.Bytes(), receiver, msg.ContractAddress)

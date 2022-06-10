@@ -29,8 +29,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 	bk := k.bankKeeper
 
 	// Error checked during msg validation
-	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
-	to, _ := sdk.AccAddressFromBech32(msg.ToAddress)
+	from := sdk.MustAccAddressFromBech32(msg.FromAddress)
+	to := sdk.MustAccAddressFromBech32(msg.ToAddress)
 
 	if bk.BlockedAddr(to) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,
@@ -150,12 +150,12 @@ func (k Keeper) Clawback(
 	bk := k.bankKeeper
 
 	// Errors checked during msg validation
-	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
-	addr, _ := sdk.AccAddressFromBech32(msg.AccountAddress)
+	dest := sdk.MustAccAddressFromBech32(msg.DestAddress)
+	addr := sdk.MustAccAddressFromBech32(msg.AccountAddress)
 
 	// Default destination to funder address
 	if msg.DestAddress == "" {
-		dest, _ = sdk.AccAddressFromBech32(msg.FunderAddress)
+		dest = sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	}
 
 	if bk.BlockedAddr(dest) {
