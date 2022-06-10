@@ -14,7 +14,6 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
@@ -36,6 +35,7 @@ type UpgradeTestSuite struct {
 }
 
 func (suite *UpgradeTestSuite) SetupTest() {
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDecWithPrec(25, 3)
 	checkTx := false
 
 	// consensus key
@@ -176,9 +176,7 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
 
-			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
-
-			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper, suite.app.ClaimsKeeper)
+			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), suite.app.Configurator(), suite.app.BankKeeper, suite.app.ClaimsKeeper)
 			_, err := handlerFn(suite.ctx, types.Plan{}, vm)
 
 			cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
@@ -229,8 +227,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 			tc.malleate()
 
 			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
-			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
-			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper, suite.app.ClaimsKeeper)
+			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), suite.app.Configurator(), suite.app.BankKeeper, suite.app.ClaimsKeeper)
 			_, err := handlerFn(suite.ctx, types.Plan{}, vm)
 			suite.Require().NoError(err)
 
