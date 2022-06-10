@@ -129,7 +129,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 	}
 }
 
-func (suite *UpgradeTestSuite) TestAirdropHandle() {
+func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 
 	testCases := []struct {
 		name     string
