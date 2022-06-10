@@ -195,3 +195,54 @@ func addClaimRecord(ctx sdk.Context, k *claimskeeper.Keeper, actions []bool) sdk
 	k.SetClaimsRecord(ctx, addr, cr)
 	return addr
 }
+
+func (suite *UpgradeTestSuite) TestMigrateClaim() {
+	from, _ := sdk.AccAddressFromBech32(v5.ContributorAddrFrom)
+	to, _ := sdk.AccAddressFromBech32(v5.ContributorAddrTo)
+	cr := claimstypes.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(100), ActionsCompleted: []bool{false, false, false, false}}
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"with claims record",
+			func() {
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, from, cr)
+			},
+			true,
+		},
+		{
+			"without claims record",
+			func() {
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
+
+			tc.malleate()
+
+			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
+			cfg := module.NewConfigurator(suite.app.AppCodec(), suite.app.MsgServiceRouter(), suite.app.GRPCQueryRouter())
+			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), cfg, suite.app.BankKeeper, suite.app.ClaimsKeeper)
+			_, err := handlerFn(suite.ctx, types.Plan{}, vm)
+			suite.Require().NoError(err)
+
+			_, foundFrom := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, from)
+			crTo, foundTo := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, to)
+			if tc.expPass {
+				suite.Require().False(foundFrom)
+				suite.Require().True(foundTo)
+				suite.Require().Equal(crTo, cr)
+			} else {
+				suite.Require().False(foundTo)
+			}
+		})
+	}
+}
