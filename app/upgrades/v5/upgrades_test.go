@@ -35,7 +35,7 @@ type UpgradeTestSuite struct {
 }
 
 func (suite *UpgradeTestSuite) SetupTest() {
-	feemarkettypes.DefaultMinGasPrice = sdk.NewDecWithPrec(25, 3)
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(25_000_000_000)
 	checkTx := false
 
 	// consensus key
@@ -112,7 +112,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 			func() {
 				// check that the default params have been overridden by the init function
 				fmParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(sdk.NewDecWithPrec(25, 3).String(), fmParams.MinGasPrice.String())
+				suite.Require().Equal(sdk.NewDec(25_000_000_000).String(), fmParams.MinGasPrice.String())
 				suite.Require().Equal(sdk.NewDecWithPrec(5, 1).String(), fmParams.MinGasMultiplier.String())
 			},
 		},
@@ -130,7 +130,6 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 }
 
 func (suite *UpgradeTestSuite) TestResolveAirdrop() {
-
 	testCases := []struct {
 		name     string
 		original []bool
@@ -174,15 +173,12 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 
 			suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
-			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
 
-			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), suite.app.Configurator(), suite.app.BankKeeper, suite.app.ClaimsKeeper)
-			_, err := handlerFn(suite.ctx, types.Plan{}, vm)
+			v5.ResolveAirdrop(suite.ctx, suite.app.ClaimsKeeper)
 
 			cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
 			suite.Require().Equal(tc.expected, cr.ActionsCompleted)
 			suite.Require().True(found)
-			suite.Require().NoError(err)
 		})
 	}
 }
@@ -226,10 +222,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 
 			tc.malleate()
 
-			vm := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
-			handlerFn := v5.CreateUpgradeHandler(suite.app.ModuleManager(), suite.app.Configurator(), suite.app.BankKeeper, suite.app.ClaimsKeeper)
-			_, err := handlerFn(suite.ctx, types.Plan{}, vm)
-			suite.Require().NoError(err)
+			v5.MigrateContributorClaim(suite.ctx, suite.app.ClaimsKeeper)
 
 			_, foundFrom := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, from)
 			crTo, foundTo := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, to)

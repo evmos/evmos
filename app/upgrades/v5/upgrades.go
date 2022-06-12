@@ -20,8 +20,8 @@ import (
 
 func init() {
 	// modify fee market parameter defaults through global
-	feemarkettypes.DefaultMinGasPrice = sdk.NewDecWithPrec(25, 3)     // 0.025 aevmos (or atevmos)
-	feemarkettypes.DefaultMinGasMultiplier = sdk.NewDecWithPrec(5, 1) // 0.5 or 50%
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(25_000_000_000)    // 25B aevmos (or atevmos)
+	feemarkettypes.DefaultMinGasMultiplier = sdk.NewDecWithPrec(5, 1) // 50% of the leftover gas will be refunded
 }
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
@@ -162,7 +162,7 @@ func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimst
 }
 
 // MigrateContributorClaim migrates the claims record of a specific early
-// contributor from one address to another
+// contributor (B@B) from one address to another
 func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 	from, _ := sdk.AccAddressFromBech32(ContributorAddrFrom)
 	to, _ := sdk.AccAddressFromBech32(ContributorAddrTo)
