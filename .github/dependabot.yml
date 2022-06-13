@@ -9,6 +9,7 @@ updates:
   reviewers:
   - fedekunze
   - khoslaventures
+  - danburck
   labels:
   - dependencies
 - package-ecosystem: docker
@@ -20,6 +21,7 @@ updates:
   reviewers:
   - fedekunze
   - khoslaventures
+  - danburck
 - package-ecosystem: gomod
   directory: "/"
   schedule:
