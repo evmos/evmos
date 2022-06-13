@@ -18,12 +18,6 @@ import (
 	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
 )
 
-func init() {
-	// modify fee market parameter defaults through global
-	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(25_000_000_000)    // 25B aevmos (or atevmos). See https://commonwealth.im/evmos/discussion/5073-global-min-gas-price-value-for-cosmos-sdk-and-evm-transaction-choosing-a-value for reference
-	feemarkettypes.DefaultMinGasMultiplier = sdk.NewDecWithPrec(5, 1) // 50% of the leftover gas will be refunded
-}
-
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
 var TestnetDenomMetadata = banktypes.Metadata{
 	Description: "The native EVM, governance and staking token of the Evmos testnet",
@@ -53,6 +47,10 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
+
+		// modify fee market parameter defaults through global
+		feemarkettypes.DefaultMinGasPrice = MainnetMinGasPrices
+		feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 
 		// Refs:
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
