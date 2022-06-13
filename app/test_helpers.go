@@ -49,6 +49,7 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 }
 
 func init() {
+	feemarkettypes.DefaultMinGasPrice = sdk.ZeroDec()
 	cfg := sdk.GetConfig()
 	config.SetBech32Prefixes(cfg)
 	config.SetBip44CoinType(cfg)
