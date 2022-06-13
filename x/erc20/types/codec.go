@@ -21,7 +21,7 @@ var (
 	// AminoCdc is a amino codec created to support amino JSON compatible msgs.
 	AminoCdc = codec.NewAminoCodec(amino)
 
-	//Amino names
+	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
 	convertCoinName  = "evmos/MsgConvertCoin"
 )
