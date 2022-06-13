@@ -20,7 +20,7 @@ import (
 
 func init() {
 	// modify fee market parameter defaults through global
-	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(25_000_000_000)    // 25B aevmos (or atevmos)
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(25_000_000_000)    // 25B aevmos (or atevmos). See https://commonwealth.im/evmos/discussion/5073-global-min-gas-price-value-for-cosmos-sdk-and-evm-transaction-choosing-a-value for reference
 	feemarkettypes.DefaultMinGasMultiplier = sdk.NewDecWithPrec(5, 1) // 50% of the leftover gas will be refunded
 }
 
