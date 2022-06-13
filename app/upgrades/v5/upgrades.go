@@ -64,12 +64,10 @@ func CreateUpgradeHandler(
 			bk.SetDenomMetaData(ctx, TestnetDenomMetadata)
 		}
 
-		if types.IsMainnet(ctx.ChainID()) {
-			logger.Debug("swaping claims record actions...")
-			ResolveAirdrop(ctx, ck)
-			logger.Debug("migrating early contributor claim record...")
-			MigrateContributorClaim(ctx, ck)
-		}
+		logger.Debug("swaping claims record actions...")
+		ResolveAirdrop(ctx, ck)
+		logger.Debug("migrating early contributor claim record...")
+		MigrateContributorClaim(ctx, ck)
 
 		// define from versions of the modules that have a new consensus version
 
