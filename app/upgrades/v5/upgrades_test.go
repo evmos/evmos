@@ -136,22 +136,22 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 		expected []bool
 	}{
 		{
-			"Swap ibc<->vote",
+			"Swap IBC<->vote",
 			[]bool{false, false, true, true},
 			[]bool{true, false, true, false},
 		},
 		{
-			"Swap ibc<->evm",
+			"Swap IBC<->EVM",
 			[]bool{false, true, false, true},
 			[]bool{false, true, true, false},
 		},
 		{
-			"Swap ibc<->evm",
+			"Swap IBC<->EVM",
 			[]bool{true, false, false, true},
 			[]bool{true, false, true, false},
 		},
 		{
-			"Swap vote<->evm",
+			"Swap vote<->EVM",
 			[]bool{true, false, false, false},
 			[]bool{false, false, true, false},
 		},
@@ -161,7 +161,7 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 			[]bool{false, false, false, false},
 		},
 		{
-			"Swap ibc<->evm",
+			"Swap IBC<->EVM",
 			[]bool{true, true, false, true},
 			[]bool{true, true, true, false},
 		},
@@ -171,7 +171,6 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 
 			v5.ResolveAirdrop(suite.ctx, suite.app.ClaimsKeeper)
@@ -219,8 +218,6 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-
-			suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
 
 			tc.malleate()
 
