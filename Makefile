@@ -24,6 +24,8 @@ DOCKER_TAG := $(COMMIT_HASH)
 
 export GO111MODULE = on
 
+
+
 # Default target executed when no arguments are given to make.
 default_target: all
 
@@ -169,6 +171,9 @@ clean:
 all: build
 
 build-all: tools build lint test
+
+docker-build-debug:
+	@docker build -t evmos:debug --build-arg BASE_IMG_TAG=debug -f Dockerfile .
 
 .PHONY: distclean clean build-all
 
