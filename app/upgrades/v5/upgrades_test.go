@@ -35,7 +35,7 @@ type UpgradeTestSuite struct {
 }
 
 func (suite *UpgradeTestSuite) SetupTest() {
-	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(25_000_000_000)
+	feemarkettypes.DefaultMinGasPrice = v5.MainnetMinGasPrices
 	checkTx := false
 
 	// consensus key
@@ -112,8 +112,8 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 			func() {
 				// check that the default params have been overridden by the init function
 				fmParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(sdk.NewDec(25_000_000_000).String(), fmParams.MinGasPrice.String())
-				suite.Require().Equal(sdk.NewDecWithPrec(5, 1).String(), fmParams.MinGasMultiplier.String())
+				suite.Require().Equal(v5.MainnetMinGasPrices.String(), fmParams.MinGasPrice.String())
+				suite.Require().Equal(v5.MainnetMinGasMultiplier.String(), fmParams.MinGasMultiplier.String())
 			},
 		},
 	}
