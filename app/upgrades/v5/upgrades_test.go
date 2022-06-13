@@ -35,6 +35,7 @@ type UpgradeTestSuite struct {
 }
 
 func (suite *UpgradeTestSuite) SetupTest() {
+	feemarkettypes.DefaultMinGasPrice = v5.MainnetMinGasPrices
 	checkTx := false
 
 	// consensus key
