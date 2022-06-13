@@ -231,7 +231,6 @@ else
 	@echo "protoc-gen-go-grpc already installed; skipping..."
 endif
 
-
 ifeq (, $(shell which protoc))
 	@echo "Please istalling protobuf according to your OS"
 	@echo "macOS: brew install protobuf"
