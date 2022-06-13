@@ -48,6 +48,10 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		// modify fee market parameter defaults through global
+		feemarkettypes.DefaultMinGasPrice = MainnetMinGasPrices
+		feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
+
 		// Refs:
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
