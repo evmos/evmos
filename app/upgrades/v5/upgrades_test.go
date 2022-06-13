@@ -191,8 +191,10 @@ func addClaimRecord(ctx sdk.Context, k *claimskeeper.Keeper, actions []bool) sdk
 }
 
 func (suite *UpgradeTestSuite) TestMigrateClaim() {
-	from, _ := sdk.AccAddressFromBech32(v5.ContributorAddrFrom)
-	to, _ := sdk.AccAddressFromBech32(v5.ContributorAddrTo)
+	from, err := sdk.AccAddressFromBech32(v5.ContributorAddrFrom)
+	suite.Require().NoError(err)
+	to, err := sdk.AccAddressFromBech32(v5.ContributorAddrTo)
+	suite.Require().NoError(err)
 	cr := claimstypes.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(100), ActionsCompleted: []bool{false, false, false, false}}
 
 	testCases := []struct {

@@ -52,17 +52,22 @@ func CreateUpgradeHandler(
 	ck *claimskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		logger := ctx.Logger().With("upgrade", UpgradeName)
+
 		// Refs:
 		// - https://docs.cosmos.network/master/building-modules/upgrade.html#registering-migrations
 		// - https://docs.cosmos.network/master/migrations/chain-upgrade-guide-044.html#chain-upgrade
 
 		// define the denom metadata for the testnet
 		if types.IsTestnet(ctx.ChainID()) {
+			logger.Debug("setting testnet client denomination metadata...")
 			bk.SetDenomMetaData(ctx, TestnetDenomMetadata)
 		}
 
 		if types.IsMainnet(ctx.ChainID()) {
+			logger.Debug("swaping claims record actions...")
 			ResolveAirdrop(ctx, ck)
+			logger.Debug("migrating early contributor claim record...")
 			MigrateContributorClaim(ctx, ck)
 		}
 
@@ -73,6 +78,7 @@ func CreateUpgradeHandler(
 		vm[feemarkettypes.ModuleName] = 2
 
 		// Leave modules are as-is to avoid running InitGenesis.
+		logger.Debug("running migration for fee market module (EIP-1559)...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
@@ -116,7 +122,8 @@ func MigrateGenesis(appState genutiltypes.AppMap, clientCtx client.Context) genu
 // 3 - Unclaimed EVM      <-> claimed Delegate
 // 4 - Unclaimed Vote     <-> claimed IBC
 // 5 - Unclaimed Delegate <-> claimed IBC
-// A few users tokens are still locked due to issues with the airdrop
+//
+// Rationale: A few users tokens are still locked due to issues with the airdrop
 // By swapping claimed actions we allow the users to migrate the records via IBC if needed
 // or mark the Evm action as completed for the Keplr users who are not able to complete it
 // Since no actual claiming of action is occurring, balance will remain unchanged
@@ -143,12 +150,13 @@ func ResolveAirdrop(ctx sdk.Context, k *claimskeeper.Keeper) {
 	})
 
 	for _, claim := range claimsRecords {
-		addr, _ := sdk.AccAddressFromBech32(claim.Address)
-		k.SetClaimsRecord(ctx, addr,
-			claimstypes.ClaimsRecord{
-				InitialClaimableAmount: claim.InitialClaimableAmount,
-				ActionsCompleted:       claim.ActionsCompleted,
-			})
+		addr := sdk.MustAccAddressFromBech32(claim.Address)
+		cr := claimstypes.ClaimsRecord{
+			InitialClaimableAmount: claim.InitialClaimableAmount,
+			ActionsCompleted:       claim.ActionsCompleted,
+		}
+
+		k.SetClaimsRecord(ctx, addr, cr)
 	}
 }
 
@@ -164,8 +172,8 @@ func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimst
 // MigrateContributorClaim migrates the claims record of a specific early
 // contributor (B@B) from one address to another
 func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
-	from, _ := sdk.AccAddressFromBech32(ContributorAddrFrom)
-	to, _ := sdk.AccAddressFromBech32(ContributorAddrTo)
+	from := sdk.MustAccAddressFromBech32(ContributorAddrFrom)
+	to := sdk.MustAccAddressFromBech32(ContributorAddrTo)
 
 	cr, found := k.GetClaimsRecord(ctx, from)
 	if !found {
