@@ -193,8 +193,9 @@ func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 	k.SetClaimsRecord(ctx, to, cr)
 }
 
-// UpdateConsensusParams updates the Evidence params (MaxAgeDuration and MaxAgeNumBlocks) to
-// match the unbonding period and use the expected avg block time based on the node configuration.
+// UpdateConsensusParams updates the Tendermint Consensus Evidence params (MaxAgeDuration and
+// MaxAgeNumBlocks) to match the unbonding period and use the expected avg block time based on the
+// node configuration.
 func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramskeeper.Keeper) {
 	subspace, found := pk.GetSubspace(baseapp.Paramspace)
 	if !found {
