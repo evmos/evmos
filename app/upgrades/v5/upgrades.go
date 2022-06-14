@@ -177,7 +177,9 @@ func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimst
 }
 
 // MigrateContributorClaim migrates the claims record of a specific early
-// contributor (B@B) from one address to another
+// contributor (Blockchain at Berkeley) from one address to another.
+// See https://medium.com/evmos/the-evmos-rektdrop-abbe931ba823 for details about
+// Early Contributors.
 func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 	from := sdk.MustAccAddressFromBech32(ContributorAddrFrom)
 	to := sdk.MustAccAddressFromBech32(ContributorAddrTo)
@@ -191,7 +193,8 @@ func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 	k.SetClaimsRecord(ctx, to, cr)
 }
 
-// UpdateConsensusParams
+// UpdateConsensusParams updates the Evidence params (MaxAgeDuration and MaxAgeNumBlocks) to
+// match the unbonding period and use the expected avg block time based on the node configuration.
 func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramskeeper.Keeper) {
 	subspace, found := pk.GetSubspace(baseapp.Paramspace)
 	if !found {
@@ -201,7 +204,7 @@ func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramske
 	var evidenceParams tmproto.EvidenceParams
 	subspace.GetIfExists(ctx, baseapp.ParamStoreKeyEvidenceParams, &evidenceParams)
 
-	// no-op if empty
+	// safety check: no-op if the evidence params is empty (shouldn't happen)
 	if evidenceParams.Equal(tmproto.EvidenceParams{}) {
 		return
 	}

@@ -22,6 +22,13 @@ const (
 	// ContributorAddrTo is the new address of an early contributor
 	ContributorAddrTo = "evmos1hmntpkn623y3vl0nvzrazvq4rqzv3xa74l40gl"
 	// AvgBlockTime defines the new expected average blocktime on mainnet and testnet
+	//
+	// CONTRACT: in order for AvgBlockTime to represent an accurate value on-chain, validator nodes
+	// will need to update their "timeout_commit" value to "1s" on the config.toml under the
+	// "Consensus Configuration Options" section
+	//
+	// NOTE: the value is calculated based that it takes <1s to reach consensus and 1s for
+	// "timeout_commit" duration
 	AvgBlockTime = 2 * time.Second
 )
 
