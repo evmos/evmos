@@ -1,8 +1,6 @@
 package v5
 
 import (
-	"reflect"
-
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -240,7 +238,7 @@ func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keep
 		// is the same as the current DenomTrace.
 		// If it isn't then store the new DenomTrace in the list of new traces.
 		newTrace := ibctransfertypes.ParseDenomTrace(dt.GetFullDenomPath())
-		if err := newTrace.Validate(); err == nil && !reflect.DeepEqual(newTrace, dt) {
+		if err := newTrace.Validate(); err == nil && !equalTraces(newTrace, dt) {
 			newTraces = append(newTraces, newTrace)
 		}
 
@@ -251,4 +249,8 @@ func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keep
 	for _, nt := range newTraces {
 		transferKeeper.SetDenomTrace(ctx, nt)
 	}
+}
+
+func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
+	return dtA.BaseDenom == dtB.BaseDenom && dtA.Path == dtB.Path
 }
