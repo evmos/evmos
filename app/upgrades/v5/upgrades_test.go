@@ -266,7 +266,7 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 				suite.Require().True(found)
 
 				ep := &tmproto.EvidenceParams{
-					MaxAgeDuration:  2 * 24 * time.Hour, // define the ma
+					MaxAgeDuration:  2 * 24 * time.Hour,
 					MaxAgeNumBlocks: 100000,
 					MaxBytes:        suite.ctx.ConsensusParams().Evidence.MaxBytes,
 				}
