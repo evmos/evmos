@@ -55,8 +55,8 @@ func (msg MsgConvertCoin) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgConvertCoin) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+func (msg MsgConvertCoin) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // GetSigners defines whose signature is required
@@ -100,8 +100,8 @@ func (msg MsgConvertERC20) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgConvertERC20) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+func (msg MsgConvertERC20) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // GetSigners defines whose signature is required
