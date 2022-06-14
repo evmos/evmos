@@ -53,6 +53,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (erc20) [\#677](https://github.com/tharsis/evmos/pull/677) Add Amino registration to `ConvertCoin` and `ConvertERC20` msgs for ERC712 compatibility.
 - (deps) [\#668](https://github.com/tharsis/evmos/pull/668) Bump Cosmos SDK to [`v0.45.5`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.5)
 - (erc20) [\#642](https://github.com/tharsis/evmos/pull/642) Remove enforcing ibc and channel names during `RegisterCoin`
 
