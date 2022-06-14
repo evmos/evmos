@@ -1,6 +1,8 @@
 package v5
 
 import (
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -191,20 +193,23 @@ func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 
 // UpdateConsensusParams
 func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramskeeper.Keeper) {
-	cp := ctx.ConsensusParams()
-	if cp == nil {
-		return
-	}
-
 	subspace, found := pk.GetSubspace(baseapp.Paramspace)
 	if !found {
 		return
 	}
 
-	stakingParams := sk.GetParams(ctx)
-	cp.Evidence.MaxAgeDuration = stakingParams.UnbondingTime
+	var evidenceParams tmproto.EvidenceParams
+	subspace.GetIfExists(ctx, baseapp.ParamStoreKeyEvidenceParams, &evidenceParams)
 
-	maxAgeNumBlocks := sdk.NewInt(int64(cp.Evidence.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
-	cp.Evidence.MaxAgeNumBlocks = maxAgeNumBlocks.Int64()
-	subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, cp.Evidence)
+	// no-op if empty
+	if evidenceParams.Equal(tmproto.EvidenceParams{}) {
+		return
+	}
+
+	stakingParams := sk.GetParams(ctx)
+	evidenceParams.MaxAgeDuration = stakingParams.UnbondingTime
+
+	maxAgeNumBlocks := sdk.NewInt(int64(evidenceParams.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
+	evidenceParams.MaxAgeNumBlocks = maxAgeNumBlocks.Int64()
+	subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, evidenceParams)
 }
