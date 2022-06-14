@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (deps) [\#684](https://github.com/tharsis/evmos/pull/684) Bump ibc-go version to [`v3.1.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.1.0)
 - (vesting) [\#666](https://github.com/tharsis/evmos/pull/666) Remove support of Cosmos SDK `VestingAccount` types.
 - (deps) [\#654](https://github.com/tharsis/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/tharsis/ethermint/releases/tag/v0.16.1)
 - (claims) [\#605](https://github.com/tharsis/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
