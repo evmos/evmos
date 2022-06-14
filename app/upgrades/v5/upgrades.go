@@ -1,12 +1,15 @@
 package v5
 
 import (
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	feemarketv010types "github.com/tharsis/ethermint/x/feemarket/migrations/v010/types"
@@ -44,6 +47,8 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
 	ck *claimskeeper.Keeper,
+	sk stakingkeeper.Keeper,
+	pk paramskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -62,8 +67,12 @@ func CreateUpgradeHandler(
 			bk.SetDenomMetaData(ctx, TestnetDenomMetadata)
 		}
 
+		logger.Debug("updating Tendermint consensus params...")
+		UpdateConsensusParams(ctx, sk, pk)
+
 		logger.Debug("swaping claims record actions...")
 		ResolveAirdrop(ctx, ck)
+
 		logger.Debug("migrating early contributor claim record...")
 		MigrateContributorClaim(ctx, ck)
 
@@ -178,4 +187,24 @@ func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 
 	k.DeleteClaimsRecord(ctx, from)
 	k.SetClaimsRecord(ctx, to, cr)
+}
+
+// UpdateConsensusParams
+func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramskeeper.Keeper) {
+	cp := ctx.ConsensusParams()
+	if cp == nil {
+		return
+	}
+
+	subspace, found := pk.GetSubspace(baseapp.Paramspace)
+	if !found {
+		return
+	}
+
+	maxAgeNumBlocks := sdk.NewInt(int64(cp.Evidence.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
+	stakingParams := sk.GetParams(ctx)
+
+	cp.Evidence.MaxAgeDuration = stakingParams.UnbondingTime
+	cp.Evidence.MaxAgeNumBlocks = maxAgeNumBlocks.Int64()
+	subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, cp.Evidence)
 }
