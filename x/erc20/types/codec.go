@@ -20,7 +20,9 @@ var (
 
 	// AminoCdc is a amino codec created to support amino JSON compatible msgs.
 	AminoCdc = codec.NewAminoCodec(amino)
+)
 
+const (
 	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
 	convertCoinName  = "evmos/MsgConvertCoin"
@@ -28,8 +30,8 @@ var (
 
 // This is required for the GetSignBytes function
 func init() {
-	AminoCdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
-	AminoCdc.RegisterConcrete(&MsgConvertCoin{}, convertCoinName, nil)
+	RegisterLegacyAminoCodec(amino)
+	amino.Seal()
 }
 
 // RegisterInterfaces register implementations
