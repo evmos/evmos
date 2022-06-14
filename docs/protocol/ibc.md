@@ -20,3 +20,4 @@ View on [Mintscan](https://www.mintscan.io/evmos/relayers)
 | CRESCENT      | crescent-1       | CRE        | channel-11 | channel-7   |
 | TERRA Classic | columbus-5       | LUNC, USTC | Channel-6  | Channel-51  |
 | TERRA 2       | phoenix-1        | LUNA       | Channel-12 | Channel-5   |
+| STARGAZE      | stargaze-1       | STARS      | channel-13 | channel-46  |
