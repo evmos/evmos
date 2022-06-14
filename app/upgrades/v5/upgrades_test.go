@@ -13,6 +13,7 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -69,6 +70,9 @@ func (suite *UpgradeTestSuite) SetupTest() {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
+
+	cp := suite.app.BaseApp.GetConsensusParams(suite.ctx)
+	suite.ctx = suite.ctx.WithConsensusParams(cp)
 }
 
 func TestUpgradeTestSuite(t *testing.T) {
@@ -232,6 +236,65 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 			} else {
 				suite.Require().False(foundTo)
 			}
+		})
+	}
+}
+
+func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
+	unbondingDuration := suite.app.GetStakingKeeper().UnbondingTime(suite.ctx)
+
+	testCases := []struct {
+		name              string
+		malleate          func()
+		expEvidenceParams *tmproto.EvidenceParams
+	}{
+		{
+			"empty evidence params",
+			func() {
+				subspace, found := suite.app.ParamsKeeper.GetSubspace(baseapp.Paramspace)
+				suite.Require().True(found)
+
+				ep := &tmproto.EvidenceParams{}
+				subspace.Set(suite.ctx, baseapp.ParamStoreKeyEvidenceParams, ep)
+			},
+			&tmproto.EvidenceParams{},
+		},
+		{
+			"success",
+			func() {
+				subspace, found := suite.app.ParamsKeeper.GetSubspace(baseapp.Paramspace)
+				suite.Require().True(found)
+
+				ep := &tmproto.EvidenceParams{
+					MaxAgeDuration:  2 * 24 * time.Hour,
+					MaxAgeNumBlocks: 100000,
+					MaxBytes:        suite.ctx.ConsensusParams().Evidence.MaxBytes,
+				}
+				subspace.Set(suite.ctx, baseapp.ParamStoreKeyEvidenceParams, ep)
+			},
+			&tmproto.EvidenceParams{
+				MaxAgeDuration:  unbondingDuration,
+				MaxAgeNumBlocks: int64(unbondingDuration / (2 * time.Second)),
+				MaxBytes:        suite.ctx.ConsensusParams().Evidence.MaxBytes,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			suite.Require().NotPanics(func() {
+				v5.UpdateConsensusParams(suite.ctx, suite.app.StakingKeeper, suite.app.ParamsKeeper)
+				suite.app.Commit()
+			})
+
+			cp := suite.app.BaseApp.GetConsensusParams(suite.ctx)
+			suite.Require().NotNil(cp)
+			suite.Require().NotNil(cp.Evidence)
+			suite.Require().Equal(tc.expEvidenceParams.String(), cp.Evidence.String())
 		})
 	}
 }
