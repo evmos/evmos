@@ -59,6 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (app) [\#682](https://github.com/tharsis/evmos/pull/682) Fix Tendermint consensus params (Evidence `MaxAgeNumBlocks` and `MaxAgeDuration`)
 - (incentives) [\#656](https://github.com/tharsis/evmos/pull/656) Fix incentives that were previously only allocated to `EthAccount`s.
 - (fees) [\#612](https://github.com/tharsis/evmos/pull/612) Fix fees registration cli command and description
 - (inflation) [\#554](https://github.com/tharsis/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
