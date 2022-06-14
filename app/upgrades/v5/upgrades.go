@@ -201,10 +201,10 @@ func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramske
 		return
 	}
 
-	maxAgeNumBlocks := sdk.NewInt(int64(cp.Evidence.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
 	stakingParams := sk.GetParams(ctx)
-
 	cp.Evidence.MaxAgeDuration = stakingParams.UnbondingTime
+
+	maxAgeNumBlocks := sdk.NewInt(int64(cp.Evidence.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
 	cp.Evidence.MaxAgeNumBlocks = maxAgeNumBlocks.Int64()
 	subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, cp.Evidence)
 }
