@@ -4,37 +4,40 @@ order: 1
 
 # Concepts
 
-## EOA
+## Evmos dApp Store
 
-An Externally Owned Account ([EOA](https://ethereum.org/en/whitepaper/#ethereum-accounts)) is an account controlled by a private key, that can sign transactions.
+The Evmos dApp store is a revenue-per-transaction model, that allows developers to get payed for deploying their dApps (decentralized application) on Evmos. Developers generate revenue, every time users interact with their dApp in the dApp store, gaining them the possibility of a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp revenue. This value-reward exchange of dApp services for transactions fees is implemented by the `x/fees` module.
 
-## Deployer Address
+## Registration
 
-The EOA address that deployed the smart contract being registered for fee distribution.
+Devlelopers register their application in the dApp store by registering the application's smart contracts. Any contract can be registered by a developer by submitting a signed transaction. The signer of this transaction must match the address of the deployer of the contract in order for the registration to succeed. After the transaction is executed successfully, the developer will start receiving a portion of the transaction fees paid when a user interacts with the registered contract.
 
-## Withdraw Address
+## Fee Distribution
 
-The address set by a contract deployer to receive transaction fees for a registered smart contract. If not set, it defaults to the deployer’s address.
+As described above, developers will earn a portion of the transaction fee after registering their contracts. The transactions eligible are only EVM transactions (`MsgEthereumTx`). Cosmos SDK transactions are not eligible at this time.
 
-## Developer
+### EVM Transaction Fees
 
-The entity that has control over the deployer account.
+Users pay transaction fees to payinteract with smart contracts
 
-## Registration of a Contract
+interact with for to process their transaction with a dApps
 
-Any contract can be registered by a developer by submitting a signed transaction. The signer of this transaction must match the address of the deployer of the contract in order for the registration to succeed. After the transaction is executed successfully, the developer will start receiving a portion of the transaction fees paid when a user interacts with the registered contract.
-
-### Fee Distribution
-
-As described above, developers will earn a portion of the transaction fee after they register their contracts. The transactions eligible are only EVM transactions (`MsgEthereumTx`). Cosmos SDK transactions are not eligible at this time.
-
-#### EVM Transaction Fees
-
-When a transaction is executed, the entire fee amount `gasLimit * gasPrice` is sent to the `FeeCollector` Module Account during the `AnteHandler` execution. After the EVM executes the transaction, the user receives a refund of `(gasLimit - gasUsed) * gasPrice`.
+When a transaction is executed, the entire fee amount (`gasLimit * gasPrice`) is sent to the `FeeCollector` module account during the `AnteHandler` execution. After the EVM executes the transaction, the user receives a refund of `(gasLimit - gasUsed) * gasPrice`.
 
 Therefore, the user only pays for the execution: `txFee = gasUsed * gasPrice`. This is the transaction fee distributed between developers and validators, in accordance with the `x/fees` module parameters: `DeveloperShares`, `ValidatorShares`. This distribution is handled through the `PostTxProcessing` [Hook](./05_hooks.md).
 
 ### Address Derivation
+
+- Users:
+  - EOA: An Externally Owned Account ([EOA](https://ethereum.org/en/whitepaper/#ethereum-accounts)) is an account controlled by a private key, that can sign transactions.
+
+* Deployer Address: The EOA address that deployed the smart contract being registered for fee distribution.
+
+* Withdraw Address: The address set by a contract deployer to receive transaction fees for a registered smart contract. If not set, it defaults to the deployer’s address.
+* Developer: The entity that has control over the deployer account.
+
+
+
 
 When registering a smart contract, the deployer provides an array of nonces, used to [derive the contract’s address](https://github.com/ethereum/go-ethereum/blob/d8ff53dfb8a516f47db37dbc7fd7ad18a1e8a125/crypto/crypto.go#L107-L111). The smart contract can be directly deployed by the deployer's EOA or created through one or more [factory](https://en.wikipedia.org/wiki/Factory_method_pattern) pattern smart contracts.
 
