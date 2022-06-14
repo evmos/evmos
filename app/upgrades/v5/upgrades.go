@@ -1,12 +1,17 @@
 package v5
 
 import (
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	feemarketv010types "github.com/tharsis/ethermint/x/feemarket/migrations/v010/types"
@@ -44,6 +49,8 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
 	ck *claimskeeper.Keeper,
+	sk stakingkeeper.Keeper,
+	pk paramskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -62,8 +69,12 @@ func CreateUpgradeHandler(
 			bk.SetDenomMetaData(ctx, TestnetDenomMetadata)
 		}
 
+		logger.Debug("updating Tendermint consensus params...")
+		UpdateConsensusParams(ctx, sk, pk)
+
 		logger.Debug("swaping claims record actions...")
 		ResolveAirdrop(ctx, ck)
+
 		logger.Debug("migrating early contributor claim record...")
 		MigrateContributorClaim(ctx, ck)
 
@@ -166,7 +177,9 @@ func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimst
 }
 
 // MigrateContributorClaim migrates the claims record of a specific early
-// contributor (B@B) from one address to another
+// contributor (Blockchain at Berkeley) from one address to another.
+// See https://medium.com/evmos/the-evmos-rektdrop-abbe931ba823 for details about
+// Early Contributors.
 func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 	from := sdk.MustAccAddressFromBech32(ContributorAddrFrom)
 	to := sdk.MustAccAddressFromBech32(ContributorAddrTo)
@@ -178,4 +191,29 @@ func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 
 	k.DeleteClaimsRecord(ctx, from)
 	k.SetClaimsRecord(ctx, to, cr)
+}
+
+// UpdateConsensusParams updates the Tendermint Consensus Evidence params (MaxAgeDuration and
+// MaxAgeNumBlocks) to match the unbonding period and use the expected avg block time based on the
+// node configuration.
+func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramskeeper.Keeper) {
+	subspace, found := pk.GetSubspace(baseapp.Paramspace)
+	if !found {
+		return
+	}
+
+	var evidenceParams tmproto.EvidenceParams
+	subspace.GetIfExists(ctx, baseapp.ParamStoreKeyEvidenceParams, &evidenceParams)
+
+	// safety check: no-op if the evidence params is empty (shouldn't happen)
+	if evidenceParams.Equal(tmproto.EvidenceParams{}) {
+		return
+	}
+
+	stakingParams := sk.GetParams(ctx)
+	evidenceParams.MaxAgeDuration = stakingParams.UnbondingTime
+
+	maxAgeNumBlocks := sdk.NewInt(int64(evidenceParams.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
+	evidenceParams.MaxAgeNumBlocks = maxAgeNumBlocks.Int64()
+	subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, evidenceParams)
 }

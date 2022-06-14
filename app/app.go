@@ -1050,6 +1050,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.BankKeeper,
 			app.ClaimsKeeper,
+			app.StakingKeeper,
+			app.ParamsKeeper,
 		),
 	)
 

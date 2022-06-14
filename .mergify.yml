@@ -20,6 +20,10 @@ pull_request_rules:
     conditions:
       - base=main
       - label=backport/5.0.x
+    actions:
+      backport:
+        branches:
+          - release/v5.0.x
   - name: backport patches to v4.0.x branch
     conditions:
       - base=main
