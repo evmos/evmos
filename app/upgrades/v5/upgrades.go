@@ -227,8 +227,7 @@ func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramske
 
 // UpdateIBCDenomTraces iterates over current traces to check if any of them are incorrectly formed
 // and corrects the trace information.
-// See https://github.com/cosmos/ibc-go/pull/1527 for context.
-
+// See https://github.com/cosmos/ibc-go/blob/main/docs/migrations/support-denoms-with-slashes.md for context.
 func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keeper) {
 	// list of traces that must replace the old traces in store
 	var newTraces []ibctransfertypes.DenomTrace

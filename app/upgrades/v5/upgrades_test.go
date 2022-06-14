@@ -304,42 +304,37 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 	testCases := []struct {
 		name           string
-		malleate       func()
+		originalTraces ibctransfertypes.Traces
 		expDenomTraces ibctransfertypes.Traces
 	}{
 		{
 			"no traces",
-			func() {},
+			ibctransfertypes.Traces{},
 			ibctransfertypes.Traces{},
 		},
 		{
 			"native IBC tokens",
-			func() {
-				traces := ibctransfertypes.Traces{
-					{
-						BaseDenom: "aevmos",
-						Path:      "",
-					},
-					{
-						BaseDenom: "uosmo",
-						Path:      "transfer/channel-0",
-					},
-					{
-						BaseDenom: "uatom",
-						Path:      "transfer/channel-0/transfer/channel-0",
-					},
-					{
-						BaseDenom: "uatom",
-						Path:      "transfer/channel-3",
-					},
-					{
-						BaseDenom: "gravity0x6B175474E89094C44Da98b954EedeAC495271d0F",
-						Path:      "transfer/channel-8",
-					},
-				}
-				for _, dt := range traces {
-					suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
-				}
+			ibctransfertypes.Traces{
+				{
+					BaseDenom: "aevmos",
+					Path:      "",
+				},
+				{
+					BaseDenom: "uosmo",
+					Path:      "transfer/channel-0",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-0/transfer/channel-0",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-3",
+				},
+				{
+					BaseDenom: "gravity0x6B175474E89094C44Da98b954EedeAC495271d0F",
+					Path:      "transfer/channel-8",
+				},
 			},
 			ibctransfertypes.Traces{
 				{
@@ -366,32 +361,27 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 		},
 		{
 			"with invalid tokens",
-			func() {
-				traces := ibctransfertypes.Traces{
-					{
-						BaseDenom: "aevmos",
-						Path:      "",
-					},
-					{
-						BaseDenom: "uatom",
-						Path:      "transfer/channel-3",
-					},
-					{
-						BaseDenom: "uosmo",
-						Path:      "transfer/channel-0/transfer/channel-0",
-					},
-					{
-						BaseDenom: "1",
-						Path:      "transfer/channel-0/gamm/pool",
-					},
-					{
-						BaseDenom: "0x85bcBCd7e79Ec36f4fBBDc54F90C643d921151AA",
-						Path:      "transfer/channel-20/erc20",
-					},
-				}
-				for _, dt := range traces {
-					suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
-				}
+			ibctransfertypes.Traces{
+				{
+					BaseDenom: "aevmos",
+					Path:      "",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-3",
+				},
+				{
+					BaseDenom: "uosmo",
+					Path:      "transfer/channel-0/transfer/channel-0",
+				},
+				{
+					BaseDenom: "1",
+					Path:      "transfer/channel-0/gamm/pool",
+				},
+				{
+					BaseDenom: "0x85bcBCd7e79Ec36f4fBBDc54F90C643d921151AA",
+					Path:      "transfer/channel-20/erc20",
+				},
 			},
 			ibctransfertypes.Traces{
 				{
@@ -422,7 +412,9 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			tc.malleate()
+			for _, dt := range tc.originalTraces {
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
+			}
 
 			v5.UpdateIBCDenomTraces(suite.ctx, suite.app.TransferKeeper)
 
