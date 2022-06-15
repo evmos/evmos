@@ -47,7 +47,7 @@ aside: false
 ## Other Resources
 
 - **[Module Directory](../x/)**: Module implementations and their respective documentation.
-- **[Ethermint API Reference](https://godoc.org/github.com/tharsis/ethermint)**: Godocs of Ethermint.
+- **[Ethermint API Reference](https://pkg.go.dev/github.com/tharsis/ethermint)**: Godocs of Ethermint.
 - **[gRPC Gateway API Reference](https://api.evmos.dev/)**: List of gRPC Gateway endpoints to interact with an full-node through REST.
 
 ## Contribute
