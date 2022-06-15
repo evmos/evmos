@@ -37,7 +37,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-### State Machine Breaking
+### Improvements
+
+- (fees) [\#685](https://github.com/tharsis/evmos/pull/685) Internal Specification audit.
+
+## [v5.0.0] - 2022-06-14
 
 - (vesting) [\#666](https://github.com/tharsis/evmos/pull/666) Remove support of Cosmos SDK `VestingAccount` types.
 - (deps) [\#654](https://github.com/tharsis/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/tharsis/ethermint/releases/tag/v0.16.1)
