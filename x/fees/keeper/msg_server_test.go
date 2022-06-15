@@ -14,7 +14,7 @@ import (
 	"github.com/tharsis/evmos/v5/x/fees/types"
 )
 
-func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
+func (suite *KeeperTestSuite) TestRegisterFee() {
 	deployer := tests.GenerateAddress()
 	fakeDeployer := tests.GenerateAddress()
 	contract1 := crypto.CreateAddress(deployer, 1)
@@ -145,14 +145,14 @@ func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 				s.Require().NoError(err)
 				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
 				s.Require().NoError(err)
-				msg := types.NewMsgRegisterDevFeeInfo(
+				msg := types.NewMsgRegisterFee(
 					contract1,
 					sdk.AccAddress(deployer.Bytes()),
 					sdk.AccAddress(deployer.Bytes()),
 					[]uint64{1},
 				)
 				ctx := sdk.WrapSDKContext(suite.ctx)
-				suite.app.FeesKeeper.RegisterDevFeeInfo(ctx, msg)
+				suite.app.FeesKeeper.RegisterFee(ctx, msg)
 			},
 			false,
 			"contract is already registered",
@@ -196,17 +196,17 @@ func (suite *KeeperTestSuite) TestRegisterDevFeeInfo() {
 			tc.malleate()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			msg := types.NewMsgRegisterDevFeeInfo(tc.contract, tc.deployer, tc.withdraw, tc.nonces)
+			msg := types.NewMsgRegisterFee(tc.contract, tc.deployer, tc.withdraw, tc.nonces)
 
-			res, err := suite.app.FeesKeeper.RegisterDevFeeInfo(ctx, msg)
-			expRes := &types.MsgRegisterDevFeeInfoResponse{}
+			res, err := suite.app.FeesKeeper.RegisterFee(ctx, msg)
+			expRes := &types.MsgRegisterFeeResponse{}
 			suite.Commit()
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res, tc.name)
 
-				fee, ok := suite.app.FeesKeeper.GetFeeInfo(suite.ctx, tc.contract)
+				fee, ok := suite.app.FeesKeeper.GetFee(suite.ctx, tc.contract)
 				suite.Require().True(ok, "unregistered fee")
 				suite.Require().Equal(tc.contract.String(), fee.ContractAddress, "wrong contract")
 				suite.Require().Equal(tc.deployer.String(), fee.DeployerAddress, "wrong deployer")

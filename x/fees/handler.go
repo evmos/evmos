@@ -13,14 +13,14 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		case *types.MsgRegisterDevFeeInfo:
-			res, err := server.RegisterDevFeeInfo(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRegisterFee:
+			res, err := server.RegisterFee(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgCancelDevFeeInfo:
-			res, err := server.CancelDevFeeInfo(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgCancelFee:
+			res, err := server.CancelFee(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgUpdateDevFeeInfo:
-			res, err := server.UpdateDevFeeInfo(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgUpdateFee:
+			res, err := server.UpdateFee(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)

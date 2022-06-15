@@ -10,8 +10,8 @@ option go_package = "github.com/tharsis/evmos/v5/x/fees/types";
 message GenesisState {
   // module parameters
   Params params = 1 [ (gogoproto.nullable) = false ];
-  // active registered contracts
-  repeated DevFeeInfo dev_fee_infos = 2 [ (gogoproto.nullable) = false ];
+  // active registered contracts for fee distribution
+  repeated Fee fees = 2 [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the fees module params
@@ -24,13 +24,7 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  // developer_shares defines the proportion of the transaction fees to be
-  // distributed to validators
-  string validator_shares = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
   // addr_derivation_cost_create defines the cost of address derivation for
   // verifying the contract deployer at fee registration
-  uint64 addr_derivation_cost_create = 4;
+  uint64 addr_derivation_cost_create = 3;
 }

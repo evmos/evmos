@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### API Breaking
+
+- (fees) [\#691](https://github.com/tharsis/evmos/pull/691) Internal Api audit.
+
 ### Improvements
 
 - (fees) [\#685](https://github.com/tharsis/evmos/pull/685) Internal Specification audit.

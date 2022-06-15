@@ -25,7 +25,7 @@ func (suite *FeeTestSuite) SetupTest() {
 	suite.address2 = sdk.AccAddress(tests.GenerateAddress().Bytes())
 }
 
-func (suite *FeeTestSuite) TestDevFeeInfoNew() {
+func (suite *FeeTestSuite) TestFeeNew() {
 	testCases := []struct {
 		name       string
 		contract   common.Address
@@ -34,28 +34,28 @@ func (suite *FeeTestSuite) TestDevFeeInfoNew() {
 		expectPass bool
 	}{
 		{
-			"Create fee info - pass",
+			"Create fee - pass",
 			tests.GenerateAddress(),
 			suite.address1,
 			suite.address2,
 			true,
 		},
 		{
-			"Create fee info, omit withdraw - pass",
+			"Create fee, omit withdraw - pass",
 			tests.GenerateAddress(),
 			suite.address1,
 			nil,
 			true,
 		},
 		{
-			"Create fee info - invalid contract address",
+			"Create fee - invalid contract address",
 			common.Address{},
 			suite.address1,
 			suite.address2,
 			false,
 		},
 		{
-			"Create fee info - invalid deployer address",
+			"Create fee - invalid deployer address",
 			tests.GenerateAddress(),
 			sdk.AccAddress{},
 			suite.address2,
@@ -64,7 +64,7 @@ func (suite *FeeTestSuite) TestDevFeeInfoNew() {
 	}
 
 	for _, tc := range testCases {
-		i := NewDevFeeInfo(tc.contract, tc.deployer, tc.withdraw)
+		i := NewFee(tc.contract, tc.deployer, tc.withdraw)
 		err := i.Validate()
 
 		if tc.expectPass {
@@ -78,12 +78,12 @@ func (suite *FeeTestSuite) TestDevFeeInfoNew() {
 func (suite *FeeTestSuite) TestFee() {
 	testCases := []struct {
 		msg        string
-		feeInfo    DevFeeInfo
+		fee        Fee
 		expectPass bool
 	}{
 		{
-			"Create fee info - pass",
-			DevFeeInfo{
+			"Create fee - pass",
+			Fee{
 				tests.GenerateAddress().String(),
 				suite.address1.String(),
 				suite.address2.String(),
@@ -91,8 +91,8 @@ func (suite *FeeTestSuite) TestFee() {
 			true,
 		},
 		{
-			"Create fee info - invalid contract address (not hex)",
-			DevFeeInfo{
+			"Create fee - invalid contract address (not hex)",
+			Fee{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				suite.address1.String(),
 				suite.address2.String(),
@@ -100,8 +100,8 @@ func (suite *FeeTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee info - invalid contract address (invalid length 1)",
-			DevFeeInfo{
+			"Create fee - invalid contract address (invalid length 1)",
+			Fee{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				suite.address1.String(),
 				suite.address2.String(),
@@ -109,8 +109,8 @@ func (suite *FeeTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee info - invalid contract address (invalid length 2)",
-			DevFeeInfo{
+			"Create fee - invalid contract address (invalid length 2)",
+			Fee{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				suite.address1.String(),
 				suite.address2.String(),
@@ -118,8 +118,8 @@ func (suite *FeeTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee info - invalid deployer address",
-			DevFeeInfo{
+			"Create fee - invalid deployer address",
+			Fee{
 				tests.GenerateAddress().String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
 				suite.address2.String(),
@@ -127,8 +127,8 @@ func (suite *FeeTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee info - invalid withdraw address",
-			DevFeeInfo{
+			"Create fee - invalid withdraw address",
+			Fee{
 				tests.GenerateAddress().String(),
 				suite.address1.String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
@@ -138,7 +138,7 @@ func (suite *FeeTestSuite) TestFee() {
 	}
 
 	for _, tc := range testCases {
-		err := tc.feeInfo.Validate()
+		err := tc.fee.Validate()
 
 		if tc.expectPass {
 			suite.Require().NoError(err, tc.msg)

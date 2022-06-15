@@ -13,11 +13,11 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-// RegisterDevFeeInfo registers a contract to receive transaction fees
-func (k Keeper) RegisterDevFeeInfo(
+// RegisterFee registers a contract to receive transaction fees
+func (k Keeper) RegisterFee(
 	goCtx context.Context,
-	msg *types.MsgRegisterDevFeeInfo,
-) (*types.MsgRegisterDevFeeInfoResponse, error) {
+	msg *types.MsgRegisterFee,
+) (*types.MsgRegisterFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if !k.isEnabled(ctx) {
 		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
@@ -73,7 +73,7 @@ func (k Keeper) RegisterDevFeeInfo(
 	}
 
 	k.SetFee(ctx, contract, deployer, withdrawal)
-	k.SetFeeInverse(ctx, deployer, contract)
+	k.SetDeployerFees(ctx, deployer, contract)
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
 		"contract", msg.ContractAddress, "deployer", msg.DeployerAddress,
@@ -83,7 +83,7 @@ func (k Keeper) RegisterDevFeeInfo(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeRegisterDevFeeInfo,
+				types.EventTypeRegisterFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
@@ -91,14 +91,14 @@ func (k Keeper) RegisterDevFeeInfo(
 		},
 	)
 
-	return &types.MsgRegisterDevFeeInfoResponse{}, nil
+	return &types.MsgRegisterFeeResponse{}, nil
 }
 
-// CancelDevFeeInfo deletes the fee for a contract
-func (k Keeper) CancelDevFeeInfo(
+// CancelFee deletes the Fee of a given contract
+func (k Keeper) CancelFee(
 	goCtx context.Context,
-	msg *types.MsgCancelDevFeeInfo,
-) (*types.MsgCancelDevFeeInfoResponse, error) {
+	msg *types.MsgCancelFee,
+) (*types.MsgCancelFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if !k.isEnabled(ctx) {
 		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
@@ -115,26 +115,26 @@ func (k Keeper) CancelDevFeeInfo(
 	}
 
 	k.DeleteFee(ctx, contractAddress)
-	k.DeleteFeeInverse(ctx, deployerAddress, contractAddress)
+	k.DeleteDeployerFees(ctx, deployerAddress, contractAddress)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeCancelDevFeeInfo,
+				types.EventTypeCancelFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 			),
 		},
 	)
 
-	return &types.MsgCancelDevFeeInfoResponse{}, nil
+	return &types.MsgCancelFeeResponse{}, nil
 }
 
-// UpdateDevFeeInfo updates the withdraw address for a contract
-func (k Keeper) UpdateDevFeeInfo(
+// UpdateFee updates the withdraw address of a given Fee
+func (k Keeper) UpdateFee(
 	goCtx context.Context,
-	msg *types.MsgUpdateDevFeeInfo,
-) (*types.MsgUpdateDevFeeInfoResponse, error) {
+	msg *types.MsgUpdateFee,
+) (*types.MsgUpdateFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if !k.isEnabled(ctx) {
 		return nil, sdkerrors.Wrapf(types.ErrInternalFee, "fees module is not enabled")
@@ -156,7 +156,7 @@ func (k Keeper) UpdateDevFeeInfo(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeUpdateDevFeeInfo,
+				types.EventTypeUpdateFee,
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
@@ -164,5 +164,5 @@ func (k Keeper) UpdateDevFeeInfo(
 		},
 	)
 
-	return &types.MsgUpdateDevFeeInfoResponse{}, nil
+	return &types.MsgUpdateFeeResponse{}, nil
 }

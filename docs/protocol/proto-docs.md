@@ -70,31 +70,31 @@
     - [Msg](#evmos.erc20.v1.Msg)
   
 - [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
-    - [DevFeeInfo](#evmos.fees.v1.DevFeeInfo)
+    - [Fee](#evmos.fees.v1.Fee)
   
 - [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
     - [GenesisState](#evmos.fees.v1.GenesisState)
     - [Params](#evmos.fees.v1.Params)
   
 - [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
-    - [QueryDevFeeInfoRequest](#evmos.fees.v1.QueryDevFeeInfoRequest)
-    - [QueryDevFeeInfoResponse](#evmos.fees.v1.QueryDevFeeInfoResponse)
-    - [QueryDevFeeInfosPerDeployerRequest](#evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest)
-    - [QueryDevFeeInfosPerDeployerResponse](#evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse)
-    - [QueryDevFeeInfosRequest](#evmos.fees.v1.QueryDevFeeInfosRequest)
-    - [QueryDevFeeInfosResponse](#evmos.fees.v1.QueryDevFeeInfosResponse)
+    - [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest)
+    - [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse)
+    - [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest)
+    - [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse)
+    - [QueryFeesRequest](#evmos.fees.v1.QueryFeesRequest)
+    - [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse)
     - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
   
     - [Query](#evmos.fees.v1.Query)
   
 - [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
-    - [MsgCancelDevFeeInfo](#evmos.fees.v1.MsgCancelDevFeeInfo)
-    - [MsgCancelDevFeeInfoResponse](#evmos.fees.v1.MsgCancelDevFeeInfoResponse)
-    - [MsgRegisterDevFeeInfo](#evmos.fees.v1.MsgRegisterDevFeeInfo)
-    - [MsgRegisterDevFeeInfoResponse](#evmos.fees.v1.MsgRegisterDevFeeInfoResponse)
-    - [MsgUpdateDevFeeInfo](#evmos.fees.v1.MsgUpdateDevFeeInfo)
-    - [MsgUpdateDevFeeInfoResponse](#evmos.fees.v1.MsgUpdateDevFeeInfoResponse)
+    - [MsgCancelFee](#evmos.fees.v1.MsgCancelFee)
+    - [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse)
+    - [MsgRegisterFee](#evmos.fees.v1.MsgRegisterFee)
+    - [MsgRegisterFeeResponse](#evmos.fees.v1.MsgRegisterFeeResponse)
+    - [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee)
+    - [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse)
   
     - [Msg](#evmos.fees.v1.Msg)
   
@@ -963,11 +963,11 @@ Msg defines the erc20 Msg service.
 
 
 
-<a name="evmos.fees.v1.DevFeeInfo"></a>
+<a name="evmos.fees.v1.Fee"></a>
 
-### DevFeeInfo
-DevFeeInfo defines an instance that organizes fee distribution conditions
-for the owner of a given smart contract
+### Fee
+Fee defines an instance that organizes fee distribution conditions for the
+owner of a given smart contract
 
 
 | Field | Type | Label | Description |
@@ -1006,7 +1006,7 @@ GenesisState defines the module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
-| `dev_fee_infos` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated | active registered contracts |
+| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated | active registered contracts for fee distribution |
 
 
 
@@ -1023,7 +1023,6 @@ Params defines the fees module params
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
-| `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
 
 
@@ -1047,43 +1046,11 @@ Params defines the fees module params
 
 
 
-<a name="evmos.fees.v1.QueryDevFeeInfoRequest"></a>
+<a name="evmos.fees.v1.QueryDeployerFeesRequest"></a>
 
-### QueryDevFeeInfoRequest
-QueryDevFeeInfoRequest is the request type for the Query/DevFeeInfo RPC
+### QueryDeployerFeesRequest
+QueryDeployerFeesRequest is the request type for the Query/DeployerFees RPC
 method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `contract_address` | [string](#string) |  | contract identifier is the hex contract address of a contract |
-
-
-
-
-
-
-<a name="evmos.fees.v1.QueryDevFeeInfoResponse"></a>
-
-### QueryDevFeeInfoResponse
-QueryDevFeeInfoResponse is the response type for the Query/DevFeeInfo RPC
-method.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `fee` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) |  |  |
-
-
-
-
-
-
-<a name="evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest"></a>
-
-### QueryDevFeeInfosPerDeployerRequest
-QueryDevFeeInfosPerDeployerRequest is the request type for the
-Query/DevFeeInfosPerDeployer RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1096,16 +1063,16 @@ Query/DevFeeInfosPerDeployer RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse"></a>
+<a name="evmos.fees.v1.QueryDeployerFeesResponse"></a>
 
-### QueryDevFeeInfosPerDeployerResponse
-QueryDevFeeInfosPerDeployerResponse is the response type for the
-Query/DevFeeInfosPerDeployer RPC method.
+### QueryDeployerFeesResponse
+QueryDeployerFeesResponse is the response type for the Query/DeployerFees RPC
+method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated |  |
+| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -1113,11 +1080,40 @@ Query/DevFeeInfosPerDeployer RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryDevFeeInfosRequest"></a>
+<a name="evmos.fees.v1.QueryFeeRequest"></a>
 
-### QueryDevFeeInfosRequest
-QueryDevFeeInfosRequest is the request type for the Query/DevFeeInfos RPC
-method.
+### QueryFeeRequest
+QueryFeeRequest is the request type for the Query/Fee RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_address` | [string](#string) |  | contract identifier is the hex contract address of a contract |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeeResponse"></a>
+
+### QueryFeeResponse
+QueryFeeResponse is the response type for the Query/Fee RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fee` | [Fee](#evmos.fees.v1.Fee) |  |  |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryFeesRequest"></a>
+
+### QueryFeesRequest
+QueryFeesRequest is the request type for the Query/Fees RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1129,16 +1125,15 @@ method.
 
 
 
-<a name="evmos.fees.v1.QueryDevFeeInfosResponse"></a>
+<a name="evmos.fees.v1.QueryFeesResponse"></a>
 
-### QueryDevFeeInfosResponse
-QueryDevFeeInfosResponse is the response type for the Query/DevFeeInfos
-RPC method.
+### QueryFeesResponse
+QueryFeesResponse is the response type for the Query/Fees RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [DevFeeInfo](#evmos.fees.v1.DevFeeInfo) | repeated |  |
+| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -1159,8 +1154,7 @@ QueryParamsRequest is the request type for the Query/Params RPC method.
 <a name="evmos.fees.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
-QueryParamsResponse is the response type for the Query/Params RPC
-method.
+QueryParamsResponse is the response type for the Query/Params RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1185,10 +1179,10 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `DevFeeInfos` | [QueryDevFeeInfosRequest](#evmos.fees.v1.QueryDevFeeInfosRequest) | [QueryDevFeeInfosResponse](#evmos.fees.v1.QueryDevFeeInfosResponse) | DevFeeInfos retrieves all registered contracts for fee distribution | GET|/evmos/fees/v1/fees|
-| `DevFeeInfo` | [QueryDevFeeInfoRequest](#evmos.fees.v1.QueryDevFeeInfoRequest) | [QueryDevFeeInfoResponse](#evmos.fees.v1.QueryDevFeeInfoResponse) | DevFeeInfo retrieves a registered contract for fee distribution | GET|/evmos/fees/v1/fees/{contract_address}|
+| `Fees` | [QueryFeesRequest](#evmos.fees.v1.QueryFeesRequest) | [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse) | Fees retrieves all registered contracts for fee distribution | GET|/evmos/fees/v1/fees|
+| `Fee` | [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest) | [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse) | Fee retrieves a registered contract for fee distribution for a given address | GET|/evmos/fees/v1/fees/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
-| `DevFeeInfosPerDeployer` | [QueryDevFeeInfosPerDeployerRequest](#evmos.fees.v1.QueryDevFeeInfosPerDeployerRequest) | [QueryDevFeeInfosPerDeployerResponse](#evmos.fees.v1.QueryDevFeeInfosPerDeployerResponse) | DevFeeInfosPerDeployer retrieves all contracts that a deployer has registered for fee distribution | GET|/evmos/fees/v1/fees/{deployer_address}|
+| `DeployerFees` | [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest) | [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse) | DeployerFees retrieves all contracts that a given deployer has registered for fee distribution | GET|/evmos/fees/v1/fees/{deployer_address}|
 
  <!-- end services -->
 
@@ -1201,11 +1195,10 @@ Query defines the gRPC querier service.
 
 
 
-<a name="evmos.fees.v1.MsgCancelDevFeeInfo"></a>
+<a name="evmos.fees.v1.MsgCancelFee"></a>
 
-### MsgCancelDevFeeInfo
-MsgCancelDevFeeInfo defines a message that cancels a registered a
-DevFeeInfo
+### MsgCancelFee
+MsgCancelFee defines a message that cancels a registered a Fee
 
 
 | Field | Type | Label | Description |
@@ -1218,20 +1211,20 @@ DevFeeInfo
 
 
 
-<a name="evmos.fees.v1.MsgCancelDevFeeInfoResponse"></a>
+<a name="evmos.fees.v1.MsgCancelFeeResponse"></a>
 
-### MsgCancelDevFeeInfoResponse
-MsgCancelDevFeeInfoResponse defines the MsgCancelDevFeeInfo response type
-
-
+### MsgCancelFeeResponse
+MsgCancelFeeResponse defines the MsgCancelFee response type
 
 
 
 
-<a name="evmos.fees.v1.MsgRegisterDevFeeInfo"></a>
 
-### MsgRegisterDevFeeInfo
-MsgRegisterFeesContract defines a message that registers a DevFeeInfo
+
+<a name="evmos.fees.v1.MsgRegisterFee"></a>
+
+### MsgRegisterFee
+MsgRegisterFee defines a message that registers a Fee
 
 
 | Field | Type | Label | Description |
@@ -1246,22 +1239,21 @@ MsgRegisterFeesContract defines a message that registers a DevFeeInfo
 
 
 
-<a name="evmos.fees.v1.MsgRegisterDevFeeInfoResponse"></a>
+<a name="evmos.fees.v1.MsgRegisterFeeResponse"></a>
 
-### MsgRegisterDevFeeInfoResponse
-MsgRegisterDevFeeInfoResponse defines the MsgRegisterDevFeeInfo response
-type
-
+### MsgRegisterFeeResponse
+MsgRegisterFeeResponse defines the MsgRegisterFee response type
 
 
 
 
 
-<a name="evmos.fees.v1.MsgUpdateDevFeeInfo"></a>
 
-### MsgUpdateDevFeeInfo
-MsgUpdateDevFeeInfo defines a message that updates the withdraw address for
-a registered DevFeeInfo
+<a name="evmos.fees.v1.MsgUpdateFee"></a>
+
+### MsgUpdateFee
+MsgUpdateFee defines a message that updates the withdraw address for a
+registered Fee
 
 
 | Field | Type | Label | Description |
@@ -1275,10 +1267,10 @@ a registered DevFeeInfo
 
 
 
-<a name="evmos.fees.v1.MsgUpdateDevFeeInfoResponse"></a>
+<a name="evmos.fees.v1.MsgUpdateFeeResponse"></a>
 
-### MsgUpdateDevFeeInfoResponse
-MsgUpdateDevFeeInfoResponse defines the MsgUpdateDevFeeInfo response type
+### MsgUpdateFeeResponse
+MsgUpdateFeeResponse defines the MsgUpdateFee response type
 
 
 
@@ -1298,9 +1290,9 @@ Msg defines the fees Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `RegisterDevFeeInfo` | [MsgRegisterDevFeeInfo](#evmos.fees.v1.MsgRegisterDevFeeInfo) | [MsgRegisterDevFeeInfoResponse](#evmos.fees.v1.MsgRegisterDevFeeInfoResponse) | RegisterDevFeeInfo is used by a deployer to register a new contract for receiving transaction fees | POST|/evmos/fees/v1/tx/register_dev_fee_info|
-| `CancelDevFeeInfo` | [MsgCancelDevFeeInfo](#evmos.fees.v1.MsgCancelDevFeeInfo) | [MsgCancelDevFeeInfoResponse](#evmos.fees.v1.MsgCancelDevFeeInfoResponse) | CancelDevFeeInfo is used by a deployer to cancel a registered contract and stop receiving transaction fees | POST|/evmos/fees/v1/tx/cancel_dev_fee_info|
-| `UpdateDevFeeInfo` | [MsgUpdateDevFeeInfo](#evmos.fees.v1.MsgUpdateDevFeeInfo) | [MsgUpdateDevFeeInfoResponse](#evmos.fees.v1.MsgUpdateDevFeeInfoResponse) | UpdateDevFeeInfo is used by a deployer to update the withdraw address | POST|/evmos/fees/v1/tx/update_dev_fee_info|
+| `RegisterFee` | [MsgRegisterFee](#evmos.fees.v1.MsgRegisterFee) | [MsgRegisterFeeResponse](#evmos.fees.v1.MsgRegisterFeeResponse) | RegisterFee registers a new contract for receiving transaction fees | POST|/evmos/fees/v1/tx/register_fee|
+| `CancelFee` | [MsgCancelFee](#evmos.fees.v1.MsgCancelFee) | [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse) | CancelFee cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/fees/v1/tx/cancel_fee|
+| `UpdateFee` | [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee) | [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse) | UpdateFee updates the withdraw address | POST|/evmos/fees/v1/tx/update_fee|
 
  <!-- end services -->
 

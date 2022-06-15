@@ -6,31 +6,27 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 )
 
-// NewFee returns an instance of DevFeeInfo
-func NewDevFeeInfo(
-	contract common.Address,
-	deployer,
-	withdraw sdk.AccAddress,
-) DevFeeInfo {
-	return DevFeeInfo{
+// NewFee returns an instance of Fee
+func NewFee(contract common.Address, deployer, withdraw sdk.AccAddress) Fee {
+	return Fee{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
 		WithdrawAddress: withdraw.String(),
 	}
 }
 
-// Validate performs a stateless validation of a DevFeeInfo
-func (i DevFeeInfo) Validate() error {
-	if err := ethermint.ValidateNonZeroAddress(i.ContractAddress); err != nil {
+// Validate performs a stateless validation of a Fee
+func (f Fee) Validate() error {
+	if err := ethermint.ValidateNonZeroAddress(f.ContractAddress); err != nil {
 		return err
 	}
 
-	if _, err := sdk.AccAddressFromBech32(i.DeployerAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(f.DeployerAddress); err != nil {
 		return err
 	}
 
-	if i.WithdrawAddress != "" {
-		if _, err := sdk.AccAddressFromBech32(i.WithdrawAddress); err != nil {
+	if f.WithdrawAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(f.WithdrawAddress); err != nil {
 			return err
 		}
 	}

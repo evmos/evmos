@@ -88,8 +88,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			// Fee info registered before disabling params
 			nonce := getNonce(deployerAddress.Bytes())
 			registeredContract = deployContract(deployerKey, contractCode)
-			registerDevFeeInfo(deployerKey, &registeredContract, nil, []uint64{nonce})
-			fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, registeredContract)
+			registerFee(deployerKey, &registeredContract, nil, []uint64{nonce})
+			fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, registeredContract)
 			Expect(isRegistered).To(Equal(true))
 			Expect(fee.ContractAddress).To(Equal(registeredContract.Hex()))
 			Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -104,7 +104,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		It("should not allow new contract registrations", func() {
 			contractAddress := deployContract(deployerKey, contractCode)
-			msg := types.NewMsgRegisterDevFeeInfo(
+			msg := types.NewMsgRegisterFee(
 				contractAddress,
 				deployerAddress,
 				deployerAddress,
@@ -119,7 +119,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			).To(BeTrue())
 			s.Commit()
 
-			_, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+			_, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 			Expect(isRegistered).To(Equal(false))
 		})
 
@@ -135,7 +135,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		It("should not allow fee information updates for previously registered contracts", func() {
 			withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
-			msg := types.NewMsgUpdateDevFeeInfo(
+			msg := types.NewMsgUpdateFee(
 				registeredContract,
 				deployerAddress,
 				withdrawAddress,
@@ -150,7 +150,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		})
 
 		It("should not allow cancellations of previously registered contracts", func() {
-			msg := types.NewMsgCancelDevFeeInfo(registeredContract, deployerAddress)
+			msg := types.NewMsgCancelFee(registeredContract, deployerAddress)
 			res := deliverTx(deployerKey, nil, msg)
 			Expect(res.IsOK()).To(Equal(false), "cancel should have failed")
 			Expect(
@@ -179,8 +179,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should be possible", func() {
-					registerDevFeeInfo(deployerKey, &contractAddress, nil, []uint64{nonce})
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -205,9 +205,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				It("should be possible", func() {
 					nonce := getNonce(deployerAddress.Bytes())
 					contractAddress := deployContract(deployerKey, contractCode)
-					registerDevFeeInfo(deployerKey, &contractAddress, deployerAddress, []uint64{nonce})
+					registerFee(deployerKey, &contractAddress, deployerAddress, []uint64{nonce})
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -228,9 +228,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should be possible", func() {
-					registerDevFeeInfo(deployerKey, &contractAddress, withdrawAddress, []uint64{nonce})
+					registerFee(deployerKey, &contractAddress, withdrawAddress, []uint64{nonce})
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -258,14 +258,13 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			BeforeAll(func() {
 				nonce = getNonce(deployerAddress.Bytes())
 				contractAddress = deployContract(deployerKey, contractCode)
-				registerDevFeeInfo(deployerKey, &contractAddress, nil, []uint64{nonce})
+				registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 			})
 
 			Context("with a 50/50 validators-developers fee split", func() {
 				BeforeEach(func() {
 					params = s.app.FeesKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDecWithPrec(50, 2)
-					params.ValidatorShares = sdk.NewDecWithPrec(50, 2)
 					s.app.FeesKeeper.SetParams(s.ctx, params)
 				})
 
@@ -313,7 +312,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.FeesKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(0)
-					params.ValidatorShares = sdk.NewDec(1)
 					s.app.FeesKeeper.SetParams(s.ctx, params)
 				})
 
@@ -344,7 +342,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.FeesKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
-					params.ValidatorShares = sdk.NewDec(0)
 					s.app.FeesKeeper.SetParams(s.ctx, params)
 				})
 
@@ -382,9 +379,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					nonce = getNonce(deployerAddress.Bytes())
 					withdrawAddress = sdk.AccAddress(tests.GenerateAddress().Bytes())
 					contractAddress = deployContract(deployerKey, contractCode)
-					registerDevFeeInfo(deployerKey, &contractAddress, nil, []uint64{nonce})
+					registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -392,7 +389,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should update fee information successfully", func() {
-					msg := types.NewMsgUpdateDevFeeInfo(
+					msg := types.NewMsgUpdateFee(
 						contractAddress,
 						deployerAddress,
 						withdrawAddress,
@@ -405,7 +402,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					)
 					s.Commit()
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -435,9 +432,9 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeAll(func() {
 					nonce = getNonce(deployerAddress.Bytes())
 					contractAddress = deployContract(deployerKey, contractCode)
-					registerDevFeeInfo(deployerKey, &contractAddress, nil, []uint64{nonce})
+					registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -445,7 +442,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should not update fee information", func() {
-					msg := types.NewMsgUpdateDevFeeInfo(
+					msg := types.NewMsgUpdateFee(
 						contractAddress,
 						deployerAddress,
 						deployerAddress,
@@ -468,7 +465,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				It("should fail", func() {
 					contractAddress := tests.GenerateAddress()
 					withdrawAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
-					msg := types.NewMsgUpdateDevFeeInfo(
+					msg := types.NewMsgUpdateFee(
 						contractAddress,
 						deployerAddress,
 						withdrawAddress,
@@ -496,8 +493,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeAll(func() {
 					nonce = getNonce(deployerAddress.Bytes())
 					contractAddress = deployContract(deployerKey, contractCode)
-					registerDevFeeInfo(deployerKey, &contractAddress, nil, []uint64{nonce})
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
@@ -506,12 +503,12 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should be possible", func() {
-					msg := types.NewMsgCancelDevFeeInfo(contractAddress, deployerAddress)
+					msg := types.NewMsgCancelFee(contractAddress, deployerAddress)
 					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(Equal(true), "withdraw update failed: "+res.GetLog())
 					s.Commit()
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(false))
 					Expect(fee.ContractAddress).To(Equal(""))
 					Expect(fee.DeployerAddress).To(Equal(""))
@@ -534,7 +531,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			When("the fee info does not exist", func() {
 				It("should not be possible", func() {
 					contractAddress := tests.GenerateAddress()
-					msg := types.NewMsgCancelDevFeeInfo(contractAddress, deployerAddress)
+					msg := types.NewMsgCancelFee(contractAddress, deployerAddress)
 					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(false),
@@ -561,7 +558,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should be possible", func() {
-					msg := types.NewMsgRegisterDevFeeInfo(
+					msg := types.NewMsgRegisterFee(
 						contractAddress,
 						deployerAddress,
 						nil,
@@ -571,7 +568,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 					s.Commit()
 
-					fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
 					Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 					Expect(fee.DeployerAddress).To(Equal(deployerAddress.String()))
@@ -652,10 +649,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 						// Cost for registration with one address derivation
 						// We use another deployer, to have the same storage cost for
-						// SetFeeInverse
+						// SetDeployerFees
 						factory1Nonce2 := getNonce(deployerAddress2.Bytes())
 						factory1Address2 := deployContract(deployerKey2, doubleFactoryCode)
-						result := registerDevFeeInfo(
+						result := registerFee(
 							deployerKey2,
 							&factory1Address2,
 							nil,
@@ -665,8 +662,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.Commit()
 
 						// Registering contract for receiving fees
-						// Use a new deployer, to pay the same storage costs for SetFeeInverse
-						res := registerDevFeeInfo(
+						// Use a new deployer, to pay the same storage costs for SetDeployerFees
+						res := registerFee(
 							deployerKey1,
 							&contractAddress,
 							nil,
@@ -674,7 +671,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						)
 						s.Commit()
 
-						fee, isRegistered := s.app.FeesKeeper.GetFeeInfo(s.ctx, contractAddress)
+						fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 						Expect(isRegistered).To(Equal(true))
 						Expect(fee.ContractAddress).To(Equal(contractAddress.Hex()))
 						Expect(fee.DeployerAddress).To(Equal(deployerAddress1.String()))
@@ -705,7 +702,8 @@ func calculateFees(
 	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
-	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(params.ValidatorShares)
+	validatorShares := sdk.OneDec().Sub(params.DeveloperShares)
+	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(validatorShares)
 	validatorCoins := sdk.NewCoin(denom, validatorFee.TruncateInt())
 	return developerCoins, validatorCoins
 }
@@ -717,21 +715,21 @@ func getNonce(addressBytes []byte) uint64 {
 	)
 }
 
-func registerDevFeeInfo(
+func registerFee(
 	priv *ethsecp256k1.PrivKey,
 	contractAddress *common.Address,
 	withdrawAddress sdk.AccAddress,
 	nonces []uint64,
 ) abci.ResponseDeliverTx {
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	msg := types.NewMsgRegisterDevFeeInfo(*contractAddress, deployerAddress, withdrawAddress, nonces)
+	msg := types.NewMsgRegisterFee(*contractAddress, deployerAddress, withdrawAddress, nonces)
 
 	res := deliverTx(priv, nil, msg)
 	s.Commit()
 	Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
 	registerEvent := res.GetEvents()[8]
-	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterDevFeeInfo))
+	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterFee))
 	Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
 	Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
 	return res

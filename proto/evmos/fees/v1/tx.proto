@@ -8,27 +8,23 @@ option go_package = "github.com/tharsis/evmos/v5/x/fees/types";
 
 // Msg defines the fees Msg service.
 service Msg {
-  // RegisterDevFeeInfo is used by a deployer to register a new contract for
-  // receiving transaction fees
-  rpc RegisterDevFeeInfo(MsgRegisterDevFeeInfo)
-      returns (MsgRegisterDevFeeInfoResponse) {
-    option (google.api.http).post = "/evmos/fees/v1/tx/register_dev_fee_info";
+  // RegisterFee registers a new contract for receiving transaction fees
+  rpc RegisterFee(MsgRegisterFee) returns (MsgRegisterFeeResponse) {
+    option (google.api.http).post = "/evmos/fees/v1/tx/register_fee";
   };
-  // CancelDevFeeInfo is used by a deployer to cancel a registered contract
-  // and stop receiving transaction fees
-  rpc CancelDevFeeInfo(MsgCancelDevFeeInfo)
-      returns (MsgCancelDevFeeInfoResponse) {
-    option (google.api.http).post = "/evmos/fees/v1/tx/cancel_dev_fee_info";
+  // CancelFee cancels a contract's fee registration and further receival of
+  // transaction fees
+  rpc CancelFee(MsgCancelFee) returns (MsgCancelFeeResponse) {
+    option (google.api.http).post = "/evmos/fees/v1/tx/cancel_fee";
   };
-  // UpdateDevFeeInfo is used by a deployer to update the withdraw address
-  rpc UpdateDevFeeInfo(MsgUpdateDevFeeInfo)
-      returns (MsgUpdateDevFeeInfoResponse) {
-    option (google.api.http).post = "/evmos/fees/v1/tx/update_dev_fee_info";
+  // UpdateFee updates the withdraw address
+  rpc UpdateFee(MsgUpdateFee) returns (MsgUpdateFeeResponse) {
+    option (google.api.http).post = "/evmos/fees/v1/tx/update_fee";
   };
 }
 
-// MsgRegisterFeesContract defines a message that registers a DevFeeInfo
-message MsgRegisterDevFeeInfo {
+// MsgRegisterFee defines a message that registers a Fee
+message MsgRegisterFee {
   option (gogoproto.equal) = false;
   // contract hex address
   string contract_address = 1;
@@ -43,13 +39,11 @@ message MsgRegisterDevFeeInfo {
   repeated uint64 nonces = 4;
 }
 
-// MsgRegisterDevFeeInfoResponse defines the MsgRegisterDevFeeInfo response
-// type
-message MsgRegisterDevFeeInfoResponse {}
+// MsgRegisterFeeResponse defines the MsgRegisterFee response type
+message MsgRegisterFeeResponse {}
 
-// MsgCancelDevFeeInfo defines a message that cancels a registered a
-// DevFeeInfo
-message MsgCancelDevFeeInfo {
+// MsgCancelFee defines a message that cancels a registered a Fee
+message MsgCancelFee {
   option (gogoproto.equal) = false;
   // contract hex address
   string contract_address = 1;
@@ -57,12 +51,12 @@ message MsgCancelDevFeeInfo {
   string deployer_address = 2;
 }
 
-// MsgCancelDevFeeInfoResponse defines the MsgCancelDevFeeInfo response type
-message MsgCancelDevFeeInfoResponse {}
+// MsgCancelFeeResponse defines the MsgCancelFee response type
+message MsgCancelFeeResponse {}
 
-// MsgUpdateDevFeeInfo defines a message that updates the withdraw address for
-// a registered DevFeeInfo
-message MsgUpdateDevFeeInfo {
+// MsgUpdateFee defines a message that updates the withdraw address for a
+// registered Fee
+message MsgUpdateFee {
   option (gogoproto.equal) = false;
   // contract hex address
   string contract_address = 1;
@@ -72,5 +66,5 @@ message MsgUpdateDevFeeInfo {
   string withdraw_address = 3;
 }
 
-// MsgUpdateDevFeeInfoResponse defines the MsgUpdateDevFeeInfo response type
-message MsgUpdateDevFeeInfoResponse {}
+// MsgUpdateFeeResponse defines the MsgUpdateFee response type
+message MsgUpdateFeeResponse {}

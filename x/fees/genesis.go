@@ -16,21 +16,21 @@ func InitGenesis(
 ) {
 	k.SetParams(ctx, data.Params)
 
-	for _, fee := range data.DevFeeInfos {
+	for _, fee := range data.Fees {
 		contract := common.HexToAddress(fee.ContractAddress)
 		deployer := sdk.MustAccAddressFromBech32(fee.DeployerAddress)
 		withdrawal := sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
 
 		// Set initial contracts receiving transaction fees
 		k.SetFee(ctx, contract, deployer, withdrawal)
-		k.SetFeeInverse(ctx, deployer, contract)
+		k.SetDeployerFees(ctx, deployer, contract)
 	}
 }
 
 // ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:      k.GetParams(ctx),
-		DevFeeInfos: k.GetAllFees(ctx),
+		Params: k.GetParams(ctx),
+		Fees:   k.GetFees(ctx),
 	}
 }

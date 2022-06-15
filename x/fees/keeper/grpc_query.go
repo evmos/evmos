@@ -18,47 +18,48 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// DevFeeInfos returns all registered contracts for fee distribution
-func (k Keeper) DevFeeInfos(
+// Fees returns all Fees that have been registered for fee distribution
+func (k Keeper) Fees(
 	c context.Context,
-	req *types.QueryDevFeeInfosRequest,
-) (*types.QueryDevFeeInfosResponse, error) {
+	req *types.QueryFeesRequest,
+) (*types.QueryFeesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var feeInfos []types.DevFeeInfo
+	var fees []types.Fee
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
 		func(key, value []byte) error {
-			feeInfo := k.BuildFeeInfo(
+			fee := k.BuildFeeInfo(
 				ctx,
 				common.BytesToAddress(key),
 				sdk.AccAddress(value),
 			)
-			feeInfos = append(feeInfos, feeInfo)
+			fees = append(fees, fee)
 			return nil
 		},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryDevFeeInfosResponse{
-		Fees:       feeInfos,
+	return &types.QueryFeesResponse{
+		Fees:       fees,
 		Pagination: pageRes,
 	}, nil
 }
 
-// DevFeeInfo returns a given registered contract
-func (k Keeper) DevFeeInfo(
+// Fee returns the Fee that has been registered for fee distribution for a given
+// contract
+func (k Keeper) Fee(
 	c context.Context,
-	req *types.QueryDevFeeInfoRequest,
-) (*types.QueryDevFeeInfoResponse, error) {
+	req *types.QueryFeeRequest,
+) (*types.QueryFeeResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -80,7 +81,7 @@ func (k Keeper) DevFeeInfo(
 		)
 	}
 
-	feeInfo, found := k.GetFeeInfo(ctx, common.HexToAddress(req.ContractAddress))
+	fee, found := k.GetFee(ctx, common.HexToAddress(req.ContractAddress))
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
@@ -89,7 +90,7 @@ func (k Keeper) DevFeeInfo(
 		)
 	}
 
-	return &types.QueryDevFeeInfoResponse{Fee: feeInfo}, nil
+	return &types.QueryFeeResponse{Fee: fee}, nil
 }
 
 // Params returns the fees module params
@@ -102,12 +103,12 @@ func (k Keeper) Params(
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// DevFeeInfosPerDeployer returns the fee information for all contracts that a
-// deployer has registered
-func (k Keeper) DevFeeInfosPerDeployer(
+// DeployerFees returns all Fees that have been registered for fee distribution
+// by a given deployer
+func (k Keeper) DeployerFees(
 	c context.Context,
-	req *types.QueryDevFeeInfosPerDeployerRequest,
-) (*types.QueryDevFeeInfosPerDeployerResponse, error) {
+	req *types.QueryDeployerFeesRequest,
+) (*types.QueryDeployerFeesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -129,19 +130,19 @@ func (k Keeper) DevFeeInfosPerDeployer(
 		)
 	}
 
-	var feeInfos []types.DevFeeInfo
+	var fees []types.Fee
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
-		types.GetKeyPrefixInverseDeployer(deployer),
+		types.GetKeyPrefixDeployerFees(deployer),
 	)
 
 	pageRes, err := query.Paginate(
 		store,
 		req.Pagination,
 		func(key, value []byte) error {
-			feeInfo, found := k.GetFeeInfo(ctx, common.BytesToAddress(key))
+			fee, found := k.GetFee(ctx, common.BytesToAddress(key))
 			if found {
-				feeInfos = append(feeInfos, feeInfo)
+				fees = append(fees, fee)
 			}
 			return nil
 		},
@@ -149,8 +150,8 @@ func (k Keeper) DevFeeInfosPerDeployer(
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryDevFeeInfosPerDeployerResponse{
-		Fees:       feeInfos,
+	return &types.QueryDeployerFeesResponse{
+		Fees:       fees,
 		Pagination: pageRes,
 	}, nil
 }

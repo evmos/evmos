@@ -30,21 +30,21 @@ func (suite *MsgsTestSuite) SetupTest() {
 	suite.deployerStr = suite.deployer.String()
 }
 
-func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoGetters() {
-	msgInvalid := MsgRegisterDevFeeInfo{}
-	msg := NewMsgRegisterDevFeeInfo(
+func (suite *MsgsTestSuite) TestMsgRegisterFeeGetters() {
+	msgInvalid := MsgRegisterFee{}
+	msg := NewMsgRegisterFee(
 		suite.contract,
 		suite.deployer,
 		suite.deployer,
 		[]uint64{1},
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgRegisterDevFeeInfo, msg.Type())
+	suite.Require().Equal(TypeMsgRegisterFee, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
-func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
+func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 	testCases := []struct {
 		msg        string
 		contract   string
@@ -120,7 +120,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgRegisterDevFeeInfo{
+		tx := MsgRegisterFee{
 			ContractAddress: tc.contract,
 			DeployerAddress: tc.deployer,
 			WithdrawAddress: tc.withdraw,
@@ -137,19 +137,19 @@ func (suite *MsgsTestSuite) TestMsgRegisterDevFeeInfoNew() {
 	}
 }
 
-func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoGetters() {
-	msgInvalid := MsgCancelDevFeeInfo{}
-	msg := NewMsgCancelDevFeeInfo(
+func (suite *MsgsTestSuite) TestMsgCancelFeeGetters() {
+	msgInvalid := MsgCancelFee{}
+	msg := NewMsgCancelFee(
 		suite.contract,
 		sdk.AccAddress(suite.deployer.Bytes()),
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgCancelDevFeeInfo, msg.Type())
+	suite.Require().Equal(TypeMsgCancelFee, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
-func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
+func (suite *MsgsTestSuite) TestMsgCancelFeeNew() {
 	testCases := []struct {
 		msg        string
 		contract   string
@@ -183,7 +183,7 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgCancelDevFeeInfo{
+		tx := MsgCancelFee{
 			ContractAddress: tc.contract,
 			DeployerAddress: tc.deployer,
 		}
@@ -198,20 +198,20 @@ func (suite *MsgsTestSuite) TestMsgCancelDevFeeInfoNew() {
 	}
 }
 
-func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoGetters() {
-	msgInvalid := MsgUpdateDevFeeInfo{}
-	msg := NewMsgUpdateDevFeeInfo(
+func (suite *MsgsTestSuite) TestMsgUpdateFeeGetters() {
+	msgInvalid := MsgUpdateFee{}
+	msg := NewMsgUpdateFee(
 		suite.contract,
 		sdk.AccAddress(suite.deployer.Bytes()),
 		sdk.AccAddress(suite.deployer.Bytes()),
 	)
 	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgUpdateDevFeeInfo, msg.Type())
+	suite.Require().Equal(TypeMsgUpdateFee, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
 
-func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
+func (suite *MsgsTestSuite) TestMsgUpdateFeeNew() {
 	withdrawStr := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 	testCases := []struct {
 		msg        string
@@ -265,7 +265,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateDevFeeInfoNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgUpdateDevFeeInfo{
+		tx := MsgUpdateFee{
 			ContractAddress: tc.contract,
 			DeployerAddress: tc.deployer,
 			WithdrawAddress: tc.withdraw,

@@ -24,18 +24,18 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	feesQueryCmd.AddCommand(
-		GetCmdQueryDevFeeInfos(),
-		GetCmdQueryDevFeeInfo(),
+		GetCmdQueryFees(),
+		GetCmdQueryFee(),
 		GetCmdQueryParams(),
-		GetCmdQueryDevFeeInfosPerDeployer(),
+		GetCmdQueryDeployerFees(),
 	)
 
 	return feesQueryCmd
 }
 
-// GetCmdQueryDevFeeInfos implements a command to return all registered
+// GetCmdQueryFees implements a command to return all registered
 // contracts for fee distribution
-func GetCmdQueryDevFeeInfos() *cobra.Command {
+func GetCmdQueryFees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fee-infos",
 		Short: "Query  all registered contracts for fee distribution",
@@ -52,11 +52,11 @@ func GetCmdQueryDevFeeInfos() *cobra.Command {
 				return err
 			}
 
-			req := &types.QueryDevFeeInfosRequest{
+			req := &types.QueryFeesRequest{
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.DevFeeInfos(context.Background(), req)
+			res, err := queryClient.Fees(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -70,9 +70,9 @@ func GetCmdQueryDevFeeInfos() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryDevFeeInfo implements a command to return a registered contract
+// GetCmdQueryFee implements a command to return a registered contract
 // for fee distribution
-func GetCmdQueryDevFeeInfo() *cobra.Command {
+func GetCmdQueryFee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "fee-info [address]",
 		Args:    cobra.ExactArgs(1),
@@ -87,10 +87,10 @@ func GetCmdQueryDevFeeInfo() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryDevFeeInfoRequest{ContractAddress: args[0]}
+			req := &types.QueryFeeRequest{ContractAddress: args[0]}
 
 			// Query store
-			res, err := queryClient.DevFeeInfo(context.Background(), req)
+			res, err := queryClient.Fee(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -132,9 +132,9 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryDevFeeInfosPerDeployer implements a command that returns all
+// GetCmdQueryDeployerFees implements a command that returns all
 // contracts that a deployer has registered for fee distribution
-func GetCmdQueryDevFeeInfosPerDeployer() *cobra.Command {
+func GetCmdQueryDeployerFees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "fee-infos-deployer [address]",
 		Args:    cobra.ExactArgs(1),
@@ -155,7 +155,7 @@ func GetCmdQueryDevFeeInfosPerDeployer() *cobra.Command {
 			}
 
 			// Query store
-			res, err := queryClient.DevFeeInfosPerDeployer(context.Background(), &types.QueryDevFeeInfosPerDeployerRequest{
+			res, err := queryClient.DeployerFees(context.Background(), &types.QueryDeployerFeesRequest{
 				DeployerAddress: args[0],
 				Pagination:      pageReq,
 			})

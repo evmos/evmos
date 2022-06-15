@@ -10,10 +10,10 @@ import (
 	"github.com/tharsis/evmos/v5/x/fees/types"
 )
 
-func (suite *KeeperTestSuite) TestDevFeeInfos() {
+func (suite *KeeperTestSuite) TestFees() {
 	var (
-		req    *types.QueryDevFeeInfosRequest
-		expRes *types.QueryDevFeeInfosResponse
+		req    *types.QueryFeesRequest
+		expRes *types.QueryFeesResponse
 	)
 
 	testCases := []struct {
@@ -24,22 +24,22 @@ func (suite *KeeperTestSuite) TestDevFeeInfos() {
 		{
 			"no fee infos registered",
 			func() {
-				req = &types.QueryDevFeeInfosRequest{}
-				expRes = &types.QueryDevFeeInfosResponse{Pagination: &query.PageResponse{}}
+				req = &types.QueryFeesRequest{}
+				expRes = &types.QueryFeesResponse{Pagination: &query.PageResponse{}}
 			},
 			true,
 		},
 		{
 			"1 fee infos registered w/pagination",
 			func() {
-				req = &types.QueryDevFeeInfosRequest{
+				req = &types.QueryFeesRequest{
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
 				}
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
 
-				expRes = &types.QueryDevFeeInfosResponse{
+				expRes = &types.QueryFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
-					Fees: []types.DevFeeInfo{
+					Fees: []types.Fee{
 						{
 							ContractAddress: contract.Hex(),
 							DeployerAddress: deployer.String(),
@@ -53,14 +53,14 @@ func (suite *KeeperTestSuite) TestDevFeeInfos() {
 		{
 			"2 fee infos registered wo/pagination",
 			func() {
-				req = &types.QueryDevFeeInfosRequest{}
+				req = &types.QueryFeesRequest{}
 				contract2 := tests.GenerateAddress()
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract2, deployer, nil)
 
-				expRes = &types.QueryDevFeeInfosResponse{
+				expRes = &types.QueryFeesResponse{
 					Pagination: &query.PageResponse{Total: 2},
-					Fees: []types.DevFeeInfo{
+					Fees: []types.Fee{
 						{
 							ContractAddress: contract.Hex(),
 							DeployerAddress: deployer.String(),
@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestDevFeeInfos() {
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
-			res, err := suite.queryClient.DevFeeInfos(ctx, req)
+			res, err := suite.queryClient.Fees(ctx, req)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.Pagination, res.Pagination)
@@ -95,19 +95,19 @@ func (suite *KeeperTestSuite) TestDevFeeInfos() {
 	}
 }
 
-// Cases that cannot be tested in TestDevFeeInfos
-func (suite *KeeperTestSuite) TestDevFeeInfosKeeper() {
+// Cases that cannot be tested in TestFees
+func (suite *KeeperTestSuite) TestFeesKeeper() {
 	suite.SetupTest()
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	res, err := suite.app.FeesKeeper.DevFeeInfos(ctx, nil)
+	res, err := suite.app.FeesKeeper.Fees(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
 }
 
-func (suite *KeeperTestSuite) TestDevFeeInfo() {
+func (suite *KeeperTestSuite) TestFee() {
 	var (
-		req    *types.QueryDevFeeInfoRequest
-		expRes *types.QueryDevFeeInfoResponse
+		req    *types.QueryFeeRequest
+		expRes *types.QueryFeeResponse
 	)
 
 	testCases := []struct {
@@ -118,28 +118,28 @@ func (suite *KeeperTestSuite) TestDevFeeInfo() {
 		{
 			"empty contract address",
 			func() {
-				req = &types.QueryDevFeeInfoRequest{}
-				expRes = &types.QueryDevFeeInfoResponse{}
+				req = &types.QueryFeeRequest{}
+				expRes = &types.QueryFeeResponse{}
 			},
 			false,
 		},
 		{
 			"invalid contract address",
 			func() {
-				req = &types.QueryDevFeeInfoRequest{
+				req = &types.QueryFeeRequest{
 					ContractAddress: "1234",
 				}
-				expRes = &types.QueryDevFeeInfoResponse{}
+				expRes = &types.QueryFeeResponse{}
 			},
 			false,
 		},
 		{
 			"fee info not found",
 			func() {
-				req = &types.QueryDevFeeInfoRequest{
+				req = &types.QueryFeeRequest{
 					ContractAddress: contract.String(),
 				}
-				expRes = &types.QueryDevFeeInfoResponse{}
+				expRes = &types.QueryFeeResponse{}
 			},
 			false,
 		},
@@ -148,10 +148,10 @@ func (suite *KeeperTestSuite) TestDevFeeInfo() {
 			func() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
 
-				req = &types.QueryDevFeeInfoRequest{
+				req = &types.QueryFeeRequest{
 					ContractAddress: contract.Hex(),
 				}
-				expRes = &types.QueryDevFeeInfoResponse{Fee: types.DevFeeInfo{
+				expRes = &types.QueryFeeResponse{Fee: types.Fee{
 					ContractAddress: contract.Hex(),
 					DeployerAddress: deployer.String(),
 					WithdrawAddress: withdraw.String(),
@@ -167,7 +167,7 @@ func (suite *KeeperTestSuite) TestDevFeeInfo() {
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
-			res, err := suite.queryClient.DevFeeInfo(ctx, req)
+			res, err := suite.queryClient.Fee(ctx, req)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes, res)
@@ -178,19 +178,19 @@ func (suite *KeeperTestSuite) TestDevFeeInfo() {
 	}
 }
 
-// Cases that cannot be tested in TestDevFeeInfo
-func (suite *KeeperTestSuite) TestDevFeeInfoKeeper() {
+// Cases that cannot be tested in TestFee
+func (suite *KeeperTestSuite) TestFeeKeeper() {
 	suite.SetupTest()
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	res, err := suite.app.FeesKeeper.DevFeeInfo(ctx, nil)
+	res, err := suite.app.FeesKeeper.Fee(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
 }
 
-func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
+func (suite *KeeperTestSuite) TestDeployerFees() {
 	var (
-		req    *types.QueryDevFeeInfosPerDeployerRequest
-		expRes *types.QueryDevFeeInfosPerDeployerResponse
+		req    *types.QueryDeployerFeesRequest
+		expRes *types.QueryDeployerFeesResponse
 	)
 
 	testCases := []struct {
@@ -201,34 +201,34 @@ func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
 		{
 			"no contract registered",
 			func() {
-				req = &types.QueryDevFeeInfosPerDeployerRequest{}
-				expRes = &types.QueryDevFeeInfosPerDeployerResponse{Pagination: &query.PageResponse{}}
+				req = &types.QueryDeployerFeesRequest{}
+				expRes = &types.QueryDeployerFeesResponse{Pagination: &query.PageResponse{}}
 			},
 			false,
 		},
 		{
 			"invalid deployer address",
 			func() {
-				req = &types.QueryDevFeeInfosPerDeployerRequest{
+				req = &types.QueryDeployerFeesRequest{
 					DeployerAddress: "123",
 				}
-				expRes = &types.QueryDevFeeInfosPerDeployerResponse{Pagination: &query.PageResponse{}}
+				expRes = &types.QueryDeployerFeesResponse{Pagination: &query.PageResponse{}}
 			},
 			false,
 		},
 		{
 			"1 fee info registered w/pagination",
 			func() {
-				req = &types.QueryDevFeeInfosPerDeployerRequest{
+				req = &types.QueryDeployerFeesRequest{
 					Pagination:      &query.PageRequest{Limit: 10, CountTotal: true},
 					DeployerAddress: deployer.String(),
 				}
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-				suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract)
+				suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract)
 
-				expRes = &types.QueryDevFeeInfosPerDeployerResponse{
+				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
-					Fees: []types.DevFeeInfo{
+					Fees: []types.Fee{
 						{
 							ContractAddress: contract.Hex(),
 							DeployerAddress: deployer.String(),
@@ -242,18 +242,18 @@ func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
 		{
 			"2 fee infos registered for one contract wo/pagination",
 			func() {
-				req = &types.QueryDevFeeInfosPerDeployerRequest{
+				req = &types.QueryDeployerFeesRequest{
 					DeployerAddress: deployer.String(),
 				}
 				contract2 := tests.GenerateAddress()
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-				suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract)
+				suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract2, deployer, nil)
-				suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract2)
+				suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract2)
 
-				expRes = &types.QueryDevFeeInfosPerDeployerResponse{
+				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 2},
-					Fees: []types.DevFeeInfo{
+					Fees: []types.Fee{
 						{
 							ContractAddress: contract.Hex(),
 							DeployerAddress: deployer.String(),
@@ -276,7 +276,7 @@ func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
-			res, err := suite.queryClient.DevFeeInfosPerDeployer(ctx, req)
+			res, err := suite.queryClient.DeployerFees(ctx, req)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.Pagination, res.Pagination)
@@ -288,11 +288,11 @@ func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployer() {
 	}
 }
 
-// Cases that cannot be tested in TestDevFeeInfosPerDeployer
-func (suite *KeeperTestSuite) TestDevFeeInfosPerDeployerKeeper() {
+// Cases that cannot be tested in TestDeployerFees
+func (suite *KeeperTestSuite) TestDeployerFeesKeeper() {
 	suite.SetupTest()
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	res, err := suite.app.FeesKeeper.DevFeeInfosPerDeployer(ctx, nil)
+	res, err := suite.app.FeesKeeper.DeployerFees(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
 }

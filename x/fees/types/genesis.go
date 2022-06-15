@@ -3,13 +3,10 @@ package types
 import "fmt"
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(
-	params Params,
-	feeInfos []DevFeeInfo,
-) GenesisState {
+func NewGenesisState(params Params, fees []Fee) GenesisState {
 	return GenesisState{
-		Params:      params,
-		DevFeeInfos: feeInfos,
+		Params: params,
+		Fees:   fees,
 	}
 }
 
@@ -25,7 +22,7 @@ func DefaultGenesisState() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 	seenContractIn := make(map[string]bool)
-	for _, in := range gs.DevFeeInfos {
+	for _, in := range gs.Fees {
 		// only one fee per contract
 		if seenContractIn[in.ContractAddress] {
 			return fmt.Errorf("contract duplicated on genesis '%s'", in.ContractAddress)

@@ -6,12 +6,12 @@ order: 4
 
 This section defines the `sdk.Msg` concrete types that result in the state transitions defined on the previous section.
 
-### `MsgRegisterDevFeeInfo`
+### `MsgRegisterFee`
 
 Defines a transaction signed by a developer to register a contract for transaction fee distribution. The sender must be an EOA that corresponds to the contract deployer address.
 
 ```go
-type MsgRegisterDevFeeInfo struct {
+type MsgRegisterFee struct {
 	// contract hex address
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// bech32 address of message sender, must be the same as the origin EOA
@@ -34,12 +34,12 @@ The message content stateless validation fails if:
 - Withdraw bech32 address is invalid
 - Nonces array is empty
 
-### `MsgUpdateDevFeeInfo`
+### `MsgUpdateFee`
 
 Defines a transaction signed by a developer to update the withdraw address of a contract registered for transaction fee distribution. The sender must be an EOA that corresponds to the contract deployer address.
 
 ```go
-type MsgUpdateDevFeeInfo struct {
+type MsgUpdateFee struct {
 	// contract hex address
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// deployer bech32 address
@@ -57,12 +57,12 @@ The message content stateless validation fails if:
 - Withdraw bech32 address is invalid
 - Withdraw bech32 address is same as deployer address
 
-### `MsgCancelDevFeeInfo`
+### `MsgCancelFee`
 
 Defines a transaction signed by a developer to remove the information for a registered contract. Transaction fees will no longer be distributed to the developer, for this smart contract. The sender must be an EOA that corresponds to the contract deployer address.
 
 ```go
-type MsgCancelDevFeeInfo struct {
+type MsgCancelFee struct {
 	// contract hex address
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// deployer bech32 address
