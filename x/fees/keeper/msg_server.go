@@ -73,7 +73,7 @@ func (k Keeper) RegisterFee(
 	}
 
 	k.SetFee(ctx, contract, deployer, withdrawal)
-	k.SetFeeInverse(ctx, deployer, contract)
+	k.SetDeployerFees(ctx, deployer, contract)
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
 		"contract", msg.ContractAddress, "deployer", msg.DeployerAddress,
@@ -115,7 +115,7 @@ func (k Keeper) CancelFee(
 	}
 
 	k.DeleteFee(ctx, contractAddress)
-	k.DeleteFeeInverse(ctx, deployerAddress, contractAddress)
+	k.DeleteDeployerFees(ctx, deployerAddress, contractAddress)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

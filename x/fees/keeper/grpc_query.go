@@ -132,7 +132,7 @@ func (k Keeper) DeployerFees(
 	var fees []types.Fee
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
-		types.GetKeyPrefixInverseDeployer(deployer),
+		types.GetKeyPrefixDeployerFees(deployer),
 	)
 
 	pageRes, err := query.Paginate(

@@ -649,7 +649,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 						// Cost for registration with one address derivation
 						// We use another deployer, to have the same storage cost for
-						// SetFeeInverse
+						// SetDeployerFees
 						factory1Nonce2 := getNonce(deployerAddress2.Bytes())
 						factory1Address2 := deployContract(deployerKey2, doubleFactoryCode)
 						result := registerFee(
@@ -662,7 +662,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.Commit()
 
 						// Registering contract for receiving fees
-						// Use a new deployer, to pay the same storage costs for SetFeeInverse
+						// Use a new deployer, to pay the same storage costs for SetDeployerFees
 						res := registerFee(
 							deployerKey1,
 							&contractAddress,

@@ -23,7 +23,7 @@ func InitGenesis(
 
 		// Set initial contracts receiving transaction fees
 		k.SetFee(ctx, contract, deployer, withdrawal)
-		k.SetFeeInverse(ctx, deployer, contract)
+		k.SetDeployerFees(ctx, deployer, contract)
 	}
 }
 

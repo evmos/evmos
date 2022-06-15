@@ -18,18 +18,18 @@ const (
 const (
 	prefixFee = iota + 1
 	prefixFeeWithdrawal
-	prefixFeeInverse
+	prefixDeployerFees
 )
 
 // KVStore key prefixes
 var (
 	KeyPrefixFee           = []byte{prefixFee}
 	KeyPrefixFeeWithdrawal = []byte{prefixFeeWithdrawal}
-	KeyPrefixInverse       = []byte{prefixFeeInverse}
+	KeyPrefixDeployerFees  = []byte{prefixDeployerFees}
 )
 
-// GetKeyPrefixInverseDeployer returns the KVStore key prefix for storing
+// GetKeyPrefixDeployerFees returns the KVStore key prefix for storing
 // registered fee infos for a deployer
-func GetKeyPrefixInverseDeployer(deployerAddress sdk.AccAddress) []byte {
-	return append(KeyPrefixInverse, deployerAddress.Bytes()...)
+func GetKeyPrefixDeployerFees(deployerAddress sdk.AccAddress) []byte {
+	return append(KeyPrefixDeployerFees, deployerAddress.Bytes()...)
 }

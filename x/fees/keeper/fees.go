@@ -140,13 +140,13 @@ func (k Keeper) IsFeeRegistered(
 	return store.Has(contract.Bytes())
 }
 
-// GetFeesInverse returns all contracts registered by a deployer as []common.Address
-func (k Keeper) GetFeesInverse(ctx sdk.Context, deployerAddress sdk.AccAddress) []common.Address {
+// GetDeployerFees returns all contracts registered by a deployer as []common.Address
+func (k Keeper) GetDeployerFees(ctx sdk.Context, deployerAddress sdk.AccAddress) []common.Address {
 	feeKeys := []common.Address{}
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(
 		store,
-		types.GetKeyPrefixInverseDeployer(deployerAddress),
+		types.GetKeyPrefixDeployerFees(deployerAddress),
 	)
 	defer iterator.Close()
 
@@ -157,35 +157,35 @@ func (k Keeper) GetFeesInverse(ctx sdk.Context, deployerAddress sdk.AccAddress) 
 	return feeKeys
 }
 
-// SetFeeInverse stores a registered contract inverse mapping
-func (k Keeper) SetFeeInverse(ctx sdk.Context, deployerAddress sdk.AccAddress, contractAddress common.Address) {
+// SetDeployerFees stores a registered contract inverse mapping
+func (k Keeper) SetDeployerFees(ctx sdk.Context, deployerAddress sdk.AccAddress, contractAddress common.Address) {
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
-		types.GetKeyPrefixInverseDeployer(deployerAddress),
+		types.GetKeyPrefixDeployerFees(deployerAddress),
 	)
 	store.Set(contractAddress.Bytes(), []byte("1"))
 }
 
-// DeleteFeeInverse removes a registered contract from a deployer's KVStore of
+// DeleteDeployerFees removes a registered contract from a deployer's KVStore of
 // registered contracts
-func (k Keeper) DeleteFeeInverse(ctx sdk.Context, deployerAddress sdk.AccAddress, contractAddress common.Address) {
+func (k Keeper) DeleteDeployerFees(ctx sdk.Context, deployerAddress sdk.AccAddress, contractAddress common.Address) {
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
-		types.GetKeyPrefixInverseDeployer(deployerAddress),
+		types.GetKeyPrefixDeployerFees(deployerAddress),
 	)
 	store.Delete(contractAddress.Bytes())
 }
 
-// IsFeeInverseRegistered checks if a contract exists in a deployer's KVStore of
+// IsDeployerFeesRegistered checks if a contract exists in a deployer's KVStore of
 // registered contracts
-func (k Keeper) IsFeeInverseRegistered(
+func (k Keeper) IsDeployerFeesRegistered(
 	ctx sdk.Context,
 	deployerAddress sdk.AccAddress,
 	contractAddress common.Address,
 ) bool {
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
-		types.GetKeyPrefixInverseDeployer(deployerAddress),
+		types.GetKeyPrefixDeployerFees(deployerAddress),
 	)
 	return store.Has(contractAddress.Bytes())
 }

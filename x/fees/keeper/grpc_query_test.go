@@ -224,7 +224,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 					DeployerAddress: deployer.String(),
 				}
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-				suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract)
+				suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract)
 
 				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
@@ -247,9 +247,9 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 				}
 				contract2 := tests.GenerateAddress()
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-				suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract)
+				suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract2, deployer, nil)
-				suite.app.FeesKeeper.SetFeeInverse(suite.ctx, deployer, contract2)
+				suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract2)
 
 				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 2},
