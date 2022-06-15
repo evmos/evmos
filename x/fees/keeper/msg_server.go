@@ -94,7 +94,7 @@ func (k Keeper) RegisterFee(
 	return &types.MsgRegisterFeeResponse{}, nil
 }
 
-// CancelFee deletes the fee for a contract
+// CancelFee deletes the Fee of a given contract
 func (k Keeper) CancelFee(
 	goCtx context.Context,
 	msg *types.MsgCancelFee,
@@ -130,7 +130,7 @@ func (k Keeper) CancelFee(
 	return &types.MsgCancelFeeResponse{}, nil
 }
 
-// UpdateFee updates the withdraw address for a contract
+// UpdateFee updates the withdraw address of a given Fee
 func (k Keeper) UpdateFee(
 	goCtx context.Context,
 	msg *types.MsgUpdateFee,

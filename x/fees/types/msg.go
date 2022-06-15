@@ -22,7 +22,7 @@ const (
 // NewMsgRegisterFee creates new instance of MsgRegisterFee
 func NewMsgRegisterFee(
 	contract common.Address,
-	deployer sdk.AccAddress,
+	deployer,
 	withdrawal sdk.AccAddress,
 	nonces []uint64,
 ) *MsgRegisterFee {
@@ -81,7 +81,10 @@ func (msg MsgRegisterFee) GetSigners() []sdk.AccAddress {
 
 // NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
 // nil - defaulting to the funder.
-func NewMsgCancelFee(contract common.Address, deployer sdk.AccAddress) *MsgCancelFee {
+func NewMsgCancelFee(
+	contract common.Address,
+	deployer sdk.AccAddress,
+) *MsgCancelFee {
 	return &MsgCancelFee{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
@@ -121,7 +124,7 @@ func (msg MsgCancelFee) GetSigners() []sdk.AccAddress {
 // NewMsgUpdateFee creates new instance of MsgUpdateFee
 func NewMsgUpdateFee(
 	contract common.Address,
-	deployer sdk.AccAddress,
+	deployer,
 	withdraw sdk.AccAddress,
 ) *MsgUpdateFee {
 	return &MsgUpdateFee{

@@ -18,7 +18,7 @@ import (
 
 var _ types.QueryServer = Keeper{}
 
-// Fees returns all registered contracts for fee distribution
+// Fees returns all Fees that have been registered for fee distribution
 func (k Keeper) Fees(
 	c context.Context,
 	req *types.QueryFeesRequest,
@@ -54,7 +54,8 @@ func (k Keeper) Fees(
 	}, nil
 }
 
-// Fee returns a given registered contract
+// Fee returns the Fee that has been registered for fee distribution for a given
+// contract
 func (k Keeper) Fee(
 	c context.Context,
 	req *types.QueryFeeRequest,
@@ -102,8 +103,8 @@ func (k Keeper) Params(
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// DeployerFees returns the fee information for all contracts that a
-// deployer has registered
+// DeployerFees returns all Fees that have been registered for fee distribution
+// by a given deployer
 func (k Keeper) DeployerFees(
 	c context.Context,
 	req *types.QueryDeployerFeesRequest,

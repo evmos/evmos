@@ -7,11 +7,7 @@ import (
 )
 
 // NewFee returns an instance of Fee
-func NewFee(
-	contract common.Address,
-	deployer,
-	withdraw sdk.AccAddress,
-) Fee {
+func NewFee(contract common.Address, deployer, withdraw sdk.AccAddress) Fee {
 	return Fee{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
