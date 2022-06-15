@@ -16,15 +16,15 @@ The `x/fees` module keeps the following objects in state:
 
 ### DeployerAddress
 
-Deployer address for a registered contract.
+A `DeployerAddress` is the EOA address for a registered contract.
 
 ### WithdrawAddress
 
-Address that will receive transaction fees for a registered contract.
+The `WithdrawAddress` is the address that receives transaction fees for a registered contract.
 
 ### ContractAddresses
 
-Slice of contract addresses registered by a developer.
+`ContractAddresses` defines a slice of all contract addresses registered by a deployer.
 
 ## Genesis State
 

@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (fees) [\#691](https://github.com/tharsis/evmos/pull/691) Internal Api audit.
 
+### Improvements
+
+- (fees) [\#685](https://github.com/tharsis/evmos/pull/685) Internal Specification audit.
+
 ## [v5.0.0] - 2022-06-14
 
 ### State Machine Breaking

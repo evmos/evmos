@@ -14,11 +14,12 @@ evmosd query fees params
 
 ### Queries
 
-| Command        | Subcommand  | Description                  |
-| :------------- | :---------- | :--------------------------- |
-| `query` `fees` | `params`    | Get fees params              |
-| `query` `fees` | `fee-info`  | Get registered fee info      |
-| `query` `fees` | `fee-infos` | Get all registered fee infos |
+| Command        | Subcommand           | Description                                       |
+| :------------- | :------------------- | :------------------------------------------------ |
+| `query` `fees` | `params`             | Get fees params                                   |
+| `query` `fees` | `fee-info`           | Get registered fee info                           |
+| `query` `fees` | `fee-infos`          | Get all registered fee infos                      |
+| `query` `fees` | `fee-infos-deployer` | Get all contracts that a deployer has registered |
 
 ### Transactions
 
