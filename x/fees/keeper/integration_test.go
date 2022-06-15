@@ -265,7 +265,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.FeesKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDecWithPrec(50, 2)
-					params.ValidatorShares = sdk.NewDecWithPrec(50, 2)
 					s.app.FeesKeeper.SetParams(s.ctx, params)
 				})
 
@@ -313,7 +312,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.FeesKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(0)
-					params.ValidatorShares = sdk.NewDec(1)
 					s.app.FeesKeeper.SetParams(s.ctx, params)
 				})
 
@@ -344,7 +342,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.FeesKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
-					params.ValidatorShares = sdk.NewDec(0)
 					s.app.FeesKeeper.SetParams(s.ctx, params)
 				})
 
@@ -705,7 +702,8 @@ func calculateFees(
 	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
-	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(params.ValidatorShares)
+	validatorShares := sdk.OneDec().Sub(params.DeveloperShares)
+	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(validatorShares)
 	validatorCoins := sdk.NewCoin(denom, validatorFee.TruncateInt())
 	return developerCoins, validatorCoins
 }

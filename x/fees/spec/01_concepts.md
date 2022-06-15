@@ -32,7 +32,7 @@ As described above, developers will earn a portion of the transaction fee after 
 
 When a transaction is executed, the entire fee amount `gasLimit * gasPrice` is sent to the `FeeCollector` Module Account during the `AnteHandler` execution. After the EVM executes the transaction, the user receives a refund of `(gasLimit - gasUsed) * gasPrice`.
 
-Therefore, the user only pays for the execution: `txFee = gasUsed * gasPrice`. This is the transaction fee distributed between developers and validators, in accordance with the `x/fees` module parameters: `DeveloperShares`, `ValidatorShares`. This distribution is handled through the `PostTxProcessing` [Hook](./05_hooks.md).
+Therefore, the user only pays for the execution: `txFee = gasUsed * gasPrice`. This is the transaction fee distributed between developers and validators, in accordance with the `x/fees` module parameter: `DeveloperShares`. This distribution is handled through the `PostTxProcessing` [Hook](./05_hooks.md).
 
 ### Address Derivation
 

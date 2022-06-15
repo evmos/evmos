@@ -1023,7 +1023,6 @@ Params defines the fees module params
 | ----- | ---- | ----- | ----------- |
 | `enable_fees` | [bool](#bool) |  | parameter to enable fees |
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
-| `validator_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to validators |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
 
 

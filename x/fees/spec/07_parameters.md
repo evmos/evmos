@@ -10,7 +10,6 @@ The fees module contains the following parameters:
 | :------------------------- | :------------ | :---------------------------- |
 | `EnableFees`               | bool          | `true`                        |
 | `DeveloperShares`          | sdk.Dec       | `50%`                         |
-| `ValidatorShares`          | sdk.Dec       | `50%`                         |
 | `AddrDerivationCostCreate` | uint64        | `50`                          |
 
 ## Enable Fee Module
@@ -20,10 +19,6 @@ The `EnableFees` parameter toggles all state transitions in the module. When the
 ### Developer Shares Amount
 
 The `DeveloperShares` parameter is the percentage of transaction fees that is sent to the contract deployers.
-
-### Validator Shares Amount
-
-The `ValidatorShares` parameter is the percentage of transaction fees that is sent to the block proposer.
 
 ### Address Derivation Cost with CREATE opcode
 
