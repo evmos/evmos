@@ -21,6 +21,8 @@ import (
 	"github.com/tharsis/ethermint/tests"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
+	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+
 	"github.com/tharsis/evmos/v5/app"
 	v5 "github.com/tharsis/evmos/v5/app/upgrades/v5"
 	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
@@ -295,6 +297,129 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 			suite.Require().NotNil(cp)
 			suite.Require().NotNil(cp.Evidence)
 			suite.Require().Equal(tc.expEvidenceParams.String(), cp.Evidence.String())
+		})
+	}
+}
+
+func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
+	testCases := []struct {
+		name           string
+		originalTraces ibctransfertypes.Traces
+		expDenomTraces ibctransfertypes.Traces
+	}{
+		{
+			"no traces",
+			ibctransfertypes.Traces{},
+			ibctransfertypes.Traces{},
+		},
+		{
+			"native IBC tokens",
+			ibctransfertypes.Traces{
+				{
+					BaseDenom: "aevmos",
+					Path:      "",
+				},
+				{
+					BaseDenom: "uosmo",
+					Path:      "transfer/channel-0",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-0/transfer/channel-0",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-3",
+				},
+				{
+					BaseDenom: "gravity0x6B175474E89094C44Da98b954EedeAC495271d0F",
+					Path:      "transfer/channel-8",
+				},
+			},
+			ibctransfertypes.Traces{
+				{
+					BaseDenom: "aevmos",
+					Path:      "",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-0/transfer/channel-0",
+				},
+				{
+					BaseDenom: "uosmo",
+					Path:      "transfer/channel-0",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-3",
+				},
+				{
+					BaseDenom: "gravity0x6B175474E89094C44Da98b954EedeAC495271d0F",
+					Path:      "transfer/channel-8",
+				},
+			},
+		},
+		{
+			"with invalid tokens",
+			ibctransfertypes.Traces{
+				{
+					BaseDenom: "aevmos",
+					Path:      "",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-3",
+				},
+				{
+					BaseDenom: "uosmo",
+					Path:      "transfer/channel-0/transfer/channel-0",
+				},
+				{
+					BaseDenom: "1",
+					Path:      "transfer/channel-0/gamm/pool",
+				},
+				{
+					BaseDenom: "0x85bcBCd7e79Ec36f4fBBDc54F90C643d921151AA",
+					Path:      "transfer/channel-20/erc20",
+				},
+			},
+			ibctransfertypes.Traces{
+				{
+					BaseDenom: "aevmos",
+					Path:      "",
+				},
+				{
+					BaseDenom: "gamm/pool/1",
+					Path:      "transfer/channel-0",
+				},
+				{
+					BaseDenom: "uosmo",
+					Path:      "transfer/channel-0/transfer/channel-0",
+				},
+				{
+					BaseDenom: "erc20/0x85bcBCd7e79Ec36f4fBBDc54F90C643d921151AA",
+					Path:      "transfer/channel-20",
+				},
+				{
+					BaseDenom: "uatom",
+					Path:      "transfer/channel-3",
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			for _, dt := range tc.originalTraces {
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
+			}
+
+			v5.UpdateIBCDenomTraces(suite.ctx, suite.app.TransferKeeper)
+
+			traces := suite.app.TransferKeeper.GetAllDenomTraces(suite.ctx)
+			suite.Require().Equal(tc.expDenomTraces, traces)
 		})
 	}
 }

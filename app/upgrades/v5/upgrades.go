@@ -14,6 +14,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+
 	feemarketv010types "github.com/tharsis/ethermint/x/feemarket/migrations/v010/types"
 	feemarketv011 "github.com/tharsis/ethermint/x/feemarket/migrations/v011"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
@@ -51,6 +54,7 @@ func CreateUpgradeHandler(
 	ck *claimskeeper.Keeper,
 	sk stakingkeeper.Keeper,
 	pk paramskeeper.Keeper,
+	tk ibctransferkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -71,6 +75,9 @@ func CreateUpgradeHandler(
 
 		logger.Debug("updating Tendermint consensus params...")
 		UpdateConsensusParams(ctx, sk, pk)
+
+		logger.Debug("updating IBC transfer denom traces...")
+		UpdateIBCDenomTraces(ctx, tk)
 
 		logger.Debug("swaping claims record actions...")
 		ResolveAirdrop(ctx, ck)
@@ -216,4 +223,33 @@ func UpdateConsensusParams(ctx sdk.Context, sk stakingkeeper.Keeper, pk paramske
 	maxAgeNumBlocks := sdk.NewInt(int64(evidenceParams.MaxAgeDuration)).QuoRaw(int64(AvgBlockTime))
 	evidenceParams.MaxAgeNumBlocks = maxAgeNumBlocks.Int64()
 	subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, evidenceParams)
+}
+
+// UpdateIBCDenomTraces iterates over current traces to check if any of them are incorrectly formed
+// and corrects the trace information.
+// See https://github.com/cosmos/ibc-go/blob/main/docs/migrations/support-denoms-with-slashes.md for context.
+func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keeper) {
+	// list of traces that must replace the old traces in store
+	var newTraces []ibctransfertypes.DenomTrace
+	transferKeeper.IterateDenomTraces(ctx, func(dt ibctransfertypes.DenomTrace) bool {
+		// check if the new way of splitting FullDenom
+		// into Trace and BaseDenom passes validation and
+		// is the same as the current DenomTrace.
+		// If it isn't then store the new DenomTrace in the list of new traces.
+		newTrace := ibctransfertypes.ParseDenomTrace(dt.GetFullDenomPath())
+		if err := newTrace.Validate(); err == nil && !equalTraces(newTrace, dt) {
+			newTraces = append(newTraces, newTrace)
+		}
+
+		return false
+	})
+
+	// replace the outdated traces with the new trace information
+	for _, nt := range newTraces {
+		transferKeeper.SetDenomTrace(ctx, nt)
+	}
+}
+
+func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
+	return dtA.BaseDenom == dtB.BaseDenom && dtA.Path == dtB.Path
 }
