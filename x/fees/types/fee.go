@@ -16,17 +16,17 @@ func NewFee(contract common.Address, deployer, withdraw sdk.AccAddress) Fee {
 }
 
 // Validate performs a stateless validation of a Fee
-func (i Fee) Validate() error {
-	if err := ethermint.ValidateNonZeroAddress(i.ContractAddress); err != nil {
+func (f Fee) Validate() error {
+	if err := ethermint.ValidateNonZeroAddress(f.ContractAddress); err != nil {
 		return err
 	}
 
-	if _, err := sdk.AccAddressFromBech32(i.DeployerAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(f.DeployerAddress); err != nil {
 		return err
 	}
 
-	if i.WithdrawAddress != "" {
-		if _, err := sdk.AccAddressFromBech32(i.WithdrawAddress); err != nil {
+	if f.WithdrawAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(f.WithdrawAddress); err != nil {
 			return err
 		}
 	}
