@@ -37,6 +37,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## [v5.0.0] - 2022-06-14
+
 ### State Machine Breaking
 
 - (deps) [\#684](https://github.com/tharsis/evmos/pull/684) Bump ibc-go version to [`v3.1.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.1.0)
