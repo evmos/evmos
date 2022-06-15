@@ -24,7 +24,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := NewGenesisState(DefaultParams(), []DevFeeInfo{})
+	newGen := NewGenesisState(DefaultParams(), []Fee{})
 	testCases := []struct {
 		name     string
 		genState *GenesisState
@@ -43,8 +43,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name: "valid genesis",
 			genState: &GenesisState{
-				Params:      DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{},
+				Params: DefaultParams(),
+				Fees:   []Fee{},
 			},
 			expPass: true,
 		},
@@ -52,7 +52,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis - with fee information",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -75,7 +75,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - duplicated fee info",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -92,7 +92,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - duplicated fee info 2",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -109,7 +109,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - invalid contract address",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: suite.address1,
 						DeployerAddress: suite.address1,
@@ -122,7 +122,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - invalid deployer address",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -135,7 +135,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - invalid withdraw address",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -149,7 +149,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "invalid genesis - invalid params",
 			genState: &GenesisState{
 				Params: DefaultParams(),
-				DevFeeInfos: []DevFeeInfo{
+				Fees: []Fee{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,

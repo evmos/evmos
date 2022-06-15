@@ -18,9 +18,9 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgRegisterDevFeeInfo{},
-		&MsgCancelDevFeeInfo{},
-		&MsgUpdateDevFeeInfo{},
+		&MsgRegisterFee{},
+		&MsgCancelFee{},
+		&MsgUpdateFee{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

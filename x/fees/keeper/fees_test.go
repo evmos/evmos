@@ -9,8 +9,8 @@ import (
 	"github.com/tharsis/evmos/v5/x/fees/types"
 )
 
-func (suite *KeeperTestSuite) TestGetAllFees() {
-	var expRes []types.DevFeeInfo
+func (suite *KeeperTestSuite) TestGetFees() {
+	var expRes []types.Fee
 
 	testCases := []struct {
 		name     string
@@ -18,14 +18,14 @@ func (suite *KeeperTestSuite) TestGetAllFees() {
 	}{
 		{
 			"no fees registered",
-			func() { expRes = []types.DevFeeInfo{} },
+			func() { expRes = []types.Fee{} },
 		},
 		{
 			"one fee registered with withdraw address",
 			func() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-				expRes = []types.DevFeeInfo{
-					types.NewDevFeeInfo(contract, deployer, withdraw),
+				expRes = []types.Fee{
+					types.NewFee(contract, deployer, withdraw),
 				}
 			},
 		},
@@ -33,8 +33,8 @@ func (suite *KeeperTestSuite) TestGetAllFees() {
 			"one fee registered with no withdraw address",
 			func() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, nil)
-				expRes = []types.DevFeeInfo{
-					types.NewDevFeeInfo(contract, deployer, nil),
+				expRes = []types.Fee{
+					types.NewFee(contract, deployer, nil),
 				}
 			},
 		},
@@ -47,10 +47,10 @@ func (suite *KeeperTestSuite) TestGetAllFees() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract2, deployer, nil)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract3, deployer2, nil)
-				expRes = []types.DevFeeInfo{
-					types.NewDevFeeInfo(contract, deployer, withdraw),
-					types.NewDevFeeInfo(contract2, deployer, nil),
-					types.NewDevFeeInfo(contract3, deployer2, nil),
+				expRes = []types.Fee{
+					types.NewFee(contract, deployer, withdraw),
+					types.NewFee(contract2, deployer, nil),
+					types.NewFee(contract3, deployer2, nil),
 				}
 			},
 		},
@@ -60,14 +60,14 @@ func (suite *KeeperTestSuite) TestGetAllFees() {
 			suite.SetupTest() // reset
 			tc.malleate()
 
-			res := suite.app.FeesKeeper.GetAllFees(suite.ctx)
+			res := suite.app.FeesKeeper.GetFees(suite.ctx)
 			suite.Require().ElementsMatch(expRes, res, tc.name)
 		})
 	}
 }
 
 func (suite *KeeperTestSuite) TestIterateFees() {
-	var expRes []types.DevFeeInfo
+	var expRes []types.Fee
 
 	testCases := []struct {
 		name     string
@@ -75,14 +75,14 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 	}{
 		{
 			"no fees registered",
-			func() { expRes = []types.DevFeeInfo{} },
+			func() { expRes = []types.Fee{} },
 		},
 		{
 			"one fee registered with withdraw address",
 			func() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-				expRes = []types.DevFeeInfo{
-					types.NewDevFeeInfo(contract, deployer, withdraw),
+				expRes = []types.Fee{
+					types.NewFee(contract, deployer, withdraw),
 				}
 			},
 		},
@@ -90,8 +90,8 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 			"one fee registered with no withdraw address",
 			func() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, nil)
-				expRes = []types.DevFeeInfo{
-					types.NewDevFeeInfo(contract, deployer, nil),
+				expRes = []types.Fee{
+					types.NewFee(contract, deployer, nil),
 				}
 			},
 		},
@@ -104,10 +104,10 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract2, deployer, nil)
 				suite.app.FeesKeeper.SetFee(suite.ctx, contract3, deployer2, nil)
-				expRes = []types.DevFeeInfo{
-					types.NewDevFeeInfo(contract, deployer, withdraw),
-					types.NewDevFeeInfo(contract2, deployer, nil),
-					types.NewDevFeeInfo(contract3, deployer2, nil),
+				expRes = []types.Fee{
+					types.NewFee(contract, deployer, withdraw),
+					types.NewFee(contract2, deployer, nil),
+					types.NewFee(contract3, deployer2, nil),
 				}
 			},
 		},
@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 			suite.SetupTest() // reset
 			tc.malleate()
 
-			suite.app.FeesKeeper.IterateFees(suite.ctx, func(fee types.DevFeeInfo) (stop bool) {
+			suite.app.FeesKeeper.IterateFees(suite.ctx, func(fee types.Fee) (stop bool) {
 				suite.Require().Contains(expRes, fee, tc.name)
 				return false
 			})
@@ -125,7 +125,7 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestGetFeeInfo() {
+func (suite *KeeperTestSuite) TestGetFee() {
 	testCases := []struct {
 		name        string
 		contract    common.Address
@@ -194,7 +194,7 @@ func (suite *KeeperTestSuite) TestGetFeeInfo() {
 			suite.SetupTest() // reset
 			tc.malleate(tc.contract, tc.deployer, tc.withdraw)
 
-			fee, found := suite.app.FeesKeeper.GetFeeInfo(suite.ctx, tc.contract)
+			fee, found := suite.app.FeesKeeper.GetFee(suite.ctx, tc.contract)
 			deployer, foundD := suite.app.FeesKeeper.GetDeployer(suite.ctx, tc.contract)
 			withdraw, foundW := suite.app.FeesKeeper.GetWithdrawal(suite.ctx, tc.contract)
 
@@ -226,7 +226,7 @@ func (suite *KeeperTestSuite) TestDeleteFee() {
 	// Register fee
 	suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
 
-	initialFee, found := suite.app.FeesKeeper.GetFeeInfo(suite.ctx, contract)
+	initialFee, found := suite.app.FeesKeeper.GetFee(suite.ctx, contract)
 	suite.Require().True(found)
 
 	testCases := []struct {
@@ -245,7 +245,7 @@ func (suite *KeeperTestSuite) TestDeleteFee() {
 	}
 	for _, tc := range testCases {
 		tc.malleate()
-		fee, found := suite.app.FeesKeeper.GetFeeInfo(suite.ctx, contract)
+		fee, found := suite.app.FeesKeeper.GetFee(suite.ctx, contract)
 		d, foundD := suite.app.FeesKeeper.GetDeployer(suite.ctx, contract)
 		w, foundW := suite.app.FeesKeeper.GetWithdrawal(suite.ctx, contract)
 		if tc.ok {
@@ -259,7 +259,7 @@ func (suite *KeeperTestSuite) TestDeleteFee() {
 			suite.Require().False(found, tc.name)
 			suite.Require().False(foundD, tc.name)
 			suite.Require().False(foundW, tc.name)
-			suite.Require().Equal(types.DevFeeInfo{}, fee, tc.name)
+			suite.Require().Equal(types.Fee{}, fee, tc.name)
 			suite.Require().Nil(d)
 			suite.Require().Nil(w)
 		}
@@ -268,7 +268,7 @@ func (suite *KeeperTestSuite) TestDeleteFee() {
 
 func (suite *KeeperTestSuite) TestIsFeeRegistered() {
 	suite.app.FeesKeeper.SetFee(suite.ctx, contract, deployer, withdraw)
-	_, found := suite.app.FeesKeeper.GetFeeInfo(suite.ctx, contract)
+	_, found := suite.app.FeesKeeper.GetFee(suite.ctx, contract)
 	suite.Require().True(found)
 
 	testCases := []struct {

@@ -27,16 +27,16 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(
-		NewRegisterDevFeeInfo(),
-		NewCancelDevFeeInfo(),
-		NewUpdateDevFeeInfo(),
+		NewRegisterFee(),
+		NewCancelFee(),
+		NewUpdateFee(),
 	)
 	return txCmd
 }
 
-// NewRegisterDevFeeInfo returns a CLI command handler for registering a
+// NewRegisterFee returns a CLI command handler for registering a
 // contract for fee distribution
-func NewRegisterDevFeeInfo() *cobra.Command {
+func NewRegisterFee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-fee [contract_hex] [nonces] [withdraw_bech32]",
 		Short: "Register a contract for fee distribution",
@@ -74,7 +74,7 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 				withdraw = ""
 			}
 
-			msg := &types.MsgRegisterDevFeeInfo{
+			msg := &types.MsgRegisterFee{
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
 				WithdrawAddress: withdraw,
@@ -93,9 +93,9 @@ func NewRegisterDevFeeInfo() *cobra.Command {
 	return cmd
 }
 
-// NewCancelDevFeeInfo returns a CLI command handler for canceling a
+// NewCancelFee returns a CLI command handler for canceling a
 // contract for fee distribution
-func NewCancelDevFeeInfo() *cobra.Command {
+func NewCancelFee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cancel-fee [contract_hex]",
 		Short: "Cancel a contract from fee distribution",
@@ -114,7 +114,7 @@ func NewCancelDevFeeInfo() *cobra.Command {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
-			msg := &types.MsgCancelDevFeeInfo{
+			msg := &types.MsgCancelFee{
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
 			}
@@ -131,9 +131,9 @@ func NewCancelDevFeeInfo() *cobra.Command {
 	return cmd
 }
 
-// NewUpdateDevFeeInfo returns a CLI command handler for updating the withdraw
+// NewUpdateFee returns a CLI command handler for updating the withdraw
 // address of a contract for fee distribution
-func NewUpdateDevFeeInfo() *cobra.Command {
+func NewUpdateFee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-fee [contract_hex] [withdraw_bech32]",
 		Short: "Update withdraw address for a contract registered for fee distribution.",
@@ -157,7 +157,7 @@ func NewUpdateDevFeeInfo() *cobra.Command {
 				return fmt.Errorf("invalid withdraw bech32 address %w", err)
 			}
 
-			msg := &types.MsgUpdateDevFeeInfo{
+			msg := &types.MsgUpdateFee{
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
 				WithdrawAddress: withdraw,

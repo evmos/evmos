@@ -10,8 +10,8 @@ option go_package = "github.com/tharsis/evmos/v5/x/fees/types";
 message GenesisState {
   // module parameters
   Params params = 1 [ (gogoproto.nullable) = false ];
-  // active registered contracts
-  repeated DevFeeInfo dev_fee_infos = 2 [ (gogoproto.nullable) = false ];
+  // active registered contracts for fee distribution
+  repeated Fee fees = 2 [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the fees module params

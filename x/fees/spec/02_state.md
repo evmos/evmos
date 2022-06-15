@@ -36,6 +36,6 @@ type GenesisState struct {
 	// module parameters
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// active registered contracts
-	DevFeeInfos []DevFeeInfo `protobuf:"bytes,2,rep,name=dev_fee_infos,json=devFeeInfos,proto3" json:"dev_fee_infos"`
+	Fees []Fee `protobuf:"bytes,2,rep,name=dev_fee_infos,json=devFeeInfos,proto3" json:"dev_fee_infos"`
 }
 ```

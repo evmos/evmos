@@ -6,7 +6,7 @@ order: 3
 
 ## Client-Side
 
-The `x/fees` module allows for three types of state transitions: `RegisterDevFeeInfo`, `UpdateDevFeeInfo` and `CancelDevFeeInfo`. The logic for *distributing transaction fees*, is handled through [Hooks](./05_hooks.md).
+The `x/fees` module allows for three types of state transitions: `RegisterFee`, `UpdateFee` and `CancelFee`. The logic for *distributing transaction fees*, is handled through [Hooks](./05_hooks.md).
 
 ### Fee Info Registration
 
@@ -14,7 +14,7 @@ A developer registers a contract for receiving transaction fees, defining the co
 
 If the withdraw address is not set, the fees will be sent to the deployer address by default.
 
-1. User submits a `RegisterDevFeeInfo` to register a contract address, along with a withdraw address that they would like to receive the fees to
+1. User submits a `RegisterFee` to register a contract address, along with a withdraw address that they would like to receive the fees to
 2. The following checks must pass:
     1. `x/fees` module is enabled
     2. the contract was not previously registered
@@ -28,7 +28,7 @@ If the withdraw address is not set, the fees will be sent to the deployer addres
 
 A developer updates the withdraw address for a registered contract, defining the contract address and the new withdraw address.
 
-1. User submits a `UpdateDevFeeInfo`
+1. User submits a `UpdateFee`
 2. The following checks must pass:
     1. `x/fees` module is enabled
     2. the contract is registered
@@ -40,7 +40,7 @@ A developer updates the withdraw address for a registered contract, defining the
 
 A developer cancels receiving fees for a registered contract, defining the contract address.
 
-1. User submits a `CancelDevFeeInfo`
+1. User submits a `CancelFee`
 2. The following checks must pass:
     1. `x/fees` module is enabled
     2. the contract is registered
