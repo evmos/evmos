@@ -28,10 +28,10 @@ type MsgRegisterDevFeeInfo struct {
 
 The message content stateless validation fails if:
 
-- Contract address is invalid
-- Contract address is zero
-- Deployer address is invalid
-- Withdraw address is invalid
+- Contract hex address is invalid
+- Contract hex address is zero
+- Deployer bech32 address is invalid
+- Withdraw bech32 address is invalid
 - Nonces array is empty
 
 ### `MsgUpdateDevFeeInfo`
@@ -51,11 +51,11 @@ type MsgUpdateDevFeeInfo struct {
 
 The message content stateless validation fails if:
 
-- Contract address is invalid
-- Contract address is zero
-- Deployer address is invalid
-- Withdraw address is invalid
-- Withdraw address is same as deployer address
+- Contract hex address is invalid
+- Contract hex address is zero
+- Deployer bech32 address is invalid
+- Withdraw bech32 address is invalid
+- Withdraw bech32 address is same as deployer address
 
 ### `MsgCancelDevFeeInfo`
 
@@ -72,6 +72,6 @@ type MsgCancelDevFeeInfo struct {
 
 The message content stateless validation fails if:
 
-- Contract address is invalid
-- Contract address is zero
-- Deployer address is invalid
+- Contract hex address is invalid
+- Contract hex address is zero
+- Deployer bech32 address is invalid

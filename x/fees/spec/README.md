@@ -7,15 +7,13 @@ parent:
 
 # `fees`
 
-Split EVM transaction fees between block proposer and smart contract developers.
-
 ## Abstract
 
-The current document specifies the internal `x/fees` module of the Evmos Hub.
+This document specifies the internal `x/fees` module of the Evmos Hub.
 
-The `x/fees` module is part of the Evmos tokenomics ([Evmos Token Model Blog](https://evmos.blog/the-evmos-token-model-edc07014978b)) and aims to increase the growth of the network by splitting the transaction fees between block proposer and smart contract deployers (or their assigned withdraw account). This mechanism is introduced to increase the adoption of the Evmos Hub by offering a new stable source of income for smart contract developers.
+The `x/fees` module enables the Evmos Hub to support splitting transaction fees between block proposer and smart contract deployers. As a part of the [Evmos Token Model](https://evmos.blog/the-evmos-token-model-edc07014978b), this mechanism aims to increase the adoption of the Evmos Hub by offering a new stable source of income for smart contract deployers. Developers can register their smart contracts and everytime someone interacts with a registered smart contract, the contract deployer or their assigned withdrawal account receives a part of the transaction fees.
 
-This is the web3 dApp Store: paying developers and network operators for their services via built-in shared fee revenue model.
+Together, all registered smart contracts make up the Evmos dApp Store: paying developers and network operators for their services via built-in shared fee revenue model.
 
 ## Contents
 

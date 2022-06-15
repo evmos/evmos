@@ -14,19 +14,20 @@ evmosd query fees params
 
 ### Queries
 
-| Command        | Subcommand    | Description                    |
-| :------------- | :------------ | :----------------------------- |
-| `query` `fees` | `params`      | Get fees params                |
-| `query` `fees` | `fee-info`    | Get registered fee info        |
-| `query` `fees` | `fee-infos`   | Get all registered fee infos   |
+| Command        | Subcommand           | Description                                       |
+| :------------- | :------------------- | :------------------------------------------------ |
+| `query` `fees` | `params`             | Get fees params                                   |
+| `query` `fees` | `fee-info`           | Get registered fee info                           |
+| `query` `fees` | `fee-infos`          | Get all registered fee infos                      |
+| `query` `fees` | `fee-infos-deployer` | Get all contracts that a deployer has registered |
 
 ### Transactions
 
-| Command     | Subcommand      | Description                                |
-| :---------- | :-------------- | :----------------------------------------- |
-| `tx` `fees` | `register-fee`  | Register a contract for receiving fees     |
-| `tx` `fees` | `update-fee`    | Update the withdraw address for a contract |
-| `tx` `fees` | `cancel-fee`    | Remove the fee info for a contract         |
+| Command     | Subcommand     | Description                                |
+| :---------- | :------------- | :----------------------------------------- |
+| `tx` `fees` | `register-fee` | Register a contract for receiving fees     |
+| `tx` `fees` | `update-fee`   | Update the withdraw address for a contract |
+| `tx` `fees` | `cancel-fee`   | Remove the fee info for a contract         |
 
 ## gRPC
 
