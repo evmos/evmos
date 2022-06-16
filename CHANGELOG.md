@@ -35,6 +35,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+<<<<<<< HEAD
+=======
+## Unreleased
+
+### API Breaking
+
+- (fees) [\#691](https://github.com/tharsis/evmos/pull/691) Internal API audit.
+
+### Improvements
+
+- (cmd) [\#696](https://github.com/tharsis/evmos/pull/696) Set a custom tendermint node configuration on initialization.
+- (fees) [\#685](https://github.com/tharsis/evmos/pull/685) Internal Specification audit.
+
+>>>>>>> b8b78d8 (imp(cmd): update default Tendermint config (#696))
 ## [v5.0.0] - 2022-06-14
 
 ### State Machine Breaking
