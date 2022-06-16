@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- (cmd) [\#696](https://github.com/tharsis/evmos/pull/696) Set a custom tendermint node configuration on initialization.
+
 ## [v5.0.0] - 2022-06-14
 
 ### State Machine Breaking
