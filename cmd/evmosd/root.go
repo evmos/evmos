@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/snapshots"
@@ -13,6 +14,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
+	tmcfg "github.com/tendermint/tendermint/config"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -91,9 +93,20 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
+			// override the app and tendermint configuration
 			customAppTemplate, customAppConfig := initAppConfig()
+			customTMConfig := initTendermintConfig()
 
-			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
+			err = sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
+			if err != nil {
+				return err
+			}
+
+			// TODO: remove the lines below once Cosmos SDK v0.46 is released
+			serverCtx := sdkserver.GetServerContextFromCmd(cmd)
+			serverCtx.Config = customTMConfig
+
+			return sdkserver.SetCmdServerContext(cmd, serverCtx)
 		},
 	}
 
@@ -204,6 +217,15 @@ func initAppConfig() (string, interface{}) {
 	srvCfg.StateSync.SnapshotKeepRecent = 2
 
 	return customAppTemplate, srvCfg
+}
+
+// initTendermintConfig overrides the default Tendermint Config values.
+// It sets the timeout commit default to "1s" in order to get ~2s block times
+func initTendermintConfig() *tmcfg.Config {
+	cfg := tmcfg.DefaultConfig()
+
+	cfg.Consensus.TimeoutCommit = time.Second
+	return cfg
 }
 
 type appCreator struct {
