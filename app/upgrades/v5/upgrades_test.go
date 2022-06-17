@@ -27,6 +27,8 @@ import (
 	v5 "github.com/tharsis/evmos/v5/app/upgrades/v5"
 	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
+
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
 
 type UpgradeTestSuite struct {
@@ -420,6 +422,56 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 			traces := suite.app.TransferKeeper.GetAllDenomTraces(suite.ctx)
 			suite.Require().Equal(tc.expDenomTraces, traces)
+		})
+	}
+}
+
+
+func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
+	testCases := []struct {
+		name              string
+		malleate          func()
+		expectedWindow    sdk.Dec
+	}{
+		{
+			"param already adjusted",
+			func() {
+				subspace, found := suite.app.ParamsKeeper.GetSubspace(slashingtypes.ModuleName)
+				suite.Require().True(found)
+
+				newMinSignedPerWindow := sdk.NewDec(70000)
+				subspace.Set(suite.ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
+			},
+			sdk.NewDec(70000),
+		},
+		{
+			"success",
+			func() {
+				subspace, found := suite.app.ParamsKeeper.GetSubspace(slashingtypes.ModuleName)
+				suite.Require().True(found)
+
+				newMinSignedPerWindow := sdk.NewDec(30000);
+				subspace.Set(suite.ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
+			},
+			sdk.NewDec(90000),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			suite.Require().NotPanics(func() {
+				v5.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper, suite.app.ParamsKeeper)
+				suite.app.Commit()
+			})
+			var actualMinSignedPerWindow sdk.Dec
+			subspace, found := suite.app.ParamsKeeper.GetSubspace(slashingtypes.ModuleName)
+			suite.Require().True(found)
+			subspace.Get(suite.ctx, slashingtypes.KeyMinSignedPerWindow, &actualMinSignedPerWindow)
+			suite.Require().Equal(tc.expectedWindow.String(), actualMinSignedPerWindow.String())
 		})
 	}
 }

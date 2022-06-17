@@ -959,6 +959,11 @@ func (app *Evmos) GetStakingKeeper() stakingkeeper.Keeper {
 	return app.StakingKeeper
 }
 
+// GetSlashingKeeper implements the TestingApp interface.
+func (app *Evmos) GetSlashingKeeper() slashingkeeper.Keeper {
+	return app.SlashingKeeper
+}
+
 // GetIBCKeeper implements the TestingApp interface.
 func (app *Evmos) GetIBCKeeper() *ibckeeper.Keeper {
 	return app.IBCKeeper
@@ -1053,6 +1058,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.StakingKeeper,
 			app.ParamsKeeper,
 			app.TransferKeeper,
+			app.SlashingKeeper,
 		),
 	)
 

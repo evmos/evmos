@@ -24,6 +24,9 @@ import (
 	"github.com/tharsis/evmos/v5/types"
 	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
+
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
@@ -55,6 +58,7 @@ func CreateUpgradeHandler(
 	sk stakingkeeper.Keeper,
 	pk paramskeeper.Keeper,
 	tk ibctransferkeeper.Keeper,
+	xk slashingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -84,6 +88,9 @@ func CreateUpgradeHandler(
 
 		logger.Debug("migrating early contributor claim record...")
 		MigrateContributorClaim(ctx, ck)
+
+		logger.Debug("updating slashing period...")
+		UpdateSlashingParams(ctx, xk, pk)
 
 		// define from versions of the modules that have a new consensus version
 
@@ -252,4 +259,27 @@ func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keep
 
 func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
 	return dtA.BaseDenom == dtB.BaseDenom && dtA.Path == dtB.Path
+}
+
+
+// UpdateSlashingParams updates the Slashing params (SignedBlocksWindow) to
+// increase to keep the same wall-time of reaction time, since the block times
+// are expected to be 67% shorter.
+func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper, pk paramskeeper.Keeper) {
+	subspace, found := pk.GetSubspace(slashingtypes.ModuleName)
+	if !found {
+		return
+	}
+
+	var minSignedPerWindow sdk.Dec
+	subspace.Get(ctx, slashingtypes.KeyMinSignedPerWindow, &minSignedPerWindow)
+
+	// safety check: make sure the window is still 30000
+	expectedWindow := sdk.NewDec(30000)
+	if ! minSignedPerWindow.Equal(expectedWindow) {
+		return
+	}
+
+	newMinSignedPerWindow := sdk.NewDec(90000);
+	subspace.Set(ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
 }
