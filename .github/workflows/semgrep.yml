@@ -18,7 +18,7 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     steps:
       - uses: actions/checkout@v3
-      - run: semgrep scan --sarif --output=semgrep.sarif --config=policy
+      - run: semgrep scan --sarif --output=semgrep.sarif
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
       # Upload findings to GitHub Advanced Security Dashboard [step 2/2]
