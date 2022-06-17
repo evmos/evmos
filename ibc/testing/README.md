@@ -52,7 +52,6 @@ type TestingApp interface {
 	// ibc-go additions
 	GetBaseApp() *baseapp.BaseApp
 	GetStakingKeeper() stakingkeeper.Keeper
-	GetSlashingKeeper() slashingkeeper.Keeper
 	GetIBCKeeper() *keeper.Keeper
 	GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper
 	GetTxConfig() client.TxConfig
@@ -80,11 +79,6 @@ func (app *SimApp) GetBaseApp() *baseapp.BaseApp {
 // GetStakingKeeper implements the TestingApp interface.
 func (app *SimApp) GetStakingKeeper() stakingkeeper.Keeper {
 	return app.StakingKeeper
-}
-
-// GetSlashingKeeper implements the TestingApp interface.
-func (app *Evmos) GetSlashingKeeper() slashingkeeper.Keeper {
-	return app.SlashingKeeper
 }
 
 // GetIBCKeeper implements the TestingApp interface.

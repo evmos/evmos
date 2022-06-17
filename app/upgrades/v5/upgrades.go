@@ -11,6 +11,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -24,9 +25,6 @@ import (
 	"github.com/tharsis/evmos/v5/types"
 	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
-
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
@@ -90,7 +88,7 @@ func CreateUpgradeHandler(
 		MigrateContributorClaim(ctx, ck)
 
 		logger.Debug("updating slashing period...")
-		UpdateSlashingParams(ctx, xk, pk)
+		UpdateSlashingParams(ctx, xk)
 
 		// define from versions of the modules that have a new consensus version
 
@@ -264,21 +262,14 @@ func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
 // UpdateSlashingParams updates the Slashing params (SignedBlocksWindow) to
 // increase to keep the same wall-time of reaction time, since the block times
 // are expected to be 67% shorter.
-func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper, pk paramskeeper.Keeper) {
-	subspace, found := pk.GetSubspace(slashingtypes.ModuleName)
-	if !found {
-		return
-	}
-
-	var minSignedPerWindow sdk.Dec
-	subspace.Get(ctx, slashingtypes.KeyMinSignedPerWindow, &minSignedPerWindow)
+func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
+	params := xk.GetParams(ctx)
 
 	// safety check: make sure the window is still 30000
-	expectedWindow := sdk.NewDec(30000)
-	if !minSignedPerWindow.Equal(expectedWindow) {
+	if params.SignedBlocksWindow != 30000 {
 		return
 	}
 
-	newMinSignedPerWindow := sdk.NewDec(90000)
-	subspace.Set(ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
+	params.SignedBlocksWindow = 90000
+	xk.SetParams(ctx, params)
 }

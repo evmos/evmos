@@ -27,8 +27,6 @@ import (
 	v5 "github.com/tharsis/evmos/v5/app/upgrades/v5"
 	claimskeeper "github.com/tharsis/evmos/v5/x/claims/keeper"
 	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
-
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
 
 type UpgradeTestSuite struct {
@@ -431,29 +429,25 @@ func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
 	testCases := []struct {
 		name              string
 		malleate          func()
-		expectedWindow    sdk.Dec
+		expectedWindow    int64
 	}{
 		{
 			"param already adjusted",
 			func() {
-				subspace, found := suite.app.ParamsKeeper.GetSubspace(slashingtypes.ModuleName)
-				suite.Require().True(found)
-
-				newMinSignedPerWindow := sdk.NewDec(70000)
-				subspace.Set(suite.ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 70000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
 			},
-			sdk.NewDec(70000),
+			70000,
 		},
 		{
 			"success",
 			func() {
-				subspace, found := suite.app.ParamsKeeper.GetSubspace(slashingtypes.ModuleName)
-				suite.Require().True(found)
-
-				newMinSignedPerWindow := sdk.NewDec(30000);
-				subspace.Set(suite.ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 30000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
 			},
-			sdk.NewDec(90000),
+			90000,
 		},
 	}
 
@@ -464,14 +458,12 @@ func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
 			tc.malleate()
 
 			suite.Require().NotPanics(func() {
-				v5.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper, suite.app.ParamsKeeper)
+				v5.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper)
 				suite.app.Commit()
 			})
-			var actualMinSignedPerWindow sdk.Dec
-			subspace, found := suite.app.ParamsKeeper.GetSubspace(slashingtypes.ModuleName)
-			suite.Require().True(found)
-			subspace.Get(suite.ctx, slashingtypes.KeyMinSignedPerWindow, &actualMinSignedPerWindow)
-			suite.Require().Equal(tc.expectedWindow.String(), actualMinSignedPerWindow.String())
+
+			params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+			suite.Require().Equal(tc.expectedWindow, params.SignedBlocksWindow)
 		})
 	}
 }
