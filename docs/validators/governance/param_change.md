@@ -4,7 +4,9 @@ order: 6
 
 # Chain Parameters
 
-The criteria for submitting a parameter-change proposal and the subsequent voting conditions are the same as those for signalling (text-based) proposals and community-spend proposals.
+::: tip
+**Note:** If users are attempting to write governance proposals concerned with changing parameters (such as those of type `ParameterChangeProposal`), refer to [this document](../../validators/governance/best_practices.md#parameter-change-proposal).
+:::
 
 If a parameter-change proposal is successful, the change takes effect immediately upon completion of the voting period.
 

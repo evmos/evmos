@@ -4,7 +4,7 @@ order: 3
 
 # Best Practices
 
-## Community Outreach
+## General Advice: Community Outreach
 
 Engagement is likely to be critical to the success of a proposal. The degree to which you engage with Evmos community should be relative to the potential impact that your proposal may have on the stakeholders. This guide does not cover all ways of engaging: you could bring your idea to a podcast or a hackathon, host an AMA on [Reddit](https://www.reddit.com/r/evmos) or host a Q&A (questions & answers). We encourage you to experiment and use your strengths to introduce proposal ideas and gather feedback.
 
@@ -23,10 +23,12 @@ You should be able engaging with key stakeholders (eg. a large validator operato
 **Why a large validator?** They tend to be the de facto decision-makers on Evmos, since their delegators also delegate their voting power. If you can establish a base layer of off-chain support, you can be more confident that it's worth proceeding to the next stage.
 
 ::: tip
-**Note:** many will likely hesitate to commit support, and that's okay. It will be important to reassure these stakeholders that this isn't a binding a commitment. You're just canvasing the community to get a feel for whether it's worthwhile to proceed. It's also an opportunity to connect with new people and to answer their questions about what it is you're working on. It will be important for them to clearly understand why you think what you're proposing will be valuable to Evmos, and if possible, why it will be valuable to them as long-term stakeholders.
+**Note:** many will likely hesitate to commit support, and that's okay. It will be important to reassure these stakeholders that this isn't a binding a commitment. You're just canvassing the community to get a feel for whether it's worthwhile to proceed. It's also an opportunity to connect with new people and to answer their questions about what it is you're working on. It will be important for them to clearly understand why you think what you're proposing will be valuable to Evmos, and if possible, why it will be valuable to them as long-term stakeholders.
 :::
 
-If you're already confident about your idea, [skip to Stage 2](#stage-2-your-draft-proposal).
+- If you're just developing your idea, [start at Stage 1](#stage-1-your-idea).
+- If you're already confident about your idea, [skip to Stage 2](#stage-2-your-draft-proposal).
+- If you've drafted your proposal, engaged with the community, and submitted your proposal to the testnet, [skip to Stage 3](#stage-3-your-on-chain-proposal).
 
 ## Stage 1: Your Idea
 
@@ -54,7 +56,7 @@ The next major section outlines and describes some potential elements of draftin
 
 It will be important to balance two things: being detailed and being concise. You'll want to be concise so that people can assess your proposal quickly. You'll want to be detailed so that voters will have a clear, meaningful understanding of what the changes are and how they are likely to be impacted.
 
-Each proposal should contain a summary with key details:
+Every proposal should contain a summary with key details:
 
 - who is submitting the proposal
 - the amount of the proposal or parameter(s) being changed;
@@ -62,9 +64,9 @@ Each proposal should contain a summary with key details:
 - a reason for the proposal and potential impacts
 - a short summary of the history (what compelled this proposal), solution that's being presented, and future expectations
 
-Assume that many people will stop reading at this point. However it is important to provide in-depth information, a few more pointers for Parameter-change and Community Spend proposals are below.
+Assume that many people will stop reading at this point. However, it is important to provide in-depth information, so a few more pointers for Parameter-Change, Community Spend, and ERC-20 Module proposals are below.
 
-#### Parameter-Change
+#### Parameter-Change Proposal
 
 1. Problem/Value - generally the problem or value that's motivating the parameter change(s)
 2. Solution - generally how changing the parameter(s) will address the problem or improve the network
@@ -73,7 +75,7 @@ Assume that many people will stop reading at this point. However it is important
 3. Risks & Benefits - clearly describe how making this/these change(s) may expose stakeholders to new benefits and/or risks
 4. Supplementary materials - optional materials eg. models, graphs, tables, research, signed petition, etc
 
-#### Community-Spend Proposal
+#### Community Spend Proposal
 
 1. Applicant(s) - the profile of the person(s)/entity making the proposal
    - who you are and your involvement in Cosmos and/or other blockchain networks
@@ -82,7 +84,8 @@ Assume that many people will stop reading at this point. However it is important
    - past work you've done eg. include your Github
    - some sort of proof of who you are eg. Keybase
 2. Problem - generally what you're solving and/or opportunity you're addressing
-   - past, present (and possibly a prediction of the future without this work being done)
+   - provide relevant information about both past and present issues created by this problem
+   - give suggestions as to the state of the future if this work is not completed
 3. Solution - generally how you're proposing to deliver the solution
    - your plan to fix the problem or deliver value
    - the beneficiaries of this plan (ie. who will your plan impact and how?)
@@ -108,11 +111,38 @@ Assume that many people will stop reading at this point. However it is important
      - how can the community provide feedback?
    - how should the quality of deliverables be assessed? eg. metrics
 5. Relationships and disclosures
-   - have you received or applied for grants or funding? for similar work? eg. from the Evmos Foundation
+   - have you received or applied for grants or funding? for similar work? eg. from the [Evmos Grants Program](https://medium.com/evmos/announcing-evmos-grants-78aa28562db6)
    - how will you and/or your organization benefit?
    - do you see this work continuing in the future and is there a plan?
    - what are the risks involved with this work?
    - do you have conflicts of interest to declare?
+
+#### ERC-20 Proposal
+
+1. Applicant(s) - the profile of the person(s)/entity making the proposal
+   - who you are and your involvement in Cosmos and/or other blockchain networks
+   - an overview of team members involved and their relevant experience
+   - brief mission statement for your organization/business (if applicable) eg. website
+   - past work you've done eg. include your Github
+   - some sort of proof of who you are eg. Keybase
+2. Background information - promote understanding of the ERC-20 Module
+   - a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
+   - a brief explanation of what the ERC-20 Module does
+   - a mention of the [ERC-20 Module documentation](../../modules/erc20)
+3. Solution - generally how ERC-20 Module changes will be made
+   - a brief explanation of what the proposal will do if it passes
+   - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
+   - a breakdown of the proposal's payload, and third-party review
+   - a brief explanation of the risks involved (depending on the direction of IBC Coin, ERC-20)
+   - if this is a `RegisterERC20` proposal, then also ensure the following are both adhered to and documented:
+      - the contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev))
+      - the contracts are deployed open-source
+      - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
+      - the contracts use the main libraries for ERC-20s (eg. OpenZeppelin, dapp.tools)
+      - the transfer logic is not modified (i.e. transfer logic is not directly manipulated)
+      - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
+
+Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-your-proposal-to-the-testnet).
 
 ### Begin with a well-considered draft proposal
 
@@ -124,7 +154,7 @@ writing markdown files.
 
 ### Engage the community with your draft proposal
 
-1. Post a discussion in the Commonwealth [Evmos community](https://commonwealth.im/evmos). Ideally this should contain a link to this repository, either directly to your proposal if it has been merged, or else to a pull-request containing your proposal if it has not been merged yet.
+1. Post a discussion in the [Commonwealth Evmos community](https://commonwealth.im/evmos). Ideally this should contain a link to this repository, either directly to your proposal if it has been merged, or else to a pull-request containing your proposal if it has not been merged yet.
 2. Directly engage key members of the community for feedback. These could be large contributors, those likely to be most impacted by the proposal, and entities with high stake-backing (eg. high-ranked validators; large stakers).
 3. Target members of the community in a semi-public way before bringing the draft to a full public audience. The burden of public scrutiny in a semi-anonymized environment (eg. Twitter) can be stressful and overwhelming without establishing support. Solicit opinions in places with people who have established reputations first.
 
