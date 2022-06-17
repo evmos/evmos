@@ -261,7 +261,6 @@ func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
 	return dtA.BaseDenom == dtB.BaseDenom && dtA.Path == dtB.Path
 }
 
-
 // UpdateSlashingParams updates the Slashing params (SignedBlocksWindow) to
 // increase to keep the same wall-time of reaction time, since the block times
 // are expected to be 67% shorter.
@@ -276,10 +275,10 @@ func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper, pk paramske
 
 	// safety check: make sure the window is still 30000
 	expectedWindow := sdk.NewDec(30000)
-	if ! minSignedPerWindow.Equal(expectedWindow) {
+	if !minSignedPerWindow.Equal(expectedWindow) {
 		return
 	}
 
-	newMinSignedPerWindow := sdk.NewDec(90000);
+	newMinSignedPerWindow := sdk.NewDec(90000)
 	subspace.Set(ctx, slashingtypes.KeyMinSignedPerWindow, &newMinSignedPerWindow)
 }
