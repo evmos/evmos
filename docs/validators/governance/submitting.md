@@ -40,10 +40,13 @@ The reason we use IPFS is that it is a decentralized means of storage, making it
 Many proposals allow for long form text to be included, usually under the key `description`. These provide the opportunity to include [markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) if formatted correctly as well as line breaks with `\n`. Beware, however, that if you are using the CLI to create a proposal, and setting `description` using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If you're using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags.
 
 ### Text Proposals
+
 `TextProposal`s are used by delegators to agree to a certain strategy, plan, commitment, future upgrade, or any other statement in the form of text. Aside from having a record of the proposal outcome on the Evmos chain, a text proposal has no direct effect on Evmos.
 
 #### Real Example
-[Proposal 1](https://commonwealth.im/evmos/proposal/1-airdrop-claim-mission) was representative of one of four core network activities which users had to participate in to claim tokens from the Evmos Rektdrop.
+
+[Proposal 1](https://commonwealth.im/evmos/proposal/1-airdrop-claim-mission) was representative of one of four core network activities that users had to participate in to claim tokens from the Evmos Rektdrop.
+
 ```json
 {
   "title": "Airdrop Claim Mission",
@@ -78,8 +81,7 @@ The `deposit` of `64000000000000000000aevmos` results in 64 EVMOS being used fro
 ```json
 {
   "title": "Community Pool Spend",
-  "description": "This is the summary of the key information about this proposal.
-   Include the URL to a PDF version of your full proposal.",
+  "description": "This is the summary of the key information about this proposal. Include the URL to a PDF version of your full proposal.",
   "recipient": "evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp",
   "amount": [
     {
@@ -98,15 +100,19 @@ The `deposit` of `64000000000000000000aevmos` results in 64 EVMOS being used fro
 ```
 
 #### Real Example
-This is a governance protocol which [Flux Protocol](https://www.fluxprotocol.org/), the provider of a cross-chain oracle which provides smart contracts with access to economically secure data feeds, submitted to cover costs of the subsidizied FPO (First Party Oracle) solution which they deployed on the Evmos mainnet. 
 
-Users can query the proposal details with the `evmosd` command-line interface using this command: `evmosd --node https://tendermint.bd.evmos.org:26657 query gov proposal 23`.
+This is a governance protocol which [Flux Protocol](https://www.fluxprotocol.org/), the provider of a cross-chain oracle which provides smart contracts with access to economically secure data feeds, submitted to cover costs of the subsidizied FPO (First Party Oracle) solution which they deployed on the Evmos mainnet.
+
+Users can query the proposal details with the `evmosd` command-line interface using this command:
+
+```bash
+`evmosd --node https://tendermint.bd.evmos.org:26657 query gov proposal 23`.
+```
 
 ```json
 {
   "title": "Grant proposal for Flux Protocol an oracle solution live on Evmos",
-  "description": "proposal: https://gateway.pinata.cloud/ipfs/QmfZknL4KRHvJ6XUDwtyRKANVs44FFmjGuM8YbArqqfWwF
-   discussion: https://commonwealth.im/evmos/discussion/4915-evmos-grant-flux-oracle-solution"
+  "description": "proposal: https://gateway.pinata.cloud/ipfs/QmfZknL4KRHvJ6XUDwtyRKANVs44FFmjGuM8YbArqqfWwF discussion: https://commonwealth.im/evmos/discussion/4915-evmos-grant-flux-oracle-solution"
   "recipient": "evmos15dxa2e3lc8zvmryv62x3stt86yhplu2vs9kxct",
   "amount": [
     {
@@ -145,13 +151,16 @@ In the example below, a network explorer listed the governance proposal by its t
 
 Not all explorers will show the proposed parameter changes that are coded into the proposal, so the delegator should verify that the description aligns with what the governance proposal is programmed to enact. If the description says that a certain parameter will be increased, it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
 
-Users can query the proposal details with the evmosd command-line interface using this command: `evmosd --node https://tendermint.bd.evmos.org:26657 query gov proposal 7`.
+Users can query the proposal details with the evmosd command-line interface using this command:
+
+```bash
+`evmosd --node https://tendermint.bd.evmos.org:26657 query gov proposal 7`.
+```
 
 ```json
 {
   "title": "Increase the minimum deposit for governance proposals",
-  "description": "If successful, this parameter-change governance proposal will change
-   the minimum deposit for future proposals from 10 evmos tokens to 64.",
+  "description": "If successful, this parameter-change governance proposal will change the minimum deposit for future proposals from 10 evmos tokens to 64.",
   "changes": [
     {
       "subspace": "gov",
