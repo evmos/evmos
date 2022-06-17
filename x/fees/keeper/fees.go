@@ -93,7 +93,7 @@ func (k Keeper) GetWithdrawal(ctx sdk.Context, contract common.Address) (sdk.Acc
 	return sdk.AccAddress(bz), true
 }
 
-// SetFee stores the developer fee information for a registered contract
+// SetFee stores the Fee for a registered contract
 func (k Keeper) SetFee(ctx sdk.Context, contract common.Address, deployer sdk.AccAddress, withdrawal sdk.AccAddress) {
 	k.SetDeployer(ctx, contract, deployer)
 	if len(withdrawal) > 0 && withdrawal.String() != deployer.String() {
