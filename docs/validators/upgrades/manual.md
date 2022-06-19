@@ -15,7 +15,7 @@ Learn how to manually upgrade your node. {synopsis}
 
 Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/Cmd+C`.
 
-Next, upgrade the software to the desired release version. Check the Evmos [releases page](https://github.com/tharsis/evmos/releases) for details on each release.
+Next, upgrade the software to the desired release version. Check the Evmos [releases page](https://github.com/evmos/evmos/releases) for details on each release.
 
 ::: warning
 Ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).

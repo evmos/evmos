@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/tharsis/evmos/v5/x/claims/client/cli"
-	"github.com/tharsis/evmos/v5/x/claims/keeper"
-	"github.com/tharsis/evmos/v5/x/claims/types"
+	"github.com/evmos/evmos/v5/x/claims/client/cli"
+	"github.com/evmos/evmos/v5/x/claims/keeper"
+	"github.com/evmos/evmos/v5/x/claims/types"
 )
 
 var (

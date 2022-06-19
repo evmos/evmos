@@ -19,8 +19,8 @@ import (
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/v5/app"
-	v4 "github.com/tharsis/evmos/v5/app/upgrades/v4"
+	"github.com/evmos/evmos/v5/app"
+	v4 "github.com/evmos/evmos/v5/app/upgrades/v4"
 )
 
 type UpgradeTestSuite struct {

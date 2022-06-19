@@ -8,8 +8,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/v5/x/incentives/keeper"
-	"github.com/tharsis/evmos/v5/x/incentives/types"
+	"github.com/evmos/evmos/v5/x/incentives/keeper"
+	"github.com/evmos/evmos/v5/x/incentives/types"
 )
 
 // NewIncentivesProposalHandler creates a governance handler to manage new

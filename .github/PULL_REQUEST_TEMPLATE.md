@@ -23,7 +23,7 @@ I have...
 
 - [ ] added a relevant changelog entry to the `Unreleased` section in `CHANGELOG.md`
 - [ ] included the correct [type prefix](https://github.com/commitizen/conventional-commit-types/blob/v3.0.0/index.json) in the PR title
-- [ ] targeted the correct branch (see [PR Targeting](https://github.com/tharsis/evmos/blob/main/CONTRIBUTING.md#pr-targeting))
+- [ ] targeted the correct branch (see [PR Targeting](https://github.com/evmos/evmos/blob/main/CONTRIBUTING.md#pr-targeting))
 - [ ] provided a link in the PR description to the relevant issue or specification
 - [ ] reviewed "Files changed" and left comments if necessary
 - [ ] confirmed all required CI checks have passed
@@ -32,7 +32,7 @@ Code maintenance:
 
 I have...
 
-- [ ] written unit and integration [tests](https://github.com/tharsis/evmos/blob/main/CONTRIBUTING.md#testing)
+- [ ] written unit and integration [tests](https://github.com/evmos/evmos/blob/main/CONTRIBUTING.md#testing)
 - [ ] added relevant [`godoc`](https://go.dev/blog/godoc) and [code comments](https://blog.jbowen.dev/2019/09/the-magic-of-go-comments/).
 - [ ] updated relevant documentation (`docs/`) or specification (`x/<module>/spec/`)
 
