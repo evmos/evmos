@@ -9,10 +9,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/evmos/evmos/v5/x/erc20/keeper"
+	"github.com/evmos/evmos/v5/x/erc20/types"
 	"github.com/tharsis/ethermint/x/evm/statedb"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v5/x/erc20/keeper"
-	"github.com/tharsis/evmos/v5/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {

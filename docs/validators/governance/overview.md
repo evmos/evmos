@@ -5,12 +5,16 @@ title: "Overview"
 
 # Governance Overview
 
-The Evmos has an on-chain governance mechanism for passing
+::: tip
+**Note:** Working on a governance proposal? Make sure to look at the [best practices](./best_practices.md)
+:::
+
+Evmos has an on-chain governance mechanism for passing
 text proposals, changing [chain parameters](./param_change.md), and spending [funds from the community pool](./community_pool.md).
 
 ## On- and off-chain Governance Structure
 
-### Communication
+### Communication Methods
 
 Governance practices and decisions are communicated through different types of documents and design artifacts:
 

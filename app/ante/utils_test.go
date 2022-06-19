@@ -14,6 +14,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v5/app"
+	claimstypes "github.com/evmos/evmos/v5/x/claims/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -23,8 +25,6 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-	"github.com/tharsis/evmos/v5/app"
-	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 var s *AnteTestSuite
