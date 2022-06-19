@@ -45,9 +45,9 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
-	"github.com/tharsis/evmos/v5/app"
-	"github.com/tharsis/evmos/v5/contracts"
-	"github.com/tharsis/evmos/v5/x/erc20/types"
+	"github.com/evmos/evmos/v5/app"
+	"github.com/evmos/evmos/v5/contracts"
+	"github.com/evmos/evmos/v5/x/erc20/types"
 )
 
 type KeeperTestSuite struct {

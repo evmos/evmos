@@ -18,6 +18,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v5/app"
+	"github.com/evmos/evmos/v5/testutil"
+	"github.com/evmos/evmos/v5/x/claims/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -26,9 +29,6 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 	evm "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/evmos/v5/app"
-	"github.com/tharsis/evmos/v5/testutil"
-	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 type KeeperTestSuite struct {

@@ -6,12 +6,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	"github.com/evmos/evmos/v5/app"
+	"github.com/evmos/evmos/v5/testutil"
+	claimtypes "github.com/evmos/evmos/v5/x/claims/types"
+	"github.com/evmos/evmos/v5/x/recovery/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/tharsis/evmos/v5/app"
-	"github.com/tharsis/evmos/v5/testutil"
-	claimtypes "github.com/tharsis/evmos/v5/x/claims/types"
-	"github.com/tharsis/evmos/v5/x/recovery/types"
 )
 
 var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {

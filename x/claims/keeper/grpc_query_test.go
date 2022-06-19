@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/evmos/evmos/v5/testutil"
+	"github.com/evmos/evmos/v5/x/claims/types"
 	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/evmos/v5/testutil"
-	"github.com/tharsis/evmos/v5/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {
