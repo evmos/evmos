@@ -25,8 +25,8 @@ workflow and standards.
 Contributing to this repo can mean many things such as participating in discussion or proposing code changes. To ensure
 a smooth workflow for all contributors, the following general procedure for contributing has been established:
 
-1. Either [open](https://github.com/tharsis/evmos/issues/new/choose)
-   or [find](https://github.com/tharsis/evmos/issues) an issue you have identified and would like to contribute to
+1. Either [open](https://github.com/evmos/evmos/issues/new/choose)
+   or [find](https://github.com/evmos/evmos/issues) an issue you have identified and would like to contribute to
    resolving.
 2. Participate in thoughtful discussion on that issue.
 3. If you would like to contribute:
@@ -57,12 +57,12 @@ PR, but be aware that for more complex problems/features, if a PR is opened befo
 taken place in a github issue, that PR runs a high likelihood of being rejected.
 
 Looking for a good place to start contributing? How about checking out
-some [good first issues](https://github.com/tharsis/evmos/issues?q=label%3A%22good+first+issue%22).
+some [good first issues](https://github.com/evmos/evmos/issues?q=label%3A%22good+first+issue%22).
 
 ## <span id="adr">Architecture Decision Records (ADR)</span>
 
 When proposing an architecture decision for Evmos, please create
-an [ADR](https://github.com/tharsis/evmos/blob/main/docs/architecture/README.md) so further discussions can be
+an [ADR](https://github.com/evmos/evmos/blob/main/docs/architecture/README.md) so further discussions can be
 made. We are following this process so all involved parties are in agreement before any party begins coding the proposed
 implementation. If you would like to see some examples of how these are written refer
 to [Tendermint ADRs](https://github.com/tendermint/tendermint/tree/master/docs/architecture).
@@ -70,14 +70,14 @@ to [Tendermint ADRs](https://github.com/tendermint/tendermint/tree/master/docs/a
 ## <span id="forking">Forking</span>
 
 Please note that Go requires code to live under absolute paths, which complicates forking. While my fork lives
-at `https://github.com/tharsis/evmos`, the code should never exist
-at `$GOPATH/src/github.com/tharsis/evmos`. Instead, we use `git remote` to add the fork as a new remote for the
-original repo,`$GOPATH/src/github.com/tharsis/evmos`, and do all the work there.
+at `https://github.com/evmos/evmos`, the code should never exist
+at `$GOPATH/src/github.com/evmos/evmos`. Instead, we use `git remote` to add the fork as a new remote for the
+original repo,`$GOPATH/src/github.com/evmos/evmos`, and do all the work there.
 
 For instance, to create a fork and work on a branch of it, you would:
 
 1. Create the fork on github, using the fork button.
-2. Go to the original repo checked out locally. (i.e. `$GOPATH/src/github.com/tharsis/evmos`)
+2. Go to the original repo checked out locally. (i.e. `$GOPATH/src/github.com/evmos/evmos`)
 3. `git remote rename origin upstream`
 4. `git remote add origin git@github.com:tharsis/evmos.git`
 
@@ -140,7 +140,7 @@ For example, in vscode your `.vscode/settings.json` should look like:
 2. `development` must never
    fail `make lint, make test, make test-race, make test-rpc, make test-import`
 3. No `--force` onto `development` (except when reverting a broken commit, which should seldom happen).
-4. Create your feature branch from `development` either on `github.com/tharsis/evmos`, or your fork (
+4. Create your feature branch from `development` either on `github.com/evmos/evmos`, or your fork (
    using `git remote add origin`).
 5. Before submitting a pull request, begin `git rebase` on top of `development`.
 

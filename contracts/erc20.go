@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/tharsis/evmos/v5/x/erc20/types"
+	"github.com/evmos/evmos/v5/x/erc20/types"
 )
 
 var (

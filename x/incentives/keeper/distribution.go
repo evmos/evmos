@@ -10,7 +10,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/v5/x/incentives/types"
+	"github.com/evmos/evmos/v5/x/incentives/types"
 )
 
 // DistributeRewards transfers the allocated rewards to the participants of a given

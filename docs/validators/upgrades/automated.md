@@ -54,7 +54,7 @@ evmosd version
 
 #### 2.a) Manual Download
 
-Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is [released](https://github.com/tharsis/evmos/releases), node operators need to:
+Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is [released](https://github.com/evmos/evmos/releases), node operators need to:
 
 1. Download (**NOT INSTALL**) the binary for the new release
 2. Place it under `$DAEMON_HOME/cosmovisor/upgrades/<name>/bin`, where `<name>` is the URI-encoded name of the upgrade as specified in the Software Upgrade Plan.
@@ -64,11 +64,11 @@ Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for n
 ```json
 {
     "binaries": {
-        "darwin/arm64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Darwin_arm64.tar.gz",
-        "darwin/x86_64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Darwin_x86_64.tar.gz",
-        "linux/arm64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Linux_arm64.tar.gz",
-        "linux/x86_64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Linux_x86_64.tar.gz",
-        "windows/x86_64": "https://github.com/tharsis/evmos/releases/download/v3.0.0/evmos_3.0.0_Windows_x86_64.zip"
+        "darwin/arm64": "https://github.com/evmos/evmos/releases/download/v3.0.0/evmos_3.0.0_Darwin_arm64.tar.gz",
+        "darwin/x86_64": "https://github.com/evmos/evmos/releases/download/v3.0.0/evmos_3.0.0_Darwin_x86_64.tar.gz",
+        "linux/arm64": "https://github.com/evmos/evmos/releases/download/v3.0.0/evmos_3.0.0_Linux_arm64.tar.gz",
+        "linux/x86_64": "https://github.com/evmos/evmos/releases/download/v3.0.0/evmos_3.0.0_Linux_x86_64.tar.gz",
+        "windows/x86_64": "https://github.com/evmos/evmos/releases/download/v3.0.0/evmos_3.0.0_Windows_x86_64.zip"
     }
 }
 ```

@@ -11,7 +11,7 @@ import (
 	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/tharsis/evmos/v5/x/erc20/types"
+	"github.com/evmos/evmos/v5/x/erc20/types"
 )
 
 // RegisterCoinProposalRequest defines a request for a new register coin proposal.
