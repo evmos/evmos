@@ -272,7 +272,7 @@ func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
 		}
 
 		params.SignedBlocksWindow = 90000
-	} else if types.IsTestnet(ctx.ChainID())  {
+	} else if types.IsTestnet(ctx.ChainID()) {
 		// safety check: make sure the window is still 10000
 		if params.SignedBlocksWindow != 10000 {
 			return
@@ -280,5 +280,7 @@ func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
 
 		params.SignedBlocksWindow = 30000
 	}
+	// if chain doesn't match, this is basically a no-op
+	
 	xk.SetParams(ctx, params)
 }

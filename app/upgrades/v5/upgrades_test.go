@@ -473,6 +473,23 @@ func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
 			},
 			30000,
 		},
+		{
+			"chain that doesn't match",
+			"unexpected-1",
+			func() {
+			},
+			100,
+		},
+		{
+			"chain that doesn't match (do nothing)",
+			"unexpected-1",
+			func() {
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 10000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
+			},
+			10000,
+		},
 	}
 
 	for _, tc := range testCases {
