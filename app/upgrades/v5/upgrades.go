@@ -265,11 +265,20 @@ func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
 func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
 	params := xk.GetParams(ctx)
 
-	// safety check: make sure the window is still 30000
-	if params.SignedBlocksWindow != 30000 {
-		return
-	}
+	if types.IsMainnet(ctx.ChainID()) {
+		// safety check: make sure the window is still 30000
+		if params.SignedBlocksWindow != 30000 {
+			return
+		}
 
-	params.SignedBlocksWindow = 90000
+		params.SignedBlocksWindow = 90000
+	} else if types.IsTestnet(ctx.ChainID())  {
+		// safety check: make sure the window is still 10000
+		if params.SignedBlocksWindow != 10000 {
+			return
+		}
+
+		params.SignedBlocksWindow = 30000
+	}
 	xk.SetParams(ctx, params)
 }
