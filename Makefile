@@ -231,14 +231,6 @@ else
 	@echo "protoc-gen-go-grpc already installed; skipping..."
 endif
 
-ifeq (, $(shell which protoc))
-	@echo "Please istalling protobuf according to your OS"
-	@echo "macOS: brew install protobuf"
-	@echo "linux: apt-get install -f -y protobuf-compiler"
-else
-	@echo "protoc already installed; skipping..."
-endif
-
 ifeq (, $(shell which solcjs))
 	@echo "Installing solcjs..."
 	@npm install -g solc@0.5.11
