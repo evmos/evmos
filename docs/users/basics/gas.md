@@ -52,7 +52,7 @@ In order to match the gas consumed by the EVM, the gas consumption logic from th
 
 To ignore the SDK gas consumption, we reset the transaction `GasMeter` count to 0 and manually set it to the `gasUsed` value computed by the EVM module at the end of the execution.
 
-+++ https://github.com/tharsis/ethermint/blob/098da6d0cc0e0c4cefbddf632df1057383973e4a/x/evm/keeper/state_transition.go#L188
++++ https://github.com/evmos/ethermint/blob/098da6d0cc0e0c4cefbddf632df1057383973e4a/x/evm/keeper/state_transition.go#L188
 
 ### `AnteHandler`
 
@@ -93,4 +93,4 @@ transaction might be higher than the value returned by the EVM after applying th
 
 A cache context will be used during the whole execution to avoid changes be persisted in the state.
 
-+++ https://github.com/tharsis/ethermint/blob/098da6d0cc0e0c4cefbddf632df1057383973e4a/x/evm/keeper/grpc_query.go#L100
++++ https://github.com/evmos/ethermint/blob/098da6d0cc0e0c4cefbddf632df1057383973e4a/x/evm/keeper/grpc_query.go#L100

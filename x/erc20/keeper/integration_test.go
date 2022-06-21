@@ -14,9 +14,9 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 	ethermint "github.com/tharsis/ethermint/types"
 
-	"github.com/tharsis/evmos/v5/app"
-	"github.com/tharsis/evmos/v5/testutil"
-	"github.com/tharsis/evmos/v5/x/erc20/types"
+	"github.com/evmos/evmos/v5/app"
+	"github.com/evmos/evmos/v5/testutil"
+	"github.com/evmos/evmos/v5/x/erc20/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	abci "github.com/tendermint/tendermint/abci/types"

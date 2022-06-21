@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/tharsis/evmos/v5/x/inflation/types"
+	"github.com/evmos/evmos/v5/x/inflation/types"
 )
 
 // GetQueryCmd returns the cli query commands for the inflation module.

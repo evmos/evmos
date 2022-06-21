@@ -14,7 +14,7 @@ A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approval
 
 1. User submits a `RegisterCoinProposal`
 2. Validators of the Evmos Hub vote on the proposal using `MsgVote` and proposal passes
-3. If Cosmos coin or IBC voucher exist on the bank module supply, create the [ERC20 token contract](https://github.com/tharsis/evmos/blob/main/contracts/ERC20MinterBurnerDecimals.sol) on the EVM based on the ERC20Mintable ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) interface
+3. If Cosmos coin or IBC voucher exist on the bank module supply, create the [ERC20 token contract](https://github.com/evmos/evmos/blob/main/contracts/ERC20MinterBurnerDecimals.sol) on the EVM based on the ERC20Mintable ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) interface
     - Initial supply: 0
     - Token details (Name, Symbol, Decimals, etc) are derived from the bank module `Metadata` field on the proposal content.
 

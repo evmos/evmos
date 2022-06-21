@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tharsis/evmos/v5/x/fees/keeper"
-	"github.com/tharsis/evmos/v5/x/fees/types"
+	"github.com/evmos/evmos/v5/x/fees/keeper"
+	"github.com/evmos/evmos/v5/x/fees/types"
 )
 
 // InitGenesis import module genesis
