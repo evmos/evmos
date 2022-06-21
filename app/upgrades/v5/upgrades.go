@@ -11,6 +11,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -55,6 +56,7 @@ func CreateUpgradeHandler(
 	sk stakingkeeper.Keeper,
 	pk paramskeeper.Keeper,
 	tk ibctransferkeeper.Keeper,
+	xk slashingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -84,6 +86,9 @@ func CreateUpgradeHandler(
 
 		logger.Debug("migrating early contributor claim record...")
 		MigrateContributorClaim(ctx, ck)
+
+		logger.Debug("updating slashing period...")
+		UpdateSlashingParams(ctx, xk)
 
 		// define from versions of the modules that have a new consensus version
 
@@ -252,4 +257,30 @@ func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keep
 
 func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
 	return dtA.BaseDenom == dtB.BaseDenom && dtA.Path == dtB.Path
+}
+
+// UpdateSlashingParams updates the Slashing params (SignedBlocksWindow) to
+// increase to keep the same wall-time of reaction time, since the block times
+// are expected to be 67% shorter.
+func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
+	params := xk.GetParams(ctx)
+
+	if types.IsMainnet(ctx.ChainID()) {
+		// safety check: make sure the window is still 30000
+		if params.SignedBlocksWindow != 30000 {
+			return
+		}
+
+		params.SignedBlocksWindow = 90000
+	} else if types.IsTestnet(ctx.ChainID()) {
+		// safety check: make sure the window is still 10000
+		if params.SignedBlocksWindow != 10000 {
+			return
+		}
+
+		params.SignedBlocksWindow = 30000
+	}
+	// if chain doesn't match, this is basically a no-op
+	
+	xk.SetParams(ctx, params)
 }

@@ -25,6 +25,7 @@ import (
 
 	"github.com/evmos/evmos/v5/app"
 	v5 "github.com/evmos/evmos/v5/app/upgrades/v5"
+	evmostypes "github.com/evmos/evmos/v5/types"
 	claimskeeper "github.com/evmos/evmos/v5/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v5/x/claims/types"
 )
@@ -37,7 +38,7 @@ type UpgradeTestSuite struct {
 	consAddress sdk.ConsAddress
 }
 
-func (suite *UpgradeTestSuite) SetupTest() {
+func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 	feemarkettypes.DefaultMinGasPrice = v5.MainnetMinGasPrices
 	checkTx := false
 
@@ -50,7 +51,7 @@ func (suite *UpgradeTestSuite) SetupTest() {
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9001-2",
+		ChainID:         chainID,
 		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
 		ProposerAddress: suite.consAddress.Bytes(),
 
@@ -126,7 +127,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
 
 			tc.preUpdate()
 			tc.update()
@@ -175,7 +176,7 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
 
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 
@@ -223,7 +224,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -284,7 +285,7 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -410,7 +411,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
 
 			for _, dt := range tc.originalTraces {
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
@@ -420,6 +421,90 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 			traces := suite.app.TransferKeeper.GetAllDenomTraces(suite.ctx)
 			suite.Require().Equal(tc.expDenomTraces, traces)
+		})
+	}
+}
+
+
+func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
+	testCases := []struct {
+		name              string
+		chainID           string
+		malleate          func()
+		expectedWindow    int64
+	}{
+		{
+			"param already adjusted",
+			evmostypes.MainnetChainID + "-2",
+			func() {
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 70000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
+			},
+			70000,
+		},
+		{
+			"success",
+			evmostypes.MainnetChainID + "-2",
+			func() {
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 30000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
+			},
+			90000,
+		},
+		{
+		"param already adjusted",
+			evmostypes.TestnetChainID + "-4",
+			func() {
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 20000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
+			},
+			20000,
+		},
+		{
+			"success",
+			evmostypes.TestnetChainID + "-4",
+			func() {
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 10000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
+			},
+			30000,
+		},
+		{
+			"chain that doesn't match",
+			"unexpected-1",
+			func() {
+			},
+			100,
+		},
+		{
+			"chain that doesn't match (do nothing)",
+			"unexpected-1",
+			func() {
+				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+				params.SignedBlocksWindow = 10000
+				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
+			},
+			10000,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest(tc.chainID) // reset
+
+			tc.malleate()
+
+			suite.Require().NotPanics(func() {
+				v5.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper)
+				suite.app.Commit()
+			})
+
+			params := suite.app.SlashingKeeper.GetParams(suite.ctx)
+			suite.Require().Equal(tc.expectedWindow, params.SignedBlocksWindow)
 		})
 	}
 }

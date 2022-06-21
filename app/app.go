@@ -1053,6 +1053,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.StakingKeeper,
 			app.ParamsKeeper,
 			app.TransferKeeper,
+			app.SlashingKeeper,
 		),
 	)
 
