@@ -9,7 +9,9 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.4.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "solhint-ci": "^4.0.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

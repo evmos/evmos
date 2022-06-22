@@ -417,6 +417,7 @@ benchmark:
 
 lint:
 	golangci-lint run --out-format=tab
+	solhint contracts/**/*.sol
 
 lint-contracts:
 	@cd contracts && \

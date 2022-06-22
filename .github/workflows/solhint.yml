@@ -1,0 +1,17 @@
+name: Solhint
+# This workflow is only run when a .sol file has been changed
+on:
+  pull_request:
+    paths:
+      - "contracts/**"
+
+jobs:
+  solhint:
+    name: runner / solhint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: solhint
+        uses: contractshark/inject-solhint-ci@1.0.0+0
+        with:
+          solhint_input: 'contracts/**/*.sol'
