@@ -15,4 +15,3 @@ jobs:
         uses: contractshark/inject-solhint-ci@1.0.0+0
         with:
           solhint_input: 'contracts/**/*.sol'
-          
