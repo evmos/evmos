@@ -17,15 +17,15 @@ const (
 // prefix bytes for the fees persistent store
 const (
 	prefixFee = iota + 1
-	prefixFeeWithdrawal
-	prefixDeployerFees
+	prefixDeployer
+	prefixWithdraw
 )
 
 // KVStore key prefixes
 var (
-	KeyPrefixFee           = []byte{prefixFee}
-	KeyPrefixFeeWithdrawal = []byte{prefixFeeWithdrawal}
-	KeyPrefixDeployerFees  = []byte{prefixDeployerFees}
+	KeyPrefixFee      = []byte{prefixFee}
+	KeyPrefixDeployer = []byte{prefixDeployer}
+	KeyPrefixWithdraw = []byte{prefixWithdraw}
 )
 
 // GetKeyPrefixDeployerFees returns the KVStore key prefix for storing
