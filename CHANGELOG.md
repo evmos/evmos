@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### API Breaking
 
+- (all) [\#701](https://github.com/evmos/evmos/pull/703) Rename Go module to `evmos/evmos`
 - (fees) [\#691](https://github.com/evmos/evmos/pull/691) Internal API audit.
 
 ### Improvements
