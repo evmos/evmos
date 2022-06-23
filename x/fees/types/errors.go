@@ -6,5 +6,7 @@ import (
 
 // errors
 var (
-	ErrInternalFee = sdkerrors.Register(ModuleName, 2, "internal fees error")
+	ErrFeesDisabled = sdkerrors.Register(ModuleName, 2, "developer fees disabled by governance")
+	ErrFeeNotFound  = sdkerrors.Register(ModuleName, 3, "dev fee info not found")
+	ErrFeeExists    = sdkerrors.Register(ModuleName, 4, "dev fee info for contract already registered")
 )

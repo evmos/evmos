@@ -155,7 +155,7 @@ func (suite *KeeperTestSuite) TestRegisterFee() {
 				suite.app.FeesKeeper.RegisterFee(ctx, msg)
 			},
 			false,
-			"contract is already registered",
+			types.ErrFeeExists.Error(),
 		},
 		{
 			"not ok - not contract deployer",
