@@ -17,7 +17,7 @@ Evmos defines its own custom `Account` type that uses Ethereum's ECDSA secp256k1
 satisfies the [EIP84](https://github.com/ethereum/EIPs/issues/84) for full [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) paths.
 The root HD path for Evmos-based accounts is `m/44'/60'/0'/0`.
 
-+++ https://github.com/tharsis/ethermint/blob/main/types/account.pb.go#L28-L33
++++ https://github.com/evmos/ethermint/blob/main/types/account.pb.go#L28-L33
 
 ## Addresses and Public Keys
 

@@ -37,9 +37,148 @@ The reason we use IPFS is that it is a decentralized means of storage, making it
 
 ## Formatting the JSON file for the governance proposal
 
-Prior to sending the transaction that submits your proposal on-chain, you must create a JSON file. This file will contain the information that will be stored on-chain as the governance proposal. Begin by creating a new text (.txt) file to enter this information. Use [these best practices](./best_practices.md) as a guide for the contents of your proposal. When you're done, save the file as a .json file. See the examples that follow to help format your proposal.
+Many proposals allow for long form text to be included, usually under the key `description`. These provide the opportunity to include [markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) if formatted correctly as well as line breaks with `\n`. Beware, however, that if you are using the CLI to create a proposal, and setting `description` using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If you're using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags.
 
-Once on-chain, most people will rely upon network explorers to interpret this information with a graphical user interface (GUI).
+### Text Proposals
+
+`TextProposal`s are used by delegators to agree to a certain strategy, plan, commitment, future upgrade, or any other statement in the form of text. Aside from having a record of the proposal outcome on the Evmos chain, a text proposal has no direct effect on Evmos.
+
+#### Real Example
+
+[Proposal 1](https://commonwealth.im/evmos/proposal/1-airdrop-claim-mission) was representative of one of four core network activities that users had to participate in to claim tokens from the Evmos Rektdrop.
+
+```json
+{
+  "title": "Airdrop Claim Mission",
+  "description": "Vote to claim",
+  "deposit": [
+    {
+      "denom": "aevmos",
+      "amount": "10000000000000000000"
+    }
+  ]
+}
+```
+
+### Community Pool Spend Proposals
+
+For community pool spend proposals, there are five components:
+
+1. **Title** - the distinguishing name of the proposal, typically the way the that explorers list proposals
+2. **Description** - the body of the proposal that further describes what is being proposed and details surrounding the proposal
+3. **Recipient** - the Evmos (bech32-based) address that will receive funding from the Community Pool
+4. **Amount** - the amount of funding that the recipient will receive in atto-EVMOS (`aevmos`)
+5. **Deposit** - the amount that will be contributed to the deposit (in `aevmos`) from the account submitting the proposal
+
+#### Made-Up Example
+
+In this simple example (below), a network explorer will list the governance proposal as a `CommunityPoolSpendProposal`. When an observer selects the proposal, they'll see the description. Not all explorers will show the recipient and amount, so ensure that you verify that the description aligns with the what the governance proposal is programmed to enact. If the description says that a certain address will receive a certain number of EVMOS, it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
+
+The `amount` is `1000000000000000000aevmos`. This is equal to 1 EVMOS, so `recipient` address `evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp` will receive 1 EVMOS if this proposal is passed.
+
+The `deposit` of `64000000000000000000aevmos` results in 64 EVMOS being used from the proposal submitter's account. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 5-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if quorum isn't met in the vote or if the proposal is vetoed.
+
+```json
+{
+  "title": "Community Pool Spend",
+  "description": "This is the summary of the key information about this proposal. Include the URL to a PDF version of your full proposal.",
+  "recipient": "evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp",
+  "amount": [
+    {
+      "denom": "aevmos",
+      "amount": "1000000000000000000"
+    }
+  ],
+  "deposit": [
+    {
+      "denom": "aevmos",
+      "amount": "64000000000000000000"
+    }
+  ]
+}
+
+```
+
+#### Real Example
+
+This is a governance protocol which [Flux Protocol](https://www.fluxprotocol.org/), the provider of a cross-chain oracle which provides smart contracts with access to economically secure data feeds, submitted to cover costs of the subsidizied FPO (First Party Oracle) solution which they deployed on the Evmos mainnet.
+
+Users can query the proposal details with the `evmosd` command-line interface using this command:
+
+```bash
+`evmosd --node https://tendermint.bd.evmos.org:26657 query gov proposal 23`.
+```
+
+```json
+{
+  "title": "Grant proposal for Flux Protocol an oracle solution live on Evmos",
+  "description": "proposal: https://gateway.pinata.cloud/ipfs/QmfZknL4KRHvJ6XUDwtyRKANVs44FFmjGuM8YbArqqfWwF discussion: https://commonwealth.im/evmos/discussion/4915-evmos-grant-flux-oracle-solution"
+  "recipient": "evmos15dxa2e3lc8zvmryv62x3stt86yhplu2vs9kxct",
+  "amount": [
+    {
+      "amount": "12900000000000000000000",
+      "denom": "aevmos"
+    }
+  ],
+  "deposit": [
+    {
+      "denom": "aevmos",
+      "amount": "64000000000000000000"
+    }
+  ]
+}
+```
+
+### Params-Change Proposals
+
+::: tip
+Changes to the [`gov` module](./overview.md) are different from the other kinds of parameter changes because `gov` has subkeys, [as discussed here](https://github.com/cosmos/cosmos-sdk/issues/5800). Only the `key` part of the JSON file is different for `gov` parameter-change proposals.
+:::
+
+For parameter-change proposals, there are seven components:
+
+1. **Title** - the distinguishing name of the proposal, typically the way the that explorers list proposals
+2. **Description** - the body of the proposal that further describes what is being proposed and details surrounding the proposal
+3. **Subspace** - the Evmos module with the parameter that is being changed
+4. **Key** - the parameter that will be changed
+5. **Value** - the value of the parameter that will be changed by the governance mechanism
+6. **Denom** - `aevmos` (atto-EVMOS) will be the type of asset used as the deposit
+7. **Amount** - the amount that will be contributed to the deposit (in `aevmos`) from the account submitting the proposal
+
+#### Real Example
+
+In the example below, a network explorer listed the governance proposal by its title: "Increase the minimum deposit for governance proposals." When a user selects the proposal, they'll see the proposal’s description. This proposal can be [found on the Evmos network here](https://commonwealth.im/evmos/proposal/7-increase-the-minimum-deposit-for-governance-proposals).
+
+Not all explorers will show the proposed parameter changes that are coded into the proposal, so the delegator should verify that the description aligns with what the governance proposal is programmed to enact. If the description says that a certain parameter will be increased, it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
+
+Users can query the proposal details with the evmosd command-line interface using this command:
+
+```bash
+`evmosd --node https://tendermint.bd.evmos.org:26657 query gov proposal 7`.
+```
+
+```json
+{
+  "title": "Increase the minimum deposit for governance proposals",
+  "description": "If successful, this parameter-change governance proposal will change the minimum deposit for future proposals from 10 evmos tokens to 64.",
+  "changes": [
+    {
+      "subspace": "gov",
+      "key": "depositparams",
+      "value": {"mindeposit":[{"denom":"aevmos","amount":"64000000000000000000"}],
+      "max_deposit_period":"1209600000000000"}
+    }
+  ],
+  "deposit": [
+    {
+      "denom": "aevmos",
+      "amount": "20100000000000000000"
+    }
+  ]
+}
+```
+
+The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`. Therefore, a deposit of 20.1 EVMOS will be included with this proposal. At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period (and subsequently passed). There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 5-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
 
 ## Sending the transaction that submits your governance proposal
 

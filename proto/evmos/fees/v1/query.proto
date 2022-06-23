@@ -7,7 +7,7 @@ import "evmos/fees/v1/fees.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/tharsis/evmos/v5/x/fees/types";
+option go_package = "github.com/evmos/evmos/v5/x/fees/types";
 
 // Query defines the gRPC querier service.
 service Query {

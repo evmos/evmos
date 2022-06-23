@@ -4,7 +4,7 @@ package evmos.fees.v1;
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/tharsis/evmos/v5/x/fees/types";
+option go_package = "github.com/evmos/evmos/v5/x/fees/types";
 
 // Msg defines the fees Msg service.
 service Msg {

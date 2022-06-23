@@ -17,9 +17,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tharsis/evmos/v5/app"
-	claimstypes "github.com/tharsis/evmos/v5/x/claims/types"
-	"github.com/tharsis/evmos/v5/x/recovery/types"
+	"github.com/evmos/evmos/v5/app"
+	claimstypes "github.com/evmos/evmos/v5/x/claims/types"
+	"github.com/evmos/evmos/v5/x/recovery/types"
 )
 
 var (

@@ -2,8 +2,8 @@ package inflation
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tharsis/evmos/v5/x/inflation/keeper"
-	"github.com/tharsis/evmos/v5/x/inflation/types"
+	"github.com/evmos/evmos/v5/x/inflation/keeper"
+	"github.com/evmos/evmos/v5/x/inflation/types"
 )
 
 // InitGenesis import module genesis
