@@ -7,9 +7,9 @@ import (
 // errors
 var (
 	ErrInternalFee               = sdkerrors.Register(ModuleName, 2, "internal fees error")
-	ErrFeesDisabled              = sdkerrors.Register(ModuleName, 3, "module is disabled")
-	ErrFeesAlreadyRegistered     = sdkerrors.Register(ModuleName, 4, "contract fee already exists")
+	ErrFeesDisabled              = sdkerrors.Register(ModuleName, 3, "fees module is disabled by governance")
+	ErrFeesAlreadyRegistered     = sdkerrors.Register(ModuleName, 4, "fess already exists for given contract")
 	ErrFeesNoContractDeployed    = sdkerrors.Register(ModuleName, 5, "no contract deployed")
-	ErrFeesContractNotRegistered = sdkerrors.Register(ModuleName, 6, "no Fee registered for contract")
-	ErrFeesDeployerIsNotEOA      = sdkerrors.Register(ModuleName, 7, "no Fee registered for contract")
+	ErrFeesContractNotRegistered = sdkerrors.Register(ModuleName, 6, "no fee registered for contract")
+	ErrFeesDeployerIsNotEOA      = sdkerrors.Register(ModuleName, 7, "no fee registered for contract")
 )

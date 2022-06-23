@@ -155,7 +155,7 @@ func (msg MsgUpdateFee) ValidateBasic() error {
 	}
 
 	if msg.DeployerAddress == msg.WithdrawAddress {
-		return sdkerrors.Wrapf(ErrInternalFee, "withdraw address must be different that deployer address: withdraw %s, deployer %s", msg.WithdrawAddress, msg.DeployerAddress)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "withdraw address must be different that deployer address: withdraw %s, deployer %s", msg.WithdrawAddress, msg.DeployerAddress)
 	}
 
 	return nil

@@ -3,10 +3,13 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	"github.com/evmos/evmos/v5/x/fees/types"
 )
 
 // Hooks wrapper struct for fees keeper
@@ -41,6 +44,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	if !found {
 		withdrawAddr, found = h.k.GetDeployer(ctx, *contract)
 	}
+
 	if !found {
 		// no registered deployer / withdraw address for the contract
 		return nil
@@ -49,27 +53,29 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	feeDistribution := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
 
 	evmDenom := h.k.evmKeeper.GetParams(ctx).EvmDenom
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
-	developerCoins := sdk.Coins{{Denom: evmDenom, Amount: developerFee.TruncateInt()}}
+	developerFee := feeDistribution.ToDec().Mul(params.DeveloperShares)
+	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee.TruncateInt()}}
 
-	return h.sendFees(ctx, *contract, withdrawAddr, developerCoins)
-}
-
-// sendFees distributes the transaction fees to the contract deployer
-func (h Hooks) sendFees(
-	ctx sdk.Context,
-	_ common.Address,
-	withdrawAddr sdk.AccAddress,
-	fees sdk.Coins,
-) error {
+	// distribute the transaction fees to the contract deployer / withdraw address
 	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, h.k.feeCollectorName, withdrawAddr, fees)
 	if err != nil {
-		err = sdkerrors.Wrapf(
-			sdkerrors.ErrInsufficientFunds,
-			"fee collector account failed to distribute developer fees: %s",
-			err.Error(),
+		return sdkerrors.Wrapf(
+			err,
+			"fee collector account failed to distribute developer fees (%s) to withdraw address %s. contract %s",
+			fees, withdrawAddr, contract,
 		)
-		return sdkerrors.Wrapf(err, "failed to distribute %s fees", fees.String())
 	}
+
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeDistributeDevFee,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.From().String()),
+				sdk.NewAttribute(types.AttributeKeyContract, contract.String()),
+				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawAddr.String()),
+			),
+		},
+	)
+
 	return nil
 }

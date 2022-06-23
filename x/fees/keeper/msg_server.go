@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
@@ -19,13 +20,14 @@ func (k Keeper) RegisterFee(
 	msg *types.MsgRegisterFee,
 ) (*types.MsgRegisterFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if !k.isEnabled(ctx) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrFeesDisabled, "fees module is currently disabled by governance",
-		)
+
+	params := k.GetParams(ctx)
+	if !params.EnableFees {
+		return nil, types.ErrFeesDisabled
 	}
 
 	contract := common.HexToAddress(msg.ContractAddress)
+
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesAlreadyRegistered, "contract is already registered %s", contract,
@@ -39,6 +41,7 @@ func (k Keeper) RegisterFee(
 			sdkerrors.ErrNotFound, "deployer account not found %s", msg.DeployerAddress,
 		)
 	}
+
 	if deployerAccount.IsContract() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesDeployerIsNotEOA, "deployer cannot be a contract %s", msg.DeployerAddress,
@@ -50,19 +53,20 @@ func (k Keeper) RegisterFee(
 		withdrawal = sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
 	}
 
+	derivedContractAddr := common.BytesToAddress(deployer)
+
 	// the contract can be directly deployed by an EOA or created through one
 	// or more factory contracts. If it was deployed by an EOA account, then
 	// msg.Nonces contains the EOA nonce for the deployment transaction.
 	// If it was deployed by one or more factories, msg.Nonces contains the EOA
 	// nonce for the origin factory contract, then the nonce of the factory
 	// for the creation of the next factory/contract.
-	addrDerivationCostCreate := k.GetParams(ctx).AddrDerivationCostCreate
-	derivedContractAddr := common.BytesToAddress(deployer)
 	for _, nonce := range msg.Nonces {
 		ctx.GasMeter().ConsumeGas(
-			addrDerivationCostCreate,
+			params.AddrDerivationCostCreate,
 			"fees registration: address derivation CREATE opcode",
 		)
+
 		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
 	}
 
@@ -70,12 +74,13 @@ func (k Keeper) RegisterFee(
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrorInvalidSigner,
 			"not contract deployer or wrong nonce: expected %s instead of %s",
-			derivedContractAddr.String(), msg.ContractAddress,
+			derivedContractAddr, msg.ContractAddress,
 		)
 	}
 
 	// contract must already be deployed, to avoid spam registrations
 	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
+
 	if contractAccount == nil || !contractAccount.IsContract() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesNoContractDeployed, "no contract code found at address %s", msg.ContractAddress,
@@ -84,6 +89,7 @@ func (k Keeper) RegisterFee(
 
 	k.SetFee(ctx, contract, deployer, withdrawal)
 	k.SetDeployerFees(ctx, deployer, contract)
+
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
 		"contract", msg.ContractAddress, "deployer", msg.DeployerAddress,
@@ -110,10 +116,10 @@ func (k Keeper) UpdateFee(
 	msg *types.MsgUpdateFee,
 ) (*types.MsgUpdateFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if !k.isEnabled(ctx) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrFeesDisabled, "fees module is currently disabled by governance",
-		)
+
+	params := k.GetParams(ctx)
+	if !params.EnableFees {
+		return nil, types.ErrFeesDisabled
 	}
 
 	contractAddress := common.HexToAddress(msg.ContractAddress)
@@ -153,10 +159,10 @@ func (k Keeper) CancelFee(
 	msg *types.MsgCancelFee,
 ) (*types.MsgCancelFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if !k.isEnabled(ctx) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrFeesDisabled, "fees module is currently disabled by governance",
-		)
+
+	params := k.GetParams(ctx)
+	if !params.EnableFees {
+		return nil, types.ErrFeesDisabled
 	}
 
 	contractAddress := common.HexToAddress(msg.ContractAddress)
