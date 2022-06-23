@@ -115,7 +115,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Expect(res.IsOK()).To(Equal(false), "registration should have failed")
 			Expect(
 				strings.Contains(res.GetLog(),
-					"fees module is not enabled"),
+					"fees module is currently disabled by governance"),
 			).To(BeTrue())
 			s.Commit()
 
@@ -144,7 +144,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Expect(res.IsOK()).To(Equal(false), "update should have failed")
 			Expect(
 				strings.Contains(res.GetLog(),
-					"fees module is not enabled"),
+					"fees module is currently disabled by governance"),
 			).To(BeTrue())
 			s.Commit()
 		})
@@ -155,7 +155,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Expect(res.IsOK()).To(Equal(false), "cancel should have failed")
 			Expect(
 				strings.Contains(res.GetLog(),
-					"fees module is not enabled"),
+					"fees module is currently disabled by governance"),
 			).To(BeTrue())
 			s.Commit()
 		})
