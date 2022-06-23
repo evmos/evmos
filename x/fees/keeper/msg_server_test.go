@@ -187,7 +187,7 @@ func (suite *KeeperTestSuite) TestRegisterFee() {
 				s.Require().NoError(err)
 			},
 			false,
-			"contract has no code",
+			"no contract code found at address",
 		},
 	}
 	for _, tc := range testCases {

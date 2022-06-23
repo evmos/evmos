@@ -21,14 +21,14 @@ func (k Keeper) RegisterFee(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if !k.isEnabled(ctx) {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInternalFee, "fees module is not enabled",
+			types.ErrFeesDisabled, "fees module is currently disabled by governance",
 		)
 	}
 
 	contract := common.HexToAddress(msg.ContractAddress)
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "contract is already registered %s", contract,
+			types.ErrFeesAlreadyRegistered, "contract is already registered %s", contract,
 		)
 	}
 
@@ -36,12 +36,12 @@ func (k Keeper) RegisterFee(
 	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
 	if deployerAccount == nil {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "deployer account not found %s", msg.DeployerAddress,
+			sdkerrors.ErrNotFound, "deployer account not found %s", msg.DeployerAddress,
 		)
 	}
 	if deployerAccount.IsContract() {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "deployer cannot be a contract %s", msg.DeployerAddress,
+			types.ErrFeesDeployerIsNotEOA, "deployer cannot be a contract %s", msg.DeployerAddress,
 		)
 	}
 
@@ -78,7 +78,7 @@ func (k Keeper) RegisterFee(
 	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
 	if contractAccount == nil || !contractAccount.IsContract() {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "contract has no code %s", msg.ContractAddress,
+			types.ErrFeesNoContractDeployed, "no contract code found at address %s", msg.ContractAddress,
 		)
 	}
 
@@ -112,7 +112,7 @@ func (k Keeper) UpdateFee(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if !k.isEnabled(ctx) {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInternalFee, "fees module is not enabled",
+			types.ErrFeesDisabled, "fees module is currently disabled by governance",
 		)
 	}
 
@@ -120,13 +120,13 @@ func (k Keeper) UpdateFee(
 	deployerAddress, found := k.GetDeployer(ctx, contractAddress)
 	if !found {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress,
+			types.ErrFeesContractNotRegistered, "contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
 	if msg.DeployerAddress != deployerAddress.String() {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress,
+			types.ErrFeesDeployerIsNotEOA, "%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
 
@@ -155,7 +155,7 @@ func (k Keeper) CancelFee(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if !k.isEnabled(ctx) {
 		return nil, sdkerrors.Wrapf(
-			types.ErrInternalFee, "fees module is not enabled",
+			types.ErrFeesDisabled, "fees module is currently disabled by governance",
 		)
 	}
 
@@ -163,7 +163,7 @@ func (k Keeper) CancelFee(
 	deployerAddress, found := k.GetDeployer(ctx, contractAddress)
 	if !found {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidRequest, "contract %s is not registered", msg.ContractAddress,
+			types.ErrFeesContractNotRegistered, "contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
