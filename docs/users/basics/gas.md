@@ -23,9 +23,7 @@ Exactly like Ethereum, Cosmos utilizes the concept of gas and this is how Cosmos
 usage of operations during execution. Operations on Cosmos are represented as read or writes done to the chain's store.
 
 In Cosmos, a fee is calculated and charged to the user during a message execution. This fee is
-calculated from the sum of all gas consumed in a message execution:
-
-$$fee = gas ~ * ~ gasPrice$$
+calculated from the sum of all gas consumed in a message execution. So, the fee is equivalent to the gas multiplied by the gas price.
 
 In both networks, gas is used to make sure that operations do not require an excess amount of
 computational power to complete and as a way to deter bad-acting users from spamming the network.
