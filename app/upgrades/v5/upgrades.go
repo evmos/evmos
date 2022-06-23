@@ -281,6 +281,6 @@ func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
 		params.SignedBlocksWindow = 30000
 	}
 	// if chain doesn't match, this is basically a no-op
-	
+
 	xk.SetParams(ctx, params)
 }
