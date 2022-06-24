@@ -4,11 +4,9 @@ order: 5
 
 # Rollback
 
-## Synopsis
+Learn how to rollback the chain version in the case of an unsuccessful chain upgrade. {synopsis}
 
-In the case that a chain upgrade is unsuccessful, it may be necessary to rollback the chain version.
-
-In order to restore the previous chain, the following data must be recovered by validators:
+In order to restore a previous chain version, the following data must be recovered by validators:
 
 - the database that contains the state of the previous chain (in `~/.evmosd/data` by default)
 - the `priv_validator_state.json` file of the validator (also in `~/.evmosd/data` by default)

@@ -4,7 +4,7 @@ order: 5
 
 # Validator Backup
 
-## Synopsis
+Learn how to backup your validator. {synopsis}
 
 It is ***crucial*** to backup your validator's private key. It's the only way to restore your validator in the event of a disaster.
 
