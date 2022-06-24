@@ -62,25 +62,37 @@ func (k Keeper) GetFee(
 	return fee, true
 }
 
-// SetFee stores the Fee for a registered contract
+// SetFee stores the Fee for a registered contract.
 func (k Keeper) SetFee(ctx sdk.Context, fee types.Fee) {
+	// TODO move this check out of `SetFee`?
+	// prevent storing the same address for deployer and withdrawer
+	if fee.DeployerAddress == fee.WithdrawAddress {
+		fee.WithdrawAddress = ""
+	}
+
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	key := common.HexToAddress(fee.ContractAddress)
 	bz := k.cdc.MustMarshal(&fee)
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteFee removes a registered contract
+// DeleteFee removes a registered contract including its deployer and withdraw
+// mappings
 func (k Keeper) DeleteFee(ctx sdk.Context, fee types.Fee) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
-	key := common.HexToAddress(fee.ContractAddress)
-	store.Delete(key.Bytes())
-
 	contract := common.HexToAddress(fee.ContractAddress)
 	deployer := sdk.MustAccAddressFromBech32(fee.DeployerAddress)
 	withdraw := sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
-	k.DeleteDeployerMap(ctx, deployer, contract)
-	k.DeleteWithdrawMap(ctx, withdraw, contract)
+
+	k.deleteFee(ctx, fee)
+	k.deleteDeployerMap(ctx, deployer, contract)
+	k.deleteWithdrawMap(ctx, withdraw, contract)
+}
+
+// deleteFee deletes a fee contract
+func (k Keeper) deleteFee(ctx sdk.Context, fee types.Fee) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
+	key := common.HexToAddress(fee.ContractAddress)
+	store.Delete(key.Bytes())
 }
 
 // SetDeployerMap stores a fee contract by deployer mapping
@@ -94,8 +106,8 @@ func (k Keeper) SetDeployerMap(
 	store.Set(key, []byte{1})
 }
 
-// DeleteDeployerMap deletes a fee contract by deployer mapping
-func (k Keeper) DeleteDeployerMap(
+// deleteDeployerMap deletes a fee contract by deployer mapping
+func (k Keeper) deleteDeployerMap(
 	ctx sdk.Context,
 	deployer sdk.AccAddress,
 	contract common.Address,
@@ -117,7 +129,7 @@ func (k Keeper) SetWithdrawMap(
 }
 
 // DeleteWithdrawMap deletes a fee contract by withdraw address mapping
-func (k Keeper) DeleteWithdrawMap(
+func (k Keeper) deleteWithdrawMap(
 	ctx sdk.Context,
 	withdraw sdk.AccAddress,
 	contract common.Address,
@@ -125,6 +137,30 @@ func (k Keeper) DeleteWithdrawMap(
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
 	key := append(withdraw.Bytes(), contract.Bytes()...)
 	store.Delete(key)
+}
+
+// IsDeployerMapSet checks if a fee contract by deployer address mapping is set
+// in store
+func (k Keeper) IsDeployerMapSet(
+	ctx sdk.Context,
+	deployer sdk.AccAddress,
+	contract common.Address,
+) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
+	key := append(deployer.Bytes(), contract.Bytes()...)
+	return store.Has(key)
+}
+
+// IsWithdrawMapSet checks if a fee contract by withdraw address mapping is set
+// in store
+func (k Keeper) IsWithdrawMapSet(
+	ctx sdk.Context,
+	withdraw sdk.AccAddress,
+	contract common.Address,
+) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
+	key := append(withdraw.Bytes(), contract.Bytes()...)
+	return store.Has(key)
 }
 
 // // GetDeployer returns the deployer address for a registered contract
@@ -170,12 +206,6 @@ func (k Keeper) DeleteWithdrawMap(
 // 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeWithdrawal)
 // 	store.Delete(contract.Bytes())
 // }
-
-// IsFeeRegistered checks if a contract was registered for receiving fees
-func (k Keeper) IsFeeRegistered(ctx sdk.Context, contract common.Address) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
-	return store.Has(contract.Bytes())
-}
 
 // TODO Queries for `GetDeployerFees` and `GetWithdrawFees`
 

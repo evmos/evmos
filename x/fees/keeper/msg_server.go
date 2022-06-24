@@ -28,7 +28,7 @@ func (k Keeper) RegisterFee(
 
 	contract := common.HexToAddress(msg.ContractAddress)
 
-	if k.IsFeeRegistered(ctx, contract) {
+	if _, found := k.GetFee(ctx, contract); found {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesAlreadyRegistered, "contract is already registered %s", contract,
 		)
@@ -90,7 +90,7 @@ func (k Keeper) RegisterFee(
 	fee := types.NewFee(contract, deployer, withdrawal)
 	k.SetFee(ctx, fee)
 	k.SetDeployerMap(ctx, deployer, contract)
-	// TODO think about how to best deal with optional Withdraw address
+
 	k.SetWithdrawMap(ctx, withdrawal, contract)
 
 	k.Logger(ctx).Debug(
@@ -188,8 +188,6 @@ func (k Keeper) CancelFee(
 	}
 
 	k.DeleteFee(ctx, fee)
-	k.DeleteDeployerMap(ctx, sdk.MustAccAddressFromBech32(fee.DeployerAddress), contract)
-	k.DeleteWithdrawMap(ctx, sdk.MustAccAddressFromBech32(fee.WithdrawAddress), contract)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

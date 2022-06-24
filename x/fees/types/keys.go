@@ -29,7 +29,7 @@ var (
 )
 
 // GetKeyPrefixDeployerFees returns the KVStore key prefix for storing
-// registered fee infos for a deployer
+// registered fee contract for a deployer
 func GetKeyPrefixDeployerFees(deployerAddress sdk.AccAddress) []byte {
-	return append(KeyPrefixDeployerFees, deployerAddress.Bytes()...)
+	return append(KeyPrefixDeployer, deployerAddress.Bytes()...)
 }

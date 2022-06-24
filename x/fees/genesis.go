@@ -22,8 +22,10 @@ func InitGenesis(
 		withdrawal := sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
 
 		// Set initial contracts receiving transaction fees
-		k.SetFee(ctx, contract, deployer, withdrawal)
-		k.SetDeployerFees(ctx, deployer, contract)
+		fee := types.NewFee(contract, deployer, withdrawal)
+		k.SetFee(ctx, fee)
+		k.SetDeployerMap(ctx, deployer, contract)
+		k.SetWithdrawMap(ctx, withdrawal, contract)
 	}
 }
 

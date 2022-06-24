@@ -32,19 +32,14 @@ func (k Keeper) Fees(
 	var fees []types.Fee
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 
-	pageRes, err := query.Paginate(
-		store,
-		req.Pagination,
-		func(key, value []byte) error {
-			fee := k.BuildFeeInfo(
-				ctx,
-				common.BytesToAddress(key),
-				sdk.AccAddress(value),
-			)
-			fees = append(fees, fee)
-			return nil
-		},
-	)
+	pageRes, err := query.Paginate(store, req.Pagination, func(key, value []byte) error {
+		var fee types.Fee
+		if err := k.cdc.Unmarshal(value, &fee); err != nil {
+			return err
+		}
+		fees = append(fees, fee)
+		return nil
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -136,16 +131,13 @@ func (k Keeper) DeployerFees(
 		types.GetKeyPrefixDeployerFees(deployer),
 	)
 
-	pageRes, err := query.Paginate(
-		store,
-		req.Pagination,
-		func(key, value []byte) error {
-			fee, found := k.GetFee(ctx, common.BytesToAddress(key))
-			if found {
-				fees = append(fees, fee)
-			}
-			return nil
-		},
+	pageRes, err := query.Paginate(store, req.Pagination, func(key, _ []byte) error {
+		fee, found := k.GetFee(ctx, common.BytesToAddress(key))
+		if found {
+			fees = append(fees, fee)
+		}
+		return nil
+	},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
