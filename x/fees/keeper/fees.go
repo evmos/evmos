@@ -77,8 +77,8 @@ func (k Keeper) DeleteFee(ctx sdk.Context, fee types.Fee) {
 	store.Delete(key.Bytes())
 
 	contract := common.HexToAddress(fee.ContractAddress)
-	deployer := common.HexToAddress(fee.DeployerAddress)
-	withdraw := common.HexToAddress(fee.WithdrawAddress)
+	deployer := sdk.MustAccAddressFromBech32(fee.DeployerAddress)
+	withdraw := sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
 	k.DeleteDeployerMap(ctx, deployer, contract)
 	k.DeleteWithdrawMap(ctx, withdraw, contract)
 }
@@ -86,7 +86,8 @@ func (k Keeper) DeleteFee(ctx sdk.Context, fee types.Fee) {
 // SetDeployerMap stores a fee contract by deployer mapping
 func (k Keeper) SetDeployerMap(
 	ctx sdk.Context,
-	deployer, contract common.Address,
+	deployer sdk.AccAddress,
+	contract common.Address,
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
@@ -96,7 +97,8 @@ func (k Keeper) SetDeployerMap(
 // DeleteDeployerMap deletes a fee contract by deployer mapping
 func (k Keeper) DeleteDeployerMap(
 	ctx sdk.Context,
-	deployer, contract common.Address,
+	deployer sdk.AccAddress,
+	contract common.Address,
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
@@ -106,7 +108,8 @@ func (k Keeper) DeleteDeployerMap(
 // SetWithdrawMap stores a fee contract by withdraw address mapping
 func (k Keeper) SetWithdrawMap(
 	ctx sdk.Context,
-	withdraw, contract common.Address,
+	withdraw sdk.AccAddress,
+	contract common.Address,
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
 	key := append(withdraw.Bytes(), contract.Bytes()...)
@@ -116,7 +119,8 @@ func (k Keeper) SetWithdrawMap(
 // DeleteWithdrawMap deletes a fee contract by withdraw address mapping
 func (k Keeper) DeleteWithdrawMap(
 	ctx sdk.Context,
-	withdraw, contract common.Address,
+	withdraw sdk.AccAddress,
+	contract common.Address,
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
 	key := append(withdraw.Bytes(), contract.Bytes()...)
@@ -216,7 +220,7 @@ func (k Keeper) GetDeployerFees(ctx sdk.Context, deployerAddress sdk.AccAddress)
 // func (k Keeper) IsDeployerFeesRegistered(
 // 	ctx sdk.Context,
 // 	deployerAddress sdk.AccAddress,
-// 	contractAddress common.Address,
+// 	contractAddress common.Address,a
 // ) bool {
 // 	store := prefix.NewStore(
 // 		ctx.KVStore(k.storeKey),

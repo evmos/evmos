@@ -87,8 +87,11 @@ func (k Keeper) RegisterFee(
 		)
 	}
 
-	k.SetFee(ctx, contract, deployer, withdrawal)
-	k.SetDeployerFees(ctx, deployer, contract)
+	fee := types.NewFee(contract, deployer, withdrawal)
+	k.SetFee(ctx, fee)
+	k.SetDeployerMap(ctx, deployer, contract)
+	// TODO think about how to best deal with optional Withdraw address
+	k.SetWithdrawMap(ctx, withdrawal, contract)
 
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
@@ -122,22 +125,27 @@ func (k Keeper) UpdateFee(
 		return nil, types.ErrFeesDisabled
 	}
 
-	contractAddress := common.HexToAddress(msg.ContractAddress)
-	deployerAddress, found := k.GetDeployer(ctx, contractAddress)
+	contract := common.HexToAddress(msg.ContractAddress)
+	fee, found := k.GetFee(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesContractNotRegistered, "contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
-	if msg.DeployerAddress != deployerAddress.String() {
+	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesDeployerIsNotEOA, "%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
 
-	withdrawalAddress := sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
-	k.SetWithdrawal(ctx, contractAddress, withdrawalAddress)
+	fee.WithdrawAddress = msg.WithdrawAddress
+	k.SetFee(ctx, fee)
+	k.SetWithdrawMap(
+		ctx,
+		sdk.MustAccAddressFromBech32(msg.WithdrawAddress),
+		contract,
+	)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -165,22 +173,23 @@ func (k Keeper) CancelFee(
 		return nil, types.ErrFeesDisabled
 	}
 
-	contractAddress := common.HexToAddress(msg.ContractAddress)
-	deployerAddress, found := k.GetDeployer(ctx, contractAddress)
+	contract := common.HexToAddress(msg.ContractAddress)
+	fee, found := k.GetFee(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesContractNotRegistered, "contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
-	if msg.DeployerAddress != deployerAddress.String() {
+	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
 
-	k.DeleteFee(ctx, contractAddress)
-	k.DeleteDeployerFees(ctx, deployerAddress, contractAddress)
+	k.DeleteFee(ctx, fee)
+	k.DeleteDeployerMap(ctx, sdk.MustAccAddressFromBech32(fee.DeployerAddress), contract)
+	k.DeleteWithdrawMap(ctx, sdk.MustAccAddressFromBech32(fee.WithdrawAddress), contract)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
