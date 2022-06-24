@@ -74,7 +74,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *eth
 				float32(developerFee.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("sender", msg.From().String()),
-					telemetry.NewLabel("withdrawer", withdrawAddr),
+					telemetry.NewLabel("withdraw_address", withdrawAddr),
 					telemetry.NewLabel("contract", fee.ContractAddress),
 				},
 			)
@@ -88,6 +88,7 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *eth
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.From().String()),
 				sdk.NewAttribute(types.AttributeKeyContract, contract.String()),
 				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawAddr),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, developerFee.String()),
 			),
 		},
 	)

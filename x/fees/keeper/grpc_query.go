@@ -161,7 +161,7 @@ func (k Keeper) WithdrawFees(
 	if strings.TrimSpace(req.WithdrawAddress) == "" {
 		return nil, status.Error(
 			codes.InvalidArgument,
-			"deployer address is empty",
+			"withdraw address is empty",
 		)
 	}
 

@@ -179,6 +179,10 @@ func (suite *KeeperTestSuite) TestGetFee() {
 
 			if tc.found {
 				fee := types.NewFee(tc.contract, tc.deployer, tc.withdraw)
+				if tc.deployer.Equals(tc.withdraw) {
+					fee.WithdrawAddress = ""
+				}
+
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee)
 				suite.app.FeesKeeper.SetDeployerMap(suite.ctx, tc.deployer, tc.contract)
 			}
@@ -213,7 +217,6 @@ func (suite *KeeperTestSuite) TestGetFee() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteFee() {
-	// Register fee
 	fee := types.NewFee(contract, deployer, withdraw)
 	suite.app.FeesKeeper.SetFee(suite.ctx, fee)
 
@@ -299,6 +302,31 @@ func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
 	for _, tc := range testCases {
 		tc.malleate()
 		found := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, withdraw, contract)
+		if tc.ok {
+			suite.Require().True(found, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestIsFeeRegistered() {
+	fee := types.NewFee(contract, deployer, withdraw)
+	suite.app.FeesKeeper.SetFee(suite.ctx, fee)
+	_, found := suite.app.FeesKeeper.GetFee(suite.ctx, contract)
+	suite.Require().True(found)
+
+	testCases := []struct {
+		name     string
+		contract common.Address
+		ok       bool
+	}{
+		{"registered fee", contract, true},
+		{"fee not registered", common.Address{}, false},
+		{"fee not registered", tests.GenerateAddress(), false},
+	}
+	for _, tc := range testCases {
+		found := suite.app.FeesKeeper.IsFeeRegistered(suite.ctx, tc.contract)
 		if tc.ok {
 			suite.Require().True(found, tc.name)
 		} else {

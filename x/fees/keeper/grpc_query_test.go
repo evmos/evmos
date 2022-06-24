@@ -308,8 +308,6 @@ func (suite *KeeperTestSuite) TestDeployerFeesKeeper() {
 	suite.Require().Nil(res)
 }
 
-// TODO TestWithdrawFees
-
 func (suite *KeeperTestSuite) TestWithdrawFees() {
 	var (
 		req    *types.QueryWithdrawFeesRequest

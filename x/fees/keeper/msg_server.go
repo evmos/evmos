@@ -28,7 +28,7 @@ func (k Keeper) RegisterFee(
 
 	contract := common.HexToAddress(msg.ContractAddress)
 
-	if _, found := k.GetFee(ctx, contract); found {
+	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesAlreadyRegistered, "contract is already registered %s", contract,
 		)
@@ -49,7 +49,7 @@ func (k Keeper) RegisterFee(
 	}
 
 	var withdrawal sdk.AccAddress
-	if msg.WithdrawAddress != "" {
+	if msg.WithdrawAddress != "" && msg.WithdrawAddress != msg.DeployerAddress {
 		withdrawal = sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
 	}
 
@@ -87,11 +87,13 @@ func (k Keeper) RegisterFee(
 		)
 	}
 
+	// prevent storing the same address for deployer and withdrawer
 	fee := types.NewFee(contract, deployer, withdrawal)
 	k.SetFee(ctx, fee)
 	k.SetDeployerMap(ctx, deployer, contract)
-
-	k.SetWithdrawMap(ctx, withdrawal, contract)
+	if !withdrawal.Empty() {
+		k.SetWithdrawMap(ctx, withdrawal, contract)
+	}
 
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
@@ -135,17 +137,25 @@ func (k Keeper) UpdateFee(
 
 	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
-			types.ErrFeesDeployerIsNotEOA, "%s is not the contract deployer", msg.DeployerAddress,
+			sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
 
-	fee.WithdrawAddress = msg.WithdrawAddress
-	k.SetFee(ctx, fee)
-	k.SetWithdrawMap(
-		ctx,
-		sdk.MustAccAddressFromBech32(msg.WithdrawAddress),
-		contract,
-	)
+	// only write new withdraw address to store, if not empty or the same as
+	// deployer
+	if msg.WithdrawAddress != "" && msg.WithdrawAddress != msg.DeployerAddress {
+		fee.WithdrawAddress = msg.WithdrawAddress
+		k.SetFee(ctx, fee)
+		k.SetWithdrawMap(
+			ctx,
+			sdk.MustAccAddressFromBech32(msg.WithdrawAddress),
+			contract,
+		)
+	} else {
+		k.DeleteWithdrawMap(ctx, sdk.MustAccAddressFromBech32(fee.WithdrawAddress), contract)
+		fee.WithdrawAddress = ""
+		k.SetFee(ctx, fee)
+	}
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

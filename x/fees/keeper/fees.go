@@ -64,12 +64,6 @@ func (k Keeper) GetFee(
 
 // SetFee stores the Fee for a registered contract.
 func (k Keeper) SetFee(ctx sdk.Context, fee types.Fee) {
-	// TODO move this check out of `SetFee`?
-	// prevent storing the same address for deployer and withdrawer
-	if fee.DeployerAddress == fee.WithdrawAddress {
-		fee.WithdrawAddress = ""
-	}
-
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 	key := common.HexToAddress(fee.ContractAddress)
 	bz := k.cdc.MustMarshal(&fee)
@@ -94,7 +88,7 @@ func (k Keeper) SetDeployerMap(
 	store.Set(key, []byte{1})
 }
 
-// deleteDeployerMap deletes a fee contract by deployer mapping
+// DeleteDeployerMap deletes a fee contract by deployer mapping
 func (k Keeper) DeleteDeployerMap(
 	ctx sdk.Context,
 	deployer sdk.AccAddress,
@@ -125,6 +119,15 @@ func (k Keeper) DeleteWithdrawMap(
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
 	key := append(withdraw.Bytes(), contract.Bytes()...)
 	store.Delete(key)
+}
+
+// IsFeeRegistered checks if a contract was registered for receiving fees
+func (k Keeper) IsFeeRegistered(
+	ctx sdk.Context,
+	contract common.Address,
+) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
+	return store.Has(contract.Bytes())
 }
 
 // IsDeployerMapSet checks if a fee contract by deployer address mapping is set
