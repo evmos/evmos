@@ -28,17 +28,18 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryFee(),
 		GetCmdQueryParams(),
 		GetCmdQueryDeployerFees(),
+		GetCmdQueryWithdrawFees(),
 	)
 
 	return feesQueryCmd
 }
 
-// GetCmdQueryFees implements a command to return all registered
-// contracts for fee distribution
+// GetCmdQueryFees implements a command to return all registered contracts for
+// fee distribution
 func GetCmdQueryFees() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fee-infos",
-		Short: "Query  all registered contracts for fee distribution",
+		Use:   "fees",
+		Short: "Query all fees",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -70,15 +71,15 @@ func GetCmdQueryFees() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryFee implements a command to return a registered contract
-// for fee distribution
+// GetCmdQueryFee implements a command to return a registered contract for fee
+// distribution
 func GetCmdQueryFee() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-info [address]",
+		Use:     "fee [address]",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query a registered contract for fee distribution by hex address",
 		Long:    "Query a registered contract for fee distribution by hex address",
-		Example: fmt.Sprintf("%s query fees fee-info <address>", version.AppName),
+		Example: fmt.Sprintf("%s query fees fee <address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -132,15 +133,15 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryDeployerFees implements a command that returns all
-// contracts that a deployer has registered for fee distribution
+// GetCmdQueryDeployerFees implements a command that returns all contracts that
+// a deployer has registered for fee distribution
 func GetCmdQueryDeployerFees() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-infos-deployer [address]",
+		Use:     "fees-deployer [address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query all contracts that a deployer has registered.",
-		Long:    "Query all contracts that a deployer has registered for fee distribution.",
-		Example: fmt.Sprintf("%s query fees fee-infos-deployer <address>", version.AppName),
+		Short:   "Query all fees that a deployer has registered",
+		Long:    "Query all fees that a deployer has registered for fee distribution.",
+		Example: fmt.Sprintf("%s query fees fees-deployer <address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -157,6 +158,44 @@ func GetCmdQueryDeployerFees() *cobra.Command {
 			// Query store
 			res, err := queryClient.DeployerFees(context.Background(), &types.QueryDeployerFeesRequest{
 				DeployerAddress: args[0],
+				Pagination:      pageReq,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetCmdQueryWithdrawFees implements a command that returns all fees that have
+// registered for fee fdistribution with a given withdraw address
+func GetCmdQueryWithdrawFees() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "fees-withdraw [address]",
+		Args:    cobra.ExactArgs(1),
+		Short:   "Query all fees for a given withdraw address.",
+		Long:    "Query all fees for a given withdraw address that have been registered for fee distribution.",
+		Example: fmt.Sprintf("%s query fees fees-withdraw <address>", version.AppName),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			// Query store
+			res, err := queryClient.WithdrawFees(context.Background(), &types.QueryWithdrawFeesRequest{
+				WithdrawAddress: args[0],
 				Pagination:      pageReq,
 			})
 			if err != nil {

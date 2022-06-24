@@ -28,7 +28,7 @@ The `WithdrawAddress` is the address that receives transaction fees for a regist
 
 ## Genesis State
 
-The `x/fees` module's `GenesisState` defines the state necessary for initializing the chain from a previous exported height. It contains the module parameters and the fee information for registered contracts:
+The `x/fees` module's `GenesisState` defines the state necessary for initializing the chain from a previous exported height. It contains the module parameters and the fee for registered contracts:
 
 ```go
 // GenesisState defines the module's genesis state.

@@ -18,7 +18,7 @@ A developer registers a contract for receiving transaction fees, defining the co
     4. an account corresponding to the contract address exists, with a non-empty bytecode
     5. contract address can be derived from the deployer’s address and provided nonces using the `CREATE` operation
     6. contract is already deployed
-3. Store an instance of the provided fee information.
+3. Store an instance of the provided fee.
 
 All transactions sent to the registered contract occurring after registration will have their fees distributed to the developer, according to the global `DeveloperShares` parameter.
 
@@ -31,7 +31,7 @@ A developer updates the withdraw address for a registered contract, defining the
     1. `x/fees` module is enabled
     2. the contract is registered
     3. the signer of the transaction is the same as the contract deployer
-3. Update the fee information with the new withdraw address
+3. Update the fee with the new withdraw address
 
 After this update, the developer receives the fees on the new withdraw address.
 
@@ -44,6 +44,6 @@ A developer cancels receiving fees for a registered contract, defining the contr
     1. `x/fees` module is enabled
     2. the contract is registered
     3. the signer of the transaction is the same as the contract deployer
-3. Remove fee information from storage
+3. Remove fee from storage
 
 The developer no longer receives fees from transactions sent to this contract.

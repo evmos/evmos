@@ -221,7 +221,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateFeeNew() {
 		expectPass bool
 	}{
 		{
-			"msg update fee info - pass",
+			"msg update fee - pass",
 			suite.contract.String(),
 			suite.deployerStr,
 			withdrawStr,

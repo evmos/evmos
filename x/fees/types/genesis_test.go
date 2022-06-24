@@ -49,7 +49,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: true,
 		},
 		{
-			name: "valid genesis - with fee information",
+			name: "valid genesis - with fee",
 			genState: &GenesisState{
 				Params: DefaultParams(),
 				Fees: []Fee{
@@ -72,7 +72,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass:  false,
 		},
 		{
-			name: "invalid genesis - duplicated fee info",
+			name: "invalid genesis - duplicated fee",
 			genState: &GenesisState{
 				Params: DefaultParams(),
 				Fees: []Fee{
@@ -89,7 +89,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: false,
 		},
 		{
-			name: "invalid genesis - duplicated fee info 2",
+			name: "invalid genesis - duplicated fee 2",
 			genState: &GenesisState{
 				Params: DefaultParams(),
 				Fees: []Fee{
