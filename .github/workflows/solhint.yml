@@ -10,9 +10,8 @@ jobs:
     name: runner / solhint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: solhint
-        uses: contractshark/inject-solhint-ci@1.0.0+0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          solhint_input: 'contracts/**/*.sol'
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm install -g solhint
+      - run: solhint --version
+      - run: solhint 'contracts/**/*.sol'
