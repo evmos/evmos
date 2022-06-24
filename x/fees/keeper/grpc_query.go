@@ -147,3 +147,52 @@ func (k Keeper) DeployerFees(
 		Pagination: pageRes,
 	}, nil
 }
+
+// WithdrawFees returns all fees for a given withdraw address
+func (k Keeper) WithdrawFees(
+	c context.Context,
+	req *types.QueryWithdrawFeesRequest,
+) (*types.QueryWithdrawFeesResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if strings.TrimSpace(req.WithdrawAddress) == "" {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"deployer address is empty",
+		)
+	}
+
+	deployer, err := sdk.AccAddressFromBech32(req.WithdrawAddress)
+	if err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"invalid format for withdraw addr %s, should be bech32 ('evmos...')", req.WithdrawAddress,
+		)
+	}
+
+	var fees []types.Fee
+	store := prefix.NewStore(
+		ctx.KVStore(k.storeKey),
+		types.GetKeyPrefixWithdrawFees(deployer),
+	)
+
+	pageRes, err := query.Paginate(store, req.Pagination, func(key, _ []byte) error {
+		fee, found := k.GetFee(ctx, common.BytesToAddress(key))
+		if found {
+			fees = append(fees, fee)
+		}
+		return nil
+	},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &types.QueryWithdrawFeesResponse{
+		Fees:       fees,
+		Pagination: pageRes,
+	}, nil
+}

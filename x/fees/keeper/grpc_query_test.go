@@ -309,6 +309,8 @@ func (suite *KeeperTestSuite) TestDeployerFeesKeeper() {
 	suite.Require().Nil(res)
 }
 
+// TODO TestWithdrawFees
+
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	expParams := types.DefaultParams()

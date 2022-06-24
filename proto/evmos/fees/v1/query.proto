@@ -11,13 +11,12 @@ option go_package = "github.com/evmos/evmos/v5/x/fees/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Fees retrieves all registered contracts for fee distribution
+  // Fees retrieves all registered fees
   rpc Fees(QueryFeesRequest) returns (QueryFeesResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees";
   }
 
-  // Fee retrieves a registered contract for fee distribution for a given
-  // address
+  // Fee retrieves a registered fee for a given contract address
   rpc Fee(QueryFeeRequest) returns (QueryFeeResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees/{contract_address}";
   }
@@ -27,11 +26,16 @@ service Query {
     option (google.api.http).get = "/evmos/fees/v1/params";
   }
 
-  // DeployerFees retrieves all contracts that a given deployer has registered
-  // for fee distribution
+  // DeployerFees retrieves all fees that a given deployer has registered
   rpc DeployerFees(QueryDeployerFeesRequest)
       returns (QueryDeployerFeesResponse) {
     option (google.api.http).get = "/evmos/fees/v1/fees/{deployer_address}";
+  }
+
+  // WithdrawFees retrieves all fees with a given withdraw address
+  rpc WithdrawFees(QueryWithdrawFeesRequest)
+      returns (QueryWithdrawFeesResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/fees/{withdraw_address}";
   }
 }
 
@@ -79,6 +83,24 @@ message QueryDeployerFeesRequest {
 // QueryDeployerFeesResponse is the response type for the Query/DeployerFees RPC
 // method.
 message QueryDeployerFeesResponse {
+  repeated Fee fees = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+
+// QueryWithdrawFeesRequest is the request type for the Query/WithdrawFees RPC
+// method.
+message QueryWithdrawFeesRequest {
+  // withdraw bech32 address
+  string withdraw_address = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryWithdrawFeesResponse is the response type for the Query/WithdrawFees RPC
+// method.
+message QueryWithdrawFeesResponse {
   repeated Fee fees = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;

@@ -85,6 +85,8 @@
     - [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse)
     - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
+    - [QueryWithdrawFeesRequest](#evmos.fees.v1.QueryWithdrawFeesRequest)
+    - [QueryWithdrawFeesResponse](#evmos.fees.v1.QueryWithdrawFeesResponse)
   
     - [Query](#evmos.fees.v1.Query)
   
@@ -1165,6 +1167,40 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
 
 
+
+<a name="evmos.fees.v1.QueryWithdrawFeesRequest"></a>
+
+### QueryWithdrawFeesRequest
+QueryWithdrawFeesRequest is the request type for the Query/WithdrawFees RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `withdraw_address` | [string](#string) |  | withdraw bech32 address |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.fees.v1.QueryWithdrawFeesResponse"></a>
+
+### QueryWithdrawFeesResponse
+QueryWithdrawFeesResponse is the response type for the Query/WithdrawFees RPC
+method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -1179,10 +1215,11 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Fees` | [QueryFeesRequest](#evmos.fees.v1.QueryFeesRequest) | [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse) | Fees retrieves all registered contracts for fee distribution | GET|/evmos/fees/v1/fees|
-| `Fee` | [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest) | [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse) | Fee retrieves a registered contract for fee distribution for a given address | GET|/evmos/fees/v1/fees/{contract_address}|
+| `Fees` | [QueryFeesRequest](#evmos.fees.v1.QueryFeesRequest) | [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse) | Fees retrieves all registered fees | GET|/evmos/fees/v1/fees|
+| `Fee` | [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest) | [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse) | Fee retrieves a registered fee for a given contract address | GET|/evmos/fees/v1/fees/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
-| `DeployerFees` | [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest) | [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse) | DeployerFees retrieves all contracts that a given deployer has registered for fee distribution | GET|/evmos/fees/v1/fees/{deployer_address}|
+| `DeployerFees` | [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest) | [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse) | DeployerFees retrieves all fees that a given deployer has registered | GET|/evmos/fees/v1/fees/{deployer_address}|
+| `WithdrawFees` | [QueryWithdrawFeesRequest](#evmos.fees.v1.QueryWithdrawFeesRequest) | [QueryWithdrawFeesResponse](#evmos.fees.v1.QueryWithdrawFeesResponse) | WithdrawFees retrieves all fees with a given withdraw address | GET|/evmos/fees/v1/fees/{withdraw_address}|
 
  <!-- end services -->
 
@@ -1291,8 +1328,8 @@ Msg defines the fees Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterFee` | [MsgRegisterFee](#evmos.fees.v1.MsgRegisterFee) | [MsgRegisterFeeResponse](#evmos.fees.v1.MsgRegisterFeeResponse) | RegisterFee registers a new contract for receiving transaction fees | POST|/evmos/fees/v1/tx/register_fee|
-| `CancelFee` | [MsgCancelFee](#evmos.fees.v1.MsgCancelFee) | [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse) | CancelFee cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/fees/v1/tx/cancel_fee|
 | `UpdateFee` | [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee) | [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse) | UpdateFee updates the withdraw address | POST|/evmos/fees/v1/tx/update_fee|
+| `CancelFee` | [MsgCancelFee](#evmos.fees.v1.MsgCancelFee) | [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse) | CancelFee cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/fees/v1/tx/cancel_fee|
 
  <!-- end services -->
 

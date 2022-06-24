@@ -15,11 +15,11 @@ service Msg {
   // UpdateFee updates the withdraw address
   rpc UpdateFee(MsgUpdateFee) returns (MsgUpdateFeeResponse) {
     option (google.api.http).post = "/evmos/fees/v1/tx/update_fee";
+  };
   // CancelFee cancels a contract's fee registration and further receival of
   // transaction fees
   rpc CancelFee(MsgCancelFee) returns (MsgCancelFeeResponse) {
     option (google.api.http).post = "/evmos/fees/v1/tx/cancel_fee";
-  };
   };
 }
 
