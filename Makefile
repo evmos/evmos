@@ -431,6 +431,7 @@ lint-fix-contracts:
 	@cd contracts && \
 	npm i && \
 	npm run lint-fix
+	solhint --fix **/*.sol
 
 .PHONY: lint lint-fix
 
