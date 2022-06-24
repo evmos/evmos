@@ -11,7 +11,7 @@ Below, it's detailed how to backup your wallet with [evmosd](../../validators/qu
 When you create a new key, you'll recieve a mnemonic phrase that can be used to restore that key. Backup the mnemonic phrase:
 
 ```bash
-$ evmosd keys add mykey
+evmosd keys add mykey
 {
   "name": "mykey",
   "type": "local",
@@ -23,7 +23,7 @@ $ evmosd keys add mykey
 **Important** write this mnemonic phrase in a safe place.
 It is the only way to recover your account if you ever forget your password.
 
-banner genuine height east ghost oak toward reflect asset marble else explain foster car nest make van divide twice culture announce shuffle net peanut
+# <24 word mnemonic phrase>
 ```
 
 To restore the key:
@@ -61,7 +61,7 @@ $ evmosd keys list
 To backup a local key without the mnemonic phrase, do the following:
 
 ```bash
-$ evmosd keys export mykey
+evmosd keys export mykey
 Enter passphrase to decrypt your key:
 Enter passphrase to encrypt the exported key:
 -----BEGIN TENDERMINT PRIVATE KEY-----
@@ -91,7 +91,11 @@ To restore the key:
 ```bash
 $ evmosd keys import mykey-imported ./mykey.export
 Enter passphrase to decrypt your key:
+```
 
+Verify that your key has been restored using the following command:
+
+```bash
 $ evmosd keys list
 [
   {

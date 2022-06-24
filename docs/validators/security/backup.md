@@ -4,6 +4,8 @@ order: 5
 
 # Validator Backup
 
+## Synopsis
+
 It is ***crucial*** to backup your validator's private key. It's the only way to restore your validator in the event of a disaster.
 
 The validator private key is a Tendermint Key: a unique key used to sign consensus votes.

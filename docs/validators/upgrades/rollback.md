@@ -4,6 +4,8 @@ order: 5
 
 # Rollback
 
+## Synopsis
+
 In the case that a chain upgrade is unsuccessful, it may be necessary to rollback the chain version.
 
 In order to restore the previous chain, the following data must be recovered by validators:
@@ -29,7 +31,7 @@ mv backup/.evmosd/data ~/.evmosd/data
 
 ```bash
 # from evmos directory
-git checkout v4.0.1
+git checkout <prev_version>
 make install
 ## verify version
 evmosd version --long
