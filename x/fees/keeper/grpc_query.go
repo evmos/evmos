@@ -137,8 +137,7 @@ func (k Keeper) DeployerFees(
 			fees = append(fees, fee)
 		}
 		return nil
-	},
-	)
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -186,8 +185,7 @@ func (k Keeper) WithdrawFees(
 			fees = append(fees, fee)
 		}
 		return nil
-	},
-	)
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
