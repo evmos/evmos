@@ -31,7 +31,7 @@ A developer updates the withdraw address for a registered contract, defining the
     1. `x/fees` module is enabled
     2. the contract is registered
     3. the signer of the transaction is the same as the contract deployer
-3. Update the fee with the new withdraw address
+3. Update the fee with the new withdraw address. Note that if withdraw address is empty or the same as deployer address, then the withdraw address is set to `""`.
 
 After this update, the developer receives the fees on the new withdraw address.
 

@@ -40,13 +40,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### API Breaking
 
 - (all) [\#701](https://github.com/evmos/evmos/pull/703) Rename Go module to `evmos/evmos`
-- (fees) [\#691](https://github.com/evmos/evmos/pull/691) Internal API audit.
 
 ### Improvements
 
 - (deps) [\#714](https://github.com/evmos/evmos/pull/714) Bump Go version to `1.18`.
 - (cmd) [\#696](https://github.com/evmos/evmos/pull/696) Set a custom tendermint node configuration on initialization.
 - (fees) [\#685](https://github.com/evmos/evmos/pull/685) Internal Specification audit.
+- (fees) [\#691](https://github.com/evmos/evmos/pull/691) Internal API audit.
+- (fees) [\#715](https://github.com/evmos/evmos/pull/715) Internal state machine audit.
 
 ## [v5.0.0] - 2022-06-14
 

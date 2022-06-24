@@ -222,3 +222,5 @@ func (suite *KeeperTestSuite) TestRegisterFee() {
 		})
 	}
 }
+
+// TODO Update and Cancel tests
