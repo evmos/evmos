@@ -100,7 +100,6 @@ func (k Keeper) DeleteDeployerMap(
 	deployer sdk.AccAddress,
 	contract common.Address,
 ) {
-
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
 	store.Delete(key)
