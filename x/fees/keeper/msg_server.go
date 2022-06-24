@@ -30,27 +30,30 @@ func (k Keeper) RegisterFee(
 
 	if k.IsFeeRegistered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(
-			types.ErrFeesAlreadyRegistered, "contract is already registered %s", contract,
+			types.ErrFeesAlreadyRegistered,
+			"contract is already registered %s", contract,
 		)
 	}
 
 	deployer := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
-	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
-	if deployerAccount == nil {
+	deployerAcc := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
+	if deployerAcc == nil {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrNotFound, "deployer account not found %s", msg.DeployerAddress,
+			sdkerrors.ErrNotFound,
+			"deployer account not found %s", msg.DeployerAddress,
 		)
 	}
 
-	if deployerAccount.IsContract() {
+	if deployerAcc.IsContract() {
 		return nil, sdkerrors.Wrapf(
-			types.ErrFeesDeployerIsNotEOA, "deployer cannot be a contract %s", msg.DeployerAddress,
+			types.ErrFeesDeployerIsNotEOA,
+			"deployer cannot be a contract %s", msg.DeployerAddress,
 		)
 	}
 
-	var withdrawal sdk.AccAddress
+	var withdraw sdk.AccAddress
 	if msg.WithdrawAddress != "" && msg.WithdrawAddress != msg.DeployerAddress {
-		withdrawal = sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
+		withdraw = sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
 	}
 
 	derivedContractAddr := common.BytesToAddress(deployer)
@@ -83,16 +86,17 @@ func (k Keeper) RegisterFee(
 
 	if contractAccount == nil || !contractAccount.IsContract() {
 		return nil, sdkerrors.Wrapf(
-			types.ErrFeesNoContractDeployed, "no contract code found at address %s", msg.ContractAddress,
+			types.ErrFeesNoContractDeployed,
+			"no contract code found at address %s", msg.ContractAddress,
 		)
 	}
 
 	// prevent storing the same address for deployer and withdrawer
-	fee := types.NewFee(contract, deployer, withdrawal)
+	fee := types.NewFee(contract, deployer, withdraw)
 	k.SetFee(ctx, fee)
 	k.SetDeployerMap(ctx, deployer, contract)
-	if !withdrawal.Empty() {
-		k.SetWithdrawMap(ctx, withdrawal, contract)
+	if !withdraw.Empty() {
+		k.SetWithdrawMap(ctx, withdraw, contract)
 	}
 
 	k.Logger(ctx).Debug(
@@ -115,7 +119,9 @@ func (k Keeper) RegisterFee(
 	return &types.MsgRegisterFeeResponse{}, nil
 }
 
-// UpdateFee updates the withdraw address of a given Fee
+// UpdateFee updates the withdraw address of a given Fee. If the given withdraw
+// address is empty or the same as the deployer address, the withdraw address is
+// removed.
 func (k Keeper) UpdateFee(
 	goCtx context.Context,
 	msg *types.MsgUpdateFee,
@@ -131,18 +137,18 @@ func (k Keeper) UpdateFee(
 	fee, found := k.GetFee(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
-			types.ErrFeesContractNotRegistered, "contract %s is not registered", msg.ContractAddress,
+			types.ErrFeesContractNotRegistered,
+			"contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
 	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress,
+			sdkerrors.ErrUnauthorized,
+			"%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
 
-	// only write new withdraw address to store, if not empty or the same as
-	// deployer
 	if msg.WithdrawAddress != "" && msg.WithdrawAddress != msg.DeployerAddress {
 		fee.WithdrawAddress = msg.WithdrawAddress
 		k.SetFee(ctx, fee)
@@ -171,7 +177,7 @@ func (k Keeper) UpdateFee(
 	return &types.MsgUpdateFeeResponse{}, nil
 }
 
-// CancelFee deletes the Fee for a given contract
+// CancelFee deletes the fee for a given contract
 func (k Keeper) CancelFee(
 	goCtx context.Context,
 	msg *types.MsgCancelFee,
@@ -187,13 +193,15 @@ func (k Keeper) CancelFee(
 	fee, found := k.GetFee(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
-			types.ErrFeesContractNotRegistered, "contract %s is not registered", msg.ContractAddress,
+			types.ErrFeesContractNotRegistered,
+			"contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
 	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized, "%s is not the contract deployer", msg.DeployerAddress,
+			sdkerrors.ErrUnauthorized,
+			"%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
 

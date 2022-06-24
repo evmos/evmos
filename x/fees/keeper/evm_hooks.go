@@ -27,9 +27,14 @@ func (k Keeper) Hooks() Hooks {
 }
 
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
-// interaction with a registered contract, the contract deployer (or if set the
-// withdrawer) receives a share from the transaction fees paid by the user.
-func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+// interaction with a registered contract, the contract deployer (or, if set,
+// the withdraw address) receives a share from the transaction fees paid by the
+// transaction sender.
+func (k Keeper) PostTxProcessing(
+	ctx sdk.Context,
+	msg core.Message,
+	receipt *ethtypes.Receipt,
+) error {
 	// check if the fees are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableFees {
@@ -58,7 +63,12 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *eth
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
 	// distribute the fees to the contract deployer / withdraw address
-	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, k.feeCollectorName, sdk.MustAccAddressFromBech32(withdrawAddr), fees)
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx,
+		k.feeCollectorName,
+		sdk.MustAccAddressFromBech32(withdrawAddr),
+		fees,
+	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			err,
