@@ -188,6 +188,18 @@ func (k Keeper) CancelFee(
 	}
 
 	k.DeleteFee(ctx, fee)
+	k.DeleteDeployerMap(
+		ctx,
+		sdk.MustAccAddressFromBech32(fee.DeployerAddress),
+		contract,
+	)
+	if fee.WithdrawAddress != "" {
+		k.DeleteWithdrawMap(
+			ctx,
+			sdk.MustAccAddressFromBech32(fee.WithdrawAddress),
+			contract,
+		)
+	}
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

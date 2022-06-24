@@ -247,6 +247,66 @@ func (suite *KeeperTestSuite) TestDeleteFee() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestDeleteDeployerMap() {
+	suite.app.FeesKeeper.SetDeployerMap(suite.ctx, deployer, contract)
+	found := suite.app.FeesKeeper.IsDeployerMapSet(suite.ctx, deployer, contract)
+	suite.Require().True(found)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		ok       bool
+	}{
+		{"existing deployer", func() {}, true},
+		{
+			"deleted deployer",
+			func() {
+				suite.app.FeesKeeper.DeleteDeployerMap(suite.ctx, deployer, contract)
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		tc.malleate()
+		found := suite.app.FeesKeeper.IsDeployerMapSet(suite.ctx, deployer, contract)
+		if tc.ok {
+			suite.Require().True(found, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
+	suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract)
+	found := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, withdraw, contract)
+	suite.Require().True(found)
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		ok       bool
+	}{
+		{"existing withdraw", func() {}, true},
+		{
+			"deleted withdraw",
+			func() {
+				suite.app.FeesKeeper.DeleteWithdrawMap(suite.ctx, withdraw, contract)
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		tc.malleate()
+		found := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, withdraw, contract)
+		if tc.ok {
+			suite.Require().True(found, tc.name)
+		} else {
+			suite.Require().False(found, tc.name)
+		}
+	}
+}
+
 // func (suite *KeeperTestSuite) TestGetDeployerFees() {
 // 	suite.app.FeesKeeper.SetDeployerFees(suite.ctx, deployer, contract)
 
