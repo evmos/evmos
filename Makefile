@@ -417,6 +417,7 @@ benchmark:
 
 lint:
 	golangci-lint run --out-format=tab
+	solhint contracts/**/*.sol
 
 lint-contracts:
 	@cd contracts && \
@@ -430,6 +431,7 @@ lint-fix-contracts:
 	@cd contracts && \
 	npm i && \
 	npm run lint-fix
+	solhint --fix contracts/**/*.sol
 
 .PHONY: lint lint-fix
 
