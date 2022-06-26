@@ -107,7 +107,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			msg := types.NewMsgRegisterFee(
 				contractAddress,
 				deployerAddress,
-				deployerAddress,
+				withdraw,
 				[]uint64{1},
 			)
 
@@ -228,7 +228,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should be possible", func() {
-					registerFee(deployerKey, &contractAddress, withdrawAddress, []uint64{nonce})
+					res := registerFee(deployerKey, &contractAddress, withdrawAddress, []uint64{nonce})
+					registerEvent := res.GetEvents()[8]
+					Expect(string(registerEvent.Attributes[2].Value)).ToNot(Equal(deployerAddress.String()))
+					Expect(string(registerEvent.Attributes[2].Value)).To(Equal(withdrawAddress.String()))
 
 					fee, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
@@ -721,7 +724,7 @@ func registerFee(
 	withdrawAddress sdk.AccAddress,
 	nonces []uint64,
 ) abci.ResponseDeliverTx {
-	deployerAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
+	deployerAddress := sdk.AccAddress(priv.PubKey().Address())
 	msg := types.NewMsgRegisterFee(*contractAddress, deployerAddress, withdrawAddress, nonces)
 
 	res := deliverTx(priv, nil, msg)
@@ -732,6 +735,7 @@ func registerFee(
 	Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterFee))
 	Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
 	Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
+	Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawAddress))
 	return res
 }
 

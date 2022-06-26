@@ -17,6 +17,7 @@ type MsgsTestSuite struct {
 	contract    common.Address
 	deployer    sdk.AccAddress
 	deployerStr string
+	withdrawStr string
 }
 
 func TestMsgsTestSuite(t *testing.T) {
@@ -28,6 +29,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	suite.contract = crypto.CreateAddress(deployer, 1)
 	suite.deployer = sdk.AccAddress(deployer.Bytes())
 	suite.deployerStr = suite.deployer.String()
+	suite.withdrawStr = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
 }
 
 func (suite *MsgsTestSuite) TestMsgRegisterFeeGetters() {
@@ -57,7 +59,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			"msg register contract - pass",
 			suite.contract.String(),
 			suite.deployerStr,
-			suite.deployerStr,
+			suite.withdrawStr,
 			[]uint64{1},
 			true,
 		},
@@ -65,15 +67,23 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			"msg register contract empty withdraw - pass",
 			suite.contract.String(),
 			suite.deployerStr,
-			suite.deployerStr,
+			"",
 			[]uint64{1},
 			true,
+		},
+		{
+			"please specify an empty withdraw address",
+			suite.contract.String(),
+			suite.deployerStr,
+			suite.deployerStr,
+			[]uint64{1},
+			false,
 		},
 		{
 			"invalid contract address",
 			"",
 			suite.deployerStr,
-			suite.deployerStr,
+			suite.withdrawStr,
 			[]uint64{1},
 			false,
 		},
@@ -81,7 +91,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			"must not be zero: invalid address",
 			"0x0000000000000000000000000000000000000000",
 			suite.deployerStr,
-			suite.deployerStr,
+			suite.withdrawStr,
 			[]uint64{1},
 			false,
 		},
@@ -89,7 +99,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			"invalid deployer address",
 			suite.contract.String(),
 			"",
-			suite.deployerStr,
+			suite.withdrawStr,
 			[]uint64{1},
 			false,
 		},
@@ -105,7 +115,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			"invalid nonces",
 			suite.contract.String(),
 			suite.deployerStr,
-			suite.deployerStr,
+			suite.withdrawStr,
 			[]uint64{},
 			false,
 		},
@@ -113,7 +123,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			"invalid nonces - array length must be less than 20",
 			suite.contract.String(),
 			suite.deployerStr,
-			suite.deployerStr,
+			suite.withdrawStr,
 			[]uint64{1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 			false,
 		},
@@ -129,9 +139,9 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
-			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
+			suite.Require().NoError(err, "valid test %d failed: %s", i, tc.msg)
 		} else {
-			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
+			suite.Require().Error(err, "invalid test %d passed: %s", i, tc.msg)
 			suite.Require().Contains(err.Error(), tc.msg)
 		}
 	}

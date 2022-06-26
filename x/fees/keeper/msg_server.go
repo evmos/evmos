@@ -97,14 +97,18 @@ func (k Keeper) RegisterFee(
 	k.SetDeployerMap(ctx, deployer, contract)
 
 	// NOTE: only set withdraw map if address is not empty
+
+	withdrawAddr := msg.DeployerAddress
+
 	if len(withdraw) != 0 {
 		k.SetWithdrawMap(ctx, withdraw, contract)
+		withdrawAddr = msg.WithdrawAddress
 	}
 
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
 		"contract", msg.ContractAddress, "deployer", msg.DeployerAddress,
-		"withdraw", msg.WithdrawAddress,
+		"withdraw", withdrawAddr,
 	)
 
 	ctx.EventManager().EmitEvents(
@@ -113,7 +117,7 @@ func (k Keeper) RegisterFee(
 				types.EventTypeRegisterFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
+				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawAddr),
 			),
 		},
 	)

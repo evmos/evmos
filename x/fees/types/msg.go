@@ -27,7 +27,7 @@ func NewMsgRegisterFee(
 	nonces []uint64,
 ) *MsgRegisterFee {
 	var withdrawAddr string
-	if withdrawal == nil {
+	if withdrawal != nil {
 		withdrawAddr = withdrawal.String()
 	}
 
@@ -55,10 +55,12 @@ func (msg MsgRegisterFee) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
-	// WithdrawAddress can be omitted and it will default to DeployerAddress
 	if msg.WithdrawAddress != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-			return sdkerrors.Wrapf(err, "invalid withdraw address address %s", msg.WithdrawAddress)
+			return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawAddress)
+		}
+		if msg.DeployerAddress == msg.WithdrawAddress {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "please specify an empty withdraw address instead of setting the deployer address")
 		}
 	}
 
