@@ -8,11 +8,37 @@ import (
 
 // NewFee returns an instance of Fee
 func NewFee(contract common.Address, deployer, withdraw sdk.AccAddress) Fee {
+	var withdrawAddr string
+	if len(withdraw) > 0 {
+		withdrawAddr = withdraw.String()
+	}
+
 	return Fee{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
-		WithdrawAddress: withdraw.String(),
+		WithdrawAddress: withdrawAddr,
 	}
+}
+
+// GetContractAddr returns the contract address
+func (f Fee) GetContractAddr() common.Address {
+	return common.HexToAddress(f.ContractAddress)
+}
+
+// GetDeployerAddr returns the contract deployer address
+func (f Fee) GetDeployerAddr() sdk.AccAddress {
+	return sdk.MustAccAddressFromBech32(f.DeployerAddress)
+}
+
+// GetWithdrawAddr returns the account address to where the funds proceeding
+// from the fees will be received. If the withdraw address is not defined, it
+// defaults to the deployer address.
+func (f Fee) GetWithdrawAddr() sdk.AccAddress {
+	if f.WithdrawAddress != "" {
+		return sdk.MustAccAddressFromBech32(f.WithdrawAddress)
+	}
+
+	return sdk.MustAccAddressFromBech32(f.DeployerAddress)
 }
 
 // Validate performs a stateless validation of a Fee

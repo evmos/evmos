@@ -95,7 +95,9 @@ func (k Keeper) RegisterFee(
 	fee := types.NewFee(contract, deployer, withdraw)
 	k.SetFee(ctx, fee)
 	k.SetDeployerMap(ctx, deployer, contract)
-	if !withdraw.Empty() {
+
+	// NOTE: only set withdraw map if address is not empty
+	if len(withdraw) != 0 {
 		k.SetWithdrawMap(ctx, withdraw, contract)
 	}
 
@@ -142,6 +144,7 @@ func (k Keeper) UpdateFee(
 		)
 	}
 
+	// error if the msg deployer address is not the same as the fee's deployer
 	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrUnauthorized,
@@ -149,19 +152,21 @@ func (k Keeper) UpdateFee(
 		)
 	}
 
-	if msg.WithdrawAddress != "" && msg.WithdrawAddress != msg.DeployerAddress {
-		fee.WithdrawAddress = msg.WithdrawAddress
-		k.SetFee(ctx, fee)
-		k.SetWithdrawMap(
-			ctx,
-			sdk.MustAccAddressFromBech32(msg.WithdrawAddress),
-			contract,
+	// fees with the given withdraw address is already registered
+	if msg.WithdrawAddress == fee.WithdrawAddress {
+		return nil, sdkerrors.Wrapf(
+			types.ErrFeesAlreadyRegistered,
+			"fee with withdraw address %s", msg.WithdrawAddress,
 		)
-	} else {
-		k.DeleteWithdrawMap(ctx, sdk.MustAccAddressFromBech32(fee.WithdrawAddress), contract)
-		fee.WithdrawAddress = ""
-		k.SetFee(ctx, fee)
 	}
+
+	fee.WithdrawAddress = msg.WithdrawAddress
+	k.SetFee(ctx, fee)
+	k.SetWithdrawMap(
+		ctx,
+		fee.GetWithdrawAddr(),
+		contract,
+	)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -190,6 +195,7 @@ func (k Keeper) CancelFee(
 	}
 
 	contract := common.HexToAddress(msg.ContractAddress)
+
 	fee, found := k.GetFee(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
@@ -208,13 +214,14 @@ func (k Keeper) CancelFee(
 	k.DeleteFee(ctx, fee)
 	k.DeleteDeployerMap(
 		ctx,
-		sdk.MustAccAddressFromBech32(fee.DeployerAddress),
+		fee.GetDeployerAddr(),
 		contract,
 	)
+
 	if fee.WithdrawAddress != "" {
 		k.DeleteWithdrawMap(
 			ctx,
-			sdk.MustAccAddressFromBech32(fee.WithdrawAddress),
+			fee.GetWithdrawAddr(),
 			contract,
 		)
 	}

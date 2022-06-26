@@ -17,20 +17,22 @@ func InitGenesis(
 	k.SetParams(ctx, data.Params)
 
 	for _, fee := range data.Fees {
+		var withdrawal sdk.AccAddress
+
 		// prevent storing the same address for deployer and withdrawer
-		if fee.DeployerAddress == fee.WithdrawAddress {
-			fee.WithdrawAddress = ""
+		if fee.DeployerAddress != fee.WithdrawAddress {
+			withdrawal = sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
 		}
 
 		contract := common.HexToAddress(fee.ContractAddress)
 		deployer := sdk.MustAccAddressFromBech32(fee.DeployerAddress)
-		withdrawal := sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
 
 		// Set initial contracts receiving transaction fees
 		fee := types.NewFee(contract, deployer, withdrawal)
 		k.SetFee(ctx, fee)
 		k.SetDeployerMap(ctx, deployer, contract)
-		if withdrawal != nil {
+
+		if len(withdrawal) != 0 {
 			k.SetWithdrawMap(ctx, withdrawal, contract)
 		}
 	}

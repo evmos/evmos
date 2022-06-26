@@ -52,10 +52,7 @@ func (k Keeper) PostTxProcessing(
 		return nil
 	}
 
-	withdrawAddr := fee.WithdrawAddress
-	if withdrawAddr == "" {
-		withdrawAddr = fee.DeployerAddress
-	}
+	withdrawal := fee.GetWithdrawAddr()
 
 	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
 	developerFee := txFee.ToDec().Mul(params.DeveloperShares).TruncateInt()
@@ -66,14 +63,14 @@ func (k Keeper) PostTxProcessing(
 	err := k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		k.feeCollectorName,
-		sdk.MustAccAddressFromBech32(withdrawAddr),
+		withdrawal,
 		fees,
 	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			err,
 			"fee collector account failed to distribute developer fees (%s) to withdraw address %s. contract %s",
-			fees, withdrawAddr, contract,
+			fees, withdrawal, contract,
 		)
 	}
 
@@ -84,7 +81,7 @@ func (k Keeper) PostTxProcessing(
 				float32(developerFee.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("sender", msg.From().String()),
-					telemetry.NewLabel("withdraw_address", withdrawAddr),
+					telemetry.NewLabel("withdraw_address", withdrawal.String()),
 					telemetry.NewLabel("contract", fee.ContractAddress),
 				},
 			)
@@ -97,7 +94,7 @@ func (k Keeper) PostTxProcessing(
 				types.EventTypeDistributeDevFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.From().String()),
 				sdk.NewAttribute(types.AttributeKeyContract, contract.String()),
-				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawAddr),
+				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawal.String()),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, developerFee.String()),
 			),
 		},

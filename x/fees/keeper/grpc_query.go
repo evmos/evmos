@@ -32,7 +32,7 @@ func (k Keeper) Fees(
 	var fees []types.Fee
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFee)
 
-	pageRes, err := query.Paginate(store, req.Pagination, func(key, value []byte) error {
+	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
 		var fee types.Fee
 		if err := k.cdc.Unmarshal(value, &fee); err != nil {
 			return err
@@ -100,7 +100,7 @@ func (k Keeper) Params(
 
 // DeployerFees returns all Fees that have been registered for fee distribution
 // by a given deployer
-func (k Keeper) DeployerFees(
+func (k Keeper) DeployerFees( // nolint: dupl
 	c context.Context,
 	req *types.QueryDeployerFeesRequest,
 ) (*types.QueryDeployerFeesResponse, error) {
@@ -125,6 +125,7 @@ func (k Keeper) DeployerFees(
 		)
 	}
 
+	// TODO: update an return list of contracts
 	var fees []types.Fee
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
@@ -148,7 +149,7 @@ func (k Keeper) DeployerFees(
 }
 
 // WithdrawFees returns all fees for a given withdraw address
-func (k Keeper) WithdrawFees(
+func (k Keeper) WithdrawFees( // nolint: dupl
 	c context.Context,
 	req *types.QueryWithdrawFeesRequest,
 ) (*types.QueryWithdrawFeesResponse, error) {
@@ -173,6 +174,7 @@ func (k Keeper) WithdrawFees(
 		)
 	}
 
+	// TODO: update an return list of contracts
 	var fees []types.Fee
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),

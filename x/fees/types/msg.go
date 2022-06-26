@@ -26,10 +26,15 @@ func NewMsgRegisterFee(
 	withdrawal sdk.AccAddress,
 	nonces []uint64,
 ) *MsgRegisterFee {
+	var withdrawAddr string
+	if withdrawal == nil {
+		withdrawAddr = withdrawal.String()
+	}
+
 	return &MsgRegisterFee{
 		ContractAddress: contract.String(),
 		DeployerAddress: deployer.String(),
-		WithdrawAddress: withdrawal.String(),
+		WithdrawAddress: withdrawAddr,
 		Nonces:          nonces,
 	}
 }
@@ -79,8 +84,7 @@ func (msg MsgRegisterFee) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
-// nil - defaulting to the funder.
+// NewMsgCancelFee creates new instance of MsgCancelFee.
 func NewMsgCancelFee(
 	contract common.Address,
 	deployer sdk.AccAddress,
