@@ -160,6 +160,7 @@ func (k Keeper) UpdateFee(
 		)
 	}
 
+	// NOTE: withdraw address cannot be empty due to msg stateless validation
 	fee.WithdrawAddress = msg.WithdrawAddress
 	k.SetFee(ctx, fee)
 	k.SetWithdrawMap(

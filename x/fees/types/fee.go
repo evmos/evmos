@@ -6,7 +6,8 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 )
 
-// NewFee returns an instance of Fee
+// NewFee returns an instance of Fee. If the provided withdraw address is empty,
+// it sets the value to the empty string.
 func NewFee(contract common.Address, deployer, withdraw sdk.AccAddress) Fee {
 	var withdrawAddr string
 	if len(withdraw) > 0 {
@@ -34,11 +35,11 @@ func (f Fee) GetDeployerAddr() sdk.AccAddress {
 // from the fees will be received. If the withdraw address is not defined, it
 // defaults to the deployer address.
 func (f Fee) GetWithdrawAddr() sdk.AccAddress {
-	if f.WithdrawAddress != "" {
-		return sdk.MustAccAddressFromBech32(f.WithdrawAddress)
+	if f.WithdrawAddress == "" {
+		return nil
 	}
 
-	return sdk.MustAccAddressFromBech32(f.DeployerAddress)
+	return sdk.MustAccAddressFromBech32(f.WithdrawAddress)
 }
 
 // Validate performs a stateless validation of a Fee

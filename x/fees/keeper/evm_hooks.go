@@ -53,6 +53,9 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	withdrawal := fee.GetWithdrawAddr()
+	if len(withdrawal) == 0 {
+		withdrawal = fee.GetDeployerAddr()
+	}
 
 	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
 	developerFee := txFee.ToDec().Mul(params.DeveloperShares).TruncateInt()

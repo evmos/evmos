@@ -2,7 +2,6 @@ package fees
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v5/x/fees/keeper"
 	"github.com/evmos/evmos/v5/x/fees/types"
@@ -17,18 +16,11 @@ func InitGenesis(
 	k.SetParams(ctx, data.Params)
 
 	for _, fee := range data.Fees {
-		var withdrawal sdk.AccAddress
-
-		// prevent storing the same address for deployer and withdrawer
-		if fee.DeployerAddress != fee.WithdrawAddress {
-			withdrawal = sdk.MustAccAddressFromBech32(fee.WithdrawAddress)
-		}
-
-		contract := common.HexToAddress(fee.ContractAddress)
-		deployer := sdk.MustAccAddressFromBech32(fee.DeployerAddress)
+		contract := fee.GetContractAddr()
+		deployer := fee.GetDeployerAddr()
+		withdrawal := fee.GetWithdrawAddr()
 
 		// Set initial contracts receiving transaction fees
-		fee := types.NewFee(contract, deployer, withdrawal)
 		k.SetFee(ctx, fee)
 		k.SetDeployerMap(ctx, deployer, contract)
 
