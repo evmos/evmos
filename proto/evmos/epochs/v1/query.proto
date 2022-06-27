@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/epochs/v1/genesis.proto";
 
-option go_package = "github.com/evmos/evmos/v5/x/epochs/types";
+option go_package = "github.com/evmos/evmos/v6/x/epochs/types";
 
 // Query defines the gRPC querier service.
 service Query {

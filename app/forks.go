@@ -6,9 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	v2 "github.com/evmos/evmos/v5/app/upgrades/v2"
-	v4 "github.com/evmos/evmos/v5/app/upgrades/v4"
-	"github.com/evmos/evmos/v5/types"
+	v2 "github.com/evmos/evmos/v6/app/upgrades/v2"
+	v4 "github.com/evmos/evmos/v6/app/upgrades/v4"
+	"github.com/evmos/evmos/v6/types"
 )
 
 // ScheduleForkUpgrade executes any necessary fork logic for based upon the current
