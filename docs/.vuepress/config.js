@@ -209,7 +209,7 @@ module.exports = {
             },
             {
               title: 'Ethermint Library Go API',
-              path: 'https://pkg.go.dev/github.com/tharsis/ethermint'
+              path: 'https://pkg.go.dev/github.com/evmos/ethermint'
             },
             {
               title: 'Evmos Protobuf',

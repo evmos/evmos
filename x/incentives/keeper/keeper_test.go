@@ -29,17 +29,17 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	"github.com/tharsis/ethermint/encoding"
-	"github.com/tharsis/ethermint/server/config"
-	"github.com/tharsis/ethermint/tests"
-	ethermint "github.com/tharsis/ethermint/types"
-	evm "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/ethermint/server/config"
+	"github.com/evmos/ethermint/tests"
+	ethermint "github.com/evmos/ethermint/types"
+	evm "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v5/app"
-	"github.com/evmos/evmos/v5/contracts"
-	epochstypes "github.com/evmos/evmos/v5/x/epochs/types"
-	"github.com/evmos/evmos/v5/x/incentives/types"
+	"github.com/evmos/evmos/v6/app"
+	"github.com/evmos/evmos/v6/contracts"
+	epochstypes "github.com/evmos/evmos/v6/x/epochs/types"
+	"github.com/evmos/evmos/v6/x/incentives/types"
 )
 
 var (

@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/tharsis/ethermint/tests"
+	"github.com/evmos/ethermint/tests"
 )
 
 type GasMeterTestSuite struct {
