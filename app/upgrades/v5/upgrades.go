@@ -18,9 +18,9 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	feemarketv010types "github.com/tharsis/ethermint/x/feemarket/migrations/v010/types"
-	feemarketv011 "github.com/tharsis/ethermint/x/feemarket/migrations/v011"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	feemarketv010types "github.com/evmos/ethermint/x/feemarket/migrations/v010/types"
+	feemarketv011 "github.com/evmos/ethermint/x/feemarket/migrations/v011"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v5/types"
 	claimskeeper "github.com/evmos/evmos/v5/x/claims/keeper"

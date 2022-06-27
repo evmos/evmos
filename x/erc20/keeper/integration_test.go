@@ -10,9 +10,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	"github.com/tharsis/ethermint/encoding"
-	ethermint "github.com/tharsis/ethermint/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/encoding"
+	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/evmos/evmos/v5/app"
 	"github.com/evmos/evmos/v5/testutil"

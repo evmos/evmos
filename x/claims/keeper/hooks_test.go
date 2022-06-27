@@ -7,9 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v5/testutil"
 	"github.com/evmos/evmos/v5/x/claims/types"
-	"github.com/tharsis/ethermint/tests"
 )
 
 func (suite *KeeperTestSuite) TestAfterProposalVote() {

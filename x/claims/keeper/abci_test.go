@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/tharsis/ethermint/tests"
+	"github.com/evmos/ethermint/tests"
 
 	"github.com/evmos/evmos/v5/testutil"
 	"github.com/evmos/evmos/v5/x/claims/types"
