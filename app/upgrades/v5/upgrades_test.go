@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	"github.com/tharsis/ethermint/tests"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/tests"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
@@ -425,13 +425,12 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 	}
 }
 
-
 func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
 	testCases := []struct {
-		name              string
-		chainID           string
-		malleate          func()
-		expectedWindow    int64
+		name           string
+		chainID        string
+		malleate       func()
+		expectedWindow int64
 	}{
 		{
 			"param already adjusted",
@@ -454,7 +453,7 @@ func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
 			90000,
 		},
 		{
-		"param already adjusted",
+			"param already adjusted",
 			evmostypes.TestnetChainID + "-4",
 			func() {
 				params := suite.app.SlashingKeeper.GetParams(suite.ctx)

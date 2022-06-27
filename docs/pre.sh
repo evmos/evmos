@@ -12,7 +12,7 @@ done
 cat ../x/README.md | sed 's/\.\/x/\/modules/g' | sed 's/spec\/README.md//g' | sed 's/\.\.\/docs\/building-modules\/README\.md/\/building-modules\/intro\.html/g' > ./modules/README.md
 
 # Include the specs from Ethermint
-git clone https://github.com/tharsis/ethermint.git
+git clone https://github.com/evmos/ethermint.git
 mv ethermint/x/evm/spec/ ./modules/evm 
 mv ethermint/x/feemarket/spec/ ./modules/feemarket 
 rm -rf ethermint
