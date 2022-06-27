@@ -42,9 +42,9 @@ func (suite *KeeperTestSuite) TestFees() {
 					Pagination: &query.PageResponse{Total: 1},
 					Fees: []types.Fee{
 						{
-							ContractAddress: contract.Hex(),
-							DeployerAddress: deployer.String(),
-							WithdrawAddress: withdraw.String(),
+							ContractAddress:   contract.Hex(),
+							DeployerAddress:   deployer.String(),
+							WithdrawerAddress: withdraw.String(),
 						},
 					},
 				}
@@ -65,9 +65,9 @@ func (suite *KeeperTestSuite) TestFees() {
 					Pagination: &query.PageResponse{Total: 2},
 					Fees: []types.Fee{
 						{
-							ContractAddress: contract.Hex(),
-							DeployerAddress: deployer.String(),
-							WithdrawAddress: withdraw.String(),
+							ContractAddress:   contract.Hex(),
+							DeployerAddress:   deployer.String(),
+							WithdrawerAddress: withdraw.String(),
 						},
 						{
 							ContractAddress: contract2.Hex(),
@@ -156,9 +156,9 @@ func (suite *KeeperTestSuite) TestFee() {
 					ContractAddress: contract.Hex(),
 				}
 				expRes = &types.QueryFeeResponse{Fee: types.Fee{
-					ContractAddress: contract.Hex(),
-					DeployerAddress: deployer.String(),
-					WithdrawAddress: withdraw.String(),
+					ContractAddress:   contract.Hex(),
+					DeployerAddress:   deployer.String(),
+					WithdrawerAddress: withdraw.String(),
 				}}
 			},
 			true,
@@ -231,7 +231,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 				fee := types.NewFee(contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee)
 				suite.app.FeesKeeper.SetDeployerMap(suite.ctx, deployer, contract)
-				suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract)
+				suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
 				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
@@ -252,7 +252,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 				fee := types.NewFee(contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee)
 				suite.app.FeesKeeper.SetDeployerMap(suite.ctx, deployer, contract)
-				suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract)
+				suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
 				fee2 := types.NewFee(contract2, deployer, nil)
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee2)
@@ -297,10 +297,10 @@ func (suite *KeeperTestSuite) TestDeployerFeesKeeper() {
 	suite.Require().Nil(res)
 }
 
-func (suite *KeeperTestSuite) TestWithdrawFees() {
+func (suite *KeeperTestSuite) TestWithdrawerFees() {
 	var (
-		req    *types.QueryWithdrawFeesRequest
-		expRes *types.QueryWithdrawFeesResponse
+		req    *types.QueryWithdrawerFeesRequest
+		expRes *types.QueryWithdrawerFeesResponse
 	)
 
 	testCases := []struct {
@@ -311,35 +311,35 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 		{
 			"no contract registered",
 			func() {
-				req = &types.QueryWithdrawFeesRequest{}
-				expRes = &types.QueryWithdrawFeesResponse{Pagination: &query.PageResponse{}}
+				req = &types.QueryWithdrawerFeesRequest{}
+				expRes = &types.QueryWithdrawerFeesResponse{Pagination: &query.PageResponse{}}
 			},
 			false,
 		},
 		{
 			"invalid withdraw address",
 			func() {
-				req = &types.QueryWithdrawFeesRequest{
-					WithdrawAddress: "123",
+				req = &types.QueryWithdrawerFeesRequest{
+					WithdrawerAddress: "123",
 				}
-				expRes = &types.QueryWithdrawFeesResponse{Pagination: &query.PageResponse{}}
+				expRes = &types.QueryWithdrawerFeesResponse{Pagination: &query.PageResponse{}}
 			},
 			false,
 		},
 		{
 			"1 fee registered w/pagination",
 			func() {
-				req = &types.QueryWithdrawFeesRequest{
-					Pagination:      &query.PageRequest{Limit: 10, CountTotal: true},
-					WithdrawAddress: withdraw.String(),
+				req = &types.QueryWithdrawerFeesRequest{
+					Pagination:        &query.PageRequest{Limit: 10, CountTotal: true},
+					WithdrawerAddress: withdraw.String(),
 				}
 
 				fee := types.NewFee(contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee)
 				suite.app.FeesKeeper.SetDeployerMap(suite.ctx, deployer, contract)
-				suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract)
+				suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
-				expRes = &types.QueryWithdrawFeesResponse{
+				expRes = &types.QueryWithdrawerFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
 					ContractAddresses: []string{
 						contract.Hex(),
@@ -351,8 +351,8 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 		{
 			"2 fees registered for one withdraw address wo/pagination",
 			func() {
-				req = &types.QueryWithdrawFeesRequest{
-					WithdrawAddress: withdraw.String(),
+				req = &types.QueryWithdrawerFeesRequest{
+					WithdrawerAddress: withdraw.String(),
 				}
 				contract2 := tests.GenerateAddress()
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
@@ -360,14 +360,14 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 				fee := types.NewFee(contract, deployer, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee)
 				suite.app.FeesKeeper.SetDeployerMap(suite.ctx, deployer, contract)
-				suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract)
+				suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
 				fee2 := types.NewFee(contract2, deployer2, withdraw)
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee2)
 				suite.app.FeesKeeper.SetDeployerMap(suite.ctx, deployer2, contract2)
-				suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract2)
+				suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract2)
 
-				expRes = &types.QueryWithdrawFeesResponse{
+				expRes = &types.QueryWithdrawerFeesResponse{
 					Pagination: &query.PageResponse{Total: 2},
 					ContractAddresses: []string{
 						contract.Hex(),
@@ -385,7 +385,7 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
 
-			res, err := suite.queryClient.WithdrawFees(ctx, req)
+			res, err := suite.queryClient.WithdrawerFees(ctx, req)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.Pagination, res.Pagination)
@@ -397,11 +397,11 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 	}
 }
 
-// Cases that cannot be tested in TestWithdrawFees
-func (suite *KeeperTestSuite) TestWithdrawFeesKeeper() {
+// Cases that cannot be tested in TestWithdrawerFees
+func (suite *KeeperTestSuite) TestWithdrawerFeesKeeper() {
 	suite.SetupTest()
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	res, err := suite.app.FeesKeeper.WithdrawFees(ctx, nil)
+	res, err := suite.app.FeesKeeper.WithdrawerFees(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
 }

@@ -32,10 +32,10 @@ func NewMsgRegisterFee(
 	}
 
 	return &MsgRegisterFee{
-		ContractAddress: contract.String(),
-		DeployerAddress: deployer.String(),
-		WithdrawAddress: withdrawAddr,
-		Nonces:          nonces,
+		ContractAddress:   contract.String(),
+		DeployerAddress:   deployer.String(),
+		WithdrawerAddress: withdrawAddr,
+		Nonces:            nonces,
 	}
 }
 
@@ -55,11 +55,11 @@ func (msg MsgRegisterFee) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
-	if msg.WithdrawAddress != "" {
-		if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-			return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawAddress)
+	if msg.WithdrawerAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
+			return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
 		}
-		if msg.DeployerAddress == msg.WithdrawAddress {
+		if msg.DeployerAddress == msg.WithdrawerAddress {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "please specify an empty withdraw address instead of setting the deployer address")
 		}
 	}
@@ -134,9 +134,9 @@ func NewMsgUpdateFee(
 	withdraw sdk.AccAddress,
 ) *MsgUpdateFee {
 	return &MsgUpdateFee{
-		ContractAddress: contract.String(),
-		DeployerAddress: deployer.String(),
-		WithdrawAddress: withdraw.String(),
+		ContractAddress:   contract.String(),
+		DeployerAddress:   deployer.String(),
+		WithdrawerAddress: withdraw.String(),
 	}
 }
 
@@ -156,12 +156,12 @@ func (msg MsgUpdateFee) ValidateBasic() error {
 		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawAddress)
+	if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
+		return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
 	}
 
-	if msg.DeployerAddress == msg.WithdrawAddress {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "withdraw address must be different that deployer address: withdraw %s, deployer %s", msg.WithdrawAddress, msg.DeployerAddress)
+	if msg.DeployerAddress == msg.WithdrawerAddress {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "withdraw address must be different that deployer address: withdraw %s, deployer %s", msg.WithdrawerAddress, msg.DeployerAddress)
 	}
 
 	return nil

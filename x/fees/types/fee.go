@@ -8,16 +8,16 @@ import (
 
 // NewFee returns an instance of Fee. If the provided withdraw address is empty,
 // it sets the value to the empty string.
-func NewFee(contract common.Address, deployer, withdraw sdk.AccAddress) Fee {
-	var withdrawAddr string
-	if len(withdraw) > 0 {
-		withdrawAddr = withdraw.String()
+func NewFee(contract common.Address, deployer, withdrawer sdk.AccAddress) Fee {
+	var withdrawerAddr string
+	if len(withdrawer) > 0 {
+		withdrawerAddr = withdrawer.String()
 	}
 
 	return Fee{
-		ContractAddress: contract.String(),
-		DeployerAddress: deployer.String(),
-		WithdrawAddress: withdrawAddr,
+		ContractAddress:   contract.String(),
+		DeployerAddress:   deployer.String(),
+		WithdrawerAddress: withdrawerAddr,
 	}
 }
 
@@ -31,15 +31,15 @@ func (f Fee) GetDeployerAddr() sdk.AccAddress {
 	return sdk.MustAccAddressFromBech32(f.DeployerAddress)
 }
 
-// GetWithdrawAddr returns the account address to where the funds proceeding
+// GetWithdrawerAddr returns the account address to where the funds proceeding
 // from the fees will be received. If the withdraw address is not defined, it
 // defaults to the deployer address.
-func (f Fee) GetWithdrawAddr() sdk.AccAddress {
-	if f.WithdrawAddress == "" {
+func (f Fee) GetWithdrawerAddr() sdk.AccAddress {
+	if f.WithdrawerAddress == "" {
 		return nil
 	}
 
-	return sdk.MustAccAddressFromBech32(f.WithdrawAddress)
+	return sdk.MustAccAddressFromBech32(f.WithdrawerAddress)
 }
 
 // Validate performs a stateless validation of a Fee
@@ -52,8 +52,8 @@ func (f Fee) Validate() error {
 		return err
 	}
 
-	if f.WithdrawAddress != "" {
-		if _, err := sdk.AccAddressFromBech32(f.WithdrawAddress); err != nil {
+	if f.WithdrawerAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(f.WithdrawerAddress); err != nil {
 			return err
 		}
 	}

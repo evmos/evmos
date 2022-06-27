@@ -28,7 +28,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryFee(),
 		GetCmdQueryParams(),
 		GetCmdQueryDeployerFees(),
-		GetCmdQueryWithdrawFees(),
+		GetCmdQueryWithdrawerFees(),
 	)
 
 	return feesQueryCmd
@@ -171,9 +171,9 @@ func GetCmdQueryDeployerFees() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryWithdrawFees implements a command that returns all fees that have
+// GetCmdQueryWithdrawerFees implements a command that returns all fees that have
 // registered for fee fdistribution with a given withdraw address
-func GetCmdQueryWithdrawFees() *cobra.Command {
+func GetCmdQueryWithdrawerFees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "fees-withdraw [address]",
 		Args:    cobra.ExactArgs(1),
@@ -194,9 +194,9 @@ func GetCmdQueryWithdrawFees() *cobra.Command {
 			}
 
 			// Query store
-			res, err := queryClient.WithdrawFees(context.Background(), &types.QueryWithdrawFeesRequest{
-				WithdrawAddress: args[0],
-				Pagination:      pageReq,
+			res, err := queryClient.WithdrawerFees(context.Background(), &types.QueryWithdrawerFeesRequest{
+				WithdrawerAddress: args[0],
+				Pagination:        pageReq,
 			})
 			if err != nil {
 				return err

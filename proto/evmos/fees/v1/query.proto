@@ -32,10 +32,10 @@ service Query {
     option (google.api.http).get = "/evmos/fees/v1/fees/{deployer_address}";
   }
 
-  // WithdrawFees retrieves all fees with a given withdraw address
-  rpc WithdrawFees(QueryWithdrawFeesRequest)
-      returns (QueryWithdrawFeesResponse) {
-    option (google.api.http).get = "/evmos/fees/v1/fees/{withdraw_address}";
+  // WithdrawerFees retrieves all fees with a given withdrawer address
+  rpc WithdrawerFees(QueryWithdrawerFeesRequest)
+      returns (QueryWithdrawerFeesResponse) {
+    option (google.api.http).get = "/evmos/fees/v1/fees/{withdrawer_address}";
   }
 }
 
@@ -89,18 +89,18 @@ message QueryDeployerFeesResponse {
 }
 
 
-// QueryWithdrawFeesRequest is the request type for the Query/WithdrawFees RPC
-// method.
-message QueryWithdrawFeesRequest {
-  // withdraw bech32 address
-  string withdraw_address = 1;
+// QueryWithdrawerFeesRequest is the request type for the Query/WithdrawerFees
+// RPC method.
+message QueryWithdrawerFeesRequest {
+  // withdrawer bech32 address
+  string withdrawer_address = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryWithdrawFeesResponse is the response type for the Query/WithdrawFees RPC
-// method.
-message QueryWithdrawFeesResponse {
+// QueryWithdrawerFeesResponse is the response type for the Query/WithdrawerFees
+// RPC method.
+message QueryWithdrawerFeesResponse {
   repeated string contract_addresses = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;

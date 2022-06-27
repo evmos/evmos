@@ -211,9 +211,9 @@ func (suite *KeeperTestSuite) TestRegisterFee() {
 				suite.Require().Equal(tc.contract.String(), fee.ContractAddress, "wrong contract")
 				suite.Require().Equal(tc.deployer.String(), fee.DeployerAddress, "wrong deployer")
 				if tc.withdraw.String() != tc.deployer.String() {
-					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, "wrong withdraw address")
+					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawerAddress, "wrong withdraw address")
 				} else {
-					suite.Require().Equal("", fee.WithdrawAddress, "wrong withdraw address")
+					suite.Require().Equal("", fee.WithdrawerAddress, "wrong withdraw address")
 				}
 			} else {
 				suite.Require().Error(err, tc.name)

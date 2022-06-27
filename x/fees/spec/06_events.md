@@ -12,7 +12,7 @@ The `x/fees` module emits the following events:
 | :---------------------- | :---------------------| :--------------------------------- |
 | `register_dev_fee_info` | `"contract"`          | `{msg.ContractAddress}`            |
 | `register_dev_fee_info` | `"sender"`            | `{msg.DeployerAddress}`            |
-| `register_dev_fee_info` | `"withdraw_address"`  | `{msg.WithdrawAddress}`            |
+| `register_dev_fee_info` | `"withdraw_address"`  | `{msg.WithdrawerAddress}`            |
 
 ## Update Contract Fee Info
 
@@ -20,7 +20,7 @@ The `x/fees` module emits the following events:
 | :--------------------- | :---------------------------- | :-------------------------- |
 | `update_dev_fee_info`  | `"contract"`                  | `{msg.ContractAddress}`     |
 | `update_dev_fee_info`  | `"sender"`                    | `{msg.DeployerAddress}`     |
-| `update_dev_fee_info`  | `"withdraw_address"`          | `{msg.WithdrawAddress}`     |
+| `update_dev_fee_info`  | `"withdraw_address"`          | `{msg.WithdrawerAddress}`     |
 
 ## Cancel Contract Fee Info
 

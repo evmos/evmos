@@ -40,7 +40,7 @@ evmosd query fees params
 | `gRPC` | `evmos.fees.v1.Query/Fee`                | Get registered fee                                   |
 | `gRPC` | `evmos.fees.v1.Query/Fees`               | Get all registered fees                              |
 | `gRPC` | `evmos.fees.v1.Query/DeployerFees`       | Get all registered fees for a deployer               |
-| `gRPC` | `evmos.fees.v1.Query/WithdrawFees`       | Get all registered fees for a given withdraw address |
+| `gRPC` | `evmos.fees.v1.Query/WithdrawerFees`       | Get all registered fees for a given withdraw address |
 | `GET`  | `/evmos/fees/v1/params`                  | Get fees params                                      |
 | `GET`  | `/evmos/fees/v1/fees/{contract_address}` | Get registered fee                                   |
 | `GET`  | `/evmos/fees/v1/fees`                    | Get all registered fees                              |

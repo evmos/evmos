@@ -12,7 +12,7 @@ service Msg {
   rpc RegisterFee(MsgRegisterFee) returns (MsgRegisterFeeResponse) {
     option (google.api.http).post = "/evmos/fees/v1/tx/register_fee";
   };
-  // UpdateFee updates the withdraw address
+  // UpdateFee updates the withdrawer address
   rpc UpdateFee(MsgUpdateFee) returns (MsgUpdateFeeResponse) {
     option (google.api.http).post = "/evmos/fees/v1/tx/update_fee";
   };
@@ -32,7 +32,7 @@ message MsgRegisterFee {
   // sending the transaction which deploys the contract
   string deployer_address = 2;
   // bech32 address of account receiving the transaction fees
-  string withdraw_address = 3;
+  string withdrawer_address = 3;
   // array of nonces from the address path, where the last nonce is
   // the nonce that determines the contract's address - it can be an EOA nonce
   // or a factory contract nonce
@@ -42,7 +42,7 @@ message MsgRegisterFee {
 // MsgRegisterFeeResponse defines the MsgRegisterFee response type
 message MsgRegisterFeeResponse {}
 
-// MsgUpdateFee defines a message that updates the withdraw address for a
+// MsgUpdateFee defines a message that updates the withdrawer address for a
 // registered Fee
 message MsgUpdateFee {
   option (gogoproto.equal) = false;
@@ -50,8 +50,8 @@ message MsgUpdateFee {
   string contract_address = 1;
   // deployer bech32 address
   string deployer_address = 2;
-  // new withdraw bech32 address for receiving the transaction fees
-  string withdraw_address = 3;
+  // new withdrawer bech32 address for receiving the transaction fees
+  string withdrawer_address = 3;
 }
 
 // MsgUpdateFeeResponse defines the MsgUpdateFee response type

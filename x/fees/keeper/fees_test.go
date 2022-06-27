@@ -180,7 +180,7 @@ func (suite *KeeperTestSuite) TestGetFee() {
 			if tc.found {
 				fee := types.NewFee(tc.contract, tc.deployer, tc.withdraw)
 				if tc.deployer.Equals(tc.withdraw) {
-					fee.WithdrawAddress = ""
+					fee.WithdrawerAddress = ""
 				}
 
 				suite.app.FeesKeeper.SetFee(suite.ctx, fee)
@@ -188,7 +188,7 @@ func (suite *KeeperTestSuite) TestGetFee() {
 			}
 
 			if tc.expWithdraw {
-				suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, tc.withdraw, tc.contract)
+				suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, tc.withdraw, tc.contract)
 			}
 
 			fee, found := suite.app.FeesKeeper.GetFee(suite.ctx, tc.contract)
@@ -203,10 +203,10 @@ func (suite *KeeperTestSuite) TestGetFee() {
 				suite.Require().True(foundD, tc.name)
 
 				if tc.expWithdraw {
-					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawAddress, tc.name)
+					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawerAddress, tc.name)
 					suite.Require().True(foundW, tc.name)
 				} else {
-					suite.Require().Equal("", fee.WithdrawAddress, tc.name)
+					suite.Require().Equal("", fee.WithdrawerAddress, tc.name)
 					suite.Require().False(foundW, tc.name)
 				}
 			} else {
@@ -281,7 +281,7 @@ func (suite *KeeperTestSuite) TestDeleteDeployerMap() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
-	suite.app.FeesKeeper.SetWithdrawMap(suite.ctx, withdraw, contract)
+	suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 	found := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, withdraw, contract)
 	suite.Require().True(found)
 
@@ -294,7 +294,7 @@ func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
 		{
 			"deleted withdraw",
 			func() {
-				suite.app.FeesKeeper.DeleteWithdrawMap(suite.ctx, withdraw, contract)
+				suite.app.FeesKeeper.DeleteWithdrawerMap(suite.ctx, withdraw, contract)
 			},
 			false,
 		},

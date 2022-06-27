@@ -75,10 +75,10 @@ func NewRegisterFee() *cobra.Command {
 			}
 
 			msg := &types.MsgRegisterFee{
-				ContractAddress: contract,
-				DeployerAddress: deployer.String(),
-				WithdrawAddress: withdraw,
-				Nonces:          nonces,
+				ContractAddress:   contract,
+				DeployerAddress:   deployer.String(),
+				WithdrawerAddress: withdraw,
+				Nonces:            nonces,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
@@ -158,9 +158,9 @@ func NewUpdateFee() *cobra.Command {
 			}
 
 			msg := &types.MsgUpdateFee{
-				ContractAddress: contract,
-				DeployerAddress: deployer.String(),
-				WithdrawAddress: withdraw,
+				ContractAddress:   contract,
+				DeployerAddress:   deployer.String(),
+				WithdrawerAddress: withdraw,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

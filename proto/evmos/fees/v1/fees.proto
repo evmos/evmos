@@ -12,5 +12,5 @@ message Fee {
   string deployer_address = 2;
   // bech32 address of account receiving the transaction fees it defaults to
   // deployer_address
-  string withdraw_address = 3;
+  string withdrawer_address = 3;
 }

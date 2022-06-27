@@ -52,7 +52,7 @@ func (k Keeper) PostTxProcessing(
 		return nil
 	}
 
-	withdrawal := fee.GetWithdrawAddr()
+	withdrawal := fee.GetWithdrawerAddr()
 	if len(withdrawal) == 0 {
 		withdrawal = fee.GetDeployerAddr()
 	}
@@ -97,7 +97,7 @@ func (k Keeper) PostTxProcessing(
 				types.EventTypeDistributeDevFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.From().String()),
 				sdk.NewAttribute(types.AttributeKeyContract, contract.String()),
-				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawal.String()),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, withdrawal.String()),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, developerFee.String()),
 			),
 		},

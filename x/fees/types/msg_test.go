@@ -131,10 +131,10 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 
 	for i, tc := range testCases {
 		tx := MsgRegisterFee{
-			ContractAddress: tc.contract,
-			DeployerAddress: tc.deployer,
-			WithdrawAddress: tc.withdraw,
-			Nonces:          tc.nonces,
+			ContractAddress:   tc.contract,
+			DeployerAddress:   tc.deployer,
+			WithdrawerAddress: tc.withdraw,
+			Nonces:            tc.nonces,
 		}
 		err := tx.ValidateBasic()
 
@@ -276,9 +276,9 @@ func (suite *MsgsTestSuite) TestMsgUpdateFeeNew() {
 
 	for i, tc := range testCases {
 		tx := MsgUpdateFee{
-			ContractAddress: tc.contract,
-			DeployerAddress: tc.deployer,
-			WithdrawAddress: tc.withdraw,
+			ContractAddress:   tc.contract,
+			DeployerAddress:   tc.deployer,
+			WithdrawerAddress: tc.withdraw,
 		}
 		err := tx.ValidateBasic()
 

@@ -18,14 +18,14 @@ func InitGenesis(
 	for _, fee := range data.Fees {
 		contract := fee.GetContractAddr()
 		deployer := fee.GetDeployerAddr()
-		withdrawal := fee.GetWithdrawAddr()
+		withdrawer := fee.GetWithdrawerAddr()
 
 		// Set initial contracts receiving transaction fees
 		k.SetFee(ctx, fee)
 		k.SetDeployerMap(ctx, deployer, contract)
 
-		if len(withdrawal) != 0 {
-			k.SetWithdrawMap(ctx, withdrawal, contract)
+		if len(withdrawer) != 0 {
+			k.SetWithdrawerMap(ctx, withdrawer, contract)
 		}
 	}
 }

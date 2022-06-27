@@ -85,8 +85,8 @@
     - [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse)
     - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
-    - [QueryWithdrawFeesRequest](#evmos.fees.v1.QueryWithdrawFeesRequest)
-    - [QueryWithdrawFeesResponse](#evmos.fees.v1.QueryWithdrawFeesResponse)
+    - [QueryWithdrawerFeesRequest](#evmos.fees.v1.QueryWithdrawerFeesRequest)
+    - [QueryWithdrawerFeesResponse](#evmos.fees.v1.QueryWithdrawerFeesResponse)
   
     - [Query](#evmos.fees.v1.Query)
   
@@ -976,7 +976,7 @@ owner of a given smart contract
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | hex address of registered contract |
 | `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
-| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
+| `withdrawer_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
 
 
 
@@ -1168,16 +1168,16 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryWithdrawFeesRequest"></a>
+<a name="evmos.fees.v1.QueryWithdrawerFeesRequest"></a>
 
-### QueryWithdrawFeesRequest
-QueryWithdrawFeesRequest is the request type for the Query/WithdrawFees RPC
-method.
+### QueryWithdrawerFeesRequest
+QueryWithdrawerFeesRequest is the request type for the Query/WithdrawerFees
+RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `withdraw_address` | [string](#string) |  | withdraw bech32 address |
+| `withdrawer_address` | [string](#string) |  | withdrawer bech32 address |
 | `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
 
@@ -1185,11 +1185,11 @@ method.
 
 
 
-<a name="evmos.fees.v1.QueryWithdrawFeesResponse"></a>
+<a name="evmos.fees.v1.QueryWithdrawerFeesResponse"></a>
 
-### QueryWithdrawFeesResponse
-QueryWithdrawFeesResponse is the response type for the Query/WithdrawFees RPC
-method.
+### QueryWithdrawerFeesResponse
+QueryWithdrawerFeesResponse is the response type for the Query/WithdrawerFees
+RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1219,7 +1219,7 @@ Query defines the gRPC querier service.
 | `Fee` | [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest) | [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse) | Fee retrieves a registered fee for a given contract address | GET|/evmos/fees/v1/fees/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
 | `DeployerFees` | [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest) | [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse) | DeployerFees retrieves all fees that a given deployer has registered | GET|/evmos/fees/v1/fees/{deployer_address}|
-| `WithdrawFees` | [QueryWithdrawFeesRequest](#evmos.fees.v1.QueryWithdrawFeesRequest) | [QueryWithdrawFeesResponse](#evmos.fees.v1.QueryWithdrawFeesResponse) | WithdrawFees retrieves all fees with a given withdraw address | GET|/evmos/fees/v1/fees/{withdraw_address}|
+| `WithdrawerFees` | [QueryWithdrawerFeesRequest](#evmos.fees.v1.QueryWithdrawerFeesRequest) | [QueryWithdrawerFeesResponse](#evmos.fees.v1.QueryWithdrawerFeesResponse) | WithdrawerFees retrieves all fees with a given withdrawer address | GET|/evmos/fees/v1/fees/{withdrawer_address}|
 
  <!-- end services -->
 
@@ -1268,7 +1268,7 @@ MsgRegisterFee defines a message that registers a Fee
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address |
 | `deployer_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
-| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
+| `withdrawer_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
 | `nonces` | [uint64](#uint64) | repeated | array of nonces from the address path, where the last nonce is the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce |
 
 
@@ -1289,7 +1289,7 @@ MsgRegisterFeeResponse defines the MsgRegisterFee response type
 <a name="evmos.fees.v1.MsgUpdateFee"></a>
 
 ### MsgUpdateFee
-MsgUpdateFee defines a message that updates the withdraw address for a
+MsgUpdateFee defines a message that updates the withdrawer address for a
 registered Fee
 
 
@@ -1297,7 +1297,7 @@ registered Fee
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address |
 | `deployer_address` | [string](#string) |  | deployer bech32 address |
-| `withdraw_address` | [string](#string) |  | new withdraw bech32 address for receiving the transaction fees |
+| `withdrawer_address` | [string](#string) |  | new withdrawer bech32 address for receiving the transaction fees |
 
 
 
@@ -1328,7 +1328,7 @@ Msg defines the fees Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterFee` | [MsgRegisterFee](#evmos.fees.v1.MsgRegisterFee) | [MsgRegisterFeeResponse](#evmos.fees.v1.MsgRegisterFeeResponse) | RegisterFee registers a new contract for receiving transaction fees | POST|/evmos/fees/v1/tx/register_fee|
-| `UpdateFee` | [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee) | [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse) | UpdateFee updates the withdraw address | POST|/evmos/fees/v1/tx/update_fee|
+| `UpdateFee` | [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee) | [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse) | UpdateFee updates the withdrawer address | POST|/evmos/fees/v1/tx/update_fee|
 | `CancelFee` | [MsgCancelFee](#evmos.fees.v1.MsgCancelFee) | [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse) | CancelFee cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/fees/v1/tx/cancel_fee|
 
  <!-- end services -->

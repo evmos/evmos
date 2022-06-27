@@ -58,9 +58,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						DeployerAddress: suite.address1,
 					},
 					{
-						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec8",
-						DeployerAddress: suite.address2,
-						WithdrawAddress: suite.address2,
+						ContractAddress:   "0xdac17f958d2ee523a2206206994597c13d831ec8",
+						DeployerAddress:   suite.address2,
+						WithdrawerAddress: suite.address2,
 					},
 				},
 			},
@@ -137,9 +137,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				Fees: []Fee{
 					{
-						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: suite.address1,
-						WithdrawAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						ContractAddress:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						DeployerAddress:   suite.address1,
+						WithdrawerAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 					},
 				},
 			},
@@ -151,9 +151,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				Params: DefaultParams(),
 				Fees: []Fee{
 					{
-						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-						DeployerAddress: suite.address1,
-						WithdrawAddress: "withdraw",
+						ContractAddress:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+						DeployerAddress:   suite.address1,
+						WithdrawerAddress: "withdraw",
 					},
 				},
 			},

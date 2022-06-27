@@ -18386,8 +18386,8 @@ paths:
         - Query
   '/cosmos/distribution/v1beta1/delegators/{delegator_address}/withdraw_address':
     get:
-      summary: DelegatorWithdrawAddress queries withdraw address of a delegator.
-      operationId: DelegatorWithdrawAddress
+      summary: DelegatorWithdrawerAddress queries withdraw address of a delegator.
+      operationId: DelegatorWithdrawerAddress
       responses:
         '200':
           description: A successful response.
@@ -18398,8 +18398,8 @@ paths:
                 type: string
                 description: withdraw_address defines the delegator address to query for.
             description: |-
-              QueryDelegatorWithdrawAddressResponse is the response type for the
-              Query/DelegatorWithdrawAddress RPC method.
+              QueryDelegatorWithdrawerAddressResponse is the response type for the
+              Query/DelegatorWithdrawerAddress RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -41195,15 +41195,15 @@ definitions:
     description: |-
       QueryDelegatorValidatorsResponse is the response type for the
       Query/DelegatorValidators RPC method.
-  cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressResponse:
+  cosmos.distribution.v1beta1.QueryDelegatorWithdrawerAddressResponse:
     type: object
     properties:
       withdraw_address:
         type: string
         description: withdraw_address defines the delegator address to query for.
     description: |-
-      QueryDelegatorWithdrawAddressResponse is the response type for the
-      Query/DelegatorWithdrawAddress RPC method.
+      QueryDelegatorWithdrawerAddressResponse is the response type for the
+      Query/DelegatorWithdrawerAddress RPC method.
   cosmos.distribution.v1beta1.QueryParamsResponse:
     type: object
     properties:

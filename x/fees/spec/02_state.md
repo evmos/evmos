@@ -12,15 +12,15 @@ The `x/fees` module keeps the following objects in state:
 | :------------- | :------------------------------------ | :---------------------------------------------------------------- | :------------ | :---- |
 | `Fee`          | Fee bytecode                          | `[]byte{1} + []byte(contract_address)`                            | `[]byte{fee}` | KV    |
 | `DeployerFees` | Contract by deployer address bytecode | `[]byte{2} + []byte(deployer_address) + []byte(contract_address)` | `[]byte{1}`   | KV    |
-| `WithdrawFees` | Contract by withdraw address bytecode | `[]byte{3} + []byte(withdraw_address) + []byte(contract_address)` | `[]byte{1}`   | KV    |
+| `WithdrawerFees` | Contract by withdraw address bytecode | `[]byte{3} + []byte(withdraw_address) + []byte(contract_address)` | `[]byte{1}`   | KV    |
 
 ### DeployerAddress
 
 A `DeployerAddress` is the EOA address for a registered contract.
 
-### WithdrawAddress
+### WithdrawerAddress
 
-The `WithdrawAddress` is the address that receives transaction fees for a registered contract.
+The `WithdrawerAddress` is the address that receives transaction fees for a registered contract.
 
 ### ContractAddresses
 

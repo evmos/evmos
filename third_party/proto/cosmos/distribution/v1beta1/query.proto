@@ -52,8 +52,8 @@ service Query {
                                    "{delegator_address}/validators";
   }
 
-  // DelegatorWithdrawAddress queries withdraw address of a delegator.
-  rpc DelegatorWithdrawAddress(QueryDelegatorWithdrawAddressRequest) returns (QueryDelegatorWithdrawAddressResponse) {
+  // DelegatorWithdrawerAddress queries withdraw address of a delegator.
+  rpc DelegatorWithdrawerAddress(QueryDelegatorWithdrawerAddressRequest) returns (QueryDelegatorWithdrawerAddressResponse) {
     option (google.api.http).get = "/cosmos/distribution/v1beta1/delegators/"
                                    "{delegator_address}/withdraw_address";
   }
@@ -185,9 +185,9 @@ message QueryDelegatorValidatorsResponse {
   repeated string validators = 1;
 }
 
-// QueryDelegatorWithdrawAddressRequest is the request type for the
-// Query/DelegatorWithdrawAddress RPC method.
-message QueryDelegatorWithdrawAddressRequest {
+// QueryDelegatorWithdrawerAddressRequest is the request type for the
+// Query/DelegatorWithdrawerAddress RPC method.
+message QueryDelegatorWithdrawerAddressRequest {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -195,9 +195,9 @@ message QueryDelegatorWithdrawAddressRequest {
   string delegator_address = 1;
 }
 
-// QueryDelegatorWithdrawAddressResponse is the response type for the
-// Query/DelegatorWithdrawAddress RPC method.
-message QueryDelegatorWithdrawAddressResponse {
+// QueryDelegatorWithdrawerAddressResponse is the response type for the
+// Query/DelegatorWithdrawerAddress RPC method.
+message QueryDelegatorWithdrawerAddressResponse {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 

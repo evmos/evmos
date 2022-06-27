@@ -18,7 +18,7 @@ type MsgRegisterFee struct {
 	// sending the transaction which deploys the contract
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// bech32 address of account receiving the transaction fees
-	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
+	WithdrawerAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawerAddress,proto3" json:"withdraw_address,omitempty"`
 	// array of nonces from the address path, where the last nonce is
 	// the nonce that determines the contract's address - it can be an EOA nonce
 	// or a factory contract nonce
@@ -45,7 +45,7 @@ type MsgUpdateFee struct {
 	// deployer bech32 address
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// new withdraw bech32 address for receiving the transaction fees
-	WithdrawAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawAddress,proto3" json:"withdraw_address,omitempty"`
+	WithdrawerAddress string `protobuf:"bytes,3,opt,name=withdraw_address,json=withdrawerAddress,proto3" json:"withdraw_address,omitempty"`
 }
 ```
 

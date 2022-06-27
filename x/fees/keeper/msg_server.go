@@ -52,8 +52,8 @@ func (k Keeper) RegisterFee(
 	}
 
 	var withdraw sdk.AccAddress
-	if msg.WithdrawAddress != "" && msg.WithdrawAddress != msg.DeployerAddress {
-		withdraw = sdk.MustAccAddressFromBech32(msg.WithdrawAddress)
+	if msg.WithdrawerAddress != "" && msg.WithdrawerAddress != msg.DeployerAddress {
+		withdraw = sdk.MustAccAddressFromBech32(msg.WithdrawerAddress)
 	}
 
 	derivedContractAddr := common.BytesToAddress(deployer)
@@ -101,8 +101,8 @@ func (k Keeper) RegisterFee(
 	withdrawAddr := msg.DeployerAddress
 
 	if len(withdraw) != 0 {
-		k.SetWithdrawMap(ctx, withdraw, contract)
-		withdrawAddr = msg.WithdrawAddress
+		k.SetWithdrawerMap(ctx, withdraw, contract)
+		withdrawAddr = msg.WithdrawerAddress
 	}
 
 	k.Logger(ctx).Debug(
@@ -117,7 +117,7 @@ func (k Keeper) RegisterFee(
 				types.EventTypeRegisterFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, withdrawAddr),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, withdrawAddr),
 			),
 		},
 	)
@@ -157,19 +157,19 @@ func (k Keeper) UpdateFee(
 	}
 
 	// fees with the given withdraw address is already registered
-	if msg.WithdrawAddress == fee.WithdrawAddress {
+	if msg.WithdrawerAddress == fee.WithdrawerAddress {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesAlreadyRegistered,
-			"fee with withdraw address %s", msg.WithdrawAddress,
+			"fee with withdraw address %s", msg.WithdrawerAddress,
 		)
 	}
 
 	// NOTE: withdraw address cannot be empty due to msg stateless validation
-	fee.WithdrawAddress = msg.WithdrawAddress
+	fee.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetFee(ctx, fee)
-	k.SetWithdrawMap(
+	k.SetWithdrawerMap(
 		ctx,
-		fee.GetWithdrawAddr(),
+		fee.GetWithdrawerAddr(),
 		contract,
 	)
 
@@ -179,7 +179,7 @@ func (k Keeper) UpdateFee(
 				types.EventTypeUpdateFee,
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
-				sdk.NewAttribute(types.AttributeKeyWithdrawAddress, msg.WithdrawAddress),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
 			),
 		},
 	)
@@ -223,10 +223,10 @@ func (k Keeper) CancelFee(
 		contract,
 	)
 
-	if fee.WithdrawAddress != "" {
-		k.DeleteWithdrawMap(
+	if fee.WithdrawerAddress != "" {
+		k.DeleteWithdrawerMap(
 			ctx,
-			fee.GetWithdrawAddr(),
+			fee.GetWithdrawerAddr(),
 			contract,
 		)
 	}

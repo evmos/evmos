@@ -145,36 +145,36 @@ func (k Keeper) DeployerFees( // nolint: dupl
 	}, nil
 }
 
-// WithdrawFees returns all fees for a given withdraw address
-func (k Keeper) WithdrawFees( // nolint: dupl
+// WithdrawerFees returns all fees for a given withdraw address
+func (k Keeper) WithdrawerFees( // nolint: dupl
 	c context.Context,
-	req *types.QueryWithdrawFeesRequest,
-) (*types.QueryWithdrawFeesResponse, error) {
+	req *types.QueryWithdrawerFeesRequest,
+) (*types.QueryWithdrawerFeesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if strings.TrimSpace(req.WithdrawAddress) == "" {
+	if strings.TrimSpace(req.WithdrawerAddress) == "" {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			"withdraw address is empty",
 		)
 	}
 
-	deployer, err := sdk.AccAddressFromBech32(req.WithdrawAddress)
+	deployer, err := sdk.AccAddressFromBech32(req.WithdrawerAddress)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for withdraw addr %s, should be bech32 ('evmos...')", req.WithdrawAddress,
+			"invalid format for withdraw addr %s, should be bech32 ('evmos...')", req.WithdrawerAddress,
 		)
 	}
 
 	var contracts []string
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
-		types.GetKeyPrefixWithdrawFees(deployer),
+		types.GetKeyPrefixWithdrawerFees(deployer),
 	)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(key, _ []byte) error {
@@ -185,7 +185,7 @@ func (k Keeper) WithdrawFees( // nolint: dupl
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryWithdrawFeesResponse{
+	return &types.QueryWithdrawerFeesResponse{
 		ContractAddresses: contracts,
 		Pagination:        pageRes,
 	}, nil

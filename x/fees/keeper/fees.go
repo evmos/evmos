@@ -99,25 +99,25 @@ func (k Keeper) DeleteDeployerMap(
 	store.Delete(key)
 }
 
-// SetWithdrawMap stores a fee contract by withdraw address mapping
-func (k Keeper) SetWithdrawMap(
+// SetWithdrawerMap stores a fee contract by withdraw address mapping
+func (k Keeper) SetWithdrawerMap(
 	ctx sdk.Context,
-	withdraw sdk.AccAddress,
+	withdrawer sdk.AccAddress,
 	contract common.Address,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
-	key := append(withdraw.Bytes(), contract.Bytes()...)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdrawer)
+	key := append(withdrawer.Bytes(), contract.Bytes()...)
 	store.Set(key, []byte{1})
 }
 
-// DeleteWithdrawMap deletes a fee contract by withdraw address mapping
-func (k Keeper) DeleteWithdrawMap(
+// DeleteWithdrawMap deletes a fee contract by withdrawer address mapping
+func (k Keeper) DeleteWithdrawerMap(
 	ctx sdk.Context,
-	withdraw sdk.AccAddress,
+	withdrawer sdk.AccAddress,
 	contract common.Address,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
-	key := append(withdraw.Bytes(), contract.Bytes()...)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdrawer)
+	key := append(withdrawer.Bytes(), contract.Bytes()...)
 	store.Delete(key)
 }
 
@@ -142,14 +142,14 @@ func (k Keeper) IsDeployerMapSet(
 	return store.Has(key)
 }
 
-// IsWithdrawMapSet checks if a fee contract by withdraw address mapping is set
+// IsWithdrawMapSet checks if a fee contract by withdrawer address mapping is set
 // in store
 func (k Keeper) IsWithdrawMapSet(
 	ctx sdk.Context,
-	withdraw sdk.AccAddress,
+	withdrawer sdk.AccAddress,
 	contract common.Address,
 ) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdraw)
-	key := append(withdraw.Bytes(), contract.Bytes()...)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdrawer)
+	key := append(withdrawer.Bytes(), contract.Bytes()...)
 	return store.Has(key)
 }
