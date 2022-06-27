@@ -34,4 +34,3 @@ evmosd tendermint show-address
 ```
 
 You can also use hardware to store your Tendermint Key much more safely, such as [YubiHSM2](https://developers.yubico.com/YubiHSM2/).
-
