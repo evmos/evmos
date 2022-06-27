@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -15,7 +14,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
@@ -81,59 +79,6 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 func TestUpgradeTestSuite(t *testing.T) {
 	s := new(UpgradeTestSuite)
 	suite.Run(t, s)
-}
-
-func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
-	testCases := []struct {
-		name       string
-		preUpdate  func()
-		update     func()
-		postUpdate func()
-	}{
-		{
-			"scheduled upgrade",
-			func() {
-				plan := types.Plan{
-					Name:   v5.UpgradeName,
-					Height: v5.TestnetUpgradeHeight,
-					Info:   v5.UpgradeInfo,
-				}
-				err := suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
-				suite.Require().NoError(err)
-
-				// ensure the plan is scheduled
-				plan, found := suite.app.UpgradeKeeper.GetUpgradePlan(suite.ctx)
-				suite.Require().True(found)
-			},
-			func() {
-				suite.ctx = suite.ctx.WithBlockHeight(v5.TestnetUpgradeHeight)
-				suite.Require().NotPanics(
-					func() {
-						beginBlockRequest := abci.RequestBeginBlock{
-							Header: suite.ctx.BlockHeader(),
-						}
-						suite.app.BeginBlocker(suite.ctx, beginBlockRequest)
-					},
-				)
-			},
-			func() {
-				// check that the default params have been overridden by the init function
-				fmParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(v5.MainnetMinGasPrices.String(), fmParams.MinGasPrice.String())
-				suite.Require().Equal(v5.MainnetMinGasMultiplier.String(), fmParams.MinGasMultiplier.String())
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
-
-			tc.preUpdate()
-			tc.update()
-			tc.postUpdate()
-		})
-	}
 }
 
 func (suite *UpgradeTestSuite) TestResolveAirdrop() {

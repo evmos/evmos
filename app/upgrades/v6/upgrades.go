@@ -46,6 +46,9 @@ func CreateUpgradeHandler(
 			logger.Debug("updating Tendermint consensus params...")
 			v5.UpdateConsensusParams(ctx, sk, pk)
 
+			logger.Debug("updating slashing period...")
+			UpdateSlashingParams(ctx, xk)
+
 			logger.Debug("updating IBC transfer denom traces...")
 			v5.UpdateIBCDenomTraces(ctx, tk)
 
@@ -54,9 +57,6 @@ func CreateUpgradeHandler(
 
 			logger.Debug("migrating early contributor claim record...")
 			v5.MigrateContributorClaim(ctx, ck)
-
-			logger.Debug("updating slashing period...")
-			UpdateSlashingParams(ctx, xk)
 
 			// migrate fee market module
 			vm[feemarkettypes.ModuleName] = 2
@@ -76,8 +76,8 @@ func CreateUpgradeHandler(
 // UpdateSlashingParams updates the Slashing params (SignedBlocksWindow) to
 // increase to keep the same wall-time of reaction time, since the block times
 // are expected to be 67% shorter.
-func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
-	params := xk.GetParams(ctx)
-	params.SignedBlocksWindow *= 3
-	xk.SetParams(ctx, params)
+func UpdateSlashingParams(ctx sdk.Context, sk slashingkeeper.Keeper) {
+	params := sk.GetParams(ctx)
+	params.SignedBlocksWindow *= 3 // migrate from mainnet from 30,000 -> 90,000
+	sk.SetParams(ctx, params)
 }
