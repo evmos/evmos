@@ -7,9 +7,6 @@ parent:
   <h1> Evmos </h1>
 </div>
 
-<!-- TODO: add banner -->
-<!-- ![banner](docs/ethermint.jpg) -->
-
 <div align="center">
   <a href="https://github.com/evmos/evmos/releases/latest">
     <img alt="Version" src="https://img.shields.io/github/tag/tharsis/evmos.svg" />

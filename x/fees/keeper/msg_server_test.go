@@ -8,10 +8,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/tharsis/ethermint/tests"
-	"github.com/tharsis/ethermint/x/evm/statedb"
+	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/ethermint/x/evm/statedb"
 
-	"github.com/evmos/evmos/v5/x/fees/types"
+	"github.com/evmos/evmos/v6/x/fees/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterFee() {

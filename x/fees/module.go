@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/evmos/evmos/v5/x/fees/client/cli"
-	"github.com/evmos/evmos/v5/x/fees/keeper"
-	"github.com/evmos/evmos/v5/x/fees/types"
+	"github.com/evmos/evmos/v6/x/fees/client/cli"
+	"github.com/evmos/evmos/v6/x/fees/keeper"
+	"github.com/evmos/evmos/v6/x/fees/types"
 )
 
 // type check to ensure the interface is properly implemented

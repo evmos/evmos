@@ -11,15 +11,15 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/tharsis/ethermint/tests"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	"github.com/evmos/ethermint/tests"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v5/app"
-	claimstypes "github.com/evmos/evmos/v5/x/claims/types"
-	"github.com/evmos/evmos/v5/x/recovery/types"
+	"github.com/evmos/evmos/v6/app"
+	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v6/x/recovery/types"
 )
 
 var (
