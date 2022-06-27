@@ -68,7 +68,7 @@ func CreateUpgradeHandler(
 		vm[evmtypes.ModuleName] = 1
 
 		// Leave modules are as-is to avoid running InitGenesis.
-		logger.Debug("running migration for fee market module (EIP-1559)...")
+		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
