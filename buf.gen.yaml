@@ -1,19 +1,25 @@
 version: v1
+
 plugins:
+
   - name: gocosmos
-    out:
-      - plugins: interfacetype+grpc
+    out: .
     opt:
+      - plugins=interfacetype+grpc
+
   - name: grpc-gateway
-    out:
-      - logtostderr: true
+    out: .
     opt:
-  - doc: 
+      - logtostderr=true
+
+  - name: doc
     out: ./docs/protocol
-    opt: ./docs/protodoc-markdown.tmpl,proto-docs.md
+    opt:
+      - paths="./docs/protodoc-markdown.tmpl,proto-docs.md"
+
   - name: swagger
     out: ./tmp-swagger-gen
     opt:
-      - logtostderr: true
-      - fqn_for_swagger_name: true
-      - simple_operation_ids: true
+      - logtostderr=true
+      - fqn_for_swagger_name=true
+      - simple_operation_ids=true
