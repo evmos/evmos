@@ -18,28 +18,24 @@ protoc_gen_doc() {
 protoc_gen_gocosmos
 protoc_gen_doc
 
-proto_dirs=$(find ./proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
-# TODO: migrate to `buf build`
-for dir in $proto_dirs; do
-  buf alpha protoc \
-  -I "proto" \
-  -I "third_party/proto" \
-  --gocosmos_out=plugins=interfacetype+grpc,\
-Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:. \
-  --grpc-gateway_out=logtostderr=true:. \
-  $(find "${dir}" -maxdepth 1 -name '*.proto')
+# prepare for swagger
+mkdir -p ./tmp-swagger-gen
 
-done
-
-# command to generate docs using protoc-gen-doc
-# TODO: migrate to `buf build`
-buf alpha protoc \
--I "proto" \
--I "third_party/proto" \
---doc_out=./docs/protocol \
---doc_opt=./docs/protodoc-markdown.tmpl,proto-docs.md \
-$(find "$(pwd)/proto" -maxdepth 5 -name '*.proto')
+# protoc and swagger
+buf build
+buf generate
 
 # move proto files to the right places
 cp -r github.com/evmos/evmos/v*/x/* x/
 rm -rf github.com
+
+# combine swagger files
+# uses nodejs package `swagger-combine`.
+# all the individual swagger files need to be configured in `config.json` for merging
+swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
+
+# clean swagger files
+rm -rf ./tmp-swagger-gen
+
+# generate binary for static server
+statik -src=./client/docs/swagger-ui -dest=./client/docs
