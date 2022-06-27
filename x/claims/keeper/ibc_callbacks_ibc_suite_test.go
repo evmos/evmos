@@ -13,10 +13,10 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v5/app"
-	ibctesting "github.com/evmos/evmos/v5/ibc/testing"
-	"github.com/evmos/evmos/v5/testutil"
-	"github.com/evmos/evmos/v5/x/claims/types"
+	"github.com/evmos/evmos/v6/app"
+	ibctesting "github.com/evmos/evmos/v6/ibc/testing"
+	"github.com/evmos/evmos/v6/testutil"
+	"github.com/evmos/evmos/v6/x/claims/types"
 )
 
 type IBCTestingSuite struct {

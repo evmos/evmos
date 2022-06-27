@@ -7,9 +7,9 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	"github.com/evmos/evmos/v5/ibc"
-	evmos "github.com/evmos/evmos/v5/types"
-	"github.com/evmos/evmos/v5/x/claims/types"
+	"github.com/evmos/evmos/v6/ibc"
+	evmos "github.com/evmos/evmos/v6/types"
+	"github.com/evmos/evmos/v6/x/claims/types"
 )
 
 // OnAcknowledgementPacket performs an IBC send callback. Once a user submits an
