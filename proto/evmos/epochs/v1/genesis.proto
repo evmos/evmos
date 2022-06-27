@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/evmos/evmos/v5/x/epochs/types";
+option go_package = "github.com/evmos/evmos/v6/x/epochs/types";
 
 message EpochInfo {
   string identifier = 1;

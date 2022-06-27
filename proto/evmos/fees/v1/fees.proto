@@ -1,7 +1,7 @@
 syntax = "proto3";
 package evmos.fees.v1;
 
-option go_package = "github.com/evmos/evmos/v5/x/fees/types";
+option go_package = "github.com/evmos/evmos/v6/x/fees/types";
 
 // Fee defines an instance that organizes fee distribution conditions for the
 // owner of a given smart contract
