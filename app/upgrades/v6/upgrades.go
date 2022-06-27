@@ -58,11 +58,10 @@ func CreateUpgradeHandler(
 			logger.Debug("migrating early contributor claim record...")
 			v5.MigrateContributorClaim(ctx, ck)
 
+			// define from versions of the modules that have a new consensus version
 			// migrate fee market module
 			vm[feemarkettypes.ModuleName] = 2
 		}
-
-		// define from versions of the modules that have a new consensus version
 
 		// migrate EVM module from v1 -> v2
 		vm[evmtypes.ModuleName] = 1
