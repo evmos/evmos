@@ -83,7 +83,7 @@ message QueryDeployerFeesRequest {
 // QueryDeployerFeesResponse is the response type for the Query/DeployerFees RPC
 // method.
 message QueryDeployerFeesResponse {
-  repeated Fee fees = 1 [ (gogoproto.nullable) = false ];
+  repeated string contract_addresses = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -101,7 +101,7 @@ message QueryWithdrawFeesRequest {
 // QueryWithdrawFeesResponse is the response type for the Query/WithdrawFees RPC
 // method.
 message QueryWithdrawFeesResponse {
-  repeated Fee fees = 1 [ (gogoproto.nullable) = false ];
+  repeated string contract_addresses = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

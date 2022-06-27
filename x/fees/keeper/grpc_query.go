@@ -98,8 +98,8 @@ func (k Keeper) Params(
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// DeployerFees returns all Fees that have been registered for fee distribution
-// by a given deployer
+// DeployerFees returns all contracts that have been registered for fee
+// distribution by a given deployer
 func (k Keeper) DeployerFees( // nolint: dupl
 	c context.Context,
 	req *types.QueryDeployerFeesRequest,
@@ -125,26 +125,23 @@ func (k Keeper) DeployerFees( // nolint: dupl
 		)
 	}
 
-	// TODO: update an return list of contracts
-	var fees []types.Fee
+	var contracts []string
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
 		types.GetKeyPrefixDeployerFees(deployer),
 	)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(key, _ []byte) error {
-		fee, found := k.GetFee(ctx, common.BytesToAddress(key))
-		if found {
-			fees = append(fees, fee)
-		}
+		contracts = append(contracts, string(common.BytesToAddress(key).Hex()))
 		return nil
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	return &types.QueryDeployerFeesResponse{
-		Fees:       fees,
-		Pagination: pageRes,
+		ContractAddresses: contracts,
+		Pagination:        pageRes,
 	}, nil
 }
 
@@ -174,25 +171,22 @@ func (k Keeper) WithdrawFees( // nolint: dupl
 		)
 	}
 
-	// TODO: update an return list of contracts
-	var fees []types.Fee
+	var contracts []string
 	store := prefix.NewStore(
 		ctx.KVStore(k.storeKey),
 		types.GetKeyPrefixWithdrawFees(deployer),
 	)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(key, _ []byte) error {
-		fee, found := k.GetFee(ctx, common.BytesToAddress(key))
-		if found {
-			fees = append(fees, fee)
-		}
+		contracts = append(contracts, common.BytesToAddress(key).Hex())
+
 		return nil
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &types.QueryWithdrawFeesResponse{
-		Fees:       fees,
-		Pagination: pageRes,
+		ContractAddresses: contracts,
+		Pagination:        pageRes,
 	}, nil
 }

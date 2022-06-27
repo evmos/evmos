@@ -235,12 +235,8 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 
 				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
-					Fees: []types.Fee{
-						{
-							ContractAddress: contract.Hex(),
-							DeployerAddress: deployer.String(),
-							WithdrawAddress: withdraw.String(),
-						},
+					ContractAddresses: []string{
+						contract.Hex(),
 					},
 				}
 			},
@@ -264,16 +260,9 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 
 				expRes = &types.QueryDeployerFeesResponse{
 					Pagination: &query.PageResponse{Total: 2},
-					Fees: []types.Fee{
-						{
-							ContractAddress: contract.Hex(),
-							DeployerAddress: deployer.String(),
-							WithdrawAddress: withdraw.String(),
-						},
-						{
-							ContractAddress: contract2.Hex(),
-							DeployerAddress: deployer.String(),
-						},
+					ContractAddresses: []string{
+						contract.Hex(),
+						contract2.Hex(),
 					},
 				}
 			},
@@ -291,7 +280,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.Pagination, res.Pagination)
-				suite.Require().ElementsMatch(expRes.Fees, res.Fees)
+				suite.Require().ElementsMatch(expRes.ContractAddresses, res.ContractAddresses)
 			} else {
 				suite.Require().Error(err)
 			}
@@ -352,12 +341,8 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 
 				expRes = &types.QueryWithdrawFeesResponse{
 					Pagination: &query.PageResponse{Total: 1},
-					Fees: []types.Fee{
-						{
-							ContractAddress: contract.Hex(),
-							DeployerAddress: deployer.String(),
-							WithdrawAddress: withdraw.String(),
-						},
+					ContractAddresses: []string{
+						contract.Hex(),
 					},
 				}
 			},
@@ -384,17 +369,9 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 
 				expRes = &types.QueryWithdrawFeesResponse{
 					Pagination: &query.PageResponse{Total: 2},
-					Fees: []types.Fee{
-						{
-							ContractAddress: contract.Hex(),
-							DeployerAddress: deployer.String(),
-							WithdrawAddress: withdraw.String(),
-						},
-						{
-							ContractAddress: contract2.Hex(),
-							DeployerAddress: deployer2.String(),
-							WithdrawAddress: withdraw.String(),
-						},
+					ContractAddresses: []string{
+						contract.Hex(),
+						contract2.Hex(),
 					},
 				}
 			},
@@ -412,7 +389,7 @@ func (suite *KeeperTestSuite) TestWithdrawFees() {
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.Pagination, res.Pagination)
-				suite.Require().ElementsMatch(expRes.Fees, res.Fees)
+				suite.Require().ElementsMatch(expRes.ContractAddresses, res.ContractAddresses)
 			} else {
 				suite.Require().Error(err)
 			}
