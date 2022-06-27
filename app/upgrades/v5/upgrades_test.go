@@ -95,7 +95,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 			func() {
 				plan := types.Plan{
 					Name:   v5.UpgradeName,
-					Height: v5.MainnetUpgradeHeight,
+					Height: v5.TestnetUpgradeHeight,
 					Info:   v5.UpgradeInfo,
 				}
 				err := suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
@@ -106,7 +106,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 				suite.Require().True(found)
 			},
 			func() {
-				suite.ctx = suite.ctx.WithBlockHeight(v5.MainnetUpgradeHeight)
+				suite.ctx = suite.ctx.WithBlockHeight(v5.TestnetUpgradeHeight)
 				suite.Require().NotPanics(
 					func() {
 						beginBlockRequest := abci.RequestBeginBlock{
@@ -127,7 +127,7 @@ func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			tc.preUpdate()
 			tc.update()
@@ -176,7 +176,7 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 
@@ -224,7 +224,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -285,7 +285,7 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -411,7 +411,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			for _, dt := range tc.originalTraces {
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
@@ -421,89 +421,6 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 			traces := suite.app.TransferKeeper.GetAllDenomTraces(suite.ctx)
 			suite.Require().Equal(tc.expDenomTraces, traces)
-		})
-	}
-}
-
-func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
-	testCases := []struct {
-		name           string
-		chainID        string
-		malleate       func()
-		expectedWindow int64
-	}{
-		{
-			"param already adjusted",
-			evmostypes.MainnetChainID + "-2",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 70000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			70000,
-		},
-		{
-			"success",
-			evmostypes.MainnetChainID + "-2",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 30000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			90000,
-		},
-		{
-			"param already adjusted",
-			evmostypes.TestnetChainID + "-4",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 20000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			20000,
-		},
-		{
-			"success",
-			evmostypes.TestnetChainID + "-4",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 10000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			30000,
-		},
-		{
-			"chain that doesn't match",
-			"unexpected-1",
-			func() {
-			},
-			100,
-		},
-		{
-			"chain that doesn't match (do nothing)",
-			"unexpected-1",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 10000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			10000,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(tc.chainID) // reset
-
-			tc.malleate()
-
-			suite.Require().NotPanics(func() {
-				v5.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper)
-				suite.app.Commit()
-			})
-
-			params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-			suite.Require().Equal(tc.expectedWindow, params.SignedBlocksWindow)
 		})
 	}
 }

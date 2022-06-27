@@ -86,10 +86,6 @@ func CreateUpgradeHandler(
 
 		logger.Debug("migrating early contributor claim record...")
 		MigrateContributorClaim(ctx, ck)
-
-		logger.Debug("updating slashing period...")
-		UpdateSlashingParams(ctx, xk)
-
 		// define from versions of the modules that have a new consensus version
 
 		// migrate fee market module, other modules are left as-is to
@@ -257,30 +253,4 @@ func UpdateIBCDenomTraces(ctx sdk.Context, transferKeeper ibctransferkeeper.Keep
 
 func equalTraces(dtA, dtB ibctransfertypes.DenomTrace) bool {
 	return dtA.BaseDenom == dtB.BaseDenom && dtA.Path == dtB.Path
-}
-
-// UpdateSlashingParams updates the Slashing params (SignedBlocksWindow) to
-// increase to keep the same wall-time of reaction time, since the block times
-// are expected to be 67% shorter.
-func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
-	params := xk.GetParams(ctx)
-
-	if types.IsMainnet(ctx.ChainID()) {
-		// safety check: make sure the window is still 30000
-		if params.SignedBlocksWindow != 30000 {
-			return
-		}
-
-		params.SignedBlocksWindow = 90000
-	} else if types.IsTestnet(ctx.ChainID()) {
-		// safety check: make sure the window is still 10000
-		if params.SignedBlocksWindow != 10000 {
-			return
-		}
-
-		params.SignedBlocksWindow = 30000
-	}
-	// if chain doesn't match, this is basically a no-op
-
-	xk.SetParams(ctx, params)
 }
