@@ -3,8 +3,8 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	ethermint "github.com/evmos/ethermint/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	ethermint "github.com/tharsis/ethermint/types"
 )
 
 // NewTokenPair returns an instance of TokenPair

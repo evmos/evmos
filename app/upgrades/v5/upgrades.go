@@ -18,13 +18,13 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	feemarketv010types "github.com/tharsis/ethermint/x/feemarket/migrations/v010/types"
-	feemarketv011 "github.com/tharsis/ethermint/x/feemarket/migrations/v011"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+	feemarketv010types "github.com/evmos/ethermint/x/feemarket/migrations/v010/types"
+	feemarketv011 "github.com/evmos/ethermint/x/feemarket/migrations/v011"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v5/types"
-	claimskeeper "github.com/evmos/evmos/v5/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v5/x/claims/types"
+	"github.com/evmos/evmos/v6/types"
+	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
 )
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
@@ -281,6 +281,6 @@ func UpdateSlashingParams(ctx sdk.Context, xk slashingkeeper.Keeper) {
 		params.SignedBlocksWindow = 30000
 	}
 	// if chain doesn't match, this is basically a no-op
-	
+
 	xk.SetParams(ctx, params)
 }

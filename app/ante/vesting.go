@@ -7,8 +7,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	vestingtypes "github.com/evmos/evmos/v5/x/vesting/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v6/x/vesting/types"
 )
 
 // EthVestingTransactionDecorator validates if clawback vesting accounts are

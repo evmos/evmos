@@ -3,8 +3,8 @@ package types
 import (
 	"testing"
 
+	"github.com/evmos/ethermint/tests"
 	"github.com/stretchr/testify/require"
-	"github.com/tharsis/ethermint/tests"
 )
 
 func TestSplitGasMeterKey(t *testing.T) {

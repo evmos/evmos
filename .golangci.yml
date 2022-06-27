@@ -5,7 +5,7 @@ run:
 
 linters:
   enable:
-    - bodyclose
+    # - bodyclose
     - deadcode
     - depguard
     - dogsled
@@ -27,11 +27,11 @@ linters:
     - prealloc
     - exportloopref
     - staticcheck
-    - structcheck
+    # - structcheck
     - stylecheck
     - typecheck
     - unconvert
-    - unparam
+    # - unparam
     - unused
     - varcheck
     # - nolintlint
@@ -42,8 +42,8 @@ linters:
     - gomodguard
     # - nestif
     # - nlreturn
-    - noctx
-    - rowserrcheck
+    # - noctx
+    # - rowserrcheck
     # - whitespace
     # - wsl
 
@@ -72,7 +72,7 @@ linters-settings:
     require-explanation: false
     require-specific: false
   gofumpt:
-    lang-version: "1.17"
+    lang-version: "1.18"
   gomodguard:
     blocked:
       versions: # List of blocked module version constraints

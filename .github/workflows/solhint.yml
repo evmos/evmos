@@ -1,0 +1,17 @@
+name: Solhint
+# This workflow is only run when a .sol file has been changed
+on:
+  pull_request:
+    paths:
+      - "contracts/**"
+
+jobs:
+  solhint:
+    name: runner / solhint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm install -g solhint
+      - run: solhint --version
+      - run: solhint 'contracts/**/*.sol'

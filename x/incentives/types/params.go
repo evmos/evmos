@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	epochstypes "github.com/evmos/evmos/v5/x/epochs/types"
+	epochstypes "github.com/evmos/evmos/v6/x/epochs/types"
 )
 
 // Parameter store key
