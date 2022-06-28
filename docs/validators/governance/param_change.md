@@ -5,7 +5,7 @@ order: 6
 # Chain Parameters
 
 ::: tip
-**Note:** If users are attempting to write governance proposals concerned with changing parameters (such as those of type `ParameterChangeProposal`), refer to [this document](../../validators/governance/best_practices.md#parameter-change-proposal).
+**Note:** Working on a governance proposal related to the changing chain parameters? Make sure to look at [Evmos Governance](../../validators/governance/overview.md), and specifically the [best practices](../../validators/governance/best_practices#parameter-change-proposal).
 :::
 
 If a parameter-change proposal is successful, the change takes effect immediately upon completion of the voting period.
