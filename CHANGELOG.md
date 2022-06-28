@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v6.0.1] - 2022-06-28
+
+### Improvements
+
+- (ci) [\#729](https://github.com/evmos/evmos/pull/729) Remove unshallow action in goreleaser.
+
 ## [v6.0.0] - 2022-06-28
 
 ### State Machine Breaking
