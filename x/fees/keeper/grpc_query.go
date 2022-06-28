@@ -132,7 +132,7 @@ func (k Keeper) DeployerFees( // nolint: dupl
 	)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(key, _ []byte) error {
-		contracts = append(contracts, string(common.BytesToAddress(key).Hex()))
+		contracts = append(contracts, common.BytesToAddress(key).Hex())
 		return nil
 	})
 	if err != nil {
