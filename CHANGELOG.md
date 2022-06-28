@@ -37,6 +37,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v6.0.1] - 2022-06-28
 
+### Improvements
+
+- (ci) [\#729](https://github.com/evmos/evmos/pull/729) Remove unshallow action in goreleaser.
+
+## [v6.0.0] - 2022-06-28
+
 ### State Machine Breaking
 
 - (deps) [\#719](https://github.com/evmos/evmos/pull/719) Bump Ethermint version to [`v0.17.0`](https://github.com/evmos/ethermint/releases/tag/v0.17.0)
