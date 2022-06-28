@@ -18,14 +18,27 @@ protoc_gen_doc() {
 protoc_gen_gocosmos
 protoc_gen_doc
 
-# prepare for swagger
+# note: if testing `make proto-gen`, need to install statik on the docker image
+# create temporary folder to store intermediate results from `buf build` + `buf generate`
 mkdir -p ./tmp-swagger-gen
 
-# protoc and swagger
-buf build
-buf generate
+# build .proto files and generate code for the proto/ directory
+buf build proto
+buf generate proto
 
-# move proto files to the right places
+# create additional swagger files on an individual basis  w/ `buf build` and `buf generate` (needed for `swagger-combine`)
+proto_dirs=$(find ./proto ./third_party/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+for dir in $proto_dirs; do
+
+  # generate swagger files (filter query files)
+  query_file=$(find "${dir}" -maxdepth 1 \( -name 'query.proto' -o -name 'service.proto' \))
+  if [[ ! -z "$query_file" ]]; then
+    buf build --path "$query_file"
+    buf generate --path "$query_file"
+  fi
+done
+
+# move resulting files to the right places
 cp -r github.com/evmos/evmos/v*/x/* x/
 rm -rf github.com
 
@@ -37,5 +50,5 @@ swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger.ya
 # clean swagger files
 rm -rf ./tmp-swagger-gen
 
-# generate binary for static server
-statik -src=./client/docs/swagger-ui -dest=./client/docs
+# generate binary for static server (use -f flag to replace current binary)
+statik -f -src=./client/docs/swagger-ui -dest=./client/docs

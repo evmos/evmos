@@ -15,7 +15,7 @@ plugins:
   - name: doc
     out: ./docs/protocol
     opt:
-      - paths="./docs/protodoc-markdown.tmpl,proto-docs.md"
+      - ./docs/protodoc-markdown.tmpl,proto-docs.md
 
   - name: swagger
     out: ./tmp-swagger-gen
