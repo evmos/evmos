@@ -71,7 +71,7 @@ type: secp256k1
 ### Ethereum-Formatted Private Keys
 
 :::tip
-**Note**: These types of keys are MetaMask-compatible. 
+**Note**: These types of keys are MetaMask-compatible.
 :::
 
 To backup this type of key without the mnemonic phrase, do the following:
