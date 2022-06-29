@@ -233,7 +233,7 @@ Look for a publicly available addresses for testnet and mainnet in the [Quick Co
     ```
 
 ::: tip
-Note that when querying Ethereum transactions versus Cosmos transactions, the transaction hashes are different.
+**Note:** When querying Ethereum transactions versus Cosmos transactions, the transaction hashes are different.
 When querying Ethereum transactions, users need to use event query.
 Here's an example with the CLI:
 
