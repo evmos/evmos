@@ -5,8 +5,8 @@ order: 4
 # State Sync
 
 :::tip
-**Note**: Only curious about how to sync a node with the network? Skip to [this section](#state-syncing-a-node). 
-::: 
+**Note**: Only curious about how to sync a node with the network? Skip to [this section](#state-syncing-a-node).
+:::
 
 Learn about Tendermint Core state sync and support offered by the Cosmos SDK. {synopsis}
 
@@ -70,7 +70,7 @@ When Tendermint starts, it will check whether the local node has any state (ie. 
 - [`OfferSnapshot(snapshot, apphash)`](https://docs.tendermint.com/master/spec/abci/abci.html#offersnapshot): offers a discovered snapshot to the application
 - [`ApplySnapshotChunk(index, chunk, sender)`](https://docs.tendermint.com/master/spec/abci/abci.html#applysnapshotchunk): applies a snapshot chunk
 
-Discovered snapshots are offered to the application and it can respond by accepting the snapshot, rejecting it, rejecting the format, rejecting the senders, aborting state sync, and so on. 
+Discovered snapshots are offered to the application and it can respond by accepting the snapshot, rejecting it, rejecting the format, rejecting the senders, aborting state sync, and so on.
 
 Once a snapshot is accepted, Tendermint will fetch chunks from across available peers, and apply them sequentially to the application, which can choose to accept the chunk, refetch it, reject the snapshot, reject the sender, abort state sync, and so on.
 
