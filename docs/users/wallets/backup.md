@@ -4,7 +4,7 @@ order: 4
 
 # Backup
 
-Below, it's detailed how to backup your wallet with [evmosd](../../validators/quickstart/binary.md).
+Learn how to backup your wallet's mnemonic and private key. {synopsis}
 
 ## Mnemonics
 
@@ -38,27 +38,13 @@ banner genuine height east ghost oak toward reflect asset marble else explain fo
   "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
   "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
 }
-
-$ evmosd keys list
-[
-  {
-    "name": "mykey-restored",
-    "type": "local",
-    "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
-    "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
-  },
-  {
-    "name": "mykey",
-    "type": "local",
-    "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
-    "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
-  }
-]
 ```
 
-## Export
+## Export Key
 
-To backup a local key without the mnemonic phrase, do the following:
+### Tendermint-Formatted Private Keys
+
+To backup this type of key without the mnemonic phrase, do the following:
 
 ```bash
 evmosd keys export mykey
@@ -69,9 +55,7 @@ kdf: bcrypt
 salt: 14559BB13D881A86E0F4D3872B8B2C82
 type: secp256k1
 
-3OkvaNgdxSfThr4VoEJMsa/znHmJYm0sDKyyZ+6WMfdzovDD2BVLUXToutY/6iw0
-AOOu4v0/1+M6wXs3WUwkKDElHD4MOzSPrM3YYWc=
-=JpKI
+# <Tendermint private key>
 -----END TENDERMINT PRIVATE KEY-----
 
 $ echo "\
@@ -80,18 +64,41 @@ kdf: bcrypt
 salt: 14559BB13D881A86E0F4D3872B8B2C82
 type: secp256k1
 
-3OkvaNgdxSfThr4VoEJMsa/znHmJYm0sDKyyZ+6WMfdzovDD2BVLUXToutY/6iw0
-AOOu4v0/1+M6wXs3WUwkKDElHD4MOzSPrM3YYWc=
-=JpKI
+# <Tendermint private key>
 -----END TENDERMINT PRIVATE KEY-----" > mykey.export
 ```
 
-To restore the key:
+### Ethereum-Formatted Private Keys
+
+:::tip
+**Note**: These types of keys are MetaMask-compatible. 
+:::
+
+To backup this type of key without the mnemonic phrase, do the following:
+
+```bash
+evmosd keys unsafe-export-eth-key mykey > mykey.export
+**WARNING** this is an unsafe way to export your unencrypted private key, are you sure? [y/N]: y
+Enter keyring passphrase:
+```
+
+## Import Key
+
+### Tendermint-Formatted Private Keys
 
 ```bash
 $ evmosd keys import mykey-imported ./mykey.export
 Enter passphrase to decrypt your key:
 ```
+
+### Ethereum-Formatted Private Keys
+
+```
+$ evmosd keys unsafe-import-eth-key mykey-imported ./mykey.export
+Enter passphrase to encrypt your key:
+```
+
+### Verification
 
 Verify that your key has been restored using the following command:
 
