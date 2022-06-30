@@ -175,8 +175,7 @@ func (k Keeper) OnRecvPacket(
 		// case 2: only the sender has a claims record
 		// -> migrate the sender record to the recipient address and claim IBC action
 
-		claimedAmt := sdk.ZeroInt() // nolint: ineffassign
-		claimedAmt, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
+		claimedAmt, err := k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
 
 		// if the transfer fails or the claimable amount is 0 (eg: action already
 		// completed), don't perform a state migration
