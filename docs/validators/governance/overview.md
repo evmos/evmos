@@ -6,7 +6,7 @@ title: "Overview"
 # Governance Overview
 
 ::: tip
-**Note:** Working on a governance proposal? Make sure to look at the [best practices](./best_practices.md)
+**Note:** Working on a governance proposal? Make sure to look at the [best practices](./best_practices.md).
 :::
 
 Evmos has an on-chain governance mechanism for passing

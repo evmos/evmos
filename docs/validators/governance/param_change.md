@@ -23,7 +23,7 @@ For a comprehensive list of available module parameters see the table below:
 | `governance`   | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/gov/06_params.html)                      |
 | `slashing`     | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/slashing/08_params.html)                 |
 | `staking`      | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/staking/08_params.html)                  |
-| `transfer`     | `ibc-go`     | [reference](https://github.com/cosmos/ibc-go/blob/main/modules/apps/transfer/spec/07_params.md) |
+| `transfer`     | `ibc-go`     | [reference](https://github.com/cosmos/ibc-go/blob/main/docs/ibc/params.md)                    |
 | `evm`          | `ethermint`  | [reference](https://evmos.dev/modules/evm/08_params.html)                                       |
 | `feemarket`    | `ethermint`  | [reference](https://evmos.dev/modules/feemarket/07_params.html)                                 |
 | `claims`       | `evmos`      | [reference](https://evmos.dev/modules/claims/06_parameters.html)                                |

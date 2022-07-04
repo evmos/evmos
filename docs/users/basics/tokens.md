@@ -16,11 +16,11 @@ The denomination used for staking, governance and gas consumption on the EVM is 
 
 Evmos uses [Atto](https://en.wikipedia.org/wiki/Atto-) EVMOS as the base denomination to maintain parity with Ethereum.
 
-$$1 evmos = 1 ~ * ~ 10^{18} aevmos$$
+1 evmos = 10<sup>18</sup> aevmos
 
 This matches Ethereum denomination of:
 
-$$1 ETH = 1 ~ * ~ 10^{18} wei$$
+1 ETH = 10<sup>18</sup> wei
 
 ## Cosmos Coins
 
