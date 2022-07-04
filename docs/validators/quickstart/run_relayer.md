@@ -15,12 +15,15 @@ The following information is based off of [this guide](https://docs.osmosis.zone
 If running many nodes on a single VM, [ensure your open files limit is increased](https://tecadmin.net/increase-open-files-limit-ubuntu/).
 
 ## Prerequisites
-
+<!-- textlint-disable -->
 Before beginning, ensure you have an Evmos node running in the background of the same machine that you intend to relay on. Follow [this guide](run_node.md) to set up an Evmos node if you have not already.
+<!-- textlint-enable -->
 
 In this guide, we will be relaying between [Evmos (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers). When setting up your Evmos and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
 
+<!-- textlint-disable -->
 In this example, the default ports for Evmos will be used, and the ports of the Cosmos Hub node will be manually changed.
+<!-- textlint-enable -->
 
 ## Evmos Daemon Settings
 

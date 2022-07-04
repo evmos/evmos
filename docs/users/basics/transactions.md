@@ -78,7 +78,11 @@ Evmos supports dyanamic fee transactions, which were introduced in EIP-1559 and 
 0x02 || RLP([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, destination, amount, data, access_list, signature_y_parity, signature_r, signature_s])
 ```
 
-With this proposal, Ethereum introduced a base fee per gas in the protocol, which is meant to centralize at a certain target. These transactions specify the maximum fee per gas users are willing to give to miners (`max_priority_fee_per_gas`) to incentivize them to include their transaction in the next mined block, along with the maximum fee per gas users are willing to pay total (`max_fee_per_gas`). The base fee per gas, combined with the `max_priority_fee_per_gas`, should stay below the `max_fee_per_gas`.
+With this proposal, Ethereum introduced a base fee per gas in the protocol, which is meant to centralize at a certain target.
+
+These transactions specify the maximum fee per gas users are willing to give to miners (`max_priority_fee_per_gas`) to incentivize them to include their transaction in the next mined block, along with the maximum fee per gas users are willing to pay total (`max_fee_per_gas`).
+
+The base fee per gas, combined with the `max_priority_fee_per_gas`, should stay below the `max_fee_per_gas`.
 
 ### Interchain Transactions
 
