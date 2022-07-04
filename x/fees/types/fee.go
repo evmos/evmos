@@ -9,7 +9,7 @@ import (
 // NewFee returns an instance of Fee. If the provided withdraw address is empty,
 // it sets the value to the empty string.
 func NewFee(contract common.Address, deployer, withdrawer sdk.AccAddress) Fee {
-	var withdrawerAddr string
+	withdrawerAddr := ""
 	if len(withdrawer) > 0 {
 		withdrawerAddr = withdrawer.String()
 	}

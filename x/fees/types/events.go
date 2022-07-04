@@ -8,5 +8,5 @@ const (
 	EventTypeDistributeDevFee = "distribute_dev_fee"
 
 	AttributeKeyContract          = "contract"
-	AttributeKeyWithdrawerAddress = "withdraw_address"
+	AttributeKeyWithdrawerAddress = "withdrawer_address"
 )

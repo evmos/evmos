@@ -57,7 +57,7 @@ message MsgUpdateFee {
 // MsgUpdateFeeResponse defines the MsgUpdateFee response type
 message MsgUpdateFeeResponse {}
 
-// MsgCancelFee defines a message that cancels a registered a Fee
+// MsgCancelFee defines a message that cancels a registered Fee
 message MsgCancelFee {
   option (gogoproto.equal) = false;
   // contract hex address

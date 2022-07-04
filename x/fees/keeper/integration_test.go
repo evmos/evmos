@@ -171,7 +171,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		})
 
 		Describe("Registering a contract for receiving tx fees", func() {
-			Context("with an empty withdrawal address", Ordered, func() {
+			Context("with an empty withdrawer address", Ordered, func() {
 				var contractAddress common.Address
 				var nonce uint64
 
@@ -205,20 +205,20 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("with a withdrawal address equal to the deployer address", func() {
-				It("should not be possible", func() {
+			Context("with a withdrawer address equal to the deployer address", func() {
+				It("should be possible", func() {
 					nonce := getNonce(deployerAddress.Bytes())
 					contractAddress := deployContract(deployerKey, contractCode)
 					res := registerFee(deployerKey, &contractAddress, deployerAddress, []uint64{nonce})
-					Expect(res.IsOK()).To(BeFalse())
+					Expect(res.IsOK()).To(BeTrue())
 
 					_, isRegistered := s.app.FeesKeeper.GetFee(s.ctx, contractAddress)
-					Expect(isRegistered).To(BeFalse())
+					Expect(isRegistered).To(BeTrue())
 					s.Commit()
 				})
 			})
 
-			Context("with an empty withdrawal address", func() {
+			Context("with an empty withdrawer address", func() {
 				It("should be possible", func() {
 					nonce := getNonce(deployerAddress.Bytes())
 					contractAddress := deployContract(deployerKey, contractCode)
@@ -234,7 +234,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("with a withdrawal address different than deployer", Ordered, func() {
+			Context("with a withdrawer address different than deployer", Ordered, func() {
 				var withdrawerAddress sdk.AccAddress
 				var contractAddress common.Address
 				var nonce uint64

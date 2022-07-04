@@ -56,7 +56,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 		expectPass bool
 	}{
 		{
-			"msg register contract - pass",
+			"pass",
 			suite.contract.String(),
 			suite.deployerStr,
 			suite.withdrawStr,
@@ -64,7 +64,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			true,
 		},
 		{
-			"msg register contract empty withdraw - pass",
+			"pass - empty withdrawer address",
 			suite.contract.String(),
 			suite.deployerStr,
 			"",
@@ -72,12 +72,12 @@ func (suite *MsgsTestSuite) TestMsgRegisterFeeNew() {
 			true,
 		},
 		{
-			"please specify an empty withdraw address",
+			"pass - same withdrawer and deployer address",
 			suite.contract.String(),
 			suite.deployerStr,
 			suite.deployerStr,
 			[]uint64{1},
-			false,
+			true,
 		},
 		{
 			"invalid contract address",

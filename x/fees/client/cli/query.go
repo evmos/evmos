@@ -172,7 +172,7 @@ func GetCmdQueryDeployerFees() *cobra.Command {
 }
 
 // GetCmdQueryWithdrawerFees implements a command that returns all fees that have
-// registered for fee fdistribution with a given withdraw address
+// registered for fee distribution with a given withdraw address
 func GetCmdQueryWithdrawerFees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "fees-withdraw [address]",

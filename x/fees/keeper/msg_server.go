@@ -36,27 +36,27 @@ func (k Keeper) RegisterFee(
 	}
 
 	deployer := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
-	deployerAcc := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
-	if deployerAcc == nil {
+	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
+	if deployerAccount == nil {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrNotFound,
 			"deployer account not found %s", msg.DeployerAddress,
 		)
 	}
 
-	if deployerAcc.IsContract() {
+	if deployerAccount.IsContract() {
 		return nil, sdkerrors.Wrapf(
 			types.ErrFeesDeployerIsNotEOA,
 			"deployer cannot be a contract %s", msg.DeployerAddress,
 		)
 	}
 
-	var withdraw sdk.AccAddress
+	var withdrawer sdk.AccAddress
 	if msg.WithdrawerAddress != "" && msg.WithdrawerAddress != msg.DeployerAddress {
-		withdraw = sdk.MustAccAddressFromBech32(msg.WithdrawerAddress)
+		withdrawer = sdk.MustAccAddressFromBech32(msg.WithdrawerAddress)
 	}
 
-	derivedContractAddr := common.BytesToAddress(deployer)
+	derivedContract := common.BytesToAddress(deployer)
 
 	// the contract can be directly deployed by an EOA or created through one
 	// or more factory contracts. If it was deployed by an EOA account, then
@@ -70,14 +70,14 @@ func (k Keeper) RegisterFee(
 			"fees registration: address derivation CREATE opcode",
 		)
 
-		derivedContractAddr = crypto.CreateAddress(derivedContractAddr, nonce)
+		derivedContract = crypto.CreateAddress(derivedContract, nonce)
 	}
 
-	if contract != derivedContractAddr {
+	if contract != derivedContract {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrorInvalidSigner,
 			"not contract deployer or wrong nonce: expected %s instead of %s",
-			derivedContractAddr, msg.ContractAddress,
+			derivedContract, msg.ContractAddress,
 		)
 	}
 
@@ -92,23 +92,22 @@ func (k Keeper) RegisterFee(
 	}
 
 	// prevent storing the same address for deployer and withdrawer
-	fee := types.NewFee(contract, deployer, withdraw)
+	fee := types.NewFee(contract, deployer, withdrawer)
 	k.SetFee(ctx, fee)
 	k.SetDeployerMap(ctx, deployer, contract)
 
 	// NOTE: only set withdraw map if address is not empty
+	effectiveWithdrawer := msg.DeployerAddress
 
-	withdrawAddr := msg.DeployerAddress
-
-	if len(withdraw) != 0 {
-		k.SetWithdrawerMap(ctx, withdraw, contract)
-		withdrawAddr = msg.WithdrawerAddress
+	if len(withdrawer) != 0 {
+		k.SetWithdrawerMap(ctx, withdrawer, contract)
+		effectiveWithdrawer = msg.WithdrawerAddress
 	}
 
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
 		"contract", msg.ContractAddress, "deployer", msg.DeployerAddress,
-		"withdraw", withdrawAddr,
+		"withdraw", effectiveWithdrawer,
 	)
 
 	ctx.EventManager().EmitEvents(
@@ -117,7 +116,7 @@ func (k Keeper) RegisterFee(
 				types.EventTypeRegisterFee,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, withdrawAddr),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, effectiveWithdrawer),
 			),
 		},
 	)

@@ -89,7 +89,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: false,
 		},
 		{
-			name: "invalid genesis - duplicated fee 2",
+			name: "invalid genesis - duplicated fee with different deployer address",
 			genState: &GenesisState{
 				Params: DefaultParams(),
 				Fees: []Fee{
@@ -146,7 +146,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: false,
 		},
 		{
-			name: "invalid genesis - invalid params",
+			name: "invalid genesis - invalid withdrawer address",
 			genState: &GenesisState{
 				Params: DefaultParams(),
 				Fees: []Fee{
