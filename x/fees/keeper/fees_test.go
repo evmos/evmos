@@ -193,7 +193,7 @@ func (suite *KeeperTestSuite) TestGetFee() {
 
 			fee, found := suite.app.FeesKeeper.GetFee(suite.ctx, tc.contract)
 			foundD := suite.app.FeesKeeper.IsDeployerMapSet(suite.ctx, tc.deployer, tc.contract)
-			foundW := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, tc.withdraw, tc.contract)
+			foundW := suite.app.FeesKeeper.IsWithdrawerMapSet(suite.ctx, tc.withdraw, tc.contract)
 
 			if tc.found {
 				suite.Require().True(found, tc.name)
@@ -282,7 +282,7 @@ func (suite *KeeperTestSuite) TestDeleteDeployerMap() {
 
 func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
 	suite.app.FeesKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
-	found := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, withdraw, contract)
+	found := suite.app.FeesKeeper.IsWithdrawerMapSet(suite.ctx, withdraw, contract)
 	suite.Require().True(found)
 
 	testCases := []struct {
@@ -301,7 +301,7 @@ func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
 	}
 	for _, tc := range testCases {
 		tc.malleate()
-		found := suite.app.FeesKeeper.IsWithdrawMapSet(suite.ctx, withdraw, contract)
+		found := suite.app.FeesKeeper.IsWithdrawerMapSet(suite.ctx, withdraw, contract)
 		if tc.ok {
 			suite.Require().True(found, tc.name)
 		} else {

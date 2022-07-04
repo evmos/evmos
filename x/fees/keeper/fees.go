@@ -142,9 +142,9 @@ func (k Keeper) IsDeployerMapSet(
 	return store.Has(key)
 }
 
-// IsWithdrawMapSet checks if a fee contract by withdrawer address mapping is set
+// IsWithdrawerMapSet checks if a fee contract by withdrawer address mapping is set
 // in store
-func (k Keeper) IsWithdrawMapSet(
+func (k Keeper) IsWithdrawerMapSet(
 	ctx sdk.Context,
 	withdrawer sdk.AccAddress,
 	contract common.Address,
