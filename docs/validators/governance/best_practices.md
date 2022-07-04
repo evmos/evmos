@@ -128,7 +128,7 @@ Assume that many people will stop reading at this point. However, it is importan
 2. Background information - promote understanding of the ERC-20 Module
    - a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
    - a brief explanation of what the ERC-20 Module does
-   - a mention of the [ERC-20 Module documentation](../../modules/erc20)
+   - a mention of the ERC-20 Module documentation
 3. Solution - generally how ERC-20 Module changes will be made
    - a brief explanation of what the proposal will do if it passes
    - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
