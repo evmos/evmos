@@ -75,7 +75,7 @@ func GetCmdQueryFeeSplits() *cobra.Command {
 // distribution
 func GetCmdQueryFeeSplit() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-split [address]",
+		Use:     "fee-split [contract-address]",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query a registered contract for fee distribution by hex address",
 		Long:    "Query a registered contract for fee distribution by hex address",
@@ -137,10 +137,10 @@ func GetCmdQueryParams() *cobra.Command {
 // a deployer has registered for fee distribution
 func GetCmdQueryDeployerFeeSplits() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-splits-deployer [address]",
+		Use:     "fee-splits-deployer [deployer-address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query all fees that a deployer has registered",
-		Long:    "Query all fees that a deployer has registered for fee distribution.",
+		Short:   "Query all fee splits that a deployer has registered",
+		Long:    "Query all fee splits that a deployer has registered for fee distribution.",
 		Example: fmt.Sprintf("%s query feesplit fee-splits-deployer <address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -175,7 +175,7 @@ func GetCmdQueryDeployerFeeSplits() *cobra.Command {
 // registered for fee distribution with a given withdraw address
 func GetCmdQueryWithdrawerFeeSplits() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-splits-withdrawer [address]",
+		Use:     "fee-splits-withdrawer [withdrawer-address]",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query all fee splits for a given withdrawer address.",
 		Long:    "Query all fee splits for a given withdrawer address that have been registered for fee distribution.",
