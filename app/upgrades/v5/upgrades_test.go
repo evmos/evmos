@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -15,7 +14,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
@@ -83,59 +81,6 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (suite *UpgradeTestSuite) TestScheduledUpgrade() {
-	testCases := []struct {
-		name       string
-		preUpdate  func()
-		update     func()
-		postUpdate func()
-	}{
-		{
-			"scheduled upgrade",
-			func() {
-				plan := types.Plan{
-					Name:   v5.UpgradeName,
-					Height: v5.MainnetUpgradeHeight,
-					Info:   v5.UpgradeInfo,
-				}
-				err := suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
-				suite.Require().NoError(err)
-
-				// ensure the plan is scheduled
-				plan, found := suite.app.UpgradeKeeper.GetUpgradePlan(suite.ctx)
-				suite.Require().True(found)
-			},
-			func() {
-				suite.ctx = suite.ctx.WithBlockHeight(v5.MainnetUpgradeHeight)
-				suite.Require().NotPanics(
-					func() {
-						beginBlockRequest := abci.RequestBeginBlock{
-							Header: suite.ctx.BlockHeader(),
-						}
-						suite.app.BeginBlocker(suite.ctx, beginBlockRequest)
-					},
-				)
-			},
-			func() {
-				// check that the default params have been overridden by the init function
-				fmParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(v5.MainnetMinGasPrices.String(), fmParams.MinGasPrice.String())
-				suite.Require().Equal(v5.MainnetMinGasMultiplier.String(), fmParams.MinGasMultiplier.String())
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
-
-			tc.preUpdate()
-			tc.update()
-			tc.postUpdate()
-		})
-	}
-}
-
 func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 	testCases := []struct {
 		name     string
@@ -176,7 +121,7 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 
@@ -224,7 +169,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -285,7 +230,7 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -411,7 +356,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID + "-2") // reset
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
 
 			for _, dt := range tc.originalTraces {
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)
@@ -421,89 +366,6 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 			traces := suite.app.TransferKeeper.GetAllDenomTraces(suite.ctx)
 			suite.Require().Equal(tc.expDenomTraces, traces)
-		})
-	}
-}
-
-func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
-	testCases := []struct {
-		name           string
-		chainID        string
-		malleate       func()
-		expectedWindow int64
-	}{
-		{
-			"param already adjusted",
-			evmostypes.MainnetChainID + "-2",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 70000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			70000,
-		},
-		{
-			"success",
-			evmostypes.MainnetChainID + "-2",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 30000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			90000,
-		},
-		{
-			"param already adjusted",
-			evmostypes.TestnetChainID + "-4",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 20000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			20000,
-		},
-		{
-			"success",
-			evmostypes.TestnetChainID + "-4",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 10000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			30000,
-		},
-		{
-			"chain that doesn't match",
-			"unexpected-1",
-			func() {
-			},
-			100,
-		},
-		{
-			"chain that doesn't match (do nothing)",
-			"unexpected-1",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 10000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			10000,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(tc.chainID) // reset
-
-			tc.malleate()
-
-			suite.Require().NotPanics(func() {
-				v5.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper)
-				suite.app.Commit()
-			})
-
-			params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-			suite.Require().Equal(tc.expectedWindow, params.SignedBlocksWindow)
 		})
 	}
 }
