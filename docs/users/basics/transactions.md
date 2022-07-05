@@ -36,53 +36,27 @@ Explain that transactions can interoperate with other blockchains.
 
 ### Ethereum Transactions
 
+Ethereum transactions refer to actions initiated by EOAs (externally-owned accounts, managed by humans), rather than internal smart contract calls. Ethereum transactions transform the state of the EVM and therefore must be broadcasted to the entire network.
+
+Ethereum transactions also require a fee, known as `gas`. ([EIP-1559])(https://eips.ethereum.org/EIPS/eip-1559) introduced the idea of a base fee, along with a priority fee which served as an incentive for miners to include specific transactions in blocks.
+
+There are several categories of Ethereum transactions:
+
+- regular transactions: transactions from one account to another
+- contract deployment transactions: transactions without a `to` address, where the contract code is sent in the `data` field
+- execution of a contract: transactions that interact with a deployed smart contract, where the `to` address is the smart contract address
+
+For more information on Ethereum transactions and the transaction lifecycle, [go here](https://ethereum.org/en/developers/docs/transactions/).
+
 Evmos supports the following Ethereum transactions.
 
-#### Legacy Transactions
+:::tip
+**Note**: Unprotected legacy transactions are not supported by default.
+:::
 
-Legacy transactions are the transaction format used prior to [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718), the Ethereum Improvement Proposal which transitioned from [RLP-encoded](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/) transactions to a new generalized envelope for typed transactions.
-
-Ethereum legacy transactions take the following form:
-
-```bash
-RLP([nonce, gasPrice, gasLimit, to, value, data, v, r, s])
-```
-
-while the new standard for transactions takes this form:
-
-```bash
-TransactionType || TransactionPayload
-```
-
-where `TransactionType` is a number between `0x0` and `0x7f`, for a total of 128 possible transaction types, and `TransactionPayload` is an arbitrary byte array, defined by the transaction type.
-
-EIP-2718 is backwards-compatible, meaning legacy transactions are still valid as transactions on the Ethereum network. RLP-encoded transactions always begin with a byte larger than or equal to `0xc0`, so typed transactions do not collide with legacy transactions, and differentiating between them is simple.
-
-Evmos supports not only legacy transactions, but several typed transactions ([see below](#access-list-transactions-eip-2930httpseipsethereumorgeipseip-2930))!
-
-#### Access List Transactions ([EIP-2930](https://eips.ethereum.org/EIPS/eip-2930))
-
-Evmos supports access list transactions, which were introduced in EIP-2930 and take the following form:
-
-```bash
-0x01 || RLP([chainId, nonce, gasPrice, gasLimit, to, value, data, accessList, signatureYParity, signatureR, signatureS])
-```
-
-This transaction type contains an `accessList`, which is a list of addresses and storage keys that the transaction plans to access. Gas costs for transactions are still charged, but at a discount relative to the cost of accessing outside the list.
-
-#### Dynamic Fee Transactions ([EIP-1559](https://eips.ethereum.org/EIPS/eip-1559))
-
-Evmos supports dyanamic fee transactions, which were introduced in EIP-1559 and take the following form:
-
-```bash
-0x02 || RLP([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, destination, amount, data, access_list, signature_y_parity, signature_r, signature_s])
-```
-
-With this proposal, Ethereum introduced a base fee per gas in the protocol, which is meant to centralize at a certain target.
-
-These transactions specify the maximum fee per gas users are willing to give to miners (`max_priority_fee_per_gas`) to incentivize them to include their transaction in the next mined block, along with the maximum fee per gas users are willing to pay total (`max_fee_per_gas`).
-
-The base fee per gas, combined with the `max_priority_fee_per_gas`, should stay below the `max_fee_per_gas`.
+- Dynamic Fee Transactions ([EIP-1559](https://eips.ethereum.org/EIPS/eip-1559))
+- Access List Transactions ([EIP-2930](https://eips.ethereum.org/EIPS/eip-2930))
+- Legacy Transactions ([EIP-2718])(https://eips.ethereum.org/EIPS/eip-2718))
 
 ### Interchain Transactions
 

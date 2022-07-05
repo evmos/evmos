@@ -4,7 +4,7 @@ order: 5
 
 # Run an IBC Relayer
 
-The following information is based off of [this guide](https://docs.osmosis.zone/developing/relaying/relay.html) created by Osmosis Labs.
+Learn how to run an IBC Relayer for Evmos. {synopsis}
 
 ## Minimum Requirements
 
