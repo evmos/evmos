@@ -29,13 +29,13 @@ service Query {
   // DeployerFeeSplits retrieves all feesplits that a given deployer has registered
   rpc DeployerFeeSplits(QueryDeployerFeeSplitsRequest)
       returns (QueryDeployerFeeSplitsResponse) {
-    option (google.api.http).get = "/evmos/feesplit/v1/feesplit/{deployer_address}";
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{deployer_address}";
   }
 
   // WithdrawerFeeSplits retrieves all feesplit with a given withdrawer address
   rpc WithdrawerFeeSplits(QueryWithdrawerFeeSplitsRequest)
       returns (QueryWithdrawerFeeSplitsResponse) {
-    option (google.api.http).get = "/evmos/feesplit/v1/feesplit/{withdrawer_address}";
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{withdrawer_address}";
   }
 }
 

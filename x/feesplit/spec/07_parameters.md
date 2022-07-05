@@ -6,15 +6,15 @@ order: 7
 
 The fees module contains the following parameters:
 
-| Key                        | Type          | Default Value                 |
-| :------------------------- | :------------ | :---------------------------- |
-| `EnableFees`               | bool          | `true`                        |
-| `DeveloperShares`          | sdk.Dec       | `50%`                         |
-| `AddrDerivationCostCreate` | uint64        | `50`                          |
+| Key                        | Type    | Default Value |
+| :------------------------- | :------ | :------------ |
+| `EnableFeeSplit`           | bool    | `true`        |
+| `DeveloperShares`          | sdk.Dec | `50%`         |
+| `AddrDerivationCostCreate` | uint64  | `50`          |
 
-## Enable Fee Module
+## Enable Feesplit Module
 
-The `EnableFees` parameter toggles all state transitions in the module. When the parameter is disabled, it will prevent any transaction fees from being distributed to contract deployers and it will disallow contract registrations, updates or cancellations.
+The `EnableFeeSplit` parameter toggles all state transitions in the module. When the parameter is disabled, it will prevent any transaction fees from being distributed to contract deployers and it will disallow contract registrations, updates or cancellations.
 
 ### Developer Shares Amount
 

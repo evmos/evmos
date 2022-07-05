@@ -10,9 +10,9 @@ The fees module implements one transaction hook from the `x/evm` module in order
 
 An [`PostTxProcessing` EVM hook](https://evmos.dev/modules/evm/06_hooks.html) executes custom logic after each successful EVM transaction. All fees paid by a user for transaction execution are sent to the `FeeCollector` module account during the `AnteHandler` execution before being distributed to developers and validators.
 
-If the `x/fees` module is disabled or the EVM transaction targets an unregistered contract, the EVM hook returns `nil`, without performing any actions. In this case, 100% of the transaction fees remain in the `FeeCollector` module, to be distributed to the block proposer.
+If the `x/feesplit` module is disabled or the EVM transaction targets an unregistered contract, the EVM hook returns `nil`, without performing any actions. In this case, 100% of the transaction fees remain in the `FeeCollector` module, to be distributed to the block proposer.
 
-If the `x/fees` module is enabled and a EVM transaction tragets a registered contract, the EVM hook sends a percentage of the transaction fees (paid by the user) to the withdraw address set for that contract, or to the contract deployer.
+If the `x/feesplit` module is enabled and a EVM transaction tragets a registered contract, the EVM hook sends a percentage of the transaction fees (paid by the user) to the withdraw address set for that contract, or to the contract deployer.
 
 1. User submits EVM transaction (`MsgEthereumTx`) to a smart contract and transaction is executed successfully
 2. Check if

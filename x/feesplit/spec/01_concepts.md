@@ -6,7 +6,7 @@ order: 1
 
 ## Evmos dApp Store
 
-The Evmos dApp store is a revenue-per-transaction model, which allows developers to get payed for deploying their decentralized application (dApps) on Evmos. Developers generate revenue, every time a user interacts with their dApp in the dApp store, gaining them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the `x/fees` module.
+The Evmos dApp store is a revenue-per-transaction model, which allows developers to get payed for deploying their decentralized application (dApps) on Evmos. Developers generate revenue, every time a user interacts with their dApp in the dApp store, gaining them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the `x/feesplit` module.
 
 ## Registration
 
@@ -23,7 +23,7 @@ As described above, developers will earn a portion of the transaction fee after 
 
 Users pay transaction fees to pay interact with smart contracts using the EVM. When a transaction is executed, the entire fee amount (`gasLimit * gasPrice`) is sent to the `FeeCollector` module account during the [Cosmos SDK AnteHandler](https://docs.cosmos.network/v0.44/modules/auth/03_antehandlers.html) execution. After the EVM executes the transaction, the user receives a refund of `(gasLimit - gasUsed) * gasPrice`. In result a user pays a total transaction fee of `txFee = gasUsed * gasPrice` for the execution.
 
-This transaction fee is distributed between developers and validators, in accordance with the `x/fees` module parameters: `DeveloperShares`, `ValidatorShares`. This distribution is handled through the EVM's [`PostTxProcessing` Hook](./05_hooks.md).
+This transaction fee is distributed between developers and validators, in accordance with the `x/feesplit` module parameters: `DeveloperShares`, `ValidatorShares`. This distribution is handled through the EVM's [`PostTxProcessing` Hook](./05_hooks.md).
 
 ### Address Derivation
 
