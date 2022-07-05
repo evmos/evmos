@@ -56,14 +56,11 @@ In the `config` directory, the most important files for configuration are `app.t
 
 ### Copy the Genesis File
 
-Check the `genesis.json` file from the [`testnets`](https://github.com/tharsis/testnets) repository and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+Check the `genesis.json` file from the [`archive`](https://archive.evmos.dev/evmos_9000-4/genesis.json) and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
 sudo apt install -y unzip wget
-wget -P ~/.evmosd/config https://github.com/tharsis/testnets/raw/main/evmos_9000-4/genesis.zip
-cd ~/.evmosd/config
-unzip genesis.zip
-rm genesis.zip
+wget -P ~/.evmosd/config https://archive.evmos.dev/evmos_9000-4/genesis.json
 ```
 
 Then verify the correctness of the genesis configuration file:
