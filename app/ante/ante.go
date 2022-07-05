@@ -1,8 +1,6 @@
 package ante
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -22,7 +20,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 
 		defer ethante.Recover(ctx.Logger(), &err)
 
-		fmt.Println(ctx)
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
 			opts := txWithExtensions.GetExtensionOptions()
