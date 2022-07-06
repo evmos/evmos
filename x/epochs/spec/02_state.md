@@ -24,7 +24,6 @@ An `EpochInfo` defines several variables:
 6. `epoch_counting_started` is a flag set with `start_time`, at which point `epoch_number` will be counted
 7. `current_epoch_start_height` keeps the start block height of the current epoch
 
-
 ```protobuf
 message EpochInfo {
     string identifier = 1;

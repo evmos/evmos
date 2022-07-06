@@ -4,9 +4,9 @@ order: 5
 
 # Hooks
 
-The `x/epochs` module implements hooks so that other modules can use epochs to allow facets of the [Cosmos SDK]() to run on specific schedules.
+The `x/epochs` module implements hooks so that other modules can use epochs to allow facets of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) to run on specific schedules.
 
-## Hooks Implementation 
+## Hooks Implementation
 
 ```go
 // combine multiple epoch hooks, all hook functions are run in array sequence
