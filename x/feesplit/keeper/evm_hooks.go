@@ -26,6 +26,12 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
+// PostTxProcessing is a wrapper for calling the EVM PostTxProcessing hook on
+// the module keeper
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	return h.k.PostTxProcessing(ctx, msg, receipt)
+}
+
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with a registered contract, the contract deployer (or, if set,
 // the withdraw address) receives a share from the transaction fees paid by the
@@ -104,9 +110,4 @@ func (k Keeper) PostTxProcessing(
 	)
 
 	return nil
-}
-
-// evm hook
-func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
-	return h.k.PostTxProcessing(ctx, msg, receipt)
 }
