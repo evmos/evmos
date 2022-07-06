@@ -52,7 +52,7 @@ service Query {
                                    "{delegator_address}/validators";
   }
 
-// DelegatorWithdrawAddress queries withdraw address of a delegator.
+  // DelegatorWithdrawAddress queries withdraw address of a delegator.
   rpc DelegatorWithdrawAddress(QueryDelegatorWithdrawAddressRequest) returns (QueryDelegatorWithdrawAddressResponse) {
     option (google.api.http).get = "/cosmos/distribution/v1beta1/delegators/"
                                    "{delegator_address}/withdraw_address";

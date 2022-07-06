@@ -11,7 +11,7 @@ import "cosmos/base/v1beta1/coin.proto";
 service Msg {
   // SetWithdrawAddress defines a method to change the withdraw address
   // for a delegator (or validator self-delegation).
-  rpc SetWithdrawerAddress(MsgSetWithdrawerAddress) returns (MsgSetWithdrawerAddressResponse);
+  rpc SetWithdrawAddress(MsgSetWithdrawAddress) returns (MsgSetWithdrawAddressResponse);
 
   // WithdrawDelegatorReward defines a method to withdraw rewards of delegator
   // from a single validator.
@@ -26,9 +26,9 @@ service Msg {
   rpc FundCommunityPool(MsgFundCommunityPool) returns (MsgFundCommunityPoolResponse);
 }
 
-// MsgSetWithdrawerAddress sets the withdraw address for
+// MsgSetWithdrawAddress sets the withdraw address for
 // a delegator (or validator self-delegation).
-message MsgSetWithdrawerAddress {
+message MsgSetWithdrawAddress {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -36,8 +36,8 @@ message MsgSetWithdrawerAddress {
   string withdraw_address  = 2 [(gogoproto.moretags) = "yaml:\"withdraw_address\""];
 }
 
-// MsgSetWithdrawerAddressResponse defines the Msg/SetWithdrawerAddress response type.
-message MsgSetWithdrawerAddressResponse {}
+// MsgSetWithdrawAddressResponse defines the Msg/SetWithdrawAddress response type.
+message MsgSetWithdrawAddressResponse {}
 
 // MsgWithdrawDelegatorReward represents delegation withdrawal to a delegator
 // from a single validator.
