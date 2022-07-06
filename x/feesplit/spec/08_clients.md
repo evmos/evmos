@@ -14,21 +14,21 @@ evmosd query fees params
 
 ### Queries
 
-| Command            | Subcommand           | Description                              |
-| :----------------- | :------------------- | :--------------------------------------- |
-| `query` `feesplit` | `params`             | Get fees params                          |
-| `query` `feesplit` | `fee-split`          | Get the fee split for a given contract   |
-| `query` `feesplit` | `fee-splits`         | Get all fee splits                       |
-| `query` `feesplit` | `fee-split-deployer` | Get all fee splits of a given deployer   |
-| `query` `feesplit` | `fee-split-withdraw` | Get all fee splits of a given withdrawer |
+| Command            | Subcommand             | Description                              |
+| :----------------- | :--------------------- | :--------------------------------------- |
+| `query` `feesplit` | `params`               | Get fees params                          |
+| `query` `feesplit` | `contract`             | Get the fee split for a given contract   |
+| `query` `feesplit` | `contracts`            | Get all fee splits                       |
+| `query` `feesplit` | `deployer-contracts`   | Get all fee splits of a given deployer   |
+| `query` `feesplit` | `withdrawer-contracts` | Get all fee splits of a given withdrawer |
 
 ### Transactions
 
-| Command         | Subcommand           | Description                                |
-| :-------------- | :------------------- | :----------------------------------------- |
-| `tx` `feesplit` | `register-fee-split` | Register a contract for receiving fees     |
-| `tx` `feesplit` | `update-fee-split`   | Update the withdraw address for a contract |
-| `tx` `feesplit` | `cancel-fee-split`   | Remove the fee split for a contract        |
+| Command         | Subcommand | Description                                |
+| :-------------- | :--------- | :----------------------------------------- |
+| `tx` `feesplit` | `register` | Register a contract for receiving fees     |
+| `tx` `feesplit` | `update`   | Update the withdraw address for a contract |
+| `tx` `feesplit` | `cancel`   | Remove the fee split for a contract        |
 
 ## gRPC
 

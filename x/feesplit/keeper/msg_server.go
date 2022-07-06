@@ -51,6 +51,16 @@ func (k Keeper) RegisterFeeSplit(
 		)
 	}
 
+	// contract must already be deployed, to avoid spam registrations
+	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
+
+	if contractAccount == nil || !contractAccount.IsContract() {
+		return nil, sdkerrors.Wrapf(
+			types.ErrFeeSplitNoContractDeployed,
+			"no contract code found at address %s", msg.ContractAddress,
+		)
+	}
+
 	var withdrawer sdk.AccAddress
 	if msg.WithdrawerAddress != "" && msg.WithdrawerAddress != msg.DeployerAddress {
 		withdrawer = sdk.MustAccAddressFromBech32(msg.WithdrawerAddress)
@@ -81,22 +91,15 @@ func (k Keeper) RegisterFeeSplit(
 		)
 	}
 
-	// contract must already be deployed, to avoid spam registrations
-	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
-
-	if contractAccount == nil || !contractAccount.IsContract() {
-		return nil, sdkerrors.Wrapf(
-			types.ErrFeeSplitNoContractDeployed,
-			"no contract code found at address %s", msg.ContractAddress,
-		)
-	}
-
 	// prevent storing the same address for deployer and withdrawer
 	feeSplit := types.NewFeeSplit(contract, deployer, withdrawer)
 	k.SetFeeSplit(ctx, feeSplit)
 	k.SetDeployerMap(ctx, deployer, contract)
 
-	// NOTE: only set withdraw map if address is not empty
+	// The effective withdrawer is the withdraw address that is stored after the
+	// fee split registration is completed. It defaults to the deployer address if
+	// the withdraw address in the msg is ommited. When ommited, the withdraw map
+	// dosn't need to be set.
 	effectiveWithdrawer := msg.DeployerAddress
 
 	if len(withdrawer) != 0 {
