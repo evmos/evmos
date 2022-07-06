@@ -14,13 +14,13 @@ Learn how to properly integrate [Metamask](https://metamask.io/) or [Keplr](http
 
 The integration implementation checklist for dApp developers consists of three categories:
 
-- implementation of [front-end features](#front-end)
+- implementation of [frontend features](#frontend)
 - implementation of [transactions and wallet interactions](#transactions)
 - implementation of [client-side provider](#connections)
 
-### Front-End
+### Frontend
 
-Make sure to create a wallet-connection button for Metamask and/or Keplr on the front-end of the application. For instance, consider the "Connect to a wallet" button on the interface of [Diffusion Finance](https://app.diffusion.fi/) or the analagous button on the interface of [EvmoSwap](https://app.evmoswap.org/).
+Make sure to create a wallet-connection button for Metamask and/or Keplr on the frontend of the application. For instance, consider the "Connect to a wallet" button on the interface of [Diffusion Finance](https://app.diffusion.fi/) or the analagous button on the interface of [EvmoSwap](https://app.evmoswap.org/).
 
 ### Transactions
 
@@ -28,7 +28,7 @@ Developers enabling transactions on their dApp have to [determine wallet type](#
 
 #### Determining Wallet Type
 
-Developers should determine whether users are using Keplr or MetaMask. Whether MetaMask or Keplr is installed on the user device can be determined by checking the corresponding `window.ethereum` or `window.keplr` value. 
+Developers should determine whether users are using Keplr or MetaMask. Whether MetaMask or Keplr is installed on the user device can be determined by checking the corresponding `window.ethereum` or `window.keplr` value.
 
 - For MetaMask: `await window.ethereum.enable(chainId);`
 - For Keplr: `await window.keplr.enable(chainId);`
@@ -78,9 +78,11 @@ const msg = createMessageSend(chain, sender, fee, memo, params)
 ```
 
 #### Sign and Broadcast the Transaction
+<!-- textlint-disable -->
+After creating the transaction, developers need to send the payload to the appropriate wallet to be signed ([`msg.signDirect`](https://docs.keplr.app/api/#sign-direct-protobuf) is the transaction in Keplr format, and `msg.eipToSign` is the [`EIP712`](https://eips.ethereum.org/EIPS/eip-712) data to sign with MetaMask).
 
-After creating the transaction, developers need to send the payload to the appropriate wallet to be signed ([`msg.signDirect`](https://docs.keplr.app/api/#sign-direct-protobuf) is the transaction in Keplr format, and `msg.eipToSign` is the [`EIP712`](https://eips.ethereum.org/EIPS/eip-712) data to sign with MetaMask). With the signature, we add a Web3Extension to the transaction and broadcast it to the Evmos node.
-
+With the signature, we add a Web3Extension to the transaction and broadcast it to the Evmos node.
+<!-- textlint-enable -->
 ```js
 // Note that this example is for MetaMask, using evmosjs
 
