@@ -98,7 +98,7 @@ func (k Keeper) RegisterFeeSplit(
 
 	// The effective withdrawer is the withdraw address that is stored after the
 	// fee split registration is completed. It defaults to the deployer address if
-	// the withdraw address in the msg is ommited. When ommited, the withdraw map
+	// the withdraw address in the msg is omitted. When omitted, the withdraw map
 	// dosn't need to be set.
 	effectiveWithdrawer := msg.DeployerAddress
 
