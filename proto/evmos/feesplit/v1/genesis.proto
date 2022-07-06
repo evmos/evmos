@@ -16,7 +16,7 @@ message GenesisState {
 
 // Params defines the feesplit module params
 message Params {
-  // enable_fee_split defnies a parameter to enable the feesplit module
+  // enable_fee_split defines a parameter to enable the feesplit module
   bool enable_fee_split = 1;
   // developer_shares defines the proportion of the transaction fees to be
   // distributed to the registered contract owner

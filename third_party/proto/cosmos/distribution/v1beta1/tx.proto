@@ -9,7 +9,7 @@ import "cosmos/base/v1beta1/coin.proto";
 
 // Msg defines the distribution Msg service.
 service Msg {
-  // SetWithdrawerAddress defines a method to change the withdraw address
+  // SetWithdrawAddress defines a method to change the withdraw address
   // for a delegator (or validator self-delegation).
   rpc SetWithdrawerAddress(MsgSetWithdrawerAddress) returns (MsgSetWithdrawerAddressResponse);
 

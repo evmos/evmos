@@ -3701,7 +3701,7 @@ paths:
                     type: boolean
                     description: >-
                       Allow unprotected transactions defines if replay-protected
-                      (i.e non EIP155 
+                      (i.e non EIP155
 
                       signed) transactions can be executed on the state machine.
                 title: Params defines the EVM module parameters
@@ -18393,8 +18393,8 @@ paths:
         - Query
   '/cosmos/distribution/v1beta1/delegators/{delegator_address}/withdraw_address':
     get:
-      summary: DelegatorWithdrawerAddress queries withdraw address of a delegator.
-      operationId: DelegatorWithdrawerAddress
+      summary: DelegatorWithdrawAddress queries withdraw address of a delegator.
+      operationId: DelegatorWithdrawAddress
       responses:
         '200':
           description: A successful response.
@@ -18405,8 +18405,8 @@ paths:
                 type: string
                 description: withdraw_address defines the delegator address to query for.
             description: |-
-              QueryDelegatorWithdrawerAddressResponse is the response type for the
-              Query/DelegatorWithdrawerAddress RPC method.
+              QueryDelegatorWithdrawAddressResponse is the response type for the
+              Query/DelegatorWithdrawAddress RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -34733,7 +34733,7 @@ definitions:
         type: boolean
         description: >-
           Allow unprotected transactions defines if replay-protected (i.e non
-          EIP155 
+          EIP155
 
           signed) transactions can be executed on the state machine.
     title: Params defines the EVM module parameters
@@ -34902,7 +34902,7 @@ definitions:
             type: boolean
             description: >-
               Allow unprotected transactions defines if replay-protected (i.e
-              non EIP155 
+              non EIP155
 
               signed) transactions can be executed on the state machine.
         title: Params defines the EVM module parameters
@@ -41216,15 +41216,15 @@ definitions:
     description: |-
       QueryDelegatorValidatorsResponse is the response type for the
       Query/DelegatorValidators RPC method.
-  cosmos.distribution.v1beta1.QueryDelegatorWithdrawerAddressResponse:
+  cosmos.distribution.v1beta1.QueryDelegatorWithdrawAddressResponse:
     type: object
     properties:
       withdraw_address:
         type: string
         description: withdraw_address defines the delegator address to query for.
     description: |-
-      QueryDelegatorWithdrawerAddressResponse is the response type for the
-      Query/DelegatorWithdrawerAddress RPC method.
+      QueryDelegatorWithdrawAddressResponse is the response type for the
+      Query/DelegatorWithdrawAddress RPC method.
   cosmos.distribution.v1beta1.QueryParamsResponse:
     type: object
     properties:
