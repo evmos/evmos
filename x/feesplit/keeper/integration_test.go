@@ -85,7 +85,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		var registeredContract common.Address
 
 		BeforeAll(func() {
-			// Fee info registered before disabling params
+			// fee split registered before disabling params
 			nonce := getNonce(deployerAddress.Bytes())
 			registeredContract = deployContract(deployerKey, contractCode)
 			res := registerFee(deployerKey, &registeredContract, nil, []uint64{nonce})

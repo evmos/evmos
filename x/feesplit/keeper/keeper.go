@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v6/x/feesplit/types"
 )
 
-// Keeper of this module maintains collections of fee for contracts
+// Keeper of this module maintains collections of fee splits for contracts
 // registered to receive transaction fees.
 type Keeper struct {
 	storeKey   sdk.StoreKey

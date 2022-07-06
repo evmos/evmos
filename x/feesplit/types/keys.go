@@ -35,7 +35,7 @@ func GetKeyPrefixDeployer(deployerAddress sdk.AccAddress) []byte {
 }
 
 // GetKeyPrefixWithdrawer returns the KVStore key prefix for storing
-// registered fee split contract for a deployer
+// registered fee split contract for a withdrawer
 func GetKeyPrefixWithdrawer(withdrawerAddress sdk.AccAddress) []byte {
 	return append(KeyPrefixWithdrawer, withdrawerAddress.Bytes()...)
 }

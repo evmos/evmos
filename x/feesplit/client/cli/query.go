@@ -71,7 +71,7 @@ func GetCmdQueryFeeSplits() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryFee implements a command to return a registered contract for fee
+// GetCmdQueryFeeSplit implements a command to return a registered contract for fee
 // distribution
 func GetCmdQueryFeeSplit() *cobra.Command {
 	cmd := &cobra.Command{

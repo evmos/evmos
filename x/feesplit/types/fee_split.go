@@ -6,8 +6,8 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 )
 
-// NewFeeSplit returns an instance of Feesplit. If the provided withdraw address is empty,
-// it sets the value to the empty string.
+// NewFeeSplit returns an instance of FeeSplit. If the provided withdrawer
+// address is empty, it sets the value to an empty string.
 func NewFeeSplit(contract common.Address, deployer, withdrawer sdk.AccAddress) FeeSplit {
 	withdrawerAddr := ""
 	if len(withdrawer) > 0 {
@@ -42,7 +42,7 @@ func (fs FeeSplit) GetWithdrawerAddr() sdk.AccAddress {
 	return sdk.MustAccAddressFromBech32(fs.WithdrawerAddress)
 }
 
-// Validate performs a stateless validation of a Fee
+// Validate performs a stateless validation of a FeeSplit
 func (fs FeeSplit) Validate() error {
 	if err := ethermint.ValidateNonZeroAddress(fs.ContractAddress); err != nil {
 		return err

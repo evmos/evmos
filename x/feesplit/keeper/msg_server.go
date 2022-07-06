@@ -127,9 +127,9 @@ func (k Keeper) RegisterFeeSplit(
 	return &types.MsgRegisterFeeSplitResponse{}, nil
 }
 
-// UpdateFeeSplit updates the withdraw address of a given Fee. If the given withdraw
-// address is empty or the same as the deployer address, the withdraw address is
-// removed.
+// UpdateFeeSplit updates the withdraw address of a given FeeSplit. If the given
+// withdraw address is empty or the same as the deployer address, the withdraw
+// address is removed.
 func (k Keeper) UpdateFeeSplit(
 	goCtx context.Context,
 	msg *types.MsgUpdateFeeSplit,
@@ -189,7 +189,7 @@ func (k Keeper) UpdateFeeSplit(
 	return &types.MsgUpdateFeeSplitResponse{}, nil
 }
 
-// CancelFeeSplit deletes the fee for a given contract
+// CancelFeeSplit deletes the FeeSplit for a given contract
 func (k Keeper) CancelFeeSplit(
 	goCtx context.Context,
 	msg *types.MsgCancelFeeSplit,
