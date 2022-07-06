@@ -223,4 +223,376 @@ func (suite *KeeperTestSuite) TestRegisterFeeSplit() {
 	}
 }
 
-// TODO Update and Cancel tests
+func (suite *KeeperTestSuite) TestUpdateFeeSplit() {
+	deployer := tests.GenerateAddress()
+	deployerAddr := sdk.AccAddress(deployer.Bytes())
+	withdrawer := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	newWithdrawer := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	contract1 := crypto.CreateAddress(deployer, 1)
+	codeHash := common.Hex2Bytes("fa98cd094c09bb300de0037ba34e94f569b145ce8baa36ed863a08d7b7433f8d")
+	contractAccount := statedb.Account{
+		Nonce:    1,
+		Balance:  big.NewInt(0),
+		CodeHash: codeHash,
+	}
+	deployerAccount := statedb.Account{
+		Balance:  big.NewInt(0),
+		CodeHash: crypto.Keccak256(nil),
+	}
+	testCases := []struct {
+		name          string
+		deployer      sdk.AccAddress
+		withdraw      sdk.AccAddress
+		newWithdrawer sdk.AccAddress
+		contract      common.Address
+		nonces        []uint64
+		malleate      func()
+		expPass       bool
+		errorMessage  string
+	}{
+		{
+			"ok - change withdrawer to deployer",
+			deployerAddr,
+			withdrawer,
+			deployerAddr,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// Prepare
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			true,
+			"",
+		},
+		{
+			"fail - feesplit disabled",
+			deployerAddr,
+			withdrawer,
+			newWithdrawer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// register contract
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				params := types.DefaultParams()
+				params.EnableFeeSplit = false
+				suite.app.FeesplitKeeper.SetParams(suite.ctx, params)
+			},
+			false,
+			"",
+		},
+		{
+			"fail - contract not registered",
+			deployerAddr,
+			withdrawer,
+			newWithdrawer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+			},
+			false,
+			"",
+		},
+		{
+			"fail - deployer not the one registered",
+			newWithdrawer,
+			withdrawer,
+			newWithdrawer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// register contract
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			false,
+			"",
+		},
+		{
+			"fail - everything is the same",
+			deployerAddr,
+			withdrawer,
+			withdrawer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// register contract
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			false,
+			"",
+		},
+		{
+			"fail - previously cancelled contract",
+			deployerAddr,
+			withdrawer,
+			withdrawer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// register contract
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				msgCancel := types.NewMsgCancelFeeSplit(contract1, deployerAddr)
+				_, err = suite.app.FeesplitKeeper.CancelFeeSplit(ctx, msgCancel)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			false,
+			"",
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest()
+
+			tc.malleate()
+
+			msgUpdate := types.NewMsgUpdateFeeSplit(tc.contract, tc.deployer, tc.newWithdrawer)
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			res, err := suite.app.FeesplitKeeper.UpdateFeeSplit(ctx, msgUpdate)
+			expRes := &types.MsgUpdateFeeSplitResponse{}
+			suite.Commit()
+
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				suite.Require().Equal(expRes, res, tc.name)
+
+				feeSplit, ok := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, tc.contract)
+				suite.Require().True(ok, "unregistered feeSplit")
+				suite.Require().Equal(tc.contract.String(), feeSplit.ContractAddress, "wrong contract")
+				suite.Require().Equal(tc.deployer.String(), feeSplit.DeployerAddress, "wrong deployer")
+				if tc.withdraw.String() != tc.deployer.String() {
+					suite.Require().Equal(tc.newWithdrawer.String(), feeSplit.WithdrawerAddress, "wrong withdraw address")
+				} else {
+					suite.Require().Equal("", feeSplit.WithdrawerAddress, "wrong withdraw address")
+				}
+			} else {
+				suite.Require().Error(err, tc.name)
+				suite.Require().Contains(err.Error(), tc.errorMessage)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestCancelFeeSplit() {
+	deployer := tests.GenerateAddress()
+	deployerAddr := sdk.AccAddress(deployer.Bytes())
+	withdrawer := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	fakeDeployer := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	contract1 := crypto.CreateAddress(deployer, 1)
+	codeHash := common.Hex2Bytes("fa98cd094c09bb300de0037ba34e94f569b145ce8baa36ed863a08d7b7433f8d")
+	contractAccount := statedb.Account{
+		Nonce:    1,
+		Balance:  big.NewInt(0),
+		CodeHash: codeHash,
+	}
+	deployerAccount := statedb.Account{
+		Balance:  big.NewInt(0),
+		CodeHash: crypto.Keccak256(nil),
+	}
+	testCases := []struct {
+		name         string
+		deployer     sdk.AccAddress
+		contract     common.Address
+		nonces       []uint64
+		malleate     func()
+		expPass      bool
+		errorMessage string
+	}{
+		{
+			"ok - cancelled",
+			deployerAddr,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// Prepare
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			true,
+			"",
+		},
+		{
+			"ok - cancelled - no withdrawer",
+			deployerAddr,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// Prepare
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, deployerAddr, []uint64{1})
+
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			true,
+			"",
+		},
+		{
+			"fail - feesplit disabled",
+			deployerAddr,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// register contract
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				params := types.DefaultParams()
+				params.EnableFeeSplit = false
+				suite.app.FeesplitKeeper.SetParams(suite.ctx, params)
+			},
+			false,
+			"",
+		},
+		{
+			"fail - contract not registered",
+			deployerAddr,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+			},
+			false,
+			"",
+		},
+		{
+			"fail - deployer not the one registered",
+			fakeDeployer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// register contract
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			false,
+			"",
+		},
+		{
+			"fail - everything is the same",
+			deployerAddr,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+			},
+			false,
+			"",
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest()
+
+			tc.malleate()
+
+			msgCancel := types.NewMsgCancelFeeSplit(tc.contract, tc.deployer)
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			res, err := suite.app.FeesplitKeeper.CancelFeeSplit(ctx, msgCancel)
+			expRes := &types.MsgCancelFeeSplitResponse{}
+			suite.Commit()
+
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+				suite.Require().Equal(expRes, res, tc.name)
+
+				_, ok := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, tc.contract)
+				suite.Require().False(ok, "registered feeSplit")
+			} else {
+				suite.Require().Error(err, tc.name)
+				suite.Require().Contains(err.Error(), tc.errorMessage)
+			}
+		})
+	}
+}
