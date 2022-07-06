@@ -38,7 +38,7 @@ func GetQueryCmd() *cobra.Command {
 // for fee distribution
 func GetCmdQueryFeeSplits() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fee-splits",
+		Use:   "contracts",
 		Short: "Query all fee splits",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -75,11 +75,11 @@ func GetCmdQueryFeeSplits() *cobra.Command {
 // distribution
 func GetCmdQueryFeeSplit() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-split [contract-address]",
+		Use:     "contract [contract-address]",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query a registered contract for fee distribution by hex address",
 		Long:    "Query a registered contract for fee distribution by hex address",
-		Example: fmt.Sprintf("%s query feesplit fee-split <address>", version.AppName),
+		Example: fmt.Sprintf("%s query feesplit contract <contract-address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -103,12 +103,12 @@ func GetCmdQueryFeeSplit() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryParams implements a command to return the current fees
+// GetCmdQueryParams implements a command to return the current feesplit
 // parameters.
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
-		Short: "Query the current fees parameters",
+		Short: "Query the current feesplit module parameters",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -133,15 +133,15 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryDeployerFeeSplits implements a command that returns all contracts that
-// a deployer has registered for fee distribution
+// GetCmdQueryDeployerFeeSplits implements a command that returns all contracts
+// that a deployer has registered for fee distribution
 func GetCmdQueryDeployerFeeSplits() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-splits-deployer [deployer-address]",
+		Use:     "deployer-contracts [deployer-address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query all fee splits that a deployer has registered",
-		Long:    "Query all fee splits that a deployer has registered for fee distribution.",
-		Example: fmt.Sprintf("%s query feesplit fee-splits-deployer <address>", version.AppName),
+		Short:   "Query all contracts that a given deployer has registered for fee distribution",
+		Long:    "Query all contracts that a given deployer has registered for fee distribution",
+		Example: fmt.Sprintf("%s query feesplit deployer-contracts <deployer-address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -171,15 +171,16 @@ func GetCmdQueryDeployerFeeSplits() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryWithdrawerFeeSplits implements a command that returns all fees that have
-// registered for fee distribution with a given withdraw address
+// GetCmdQueryWithdrawerFeeSplits implements a command that returns all
+// contracts that have registered for fee distribution with a given withdraw
+// address
 func GetCmdQueryWithdrawerFeeSplits() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fee-splits-withdrawer [withdrawer-address]",
+		Use:     "withdrawer-contracts [withdrawer-address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query all fee splits for a given withdrawer address.",
-		Long:    "Query all fee splits for a given withdrawer address that have been registered for fee distribution.",
-		Example: fmt.Sprintf("%s query feesplit fee-splits-withdrawer <address>", version.AppName),
+		Short:   "Query all contracts that have been registered for fee distribution with a given withdrawer address",
+		Long:    "Query all contracts that have been registered for fee distribution with a given withdrawer address",
+		Example: fmt.Sprintf("%s query feesplit withdrawer-contracts <withdrawer-address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
