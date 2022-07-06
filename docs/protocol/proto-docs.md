@@ -1023,7 +1023,7 @@ Params defines the feesplit module params
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `enable_fee_split` | [bool](#bool) |  | enable_fee_split defnies a parameter to enable the feesplit module |
+| `enable_fee_split` | [bool](#bool) |  | enable_fee_split defines a parameter to enable the feesplit module |
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
 
@@ -1218,8 +1218,8 @@ Query defines the gRPC querier service.
 | `FeeSplits` | [QueryFeeSplitsRequest](#evmos.feesplit.v1.QueryFeeSplitsRequest) | [QueryFeeSplitsResponse](#evmos.feesplit.v1.QueryFeeSplitsResponse) | FeeSplits retrieves all registered feesplits | GET|/evmos/feesplit/v1/feesplits|
 | `FeeSplit` | [QueryFeeSplitRequest](#evmos.feesplit.v1.QueryFeeSplitRequest) | [QueryFeeSplitResponse](#evmos.feesplit.v1.QueryFeeSplitResponse) | FeeSplit retrieves a registered feesplit for a given contract address | GET|/evmos/feesplit/v1/feesplit/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.feesplit.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.feesplit.v1.QueryParamsResponse) | Params retrieves the feesplit module params | GET|/evmos/feesplit/v1/params|
-| `DeployerFeeSplits` | [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest) | [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse) | DeployerFeeSplits retrieves all feesplits that a given deployer has registered | GET|/evmos/feesplit/v1/feesplit/{deployer_address}|
-| `WithdrawerFeeSplits` | [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest) | [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse) | WithdrawerFeeSplits retrieves all feesplit with a given withdrawer address | GET|/evmos/feesplit/v1/feesplit/{withdrawer_address}|
+| `DeployerFeeSplits` | [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest) | [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse) | DeployerFeeSplits retrieves all feesplits that a given deployer has registered | GET|/evmos/feesplit/v1/feesplits/{deployer_address}|
+| `WithdrawerFeeSplits` | [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest) | [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse) | WithdrawerFeeSplits retrieves all feesplit with a given withdrawer address | GET|/evmos/feesplit/v1/feesplits/{withdrawer_address}|
 
  <!-- end services -->
 

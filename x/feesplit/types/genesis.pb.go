@@ -81,7 +81,7 @@ func (m *GenesisState) GetFeeSplits() []FeeSplit {
 
 // Params defines the feesplit module params
 type Params struct {
-	// enable_fee_split defnies a parameter to enable the feesplit module
+	// enable_fee_split defines a parameter to enable the feesplit module
 	EnableFeeSplit bool `protobuf:"varint,1,opt,name=enable_fee_split,json=enableFeeSplit,proto3" json:"enable_fee_split,omitempty"`
 	// developer_shares defines the proportion of the transaction fees to be
 	// distributed to the registered contract owner
