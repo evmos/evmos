@@ -393,7 +393,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// RegisterFeeSplit registers a new contract for receiving transaction fees
 	RegisterFeeSplit(ctx context.Context, in *MsgRegisterFeeSplit, opts ...grpc.CallOption) (*MsgRegisterFeeSplitResponse, error)
-	// UpdateFeeSplit updates the withdrawer address
+	// UpdateFeeSplit updates the withdrawer address of a fee split
 	UpdateFeeSplit(ctx context.Context, in *MsgUpdateFeeSplit, opts ...grpc.CallOption) (*MsgUpdateFeeSplitResponse, error)
 	// CancelFeeSplit cancels a contract's fee registration and further receival
 	// of transaction fees
@@ -439,7 +439,7 @@ func (c *msgClient) CancelFeeSplit(ctx context.Context, in *MsgCancelFeeSplit, o
 type MsgServer interface {
 	// RegisterFeeSplit registers a new contract for receiving transaction fees
 	RegisterFeeSplit(context.Context, *MsgRegisterFeeSplit) (*MsgRegisterFeeSplitResponse, error)
-	// UpdateFeeSplit updates the withdrawer address
+	// UpdateFeeSplit updates the withdrawer address of a fee split
 	UpdateFeeSplit(context.Context, *MsgUpdateFeeSplit) (*MsgUpdateFeeSplitResponse, error)
 	// CancelFeeSplit cancels a contract's fee registration and further receival
 	// of transaction fees

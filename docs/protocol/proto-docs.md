@@ -1215,11 +1215,11 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `FeeSplits` | [QueryFeeSplitsRequest](#evmos.feesplit.v1.QueryFeeSplitsRequest) | [QueryFeeSplitsResponse](#evmos.feesplit.v1.QueryFeeSplitsResponse) | FeeSplits retrieves all registered feesplits | GET|/evmos/feesplit/v1/feesplits|
-| `FeeSplit` | [QueryFeeSplitRequest](#evmos.feesplit.v1.QueryFeeSplitRequest) | [QueryFeeSplitResponse](#evmos.feesplit.v1.QueryFeeSplitResponse) | FeeSplit retrieves a registered feesplit for a given contract address | GET|/evmos/feesplit/v1/feesplit/{contract_address}|
+| `FeeSplits` | [QueryFeeSplitsRequest](#evmos.feesplit.v1.QueryFeeSplitsRequest) | [QueryFeeSplitsResponse](#evmos.feesplit.v1.QueryFeeSplitsResponse) | FeeSplits retrieves all registered fees plits | GET|/evmos/feesplit/v1/feesplits|
+| `FeeSplit` | [QueryFeeSplitRequest](#evmos.feesplit.v1.QueryFeeSplitRequest) | [QueryFeeSplitResponse](#evmos.feesplit.v1.QueryFeeSplitResponse) | FeeSplit retrieves a registered fee split for a given contract address | GET|/evmos/feesplit/v1/feesplits/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.feesplit.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.feesplit.v1.QueryParamsResponse) | Params retrieves the feesplit module params | GET|/evmos/feesplit/v1/params|
-| `DeployerFeeSplits` | [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest) | [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse) | DeployerFeeSplits retrieves all feesplits that a given deployer has registered | GET|/evmos/feesplit/v1/feesplits/{deployer_address}|
-| `WithdrawerFeeSplits` | [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest) | [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse) | WithdrawerFeeSplits retrieves all feesplit with a given withdrawer address | GET|/evmos/feesplit/v1/feesplits/{withdrawer_address}|
+| `DeployerFeeSplits` | [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest) | [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse) | DeployerFeeSplits retrieves all fee splits that a given deployer has registered | GET|/evmos/feesplit/v1/feesplits/{deployer_address}|
+| `WithdrawerFeeSplits` | [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest) | [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse) | WithdrawerFeeSplits retrieves all fees plits with a given withdrawer address | GET|/evmos/feesplit/v1/feesplits/{withdrawer_address}|
 
  <!-- end services -->
 
@@ -1328,7 +1328,7 @@ Msg defines the fees Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterFeeSplit` | [MsgRegisterFeeSplit](#evmos.feesplit.v1.MsgRegisterFeeSplit) | [MsgRegisterFeeSplitResponse](#evmos.feesplit.v1.MsgRegisterFeeSplitResponse) | RegisterFeeSplit registers a new contract for receiving transaction fees | POST|/evmos/feesplit/v1/tx/register_feesplit|
-| `UpdateFeeSplit` | [MsgUpdateFeeSplit](#evmos.feesplit.v1.MsgUpdateFeeSplit) | [MsgUpdateFeeSplitResponse](#evmos.feesplit.v1.MsgUpdateFeeSplitResponse) | UpdateFeeSplit updates the withdrawer address | POST|/evmos/feesplit/v1/tx/update_feesplit|
+| `UpdateFeeSplit` | [MsgUpdateFeeSplit](#evmos.feesplit.v1.MsgUpdateFeeSplit) | [MsgUpdateFeeSplitResponse](#evmos.feesplit.v1.MsgUpdateFeeSplitResponse) | UpdateFeeSplit updates the withdrawer address of a fee split | POST|/evmos/feesplit/v1/tx/update_feesplit|
 | `CancelFeeSplit` | [MsgCancelFeeSplit](#evmos.feesplit.v1.MsgCancelFeeSplit) | [MsgCancelFeeSplitResponse](#evmos.feesplit.v1.MsgCancelFeeSplitResponse) | CancelFeeSplit cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/feesplit/v1/tx/cancel_feesplit|
 
  <!-- end services -->

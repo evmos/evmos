@@ -12,7 +12,7 @@ service Msg {
   rpc RegisterFeeSplit(MsgRegisterFeeSplit) returns (MsgRegisterFeeSplitResponse) {
     option (google.api.http).post = "/evmos/feesplit/v1/tx/register_feesplit";
   };
-  // UpdateFeeSplit updates the withdrawer address
+  // UpdateFeeSplit updates the withdrawer address of a fee split
   rpc UpdateFeeSplit(MsgUpdateFeeSplit) returns (MsgUpdateFeeSplitResponse) {
     option (google.api.http).post = "/evmos/feesplit/v1/tx/update_feesplit";
   };

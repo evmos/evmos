@@ -42,7 +42,7 @@ evmosd query fees params
 | `gRPC` | `evmos.feesplit.v1.Query/DeployerFeeSplits`       | Get all fee splits of a given deployer   |
 | `gRPC` | `evmos.feesplit.v1.Query/WithdrawerFeeSplits`     | Get all fee splits of a given withdrawer |
 | `GET`  | `/evmos/feesplit/v1/params`                       | Get fees params                          |
-| `GET`  | `/evmos/feesplit/v1/feesplit/{contract_address}`  | Get the fee split for a given contract   |
+| `GET`  | `/evmos/feesplit/v1/feesplits/{contract_address}`  | Get the fee split for a given contract   |
 | `GET`  | `/evmos/feesplit/v1/feesplits`                    | Get all fee splits                       |
 | `GET`  | `/evmos/feesplit/v1/feesplits/{deployer_address}` | Get all fee splits of a given deployer   |
 | `GET`  | `/evmos/feesplit/v1/feesplits/{withdraw_address}` | Get all fee splits of a given withdrawer |

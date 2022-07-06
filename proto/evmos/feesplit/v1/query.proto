@@ -11,14 +11,14 @@ option go_package = "github.com/evmos/evmos/v6/x/feesplit/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // FeeSplits retrieves all registered feesplits
+  // FeeSplits retrieves all registered fees plits
   rpc FeeSplits(QueryFeeSplitsRequest) returns (QueryFeeSplitsResponse) {
     option (google.api.http).get = "/evmos/feesplit/v1/feesplits";
   }
 
-  // FeeSplit retrieves a registered feesplit for a given contract address
+  // FeeSplit retrieves a registered fee split for a given contract address
   rpc FeeSplit(QueryFeeSplitRequest) returns (QueryFeeSplitResponse) {
-    option (google.api.http).get = "/evmos/feesplit/v1/feesplit/{contract_address}";
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{contract_address}";
   }
 
   // Params retrieves the feesplit module params
@@ -26,13 +26,15 @@ service Query {
     option (google.api.http).get = "/evmos/feesplit/v1/params";
   }
 
-  // DeployerFeeSplits retrieves all feesplits that a given deployer has registered
+  // DeployerFeeSplits retrieves all fee splits that a given deployer has
+  // registered
   rpc DeployerFeeSplits(QueryDeployerFeeSplitsRequest)
       returns (QueryDeployerFeeSplitsResponse) {
     option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{deployer_address}";
   }
 
-  // WithdrawerFeeSplits retrieves all feesplit with a given withdrawer address
+  // WithdrawerFeeSplits retrieves all fees plits with a given withdrawer
+  // address
   rpc WithdrawerFeeSplits(QueryWithdrawerFeeSplitsRequest)
       returns (QueryWithdrawerFeeSplitsResponse) {
     option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{withdrawer_address}";

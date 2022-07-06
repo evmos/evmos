@@ -46,7 +46,7 @@ func (k Keeper) IterateFeeSplits(
 	}
 }
 
-// GetFeeSplit returns FeeSplit for a registered contract
+// GetFeeSplit returns the FeeSplit for a registered contract
 func (k Keeper) GetFeeSplit(
 	ctx sdk.Context,
 	contract common.Address,
@@ -70,14 +70,14 @@ func (k Keeper) SetFeeSplit(ctx sdk.Context, feeSplit types.FeeSplit) {
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteFeeSplit deletes a fee contract
+// DeleteFeeSplit deletes a FeeSplit of a registered contract.
 func (k Keeper) DeleteFeeSplit(ctx sdk.Context, fee types.FeeSplit) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeSplit)
 	key := fee.GetContractAddr()
 	store.Delete(key.Bytes())
 }
 
-// SetDeployerMap stores a fee contract by deployer mapping
+// SetDeployerMap stores a contract-by-deployer mapping
 func (k Keeper) SetDeployerMap(
 	ctx sdk.Context,
 	deployer sdk.AccAddress,
@@ -88,7 +88,7 @@ func (k Keeper) SetDeployerMap(
 	store.Set(key, []byte{1})
 }
 
-// DeleteDeployerMap deletes a fee contract by deployer mapping
+// DeleteDeployerMap deletes a contract-by-deployer mapping
 func (k Keeper) DeleteDeployerMap(
 	ctx sdk.Context,
 	deployer sdk.AccAddress,
@@ -99,7 +99,7 @@ func (k Keeper) DeleteDeployerMap(
 	store.Delete(key)
 }
 
-// SetWithdrawerMap stores a fee contract by withdraw address mapping
+// SetWithdrawerMap stores a contract-by-withdrawer mapping
 func (k Keeper) SetWithdrawerMap(
 	ctx sdk.Context,
 	withdrawer sdk.AccAddress,
@@ -110,7 +110,7 @@ func (k Keeper) SetWithdrawerMap(
 	store.Set(key, []byte{1})
 }
 
-// DeleteWithdrawMap deletes a fee contract by withdrawer address mapping
+// DeleteWithdrawMap deletes a contract-by-withdrawer mapping
 func (k Keeper) DeleteWithdrawerMap(
 	ctx sdk.Context,
 	withdrawer sdk.AccAddress,
@@ -121,7 +121,8 @@ func (k Keeper) DeleteWithdrawerMap(
 	store.Delete(key)
 }
 
-// IsFeeSplitRegistered checks if a contract was registered for receiving fees
+// IsFeeSplitRegistered checks if a contract was registered for receiving
+// transaction fees
 func (k Keeper) IsFeeSplitRegistered(
 	ctx sdk.Context,
 	contract common.Address,
@@ -130,8 +131,8 @@ func (k Keeper) IsFeeSplitRegistered(
 	return store.Has(contract.Bytes())
 }
 
-// IsDeployerMapSet checks if a fee contract by deployer address mapping is set
-// in store
+// IsDeployerMapSet checks if a given contract-by-withdrawer mapping is set in
+// store
 func (k Keeper) IsDeployerMapSet(
 	ctx sdk.Context,
 	deployer sdk.AccAddress,
@@ -142,8 +143,8 @@ func (k Keeper) IsDeployerMapSet(
 	return store.Has(key)
 }
 
-// IsWithdrawerMapSet checks if a fee contract by withdrawer address mapping is set
-// in store
+// IsWithdrawerMapSet checks if a giveb contract-by-withdrawer mapping is set in
+// store
 func (k Keeper) IsWithdrawerMapSet(
 	ctx sdk.Context,
 	withdrawer sdk.AccAddress,
