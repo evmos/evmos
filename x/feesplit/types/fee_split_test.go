@@ -147,3 +147,24 @@ func (suite *FeeSplitTestSuite) TestFee() {
 		}
 	}
 }
+
+func (suite *FeeSplitTestSuite) TestFeeSplitGetters() {
+	contract := tests.GenerateAddress()
+	fs := FeeSplit{
+		contract.String(),
+		suite.address1.String(),
+		suite.address2.String(),
+	}
+	suite.Equal(fs.GetContractAddr(), contract)
+	suite.Equal(fs.GetDeployerAddr(), suite.address1)
+	suite.Equal(fs.GetWithdrawerAddr(), suite.address2)
+
+	fs = FeeSplit{
+		contract.String(),
+		suite.address1.String(),
+		"",
+	}
+	suite.Equal(fs.GetContractAddr(), contract)
+	suite.Equal(fs.GetDeployerAddr(), suite.address1)
+	suite.Equal(len(fs.GetWithdrawerAddr()), 0)
+}
