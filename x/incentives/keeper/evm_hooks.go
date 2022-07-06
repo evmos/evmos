@@ -16,12 +16,18 @@ import (
 
 var _ evmtypes.EvmHooks = Hooks{}
 
+// PostTxProcessing is a wrapper for calling the EVM PostTxProcessing hook on
+// the module keeper
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	return h.k.PostTxProcessing(ctx, msg, receipt)
+}
+
 // PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
 // interaction with an incentivized contract, the participants's GasUsed is
 // added to its gasMeter.
-func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	// check if the Incentives are globally enabled
-	params := h.k.GetParams(ctx)
+	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
 		return nil
 	}
@@ -30,12 +36,12 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	participant := msg.From()
 
 	// If theres no incentive registered for the contract, do nothing
-	if contract == nil || !h.k.IsIncentiveRegistered(ctx, *contract) {
+	if contract == nil || !k.IsIncentiveRegistered(ctx, *contract) {
 		return nil
 	}
 
 	// safety check: only distribute incentives to EOAs.
-	acc := h.k.accountKeeper.GetAccount(ctx, participant.Bytes())
+	acc := k.accountKeeper.GetAccount(ctx, participant.Bytes())
 	if acc == nil {
 		return nil
 	}
@@ -45,8 +51,8 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 		return nil
 	}
 
-	h.addGasToIncentive(ctx, *contract, receipt.GasUsed)
-	h.addGasToParticipant(ctx, *contract, participant, receipt.GasUsed)
+	k.addGasToIncentive(ctx, *contract, receipt.GasUsed)
+	k.addGasToParticipant(ctx, *contract, participant, receipt.GasUsed)
 
 	defer func() {
 		telemetry.IncrCounter(
@@ -66,29 +72,29 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 }
 
 // addGasToIncentive adds gasUsed to an incentive's cumulated totalGas
-func (h Hooks) addGasToIncentive(
+func (k Keeper) addGasToIncentive(
 	ctx sdk.Context,
 	contract common.Address,
 	gasUsed uint64,
 ) {
 	// NOTE: existence of contract incentive is already checked
-	incentive, _ := h.k.GetIncentive(ctx, contract)
+	incentive, _ := k.GetIncentive(ctx, contract)
 	incentive.TotalGas += gasUsed
-	h.k.SetIncentive(ctx, incentive)
+	k.SetIncentive(ctx, incentive)
 }
 
 // addGasToParticipant adds gasUsed to a participant's gas meter's cumulative
 // gas used
-func (h Hooks) addGasToParticipant(
+func (k Keeper) addGasToParticipant(
 	ctx sdk.Context,
 	contract, participant common.Address,
 	gasUsed uint64,
 ) {
-	previousGas, found := h.k.GetGasMeter(ctx, contract, participant)
+	previousGas, found := k.GetGasMeter(ctx, contract, participant)
 	if found {
 		gasUsed += previousGas
 	}
 
 	gm := types.NewGasMeter(contract, participant, gasUsed)
-	h.k.SetGasMeter(ctx, gm)
+	k.SetGasMeter(ctx, gm)
 }

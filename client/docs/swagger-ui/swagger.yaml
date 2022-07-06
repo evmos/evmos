@@ -3701,7 +3701,7 @@ paths:
                     type: boolean
                     description: >-
                       Allow unprotected transactions defines if replay-protected
-                      (i.e non EIP155 
+                      (i.e non EIP155
 
                       signed) transactions can be executed on the state machine.
                 title: Params defines the EVM module parameters
@@ -34733,7 +34733,7 @@ definitions:
         type: boolean
         description: >-
           Allow unprotected transactions defines if replay-protected (i.e non
-          EIP155 
+          EIP155
 
           signed) transactions can be executed on the state machine.
     title: Params defines the EVM module parameters
@@ -34902,7 +34902,7 @@ definitions:
             type: boolean
             description: >-
               Allow unprotected transactions defines if replay-protected (i.e
-              non EIP155 
+              non EIP155
 
               signed) transactions can be executed on the state machine.
         title: Params defines the EVM module parameters

@@ -1,0 +1,109 @@
+syntax = "proto3";
+package evmos.feesplit.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/feesplit/v1/genesis.proto";
+import "evmos/feesplit/v1/feesplit.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v6/x/feesplit/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // FeeSplits retrieves all registered fees plits
+  rpc FeeSplits(QueryFeeSplitsRequest) returns (QueryFeeSplitsResponse) {
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits";
+  }
+
+  // FeeSplit retrieves a registered fee split for a given contract address
+  rpc FeeSplit(QueryFeeSplitRequest) returns (QueryFeeSplitResponse) {
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{contract_address}";
+  }
+
+  // Params retrieves the feesplit module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/feesplit/v1/params";
+  }
+
+  // DeployerFeeSplits retrieves all fee splits that a given deployer has
+  // registered
+  rpc DeployerFeeSplits(QueryDeployerFeeSplitsRequest)
+      returns (QueryDeployerFeeSplitsResponse) {
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{deployer_address}";
+  }
+
+  // WithdrawerFeeSplits retrieves all fees plits with a given withdrawer
+  // address
+  rpc WithdrawerFeeSplits(QueryWithdrawerFeeSplitsRequest)
+      returns (QueryWithdrawerFeeSplitsResponse) {
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{withdrawer_address}";
+  }
+}
+
+// QueryFeeSplitsRequest is the request type for the Query/FeeSplits RPC method.
+message QueryFeeSplitsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC method.
+message QueryFeeSplitsResponse {
+  repeated FeeSplit fee_splits = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryFeeSplitRequest is the request type for the Query/FeeSplit RPC method.
+message QueryFeeSplitRequest {
+  // contract identifier is the hex contract address of a contract
+  string contract_address = 1;
+}
+
+// QueryFeeSplitResponse is the response type for the Query/FeeSplit RPC method.
+message QueryFeeSplitResponse {
+  FeeSplit fee_split = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryDeployerFeeSplitsRequest is the request type for the
+// Query/DeployerFeeSplits RPC method.
+message QueryDeployerFeeSplitsRequest {
+  // deployer bech32 address
+  string deployer_address = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryDeployerFeeSplitsResponse is the response type for the
+// Query/DeployerFeeSplits RPC method.
+message QueryDeployerFeeSplitsResponse {
+  repeated string contract_addresses = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+
+// QueryWithdrawerFeeSplitsRequest is the request type for the
+// Query/WithdrawerFeeSplits RPC method.
+message QueryWithdrawerFeeSplitsRequest {
+  // withdrawer bech32 address
+  string withdrawer_address = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryWithdrawerFeeSplitsResponse is the response type for the
+// Query/WithdrawerFeeSplits RPC method.
+message QueryWithdrawerFeeSplitsResponse {
+  repeated string contract_addresses = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
