@@ -17,38 +17,38 @@ func (suite *KeeperTestSuite) TestGetFees() {
 		malleate func()
 	}{
 		{
-			"no fees registered",
+			"no fee splits registered",
 			func() { expRes = []types.FeeSplit{} },
 		},
 		{
-			"one fee registered with withdraw address",
+			"one fee split registered with withdraw address",
 			func() {
-				fee := types.NewFeeSplit(contract, deployer, withdraw)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
-				expRes = []types.FeeSplit{fee}
+				feeSplit := types.NewFeeSplit(contract, deployer, withdraw)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
+				expRes = []types.FeeSplit{feeSplit}
 			},
 		},
 		{
-			"one fee registered with no withdraw address",
+			"one fee split registered with no withdraw address",
 			func() {
-				fee := types.NewFeeSplit(contract, deployer, nil)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
-				expRes = []types.FeeSplit{fee}
+				feeSplit := types.NewFeeSplit(contract, deployer, nil)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
+				expRes = []types.FeeSplit{feeSplit}
 			},
 		},
 		{
-			"multiple fees registered",
+			"multiple fee splits registered",
 			func() {
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 				contract2 := tests.GenerateAddress()
 				contract3 := tests.GenerateAddress()
-				fee := types.NewFeeSplit(contract, deployer, withdraw)
-				fee2 := types.NewFeeSplit(contract2, deployer, nil)
-				fee3 := types.NewFeeSplit(contract3, deployer2, nil)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee2)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee3)
-				expRes = []types.FeeSplit{fee, fee2, fee3}
+				feeSplit := types.NewFeeSplit(contract, deployer, withdraw)
+				feeSplit2 := types.NewFeeSplit(contract2, deployer, nil)
+				feeSplit3 := types.NewFeeSplit(contract3, deployer2, nil)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit2)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit3)
+				expRes = []types.FeeSplit{feeSplit, feeSplit2, feeSplit3}
 			},
 		},
 	}
@@ -71,42 +71,42 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 		malleate func()
 	}{
 		{
-			"no fees registered",
+			"no fee splits registered",
 			func() { expRes = []types.FeeSplit{} },
 		},
 		{
-			"one fee registered with withdraw address",
+			"one fee split registered with withdraw address",
 			func() {
-				fee := types.NewFeeSplit(contract, deployer, withdraw)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
+				feeSplit := types.NewFeeSplit(contract, deployer, withdraw)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
 				expRes = []types.FeeSplit{
 					types.NewFeeSplit(contract, deployer, withdraw),
 				}
 			},
 		},
 		{
-			"one fee registered with no withdraw address",
+			"one fee split registered with no withdraw address",
 			func() {
-				fee := types.NewFeeSplit(contract, deployer, nil)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
+				feeSplit := types.NewFeeSplit(contract, deployer, nil)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
 				expRes = []types.FeeSplit{
 					types.NewFeeSplit(contract, deployer, nil),
 				}
 			},
 		},
 		{
-			"multiple fees registered",
+			"multiple fee splits registered",
 			func() {
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 				contract2 := tests.GenerateAddress()
 				contract3 := tests.GenerateAddress()
-				fee := types.NewFeeSplit(contract, deployer, withdraw)
-				fee2 := types.NewFeeSplit(contract2, deployer, nil)
-				fee3 := types.NewFeeSplit(contract3, deployer2, nil)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee2)
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee3)
-				expRes = []types.FeeSplit{fee, fee2, fee3}
+				feeSplit := types.NewFeeSplit(contract, deployer, withdraw)
+				feeSplit2 := types.NewFeeSplit(contract2, deployer, nil)
+				feeSplit3 := types.NewFeeSplit(contract3, deployer2, nil)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit2)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit3)
+				expRes = []types.FeeSplit{feeSplit, feeSplit2, feeSplit3}
 			},
 		},
 	}
@@ -115,8 +115,8 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 			suite.SetupTest() // reset
 			tc.malleate()
 
-			suite.app.FeesplitKeeper.IterateFeeSplits(suite.ctx, func(fee types.FeeSplit) (stop bool) {
-				suite.Require().Contains(expRes, fee, tc.name)
+			suite.app.FeesplitKeeper.IterateFeeSplits(suite.ctx, func(feeSplit types.FeeSplit) (stop bool) {
+				suite.Require().Contains(expRes, feeSplit, tc.name)
 				return false
 			})
 		})
@@ -178,12 +178,12 @@ func (suite *KeeperTestSuite) TestGetFeeSplit() {
 			suite.SetupTest() // reset
 
 			if tc.found {
-				fee := types.NewFeeSplit(tc.contract, tc.deployer, tc.withdraw)
+				feeSplit := types.NewFeeSplit(tc.contract, tc.deployer, tc.withdraw)
 				if tc.deployer.Equals(tc.withdraw) {
-					fee.WithdrawerAddress = ""
+					feeSplit.WithdrawerAddress = ""
 				}
 
-				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
+				suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
 				suite.app.FeesplitKeeper.SetDeployerMap(suite.ctx, tc.deployer, tc.contract)
 			}
 
@@ -191,22 +191,22 @@ func (suite *KeeperTestSuite) TestGetFeeSplit() {
 				suite.app.FeesplitKeeper.SetWithdrawerMap(suite.ctx, tc.withdraw, tc.contract)
 			}
 
-			fee, found := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, tc.contract)
+			feeSplit, found := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, tc.contract)
 			foundD := suite.app.FeesplitKeeper.IsDeployerMapSet(suite.ctx, tc.deployer, tc.contract)
 			foundW := suite.app.FeesplitKeeper.IsWithdrawerMapSet(suite.ctx, tc.withdraw, tc.contract)
 
 			if tc.found {
 				suite.Require().True(found, tc.name)
-				suite.Require().Equal(tc.deployer.String(), fee.DeployerAddress, tc.name)
-				suite.Require().Equal(tc.contract.Hex(), fee.ContractAddress, tc.name)
+				suite.Require().Equal(tc.deployer.String(), feeSplit.DeployerAddress, tc.name)
+				suite.Require().Equal(tc.contract.Hex(), feeSplit.ContractAddress, tc.name)
 
 				suite.Require().True(foundD, tc.name)
 
 				if tc.expWithdraw {
-					suite.Require().Equal(tc.withdraw.String(), fee.WithdrawerAddress, tc.name)
+					suite.Require().Equal(tc.withdraw.String(), feeSplit.WithdrawerAddress, tc.name)
 					suite.Require().True(foundW, tc.name)
 				} else {
-					suite.Require().Equal("", fee.WithdrawerAddress, tc.name)
+					suite.Require().Equal("", feeSplit.WithdrawerAddress, tc.name)
 					suite.Require().False(foundW, tc.name)
 				}
 			} else {
@@ -217,8 +217,8 @@ func (suite *KeeperTestSuite) TestGetFeeSplit() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteFeeSplit() {
-	fee := types.NewFeeSplit(contract, deployer, withdraw)
-	suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
+	feeSplit := types.NewFeeSplit(contract, deployer, withdraw)
+	suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
 
 	initialFee, found := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, contract)
 	suite.Require().True(found)
@@ -228,24 +228,24 @@ func (suite *KeeperTestSuite) TestDeleteFeeSplit() {
 		malleate func()
 		ok       bool
 	}{
-		{"existing fee", func() {}, true},
+		{"existing fee split", func() {}, true},
 		{
-			"deleted fee",
+			"deleted fee split",
 			func() {
-				suite.app.FeesplitKeeper.DeleteFeeSplit(suite.ctx, fee)
+				suite.app.FeesplitKeeper.DeleteFeeSplit(suite.ctx, feeSplit)
 			},
 			false,
 		},
 	}
 	for _, tc := range testCases {
 		tc.malleate()
-		fee, found := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, contract)
+		feeSplit, found := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, contract)
 		if tc.ok {
 			suite.Require().True(found, tc.name)
-			suite.Require().Equal(initialFee, fee, tc.name)
+			suite.Require().Equal(initialFee, feeSplit, tc.name)
 		} else {
 			suite.Require().False(found, tc.name)
-			suite.Require().Equal(types.FeeSplit{}, fee, tc.name)
+			suite.Require().Equal(types.FeeSplit{}, feeSplit, tc.name)
 		}
 	}
 }
@@ -311,8 +311,8 @@ func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
 }
 
 func (suite *KeeperTestSuite) TestIsFeeSplitRegistered() {
-	fee := types.NewFeeSplit(contract, deployer, withdraw)
-	suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, fee)
+	feeSplit := types.NewFeeSplit(contract, deployer, withdraw)
+	suite.app.FeesplitKeeper.SetFeeSplit(suite.ctx, feeSplit)
 	_, found := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, contract)
 	suite.Require().True(found)
 
@@ -321,9 +321,9 @@ func (suite *KeeperTestSuite) TestIsFeeSplitRegistered() {
 		contract common.Address
 		ok       bool
 	}{
-		{"registered fee", contract, true},
-		{"fee not registered", common.Address{}, false},
-		{"fee not registered", tests.GenerateAddress(), false},
+		{"registered fee split", contract, true},
+		{"fee split not registered", common.Address{}, false},
+		{"fee split not registered", tests.GenerateAddress(), false},
 	}
 	for _, tc := range testCases {
 		found := suite.app.FeesplitKeeper.IsFeeSplitRegistered(suite.ctx, tc.contract)
