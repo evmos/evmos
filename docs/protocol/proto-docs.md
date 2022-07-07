@@ -69,34 +69,36 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
-- [evmos/fees/v1/fees.proto](#evmos/fees/v1/fees.proto)
-    - [Fee](#evmos.fees.v1.Fee)
+- [evmos/feesplit/v1/feesplit.proto](#evmos/feesplit/v1/feesplit.proto)
+    - [FeeSplit](#evmos.feesplit.v1.FeeSplit)
   
-- [evmos/fees/v1/genesis.proto](#evmos/fees/v1/genesis.proto)
-    - [GenesisState](#evmos.fees.v1.GenesisState)
-    - [Params](#evmos.fees.v1.Params)
+- [evmos/feesplit/v1/genesis.proto](#evmos/feesplit/v1/genesis.proto)
+    - [GenesisState](#evmos.feesplit.v1.GenesisState)
+    - [Params](#evmos.feesplit.v1.Params)
   
-- [evmos/fees/v1/query.proto](#evmos/fees/v1/query.proto)
-    - [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest)
-    - [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse)
-    - [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest)
-    - [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse)
-    - [QueryFeesRequest](#evmos.fees.v1.QueryFeesRequest)
-    - [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse)
-    - [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest)
-    - [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse)
+- [evmos/feesplit/v1/query.proto](#evmos/feesplit/v1/query.proto)
+    - [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest)
+    - [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse)
+    - [QueryFeeSplitRequest](#evmos.feesplit.v1.QueryFeeSplitRequest)
+    - [QueryFeeSplitResponse](#evmos.feesplit.v1.QueryFeeSplitResponse)
+    - [QueryFeeSplitsRequest](#evmos.feesplit.v1.QueryFeeSplitsRequest)
+    - [QueryFeeSplitsResponse](#evmos.feesplit.v1.QueryFeeSplitsResponse)
+    - [QueryParamsRequest](#evmos.feesplit.v1.QueryParamsRequest)
+    - [QueryParamsResponse](#evmos.feesplit.v1.QueryParamsResponse)
+    - [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest)
+    - [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse)
   
-    - [Query](#evmos.fees.v1.Query)
+    - [Query](#evmos.feesplit.v1.Query)
   
-- [evmos/fees/v1/tx.proto](#evmos/fees/v1/tx.proto)
-    - [MsgCancelFee](#evmos.fees.v1.MsgCancelFee)
-    - [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse)
-    - [MsgRegisterFee](#evmos.fees.v1.MsgRegisterFee)
-    - [MsgRegisterFeeResponse](#evmos.fees.v1.MsgRegisterFeeResponse)
-    - [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee)
-    - [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse)
+- [evmos/feesplit/v1/tx.proto](#evmos/feesplit/v1/tx.proto)
+    - [MsgCancelFeeSplit](#evmos.feesplit.v1.MsgCancelFeeSplit)
+    - [MsgCancelFeeSplitResponse](#evmos.feesplit.v1.MsgCancelFeeSplitResponse)
+    - [MsgRegisterFeeSplit](#evmos.feesplit.v1.MsgRegisterFeeSplit)
+    - [MsgRegisterFeeSplitResponse](#evmos.feesplit.v1.MsgRegisterFeeSplitResponse)
+    - [MsgUpdateFeeSplit](#evmos.feesplit.v1.MsgUpdateFeeSplit)
+    - [MsgUpdateFeeSplitResponse](#evmos.feesplit.v1.MsgUpdateFeeSplitResponse)
   
-    - [Msg](#evmos.fees.v1.Msg)
+    - [Msg](#evmos.feesplit.v1.Msg)
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
@@ -956,25 +958,25 @@ Msg defines the erc20 Msg service.
 
 
 
-<a name="evmos/fees/v1/fees.proto"></a>
+<a name="evmos/feesplit/v1/feesplit.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/fees/v1/fees.proto
+## evmos/feesplit/v1/feesplit.proto
 
 
 
-<a name="evmos.fees.v1.Fee"></a>
+<a name="evmos.feesplit.v1.FeeSplit"></a>
 
-### Fee
-Fee defines an instance that organizes fee distribution conditions for the
-owner of a given smart contract
+### FeeSplit
+FeeSplit defines an instance that organizes fee distribution conditions for
+the owner of a given smart contract
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | hex address of registered contract |
 | `deployer_address` | [string](#string) |  | bech32 address of contract deployer |
-| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
+| `withdrawer_address` | [string](#string) |  | bech32 address of account receiving the transaction fees it defaults to deployer_address |
 
 
 
@@ -990,14 +992,14 @@ owner of a given smart contract
 
 
 
-<a name="evmos/fees/v1/genesis.proto"></a>
+<a name="evmos/feesplit/v1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/fees/v1/genesis.proto
+## evmos/feesplit/v1/genesis.proto
 
 
 
-<a name="evmos.fees.v1.GenesisState"></a>
+<a name="evmos.feesplit.v1.GenesisState"></a>
 
 ### GenesisState
 GenesisState defines the module's genesis state.
@@ -1005,23 +1007,23 @@ GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.fees.v1.Params) |  | module parameters |
-| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated | active registered contracts for fee distribution |
+| `params` | [Params](#evmos.feesplit.v1.Params) |  | module parameters |
+| `fee_splits` | [FeeSplit](#evmos.feesplit.v1.FeeSplit) | repeated | active registered contracts for fee distribution |
 
 
 
 
 
 
-<a name="evmos.fees.v1.Params"></a>
+<a name="evmos.feesplit.v1.Params"></a>
 
 ### Params
-Params defines the fees module params
+Params defines the feesplit module params
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `enable_fees` | [bool](#bool) |  | parameter to enable fees |
+| `enable_fee_split` | [bool](#bool) |  | enable_fee_split defines a parameter to enable the feesplit module |
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
 
@@ -1039,18 +1041,18 @@ Params defines the fees module params
 
 
 
-<a name="evmos/fees/v1/query.proto"></a>
+<a name="evmos/feesplit/v1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/fees/v1/query.proto
+## evmos/feesplit/v1/query.proto
 
 
 
-<a name="evmos.fees.v1.QueryDeployerFeesRequest"></a>
+<a name="evmos.feesplit.v1.QueryDeployerFeeSplitsRequest"></a>
 
-### QueryDeployerFeesRequest
-QueryDeployerFeesRequest is the request type for the Query/DeployerFees RPC
-method.
+### QueryDeployerFeeSplitsRequest
+QueryDeployerFeeSplitsRequest is the request type for the
+Query/DeployerFeeSplits RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1063,16 +1065,16 @@ method.
 
 
 
-<a name="evmos.fees.v1.QueryDeployerFeesResponse"></a>
+<a name="evmos.feesplit.v1.QueryDeployerFeeSplitsResponse"></a>
 
-### QueryDeployerFeesResponse
-QueryDeployerFeesResponse is the response type for the Query/DeployerFees RPC
-method.
+### QueryDeployerFeeSplitsResponse
+QueryDeployerFeeSplitsResponse is the response type for the
+Query/DeployerFeeSplits RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated |  |
+| `contract_addresses` | [string](#string) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -1080,10 +1082,10 @@ method.
 
 
 
-<a name="evmos.fees.v1.QueryFeeRequest"></a>
+<a name="evmos.feesplit.v1.QueryFeeSplitRequest"></a>
 
-### QueryFeeRequest
-QueryFeeRequest is the request type for the Query/Fee RPC method.
+### QueryFeeSplitRequest
+QueryFeeSplitRequest is the request type for the Query/FeeSplit RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1095,25 +1097,25 @@ QueryFeeRequest is the request type for the Query/Fee RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryFeeResponse"></a>
+<a name="evmos.feesplit.v1.QueryFeeSplitResponse"></a>
 
-### QueryFeeResponse
-QueryFeeResponse is the response type for the Query/Fee RPC method.
+### QueryFeeSplitResponse
+QueryFeeSplitResponse is the response type for the Query/FeeSplit RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fee` | [Fee](#evmos.fees.v1.Fee) |  |  |
+| `fee_split` | [FeeSplit](#evmos.feesplit.v1.FeeSplit) |  |  |
 
 
 
 
 
 
-<a name="evmos.fees.v1.QueryFeesRequest"></a>
+<a name="evmos.feesplit.v1.QueryFeeSplitsRequest"></a>
 
-### QueryFeesRequest
-QueryFeesRequest is the request type for the Query/Fees RPC method.
+### QueryFeeSplitsRequest
+QueryFeeSplitsRequest is the request type for the Query/FeeSplits RPC method.
 
 
 | Field | Type | Label | Description |
@@ -1125,15 +1127,15 @@ QueryFeesRequest is the request type for the Query/Fees RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryFeesResponse"></a>
+<a name="evmos.feesplit.v1.QueryFeeSplitsResponse"></a>
 
-### QueryFeesResponse
-QueryFeesResponse is the response type for the Query/Fees RPC method.
+### QueryFeeSplitsResponse
+QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `fees` | [Fee](#evmos.fees.v1.Fee) | repeated |  |
+| `fee_splits` | [FeeSplit](#evmos.feesplit.v1.FeeSplit) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
@@ -1141,7 +1143,7 @@ QueryFeesResponse is the response type for the Query/Fees RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryParamsRequest"></a>
+<a name="evmos.feesplit.v1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
 QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -1151,7 +1153,7 @@ QueryParamsRequest is the request type for the Query/Params RPC method.
 
 
 
-<a name="evmos.fees.v1.QueryParamsResponse"></a>
+<a name="evmos.feesplit.v1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
 QueryParamsResponse is the response type for the Query/Params RPC method.
@@ -1159,7 +1161,41 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#evmos.fees.v1.Params) |  |  |
+| `params` | [Params](#evmos.feesplit.v1.Params) |  |  |
+
+
+
+
+
+
+<a name="evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest"></a>
+
+### QueryWithdrawerFeeSplitsRequest
+QueryWithdrawerFeeSplitsRequest is the request type for the
+Query/WithdrawerFeeSplits RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `withdrawer_address` | [string](#string) |  | withdrawer bech32 address |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+
+
+
+
+
+
+<a name="evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse"></a>
+
+### QueryWithdrawerFeeSplitsResponse
+QueryWithdrawerFeeSplitsResponse is the response type for the
+Query/WithdrawerFeeSplits RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `contract_addresses` | [string](#string) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
@@ -1172,33 +1208,34 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
  <!-- end HasExtensions -->
 
 
-<a name="evmos.fees.v1.Query"></a>
+<a name="evmos.feesplit.v1.Query"></a>
 
 ### Query
 Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Fees` | [QueryFeesRequest](#evmos.fees.v1.QueryFeesRequest) | [QueryFeesResponse](#evmos.fees.v1.QueryFeesResponse) | Fees retrieves all registered contracts for fee distribution | GET|/evmos/fees/v1/fees|
-| `Fee` | [QueryFeeRequest](#evmos.fees.v1.QueryFeeRequest) | [QueryFeeResponse](#evmos.fees.v1.QueryFeeResponse) | Fee retrieves a registered contract for fee distribution for a given address | GET|/evmos/fees/v1/fees/{contract_address}|
-| `Params` | [QueryParamsRequest](#evmos.fees.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.fees.v1.QueryParamsResponse) | Params retrieves the fees module params | GET|/evmos/fees/v1/params|
-| `DeployerFees` | [QueryDeployerFeesRequest](#evmos.fees.v1.QueryDeployerFeesRequest) | [QueryDeployerFeesResponse](#evmos.fees.v1.QueryDeployerFeesResponse) | DeployerFees retrieves all contracts that a given deployer has registered for fee distribution | GET|/evmos/fees/v1/fees/{deployer_address}|
+| `FeeSplits` | [QueryFeeSplitsRequest](#evmos.feesplit.v1.QueryFeeSplitsRequest) | [QueryFeeSplitsResponse](#evmos.feesplit.v1.QueryFeeSplitsResponse) | FeeSplits retrieves all registered fees plits | GET|/evmos/feesplit/v1/feesplits|
+| `FeeSplit` | [QueryFeeSplitRequest](#evmos.feesplit.v1.QueryFeeSplitRequest) | [QueryFeeSplitResponse](#evmos.feesplit.v1.QueryFeeSplitResponse) | FeeSplit retrieves a registered fee split for a given contract address | GET|/evmos/feesplit/v1/feesplits/{contract_address}|
+| `Params` | [QueryParamsRequest](#evmos.feesplit.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.feesplit.v1.QueryParamsResponse) | Params retrieves the feesplit module params | GET|/evmos/feesplit/v1/params|
+| `DeployerFeeSplits` | [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest) | [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse) | DeployerFeeSplits retrieves all fee splits that a given deployer has registered | GET|/evmos/feesplit/v1/feesplits/{deployer_address}|
+| `WithdrawerFeeSplits` | [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest) | [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse) | WithdrawerFeeSplits retrieves all fees plits with a given withdrawer address | GET|/evmos/feesplit/v1/feesplits/{withdrawer_address}|
 
  <!-- end services -->
 
 
 
-<a name="evmos/fees/v1/tx.proto"></a>
+<a name="evmos/feesplit/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/fees/v1/tx.proto
+## evmos/feesplit/v1/tx.proto
 
 
 
-<a name="evmos.fees.v1.MsgCancelFee"></a>
+<a name="evmos.feesplit.v1.MsgCancelFeeSplit"></a>
 
-### MsgCancelFee
-MsgCancelFee defines a message that cancels a registered a Fee
+### MsgCancelFeeSplit
+MsgCancelFeeSplit defines a message that cancels a registered FeeSplit
 
 
 | Field | Type | Label | Description |
@@ -1211,27 +1248,27 @@ MsgCancelFee defines a message that cancels a registered a Fee
 
 
 
-<a name="evmos.fees.v1.MsgCancelFeeResponse"></a>
+<a name="evmos.feesplit.v1.MsgCancelFeeSplitResponse"></a>
 
-### MsgCancelFeeResponse
-MsgCancelFeeResponse defines the MsgCancelFee response type
-
-
+### MsgCancelFeeSplitResponse
+MsgCancelFeeSplitResponse defines the MsgCancelFeeSplit response type
 
 
 
 
-<a name="evmos.fees.v1.MsgRegisterFee"></a>
 
-### MsgRegisterFee
-MsgRegisterFee defines a message that registers a Fee
+
+<a name="evmos.feesplit.v1.MsgRegisterFeeSplit"></a>
+
+### MsgRegisterFeeSplit
+MsgRegisterFeeSplit defines a message that registers a FeeSplit
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address |
 | `deployer_address` | [string](#string) |  | bech32 address of message sender, must be the same as the origin EOA sending the transaction which deploys the contract |
-| `withdraw_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
+| `withdrawer_address` | [string](#string) |  | bech32 address of account receiving the transaction fees |
 | `nonces` | [uint64](#uint64) | repeated | array of nonces from the address path, where the last nonce is the nonce that determines the contract's address - it can be an EOA nonce or a factory contract nonce |
 
 
@@ -1239,38 +1276,38 @@ MsgRegisterFee defines a message that registers a Fee
 
 
 
-<a name="evmos.fees.v1.MsgRegisterFeeResponse"></a>
+<a name="evmos.feesplit.v1.MsgRegisterFeeSplitResponse"></a>
 
-### MsgRegisterFeeResponse
-MsgRegisterFeeResponse defines the MsgRegisterFee response type
-
-
+### MsgRegisterFeeSplitResponse
+MsgRegisterFeeSplitResponse defines the MsgRegisterFeeSplit response type
 
 
 
 
-<a name="evmos.fees.v1.MsgUpdateFee"></a>
 
-### MsgUpdateFee
-MsgUpdateFee defines a message that updates the withdraw address for a
-registered Fee
+
+<a name="evmos.feesplit.v1.MsgUpdateFeeSplit"></a>
+
+### MsgUpdateFeeSplit
+MsgUpdateFeeSplit defines a message that updates the withdrawer address for a
+registered FeeSplit
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `contract_address` | [string](#string) |  | contract hex address |
 | `deployer_address` | [string](#string) |  | deployer bech32 address |
-| `withdraw_address` | [string](#string) |  | new withdraw bech32 address for receiving the transaction fees |
+| `withdrawer_address` | [string](#string) |  | new withdrawer bech32 address for receiving the transaction fees |
 
 
 
 
 
 
-<a name="evmos.fees.v1.MsgUpdateFeeResponse"></a>
+<a name="evmos.feesplit.v1.MsgUpdateFeeSplitResponse"></a>
 
-### MsgUpdateFeeResponse
-MsgUpdateFeeResponse defines the MsgUpdateFee response type
+### MsgUpdateFeeSplitResponse
+MsgUpdateFeeSplitResponse defines the MsgUpdateFeeSplit response type
 
 
 
@@ -1283,16 +1320,16 @@ MsgUpdateFeeResponse defines the MsgUpdateFee response type
  <!-- end HasExtensions -->
 
 
-<a name="evmos.fees.v1.Msg"></a>
+<a name="evmos.feesplit.v1.Msg"></a>
 
 ### Msg
 Msg defines the fees Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `RegisterFee` | [MsgRegisterFee](#evmos.fees.v1.MsgRegisterFee) | [MsgRegisterFeeResponse](#evmos.fees.v1.MsgRegisterFeeResponse) | RegisterFee registers a new contract for receiving transaction fees | POST|/evmos/fees/v1/tx/register_fee|
-| `CancelFee` | [MsgCancelFee](#evmos.fees.v1.MsgCancelFee) | [MsgCancelFeeResponse](#evmos.fees.v1.MsgCancelFeeResponse) | CancelFee cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/fees/v1/tx/cancel_fee|
-| `UpdateFee` | [MsgUpdateFee](#evmos.fees.v1.MsgUpdateFee) | [MsgUpdateFeeResponse](#evmos.fees.v1.MsgUpdateFeeResponse) | UpdateFee updates the withdraw address | POST|/evmos/fees/v1/tx/update_fee|
+| `RegisterFeeSplit` | [MsgRegisterFeeSplit](#evmos.feesplit.v1.MsgRegisterFeeSplit) | [MsgRegisterFeeSplitResponse](#evmos.feesplit.v1.MsgRegisterFeeSplitResponse) | RegisterFeeSplit registers a new contract for receiving transaction fees | POST|/evmos/feesplit/v1/tx/register_feesplit|
+| `UpdateFeeSplit` | [MsgUpdateFeeSplit](#evmos.feesplit.v1.MsgUpdateFeeSplit) | [MsgUpdateFeeSplitResponse](#evmos.feesplit.v1.MsgUpdateFeeSplitResponse) | UpdateFeeSplit updates the withdrawer address of a fee split | POST|/evmos/feesplit/v1/tx/update_feesplit|
+| `CancelFeeSplit` | [MsgCancelFeeSplit](#evmos.feesplit.v1.MsgCancelFeeSplit) | [MsgCancelFeeSplitResponse](#evmos.feesplit.v1.MsgCancelFeeSplitResponse) | CancelFeeSplit cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/feesplit/v1/tx/cancel_feesplit|
 
  <!-- end services -->
 

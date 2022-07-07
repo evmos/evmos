@@ -27,6 +27,12 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
+// PostTxProcessing is a wrapper for calling the EVM PostTxProcessing hook on
+// the module keeper
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	return h.k.PostTxProcessing(ctx, msg, receipt)
+}
+
 // PostTxProcessing implements EvmHooks.PostTxProcessing. The EVM hooks allows
 // users to convert ERC20s to Cosmos Coins by sending an Ethereum tx transfer to
 // the module account address. This hook applies to both token pairs that have
@@ -38,12 +44,12 @@ func (k Keeper) Hooks() Hooks {
 // Note that the PostTxProcessing hook is only called by sending an EVM
 // transaction that triggers `ApplyTransaction`. A cosmos tx with a
 // `ConvertERC20` msg does not trigger the hook as it only calls `ApplyMessage`.
-func (h Hooks) PostTxProcessing(
+func (k Keeper) PostTxProcessing(
 	ctx sdk.Context,
 	msg core.Message,
 	receipt *ethtypes.Receipt,
 ) error {
-	params := h.k.GetParams(ctx)
+	params := k.GetParams(ctx)
 	if !params.EnableErc20 || !params.EnableEVMHook {
 		// no error is returned to avoid reverting the tx and allow for other post
 		// processing txs to pass and
@@ -67,13 +73,13 @@ func (h Hooks) PostTxProcessing(
 
 		// Check if event is a `Transfer` event.
 		if event.Name != types.ERC20EventTransfer {
-			h.k.Logger(ctx).Info("emitted event", "name", event.Name, "signature", event.Sig)
+			k.Logger(ctx).Info("emitted event", "name", event.Name, "signature", event.Sig)
 			continue
 		}
 
 		transferEvent, err := erc20.Unpack(event.Name, log.Data)
 		if err != nil {
-			h.k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
+			k.Logger(ctx).Error("failed to unpack transfer event", "error", err.Error())
 			continue
 		}
 
@@ -89,12 +95,12 @@ func (h Hooks) PostTxProcessing(
 
 		// Check that the contract is a registered token pair
 		contractAddr := log.Address
-		id := h.k.GetERC20Map(ctx, contractAddr)
+		id := k.GetERC20Map(ctx, contractAddr)
 		if len(id) == 0 {
 			continue
 		}
 
-		pair, found := h.k.GetTokenPair(ctx, id)
+		pair, found := k.GetTokenPair(ctx, id)
 		if !found {
 			continue
 		}
@@ -109,7 +115,7 @@ func (h Hooks) PostTxProcessing(
 		if !pair.Enabled {
 			// continue to allow transfers for the ERC20 in case the token pair is
 			// disabled
-			h.k.Logger(ctx).Debug(
+			k.Logger(ctx).Debug(
 				"ERC20 token -> Cosmos coin conversion is disabled for pair",
 				"coin", pair.Denom, "contract", pair.Erc20Address,
 			)
@@ -123,15 +129,15 @@ func (h Hooks) PostTxProcessing(
 		// registered token wants to mint a Cosmos coin.
 		switch pair.ContractOwner {
 		case types.OWNER_MODULE:
-			_, err = h.k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)
+			_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contractAddr, true, "burn", tokens)
 		case types.OWNER_EXTERNAL:
-			err = h.k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+			err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 		default:
 			err = types.ErrUndefinedOwner
 		}
 
 		if err != nil {
-			h.k.Logger(ctx).Debug(
+			k.Logger(ctx).Debug(
 				"failed to process EVM hook for ER20 -> coin conversion",
 				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
 			)
@@ -143,8 +149,8 @@ func (h Hooks) PostTxProcessing(
 		recipient := sdk.AccAddress(from.Bytes())
 
 		// transfer the tokens from ModuleAccount to sender address
-		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
-			h.k.Logger(ctx).Debug(
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, recipient, coins); err != nil {
+			k.Logger(ctx).Debug(
 				"failed to process EVM hook for ER20 -> coin conversion",
 				"tx-hash", receipt.TxHash.Hex(), "log-idx", i,
 				"coin", pair.Denom, "contract", pair.Erc20Address, "error", err.Error(),
