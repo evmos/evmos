@@ -481,7 +481,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					)
 					Expect(
 						strings.Contains(res.GetLog(),
-							"withdraw address must be different that deployer address"),
+							"feesplit already exists for given contract"),
 					).To(BeTrue(), res.GetLog())
 					s.Commit()
 				})

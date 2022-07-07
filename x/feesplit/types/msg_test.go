@@ -270,7 +270,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateFeeSplitNew() {
 			suite.contract.String(),
 			suite.deployerStr,
 			suite.deployerStr,
-			false,
+			true,
 		},
 	}
 

@@ -158,6 +158,10 @@ func (k Keeper) UpdateFeeSplit(
 		)
 	}
 
+	if msg.WithdrawerAddress == feeSplit.DeployerAddress {
+		msg.WithdrawerAddress = ""
+	}
+
 	// fee split with the given withdraw address is already registered
 	if msg.WithdrawerAddress == feeSplit.WithdrawerAddress {
 		return nil, sdkerrors.Wrapf(
@@ -166,14 +170,19 @@ func (k Keeper) UpdateFeeSplit(
 		)
 	}
 
-	// NOTE: withdraw address cannot be empty due to msg stateless validation
+	if feeSplit.WithdrawerAddress != "" {
+		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(feeSplit.WithdrawerAddress), feeSplit.GetContractAddr())
+	}
+
+	if msg.WithdrawerAddress != "" {
+		k.SetWithdrawerMap(
+			ctx,
+			sdk.MustAccAddressFromBech32(msg.WithdrawerAddress),
+			contract,
+		)
+	}
 	feeSplit.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetFeeSplit(ctx, feeSplit)
-	k.SetWithdrawerMap(
-		ctx,
-		feeSplit.GetWithdrawerAddr(),
-		contract,
-	)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
