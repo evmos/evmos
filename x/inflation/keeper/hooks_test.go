@@ -196,7 +196,7 @@ func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
 
 			suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, tc.skippedEpochs)
 			suite.app.InflationKeeper.SetPeriod(suite.ctx, uint64(tc.currentPeriod))
-			currentSkippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx) + uint64(2)
+			currentSkippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
 			currentPeriod := suite.app.InflationKeeper.GetPeriod(suite.ctx)
 			originalProvision, found := suite.app.InflationKeeper.GetEpochMintProvision(suite.ctx)
 			suite.Require().True(found)
@@ -205,7 +205,7 @@ func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
 			futureCtx := suite.ctx.WithBlockTime(time.Now().Add(time.Minute))
 			suite.app.EpochsKeeper.BeforeEpochStart(futureCtx, tc.epochIdentifier, tc.height)
 			suite.app.EpochsKeeper.AfterEpochEnd(futureCtx, tc.epochIdentifier, tc.height)
-			skippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx) + uint64(2)
+			skippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
 			period := suite.app.InflationKeeper.GetPeriod(suite.ctx)
 
 			if tc.periodChanges {
