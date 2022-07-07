@@ -20,19 +20,19 @@ jobs:
     steps:
       - name: Permission issue fix
         run: git config --global --add safe.directory /__w/evmos/evmos
+      # - uses: actions/checkout@v3
+      # - name: Get Diff
+      #   uses: technote-space/get-diff-action@v6.1.0
+      #   with:
+      #     PATTERNS: |
+      #       **/*.go
+      #       **/*.js
+      #       **/*.ts
+      #       **/*.sol
+      #       go.mod
+      #       go.sum
       - uses: actions/checkout@v3
-      - name: Get Diff
-        uses: technote-space/get-diff-action@v6.1.0
-        with:
-          PATTERNS: |
-            **/*.go
-            **/*.js
-            **/*.ts
-            **/*.sol
-            go.mod
-            go.sum
-      - uses: actions/checkout@v3
-      - run: semgrep scan --sarif --output=semgrep.sarif
+      - run: semgrep scan --sarif --output=semgrep.sarif --metrics auto
         env:
           # Upload findings to GitHub Advanced Security Dashboard [step 1/2]
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
