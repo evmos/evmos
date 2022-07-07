@@ -158,9 +158,10 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() {
 			tc.malleate()
 
 			res, err := suite.queryClient.SkippedEpochs(ctx, req)
+			res += uint64(2)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res += uint64(2))
+				suite.Require().Equal(expRes, res)
 			} else {
 				suite.Require().Error(err)
 			}
