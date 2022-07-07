@@ -47,7 +47,8 @@ func (k Keeper) GetSkippedEpochs(ctx sdk.Context) uint64 {
 		return 0
 	}
 
-	return sdk.BigEndianToUint64(bz)
+	// account for overcounting of two epochs pre-v0.6.1
+	return sdk.BigEndianToUint64(bz) - uint64(2)
 }
 
 // SetSkippedEpochs stores the number of skipped epochs

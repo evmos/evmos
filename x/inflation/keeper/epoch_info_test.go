@@ -111,7 +111,7 @@ func (suite *KeeperTestSuite) TestSetGetSkippedEpochs() {
 
 			tc.malleate()
 
-			epochsPerPeriod := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
+			epochsPerPeriod := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx) + uint64(2)
 			if tc.ok {
 				suite.Require().Equal(expSkippedepochs, epochsPerPeriod, tc.name)
 			} else {
