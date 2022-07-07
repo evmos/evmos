@@ -146,7 +146,7 @@ func (suite *KeeperTestSuite) TestSetGetSkippedEpochsOvercounting() {
 
 			epochsPerPeriod := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
 			if tc.ok {
-				suite.Require().Equal(expSkippedepochs - uint64(2), epochsPerPeriod, tc.name)
+				suite.Require().Equal(expSkippedepochs-uint64(2), epochsPerPeriod, tc.name)
 			}
 		})
 	}
