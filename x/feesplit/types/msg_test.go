@@ -266,11 +266,11 @@ func (suite *MsgsTestSuite) TestMsgUpdateFeeSplitNew() {
 			false,
 		},
 		{
-			"withdraw address must be different that deployer",
+			"change fee withdrawer to deployer - pass",
 			suite.contract.String(),
 			suite.deployerStr,
 			suite.deployerStr,
-			false,
+			true,
 		},
 	}
 

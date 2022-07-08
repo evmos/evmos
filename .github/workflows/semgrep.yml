@@ -10,7 +10,7 @@ on:
   schedule:
     - cron: '0 0 * * 0'
 jobs:
-  # Update from: https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#github-actions
+  # Update from: https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#github-actions [removing GH Security Dashboard]
   semgrep:
     name: Scan
     runs-on: ubuntu-latest
@@ -32,14 +32,7 @@ jobs:
             go.mod
             go.sum
       - uses: actions/checkout@v3
-      - run: semgrep scan --sarif --output=semgrep.sarif
+      - run: semgrep ci --config=auto
         env:
-          # Upload findings to GitHub Advanced Security Dashboard [step 1/2]
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-        if: "env.GIT_DIFF_FILTERED != ''"
-      # Upload findings to GitHub Advanced Security Dashboard [step 2/2]
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: semgrep.sarif
         if: "env.GIT_DIFF_FILTERED != ''"
