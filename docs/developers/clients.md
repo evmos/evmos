@@ -231,3 +231,14 @@ Look for a publicly available addresses for testnet and mainnet in the [Quick Co
       upgrade                  Querying commands for the upgrade module
       vesting                  Querying commands for the vesting module
     ```
+
+::: tip
+**Note:** When querying Ethereum transactions versus Cosmos transactions, the transaction hashes are different.
+When querying Ethereum transactions, users need to use event query.
+Here's an example with the CLI:
+
+```bash
+curl -X GET "http://localhost:26657/tx_search?query=ethereum_tx.ethereumTxHash%3D0x8d43464891fac6c113e809e14dff1a3e608eae124d629799e42ca0e36562d9d7&prove=false&page=1&per_page=30&order_by=asc" -H "accept: application/json"  
+```
+
+:::

@@ -274,7 +274,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 		{
 			"no claim record",
 			func() {
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
+				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -293,7 +293,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
+				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -314,7 +314,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
+				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -340,7 +340,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
-				err = suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
+				err = suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
@@ -370,7 +370,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				err := suite.app.ClaimsKeeper.AfterEVMStateTransition(suite.ctx, msg, &receipt)
+				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)

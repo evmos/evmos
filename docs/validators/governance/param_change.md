@@ -5,7 +5,7 @@ order: 6
 # Chain Parameters
 
 ::: tip
-**Note:** If users are attempting to write governance proposals concerned with changing parameters (such as those of type `ParameterChangeProposal`), refer to [this document](../../validators/governance/best_practices.md#parameter-change-proposal).
+**Note:** Working on a governance proposal related to the changing of chain parameters? Make sure to look at [Evmos Governance](overview.md), and specifically the [best practices](best_practices.md#parameter-change-proposal).
 :::
 
 If a parameter-change proposal is successful, the change takes effect immediately upon completion of the voting period.
@@ -23,7 +23,7 @@ For a comprehensive list of available module parameters see the table below:
 | `governance`   | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/gov/06_params.html)                      |
 | `slashing`     | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/slashing/08_params.html)                 |
 | `staking`      | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/staking/08_params.html)                  |
-| `transfer`     | `ibc-go`     | [reference](https://github.com/cosmos/ibc-go/blob/main/modules/apps/transfer/spec/07_params.md) |
+| `transfer`     | `ibc-go`     | [reference](https://github.com/cosmos/ibc-go/blob/main/docs/ibc/params.md)                    |
 | `evm`          | `ethermint`  | [reference](https://evmos.dev/modules/evm/08_params.html)                                       |
 | `feemarket`    | `ethermint`  | [reference](https://evmos.dev/modules/feemarket/07_params.html)                                 |
 | `claims`       | `evmos`      | [reference](https://evmos.dev/modules/claims/06_parameters.html)                                |

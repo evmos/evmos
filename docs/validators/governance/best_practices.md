@@ -4,6 +4,15 @@ order: 3
 
 # Best Practices
 
+::: tip
+**Note:**
+
+- If users are creating governance proposals which require community pool funding (such as those of type `CommunityPoolSpendProposal`), refer to [this section](#community-spend-proposal).
+- If users are creating governance proposals concerned with the ERC-20 Module (such as those of type `RegisterCoinProposal`), refer to [this section](#erc-20-proposal).
+- If users are creating governance proposals concerned with changing parameters (such as those of type `ParameterChangeProposal`), refer to [this section](#parameter-change-proposal).
+
+:::
+
 ## General Advice: Community Outreach
 
 Engagement is likely to be critical to the success of a proposal. The degree to which you engage with Evmos community should be relative to the potential impact that your proposal may have on the stakeholders. This guide does not cover all ways of engaging: you could bring your idea to a podcast or a hackathon, host an AMA on [Reddit](https://www.reddit.com/r/evmos) or host a Q&A (questions & answers). We encourage you to experiment and use your strengths to introduce proposal ideas and gather feedback.
@@ -128,7 +137,7 @@ Assume that many people will stop reading at this point. However, it is importan
 2. Background information - promote understanding of the ERC-20 Module
    - a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
    - a brief explanation of what the ERC-20 Module does
-   - a mention of the [ERC-20 Module documentation](../../modules/erc20)
+   - a mention of the ERC-20 Module documentation
 3. Solution - generally how ERC-20 Module changes will be made
    - a brief explanation of what the proposal will do if it passes
    - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
@@ -138,7 +147,7 @@ Assume that many people will stop reading at this point. However, it is importan
       - the contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev))
       - the contracts are deployed open-source
       - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
-      - the contracts use the main libraries for ERC-20s (eg. OpenZeppelin, dapp.tools)
+      - the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/))
       - the transfer logic is not modified (i.e. transfer logic is not directly manipulated)
       - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
 

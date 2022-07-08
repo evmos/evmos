@@ -7,6 +7,10 @@ parent:
 
 # `erc20`
 
+::: tip
+**Note:** Working on a governance proposal related to the ERC-20 Module? Make sure to look at [Evmos Governance](../../validators/governance/overview.md), and specifically the [best practices](../../validators/governance/best_practices#erc-20-proposal).
+:::
+
 ## Abstract
 
 This document specifies the internal `x/erc20` module of the Evmos Hub.

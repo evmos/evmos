@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 		{"pair not found", []byte{}, func() {}, false},
 		{"valid id", id, func() {}, true},
 		{
-			"detete tokenpair",
+			"delete tokenpair",
 			id,
 			func() {
 				suite.app.Erc20Keeper.DeleteTokenPair(suite.ctx, pair)
