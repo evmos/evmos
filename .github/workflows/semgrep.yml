@@ -35,4 +35,4 @@ jobs:
       - run: semgrep ci --config=auto
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-        #if: "env.GIT_DIFF_FILTERED != ''"
+        if: "env.GIT_DIFF_FILTERED != ''"
