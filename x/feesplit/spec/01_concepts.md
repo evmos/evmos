@@ -16,7 +16,6 @@ Developers register their application in the dApp store by registering their app
  **NOTE**: If your contract is part of a developer project, please ensure that the deployer of the contract (or the factory that deployes the contract) is an account that is owned by that project. THis avoids that an individual deployer who leaves your project becomes malicious.
 :::
 
-
 ## Fee Distribution
 
 As described above, developers will earn a portion of the transaction fee after registering their contracts. To understand how transaction fees are distributed, we look at the following two things in detail:
