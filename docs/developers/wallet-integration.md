@@ -39,18 +39,22 @@ After the user's wallet type has been determined, developers can proceed with cr
 
 #### Create the Transaction
 
-Developers can create `MsgSend` transactions using the [evmosjs](https://github.com/evmos/evmosjs) library.
+:::tip
+**Note**: The example below uses the Evmos Testnet `chainID`.
+:::
+
+Developers can create `MsgSend` transactions using the [evmosjs](libraries/evmosjs.md) library.
 
 ```js
 import { createMessageSend } from @tharsis/transactions
 
 const chain = {
     chainId: 9000,
-    cosmosChainId: 'evmos_9000-1',
+    cosmosChainId: 'evmos_9000-4',
 }
 
 const sender = {
-    accountAddress: 'ethm1tfegf50n5xl0hd5cxfzjca3ylsfpg0fned5gqm',
+    accountAddress: 'evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp',
     sequence: 1,
     accountNumber: 9,
     pubkey: 'AgTw+4v0daIrxsNSW4FcQ+IoingPseFwHO1DnssyoOqZ',
@@ -78,6 +82,11 @@ const msg = createMessageSend(chain, sender, fee, memo, params)
 ```
 
 #### Sign and Broadcast the Transaction
+
+:::tip
+**Note**: The example below uses an Evmos Testnet RPC node.
+:::
+
 <!-- textlint-disable -->
 After creating the transaction, developers need to send the payload to the appropriate wallet to be signed ([`msg.signDirect`](https://docs.keplr.app/api/#sign-direct-protobuf) is the transaction in Keplr format, and `msg.eipToSign` is the [`EIP712`](https://eips.ethereum.org/EIPS/eip-712) data to sign with MetaMask).
 
@@ -114,7 +123,7 @@ const postOptions = {
 };
 
 let broadcastPost = await fetch(
-    `http://localhost:1317${generateEndpointBroadcast()}`,
+    `https://eth.bd.evmos.dev:8545${generateEndpointBroadcast()}`,
     postOptions
 );
 let response = await broadcastPost.json();
