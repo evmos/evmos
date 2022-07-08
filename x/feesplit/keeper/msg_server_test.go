@@ -275,6 +275,30 @@ func (suite *KeeperTestSuite) TestUpdateFeeSplit() {
 			"",
 		},
 		{
+			"ok - change withdrawer to newWithdrawer",
+			deployerAddr,
+			withdrawer,
+			newWithdrawer,
+			contract1,
+			[]uint64{1},
+			func() {
+				err := s.app.EvmKeeper.SetAccount(s.ctx, deployer, deployerAccount)
+				s.Require().NoError(err)
+				err = s.app.EvmKeeper.SetAccount(s.ctx, contract1, contractAccount)
+				s.Require().NoError(err)
+
+				// Prepare
+				ctx := sdk.WrapSDKContext(suite.ctx)
+				msg := types.NewMsgRegisterFeeSplit(contract1, deployerAddr, withdrawer, []uint64{1})
+
+				_, err = suite.app.FeesplitKeeper.RegisterFeeSplit(ctx, msg)
+				suite.Require().NoError(err)
+				suite.Commit()
+			},
+			true,
+			"",
+		},
+		{
 			"fail - feesplit disabled",
 			deployerAddr,
 			withdrawer,
@@ -413,10 +437,17 @@ func (suite *KeeperTestSuite) TestUpdateFeeSplit() {
 				suite.Require().True(ok, "unregistered feeSplit")
 				suite.Require().Equal(tc.contract.String(), feeSplit.ContractAddress, "wrong contract")
 				suite.Require().Equal(tc.deployer.String(), feeSplit.DeployerAddress, "wrong deployer")
-				if tc.withdraw.String() != tc.deployer.String() {
+
+				found := suite.app.FeesplitKeeper.IsWithdrawerMapSet(suite.ctx, tc.withdraw, tc.contract)
+				suite.Require().False(found)
+				if tc.newWithdrawer.String() != tc.deployer.String() {
 					suite.Require().Equal(tc.newWithdrawer.String(), feeSplit.WithdrawerAddress, "wrong withdraw address")
+					found := suite.app.FeesplitKeeper.IsWithdrawerMapSet(suite.ctx, tc.newWithdrawer, tc.contract)
+					suite.Require().True(found)
 				} else {
 					suite.Require().Equal("", feeSplit.WithdrawerAddress, "wrong withdraw address")
+					found := suite.app.FeesplitKeeper.IsWithdrawerMapSet(suite.ctx, tc.newWithdrawer, tc.contract)
+					suite.Require().False(found)
 				}
 			} else {
 				suite.Require().Error(err, tc.name)
@@ -589,6 +620,9 @@ func (suite *KeeperTestSuite) TestCancelFeeSplit() {
 
 				_, ok := suite.app.FeesplitKeeper.GetFeeSplit(suite.ctx, tc.contract)
 				suite.Require().False(ok, "registered feeSplit")
+
+				found := suite.app.FeesplitKeeper.IsWithdrawerMapSet(suite.ctx, withdrawer, tc.contract)
+				suite.Require().False(found)
 			} else {
 				suite.Require().Error(err, tc.name)
 				suite.Require().Contains(err.Error(), tc.errorMessage)
