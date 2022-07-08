@@ -158,6 +158,7 @@ func (k Keeper) UpdateFeeSplit(
 		)
 	}
 
+	// check if updating feesplit to default withdrawer
 	if msg.WithdrawerAddress == feeSplit.DeployerAddress {
 		msg.WithdrawerAddress = ""
 	}
@@ -170,10 +171,12 @@ func (k Keeper) UpdateFeeSplit(
 		)
 	}
 
+	// only delete withdrawer map if is not default
 	if feeSplit.WithdrawerAddress != "" {
-		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(feeSplit.WithdrawerAddress), feeSplit.GetContractAddr())
+		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(feeSplit.WithdrawerAddress), contract)
 	}
 
+	// only add withdrawer map if new entry is not default
 	if msg.WithdrawerAddress != "" {
 		k.SetWithdrawerMap(
 			ctx,
@@ -181,6 +184,7 @@ func (k Keeper) UpdateFeeSplit(
 			contract,
 		)
 	}
+	// update fee split
 	feeSplit.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetFeeSplit(ctx, feeSplit)
 
@@ -234,6 +238,7 @@ func (k Keeper) CancelFeeSplit(
 		contract,
 	)
 
+	// delete entry from withdrawer map if not default
 	if fee.WithdrawerAddress != "" {
 		k.DeleteWithdrawerMap(
 			ctx,
