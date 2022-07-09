@@ -10,11 +10,11 @@ Learn about the EvmosJS Library for connecting clients to Evmos. {synopsis}
 
 ## Tools
 
-- Address converter: convert between `eth` and `evmos` addresses
-- Basic transaction generator: used to create Evmos transactions
-- `EIP-712` transaction generator: used to create `EIP-712` signed Evmos transactions
-- Protobuf files: used to create Cosmos Hub and Evmos transactions
-- REST provider: used to query the Evmos REST API and interact with Evmos nodes
+- **Address converter:** convert between `eth` and `evmos` addresses
+- **Basic transaction generator**: used to create Evmos transactions
+- **`EIP-712` transaction generator**: used to create `EIP-712` signed Evmos transactions
+- **Protobuf files**: used to create Cosmos Hub and Evmos transactions
+- **REST provider**: used to query the Evmos REST API and interact with Evmos nodes
 
 ## Package List
 

@@ -121,6 +121,11 @@ module.exports = {
               path: '/users/keys'
             },
             {
+              title: 'Evmos Governance',
+              directory: true,
+              path: '/users/governance'
+            },
+            {
               title: 'Technical Concepts',
               directory: true,
               path: '/users/technical_concepts'
@@ -161,7 +166,12 @@ module.exports = {
               path: '/developers/localnet'
             },
             {
-              title: 'Libraries',
+              title: 'Wallet Integration',
+              directory: false,
+              path: '/developers/wallet_integration'
+            },
+            {
+              title: 'Client Libraries',
               directory: true,
               path: '/developers/libraries'
             },
@@ -194,11 +204,6 @@ module.exports = {
               path: '/protocol/moduleaccounts'
             },
             {
-              title: 'Telemetry',
-              directory: false,
-              path: '/protocol/telemetry'
-            },
-            {
               title: 'IBC Channels',
               directory: false,
               path: '/protocol/ibc'
@@ -227,14 +232,14 @@ module.exports = {
               path: '/validators/overview'
             },
             {
-              title: 'Setup & Configuration',
-              directory: true,
-              path: '/validators/setup'
-            },
-            {
               title: 'Installation & Quick Start',
               directory: true,
               path: '/validators/quickstart'
+            },
+            {
+              title: 'Setup & Configuration',
+              directory: true,
+              path: '/validators/setup'
             },
             {
               title: 'Join Testnet',
@@ -247,6 +252,11 @@ module.exports = {
               path: '/validators/mainnet'
             },
             {
+              title: 'Telemetry and Observability',
+              directory: false,
+              path: '/protocol/telemetry'
+            },
+            {
               title: 'Security',
               directory: true,
               path: '/validators/security'
@@ -255,11 +265,6 @@ module.exports = {
               title: 'Software Upgrade Guide',
               directory: true,
               path: '/validators/upgrades'
-            },
-            {
-              title: 'Evmos Governance',
-              directory: true,
-              path: '/validators/governance'
             },
             {
               title: 'Snapshots & Archive Nodes',
