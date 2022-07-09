@@ -4,21 +4,14 @@ order: 7
 
 # Future Improvements
 
-## Lack point using this module
+## Correct Usage
 
-In current design each epoch should be at least 2 blocks as start block should be different from endblock.
-Because of this, each epoch time will be `max(blocks_time x 2, epoch_duration)`.
-If epoch_duration is set to `1s`, and `block_time` is `5s`, actual epoch time should be `10s`.
-We definitely recommend configure epoch_duration as more than 2x block_time, to use this module correctly.
-If you enforce to set it to 1s, it's same as 10s - could make module logic invalid.
+In the current design, each epoch should be at least two blocks, as the start block should be different from the endblock. Because of this, the time allocated to each epoch will be `max(block_time x 2, epoch_duration)`. For example: if the `epoch_duration` is set to `1s`, and `block_time` is `5s`, actual epoch time should be `10s`.
 
-TODO for postlaunch: We should see if we can architect things such that the receiver doesn't have to do this filtering, and the epochs module would pre-filter for them.
+It is recommended to configure `epoch_duration` to be more than two times the `block_time`, to use this module correctly. If there is a mismatch between the `epoch_duration` and the actual epoch time, as in the example above, then module logic could become invalid.
 
-## Block-time drifts problem
+## Block-Time Drifts
 
-This implementation has block time drift based on block time.
-For instance, we have an epoch of 100 units that ends at t=100, if we have a block at t=97 and a block at t=104 and t=110, this epoch ends at t=104.
-And new epoch start at t=110. There are time drifts here, for around 1-2 blocks time.
-It will slow down epochs.
+This implementation of the `x/epochs` module has block-time drifts based on the value of `block_time`. For example: if we have an epoch of 100 units that ends at `t=100`, and we have a block at `t=97` and a block at `t=104` and `t=110`, this epoch ends at `t=104`, and the new epoch will start at `t=110`.
 
-It's going to slow down epoch by 10-20s per week when epoch duration is 1 week. This should be resolved after launch.
+There are time drifts here, varying about 1-2 blocks time, which will slow down epochs.
