@@ -10,14 +10,27 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-// ModuleCdc references the global erc20 module codec. Note, the codec should
-// ONLY be used in certain instances of tests and for JSON encoding.
-//
-// The actual codec used for serialization should be provided to modules/erc20 and
-// defined at the application level.
-var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
+var (
+	amino = codec.NewLegacyAmino()
 
-// RegisterInterface associates protoName with AccountI and VestingAccount
+	// ModuleCdc references the global vesting module codec. Note, the codec should
+	// ONLY be used in certain instances of tests and for JSON encoding.
+	//
+	// The actual codec used for serialization should be provided to modules/vesting and
+	// defined at the application level.
+	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
+
+	// AminoCdc is a amino codec created to support amino JSON compatible msgs.
+	AminoCdc = codec.NewAminoCodec(amino)
+)
+
+const (
+	// Amino names
+	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
+	clawback                     = "evmos/MsgClawback"
+)
+
+// RegisterInterfaces associates protoName with AccountI and VestingAccount
 // Interfaces and creates a registry of it's concrete implementations
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	// NOTE: BaseVestingAccount is still supported to as it's the underlying embedded
@@ -47,4 +60,12 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
+}
+
+// RegisterLegacyAminoCodec registers the necessary x/vesting interfaces and
+// concrete types on the provided LegacyAmino codec. These types are used for
+// Amino JSON serialization and EIP-712 compatibility.
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgCreateClawbackVestingAccount{}, createClawbackVestingAccount, nil)
+	cdc.RegisterConcrete(&MsgClawback{}, clawback, nil)
 }

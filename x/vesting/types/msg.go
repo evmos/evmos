@@ -79,8 +79,8 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgCreateClawbackVestingAccount) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+func (msg MsgCreateClawbackVestingAccount) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // GetSigners defines whose signature is required
@@ -129,8 +129,8 @@ func (msg MsgClawback) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgClawback) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+func (msg MsgClawback) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // GetSigners defines whose signature is required
