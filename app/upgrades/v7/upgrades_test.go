@@ -76,17 +76,17 @@ func TestUpgradeTestSuite(t *testing.T) {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
+	from := sdk.MustAccAddressFromBech32(v7.FaucetAddressFrom)
+	to := sdk.MustAccAddressFromBech32(v7.FaucetAddressTo)
+
 	testCases := []struct {
 		name              string
 		chainID           string
-		malleate          func()
 		expectedMigration bool
 	}{
 		{
 			"Testnet - sucess",
 			evmostypes.TestnetChainID + "-4",
-			func() {
-			},
 			true,
 		},
 	}
@@ -95,16 +95,12 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest(tc.chainID) // reset
 
-			from := sdk.MustAccAddressFromBech32(v7.FaucetAddressTo)
-			to := sdk.MustAccAddressFromBech32(v7.FaucetAddressTo)
 			coins := sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewInt(1000)))
 			err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, from, coins)
 			suite.Require().Nil(err)
 
-			tc.malleate()
-
 			suite.Require().NotPanics(func() {
-				v7.MigrateFaucetBalance(suite.ctx, suite.app.BankKeeper)
+				v7.MigrateFaucetBalances(suite.ctx, suite.app.BankKeeper)
 				suite.app.Commit()
 			})
 

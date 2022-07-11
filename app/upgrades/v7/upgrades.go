@@ -2,6 +2,7 @@ package v7
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -24,7 +25,10 @@ func CreateUpgradeHandler(
 
 		if types.IsTestnet(ctx.ChainID()) {
 			logger.Debug("migrating inaccessible balance of secp faucet account...")
-			MigrateFaucetBalance(ctx, bk)
+			if err := MigrateFaucetBalances(ctx, bk); err != nil {
+				// log error instead of aborting the upgrade
+				logger.Error("FAILED TO MIGRATE FAUCET BALANCES", "error", err.Error())
+			}
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
@@ -33,13 +37,14 @@ func CreateUpgradeHandler(
 	}
 }
 
-// MigrateFaucetBalance transfers all balances of the inaccessible secp256k1
+// MigrateFaucetBalances transfers all balances of the inaccessible secp256k1
 // Faucet address to a eth_secp256k1 address.
-func MigrateFaucetBalance(ctx sdk.Context, bk bankkeeper.Keeper) {
-	from := sdk.MustAccAddressFromBech32(FaucetAddressTo)
+func MigrateFaucetBalances(ctx sdk.Context, bk bankkeeper.Keeper) error {
+	from := sdk.MustAccAddressFromBech32(FaucetAddressFrom)
 	to := sdk.MustAccAddressFromBech32(FaucetAddressTo)
 	balances := bk.GetAllBalances(ctx, from)
 	if err := bk.SendCoins(ctx, from, to, balances); err != nil {
-		panic(err)
+		return sdkerrors.Wrap(err, "failed to migrate Faucet Balances")
 	}
+	return nil
 }
