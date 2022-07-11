@@ -117,3 +117,36 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 		})
 	}
 }
+
+func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
+
+	testCases := []struct {
+		name                  string
+		chainID               string
+		malleate              func()
+		expectedSkippedEpochs uint64
+	}{
+		{
+			"testnet - success",
+			evmostypes.TestnetChainID + "-4",
+			func() {
+				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, uint64(94))
+			}
+		}, uint64(92)
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest(tc.chainID) // reset
+
+			tc.malleate()
+
+			suite.Require.NotPanics(func() {
+				v7.MigrateSkippedEpochs(suite.ctx, suite.app.InflationKeeper)
+			})
+
+			newSkippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
+			suite.Require().Equal(tc.expectedSkippedEpochs, newSkippedEpochs)
+		})
+	}
+}
