@@ -146,24 +146,29 @@ module.exports = {
               path: '/developers/connect'
             },
             {
-              title: 'Evmos Clients',
+              title: 'Clients',
               directory: false,
               path: '/developers/clients'
             },
             {
-              title: 'Testnet Faucet',
-              directory: false,
-              path: '/developers/faucet'
-            },
-            {
-              title: 'Ethereum Tooling',
+              title: 'Guides',
               directory: true,
-              path: '/developers/tools'
+              path: '/developers/guides'
             },
             {
               title: 'Localnet',
               directory: true,
               path: '/developers/localnet'
+            },
+            {
+              title: 'Testnet',
+              directory: true,
+              path: '/developers/testnet'
+            },
+            {
+              title: 'Ethereum Tooling',
+              directory: true,
+              path: '/developers/tools'
             },
             {
               title: 'Wallet Integration',
