@@ -26,7 +26,7 @@
     "entities": "^2.0.3",
     "markdown-it": "^12.3.2",
     "markdown-it-katex": "^2.0.3",
-    "node-sass": "npm:sass@*",
+    "node-sass": "npm:sass@^1.53.0",
     "vuepress-theme-cosmos": "^1.0.183"
   },
   "devDependencies": {
