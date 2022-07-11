@@ -127,8 +127,8 @@ func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
 		expectedSkippedEpochs uint64
 	}{
 		{
-			"testnet - success",
-			evmostypes.TestnetChainID + "-4",
+			"success",
+			evmostypes.MainnetChainID + "-2",
 			func() {
 				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, uint64(94))
 			},

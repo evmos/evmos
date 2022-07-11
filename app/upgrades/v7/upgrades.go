@@ -9,7 +9,6 @@ import (
 
 	"github.com/evmos/evmos/v6/types"
 	inflationkeeper "github.com/evmos/evmos/v6/x/inflation/keeper"
-	//inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v7
@@ -32,7 +31,7 @@ func CreateUpgradeHandler(
 				// log error instead of aborting the upgrade
 				logger.Error("FAILED TO MIGRATE FAUCET BALANCES", "error", err.Error())
 			}
-
+		} else if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("migrating skipped epochs value of inflation module...")
 			MigrateSkippedEpochs(ctx, ik)
 		}
