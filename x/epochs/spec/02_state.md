@@ -4,10 +4,25 @@ order: 2
 
 # State
 
-Epochs module keeps `EpochInfo` objects and modify the information as epochs info changes.
-Epochs are initialized as part of genesis initialization, and modified on begin blockers or end blockers.
+## State Objects
 
-### Epoch information type
+The `x/epochs` module keeps the following `objects in state`:
+
+| State Object | Description         | Key                  | Value               | Store |
+|--------------|---------------------|----------------------|---------------------|-------|
+| `EpochInfo`  | Epoch info bytecode | `[]byte{identifier}` | `[]byte{epochInfo}` | KV    |
+
+### EpochInfo
+
+An `EpochInfo` defines several variables:
+
+1. `identifier` keeps an epoch identification string
+2. `start_time` keeps the start time for epoch counting: if block height passes `start_time`, then `epoch_counting_started` is set
+3. `duration` keeps the target epoch duration
+4. `current_epoch` keeps the current active epoch number
+5. `current_epoch_start_time` keeps the start time of the current epoch
+6. `epoch_counting_started` is a flag set with `start_time`, at which point `epoch_number` will be counted
+7. `current_epoch_start_height` keeps the start block height of the current epoch
 
 ```protobuf
 message EpochInfo {
@@ -35,12 +50,16 @@ message EpochInfo {
 }
 ```
 
-EpochInfo keeps `identifier`, `start_time`,`duration`, `current_epoch`, `current_epoch_start_time`,  `epoch_counting_started`, `current_epoch_start_height`.
+The `epochs` module keeps these `EpochInfo` objects in state, which are initialized at genesis and are modified on begin blockers or end blockers.
 
-1. `identifier` keeps epoch identification string.
-2. `start_time` keeps epoch counting start time, if block time passes `start_time`, `epoch_counting_started` is set.
-3. `duration` keeps target epoch duration.
-4. `current_epoch` keeps current active epoch number.
-5. `current_epoch_start_time` keeps the start time of current epoch.
-6. `epoch_number` is counted only when `epoch_counting_started` flag is set.
-7. `current_epoch_start_height` keeps the start block height of current epoch.
+### Genesis State
+
+The `x/epochs` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains a slice containing all the `EpochInfo` objects kept in state:
+
+```go
+// Genesis State defines the epoch module's genesis state
+type GenesisState struct {
+    // list of EpochInfo structs corresponding to all epochs
+	Epochs []EpochInfo `protobuf:"bytes,1,rep,name=epochs,proto3" json:"epochs"`
+}
+```

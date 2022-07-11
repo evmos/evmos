@@ -39,9 +39,9 @@ software to seamlessly deploy smart contracts which interact with the rest of th
 
 ## Quick Facts Table
 
-| Property                     | Value                                                |
-|------------------------------|------------------------------------------------------|
-| Evmos Testnet                | `{{ $themeConfig.project.testnet_chain_id }}`        |
-| Evmos Mainnet                | `{{ $themeConfig.project.chain_id }}`                |
-| Blockchain Explorer(s)       | [evmos.dev/tools/explorers](./../../developers/explorers.md) |
-| Block Time                   | ~7 seconds                                           |
+| Property               | Value                                                      |
+| ---------------------- | ---------------------------------------------------------- |
+| Evmos Testnet          | `{{ $themeConfig.project.testnet_chain_id }}`              |
+| Evmos Mainnet          | `{{ $themeConfig.project.chain_id }}`                      |
+| Blockchain Explorer(s) | [List of Block Explorers](./../../developers/explorers.md) |
+| Block Time             | `~2s`                                                      |

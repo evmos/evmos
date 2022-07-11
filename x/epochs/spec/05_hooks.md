@@ -4,17 +4,33 @@ order: 5
 
 # Hooks
 
-## Hooks
+The `x/epochs` module implements hooks so that other modules can use epochs to allow facets of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) to run on specific schedules.
+
+## Hooks Implementation
 
 ```go
-  // the first block whose timestamp is after the duration is counted as the end of the epoch
-  AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64)
-  // new epoch is next block of epoch end block
-  BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64)
+// combine multiple epoch hooks, all hook functions are run in array sequence
+type MultiEpochHooks []types.EpochHooks
+
+// AfterEpochEnd is called when epoch is going to be ended, epochNumber is the
+// number of epoch that is ending
+func (mh MultiEpochHooks) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) {...}
+
+// BeforeEpochStart is called when epoch is going to be started, epochNumber is
+// the number of epoch that is starting
+func (mh MultiEpochHooks) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) {...}
+
+// AfterEpochEnd executes the indicated hook after epochs ends
+func (k Keeper) AfterEpochEnd(ctx sdk.Context, identifier string, epochNumber int64) {...}
+
+// BeforeEpochStart executes the indicated hook before the epochs
+func (k Keeper) BeforeEpochStart(ctx sdk.Context, identifier string, epochNumber int64) {...}
 ```
 
-## How modules receive hooks
+## Recieving Hooks
 
-On hook receiver function of other modules, they need to filter `epochIdentifier` and only do executions for only specific epochIdentifier.
-Filtering epochIdentifier could be in `Params` of other modules so that they can be modified by governance.
-Governance can change epoch from `week` to `day` as their need.
+When other modules (outside of `x/epochs`) recieve hooks, they need to filter the value `epochIdentifier`, and only do executions for a specific `epochIdentifier`.
+
+The filtered values from `epochIdentifier` could be stored in the `Params` of other modules, so they can be modified by governance.
+
+Governance can change epoch periods from `week` to `day` as needed.

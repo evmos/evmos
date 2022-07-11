@@ -20,6 +20,7 @@ Please find the following resources for in-depth information:
     - **[Testnet](./localnet/testnet_cmd.md)**: Use the testnet command of the Evmos daemon.
 - **Libraries**:
     - **[EvmosJS](./libraries/evmosjs.md)**: Javascript library for Evmos.
+- **[Wallet Integration](wallet_integration.md)**: Connect Metamask and Keplr wallets to a UI.
 
 ### Remote Procedure Calls (RPCs)
 
@@ -30,7 +31,7 @@ As Evmos lives at the crossroads of Cosmos and Ethereum, there are RPC connectio
 - **[Namespaces](./json-rpc/namespaces.md)**: Description of the available JSON-RPC namespaces.
 - **[JSON-RPC Methods](./json-rpc/endpoints.md)**: List of supported JSON-RPC endpoints and methods.
 - **[Events](./json-rpc/events.md)**: Information about the available events and instructions to subscribe to them.
-- **[Cosmos gRPC & REST](https://api.evmos.dev/)**: Documentation of the available gRPC implementation on Evmos.
+- **[Cosmos gRPC & REST](https://api.evmos.org/)**: Documentation of the available gRPC implementation on Evmos.
 - **[Tendermint RPC](https://docs.tendermint.com/v0.34/rpc/)**: Documentation for the RPC protocols supported by Tendermint.
 
 ### Tutorials For Ethereum Devs
