@@ -19,7 +19,7 @@ import (
 	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v5
+// CreateUpgradeHandler creates an SDK upgrade handler for v6
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
