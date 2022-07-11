@@ -33,6 +33,12 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
+// AfterProposalVote is a wrapper for calling the Gov AfterProposalVote hook on
+// the module keeper
+func (h Hooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
+	h.k.AfterProposalVote(ctx, proposalID, voterAddr)
+}
+
 // AfterProposalVote is called after a vote on a proposal is cast. Once the vote
 // is successfully included, the claimable amount for the user's claims record
 // vote action is claimed and the transferred to the user address.
@@ -52,6 +58,12 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr 
 			"error", err.Error(),
 		)
 	}
+}
+
+// AfterDelegationModified is a wrapper for calling the Staking AfterDelegationModified
+// hook on the module keeper
+func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	h.k.AfterDelegationModified(ctx, delAddr, valAddr)
 }
 
 // AfterDelegationModified is called after a delegation is modified. Once a user
@@ -76,11 +88,17 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 	}
 }
 
-// AfterEVMStateTransition implements the ethermint evm PostTxProcessing hook.
+// PostTxProcessing is a wrapper for calling the EVM PostTxProcessing hook on
+// the module keeper
+func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+	return h.k.PostTxProcessing(ctx, msg, receipt)
+}
+
+// PostTxProcessing implements the ethermint evm PostTxProcessing hook.
 // After a EVM state transition is successfully processed, the claimable amount
 // for the users's claims record evm action is claimed and transferred to the
 // user address.
-func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	params := k.GetParams(ctx)
 	fromAddr := sdk.AccAddress(msg.From().Bytes())
 
@@ -103,11 +121,6 @@ func (k Keeper) AfterEVMStateTransition(ctx sdk.Context, msg core.Message, recei
 
 // ________________________________________________________________________________________
 
-// evm hook
-func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
-	return h.k.AfterEVMStateTransition(ctx, msg, receipt)
-}
-
 // governance hooks
 func (h Hooks) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64) {
 }
@@ -118,10 +131,6 @@ func (h Hooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64
 func (h Hooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {}
 
 func (h Hooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, depositorAddr sdk.AccAddress) {
-}
-
-func (h Hooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
-	h.k.AfterProposalVote(ctx, proposalID, voterAddr)
 }
 
 func (h Hooks) AfterProposalInactive(ctx sdk.Context, proposalID uint64) {}
@@ -148,9 +157,6 @@ func (h Hooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAd
 func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 }
 
-func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	h.k.AfterDelegationModified(ctx, delAddr, valAddr)
-}
 func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) {}
 
 // IBC callbacks and transfer handlers
