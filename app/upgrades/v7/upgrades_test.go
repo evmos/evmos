@@ -97,7 +97,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 
 			coins := sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewInt(1000)))
 			err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, from, coins)
-			suite.Require().Nil(err)
+			suite.Require().NoError(err)
 
 			suite.Require().NotPanics(func() {
 				v7.MigrateFaucetBalances(suite.ctx, suite.app.BankKeeper)
