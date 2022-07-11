@@ -131,8 +131,9 @@ func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
 			evmostypes.TestnetChainID + "-4",
 			func() {
 				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, uint64(94))
-			}
-		}, uint64(92)
+			},
+			uint64(92),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -141,7 +142,7 @@ func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
 
 			tc.malleate()
 
-			suite.Require.NotPanics(func() {
+			suite.Require().NotPanics(func() {
 				v7.MigrateSkippedEpochs(suite.ctx, suite.app.InflationKeeper)
 			})
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/evmos/evmos/v6/types"
 	inflationkeeper "github.com/evmos/evmos/v6/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
+	//inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v7
@@ -57,9 +57,8 @@ func MigrateFaucetBalances(ctx sdk.Context, bk bankkeeper.Keeper) error {
 
 // MigrateSkippedEpochs migrates the number of skipped epochs to be lower
 // than the previous stored value, due to an overcounting of two epochs pre v6.0.0.
-func MigrateSkippedEpochs(sdk sdk.Context, ik inflationkeeper.Keeper) error {
+func MigrateSkippedEpochs(ctx sdk.Context, ik inflationkeeper.Keeper) {
 	previousValue := ik.GetSkippedEpochs(ctx)
 	newValue := previousValue - uint64(2)
 	ik.SetSkippedEpochs(ctx, newValue)
-	return nil
 }
