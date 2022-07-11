@@ -121,33 +121,3 @@ func (suite *KeeperTestSuite) TestSetGetSkippedEpochs() {
 	}
 }
 
-// tests to ensure that overcounting past v6.0.1 is corrected
-func (suite *KeeperTestSuite) TestSetGetSkippedEpochsOvercounting() {
-	expSkippedepochs := uint64(94)
-
-	testCases := []struct {
-		name     string
-		malleate func()
-		ok       bool
-	}{
-		{
-			"skipped overcounted epoch set",
-			func() {
-				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, expSkippedepochs)
-			},
-			true,
-		},
-	}
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
-
-			tc.malleate()
-
-			epochsPerPeriod := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
-			if tc.ok {
-				suite.Require().Equal(expSkippedepochs-uint64(2), epochsPerPeriod, tc.name)
-			}
-		})
-	}
-}
