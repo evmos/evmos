@@ -4,7 +4,7 @@ order: 6
 
 # Queries
 
-Epochs module is providing below queries to check the module's state.
+The `x/epochs` module provides the following queries to check the module's state.
 
 ```protobuf
 service Query {

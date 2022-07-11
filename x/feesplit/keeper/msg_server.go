@@ -158,6 +158,11 @@ func (k Keeper) UpdateFeeSplit(
 		)
 	}
 
+	// check if updating feesplit to default withdrawer
+	if msg.WithdrawerAddress == feeSplit.DeployerAddress {
+		msg.WithdrawerAddress = ""
+	}
+
 	// fee split with the given withdraw address is already registered
 	if msg.WithdrawerAddress == feeSplit.WithdrawerAddress {
 		return nil, sdkerrors.Wrapf(
@@ -166,14 +171,22 @@ func (k Keeper) UpdateFeeSplit(
 		)
 	}
 
-	// NOTE: withdraw address cannot be empty due to msg stateless validation
+	// only delete withdrawer map if is not default
+	if feeSplit.WithdrawerAddress != "" {
+		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(feeSplit.WithdrawerAddress), contract)
+	}
+
+	// only add withdrawer map if new entry is not default
+	if msg.WithdrawerAddress != "" {
+		k.SetWithdrawerMap(
+			ctx,
+			sdk.MustAccAddressFromBech32(msg.WithdrawerAddress),
+			contract,
+		)
+	}
+	// update fee split
 	feeSplit.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetFeeSplit(ctx, feeSplit)
-	k.SetWithdrawerMap(
-		ctx,
-		feeSplit.GetWithdrawerAddr(),
-		contract,
-	)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
@@ -225,6 +238,7 @@ func (k Keeper) CancelFeeSplit(
 		contract,
 	)
 
+	// delete entry from withdrawer map if not default
 	if fee.WithdrawerAddress != "" {
 		k.DeleteWithdrawerMap(
 			ctx,
