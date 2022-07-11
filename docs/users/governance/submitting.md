@@ -210,17 +210,14 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
    - the more content there is in the description of your proposal, the more gas your transaction will consume
    - if this number isn't high enough and there isn't enough gas to process your transaction, the transaction will fail
    - the transaction will only use the amount of gas needed to process the transaction
-5. `--fees` is a flat-rate incentive for a validator to process your transaction
-   - the network still accepts zero fees, but many nodes will not transmit your transaction to the network without a minimum fee
-   - many nodes (including the Figment node) use a minimum fee to desincentivize transaction spamming
-   - 7500aevmos is equal to 0.0075 EVMOS
-6. `--chain-id evmos_90001-2` is Evmos Mainnet. For current and past chain-id's, please look at the [tharsis/mainnet resource](https://github.com/tharsis/mainnet)
-   - the testnet chain ID is [evmos_9000-4](https://testnet.mintscan.io/evmos). For current and past testnet information, please look at the [testnet repository](https://github.com/tharsis/testnets)
+5. `--gas-prices` is the flat-rate per unit of gas value for a validator to process your transaction
+6. `--chain-id evmos_90001-2` is Evmos Mainnet. For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
+   - the testnet chain ID is [evmos_9000-4](https://testnet.mintscan.io/evmos). For current and past testnet information, please look at the [testnet repository](https://github.com/evmos/testnets)
 7. `--node` is using a full node to send the transaction to the Evmos Mainnet
 
 ### Verifying your transaction
 
-After posting your transaction, your command line interface (`evmosd`) will provide you with the transaction's hash, which you can either query using evmosd or by searching the transaction hash using [Mintscan](https://www.mintscan.io/evmos) or any block explorer.
+After posting your transaction, your command line interface (`evmosd`) will provide you with the transaction's hash, which you can either query using `evmosd` or by searching the transaction hash using [Mintscan](https://www.mintscan.io/evmos) or any block explorer.
 
 ### Depositing funds after a proposal has been submitted
 
@@ -256,6 +253,6 @@ You may want to submit your proposal to the testnet chain before the mainnet for
 
 Submitting your proposal to the testnet increases the likelihood that you will discover a flaw before deploying your proposal on mainnet. A few things to keep in mind:
 
-- you'll need testnet tokens for your proposal (ask around for a faucet)
+- you'll need testnet tokens for your proposal (ask around for a [faucet](./../../developers/faucet.md))
 - the parameters for testnet proposals are different (eg. voting period timing, deposit amount, deposit denomination)
-- the deposit denomination is in 'atevmos' instead of 'aevmos'
+- the deposit denomination is in `'atevmos'` instead of `'aevmos'`

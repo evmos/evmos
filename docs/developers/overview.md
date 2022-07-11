@@ -20,6 +20,7 @@ Please find the following resources for in-depth information:
     - **[Testnet](./localnet/testnet_cmd.md)**: Use the testnet command of the Evmos daemon.
 - **Libraries**:
     - **[EvmosJS](./libraries/evmosjs.md)**: Javascript library for Evmos.
+- **[Wallet Integration](wallet_integration.md)**: Connect Metamask and Keplr wallets to a UI.
 
 ### Remote Procedure Calls (RPCs)
 
