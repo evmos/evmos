@@ -34,6 +34,7 @@ You can register a contract by signing a transaction with the address that origi
 evmosd tx feesplit register $CONTRACT $NONCE $WITHDRAWER \
 --from=mykey \ # contract deployer key
 --fees=40aevmos \ # can vary depending on the network
+
 ```
 After your transaction is submitted successfully, you can query your `feesplit` with :
 
