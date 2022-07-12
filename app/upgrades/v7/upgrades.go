@@ -8,6 +8,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/evmos/evmos/v6/types"
+	inflationkeeper "github.com/evmos/evmos/v6/x/inflation/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v7
@@ -15,6 +16,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
+	ik inflationkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -29,6 +31,10 @@ func CreateUpgradeHandler(
 				// log error instead of aborting the upgrade
 				logger.Error("FAILED TO MIGRATE FAUCET BALANCES", "error", err.Error())
 			}
+		}
+		if types.IsMainnet(ctx.ChainID()) {
+			logger.Debug("migrating skipped epochs value of inflation module...")
+			MigrateSkippedEpochs(ctx, ik)
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
@@ -47,4 +53,26 @@ func MigrateFaucetBalances(ctx sdk.Context, bk bankkeeper.Keeper) error {
 		return sdkerrors.Wrap(err, "failed to migrate Faucet Balances")
 	}
 	return nil
+}
+
+// MigrateSkippedEpochs migrates the number of skipped epochs to be lower
+// than the previous stored value, due to an overcounting of two epochs pre v6.0.0.
+// - launch date: 2022-03-02 20:00:00
+// - halt date: 2022-03-06 22:11:42 (Block 58701)
+// - relaunch date: 2022-04-27 18:00:00
+// - inflation turned on: 2022-06-06 6:35:30 (skippedEpochs (incorrect) = 94 at this point)
+// - counting mechanism fixed: 2022-07-04 (v6.0.0)
+// = current date: 2022-07-07 13:00:00
+// - currentEpochDay = 128
+// = currentEpochWeek = 19
+// - skippedEpochs (incorrectly calculated) = 94
+// - 127 epochs have fully passed since launch
+// - Of these 127 epochs, inflation has been enabled (at the end of the epoch) for 4 (pre-halt) + 31 (post-inflation-enabled) = 35 epochs
+// - So the number of skippedEpochs (those with inflation disabled) should be 127 - 35 = 92 epochs, not 94 epochs
+// - Can also see this by calculating number of completed epochs between halt date and date inflation turned on: 92 epochs between 3/6/2022 22:11:42, 6/6/2022 6:35:30
+// Since skippedEpochs past v6.0.0 will be counted correctly (via PR #554), then we just account for the overcounting of 2 epochs
+func MigrateSkippedEpochs(ctx sdk.Context, ik inflationkeeper.Keeper) {
+	previousValue := ik.GetSkippedEpochs(ctx)
+	newValue := previousValue - uint64(2)
+	ik.SetSkippedEpochs(ctx, newValue)
 }
