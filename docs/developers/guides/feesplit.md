@@ -6,12 +6,13 @@ order: 1
 
 This guide explains how to register your smart contract in the Evmos dApp store and start earning an income every time a user interacts with your smart contract {synopsis}
 
-The Evmos dApp store is a revenue-per-transaction model, which allows developers to get payed for deploying their decentralized application (dApps) on Evmos. Developers generate revenue, every time a user interacts with their dApp in the dApp store, gaining them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the [x/feesplit module](https://github.com/evmos/evmos/blob/main/x/feesplit/spec/01_concepts.md).
+The Evmos dApp store is a revenue-per-transaction model, which allows developers to get payed for deploying their decentralized application (dApps) on Evmos. Developers generate revenue every time a user interacts with their dApp in the dApp store, gaining them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the [x/feesplit module](https://github.com/evmos/evmos/blob/main/x/feesplit/spec/01_concepts.md).
 
 ## Prerequisites
 
 * Address of a deployed smart contract
-* Capability to sign transactions with the address that deployed the contract. If your smart contract was deployed by a another contract using a [factory pattern](https://en.wikipedia.org/wiki/Factory_method_pattern), then this capaility is required for the address that deployed the factory.
+* Capability to sign transactions with the address that deployed the contract. If your smart contract was deployed by a contract using a [factory pattern](https://en.wikipedia.org/wiki/Factory_method_pattern), then the signing capaility is required for the address that deployed the factory.
+* The nonce of the contract deployment transaction. You can query the nonce, e.g. using the `eth_getTransactionByHash` JSON-RPC endpoint.
 * Withdrawer address, in case you wish to receive your earnings at a specified address
 
 ::: warning
@@ -20,47 +21,54 @@ If your contract is part of a developer project, please ensure that the deployer
 
 ## Register Contract
 
-To add your contract in the Evmos dApp store, you need to register a `feesplit` for the contract. The `feesplit` includes the necessary details for receiving a part of the transaction fees, that users pay for interacting with your smart contract. Every time a user submits a transaction to your registered contract a part of the transaction fess is transferred to the withdrawer address specified in the `feesplit`. If the withdrawer is not specified, then the transaction fees are sent to the contract deployer.
+To add your contract in the Evmos dApp store, you need to register a `feesplit` for that contract. The `feesplit` includes the details for receiving a cut of the transaction fees, which users pay for interacting with your smart contract. Every time a user submits a transaction to your registered smart contract, a part of the transaction fees is transferred to the withdrawer address specified in the `feesplit`. If the withdrawer is not specified, the transaction fees are sent to the contract deployer.
 
-You can register a contract by signing a transaction with the address that deployed the contract. You can use the following CLI command, where
+You can register a contract by signing a transaction with the address that originally deployed the contract. You can use the following CLI command, where
 
 * `$NONCE` is the nonce of transaction that deployed the contract (e.g. `0`),
 * `$CONTRACT` is the hex address of the deployed contract (e.g `0x5f6659B6F712c729c46786bA9562eC50907c67CF`) and
 * (optional) `$WITHDRAWER` is the bech32 address of the address to receive the transaction fees (e.g. `evmos1keyy3teyq7t7kuxgeek3v65n0j27k20v2ugysf`):
 
 ```bash
-# Register a feesplit for your the contract
+# Register a feesplit for your contract
 evmosd tx feesplit register $CONTRACT $NONCE $WITHDRAWER \
---from=mm \ # the name
---fees=20aevmos \
+--from=mykey \ # contract deployer key
+--fees=40aevmos \ # can vary depending on the network
 ```
-After your transaction is submitted successfully you can query your `feesplit`:
+After your transaction is submitted successfully, you can query your `feesplit` with :
 
 ```bash
 # Check feesplits
 evmosd q feesplit contract $CONTRACT
 ```
-Congrats ☄️ Now that you've registered a feesplit for your contract, your contract is part of the Evmos dApp store and you will receive a part of the transaction fees, every time a user interacts with your contract. If you wondering how large your cut is, have a look at TODO.
 
-### Deployed Factory Pattern TODO
+Congrats ☄️☄️☄️ Now, that you've registered a feesplit for your contract, it is part of the Evmos dApp store and you will receive a cut of the transaction fees, every time a user interacts with your contract. If you wondering how large your cut is, have a look at the [feesplit parameter `DeveloperShares`](https://github.com/evmos/evmos/blob/main/x/feesplit/spec/07_parameters.md#developer-shares-amount), which is controlled through governance. You can query the parameters using our [swagger documentation](https://github.com/evmos/evmos/blob/main/x/feesplit/spec/07_parameters.md#developer-shares-amount).
+
+### Deployed Factory Pattern
+
+You can also register a contract which has been deployed by a smart contract instead of an [EOA](https://docs.evmos.org/modules/evm/01_concepts.html#accounts). In this case you need to provide a sequence of nonces that proves the trace from an original deployer who deployed the factory to the contract that is being registered.
+
+**Example `DeployerEOA` -> `FactoryA` -> `FactoryB`-> `MyContract`**: `DeployerEOA` deploys a `FactoryA` smart contract with nonce `5`. Then, `DeployerEOA` sends a transaction to `FactoryA` through which a `FactoryB` smart contract is created. If we assume `FactoryB` is the second contract created by `FactoryA`, then `FactoryA`'s nonce is `2`. Then, `DeployerEOA` sends a transaction to the `FactoryB` contract, through which `MyContract` is created. If this is the first contract created by FactoryB - the nonce is `1`. To be able to verify that `DeployerEOA` can register `MyContract`, we need to provide the following nonces: `[5, 2, 1]`.
 
 ## Update Contract
 
 A registered contract can also be updated. To update the withdrawer address of your `feesplit` you can the following CLI command:
 
 ```bash
-# Update withdrawer of existing contract to new account, e.g. A3
+# Update withdrawer for your contract
 evmosd tx feesplit update $CONTRACT $WITHDRAWER \
 --fees=40aevmos \
 --from=mm
 ```
+
+If the specified withdrawer is the same address as the deployer, then feesplit is updated with an empty withdrawer address, so that all transaction fees are sent to the deployer address.
 
 ## Cancel Contract
 
 A feesplit can also we canceled in order to stop receiving transaction fees for interaction with your contract using:
 
 ```bash
-# Cancel feesplit for a given contract
+# Cancel feesplit for your contract
 evmosd tx feesplit cancel $CONTRACT \
 --fees=40aevmos \
 --from=mm
