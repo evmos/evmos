@@ -11,32 +11,27 @@ Learn how to register interoperable ERC-20s through [Evmos Governance](../users/
 The following topics must be addressed when drafting an ERC-20 Proposal:
 
 1. Applicant(s) - the profile of the person(s)/entity making the proposal
-
-- who you are and your involvement in Cosmos and/or other blockchain networks
-- an overview of team members involved and their relevant experience
-- brief mission statement for your organization/business (if applicable) eg. website
-- past work you've done eg. include your Github
-- some sort of proof of who you are eg. Keybase
-
+    - who you are and your involvement in Cosmos and/or other blockchain networks
+    - an overview of team members involved and their relevant experience
+    - brief mission statement for your organization/business (if applicable) eg. website
+    - past work you've done eg. include your Github
+    - some sort of proof of who you are eg. Keybase
 2. Background Information - promote understanding of the ERC-20 Module
-
-- a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
-- a brief explanation of what the ERC-20 Module does
-- a mention of the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)
-
+    - a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
+    - a brief explanation of what the ERC-20 Module does
+    - a mention of the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)
 3. Solution - generally how ERC-20 Module changes will be made
-
-- a brief explanation of what the proposal will do if it passes
-- a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
-- a breakdown of the proposal's payload, and third-party review
-- a brief explanation of the risks involved (depending on the direction of IBC Coin, ERC-20)
-- ensure the following are both adhered to and documented:
-    - the contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev))
-    - the contracts are deployed open-source
-    - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
-    - the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/))
-    - the transfer logic is not modified (i.e. transfer logic is not directly manipulated)
-    - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
+    - a brief explanation of what the proposal will do if it passes
+    - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
+    - a breakdown of the proposal's payload, and third-party review
+    - a brief explanation of the risks involved (depending on the direction of IBC Coin, ERC-20)
+    - ensure the following are both adhered to and documented:
+        - the contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev))
+        - the contracts are deployed open-source
+        - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
+        - the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/))
+        - the transfer logic is not modified (i.e. transfer logic is not directly manipulated)
+        - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
 
 Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
