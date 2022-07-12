@@ -11,16 +11,21 @@ Learn how to register interoperable ERC-20s through [Evmos Governance](../users/
 The following topics must be addressed when drafting an ERC-20 Proposal:
 
 1. Applicant(s) - the profile of the person(s)/entity making the proposal
+
 - who you are and your involvement in Cosmos and/or other blockchain networks
 - an overview of team members involved and their relevant experience
 - brief mission statement for your organization/business (if applicable) eg. website
 - past work you've done eg. include your Github
 - some sort of proof of who you are eg. Keybase
+
 2. Background Information - promote understanding of the ERC-20 Module
+
 - a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
 - a brief explanation of what the ERC-20 Module does
 - a mention of the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)
+
 3. Solution - generally how ERC-20 Module changes will be made
+
 - a brief explanation of what the proposal will do if it passes
 - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
 - a breakdown of the proposal's payload, and third-party review
@@ -40,6 +45,7 @@ Remember to provide links to the relevant [Commonwealth Evmos community](https:/
 After the drafting process, the ERC-20 Proposal can be submitted.
 
 ### Formatting the Proposal's Text
+
 The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMd](https://hackmd.io/). Markdown
 is a simple and accessible format for writing plain text files that is easy to
 <!-- markdown-link-check-disable-next-line -->
