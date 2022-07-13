@@ -35,11 +35,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [5.0.1] - 2022-07-13
 
-### Improvements
-
-- (cmd) [\#696](https://github.com/tharsis/evmos/pull/696) Set a custom tendermint node configuration on initialization.
+- (deps) [\#770](https://github.com/evmos/evmos/pull/770) Bump Ethermint version to [`v0.16.2`](https://github.com/evmos/ethermint/releases/tag/v0.16.2)
 
 ## [v5.0.0] - 2022-06-14
 
