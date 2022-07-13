@@ -35,11 +35,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v3.0.3] - 2022-07-13
+
+- (deps) [\#772](https://github.com/evmos/evmos/pull/772) Bump Ethermint version to [`v0.14.1`](https://github.com/evmos/ethermint/releases/tag/v0.14.1)
+
 ## [v3.0.2] - 2022-05-10
 
 ### Bug Fixes
 
-- (app) [\#590](https://github.com/tharsis/evmos/pull/590) Update v4 `UpgradeInfo` to [`v4.0.1`](https://github.com/tharsis/evmos/releases/tag/v4.0.1) 
+- (app) [\#590](https://github.com/tharsis/evmos/pull/590) Update v4 `UpgradeInfo` to [`v4.0.1`](https://github.com/tharsis/evmos/releases/tag/v4.0.1)
 
 ## [v3.0.1] - 2022-05-09
 
@@ -47,7 +51,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (app) [\#555](https://github.com/tharsis/evmos/pull/555) `v4.0.0` upgrade logic.
 - (p2p) [\#541](https://github.com/tharsis/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
-- (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4) 
+- (deps) [\#528](https://github.com/tharsis/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
 
 ## [v3.0.0] - 2022-04-22
 
