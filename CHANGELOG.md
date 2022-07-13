@@ -35,9 +35,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v4.0.2] - 2022-07-13
 
-(erc20) [\#592](https://github.com/tharsis/evmos/pull/592) Completeness audit
+- (deps) [\#771](https://github.com/evmos/evmos/pull/771) Bump Ethermint version to [`v0.15.1`](https://github.com/evmos/ethermint/releases/tag/v0.15.1)
 
 ## [v4.0.1] - 2022-05-10
 
