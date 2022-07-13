@@ -20,11 +20,15 @@ fi
 # run `buf registry login` and input your details
 
 # below are the module addresses (directories containing `buf.yaml` files)
+# paths are relative to the scripts/ directory
 THIRDPARTYPROTO="../third_party/proto/"
 EVMOSPROTO="../proto/"
 
 # first, push the third party module and documentation as dependencies (order matters)
 buf push $THIRDPARTYPROTO
+
+# update the dependencies
+buf mod update $EVMOSPROTO
 
 # then, push the evmos proto module and documentation 
 buf push $EVMOSPROTO
