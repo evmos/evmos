@@ -3,9 +3,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-
-	// nolint: typecheck
-	"math/big"
+	"math/big" // nolint: UnsusedUmport
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"

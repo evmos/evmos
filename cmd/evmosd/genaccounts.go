@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -216,7 +215,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 			// SDK vesting types
 			case !vestingAmt.IsZero():
-				baseVestingAccount := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
+				baseVestingAccount := sdkvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
 
 				if (balances.Coins.IsZero() && !baseVestingAccount.OriginalVesting.IsZero()) ||
 					baseVestingAccount.OriginalVesting.IsAnyGT(balances.Coins) {
@@ -225,10 +224,10 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 				switch {
 				case vestingStart != 0 && vestingEnd != 0:
-					genAccount = authvesting.NewContinuousVestingAccountRaw(baseVestingAccount, vestingStart)
+					genAccount = sdkvesting.NewContinuousVestingAccountRaw(baseVestingAccount, vestingStart)
 
 				case vestingEnd != 0:
-					genAccount = authvesting.NewDelayedVestingAccountRaw(baseVestingAccount)
+					genAccount = sdkvesting.NewDelayedVestingAccountRaw(baseVestingAccount)
 
 				default:
 					return errors.New("invalid vesting parameters; must supply start and end time or end time")
