@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v1.1.3] - 2022-07-13
+
+- (deps) [\#775](https://github.com/evmos/evmos/pull/775) Bump Ethermint version to [`v0.10.3`](https://github.com/evmos/ethermint/releases/tag/v0.10.3)
+
 ## [v1.1.2] - 2022-03-06
 
 ### Bug Fixes
