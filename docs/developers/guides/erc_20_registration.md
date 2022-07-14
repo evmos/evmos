@@ -8,7 +8,7 @@ Learn how to register interoperable ERC-20s through [Evmos Governance](../../use
 
 The ERC-20 Module (also known as `x/erc20`) allows users to instantly convert [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20) tokens into native Cosmos Coins, and vice versa. This allows users to exchange assets interchangeably in two entirely different layers, the EVM and Cosmos.
 
-Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrate with Evmos and the Cosmos ecosystem. Using the module, developers can build smart contracts on Evmos and use the generated tokens for other [applications on the Cosmos ecosystem](https://mapofzones.com), such as:
+Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrate with Evmos and the Cosmos ecosystem. Using the module, developers can build smart contracts on Evmos and use the generated ERC-20 tokens for other [applications on the Cosmos ecosystem](https://mapofzones.com), such as:
 
 - earning $OSMO staking rewards
 - taking part in governance proposals by voting with $ATOM
