@@ -137,13 +137,13 @@ Assume that many people will stop reading at this point. However, it is importan
 2. Background information - promote understanding of the ERC-20 Module
    - a mention of the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module
    - a brief explanation of what the ERC-20 Module does
-   - a mention of the ERC-20 Module documentation
+   - a mention of the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)
 3. Solution - generally how ERC-20 Module changes will be made
    - a brief explanation of what the proposal will do if it passes
    - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
    - a breakdown of the proposal's payload, and third-party review
    - a brief explanation of the risks involved (depending on the direction of IBC Coin, ERC-20)
-   - if this is a `RegisterERC20` proposal, then also ensure the following are both adhered to and documented:
+   - ensure the following are both adhered to and documented:
       - the contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev))
       - the contracts are deployed open-source
       - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
@@ -168,6 +168,10 @@ writing markdown files.
 3. Target members of the community in a semi-public way before bringing the draft to a full public audience. The burden of public scrutiny in a semi-anonymized environment (eg. Twitter) can be stressful and overwhelming without establishing support. Solicit opinions in places with people who have established reputations first.
 
 ### Submit your proposal to the testnet
+
+:::tip
+**Note**: Not sure how to submit a proposal to either testnet or mainnet? Check out [this document](./submitting.md).
+:::
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
 

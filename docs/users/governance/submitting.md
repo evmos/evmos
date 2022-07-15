@@ -182,7 +182,7 @@ The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`. Therefor
 
 ## Sending the transaction that submits your governance proposal
 
-For information on how to use `evmosd` binary to submit an on-chain proposal through the governance module, please refer to the [quickstart](../quickstart/binary.md) documentation.
+For information on how to use `evmosd` binary to submit an on-chain proposal through the governance module, please refer to the [quickstart](../../validators/quickstart/binary.md) documentation.
 
 ### CLI
 
