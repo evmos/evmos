@@ -7,7 +7,7 @@
     "preserve": "./pre.sh",
     "serve": "trap 'exit 0' SIGINT; vuepress dev --no-cache",
     "build": "trap 'exit 0' SIGINT; vuepress build  --no-cache",
-    "docs:build": "vuepress build docs",
+    "docs:build": "vuepress build .",
     "postserve": "./post.sh",
     "prebuild": "./pre.sh",
     "postbuild": "./post.sh"
