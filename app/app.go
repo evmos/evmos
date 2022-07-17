@@ -21,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
@@ -106,6 +105,7 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v6/client/docs/statik"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/evmos/evmos/v6/app/ante"
 	v2 "github.com/evmos/evmos/v6/app/upgrades/v2"
 	v4 "github.com/evmos/evmos/v6/app/upgrades/v4"
@@ -173,7 +173,7 @@ var (
 		staking.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
-			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
+			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
 			ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 			// Evmos proposal types
 			erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
@@ -242,9 +242,9 @@ type Evmos struct {
 	invCheckPeriod uint
 
 	// keys to access the substores
-	keys    map[string]*sdk.KVStoreKey
-	tkeys   map[string]*sdk.TransientStoreKey
-	memKeys map[string]*sdk.MemoryStoreKey
+	keys    map[string]*storetypes.KVStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
@@ -886,21 +886,21 @@ func (app *Evmos) InterfaceRegistry() types.InterfaceRegistry {
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *Evmos) GetKey(storeKey string) *sdk.KVStoreKey {
+func (app *Evmos) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return app.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *Evmos) GetTKey(storeKey string) *sdk.TransientStoreKey {
+func (app *Evmos) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return app.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *Evmos) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
+func (app *Evmos) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
@@ -921,7 +921,6 @@ func (app *Evmos) SimulationManager() *module.SimulationManager {
 // API server.
 func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
-	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -941,8 +940,14 @@ func (app *Evmos) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
+// RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *Evmos) RegisterTendermintService(clientCtx client.Context) {
-	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
+	tmservice.RegisterTendermintService(
+		clientCtx,
+		app.BaseApp.GRPCQueryRouter(),
+		app.interfaceRegistry,
+		app.Query,
+	)
 }
 
 // IBC Go TestingApp functions

@@ -79,14 +79,14 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
-		ante.NewRejectExtensionOptionsDecorator(),
+		//	ante.NewRejectExtensionOptionsDecorator(),
 		ante.NewValidateBasicDecorator(),
-		ante.NewMempoolFeeDecorator(),
+		//	ante.NewMempoolFeeDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
 		NewValidatorCommissionDecorator(options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
@@ -105,13 +105,13 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
-		ante.NewMempoolFeeDecorator(),
+		//		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
 		NewValidatorCommissionDecorator(options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
