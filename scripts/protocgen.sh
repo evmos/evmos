@@ -24,11 +24,7 @@ for dir in $proto_dirs; do
   buf alpha protoc \
   -I "proto" \
   -I "third_party/proto" \
-  --gopulsar_out=plugins=interfacetype+grpc,\
-Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:. \
-  --grpc-gateway_out=logtostderr=true:. \
-  $(find "${dir}" -maxdepth 1 -name '*.proto')
-
+  --go-pulsar_out=. --go-pulsar_opt=paths=source_relative $(find "${dir}" -maxdepth 1 -name '*.proto')
 done
 
 # command to generate docs using protoc-gen-doc
