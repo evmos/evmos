@@ -22,7 +22,7 @@ func TestInitCmd(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, "evmos_9000-1"),
 	})
 
-	err := svrcmd.Execute(rootCmd, app.DefaultNodeHome)
+	err := svrcmd.Execute(rootCmd, "EVMOSD", app.DefaultNodeHome)
 	require.NoError(t, err)
 }
 
@@ -35,6 +35,6 @@ func TestAddKeyLedgerCmd(t *testing.T) {
 		fmt.Sprintf("--%s", flags.FlagUseLedger),
 	})
 
-	err := svrcmd.Execute(rootCmd, app.DefaultNodeHome)
+	err := svrcmd.Execute(rootCmd, "EVMOSD", app.DefaultNodeHome)
 	require.Error(t, err)
 }

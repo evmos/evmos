@@ -128,8 +128,8 @@ func (k Keeper) rewardAllocations(
 				}
 
 				// allocation for the contract is the amount escrowed * the allocation %
-				coinAllocated := denomBalances[al.Denom].ToDec().Mul(al.Amount)
-				amount := coinAllocated.TruncateInt()
+				coinAllocated := denomBalances[al.Denom].Mul(al.Amount)
+				amount := coinAllocated
 
 				// NOTE: safety check, shouldn't occur since the allocation and balance
 				// are > 0

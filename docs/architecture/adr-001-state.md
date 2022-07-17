@@ -31,7 +31,7 @@ This database interface is defined by go-ethereum's `vm.StateDB`, which is curre
 using the `CommitStateDB` concrete type.
 
 The `CommitStateDB` performs state updates by having a direct access to the `sdk.Context`, the evm's
-`sdk.StoreKey` and external `Keepers` for account and balances. Currently, the context field needs
+`storetypes.StoreKey` and external `Keepers` for account and balances. Currently, the context field needs
 to be set on every block or state transition using `WithContext(ctx)` in order to pass the updated
 block and transaction data to the `CommitStateDB`.
 

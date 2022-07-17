@@ -345,7 +345,9 @@ func initTestnetFiles(
 
 		customAppTemplate, customAppConfig := config.AppConfig(cmdcfg.BaseDenom)
 		srvconfig.SetConfigTemplate(customAppTemplate)
-		if err := sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig); err != nil {
+		customTMConfig := initTendermintConfig()
+
+		if err := sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig); err != nil {
 			return err
 		}
 

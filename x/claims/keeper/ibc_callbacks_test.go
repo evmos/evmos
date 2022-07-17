@@ -180,7 +180,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			"fail - non ics20 packet",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-				expectedAck := channeltypes.NewErrorAcknowledgement(err.Error())
+				expectedAck := channeltypes.NewErrorAcknowledgement(err)
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, mockpacket, ack)
 				suite.Require().Equal(expectedAck, resAck)
 			},

@@ -20,7 +20,7 @@ func TestStoreMigration(t *testing.T) {
 	tClaimsKey := sdk.NewTransientStoreKey(fmt.Sprintf("%s_test", claims.StoreKey))
 	ctx := testutil.DefaultContext(claimsKey, tClaimsKey)
 	paramstore := paramtypes.NewSubspace(
-		encCfg.Marshaler, encCfg.Amino, claimsKey, tClaimsKey, "claims",
+		encCfg.Codec, encCfg.Amino, claimsKey, tClaimsKey, "claims",
 	)
 	paramstore = paramstore.WithKeyTable(claims.ParamKeyTable())
 	require.True(t, paramstore.HasKeyTable())

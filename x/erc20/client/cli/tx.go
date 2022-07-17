@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -202,7 +202,7 @@ Where metadata.json contains (example):
 
 			content := types.NewRegisterCoinProposal(title, description, metadata)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}
@@ -268,7 +268,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 			from := clientCtx.GetFromAddress()
 			content := types.NewRegisterERC20Proposal(title, description, erc20Addr)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}
@@ -334,7 +334,7 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 			token := args[0]
 			content := types.NewToggleTokenConversionProposal(title, description, token)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}

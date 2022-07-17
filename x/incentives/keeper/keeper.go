@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -13,7 +14,7 @@ import (
 
 // Keeper of this module maintains collections of incentives.
 type Keeper struct {
-	storeKey   sdk.StoreKey
+	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
@@ -30,7 +31,7 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the incentives Keeper
 func NewKeeper(
-	storeKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,

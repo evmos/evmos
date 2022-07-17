@@ -12,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/evmos/evmos/v6/x/incentives/types"
 )
@@ -71,7 +71,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 			from := clientCtx.GetFromAddress()
 			content := types.NewRegisterIncentiveProposal(title, description, contract, allocation, uint32(epochs))
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}
@@ -143,7 +143,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 			from := clientCtx.GetFromAddress()
 			content := types.NewCancelIncentiveProposal(title, description, contract)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}

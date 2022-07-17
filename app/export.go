@@ -19,7 +19,7 @@ import (
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() simapp.GenesisState {
 	encCfg := encoding.MakeConfig(ModuleBasics)
-	return ModuleBasics.DefaultGenesis(encCfg.Marshaler)
+	return ModuleBasics.DefaultGenesis(encCfg.Codec)
 }
 
 // ExportAppStateAndValidators exports the state of the application for a genesis

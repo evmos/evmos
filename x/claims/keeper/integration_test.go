@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
@@ -337,7 +337,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 	)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
-	msg, err := govtypes.NewMsgSubmitProposal(content, deposit, accountAddress)
+	msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, accountAddress)
 	s.Require().NoError(err)
 
 	res := deliverTx(priv, msg)
@@ -354,7 +354,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	voteMsg := govtypes.NewMsgVote(accountAddress, proposalID, 2)
+	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 2)
 	deliverTx(priv, voteMsg)
 }
 

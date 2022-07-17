@@ -23,7 +23,7 @@ func TestUpdateParams(t *testing.T) {
 	tErc20Key := sdk.NewTransientStoreKey(fmt.Sprintf("%s_test", erc20types.StoreKey))
 	ctx := testutil.DefaultContext(erc20Key, tErc20Key)
 	paramstore := paramtypes.NewSubspace(
-		encCfg.Marshaler, encCfg.Amino, erc20Key, tErc20Key, "erc20",
+		encCfg.Codec, encCfg.Amino, erc20Key, tErc20Key, "erc20",
 	)
 	paramstore = paramstore.WithKeyTable(erc20types.ParamKeyTable())
 	require.True(t, paramstore.HasKeyTable())

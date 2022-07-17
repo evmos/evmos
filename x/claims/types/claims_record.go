@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -11,7 +12,7 @@ import (
 var IBCTriggerAmt = "63743"
 
 // NewClaimsRecord creates a new claims record instance
-func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {
+func NewClaimsRecord(initialClaimableAmt math.Int) ClaimsRecord {
 	return ClaimsRecord{
 		InitialClaimableAmount: initialClaimableAmt,
 		ActionsCompleted:       []bool{false, false, false, false},

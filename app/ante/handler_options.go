@@ -31,6 +31,7 @@ type HandlerOptions struct {
 	SigGasConsumer  func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 	Cdc             codec.BinaryCodec
 	MaxTxGasWanted  uint64
+	TxFeeChecker    ante.TxFeeChecker
 }
 
 // Validate checks if the keepers are defined
