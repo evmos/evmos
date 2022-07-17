@@ -5,8 +5,8 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v3/testing"
-	"github.com/cosmos/ibc-go/v3/testing/simapp"
+	ibctesting "github.com/cosmos/ibc-go/v4/testing"
+	"github.com/cosmos/ibc-go/v4/testing/simapp"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"

@@ -19,7 +19,7 @@ import (
 	"github.com/evmos/ethermint/tests"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 
 	"github.com/evmos/evmos/v6/app"
 	v5 "github.com/evmos/evmos/v6/app/upgrades/v5"

@@ -9,9 +9,9 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v4/modules/core/exported"
 
 	"github.com/evmos/evmos/v6/x/recovery/types"
 )

@@ -5,8 +5,8 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v4/modules/core/exported"
 
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
