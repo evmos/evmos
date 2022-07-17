@@ -62,20 +62,24 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr 
 
 // AfterDelegationModified is a wrapper for calling the Staking AfterDelegationModified
 // hook on the module keeper
-func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	h.k.AfterDelegationModified(ctx, delAddr, valAddr)
+func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	err := h.k.AfterDelegationModified(ctx, delAddr, valAddr)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // AfterDelegationModified is called after a delegation is modified. Once a user
 // delegates their EVMOS tokens to a validator, the claimable amount for the
 // user's claims record delegation action is claimed and transferred to the user
 // address.
-func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	params := k.GetParams(ctx)
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, delAddr)
 	if !found {
-		return
+		return nil
 	}
 
 	_, err := k.ClaimCoinsForAction(ctx, delAddr, claimsRecord, types.ActionDelegate, params)
@@ -85,7 +89,9 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 			"address", delAddr.String(),
 			"error", err.Error(),
 		)
+		return err
 	}
+	return nil
 }
 
 // PostTxProcessing is a wrapper for calling the EVM PostTxProcessing hook on
@@ -137,27 +143,41 @@ func (h Hooks) AfterProposalInactive(ctx sdk.Context, proposalID uint64) {}
 func (h Hooks) AfterProposalActive(ctx sdk.Context, proposalID uint64)   {}
 
 // staking hooks
-func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress)   {}
-func (h Hooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {}
-func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error {
+	return nil
 }
 
-func (h Hooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h Hooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) error {
+	return nil
 }
 
-func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return nil
 }
 
-func (h Hooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (h Hooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return nil
 }
 
-func (h Hooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return nil
 }
 
-func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (h Hooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
 }
 
-func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) {}
+func (h Hooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	return nil
+}
+
+func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) error {
+	return nil
+}
 
 // IBC callbacks and transfer handlers
 

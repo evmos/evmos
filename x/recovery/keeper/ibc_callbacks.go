@@ -53,7 +53,7 @@ func (k Keeper) OnRecvPacket(
 	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	// return error ACK if the address is on the deny list
@@ -63,7 +63,7 @@ func (k Keeper) OnRecvPacket(
 				types.ErrBlockedAddress,
 				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
 				senderBech32, recipientBech32,
-			).Error(),
+			),
 		)
 	}
 
@@ -165,7 +165,7 @@ func (k Keeper) OnRecvPacket(
 			sdkerrors.Wrapf(
 				err,
 				"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
-			).Error(),
+			),
 		)
 	}
 

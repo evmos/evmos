@@ -58,7 +58,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 			"no-op: error Ack",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-				ack := transfertypes.NewErrorAcknowledgement(err)
+				// ack := transfertypes.NewErrorAcknowledgement(err) <- I think this is no longer necessary, preserving if we need to bring it back. -Jacob
 				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
 				suite.Require().NoError(err)
 			},
