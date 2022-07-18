@@ -248,7 +248,7 @@ func (k Keeper) addGrant(
 	// cap DV at the current unvested amount, DF rounds out to current delegated
 	unvested := va.GetVestingCoins(ctx.BlockTime())
 	va.DelegatedVesting = delegated.Min(unvested)
-	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
+	va.DelegatedFree = delegated.Sub(va.DelegatedVesting...)
 	return nil
 }
 

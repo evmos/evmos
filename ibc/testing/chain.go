@@ -12,7 +12,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v4/testing"
@@ -45,9 +44,9 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	require.NoError(t, err)
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-	signers := []tmtypes.PrivValidator{privVal}
+	// validator := tmtypes.NewValidator(pubKey, 1)
+	// valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	// signers := []tmtypes.PrivValidator{privVal}
 
 	// generate genesis account
 	senderPrivKey, err := ethsecp256k1.GenerateKey()

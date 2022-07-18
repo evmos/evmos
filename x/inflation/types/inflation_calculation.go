@@ -1,7 +1,6 @@
 package types
 
 import (
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethermint "github.com/evmos/ethermint/types"
@@ -22,7 +21,7 @@ func CalculateEpochMintProvision(
 	maxVariance := params.ExponentialCalculation.MaxVariance // max percentage that inflation can be increased by
 
 	// exponentialDecay := a * (1 - r) ^ x + c
-	decay := sdk.OneInt().Sub(r)
+	decay := sdk.OneDec().Sub(r)
 	exponentialDecay := a.Mul(decay.Power(x)).Add(c)
 
 	// bondingIncentive doesn't increase beyond bonding target (0 < b < bonding_target)
@@ -32,17 +31,17 @@ func CalculateEpochMintProvision(
 
 	// bondingIncentive = 1 + max_variance - bondingRatio * (max_variance / bonding_target)
 	sub := bondedRatio.Mul(maxVariance.Quo(bTarget))
-	bondingIncentive := sdk.OneInt().Add(maxVariance).Sub(sub)
+	bondingIncentive := sdk.OneDec().Add(maxVariance).Sub(sub)
 
 	// periodProvision = exponentialDecay * bondingIncentive
 	periodProvision := exponentialDecay.Mul(bondingIncentive)
 
 	// epochProvision = periodProvision / epochsPerPeriod
-	epochProvision := periodProvision.Quo(math.NewInt(epochsPerPeriod))
+	epochProvision := periodProvision.Quo(sdk.NewDec(epochsPerPeriod))
 
 	// Multiply epochMintProvision with power reduction (10^18 for evmos) as the
 	// calculation is based on `evmos` and the issued tokens need to be given in
 	// `aevmos`
-	epochProvision = epochProvision.Mul(ethermint.PowerReduction)
+	epochProvision = epochProvision.Mul(sdk.NewDecFromInt(ethermint.PowerReduction))
 	return epochProvision
 }
