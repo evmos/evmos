@@ -64,3 +64,11 @@ func (im IBCMiddleware) WriteAcknowledgement(
 ) error {
 	return im.keeper.WriteAcknowledgement(ctx, chanCap, packet, ack)
 }
+
+func (im IBCMiddleware) GetAppVersion(
+	ctx sdk.Context,
+	portID,
+	channelID string,
+) (string, bool) {
+	return "UnImplement", true
+}

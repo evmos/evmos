@@ -108,7 +108,7 @@ func (k Keeper) GetProportions(
 ) sdk.Coin {
 	return sdk.NewCoin(
 		coin.Denom,
-		coin.Amount.ToDec().Mul(distribution).TruncateInt(),
+		sdk.NewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
 	)
 }
 
@@ -128,7 +128,7 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 		stakeSupply = stakeSupply.Sub(teamAlloc)
 	}
 
-	return k.stakingKeeper.TotalBondedTokens(ctx).ToDec().QuoInt(stakeSupply)
+	return sdk.NewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx)).QuoInt(stakeSupply)
 }
 
 // GetCirculatingSupply returns the bank supply of the mintDenom excluding the
@@ -136,8 +136,8 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
 	mintDenom := k.GetParams(ctx).MintDenom
 
-	circulatingSupply := k.bankKeeper.GetSupply(ctx, mintDenom).Amount.ToDec()
-	teamAllocation := teamAlloc.ToDec()
+	circulatingSupply := sdk.NewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
+	teamAllocation := sdk.NewDecFromInt(teamAlloc)
 
 	// Consider team allocation only on mainnet chain id
 	if evmos.IsMainnet(ctx.ChainID()) {

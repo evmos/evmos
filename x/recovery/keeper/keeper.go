@@ -81,3 +81,11 @@ func (k Keeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capabili
 func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI, ack exported.Acknowledgement) error {
 	return k.ics4Wrapper.WriteAcknowledgement(ctx, channelCap, packet, ack)
 }
+
+func (k Keeper) GetAppVersion(
+	ctx sdk.Context,
+	portID,
+	channelID string,
+) (string, bool) {
+	return "UnImplement", true
+}
