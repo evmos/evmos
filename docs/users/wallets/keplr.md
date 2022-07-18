@@ -14,7 +14,7 @@ Connect your Keplr wallet with Evmos. {synopsis}
 
 The [Keplr](https://www.keplr.app/) browser extension is a wallet for accessing applications in the Cosmos ecosystem and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet and request Funds from the Faucet.
 
-## Setting Up Keplr
+## Set Up Keplr
 
 :::tip
 **Note**: Further information about the process of setting up Keplr can be found in the official [Keplr Documentation](https://keplr.crunch.help/getting-started) or in this [Medium article](https://medium.com/chainapsis/how-to-use-keplr-wallet-40afc80907f6).
@@ -54,14 +54,14 @@ There are several ways to create a new account:
 
 There are several ways to import an existing account:
 
-- via a [mnemonic/seed phrase](#import-an-account-with-a-seed-phrase)
+- via a [mnemonic/seed phrase/private key](#import-an-account-with-a-seed-phrase)
 - via [ledger](#import-an-account-with-a-ledger)
 
 #### Import an Account with a Seed Phrase
 
 1. In the initial pop-up window, choose **Import Existing Account**
     - If you have used Keplr before, click on the silhouette in the upper-right corner, then the blue box labeled **Add Account**, and select **Import Existing Account**
-2. Enter your mnemonic/seed phrase in the appropriate slot, seperating the words with spaces and taking care to check they are spelled correctly
+2. Enter your mnemonic/seed phrase/private key in the appropriate slot, seperating the words with spaces and taking care to check they are spelled correctly
 3. Make sure you have imported the account with the correct derivation path, viewable by clicking on **Advanced**
     - Normally, the derivation path should be `m/44'/…’/0/0/0`, but if you see that importing the account via mnemonic on Keplr, the Cosmos Mainnet address displayed is different than yours, it is possible the derivation path ends with 1 (or another number) instead of 0
     - If this is the case, you just have to start the process over, and replace the last 0 with 1
