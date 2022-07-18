@@ -33,6 +33,10 @@ This command generates a new 24-word mnemonic phrase, persists it to the relevan
 
 By default, the keyring generates a `eth_secp256k1` key. The keyring also supports `ed25519` keys, which may be created by passing the `--algo` flag. A keyring can of course hold both types of keys simultaneously.
 
+:::tip
+**Note**: The Ethereum address associated with a public key can be derived by taking the full Ethereum public key of type `eth_secp256k1`, computing the `Keccak-256` hash, and truncating the first twelve bytes.
+:::
+
 ::: warning
 **NOTE**: Cosmos `secp256k1` keys are not supported on Evmos due to compatibility issues with Ethereum transactions.
 :::

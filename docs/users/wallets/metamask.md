@@ -4,9 +4,9 @@ order: 2
 
 # MetaMask
 
-Connect your Metamask wallet with Evmos {synopsis}
+Connect your Metamask wallet with Evmos. {synopsis}
 
-- [Download Metamask](https://metamask.io/download/) {prereq}
+- [Install Metamask](https://metamask.io/download/) {prereq}
 
 The [MetaMask](https://metamask.io/) browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet or via a locally-running {{ $themeConfig.project.name }} node.
 
