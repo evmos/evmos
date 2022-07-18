@@ -171,11 +171,6 @@ module.exports = {
               path: '/developers/tools'
             },
             {
-              title: 'Wallet Integration',
-              directory: false,
-              path: '/developers/wallet_integration'
-            },
-            {
               title: 'Client Libraries',
               directory: true,
               path: '/developers/libraries'
