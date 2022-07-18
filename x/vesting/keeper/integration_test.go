@@ -341,7 +341,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
 		// stake vested tokens
-		err = delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
 		Expect(err).To(BeNil())
 
 		// Perform clawback
@@ -387,7 +387,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
 		// stake vested tokens
-		err = delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
 		Expect(err).To(BeNil())
 
 		// Perform clawback
