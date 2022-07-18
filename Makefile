@@ -521,20 +521,9 @@ localnet-build:
 	@$(MAKE) -C networks/local
 
 # Start a 4-node testnet locally
-localnet-start: localnet-stop
-ifeq ($(OS),Windows_NT)
-	mkdir localnet-setup &
-	@$(MAKE) localnet-build
-
-	IF not exist "build/node0/$(EVMOS_BINARY)/config/genesis.json" docker run --rm -v $(CURDIR)/build\evmos\Z evmosd/node "./evmosd testnet --v 4 -o /evmos --keyring-backend=test --ip-addresses evmosdnode0,evmosdnode1,evmosdnode2,evmosdnode3"
+localnet-start: localnet-stop localnet-build
+	@if ! [ -f build/node0/$(EVMOS_BINARY)/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/evmos:Z evmos/node "./evmosd testnet init-files --v 4 -o /evmos --keyring-backend=test --starting-ip-address 192.167.10.2"; fi
 	docker-compose up -d
-else
-	mkdir -p localnet-setup
-	@$(MAKE) localnet-build
-
-	if ! [ -f localnet-setup/node0/$(EVMOS_BINARY)/config/genesis.json ]; then docker run --rm -v $(CURDIR)/localnet-setup:/evmos:Z evmosd/node "./evmosd testnet --v 4 -o /evmos --keyring-backend=test --ip-addresses evmosdnode0,evmosdnode1,evmosdnode2,evmosdnode3"; fi
-	docker-compose up -d
-endif
 
 # Stop testnet
 localnet-stop:
@@ -543,28 +532,28 @@ localnet-stop:
 # Clean testnet
 localnet-clean:
 	docker-compose down
-	sudo rm -rf localnet-setup
+	sudo rm -rf build/*
 
  # Reset testnet
 localnet-unsafe-reset:
 	docker-compose down
 ifeq ($(OS),Windows_NT)
-	@docker run --rm -v $(CURDIR)\localnet-setup\node0\evmosd:evmos\Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\localnet-setup\node1\evmosd:evmos\Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\localnet-setup\node2\evmosd:evmos\Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)\localnet-setup\node3\evmosd:evmos\Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node0\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node1\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node2\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node3\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
 else
-	@docker run --rm -v $(CURDIR)/localnet-setup/node0/evmosd:/evmos:Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/localnet-setup/node1/evmosd:/evmos:Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/localnet-setup/node2/evmosd:/evmos:Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
-	@docker run --rm -v $(CURDIR)/localnet-setup/node3/evmosd:/evmos:Z evmosd/node "./evmosd unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node0/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node1/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node2/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node3/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
 endif
 
 # Clean testnet
 localnet-show-logstream:
 	docker-compose logs --tail=1000 -f
 
-.PHONY: build-docker-local-evmos localnet-start localnet-stop
+.PHONY: localnet-build localnet-start localnet-stop
 
 ###############################################################################
 ###                                Releasing                                ###
