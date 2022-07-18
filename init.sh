@@ -11,6 +11,9 @@ TRACE=""
 # validate dependencies are installed
 command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
 
+# used to exit on first error (any non-zero exit code)
+set -e
+
 # Reinstall daemon
 rm -rf ~/.evmosd*
 make install

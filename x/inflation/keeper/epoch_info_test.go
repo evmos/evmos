@@ -120,3 +120,4 @@ func (suite *KeeperTestSuite) TestSetGetSkippedEpochs() {
 		})
 	}
 }
+

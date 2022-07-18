@@ -20,7 +20,9 @@ Please find the following resources for in-depth information:
     - **[Testnet](./localnet/testnet_cmd.md)**: Use the testnet command of the Evmos daemon.
 - **Libraries**:
     - **[EvmosJS](./libraries/evmosjs.md)**: Javascript library for Evmos.
-- **[Wallet Integration](wallet_integration.md)**: Connect Metamask and Keplr wallets to a UI.
+- **Guides**:
+    - **[Wallet Integration](./guides/wallet_integration.md)**: Connect Metamask and Keplr wallets to a UI.
+    - **[ERC-20 Registration](./guides/erc_20_registration.md)**: Register interoperable ERC-20s through governance.
 
 ### Remote Procedure Calls (RPCs)
 
