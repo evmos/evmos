@@ -49,7 +49,7 @@
 </template>
 
 <style lang="stylus" scoped>
-/deep/ {
+:deep(*) {
   .container h1 {
     margin-bottom: 1.5rem;
   }
