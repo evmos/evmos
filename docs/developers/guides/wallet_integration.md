@@ -1,5 +1,5 @@
 <!--
-order: 3
+order: 1
 -->
 
 # Wallet Integration
@@ -45,7 +45,7 @@ After the user's wallet type has been determined, developers can proceed with cr
 #### Create the Transaction
 
 :::tip
-**Note**: The example below uses the Evmos Testnet `chainID`. For more info, check the Evmos Chain IDs reference document [here](./../users/technical_concepts/chain_id.md).
+**Note**: The example below uses the Evmos Testnet `chainID`. For more info, check the Evmos Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
 :::
 
 Developers can create `MsgSend` transactions using the [evmosjs](libraries/evmosjs.md) library.
@@ -89,7 +89,7 @@ const msg = createMessageSend(chain, sender, fee, memo, params)
 #### Sign and Broadcast the Transaction
 
 :::tip
-**Note**: The example below uses an Evmos Testnet [RPC node](./connect.md#public-available-endpoints).
+**Note**: The example below uses an Evmos Testnet [RPC node](../connect.md#public-available-endpoints).
 :::
 
 <!-- textlint-disable -->
