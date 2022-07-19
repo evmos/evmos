@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -927,21 +926,20 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 				blockTime := airdropStartTime.Add(durationUntilDecay).Add(durationOfDecay / 2)
 				elapsedAirdropTime := blockTime.Sub(airdropStartTime)
 				decayTime := elapsedAirdropTime - durationUntilDecay
-				decayPercent := sdk.NewInt(decayTime.Nanoseconds()).Quo(math.NewInt(durationOfDecay.Nanoseconds()))
-				claimablePercent := sdk.OneInt().Sub(decayPercent)
+				decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(durationOfDecay.Nanoseconds())
+				claimablePercent := sdk.OneDec().Sub(decayPercent)
 
 				ctx := suite.ctx.WithBlockTime(blockTime)
 
 				coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
-
-				suite.Require().Equal(claimsRecord.InitialClaimableAmount.Mul(claimablePercent).Quo(sdk.NewInt(4)).String(), coins.String())
+				suite.Require().Equal(claimablePercent.MulInt(claimsRecord.InitialClaimableAmount).QuoInt64(4).RoundInt().String(), coins.String())
 				suite.Require().Equal(sdk.NewInt(13).String(), remainder.String())
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(ctx, addr1, claimsRecord, types.ActionEVM, params)
 				suite.Require().NoError(err)
-				bal := suite.app.BankKeeper.GetAllBalances(ctx, addr1)
 
-				suite.Require().Equal(claimsRecord.InitialClaimableAmount.Mul(claimablePercent).Quo(sdk.NewInt(4)).String(),
+				bal := suite.app.BankKeeper.GetAllBalances(ctx, addr1)
+				suite.Require().Equal(claimablePercent.MulInt(claimsRecord.InitialClaimableAmount).QuoInt64(4).RoundInt().String(),
 					bal.AmountOf(params.GetClaimsDenom()).String())
 			},
 		},
