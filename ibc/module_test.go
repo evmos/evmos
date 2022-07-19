@@ -150,7 +150,7 @@ func TestModule(t *testing.T) {
 	module := NewModule(mockModule)
 
 	// mock calls for abstraction
-	err := module.OnChanOpenInit(sdk.Context{}, channeltypes.ORDERED, nil, transfertypes.PortID, "channel-0", &capabilitytypes.Capability{}, channeltypes.Counterparty{}, "")
+	_, err := module.OnChanOpenInit(sdk.Context{}, channeltypes.ORDERED, nil, transfertypes.PortID, "channel-0", &capabilitytypes.Capability{}, channeltypes.Counterparty{}, "")
 	require.NoError(t, err)
 	_, err = module.OnChanOpenTry(sdk.Context{}, channeltypes.ORDERED, nil, transfertypes.PortID, "channel-0", &capabilitytypes.Capability{}, channeltypes.Counterparty{}, "")
 	require.NoError(t, err)

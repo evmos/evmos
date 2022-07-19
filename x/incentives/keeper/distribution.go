@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"strconv"
 
+	"cosmossdk.io/math"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -94,7 +95,7 @@ func (k Keeper) rewardAllocations(
 	ctx sdk.Context,
 ) (map[common.Address]sdk.Coins, sdk.Coins, error) {
 	// Get balances on incentive module account
-	denomBalances := make(map[string]sdk.Int)
+	denomBalances := make(map[string]math.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 
 	escrow := sdk.Coins{}

@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
@@ -75,9 +76,9 @@ type Config struct {
 	AppConstructor    AppConstructor      // the ABCI application constructor
 	GenesisState      simapp.GenesisState // custom gensis state to provide
 	TimeoutCommit     time.Duration       // the consensus commitment timeout
-	AccountTokens     sdk.Int             // the amount of unique validator tokens (e.g. 1000node0)
-	StakingTokens     sdk.Int             // the amount of tokens each validator has available to stake
-	BondedTokens      sdk.Int             // the amount of tokens each validator stakes
+	AccountTokens     math.Int            // the amount of unique validator tokens (e.g. 1000node0)
+	StakingTokens     math.Int            // the amount of tokens each validator has available to stake
+	BondedTokens      math.Int            // the amount of tokens each validator stakes
 	NumValidators     int                 // the total number of validators to create and bond
 	ChainID           string              // the network chain-id
 	BondDenom         string              // the staking bond denomination
@@ -369,7 +370,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		nodeIDs[i] = nodeID
 		valPubKeys[i] = pubKey
 
-		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf ...cfg.KeyringOptions)
+		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, ctx.Codec, cfg.KeyringOptions)
 		if err != nil {
 			return nil, err
 		}
