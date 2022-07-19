@@ -221,7 +221,8 @@ func (k Keeper) ClaimableAmountForAction(
 	claimableRatio := sdk.OneDec().Sub(elapsedDecayRatio)
 
 	// calculate the claimable coins, while rounding the decimals
-	claimableCoins = initialClaimablePerAction.ToDec().Mul(claimableRatio).RoundInt()
+	// claimableCoins = initialClaimablePerAction.ToDec().Mul(claimableRatio).RoundInt()
+	claimableCoins = claimableRatio.MulInt(initialClaimablePerAction).RoundInt()
 	remainder = initialClaimablePerAction.Sub(claimableCoins)
 	return claimableCoins, remainder
 }

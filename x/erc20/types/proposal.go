@@ -30,9 +30,12 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeRegisterCoin)
 	govtypes.RegisterProposalType(ProposalTypeRegisterERC20)
 	govtypes.RegisterProposalType(ProposalTypeToggleTokenConversion)
-	govtypes.RegisterProposalTypeCodec(&RegisterCoinProposal{}, "erc20/RegisterCoinProposal")
-	govtypes.RegisterProposalTypeCodec(&RegisterERC20Proposal{}, "erc20/RegisterERC20Proposal")
-	govtypes.RegisterProposalTypeCodec(&ToggleTokenConversionProposal{}, "erc20/ToggleTokenConversionProposal")
+	// govtypes.RegisterProposalTypeCodec(&RegisterCoinProposal{}, "erc20/RegisterCoinProposal")
+	// govtypes.RegisterProposalTypeCodec(&RegisterERC20Proposal{}, "erc20/RegisterERC20Proposal")
+	// govtypes.RegisterProposalTypeCodec(&ToggleTokenConversionProposal{}, "erc20/ToggleTokenConversionProposal")
+	amino.RegisterConcrete(&RegisterCoinProposal{}, "erc20/RegisterCoinProposal", nil)
+	amino.RegisterConcrete(&RegisterERC20Proposal{}, "erc20/RegisterERC20Proposal", nil)
+	amino.RegisterConcrete(&ToggleTokenConversionProposal{}, "erc20/ToggleTokenConversionProposal", nil)
 }
 
 // CreateDenomDescription generates a string with the coin description
