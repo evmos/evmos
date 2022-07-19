@@ -926,7 +926,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 				blockTime := airdropStartTime.Add(durationUntilDecay).Add(durationOfDecay / 2)
 				elapsedAirdropTime := blockTime.Sub(airdropStartTime)
 				decayTime := elapsedAirdropTime - durationUntilDecay
-				decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(durationUntilDecay.Nanoseconds())
+				decayPercent := sdk.NewDec(decayTime.Nanoseconds()).QuoInt64(durationOfDecay.Nanoseconds())
 				claimablePercent := sdk.OneDec().Sub(decayPercent)
 
 				ctx := suite.ctx.WithBlockTime(blockTime)

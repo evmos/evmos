@@ -436,11 +436,11 @@ func NewEvmos(
 		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig,
 	)
 
-	app.GovKeeper = *govKeeper.SetHooks(
-		govtypes.NewMultiGovHooks(
-		// register the governance hooks
-		),
-	)
+	// app.GovKeeper = *govKeeper.SetHooks(
+	// 	govtypes.NewMultiGovHooks(
+	// 	// register the governance hooks
+	// 	),
+	// )
 
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
