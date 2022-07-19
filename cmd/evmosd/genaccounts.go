@@ -65,6 +65,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 						keyringBackend,
 						clientCtx.HomeDir,
 						inBuf,
+						clientCtx.Codec,
 						evmoskr.Option(),
 					)
 					if err != nil {
