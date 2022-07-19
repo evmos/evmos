@@ -92,8 +92,8 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params.EnableRecovery = true
 	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
-	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
+	suite.pathOsmosisEvmos = ibcgotesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
+	suite.pathCosmosEvmos = ibcgotesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
 	suite.pathOsmosisCosmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.IBCOsmosisChain)
 	suite.coordinator.Setup(suite.pathOsmosisEvmos) // clientID, connectionID, channelID filled
 	suite.coordinator.Setup(suite.pathCosmosEvmos)

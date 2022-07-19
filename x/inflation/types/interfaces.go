@@ -1,6 +1,7 @@
 package types // noalias
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -35,6 +36,6 @@ type DistrKeeper interface {
 type StakingKeeper interface {
 	// BondedRatio the fraction of the staking tokens which are currently bonded
 	BondedRatio(ctx sdk.Context) sdk.Dec
-	StakingTokenSupply(ctx sdk.Context) sdk.Int
-	TotalBondedTokens(ctx sdk.Context) sdk.Int
+	StakingTokenSupply(ctx sdk.Context) math.Int
+	TotalBondedTokens(ctx sdk.Context) math.Int
 }

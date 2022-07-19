@@ -25,8 +25,8 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 		name         string
 		claimsRecord types.ClaimsRecord
 		params       types.Params
-		expAmt       sdk.Int
-		expRemainder sdk.Int
+		expAmt       math.Int
+		expRemainder math.Int
 	}{
 		{
 			"zero initial claimable amount",
@@ -110,7 +110,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 	testCases := []struct {
 		name     string
 		malleate func()
-		expAmt   sdk.Int
+		expAmt   math.Int
 	}{
 		{
 			"zero - no claim record",
@@ -183,8 +183,8 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 		claimsRecord    types.ClaimsRecord
 		action          types.Action
 		params          types.Params
-		expAmt          sdk.Int
-		expClawedBack   sdk.Int
+		expAmt          math.Int
+		expClawedBack   math.Int
 		expError        bool
 		expDeleteRecord bool
 	}{
@@ -1106,7 +1106,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 
 // GetUserTotalClaimable returns claimable amount for a specific action done by
 // an address at a given block time
-func (suite *KeeperTestSuite) getUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
+func (suite *KeeperTestSuite) getUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) math.Int {
 	totalClaimable := sdk.ZeroInt()
 
 	claimsRecord, found := suite.app.ClaimsKeeper.GetClaimsRecord(ctx, addr)

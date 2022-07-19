@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -101,7 +102,7 @@ func (suite *AnteTestSuite) CommitAfter(t time.Duration) {
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 }
 
-func (s *AnteTestSuite) CreateTestTxBuilder(gasPrice sdk.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
+func (s *AnteTestSuite) CreateTestTxBuilder(gasPrice math.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	gasLimit := uint64(1000000)
 

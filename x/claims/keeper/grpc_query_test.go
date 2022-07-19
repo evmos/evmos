@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/ethermint/tests"
@@ -61,7 +62,7 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 		malleate      func()
 		expErr        bool
 		recordsAmount int
-		initialAmount sdk.Int
+		initialAmount math.Int
 		actions       []bool
 	}{
 		{
