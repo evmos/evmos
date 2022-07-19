@@ -34,9 +34,9 @@ func (m MockIBCModule) OnChanOpenInit(
 	chanCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
 	version string,
-) error {
+) (string, error) {
 	args := m.Called()
-	return args.Error(0)
+	return version, args.Error(0)
 }
 
 // OnChanOpenTry implements the Module interface.
