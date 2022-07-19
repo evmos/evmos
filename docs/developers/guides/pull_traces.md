@@ -18,7 +18,7 @@ This guide will cover the following topics:
 **Note**: For more detailed information on basic EVM tracing, check out [this page](https://geth.ethereum.org/docs/dapp/tracing).
 :::
 
-Tracing a transaction means requesting an Evmos node to re-execute the desired transaction with varying degrees of data collection, and have it return the aggregated summary for post processing. 
+Tracing a transaction means requesting an Evmos node to re-execute the desired transaction with varying degrees of data collection, and have it return the aggregated summary for post processing.
 
 ### Tracing Prerequisites
 
@@ -84,7 +84,7 @@ An example log for a single opcode entry has the following format:
 
 ### Limits of Basic Traces
 
-Although raw opcode traces generated above are useful, having an individual log entry for every single opcode is too low level for most use cases, and will require developers to create additional tools to post-process the traces. Additionally, a single opcode trace can easily be hundreds of megabytes, making them very resource intensive to extract from the node and process extenally. 
+Although raw opcode traces generated above are useful, having an individual log entry for every single opcode is too low level for most use cases, and will require developers to create additional tools to post-process the traces. Additionally, a single opcode trace can easily be hundreds of megabytes, making them very resource intensive to extract from the node and process extenally.
 
 To avoid these issues, [Geth](https://geth.ethereum.org/) supports running custom JavaScript traces *within* the Evmos (or any EVM-compatible) node, which have full access to the EVM stack, memory, and contract storage. This means developers only have to gather data that they actually need, and do any processing at the source.
 
@@ -103,6 +103,7 @@ Basic traces can include the complete status of the EVM at every point in the tr
 :::
 
 1. Create a file, `filterTrace_1.js`, with this content:
+
   ```js
   tracer = function(tx) {
     return debug.traceTransaction(tx, {tracer:
@@ -115,26 +116,37 @@ Basic traces can include the complete status of the EVM at every point in the tr
     }) // return debug.traceTransaction ...
   }   // tracer = function ...
   ```
+
 2. Run the [JavaScript console](https://geth.ethereum.org/docs/interface/javascript-console).
+
 3. Get a hash of a recent transaction.
+
 4. Run this command to run the script:
+
   ```bash
   loadScript("filterTrace_1.js")
   ```
+
 5. Run the tracer from the script:
+
   ```bash
   tracer("<hash of transaction>")
   ```
+
   The bottom of the output looks similar to:
+
   ```bash
   "3366:POP", "3367:JUMP", "1355:JUMPDEST", "1356:PUSH1", "1358:MLOAD", "1359:DUP1", "1360:DUP3", "1361:ISZERO", "1362:ISZERO",
   "1363:ISZERO", "1364:ISZERO", "1365:DUP2", "1366:MSTORE", "1367:PUSH1", "1369:ADD", "1370:SWAP2", "1371:POP", "1372:POP", "1373:PUSH1",
   "1375:MLOAD", "1376:DUP1", "1377:SWAP2", "1378:SUB", "1379:SWAP1", "1380:RETURN", ...
   ```
+
 6. This output isn't very readable. Run this command to get a more readable output with each string on its own line:
+
   ```bash
     console.log(JSON.stringify(tracer("<hash of transaction>"), null, 2))
   ```
+
   The JSON.stringify function's documentation is [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify). If we just return the output, we get `\n` for newlines, which is why we need to use `console.log`.
 
 ### How Does it Work?
@@ -224,7 +236,7 @@ tracer = function(tx) {
 }   // tracer = function ...
 ```
 
-```bash 
+```bash
 [
   "5921: SLOAD 0",
   .
@@ -237,14 +249,14 @@ tracer = function(tx) {
 ]
 ```
 
-There are several other facets of filtered EVM tracing, including: 
+There are several other facets of filtered EVM tracing, including:
 
 - determining operation results
 - dealing with calls between contracts
 - accessing memory
 - using the `db` parameter to know the state of the chain at the time of execution
 
-This information is covered in [this reference](https://geth.ethereum.org/docs/rpc/ns-debug#javascript-based-tracing). 
+This information is covered in [this reference](https://geth.ethereum.org/docs/rpc/ns-debug#javascript-based-tracing).
 
 ## `debug_trace*` Endpoints
 
@@ -255,7 +267,7 @@ This information is covered in [this reference](https://geth.ethereum.org/docs/r
 Evmos supports the following `debug_trace*` JSON-RPC Methods, which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/rpc/ns-debug):
 
 - `debug_traceTransaction`: The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network. It will replay any transaction that may have been executed prior to this one, before it will finally attempt to execute the transaction that corresponds to the given hash.
-    
+
     **Parameters**:
 
     - trace configuration
