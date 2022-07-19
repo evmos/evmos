@@ -47,7 +47,8 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	// create validator set with single validator
 	validator := tmtypes.NewValidator(pubKey, 1)
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-	signers := []tmtypes.PrivValidator{privVal}
+	signers := make(map[string]tmtypes.PrivValidator)
+	signers[pubKey.Address().String()] = privVal
 
 	// generate genesis account
 	senderPrivKey, err := ethsecp256k1.GenerateKey()
