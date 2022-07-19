@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	epochstypes "github.com/evmos/evmos/v6/x/epochs/types"
