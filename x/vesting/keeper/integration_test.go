@@ -341,10 +341,14 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
+		// stake vested tokens
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		Expect(err).To(BeNil())
+
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, grantee, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
-		_, err := s.app.VestingKeeper.Clawback(ctx, msg)
+		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -383,10 +387,14 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
+		// stake vested tokens
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		Expect(err).To(BeNil())
+
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, grantee, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
-		_, err := s.app.VestingKeeper.Clawback(ctx, msg)
+		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -422,10 +430,14 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
+		// stake vested tokens
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		Expect(err).To(BeNil())
+
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, grantee, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
-		_, err := s.app.VestingKeeper.Clawback(ctx, msg)
+		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
