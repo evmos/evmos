@@ -1476,8 +1476,8 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
 github.com/ybbus/jsonrpc v2.1.2+incompatible/go.mod h1:XJrh1eMSzdIYFbM08flv0wp5G35eRniyeGut1z+LSiE=
 github.com/yeya24/promlinter v0.2.0/go.mod h1:u54lkmBOZrpEbQQ6gox2zWKKLKu2SGe+2KOiextY+IA=
-github.com/yihuang/ethermint v0.6.1-0.20220720040453-8a4793f11a31 h1:YF+XrZw72cRJM66OR6DX2I10NzKYbwC9CjA2HeJlRNI=
-github.com/yihuang/ethermint v0.6.1-0.20220720040453-8a4793f11a31/go.mod h1:qIsoDfBwYyC1Aw0kDlukg5ukOb/cy234IdqV8JN2SH0=
+github.com/yihuang/ethermint v0.6.1-0.20220720060948-0da1b21ba35d h1:ACnV/mIWZ+ilHGO4L/4/JYG+rUzXEk8GQMdeT0f8Zz0=
+github.com/yihuang/ethermint v0.6.1-0.20220720060948-0da1b21ba35d/go.mod h1:qIsoDfBwYyC1Aw0kDlukg5ukOb/cy234IdqV8JN2SH0=
 github.com/yudai/gojsondiff v1.0.0/go.mod h1:AY32+k2cwILAkW1fbgxQ5mUmMiZFgLIV+FBNExI05xg=
 github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82/go.mod h1:lgjkn3NuSvDfVJdfcVVdX+jpBxNmX4rDAzaS45IcYoM=
 github.com/yudai/pp v2.0.1+incompatible/go.mod h1:PuxR/8QJ7cyCkFp/aUDS+JY727OFEZkTdatxwunjIkc=

@@ -186,6 +186,6 @@ require (
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	github.com/cosmos/ibc-go/v5 => github.com/notional-labs/ibc-go/v5 v5.0.0-20220720034028-8dc9b016bcfc
-	github.com/evmos/ethermint => github.com/yihuang/ethermint v0.6.1-0.20220720040453-8a4793f11a31
+	github.com/evmos/ethermint => github.com/yihuang/ethermint v0.6.1-0.20220720060948-0da1b21ba35d
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
