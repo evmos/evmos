@@ -10,12 +10,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -25,17 +27,16 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v7/app"
 	"github.com/evmos/evmos/v7/testutil"
+	"github.com/evmos/evmos/v7/x/claims/types"
 	incentivestypes "github.com/evmos/evmos/v7/x/incentives/types"
 	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/evmos/ethermint/server/config"
 	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v7/contracts"
-	"github.com/evmos/evmos/v7/x/claims/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
