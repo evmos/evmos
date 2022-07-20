@@ -375,7 +375,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		unlocked = clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
 		free = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
 		vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-		expVestedAmount := amt.Mul(sdk.NewInt(lockup))
+		expVestedAmount := amt.Mul(math.NewInt(lockup))
 		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, expVestedAmount))
 		unvested := vestingAmtTotal.Sub(vested...)
     
@@ -419,7 +419,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		free = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
 		vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
 
-		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(periodsTotal))))
+		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(math.NewInt(periodsTotal))))
 		unvested := vestingAmtTotal.Sub(vested...)
 
 		s.Require().Equal(free, vested)
