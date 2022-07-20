@@ -13,14 +13,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	tmclient "github.com/cosmos/ibc-go/v4/modules/light-clients/07-tendermint/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	tmclient "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v6/app"
-	v4 "github.com/evmos/evmos/v6/app/upgrades/v4"
+	"github.com/evmos/evmos/v7/app"
+	v4 "github.com/evmos/evmos/v7/app/upgrades/v4"
 )
 
 type UpgradeTestSuite struct {

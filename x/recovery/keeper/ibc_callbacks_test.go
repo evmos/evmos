@@ -8,20 +8,20 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v6/testutil"
+	"github.com/evmos/evmos/v7/testutil"
 	"github.com/stretchr/testify/mock"
 
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v4/testing"
-	ibcmock "github.com/cosmos/ibc-go/v4/testing/mock"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
+	ibcmock "github.com/cosmos/ibc-go/v5/testing/mock"
 
-	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
-	incentivestypes "github.com/evmos/evmos/v6/x/incentives/types"
-	"github.com/evmos/evmos/v6/x/recovery/keeper"
-	"github.com/evmos/evmos/v6/x/recovery/types"
-	vestingtypes "github.com/evmos/evmos/v6/x/vesting/types"
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
+	incentivestypes "github.com/evmos/evmos/v7/x/incentives/types"
+	"github.com/evmos/evmos/v7/x/recovery/keeper"
+	"github.com/evmos/evmos/v7/x/recovery/types"
+	vestingtypes "github.com/evmos/evmos/v7/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestOnRecvPacket() {

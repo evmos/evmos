@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
+	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 
-	"github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/x/claims/types"
 )
 
 // Keeper struct

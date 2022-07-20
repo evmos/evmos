@@ -3,12 +3,12 @@ package claims
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v4/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v6/ibc"
-	"github.com/evmos/evmos/v6/x/claims/keeper"
+	"github.com/evmos/evmos/v7/ibc"
+	"github.com/evmos/evmos/v7/x/claims/keeper"
 )
 
 var _ porttypes.Middleware = &IBCMiddleware{}

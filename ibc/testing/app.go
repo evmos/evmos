@@ -17,10 +17,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 
-	ibcgotesting "github.com/cosmos/ibc-go/v4/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 
 	ethermint "github.com/evmos/ethermint/types"
-	evmosapp "github.com/evmos/evmos/v6/app"
+	evmosapp "github.com/evmos/evmos/v7/app"
 )
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp

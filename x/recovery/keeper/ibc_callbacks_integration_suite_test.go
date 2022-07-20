@@ -10,18 +10,18 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v4/testing"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 
-	ibctesting "github.com/evmos/evmos/v6/ibc/testing"
+	ibctesting "github.com/evmos/evmos/v7/ibc/testing"
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/evmos/evmos/v6/app"
-	claimtypes "github.com/evmos/evmos/v6/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
-	"github.com/evmos/evmos/v6/x/recovery/types"
+	"github.com/evmos/evmos/v7/app"
+	claimtypes "github.com/evmos/evmos/v7/x/claims/types"
+	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
+	"github.com/evmos/evmos/v7/x/recovery/types"
 )
 
 type IBCTestingSuite struct {
@@ -92,8 +92,8 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params.EnableRecovery = true
 	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
 
-	suite.pathOsmosisEvmos = ibcgotesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
-	suite.pathCosmosEvmos = ibcgotesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
+	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
+	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
 	suite.pathOsmosisCosmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.IBCOsmosisChain)
 	suite.coordinator.Setup(suite.pathOsmosisEvmos) // clientID, connectionID, channelID filled
 	suite.coordinator.Setup(suite.pathCosmosEvmos)

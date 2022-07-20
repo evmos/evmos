@@ -1,4 +1,7 @@
 version: v1
+name: buf.build/evmos/evmos
+deps:
+    - buf.build/evmos/evmos
 lint:
   use:
     - DEFAULT

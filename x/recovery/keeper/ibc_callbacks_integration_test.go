@@ -4,12 +4,12 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v6/app"
-	"github.com/evmos/evmos/v6/testutil"
-	claimtypes "github.com/evmos/evmos/v6/x/claims/types"
-	"github.com/evmos/evmos/v6/x/recovery/types"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	"github.com/evmos/evmos/v7/app"
+	"github.com/evmos/evmos/v7/testutil"
+	claimtypes "github.com/evmos/evmos/v7/x/claims/types"
+	"github.com/evmos/evmos/v7/x/recovery/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

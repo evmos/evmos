@@ -5,9 +5,9 @@ import (
 
 	ethermint "github.com/evmos/ethermint/types"
 
-	evmos "github.com/evmos/evmos/v6/types"
-	incentivestypes "github.com/evmos/evmos/v6/x/incentives/types"
-	"github.com/evmos/evmos/v6/x/inflation/types"
+	evmos "github.com/evmos/evmos/v7/types"
+	incentivestypes "github.com/evmos/evmos/v7/x/incentives/types"
+	"github.com/evmos/evmos/v7/x/inflation/types"
 )
 
 // 200M token at year 4 allocated to the team

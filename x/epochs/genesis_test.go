@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	simapp "github.com/evmos/evmos/v6/app"
-	"github.com/evmos/evmos/v6/x/epochs"
-	"github.com/evmos/evmos/v6/x/epochs/types"
+	simapp "github.com/evmos/evmos/v7/app"
+	"github.com/evmos/evmos/v7/x/epochs"
+	"github.com/evmos/evmos/v7/x/epochs/types"
 )
 
 func TestEpochsExportGenesis(t *testing.T) {

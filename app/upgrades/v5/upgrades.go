@@ -15,16 +15,16 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
 	feemarketv010types "github.com/evmos/ethermint/x/feemarket/migrations/v010/types"
 	feemarketv011 "github.com/evmos/ethermint/x/feemarket/migrations/v011"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v6/types"
-	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/types"
+	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
 )
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
