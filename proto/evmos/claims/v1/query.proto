@@ -1,20 +1,20 @@
 syntax = "proto3";
+
 package evmos.claims.v1;
 
-import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "evmos/claims/v1/claims.proto";
 import "evmos/claims/v1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v6/x/claims/types";
+option go_package = "github.com/evmos/evmos/v7/x/claims/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // TotalUnclaimed queries the total unclaimed tokens from the airdrop
-  rpc TotalUnclaimed(QueryTotalUnclaimedRequest)
-      returns (QueryTotalUnclaimedResponse) {
+  rpc TotalUnclaimed(QueryTotalUnclaimedRequest) returns (QueryTotalUnclaimedResponse) {
     option (google.api.http).get = "/evmos/claims/v1/total_unclaimed";
   }
   // Params returns the claims module parameters
@@ -22,13 +22,11 @@ service Query {
     option (google.api.http).get = "/evmos/claims/v1/params";
   }
   // ClaimsRecords returns all claims records
-  rpc ClaimsRecords(QueryClaimsRecordsRequest)
-      returns (QueryClaimsRecordsResponse) {
+  rpc ClaimsRecords(QueryClaimsRecordsRequest) returns (QueryClaimsRecordsResponse) {
     option (google.api.http).get = "/evmos/claims/v1/claims_records";
   }
   // ClaimsRecord returns the claims record for a given address
-  rpc ClaimsRecord(QueryClaimsRecordRequest)
-      returns (QueryClaimsRecordResponse) {
+  rpc ClaimsRecord(QueryClaimsRecordRequest) returns (QueryClaimsRecordResponse) {
     option (google.api.http).get = "/evmos/claims/v1/claims_records/{address}";
   }
 }
@@ -53,7 +51,7 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryClaimsRecordsRequest is the request type for the Query/ClaimsRecords RPC
@@ -67,7 +65,7 @@ message QueryClaimsRecordsRequest {
 // RPC method.
 message QueryClaimsRecordsResponse {
   // claims defines all claims records
-  repeated ClaimsRecordAddress claims = 1 [ (gogoproto.nullable) = false ];
+  repeated ClaimsRecordAddress claims = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -88,5 +86,5 @@ message QueryClaimsRecordResponse {
     (gogoproto.nullable) = false
   ];
   // the claims of the user
-  repeated Claim claims = 2 [ (gogoproto.nullable) = false ];
+  repeated Claim claims = 2 [(gogoproto.nullable) = false];
 }

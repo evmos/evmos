@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package ics23;
+
 option go_package = "github.com/confio/ics23/go";
 
 enum HashOp {
@@ -198,7 +199,9 @@ message InnerSpec {
 /*
 BatchProof is a group of multiple proof types than can be compressed
 */
-message BatchProof { repeated BatchEntry entries = 1; }
+message BatchProof {
+  repeated BatchEntry entries = 1;
+}
 
 // Use BatchEntry not CommitmentProof, to avoid recursion
 message BatchEntry {

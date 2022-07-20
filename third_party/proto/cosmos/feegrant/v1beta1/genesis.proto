@@ -1,9 +1,10 @@
 // Since: cosmos-sdk 0.43
 syntax = "proto3";
+
 package cosmos.feegrant.v1beta1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/feegrant/v1beta1/feegrant.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/feegrant";
 

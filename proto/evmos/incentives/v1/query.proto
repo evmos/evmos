@@ -1,14 +1,15 @@
 syntax = "proto3";
+
 package evmos.incentives.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "evmos/incentives/v1/genesis.proto";
 import "evmos/incentives/v1/incentives.proto";
-import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v6/x/incentives/types";
+option go_package = "github.com/evmos/evmos/v7/x/incentives/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -29,22 +30,18 @@ service Query {
 
   // GasMeter Retrieves a active gas meter
   rpc GasMeter(QueryGasMeterRequest) returns (QueryGasMeterResponse) {
-    option (google.api.http).get =
-        "/evmos/incentives/v1/gas_meters/{contract}/{participant}";
+    option (google.api.http).get = "/evmos/incentives/v1/gas_meters/{contract}/{participant}";
   }
 
   // AllocationMeters retrieves active allocation meters for a given
   // denomination
-  rpc AllocationMeters(QueryAllocationMetersRequest)
-      returns (QueryAllocationMetersResponse) {
+  rpc AllocationMeters(QueryAllocationMetersRequest) returns (QueryAllocationMetersResponse) {
     option (google.api.http).get = "/evmos/incentives/v1/allocation_meters";
   }
 
   // AllocationMeter Retrieves a active gas meter
-  rpc AllocationMeter(QueryAllocationMeterRequest)
-      returns (QueryAllocationMeterResponse) {
-    option (google.api.http).get =
-        "/evmos/incentives/v1/allocation_meters/{denom}";
+  rpc AllocationMeter(QueryAllocationMeterRequest) returns (QueryAllocationMeterResponse) {
+    option (google.api.http).get = "/evmos/incentives/v1/allocation_meters/{denom}";
   }
 
   // Params retrieves the incentives module params
@@ -63,7 +60,7 @@ message QueryIncentivesRequest {
 // QueryIncentivesResponse is the response type for the Query/Incentives RPC
 // method.
 message QueryIncentivesResponse {
-  repeated Incentive incentives = 1 [ (gogoproto.nullable) = false ];
+  repeated Incentive incentives = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -77,7 +74,7 @@ message QueryIncentiveRequest {
 // QueryIncentiveResponse is the response type for the Query/Incentive RPC
 // method.
 message QueryIncentiveResponse {
-  Incentive incentive = 1 [ (gogoproto.nullable) = false ];
+  Incentive incentive = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryGasMetersRequest is the request type for the Query/Incentives RPC
@@ -92,7 +89,7 @@ message QueryGasMetersRequest {
 // QueryGasMetersResponse is the response type for the Query/Incentives RPC
 // method.
 message QueryGasMetersResponse {
-  repeated GasMeter gas_meters = 1 [ (gogoproto.nullable) = false ];
+  repeated GasMeter gas_meters = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -107,7 +104,9 @@ message QueryGasMeterRequest {
 
 // QueryGasMeterResponse is the response type for the Query/Incentive RPC
 // method.
-message QueryGasMeterResponse { uint64 gas_meter = 1; }
+message QueryGasMeterResponse {
+  uint64 gas_meter = 1;
+}
 
 // QueryAllocationMetersRequest is the request type for the
 // Query/AllocationMeters RPC method.
@@ -149,5 +148,5 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC
 // method.
 message QueryParamsResponse {
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }

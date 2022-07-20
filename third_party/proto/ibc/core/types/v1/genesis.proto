@@ -2,12 +2,12 @@ syntax = "proto3";
 
 package ibc.core.types.v1;
 
-option go_package = "github.com/cosmos/ibc-go/v4/modules/core/types";
-
 import "gogoproto/gogo.proto";
+import "ibc/core/channel/v1/genesis.proto";
 import "ibc/core/client/v1/genesis.proto";
 import "ibc/core/connection/v1/genesis.proto";
-import "ibc/core/channel/v1/genesis.proto";
+
+option go_package = "github.com/cosmos/ibc-go/v4/modules/core/types";
 
 // GenesisState defines the ibc module's genesis state.
 message GenesisState {

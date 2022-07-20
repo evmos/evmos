@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package ibc.applications.interchain_accounts.v1;
 
-option go_package = "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types";
-
 import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types";
 
 // Metadata defines a set of protocol specific data encoded into the ICS27
 // channel version bytestring See ICS004:
@@ -14,12 +14,10 @@ message Metadata {
   string version = 1;
   // controller_connection_id is the connection identifier associated with the
   // controller chain
-  string controller_connection_id = 2
-      [ (gogoproto.moretags) = "yaml:\"controller_connection_id\"" ];
+  string controller_connection_id = 2 [(gogoproto.moretags) = "yaml:\"controller_connection_id\""];
   // host_connection_id is the connection identifier associated with the host
   // chain
-  string host_connection_id = 3
-      [ (gogoproto.moretags) = "yaml:\"host_connection_id\"" ];
+  string host_connection_id = 3 [(gogoproto.moretags) = "yaml:\"host_connection_id\""];
   // address defines the interchain account address to be fulfilled upon the
   // OnChanOpenTry handshake step NOTE: the address field is empty on the
   // OnChanOpenInit handshake step

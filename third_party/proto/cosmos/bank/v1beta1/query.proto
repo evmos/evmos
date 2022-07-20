@@ -1,11 +1,12 @@
 syntax = "proto3";
+
 package cosmos.bank.v1beta1;
 
+import "cosmos/bank/v1beta1/bank.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "cosmos/bank/v1beta1/bank.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/bank/types";
 
@@ -47,7 +48,8 @@ service Query {
     option (google.api.http).get = "/cosmos/bank/v1beta1/denoms_metadata/{denom}";
   }
 
-  // DenomsMetadata queries the client metadata for all registered coin denominations.
+  // DenomsMetadata queries the client metadata for all registered coin
+  // denominations.
   rpc DenomsMetadata(QueryDenomsMetadataRequest) returns (QueryDenomsMetadataResponse) {
     option (google.api.http).get = "/cosmos/bank/v1beta1/denoms_metadata";
   }
@@ -87,8 +89,10 @@ message QueryAllBalancesRequest {
 // method.
 message QueryAllBalancesResponse {
   // balances is the balances of all the coins.
-  repeated cosmos.base.v1beta1.Coin balances = 1
-  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated cosmos.base.v1beta1.Coin balances = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -97,7 +101,7 @@ message QueryAllBalancesResponse {
 // QuerySpendableBalancesRequest defines the gRPC request structure for querying
 // an account's spendable balances.
 message QuerySpendableBalancesRequest {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // address is the address to query spendable balances for.
@@ -107,12 +111,14 @@ message QuerySpendableBalancesRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QuerySpendableBalancesResponse defines the gRPC response structure for querying
-// an account's spendable balances.
+// QuerySpendableBalancesResponse defines the gRPC response structure for
+// querying an account's spendable balances.
 message QuerySpendableBalancesResponse {
   // balances is the spendable balances of all the coins.
-  repeated cosmos.base.v1beta1.Coin balances = 1
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated cosmos.base.v1beta1.Coin balances = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -134,8 +140,10 @@ message QueryTotalSupplyRequest {
 // method
 message QueryTotalSupplyResponse {
   // supply is the supply of the coins
-  repeated cosmos.base.v1beta1.Coin supply = 1
-  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated cosmos.base.v1beta1.Coin supply = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 
   // pagination defines the pagination in the response.
   //
@@ -163,14 +171,15 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryDenomsMetadataRequest is the request type for the Query/DenomsMetadata RPC method.
+// QueryDenomsMetadataRequest is the request type for the Query/DenomsMetadata
+// RPC method.
 message QueryDenomsMetadataRequest {
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryDenomsMetadataResponse is the response type for the Query/DenomsMetadata RPC
-// method.
+// QueryDenomsMetadataResponse is the response type for the Query/DenomsMetadata
+// RPC method.
 message QueryDenomsMetadataResponse {
   // metadata provides the client information for all the registered tokens.
   repeated Metadata metadatas = 1 [(gogoproto.nullable) = false];
@@ -179,15 +188,17 @@ message QueryDenomsMetadataResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryDenomMetadataRequest is the request type for the Query/DenomMetadata RPC method.
+// QueryDenomMetadataRequest is the request type for the Query/DenomMetadata RPC
+// method.
 message QueryDenomMetadataRequest {
   // denom is the coin denom to query the metadata for.
   string denom = 1;
 }
 
-// QueryDenomMetadataResponse is the response type for the Query/DenomMetadata RPC
-// method.
+// QueryDenomMetadataResponse is the response type for the Query/DenomMetadata
+// RPC method.
 message QueryDenomMetadataResponse {
-  // metadata describes and provides all the client information for the requested token.
+  // metadata describes and provides all the client information for the
+  // requested token.
   Metadata metadata = 1 [(gogoproto.nullable) = false];
 }
