@@ -45,7 +45,6 @@ evmosd q feesplit contract $CONTRACT
 
 Congrats ☄️☄️☄️ Now that you've registered a feesplit for your contract, it is part of the Evmos dApp store and you will receive a cut of the transaction fees every time a user interacts with your contract. If you wondering how large your cut is, have a look at the [feesplit parameter `DeveloperShares`](../../../x/feesplit/spec/07_parameters.md#developer-shares-amount), which is controlled through governance. You can query the parameters using our [OpenAPI documentation](https://api.evmos.org).
 
-[f](../../../x/)
 ### Deployed Factory Pattern
 
 You can also register a contract which has been deployed by a smart contract instead of an EOA. In this case, you need to provide a sequence of nonces that proves the trace from an original deployer who deployed the factory to the contract that is being registered.

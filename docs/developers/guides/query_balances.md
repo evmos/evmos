@@ -1,0 +1,192 @@
+<!--
+order: 4
+-->
+
+# Query Balances
+
+Learn how to query balances of IBC Cosmos Coins and ERC-20s on Evmos. {synopsis}
+
+This guide will cover the following query methods:
+
+- [`evmosd` & Tendermint RPC](#evmosd--tendermint-rpc)
+- [JSON-RPC](#json-rpc)
+- [gRPC](#grpc)
+
+::tip
+**Note**: To see all publicly available endpoints of varying types which can be used to connect to the Evmos mainnet and testnet, check out [this document](../connect.md).
+:::
+
+:::warning
+**Note**: In this document, the command line is used to interact with endpoints. For dApp developers, using libraries such as [cosmjs](https://github.com/cosmos/cosmjs) and [evmosjs](../libraries/evmosjs.md) is recommended instead.
+:::
+
+## `evmosd` & Tendermint RPC
+
+:::tip
+**Note**: For information on the Evmos Daemon (`evmosd`), consider the following two documents:
+
+- [Installation of Binary](../../validators/quickstart/installation.md)
+- [Build & Configuration of Binary](../../validators/quickstart/binary.md)
+
+To collect information with `evmosd` without running the node, connection to a Tendermint RPC node is required.
+:::
+
+Upon installation and configuration of the Evmos Daemon, developers can query account balances with the following CLI command, where:
+
+- `$EVMOSADDRESS` is the Evmos address with balances of interest (eg. `evmos1...`)
+- `$COUNTTOTAL` counts the total number of records in all balances to query for
+- `$HEIGHT` is the specific height to query state at (can error if node is pruning state)
+- `$OUTPUT` is the output format (eg. `text`)
+- `$NODE` is the Tendermint RPC node information is requested from (eg. `https://tendermint.bd.evmos.org:26657`)
+
+```bash
+$ evmosd query bank balances $EVMOSADDRESS --count-total=$COUNTTOTAL --height=$HEIGHT --output=$OUTPUT --node=$NODE
+balances:
+- amount: "1000000000000000000"
+  denom: aevmos
+- amount: "100000"
+  denom: ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518
+pagination:
+  next_key: null
+  total: "0"
+```
+
+Details of non-native currencies (ie. not `aevmos`) can be queried with the following CLI command, where:
+
+- `$DENOM` is the denomination of the coin (eg. `ibc/ED07A3391A1...`)
+
+```bash
+$ evmosd query erc20 token-pair $DENOM --node=$NODE --height=$HEIGHT --output=$OUTPUT
+token_pair:
+  contract_owner: OWNER_MODULE
+  denom: ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518
+  enabled: true
+  erc20_address: 0xFA3C22C069B9556A4B2f7EcE1Ee3B467909f4864
+```
+
+## JSON-RPC
+
+:::tip
+**Note**: See [this list](../json-rpc/endpoints.md) for all JSON-RPC methods supported by Evmos.
+:::
+
+Developers can query account balances of `aevmos` using the [`eth_getBalance`](../json-rpc/endpoints.md#ethgetbalance) JSON-RPC method in conjunction with [`curl`](https://curl.se/), where:
+
+- `$ETHADDRESS` is the Etherum hex-address the balance is to be queried from
+
+    Note that Evmos addresses (those beginning with `evmos1...`) can be converted to Ethereum addresses using libraries such as [evmosjs](../libraries/evmosjs.md).
+
+- `$BLOCK` is the block number or block hash (eg. `"0x0"`)
+
+    The reasoning for this parameter is due to [EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md).
+
+- `$NODE` is the JSON-RPC node information is requested from (eg. `https://eth.bd.evmos.org:8545`)
+
+```bash
+# Request
+curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":[`$ETHADDRESS`, `$BLOCK`],"id":1}' -H "Content-Type: application/json" $NODE
+
+# Result
+{"jsonrpc":"2.0","id":1,"result":"0x36354d5575577c8000"}
+```
+
+Developers can also query account balances of `x/erc20`-module registered coins using the [`eth_call`](../json-rpc/endpoints.md#ethcall) JSON-RPC method in conjunction with [`curl`](https://curl.se/), where:
+
+- `$SENDERCONTRACTADDRESS` is the Ethereum hex-address this smart contract call is sent from
+- `$ERCCONTRACTADDRESS` is the Ethereum hex-address of the ERC-20 contract corresponding to the coin denomination being queried
+- `$DATA` is the hash of the [`balanceof`](https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#ERC20) method signature and encoded parameters
+
+    `balanceOf` is a required method in every ERC-20 contract, and the encoded parameter is the address which is having its balance queried. For additional information, see the [Ethereum Contract ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html).
+
+- `$BLOCK` is the block number or block hash (eg. `"0x0"`)
+
+    The reasoning for this parameter is due to [EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md).
+
+- `$NODE` is the JSON-RPC node information is requested from (eg. `https://eth.bd.evmos.org:8545`)
+
+```bash
+# Request
+curl -X POST --data '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":`SENDERCONTRACTADDRESS`, "to":`ERCCONTRACTADDRESS`, "data":`$DATA`}, `$BLOCK`],"id":1}'  -H "Content-Type: application/json" $NODE
+
+# Result
+{"jsonrpc":"2.0","id":1,"result":"0x"}
+```
+
+## gRPC
+
+:::tip
+**Note**: The following tools will be useful when using gRPC:
+
+- [Evmos Swagger API](https://api.evmos.dev/): a comprehensive description of all gRPC endpoints
+- [Cosmos SDK Go API](https://pkg.go.dev/github.com/cosmos/cosmos-sdk) & [Evmos Go API](https://pkg.go.dev/github.com/tharsis/evmos): packages to implement queries in Go scripts
+
+:::
+
+Developers can use [`grpcurl`](https://github.com/fullstorydev/grpcurl) with the `AllBalances` endpoint to query account balance by address for all denominations, where:
+
+- `$EVMOSADDRESS` is the Evmos address with balances of interest (eg. `"evmos1..."`)
+- `$OUTPUT` is the output format (eg. `plaintext`)
+- `$NODE` is the Cosmos gRPC node information is requested from (eg. `https://grpc.bd.evmos.org:9090`)
+
+```bash
+# Request
+grpcurl $OUTPUT -d '{"address":`$EVMOSADDRESS`}' $NODE cosmos.bank.v1beta1.Query/AllBalances
+
+# Result
+{
+  "balances": [
+    {
+      "denom": "stake",
+      "amount": "1000000000"
+    }
+  ],
+  "pagination": {
+    "total": "1"
+  }
+}
+```
+
+State can also be queried using gRPC within a Go program. The idea is to create a gRPC connection, then use the [Protobuf](https://developers.google.com/protocol-buffers)-generated client code to query the gRPC server.
+
+```go
+import (
+    "context"
+    "fmt"
+
+  "google.golang.org/grpc"
+
+    sdk "github.com/cosmos/cosmos-sdk/types"
+  "github.com/cosmos/cosmos-sdk/types/tx"
+)
+
+func queryState() error {
+    myAddress, err := GetEvmosAddressFromBech32("evmos1...") // evmos address with balances of interest.
+    if err != nil {
+        return err
+    }
+
+    // Create a connection to the gRPC server.
+    grpcConn := grpc.Dial(
+        "https://grpc.bd.evmos.org:9090", // your gRPC server address.
+        grpc.WithInsecure(), // the SDK doesn't support any transport security mechanism.
+    )
+    defer grpcConn.Close()
+
+    // This creates a gRPC client to query the x/bank service.
+    bankClient := banktypes.NewQueryClient(grpcConn)
+    bankRes, err := bankClient.AllBalances(
+        context.Background(),
+        &banktypes.QueryAllBalancesRequest{Address: myAddress},
+    )
+    if err != nil {
+        return err
+    }
+
+    fmt.Println(bankRes.GetBalances()) // prints the account balances.
+
+    return nil
+}
+
+// evmosjs address converter.
+func GetEvmosAddressFromBech32(address string) (string, error) {...}
+```
