@@ -92,6 +92,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 		TxConfig:      txConfig,
 		Codec:         app.AppCodec(),
 		Vals:          valSet,
+		NextVals:      valSet,
 		Signers:       signers,
 		SenderPrivKey: senderPrivKey,
 		SenderAccount: acc,
