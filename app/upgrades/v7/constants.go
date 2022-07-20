@@ -18,5 +18,5 @@ const (
 	// ContributorAddrFrom is the lost address of an early contributor
 	ContributorAddrFrom = "evmos1659xwt0hnu5humgek7scefhnpcm2w6hyvy4fsq"
 	// ContributorAddrTo is the new address of an early contributor
-	ContributorAddrTo = "evmos1pktlmqrz448cuazl98tqmsj4kjwpqpmaa0cjcf"	
+	ContributorAddrTo = "evmos1pktlmqrz448cuazl98tqmsj4kjwpqpmaa0cjcf"
 )
