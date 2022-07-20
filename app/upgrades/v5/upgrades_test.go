@@ -19,13 +19,13 @@ import (
 	"github.com/evmos/ethermint/tests"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
-	"github.com/evmos/evmos/v6/app"
-	v5 "github.com/evmos/evmos/v6/app/upgrades/v5"
-	evmostypes "github.com/evmos/evmos/v6/types"
-	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/app"
+	v5 "github.com/evmos/evmos/v7/app/upgrades/v5"
+	evmostypes "github.com/evmos/evmos/v7/types"
+	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
 )
 
 type UpgradeTestSuite struct {

@@ -1,13 +1,13 @@
-module github.com/evmos/evmos/v6
+module github.com/evmos/evmos/v7
 
 go 1.18
 
 require (
 	cosmossdk.io/math v1.0.0-beta.2
 	github.com/armon/go-metrics v0.4.0
-	github.com/cosmos/cosmos-sdk v0.46.0-rc2.0.20220717044044-e2afb411d70e
+	github.com/cosmos/cosmos-sdk v0.46.0-rc3
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go/v4 v4.0.0
+	github.com/cosmos/ibc-go/v5 v5.0.0
 	github.com/ethereum/go-ethereum v1.10.19
 	github.com/evmos/ethermint v0.17.1
 	github.com/gogo/protobuf v1.3.3
@@ -185,7 +185,7 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/cosmos/ibc-go/v4 => github.com/notional-labs/ibc-go/v4 v4.0.0-20220716134852-ee64d565af1a
-	github.com/evmos/ethermint => github.com/yihuang/ethermint v0.6.1-0.20220715030459-4598f83eafe5
+	github.com/cosmos/ibc-go/v5 => github.com/notional-labs/ibc-go/v5 v5.0.0-20220720034028-8dc9b016bcfc
+	github.com/evmos/ethermint => github.com/yihuang/ethermint v0.6.1-0.20220720040453-8a4793f11a31
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )

@@ -10,18 +10,18 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v4/testing"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 
-	ibctesting "github.com/evmos/evmos/v6/ibc/testing"
+	ibctesting "github.com/evmos/evmos/v7/ibc/testing"
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/evmos/evmos/v6/app"
-	claimtypes "github.com/evmos/evmos/v6/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
-	"github.com/evmos/evmos/v6/x/recovery/types"
+	"github.com/evmos/evmos/v7/app"
+	claimtypes "github.com/evmos/evmos/v7/x/claims/types"
+	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
+	"github.com/evmos/evmos/v7/x/recovery/types"
 )
 
 type IBCTestingSuite struct {

@@ -8,15 +8,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v4/testing"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v6/app"
-	ibctesting "github.com/evmos/evmos/v6/ibc/testing"
-	"github.com/evmos/evmos/v6/testutil"
-	"github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/app"
+	ibctesting "github.com/evmos/evmos/v7/ibc/testing"
+	"github.com/evmos/evmos/v7/testutil"
+	"github.com/evmos/evmos/v7/x/claims/types"
 )
 
 type IBCTestingSuite struct {
