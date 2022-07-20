@@ -132,13 +132,8 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
 				amt := sdk.NewInt(claimableAmount)
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
 
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
-
-				// update the escrowed account balance to maintain the invariant
-				err := testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
-				suite.Require().NoError(err)
 			},
 			4,
 			0,
