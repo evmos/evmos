@@ -1,8 +1,8 @@
 <!--
 order: 0
-title: "Fees Overview"
+title: "Feesplit Overview"
 parent:
-  title: "fees"
+  title: "feesplit"
 -->
 
 # `feesplit`

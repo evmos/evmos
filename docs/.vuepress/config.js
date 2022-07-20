@@ -146,19 +146,14 @@ module.exports = {
               path: '/developers/connect'
             },
             {
-              title: 'Evmos Clients',
+              title: 'Clients',
               directory: false,
               path: '/developers/clients'
             },
             {
-              title: 'Testnet Faucet',
-              directory: false,
-              path: '/developers/faucet'
-            },
-            {
-              title: 'Ethereum Tooling',
+              title: 'Guides',
               directory: true,
-              path: '/developers/tools'
+              path: '/developers/guides'
             },
             {
               title: 'Localnet',
@@ -166,9 +161,14 @@ module.exports = {
               path: '/developers/localnet'
             },
             {
-              title: 'Wallet Integration',
-              directory: false,
-              path: '/developers/wallet_integration'
+              title: 'Testnet',
+              directory: true,
+              path: '/developers/testnet'
+            },
+            {
+              title: 'Ethereum Tooling',
+              directory: true,
+              path: '/developers/tools'
             },
             {
               title: 'Client Libraries',
