@@ -10,7 +10,7 @@ Contract incentives are a part of Evmos tokenomics and aim to increase the growt
 
 The usage incentives are taken from block reward emission (inflation) and are pooled up in the incentives module account (escrow address). The incentives functionality is fully governed by native $EVMOS token holders who manage the registration of incentives, so that native $EVMOS token holders decide which application should be part of the usage incentives. This governance functionality is implemented using the Cosmos-SDK `gov` module with custom proposal types (`RegisterIncentiveProposal`) for registering the incentives.
 
-Users participate in incentives by submitting transactions to an incentivized contract. The module keeps a record of how much gas the participants spent on their transactions and stores these in gas meters. Based on their gas meters, participants in the incentive are rewarded in regular intervals (epochs). 
+Users participate in incentives by submitting transactions to an incentivized contract. The module keeps a record of how much gas the participants spent on their transactions and stores these in gas meters. Based on their gas meters, participants in the incentive are rewarded in regular intervals (epochs).
 
 :::tip
 **Note**: Make sure all the [concepts of the incentives module](./../../../x/incentives/spec/01_concepts.md) are understood before submitting a proposal to incentivize a contract.
@@ -140,7 +140,3 @@ Evmos supports the following metrics related to the `x/incentives` module, which
 To calculate specific values, such as paid out incentives to a given smart contract user, custom metrics will have to be made following the [above section](#emitting--collecting-metrics).
 
 In addition, gRPC queries related to the `x/incentives` module found [here](../../../x/incentives/spec/08_clients.md#clients) can produce useful analysis.
-
-
-
-
