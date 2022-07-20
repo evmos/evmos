@@ -136,6 +136,7 @@ func NewConvertERC20Cmd() *cobra.Command {
 }
 
 // NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
+//nolint:staticcheck // we use deprecated flags because of govv1beta1
 func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-coin [metadata]",
@@ -231,6 +232,7 @@ Where metadata.json contains (example):
 }
 
 // NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
+//nolint:staticcheck // we use deprecated flags
 func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-erc20 [erc20-address]",
@@ -297,6 +299,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 }
 
 // NewToggleTokenConversionProposalCmd implements the command to submit a community-pool-spend proposal
+//nolint:staticcheck // we use deprecated flags
 func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "toggle-token-conversion [token]",
