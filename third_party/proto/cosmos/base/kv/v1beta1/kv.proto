@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package cosmos.base.kv.v1beta1;
 
 import "gogoproto/gogo.proto";
@@ -12,6 +13,6 @@ message Pairs {
 
 // Pair defines a key/value bytes tuple.
 message Pair {
-  bytes key   = 1;
+  bytes key = 1;
   bytes value = 2;
 }

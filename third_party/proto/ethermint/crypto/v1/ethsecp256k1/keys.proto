@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package ethermint.crypto.v1.ethsecp256k1;
 
 import "gogoproto/gogo.proto";
@@ -16,4 +17,6 @@ message PubKey {
 
 // PrivKey defines a type alias for an ecdsa.PrivateKey that implements
 // Tendermint's PrivateKey interface.
-message PrivKey { bytes key = 1; }
+message PrivKey {
+  bytes key = 1;
+}

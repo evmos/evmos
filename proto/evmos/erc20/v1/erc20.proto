@@ -1,9 +1,11 @@
 syntax = "proto3";
+
 package evmos.erc20.v1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/bank/v1beta1/bank.proto";
-option go_package = "github.com/evmos/evmos/v6/x/erc20/types";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v7/x/erc20/types";
 
 // Owner enumerates the ownership of a ERC20 contract.
 enum Owner {
@@ -39,7 +41,7 @@ message RegisterCoinProposal {
   // proposal description
   string description = 2;
   // metadata of the native Cosmos coin
-  cosmos.bank.v1beta1.Metadata metadata = 3 [ (gogoproto.nullable) = false ];
+  cosmos.bank.v1beta1.Metadata metadata = 3 [(gogoproto.nullable) = false];
 }
 
 // RegisterERC20Proposal is a gov Content type to register a token pair for an

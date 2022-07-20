@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package cosmos_proto;
 
 import "google/protobuf/descriptor.proto";
@@ -11,4 +12,6 @@ extend google.protobuf.MessageOptions {
   string implements_interface = 93002;
 }
 
-extend google.protobuf.FieldOptions { string accepts_interface = 93001; }
+extend google.protobuf.FieldOptions {
+  string accepts_interface = 93001;
+}

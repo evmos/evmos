@@ -70,7 +70,6 @@ func Setup(
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
 ) *Evmos {
-
 	privVal := mock.NewPV()
 	pubKey, _ := privVal.GetPubKey()
 

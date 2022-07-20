@@ -378,7 +378,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		expVestedAmount := amt.Mul(math.NewInt(lockup))
 		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, expVestedAmount))
 		unvested := vestingAmtTotal.Sub(vested...)
-    
+
 		s.Require().Equal(free, vested)
 		s.Require().Equal(expVested, vested)
 		s.Require().True(expVestedAmount.GT(sdk.NewInt(0)))

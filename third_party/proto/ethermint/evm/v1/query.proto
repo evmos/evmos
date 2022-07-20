@@ -1,11 +1,12 @@
 syntax = "proto3";
+
 package ethermint.evm.v1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "google/api/annotations.proto";
 import "ethermint/evm/v1/evm.proto";
 import "ethermint/evm/v1/tx.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/evmos/ethermint/x/evm/types";
@@ -18,17 +19,14 @@ service Query {
   }
 
   // CosmosAccount queries an Ethereum account's Cosmos Address.
-  rpc CosmosAccount(QueryCosmosAccountRequest)
-      returns (QueryCosmosAccountResponse) {
+  rpc CosmosAccount(QueryCosmosAccountRequest) returns (QueryCosmosAccountResponse) {
     option (google.api.http).get = "/ethermint/evm/v1/cosmos_account/{address}";
   }
 
   // ValidatorAccount queries an Ethereum account's from a validator consensus
   // Address.
-  rpc ValidatorAccount(QueryValidatorAccountRequest)
-      returns (QueryValidatorAccountResponse) {
-    option (google.api.http).get =
-        "/ethermint/evm/v1/validator_account/{cons_address}";
+  rpc ValidatorAccount(QueryValidatorAccountRequest) returns (QueryValidatorAccountResponse) {
+    option (google.api.http).get = "/ethermint/evm/v1/validator_account/{cons_address}";
   }
 
   // Balance queries the balance of a the EVM denomination for a single
@@ -67,17 +65,18 @@ service Query {
     option (google.api.http).get = "/ethermint/evm/v1/trace_tx";
   }
 
-  // TraceBlock implements the `debug_traceBlockByNumber` and `debug_traceBlockByHash` rpc api
+  // TraceBlock implements the `debug_traceBlockByNumber` and
+  // `debug_traceBlockByHash` rpc api
   rpc TraceBlock(QueryTraceBlockRequest) returns (QueryTraceBlockResponse) {
     option (google.api.http).get = "/ethermint/evm/v1/trace_block";
   }
 
   // BaseFee queries the base fee of the parent block of the current block,
-  // it's similar to feemarket module's method, but also checks london hardfork status.
+  // it's similar to feemarket module's method, but also checks london hardfork
+  // status.
   rpc BaseFee(QueryBaseFeeRequest) returns (QueryBaseFeeResponse) {
     option (google.api.http).get = "/ethermint/evm/v1/base_fee";
   }
-
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
@@ -216,7 +215,7 @@ message QueryParamsRequest {}
 // QueryParamsResponse defines the response type for querying x/evm parameters.
 message QueryParamsResponse {
   // params define the evm module parameters.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // EthCallRequest defines EthCall request
@@ -250,7 +249,10 @@ message QueryTraceTxRequest {
   // block hex hash of requested transaction
   string block_hash = 6;
   // block time of requested transaction
-  google.protobuf.Timestamp block_time = 7 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp block_time = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
 }
 
 // QueryTraceTxResponse defines TraceTx response
@@ -270,7 +272,10 @@ message QueryTraceBlockRequest {
   // block hex hash
   string block_hash = 6;
   // block time
-  google.protobuf.Timestamp block_time = 7 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp block_time = 7 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
 }
 
 // QueryTraceBlockResponse defines TraceBlock response
@@ -284,6 +289,5 @@ message QueryBaseFeeRequest {}
 
 // BaseFeeResponse returns the EIP1559 base fee.
 message QueryBaseFeeResponse {
-  string base_fee = 1
-      [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int" ];
+  string base_fee = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
 }

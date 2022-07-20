@@ -1,10 +1,11 @@
 syntax = "proto3";
-package tendermint.types;
 
-option go_package = "github.com/tendermint/tendermint/proto/tendermint/types";
+package tendermint.types;
 
 import "gogoproto/gogo.proto";
 import "tendermint/crypto/keys.proto";
+
+option go_package = "github.com/tendermint/tendermint/proto/tendermint/types";
 
 message ValidatorSet {
   repeated Validator validators = 1;
@@ -14,7 +15,7 @@ message ValidatorSet {
 
 message Validator {
   bytes address = 1;
-  tendermint.crypto.PublicKey pub_key = 2 [ (gogoproto.nullable) = false ];
+  tendermint.crypto.PublicKey pub_key = 2 [(gogoproto.nullable) = false];
   int64 voting_power = 3;
   int64 proposer_priority = 4;
 }

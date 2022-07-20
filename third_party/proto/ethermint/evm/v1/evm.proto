@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package ethermint.evm.v1;
 
 import "gogoproto/gogo.proto";
@@ -9,11 +10,11 @@ option go_package = "github.com/evmos/ethermint/x/evm/types";
 message Params {
   // evm denom represents the token denomination used to run the EVM state
   // transitions.
-  string evm_denom = 1 [ (gogoproto.moretags) = "yaml:\"evm_denom\"" ];
+  string evm_denom = 1 [(gogoproto.moretags) = "yaml:\"evm_denom\""];
   // enable create toggles state transitions that use the vm.Create function
-  bool enable_create = 2 [ (gogoproto.moretags) = "yaml:\"enable_create\"" ];
+  bool enable_create = 2 [(gogoproto.moretags) = "yaml:\"enable_create\""];
   // enable call toggles state transitions that use the vm.Call function
-  bool enable_call = 3 [ (gogoproto.moretags) = "yaml:\"enable_call\"" ];
+  bool enable_call = 3 [(gogoproto.moretags) = "yaml:\"enable_call\""];
   // extra eips defines the additional EIPs for the vm.Config
   repeated int64 extra_eips = 4 [
     (gogoproto.customname) = "ExtraEIPs",
@@ -24,7 +25,7 @@ message Params {
     (gogoproto.moretags) = "yaml:\"chain_config\"",
     (gogoproto.nullable) = false
   ];
-  // Allow unprotected transactions defines if replay-protected (i.e non EIP155 
+  // Allow unprotected transactions defines if replay-protected (i.e non EIP155
   // signed) transactions can be executed on the state machine.
   bool allow_unprotected_txs = 6;
 }
@@ -115,7 +116,8 @@ message ChainConfig {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"arrow_glacier_block\""
   ];
-  // EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in merge proceedings)
+  // EIP-3675 (TheMerge) switch block (nil = no fork, 0 = already in merge
+  // proceedings)
   string merge_fork_block = 19 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.moretags) = "yaml:\"merge_fork_block\""
@@ -153,15 +155,15 @@ message Log {
   // but not secured by consensus.
 
   // block in which the transaction was included
-  uint64 block_number = 4 [ (gogoproto.jsontag) = "blockNumber" ];
+  uint64 block_number = 4 [(gogoproto.jsontag) = "blockNumber"];
   // hash of the transaction
-  string tx_hash = 5 [ (gogoproto.jsontag) = "transactionHash" ];
+  string tx_hash = 5 [(gogoproto.jsontag) = "transactionHash"];
   // index of the transaction in the block
-  uint64 tx_index = 6 [ (gogoproto.jsontag) = "transactionIndex" ];
+  uint64 tx_index = 6 [(gogoproto.jsontag) = "transactionIndex"];
   // hash of the block in which the transaction was included
-  string block_hash = 7 [ (gogoproto.jsontag) = "blockHash" ];
+  string block_hash = 7 [(gogoproto.jsontag) = "blockHash"];
   // index of the log in the block
-  uint64 index = 8 [ (gogoproto.jsontag) = "logIndex" ];
+  uint64 index = 8 [(gogoproto.jsontag) = "logIndex"];
 
   // The Removed field is true if this log was reverted due to a chain
   // reorganisation. You must pay attention to this field if you receive logs
@@ -176,8 +178,7 @@ message TxResult {
   // contract_address contains the ethereum address of the created contract (if
   // any). If the state transition is an evm.Call, the contract address will be
   // empty.
-  string contract_address = 1
-      [ (gogoproto.moretags) = "yaml:\"contract_address\"" ];
+  string contract_address = 1 [(gogoproto.moretags) = "yaml:\"contract_address\""];
   // bloom represents the bloom filter bytes
   bytes bloom = 2;
   // tx_logs contains the transaction hash and the proto-compatible ethereum
@@ -201,7 +202,7 @@ message AccessTuple {
   // hex formatted ethereum address
   string address = 1;
   // hex formatted hashes of the storage keys
-  repeated string storage_keys = 2 [ (gogoproto.jsontag) = "storageKeys" ];
+  repeated string storage_keys = 2 [(gogoproto.jsontag) = "storageKeys"];
 }
 
 // TraceConfig holds extra parameters to trace functions.
@@ -219,9 +220,9 @@ message TraceConfig {
   // number of blocks the tracer is willing to go back
   uint64 reexec = 3;
   // disable stack capture
-  bool disable_stack = 5 [ (gogoproto.jsontag) = "disableStack" ];
+  bool disable_stack = 5 [(gogoproto.jsontag) = "disableStack"];
   // disable storage capture
-  bool disable_storage = 6 [ (gogoproto.jsontag) = "disableStorage" ];
+  bool disable_storage = 6 [(gogoproto.jsontag) = "disableStorage"];
   // print output during capture end
   bool debug = 8;
   // maximum length of output, but zero means unlimited
@@ -229,7 +230,7 @@ message TraceConfig {
   // Chain overrides, can be used to execute a trace using future fork rules
   ChainConfig overrides = 10;
   // enable memory capture
-  bool enable_memory = 11 [ (gogoproto.jsontag) = "enableMemory" ];
+  bool enable_memory = 11 [(gogoproto.jsontag) = "enableMemory"];
   // enable return data capture
-  bool enable_return_data = 12 [ (gogoproto.jsontag) = "enableReturnData" ];
+  bool enable_return_data = 12 [(gogoproto.jsontag) = "enableReturnData"];
 }

@@ -1,9 +1,10 @@
 syntax = "proto3";
+
 package tendermint.version;
 
-option go_package = "github.com/tendermint/tendermint/proto/tendermint/version";
-
 import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tendermint/tendermint/proto/tendermint/version";
 
 // App includes the protocol and software version for the application.
 // This information is included in ResponseInfo. The App.Protocol can be

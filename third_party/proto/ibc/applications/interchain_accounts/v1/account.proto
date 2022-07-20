@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package ibc.applications.interchain_accounts.v1;
 
-option go_package = "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types";
-
+import "cosmos/auth/v1beta1/auth.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "cosmos/auth/v1beta1/auth.proto";
+
+option go_package = "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types";
 
 // An InterchainAccount is defined as a BaseAccount & the address of the account
 // owner on the controller chain
@@ -19,5 +19,5 @@ message InterchainAccount {
     (gogoproto.embed) = true,
     (gogoproto.moretags) = "yaml:\"base_account\""
   ];
-  string account_owner = 2 [ (gogoproto.moretags) = "yaml:\"account_owner\"" ];
+  string account_owner = 2 [(gogoproto.moretags) = "yaml:\"account_owner\""];
 }

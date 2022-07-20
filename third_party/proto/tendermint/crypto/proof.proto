@@ -1,9 +1,10 @@
 syntax = "proto3";
+
 package tendermint.crypto;
 
-option go_package = "github.com/tendermint/tendermint/proto/tendermint/crypto";
-
 import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tendermint/tendermint/proto/tendermint/crypto";
 
 message Proof {
   int64 total = 1;
@@ -36,4 +37,6 @@ message ProofOp {
 }
 
 // ProofOps is Merkle proof defined by the list of ProofOps
-message ProofOps { repeated ProofOp ops = 1 [ (gogoproto.nullable) = false ]; }
+message ProofOps {
+  repeated ProofOp ops = 1 [(gogoproto.nullable) = false];
+}

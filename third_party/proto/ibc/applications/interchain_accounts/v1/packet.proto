@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package ibc.applications.interchain_accounts.v1;
 
-option go_package = "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types";
-
-import "google/protobuf/any.proto";
 import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types";
 
 // Type defines a classification of message issued from a controller chain to
 // its associated interchain accounts host
@@ -13,9 +13,9 @@ enum Type {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // Default zero value enumeration
-  TYPE_UNSPECIFIED = 0 [ (gogoproto.enumvalue_customname) = "UNSPECIFIED" ];
+  TYPE_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "UNSPECIFIED"];
   // Execute a transaction on an interchain accounts host chain
-  TYPE_EXECUTE_TX = 1 [ (gogoproto.enumvalue_customname) = "EXECUTE_TX" ];
+  TYPE_EXECUTE_TX = 1 [(gogoproto.enumvalue_customname) = "EXECUTE_TX"];
 }
 
 // InterchainAccountPacketData is comprised of a raw transaction, type of
@@ -28,4 +28,6 @@ message InterchainAccountPacketData {
 
 // CosmosTx contains a list of sdk.Msg's. It should be used when sending
 // transactions to an SDK host chain.
-message CosmosTx { repeated google.protobuf.Any messages = 1; }
+message CosmosTx {
+  repeated google.protobuf.Any messages = 1;
+}

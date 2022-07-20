@@ -1,10 +1,12 @@
 syntax = "proto3";
+
 package evmos.incentives.v1;
 
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
-import "cosmos/base/v1beta1/coin.proto";
-option go_package = "github.com/evmos/evmos/v6/x/incentives/types";
+
+option go_package = "github.com/evmos/evmos/v7/x/incentives/types";
 
 // Incentive defines an instance that organizes distribution conditions for a
 // given smart contract
@@ -19,8 +21,10 @@ message Incentive {
   // number of remaining epochs
   uint32 epochs = 3;
   // distribution start time
-  google.protobuf.Timestamp start_time = 4
-      [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
+  google.protobuf.Timestamp start_time = 4 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
   // cumulative gas spent by all gasmeters of the incentive during the epoch
   uint64 total_gas = 5;
 }
