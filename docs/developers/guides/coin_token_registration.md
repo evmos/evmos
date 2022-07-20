@@ -2,9 +2,9 @@
 order: 3
 -->
 
-# ERC-20 Registration
+# Cosmos Coin & ERC-20 Token Registration
 
-Learn how to register interoperable ERC-20s through [Evmos Governance](../../users/governance/overview.md). {synopsis}
+Learn how to register Cosmos Coins and interoperable ERC-20 tokens through [Evmos Governance](../../users/governance/overview.md). {synopsis}
 
 The ERC-20 Module (also known as `x/erc20`) allows users to instantly convert [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20) tokens into native Cosmos Coins, and vice versa. This allows users to exchange assets interchangeably in two entirely different layers, the EVM and Cosmos.
 
@@ -13,19 +13,28 @@ Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrat
 - earning $OSMO staking rewards
 - taking part in governance proposals by voting with $ATOM
 
-Registering an interoperable ERC-20 means registering a new mapping between an ERC-20 token contract and a Cosmos Coin denomination, also known as a Token Pair. Token Pairs enable users to convert ERC-20 tokens into their native Cosmos Coin representation, and can only be created via a governance proposal.
+Registering Cosmos Coins and interoperable ERC-20 tokens means registering a new mapping between an ERC-20 token contract and a Cosmos Coin denomination, also known as a Token Pair. Token Pairs enable users to convert ERC-20 tokens into their native Cosmos Coin representation, and can only be created via a governance proposal.
 
-More information on ERC-20s can be found in [this blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273), which introduced the ERC-20 Module on Evmos.
+More information on the `x/erc20` module can be found in [this blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273), which introduced the ERC-20 Module on Evmos.
 
-To register an ERC-20, consider the following stages:
+To register a Cosmos Coin or an ERC-20, consider the following stages:
 
-1. [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
-2. [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
-3. [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+1. [Drafting the Registration Proposal](#drafting-the-registration-proposal)
+2. [Submitting the Registration Proposal](#submitting-the-registration-proposal)
+3. [The On-Chain Registration Proposal](#the-on-chain-registration-proposal)
 
-## Drafting the ERC-20 Proposal
+:::tip
+**Note**: The following details the difference between Cosmos Coin registration and ERC-20 token registration.
 
-The following topics must be addressed when drafting an ERC-20 Proposal:
+- Cosmos Coin Registration: When a proposal is initiated to register an existing native Cosmos Coin, the `x/erc20` module will deploy a factory ERC-20 contract. This contract represents the ERC-20 token for the Token Pair, and the `x/erc20` module is given ownership of that contract.
+
+- ERC-20 Token Registration: When a proposal is initiated to register an existing interoperable ERC-20 token, the ERC-20 token maintains the original owner of the token's contract and uses an escrow & mint / burn & unescrow mechanism similar to the one defined by the [ICS-20: Fungible Token Transfer](https://github.com/cosmos/ibc/tree/master/spec/app/ics-020-fungible-token-transfer) specification. The Token Pair is composed of the original ERC-20 token, and a corresponding native Cosmos Coin denomination.
+
+:::
+
+## Drafting the Registration Proposal
+
+The following topics must be addressed when drafting a Cosmos Coin or ERC-20 Registration Proposal:
 
 1. Applicant(s) - the profile of the person(s)/entity making the proposal
     - who you are and your involvement in Cosmos and/or other blockchain networks
@@ -42,7 +51,7 @@ The following topics must be addressed when drafting an ERC-20 Proposal:
     - a brief explanation of the precautions taken, how it was tested, and who was consulted prior to making the proposal
     - a breakdown of the proposal's payload, and third-party review
     - a brief explanation of the risks involved (depending on the direction of IBC Coin, ERC-20)
-    - ensure the following are both adhered to and documented:
+    - **if registering an interoperable ERC-20 token (not a Cosmos Coin)**, ensure the following are both adhered to and documented:
         - the contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev))
         - the contracts are deployed open-source
         - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
@@ -52,9 +61,9 @@ The following topics must be addressed when drafting an ERC-20 Proposal:
 
 Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
-## Submitting the ERC-20 Proposal
+## Submitting the Registration Proposal
 
-After the drafting process, the ERC-20 Proposal can be submitted.
+After the drafting process, the Registration Proposal can be submitted.
 
 ### Formatting the Proposal's Text
 
@@ -93,7 +102,7 @@ You may want to submit your proposal to the testnet chain before the mainnet for
 
 Submitting your proposal to the testnet increases the likelihood of engagement and the possibility that you will be alerted to a flaw before deploying your proposal to mainnet.
 
-## The On-Chain ERC-20 Proposal
+## The On-Chain Registration Proposal
 
 :::tip
 **Note**: To learn how to submit a proposal to mainnet, see above, and also check out the [submitting guide](../../users/governance/submitting.md).
