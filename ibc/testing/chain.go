@@ -96,6 +96,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 		Signers:       signers,
 		SenderPrivKey: senderPrivKey,
 		SenderAccount: acc,
+		NextVals:      valSet,
 	}
 
 	coord.CommitBlock(chain)
