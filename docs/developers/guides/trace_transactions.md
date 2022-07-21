@@ -302,7 +302,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","param
 {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
 ```
 
-# Additional Information
+## Additional Information
 
 See the sources below for details not covered above:
 
