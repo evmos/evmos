@@ -18,28 +18,39 @@ protoc_gen_doc() {
 protoc_gen_gocosmos
 protoc_gen_doc
 
-proto_dirs=$(find ./proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
-# TODO: migrate to `buf build`
-for dir in $proto_dirs; do
-  buf alpha protoc \
-  -I "proto" \
-  -I "third_party/proto" \
-  --gocosmos_out=plugins=interfacetype+grpc,\
-Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:. \
-  --grpc-gateway_out=logtostderr=true:. \
-  $(find "${dir}" -maxdepth 1 -name '*.proto')
+# need to install statik on the docker image
+go install github.com/rakyll/statik
 
+# create temporary folder to store intermediate results from `buf build` + `buf generate`
+mkdir -p ./tmp-swagger-gen
+
+# build .proto files and generate code for the proto/ directory
+buf build proto
+buf generate proto --template buf.gen.proto.yaml
+
+# create additional swagger files on an individual basis  w/ `buf build` and `buf generate` (needed for `swagger-combine`)
+proto_dirs=$(find ./proto ./third_party/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+for dir in $proto_dirs; do
+
+  # generate swagger files (filter query files)
+  query_file=$(find "${dir}" -maxdepth 1 \( -name 'query.proto' -o -name 'service.proto' \))
+  if [[ ! -z "$query_file" ]]; then
+    buf build --path "$query_file"
+    buf generate --path "$query_file" --template buf.gen.swagger.yaml
+  fi
 done
 
-# command to generate docs using protoc-gen-doc
-# TODO: migrate to `buf build`
-buf alpha protoc \
--I "proto" \
--I "third_party/proto" \
---doc_out=./docs/protocol \
---doc_opt=./docs/protodoc-markdown.tmpl,proto-docs.md \
-$(find "$(pwd)/proto" -maxdepth 5 -name '*.proto')
-
-# move proto files to the right places
+# move resulting files to the right places
 cp -r github.com/evmos/evmos/v*/x/* x/
 rm -rf github.com
+
+# combine swagger files
+# uses nodejs package `swagger-combine`.
+# all the individual swagger files need to be configured in `config.json` for merging
+swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
+
+# clean swagger files
+rm -rf ./tmp-swagger-gen
+
+# generate binary for static server (use -f flag to replace current binary)
+statik -f -src=./client/docs/swagger-ui -dest=./client/docs

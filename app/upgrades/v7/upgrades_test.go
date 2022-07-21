@@ -21,6 +21,7 @@ import (
 	v7 "github.com/evmos/evmos/v6/app/upgrades/v7"
 	"github.com/evmos/evmos/v6/testutil"
 	evmostypes "github.com/evmos/evmos/v6/types"
+	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
 )
 
 type UpgradeTestSuite struct {
@@ -148,6 +149,53 @@ func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
 
 			newSkippedEpochs := suite.app.InflationKeeper.GetSkippedEpochs(suite.ctx)
 			suite.Require().Equal(tc.expectedSkippedEpochs, newSkippedEpochs)
+		})
+	}
+}
+
+func (suite *UpgradeTestSuite) TestMigrateClaim() {
+	from, err := sdk.AccAddressFromBech32(v7.ContributorAddrFrom)
+	suite.Require().NoError(err)
+	to, err := sdk.AccAddressFromBech32(v7.ContributorAddrTo)
+	suite.Require().NoError(err)
+	cr := claimstypes.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(100), ActionsCompleted: []bool{false, false, false, false}}
+
+	testCases := []struct {
+		name     string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"with claims record",
+			func() {
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, from, cr)
+			},
+			true,
+		},
+		{
+			"without claims record",
+			func() {
+			},
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+
+			tc.malleate()
+
+			v7.MigrateContributorClaim(suite.ctx, suite.app.ClaimsKeeper)
+
+			_, foundFrom := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, from)
+			crTo, foundTo := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, to)
+			if tc.expPass {
+				suite.Require().False(foundFrom)
+				suite.Require().True(foundTo)
+				suite.Require().Equal(crTo, cr)
+			} else {
+				suite.Require().False(foundTo)
+			}
 		})
 	}
 }

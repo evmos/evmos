@@ -14,4 +14,9 @@ const (
 	FaucetAddressFrom = "evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze"
 	// FaucetAddressTo is the new eth_secp address of the Testnet Faucet
 	FaucetAddressTo = "evmos1ujm4z5v9zkdqm70xnptr027gqu90f7lxjr0fch"
+
+	// ContributorAddrFrom is the lost address of an early contributor
+	ContributorAddrFrom = "evmos1659xwt0hnu5humgek7scefhnpcm2w6hyvy4fsq"
+	// ContributorAddrTo is the new address of an early contributor
+	ContributorAddrTo = "evmos1pktlmqrz448cuazl98tqmsj4kjwpqpmaa0cjcf"
 )
