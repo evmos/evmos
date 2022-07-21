@@ -8,17 +8,13 @@ Learn how to trace transactions and blocks on Evmos. {synopsis}
 
 This guide will cover the following topics:
 
-- [basic EVM tracing](#basic-evm-tracing)
-- [filtered EVM tracing](#filtered-evm-tracing)
-- [`debug_trace*` endpoints](#debugtrace-endpoints)
+- [basic EVM tracing with JS](#basic-evm-tracing-with-js)
+- [filtered EVM tracing with JS](#filtered-evm-tracing-with-js)
+- [JSON-RPC `debug_trace*` endpoints](#json-rpc-debugtrace-endpoints)
 
-## Basic EVM Tracing
+## Basic EVM Tracing with JS
 
-:::tip
-**Note**: For more detailed information on basic EVM tracing, check out [this page](https://geth.ethereum.org/docs/dapp/tracing).
-:::
-
-Tracing a transaction means requesting an Evmos node to re-execute the desired transaction with varying degrees of data collection, and have it return the aggregated summary for post processing.
+Tracing a transaction means requesting an Evmos node to re-execute the desired transaction with varying degrees of data collection.
 
 ### Tracing Prerequisites
 
@@ -88,11 +84,7 @@ Although raw opcode traces generated above are useful, having an individual log 
 
 To avoid these issues, [Geth](https://geth.ethereum.org/) supports running custom JavaScript traces *within* the Evmos (or any EVM-compatible) node, which have full access to the EVM stack, memory, and contract storage. This means developers only have to gather data that they actually need, and do any processing at the source.
 
-## Filtered EVM Tracing
-
-:::tip
-**Note**: For more detailed information on filtered EVM tracing, check out [this page](https://web.archive.org/web/20211215184312/https://geth.ethereum.org/docs/dapp/tracing-filtered).
-:::
+## Filtered EVM Tracing with JS
 
 Basic traces can include the complete status of the EVM at every point in the transaction's execution, which is huge space-wise. Usually, developers are only interested in a small subset of this information, which can be obtained by specifying a JavaScript filter.
 
@@ -258,52 +250,62 @@ There are several other facets of filtered EVM tracing, including:
 
 This information is covered in [this reference](https://geth.ethereum.org/docs/rpc/ns-debug#javascript-based-tracing).
 
-## `debug_trace*` Endpoints
+## JSON-RPC `debug_trace*` Endpoints
 
-:::tip
-**Note**: For additional information about JSON-RPC Methods on Evmos, check out [this document](../json-rpc/endpoints.md).
-:::
+Evmos supports the following `debug_trace*` JSON-RPC Methods, which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/rpc/ns-debug).
 
-Evmos supports the following `debug_trace*` JSON-RPC Methods, which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/rpc/ns-debug):
+### `debug_traceTransaction`
 
-- `debug_traceTransaction`: The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network. It will replay any transaction that may have been executed prior to this one, before it will finally attempt to execute the transaction that corresponds to the given hash.
+The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network. It will replay any transaction that may have been executed prior to this one, before it will finally attempt to execute the transaction that corresponds to the given hash.
 
-    **Parameters**:
+**Parameters**:
 
-    - trace configuration
+- trace configuration
 
-    ```bash
-    # Request
-    curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceTransaction","params":[<transaction hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+```bash
+# Request
+curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceTransaction","params":[<transaction hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
 
-    # Result
-    {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
-    ```
+# Result
+{"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
+```
 
-- `debug_traceBlockByNumber`: The `traceBlockByNumber` endpoint accepts a block number, and will replay the block that is already present in the database.
+### `debug_traceBlockByNumber`
 
-    **Parameters**:
+The `traceBlockByNumber` endpoint accepts a block number, and will replay the block that is already present in the database.
 
-    - trace configuration
+**Parameters**:
 
-    ```bash
-    # Request
-    curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block number>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+- trace configuration
 
-    # Result
-    {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
-    ```
+```bash
+# Request
+curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block number>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
 
-- `debug_traceBlockByHash`: The `traceBlockByNumber` endpoint accepts a block hash, and will replay the block that is already present in the database.
+# Result
+{"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
+```
 
-    **Parameters**:
+### `debug_traceBlockByHash`
 
-    - trace configuration
+The `traceBlockByNumber` endpoint accepts a block hash, and will replay the block that is already present in the database.
 
-    ```bash
-    # Request
-    curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+**Parameters**:
 
-    # Result
-    {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
-    ```
+- trace configuration
+
+```bash
+# Request
+curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+
+# Result
+{"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
+```
+
+# Additional Information
+
+See the sources below for details not covered above:
+
+- [JSON-RPC Methods on Evmos](../json-rpc/endpoints.md)
+- [Basic EVM Tracing](https://geth.ethereum.org/docs/dapp/tracing)
+- [Filtered EVM Tracing](https://web.archive.org/web/20211215184312/https://geth.ethereum.org/docs/dapp/tracing-filtered)

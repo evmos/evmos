@@ -47,7 +47,7 @@ Congrats ☄️☄️☄️ Now that you've registered a feesplit for your contr
 
 ### Deployed Factory Pattern
 
-You can also register a contract which has been deployed by a smart contract instead of an EOA. In this case, you need to provide a sequence of nonces that proves the trace from an original deployer who deployed the factory to the contract that is being registered.
+You can also register a contract which has been deployed by a smart contract instead of an [EOA](https://docs.evmos.org/modules/evm/01_concepts.html#accounts). In this case, you need to provide a sequence of nonces that proves the trace from an original deployer who deployed the factory to the contract that is being registered.
 
 **Example** `DeployerEOA` -> `FactoryA` -> `FactoryB`-> `MyContract`: `DeployerEOA` deploys a `FactoryA` smart contract with nonce `5`. Then, `DeployerEOA` sends a transaction to `FactoryA` through which a `FactoryB` smart contract is created. If we assume `FactoryB` is the second contract created by `FactoryA`, then `FactoryA`'s nonce is `2`. Then, `DeployerEOA` sends a transaction to the `FactoryB` contract, through which `MyContract` is created. If this is the first contract created by FactoryB - the nonce is `1`. To be able to verify that `DeployerEOA` can register `MyContract`, we need to provide the following nonces: `[5, 2, 1]`.
 
