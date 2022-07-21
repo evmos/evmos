@@ -48,7 +48,7 @@ After the user's wallet type has been determined, developers can proceed with cr
 **Note**: The example below uses the Evmos Testnet `chainID`. For more info, check the Evmos Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
 :::
 
-Developers can create `MsgSend` transactions using the [evmosjs](libraries/evmosjs.md) library.
+Developers can create `MsgSend` transactions using the [evmosjs](../libraries/evmosjs.md) library.
 
 ```js
 import { createMessageSend } from @tharsis/transactions
