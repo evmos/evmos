@@ -253,6 +253,6 @@ You may want to submit your proposal to the testnet chain before the mainnet for
 
 Submitting your proposal to the testnet increases the likelihood that you will discover a flaw before deploying your proposal on mainnet. A few things to keep in mind:
 
-- you'll need testnet tokens for your proposal (ask around for a [faucet](./../../developers/faucet.md))
+- you'll need testnet tokens for your proposal (ask around for a [faucet](./../../developers/testnet/faucet.md))
 - the parameters for testnet proposals are different (eg. voting period timing, deposit amount, deposit denomination)
 - the deposit denomination is in `'atevmos'` instead of `'aevmos'`

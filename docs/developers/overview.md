@@ -13,7 +13,7 @@ Please find the following resources for in-depth information:
 - **[Quick Connect](./connect.md)**: List of publicly available endpoints.
 - **[Evmos Clients](./clients.md)**: Description of available clients.
 - **[Block Explorers](./explorers.md)**: List of block explorers available for Evmos.
-- **[Testnet Faucet](./faucet.md)**: Explaination of faucet use to obtain testnet tokens.
+- **[Testnet Faucet](./testnet/faucet.md)**: Explaination of faucet use to obtain testnet tokens.
 - **Localnet**: Instructions on how to configure a local instance of the Evmos blockchain.
     - **[Single Node](./localnet/single_node.md)**: Run a single local node.
     - **[Multi Node](./localnet/multi_node.md)**: Run a local testnet with multiple nodes.

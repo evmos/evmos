@@ -13,7 +13,7 @@ The Evmos dApp store is a revenue-per-transaction model, which allows developers
 Developers register their application in the dApp store by registering their application's smart contracts. Any contract can be registered by a developer by submitting a signed transaction. The signer of this transaction must match the address of the deployer of the contract in order for the registration to succeed. After the transaction is executed successfully, the developer will start receiving a portion of the transaction fees paid when a user interacts with the registered contract.
 
 ::: tip
- **NOTE**: If your contract is part of a developer project, please ensure that the deployer of the contract (or the factory that deployes the contract) is an account that is owned by that project. THis avoids that an individual deployer who leaves your project becomes malicious.
+ **NOTE**: If your contract is part of a developer project, please ensure that the deployer of the contract (or the factory that deployes the contract) is an account that is owned by that project. This avoids the situtation, that an individual deployer who leaves your project could become malicious.
 :::
 
 ## Fee Distribution

@@ -11,6 +11,7 @@ Check the details and requirements for each mainnet and testnet upgrade. {synops
 
 | Version                                                                  | Planned | Breaking | Data Reset | Manual Upgrade Only | Upgrade Height                                            |
 | ------------------------------------------------------------------------ | :-----: | :------: | :--------: | :-----------------: | --------------------------------------------------------- |
+| [`v6.0.2`](https://github.com/evmos/evmos/releases/tag/v6.0.2)           |   ✅    |    ❌    |     ❌     |         ✅          |                                                           |
 | [`v6.0.1`](https://github.com/evmos/evmos/releases/tag/v6.0.1)           |   ✅    |    ✅    |     ❌     |         ❌          | [1,042,000](https://www.mintscan.io/evmos/blocks/1042000) |
 | [`v5.0.0`](https://github.com/evmos/evmos/releases/tag/v5.0.0)           |   ✅    |    ✅    |     ❌     |         ❌          | [837,500](https://www.mintscan.io/evmos/blocks/837500)    |
 | [`v4.0.1`](https://github.com/evmos/evmos/releases/tag/v4.0.1)           |   ❌    |    ✅    |     ❌     |         ❌          | [257,850](https://www.mintscan.io/evmos/blocks/257850)    |
@@ -24,6 +25,7 @@ Check the details and requirements for each mainnet and testnet upgrade. {synops
 
 | Version                                                                              | Planned | Breaking | Data Reset | Manual Upgrade Only | Upgrade Height                                                        |
 | ------------------------------------------------------------------------------------ | :-----: | :------: | :--------: | :-----------------: | --------------------------------------------------------------------- |
+| [`v6.0.2`](https://github.com/evmos/evmos/releases/tag/v6.0.2)                       |   ✅    |    ❌    |     ❌     |         ✅          |                                                                       |
 | [`v6.0.1`](https://github.com/evmos/evmos/releases/tag/v6.0.1)                       |   ✅    |    ✅    |     ❌     |         ❌          | [2,176,500](https://testnet.mintscan.io/evmos-testnet/blocks/2176500) |
 | [`v5.0.0`](https://github.com/evmos/evmos/releases/tag/v5.0.0)                       |   ✅    |    ✅    |     ❌     |         ❌          | [1,762,500](https://testnet.mintscan.io/evmos-testnet/blocks/1762500) |
 | [`v4.0.1`](https://github.com/evmos/evmos/releases/tag/v4.0.1)                       |   ✅    |    ✅    |     ❌     |         ❌          | [1,200,000](https://testnet.mintscan.io/evmos-testnet/blocks/1200000) |
