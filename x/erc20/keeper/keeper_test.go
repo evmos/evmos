@@ -14,6 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -22,7 +24,6 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -48,6 +49,8 @@ import (
 	"github.com/evmos/evmos/v7/app"
 	"github.com/evmos/evmos/v7/contracts"
 	"github.com/evmos/evmos/v7/x/erc20/types"
+
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type KeeperTestSuite struct {
@@ -102,7 +105,28 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector
 		coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(int64(params.TxGas)-1)))
-		genesisState := app.ModuleBasics.DefaultGenesis(suite.app.AppCodec())
+		// genesisState := app.ModuleBasics.DefaultGenesis(suite.app.AppCodec())
+		privVal := mock.NewPV()
+		pubKey, err := privVal.GetPubKey()
+		if err != nil {
+			panic(err)
+		}
+		// create validator set with single validator
+		validator := tmtypes.NewValidator(pubKey, 1)
+		valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+
+		// generate genesis account
+		senderPrivKey := secp256k1.GenPrivKey()
+		acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+		balance := banktypes.Balance{
+			Address: acc.GetAddress().String(),
+			Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
+		}
+
+		genesisState := app.NewDefaultGenesisState()
+
+		genesisState = app.GenesisStateWithValSet(suite.app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
+
 		balances := []banktypes.Balance{
 			{
 				Address: suite.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName).String(),
