@@ -26,7 +26,7 @@ mkdir -p ./tmp-swagger-gen
 
 # build .proto files and generate code for the proto/ directory
 buf build proto
-buf generate proto
+buf generate proto --template buf.gen.proto.yaml
 
 # create additional swagger files on an individual basis  w/ `buf build` and `buf generate` (needed for `swagger-combine`)
 proto_dirs=$(find ./proto ./third_party/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
@@ -36,7 +36,7 @@ for dir in $proto_dirs; do
   query_file=$(find "${dir}" -maxdepth 1 \( -name 'query.proto' -o -name 'service.proto' \))
   if [[ ! -z "$query_file" ]]; then
     buf build --path "$query_file"
-    buf generate --path "$query_file"
+    buf generate --path "$query_file" --template buf.gen.swagger.yaml
   fi
 done
 
