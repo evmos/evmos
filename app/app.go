@@ -1080,6 +1080,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.BankKeeper,
 			app.InflationKeeper,
+			app.ClaimsKeeper,
 		),
 	)
 
