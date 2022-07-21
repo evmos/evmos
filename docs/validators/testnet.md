@@ -117,7 +117,7 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmos
 
 ## Run a Testnet Validator
 
-Claim your testnet {{ $themeConfig.project.testnet_denom }} on the [faucet](./../developers/faucet.md) using your validator account address and submit your validator account address:
+Claim your testnet {{ $themeConfig.project.testnet_denom }} on the [faucet](./../developers/testnet/faucet.md) using your validator account address and submit your validator account address:
 
 ::: tip
 For more details on how to run your validator, follow [these](./setup/run_validator.md) instructions.

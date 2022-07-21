@@ -6,7 +6,7 @@ order: 2
 
 This guide explains how to register your smart contract in the Evmos dApp store, and start earning income every time a user interacts with your smart contract. {synopsis}
 
-The Evmos dApp store is a revenue-per-transaction model, which allows developers to get paid for deploying their decentralized application (dApps) on Evmos. Developers generate revenue every time a user interacts with their dApp in the dApp store, providing them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the [x/feesplit module](../../modules/feesplit/01_concepts.md).
+The Evmos dApp store is a revenue-per-transaction model, which allows developers to get paid for deploying their decentralized application (dApps) on Evmos. Developers generate revenue every time a user interacts with their dApp in the dApp store, providing them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the [x/feesplit module](../../../x/feesplit/spec/01_concepts.md).
 
 ## Requirements
 
@@ -43,11 +43,11 @@ After your transaction is submitted successfully, you can query your `feesplit` 
 evmosd q feesplit contract $CONTRACT
 ```
 
-Congrats ☄️☄️☄️ Now that you've registered a feesplit for your contract, it is part of the Evmos dApp store and you will receive a cut of the transaction fees every time a user interacts with your contract. If you wondering how large your cut is, have a look at the [feesplit parameter `DeveloperShares`](../../modules/feesplit/07_parameters.md#developer-shares-amount), which is controlled through governance. You can query the parameters using our [OpenAPI documentation](https://api.evmos.org).
+Congrats ☄️☄️☄️ Now that you've registered a feesplit for your contract, it is part of the Evmos dApp store and you will receive a cut of the transaction fees every time a user interacts with your contract. If you wondering how large your cut is, have a look at the [feesplit parameter `DeveloperShares`](../../../x/feesplit/spec/07_parameters.md#developer-shares-amount), which is controlled through governance. You can query the parameters using our [OpenAPI documentation](https://api.evmos.org).
 
 ### Deployed Factory Pattern
 
-You can also register a contract which has been deployed by a smart contract instead of an [EOA](../../modules/evm/01_concepts.md#accounts). In this case, you need to provide a sequence of nonces that proves the trace from an original deployer who deployed the factory to the contract that is being registered.
+You can also register a contract which has been deployed by a smart contract instead of an [EOA](https://docs.evmos.org/modules/evm/01_concepts.html#accounts). In this case, you need to provide a sequence of nonces that proves the trace from an original deployer who deployed the factory to the contract that is being registered.
 
 **Example** `DeployerEOA` -> `FactoryA` -> `FactoryB`-> `MyContract`: `DeployerEOA` deploys a `FactoryA` smart contract with nonce `5`. Then, `DeployerEOA` sends a transaction to `FactoryA` through which a `FactoryB` smart contract is created. If we assume `FactoryB` is the second contract created by `FactoryA`, then `FactoryA`'s nonce is `2`. Then, `DeployerEOA` sends a transaction to the `FactoryB` contract, through which `MyContract` is created. If this is the first contract created by FactoryB - the nonce is `1`. To be able to verify that `DeployerEOA` can register `MyContract`, we need to provide the following nonces: `[5, 2, 1]`.
 
