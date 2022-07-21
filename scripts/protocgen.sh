@@ -19,7 +19,7 @@ protoc_gen_gocosmos
 protoc_gen_doc
 
 # need to install statik on the docker image
-go get github.com/rakyll/statik
+go install github.com/rakyll/statik
 
 # create temporary folder to store intermediate results from `buf build` + `buf generate`
 mkdir -p ./tmp-swagger-gen
