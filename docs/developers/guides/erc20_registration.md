@@ -5,7 +5,7 @@ order: 3
 # ERC-20 Registration
 
 :::tip
-**Note**: Not sure what the difference between Cosmos Coin and ERC-20 Registration is? You're in the right place if an ERC-20 contract corresponding to your token already exists, and you want to add functionality to convert the ERC-20 token to a native Cosmos Coin denomination. If you instead want to add functionality to convert a native Cosmos Coin to an ERC-20 token representation, then check out [Cosmos Coin Registration](./cosmoscoin_registration.md).
+**Note**: Not sure what the difference between Cosmos Coin and ERC-20 Registration is? You're in the right place if an ERC-20 contract corresponding to your token already exists, and you want to add functionality to convert the ERC-20 token to a native Cosmos Coin denomination. If you instead want to add functionality to convert a native Cosmos Coin to an ERC-20 token representation, then check out [Cosmos Coin Registration](./cosmos_coin_registration.md).
 
 Still confused? Learn more about the differences [here](../../../x/erc20/spec/01_concepts.md).
 :::

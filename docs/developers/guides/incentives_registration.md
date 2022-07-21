@@ -74,9 +74,9 @@ with the following arguments:
 - `$ALLOCATION`: Denominations and percentage of the total rewards (25% of block distribution) to be allocated to users that interact and spend gas using the `$CONTRACTADDRESS` (eg. `"0.005000000000000000aevmos"` will distribute 0.5% of out of the 25% tokens minted on each daily epoch rewards).
 - `$NUMWEEKS`: Number of weeks (counted by epochs) that you want the `$CONTRACTADDRESS` to be incentivized for.
 
-  - 6 months (`26` epochs): recommended for long-term incentives on apps that have a lot of traction
-  - 3 months (`13` epochs): recommended for long-term incentives on apps that have some traction
-  - 1 months (`4` epochs): recommended for short-term incentives on apps that don't have much traction
+    - 6 months (`26` epochs): recommended for long-term incentives on apps that have a lot of traction
+    - 3 months (`13` epochs): recommended for long-term incentives on apps that have some traction
+    - 1 months (`4` epochs): recommended for short-term incentives on apps that don't have much traction
 
 See below for an example using [Diffusion Finance's](https://diffusion.fi/) router contract:
 
