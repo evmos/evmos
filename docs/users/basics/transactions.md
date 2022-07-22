@@ -38,7 +38,7 @@ Explain that transactions can interoperate with other blockchains.
 
 Ethereum transactions refer to actions initiated by EOAs (externally-owned accounts, managed by humans), rather than internal smart contract calls. Ethereum transactions transform the state of the EVM and therefore must be broadcasted to the entire network.
 
-Ethereum transactions also require a fee, known as `gas`. ([EIP-1559])(https://eips.ethereum.org/EIPS/eip-1559) introduced the idea of a base fee, along with a priority fee which serves as an incentive for miners to include specific transactions in blocks.
+Ethereum transactions also require a fee, known as `gas`. ([EIP-1559](https://eips.ethereum.org/EIPS/eip-1559)) introduced the idea of a base fee, along with a priority fee which serves as an incentive for miners to include specific transactions in blocks.
 
 There are several categories of Ethereum transactions:
 
@@ -56,7 +56,7 @@ Evmos supports the following Ethereum transactions.
 
 - Dynamic Fee Transactions ([EIP-1559](https://eips.ethereum.org/EIPS/eip-1559))
 - Access List Transactions ([EIP-2930](https://eips.ethereum.org/EIPS/eip-2930))
-- Legacy Transactions ([EIP-2718])(https://eips.ethereum.org/EIPS/eip-2718))
+- Legacy Transactions ([EIP-2718](https://eips.ethereum.org/EIPS/eip-2718))
 
 ### Interchain Transactions
 

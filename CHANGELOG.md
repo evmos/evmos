@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+- (build) [\#725](https://github.com/evmos/evmos/pull/725) Migrate Protobuf code generator to [Protobuf Workspaces](https://docs.buf.build/reference/workspaces)
+
 ### Bug Fixes
 
 - (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
