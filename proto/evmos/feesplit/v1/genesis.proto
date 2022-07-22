@@ -10,9 +10,9 @@ option go_package = "github.com/evmos/evmos/v7/x/feesplit/types";
 // GenesisState defines the module's genesis state.
 message GenesisState {
   // module parameters
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
   // active registered contracts for fee distribution
-  repeated FeeSplit fee_splits = 2 [(gogoproto.nullable) = false];
+  repeated FeeSplit fee_splits = 2 [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the feesplit module params

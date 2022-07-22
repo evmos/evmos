@@ -10,11 +10,11 @@ option go_package = "github.com/evmos/evmos/v7/x/incentives/types";
 // GenesisState defines the module's genesis state.
 message GenesisState {
   // module parameters
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
   // active incentives
-  repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
+  repeated Incentive incentives = 2 [ (gogoproto.nullable) = false ];
   // active Gasmeters
-  repeated GasMeter gas_meters = 3 [(gogoproto.nullable) = false];
+  repeated GasMeter gas_meters = 3 [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the incentives module params
