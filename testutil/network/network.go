@@ -110,7 +110,7 @@ func DefaultConfig() Config {
 		TimeoutCommit:     2 * time.Second,
 		ChainID:           fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1),
 		NumValidators:     4,
-		BondDenom:         ethermint.AttoPhoton,
+		BondDenom:         "aevmos",
 		MinGasPrices:      fmt.Sprintf("0.000006%s", ethermint.AttoPhoton),
 		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, sdk.DefaultPowerReduction),
 		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, sdk.DefaultPowerReduction),
