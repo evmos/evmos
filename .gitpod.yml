@@ -9,6 +9,5 @@ tasks:
     command: 
       go install golang.org/x/tools/cmd/goimports@latest
       go install mvdan.cc/gofumpt@latest
-      make tools
-
+      sudo make tools
 
