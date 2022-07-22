@@ -10,15 +10,15 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v6/ibc"
-	evmos "github.com/evmos/evmos/v6/types"
-	"github.com/evmos/evmos/v6/x/recovery/types"
+	"github.com/evmos/evmos/v7/ibc"
+	evmos "github.com/evmos/evmos/v7/types"
+	"github.com/evmos/evmos/v7/x/recovery/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It returns the tokens that
@@ -53,7 +53,7 @@ func (k Keeper) OnRecvPacket(
 	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	// return error ACK if the address is on the deny list
@@ -63,7 +63,7 @@ func (k Keeper) OnRecvPacket(
 				types.ErrBlockedAddress,
 				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
 				senderBech32, recipientBech32,
-			).Error(),
+			),
 		)
 	}
 
@@ -165,7 +165,7 @@ func (k Keeper) OnRecvPacket(
 			sdkerrors.Wrapf(
 				err,
 				"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
-			).Error(),
+			),
 		)
 	}
 

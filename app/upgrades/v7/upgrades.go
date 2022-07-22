@@ -7,9 +7,11 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/evmos/evmos/v6/types"
-	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
-	inflationkeeper "github.com/evmos/evmos/v6/x/inflation/keeper"
+	"github.com/evmos/evmos/v7/types"
+	inflationkeeper "github.com/evmos/evmos/v7/x/inflation/keeper"
+  claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
+
+
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v7

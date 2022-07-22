@@ -63,7 +63,7 @@ func (va ClawbackVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coins {
 // GetVestingCoins returns the total number of vesting coins. If no coins are
 // vesting, nil is returned.
 func (va ClawbackVestingAccount) GetVestingCoins(blockTime time.Time) sdk.Coins {
-	return va.OriginalVesting.Sub(va.GetVestedCoins(blockTime))
+	return va.OriginalVesting.Sub(va.GetVestedCoins(blockTime)...)
 }
 
 // LockedCoins returns the set of coins that are not spendable (i.e. locked),
@@ -139,7 +139,7 @@ func (va ClawbackVestingAccount) GetUnlockedOnly(blockTime time.Time) sdk.Coins 
 
 // GetLockedOnly returns the locking schedule at blockTIme.
 func (va ClawbackVestingAccount) GetLockedOnly(blockTime time.Time) sdk.Coins {
-	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime))
+	return va.OriginalVesting.Sub(va.GetUnlockedOnly(blockTime)...)
 }
 
 // GetVestedOnly returns the vesting schedule at blockTime.
@@ -149,7 +149,7 @@ func (va ClawbackVestingAccount) GetVestedOnly(blockTime time.Time) sdk.Coins {
 
 // GetUnvestedOnly returns the unvesting schedule at blockTime.
 func (va ClawbackVestingAccount) GetUnvestedOnly(blockTime time.Time) sdk.Coins {
-	totalUnvested := va.OriginalVesting.Sub(va.GetVestedOnly(blockTime))
+	totalUnvested := va.OriginalVesting.Sub(va.GetVestedOnly(blockTime)...)
 	if totalUnvested == nil {
 		totalUnvested = sdk.Coins{}
 	}

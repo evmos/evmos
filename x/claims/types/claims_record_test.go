@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/ethermint/tests"
 	"github.com/stretchr/testify/require"
 
@@ -240,7 +241,7 @@ func TestClaimsRecordAddressValidate(t *testing.T) {
 		},
 		{
 			"fail - empty int",
-			NewClaimsRecordAddress(addr, sdk.Int{}),
+			NewClaimsRecordAddress(addr, math.Int{}),
 			true,
 		},
 		{

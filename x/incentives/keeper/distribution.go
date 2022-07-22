@@ -4,13 +4,14 @@ import (
 	"math/big"
 	"strconv"
 
+	"cosmossdk.io/math"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v6/x/incentives/types"
+	"github.com/evmos/evmos/v7/x/incentives/types"
 )
 
 // DistributeRewards transfers the allocated rewards to the participants of a given
@@ -94,7 +95,7 @@ func (k Keeper) rewardAllocations(
 	ctx sdk.Context,
 ) (map[common.Address]sdk.Coins, sdk.Coins, error) {
 	// Get balances on incentive module account
-	denomBalances := make(map[string]sdk.Int)
+	denomBalances := make(map[string]math.Int)
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 
 	escrow := sdk.Coins{}
@@ -128,8 +129,8 @@ func (k Keeper) rewardAllocations(
 				}
 
 				// allocation for the contract is the amount escrowed * the allocation %
-				coinAllocated := denomBalances[al.Denom].ToDec().Mul(al.Amount)
-				amount := coinAllocated.TruncateInt()
+				coinAllocated := sdk.NewDecFromInt(denomBalances[al.Denom]).Mul(al.Amount).RoundInt()
+				amount := coinAllocated
 
 				// NOTE: safety check, shouldn't occur since the allocation and balance
 				// are > 0

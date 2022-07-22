@@ -10,32 +10,33 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v6/app"
-	"github.com/evmos/evmos/v6/testutil"
-	incentivestypes "github.com/evmos/evmos/v6/x/incentives/types"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
+	"github.com/evmos/evmos/v7/app"
+	"github.com/evmos/evmos/v7/testutil"
+	"github.com/evmos/evmos/v7/x/claims/types"
+	incentivestypes "github.com/evmos/evmos/v7/x/incentives/types"
+	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/evmos/ethermint/server/config"
 	evm "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v6/contracts"
-	"github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/contracts"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -337,7 +338,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 	)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
-	msg, err := govtypes.NewMsgSubmitProposal(content, deposit, accountAddress)
+	msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, accountAddress)
 	s.Require().NoError(err)
 
 	res := deliverTx(priv, msg)
@@ -354,7 +355,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	voteMsg := govtypes.NewMsgVote(accountAddress, proposalID, 2)
+	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 2)
 	deliverTx(priv, voteMsg)
 }
 

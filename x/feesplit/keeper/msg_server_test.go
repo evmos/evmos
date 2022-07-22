@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/ethermint/x/evm/statedb"
 
-	"github.com/evmos/evmos/v6/x/feesplit/types"
+	"github.com/evmos/evmos/v7/x/feesplit/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterFeeSplit() {

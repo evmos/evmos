@@ -12,9 +12,9 @@ import (
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v6/x/erc20/keeper"
-	"github.com/evmos/evmos/v6/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
+	"github.com/evmos/evmos/v7/x/erc20/keeper"
+	"github.com/evmos/evmos/v7/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 	erc20Name          = "Coin Token"
 	erc20Symbol        = "CTKN"
 	erc20Decimals      = uint8(18)
-	cosmosTokenBase    = "acoin"
+	cosmosTokenBase    = "aevmos"
 	cosmosTokenDisplay = "coin"
 	cosmosDecimals     = uint8(6)
 	defaultExponent    = uint32(18)
@@ -274,7 +274,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 
 			expPair := &types.TokenPair{
 				Erc20Address:  "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
-				Denom:         "acoin",
+				Denom:         "aevmos",
 				Enabled:       true,
 				ContractOwner: 1,
 			}

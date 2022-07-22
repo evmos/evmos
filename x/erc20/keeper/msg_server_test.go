@@ -11,8 +11,8 @@ import (
 
 	"github.com/evmos/ethermint/x/evm/statedb"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v6/x/erc20/keeper"
-	"github.com/evmos/evmos/v6/x/erc20/types"
+	"github.com/evmos/evmos/v7/x/erc20/keeper"
+	"github.com/evmos/evmos/v7/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
@@ -304,7 +304,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "acoin", Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "aevmos", Amount: sdk.OneInt()})
 			},
 			false,
 		},

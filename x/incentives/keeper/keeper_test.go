@@ -36,10 +36,10 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v6/app"
-	"github.com/evmos/evmos/v6/contracts"
-	epochstypes "github.com/evmos/evmos/v6/x/epochs/types"
-	"github.com/evmos/evmos/v6/x/incentives/types"
+	"github.com/evmos/evmos/v7/app"
+	"github.com/evmos/evmos/v7/contracts"
+	epochstypes "github.com/evmos/evmos/v7/x/epochs/types"
+	"github.com/evmos/evmos/v7/x/incentives/types"
 )
 
 var (
@@ -51,7 +51,7 @@ var (
 	participant     = tests.GenerateAddress()
 	participant2    = tests.GenerateAddress()
 	denomMint       = evm.DefaultEVMDenom
-	denomCoin       = "acoin"
+	denomCoin       = "aevmos"
 	allocationRate  = int64(5)
 	mintAllocations = sdk.DecCoins{
 		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),

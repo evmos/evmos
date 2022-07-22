@@ -1,10 +1,11 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/x/claims/types"
 )
 
 // ClaimCoinsForAction removes the claimable amount entry from a claims record
@@ -15,7 +16,7 @@ func (k Keeper) ClaimCoinsForAction(
 	claimsRecord types.ClaimsRecord,
 	action types.Action,
 	params types.Params,
-) (sdk.Int, error) {
+) (math.Int, error) {
 	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
 		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
@@ -172,7 +173,7 @@ func (k Keeper) GetClaimableAmountForAction(
 	claimsRecord types.ClaimsRecord,
 	action types.Action,
 	params types.Params,
-) (claimableCoins, remainder sdk.Int) {
+) (claimableCoins, remainder math.Int) {
 	// check if the entire airdrop has completed. This shouldn't occur since at
 	// the end of the airdrop, the EnableClaims param is disabled.
 	if !params.IsClaimsActive(ctx.BlockTime()) {
@@ -189,7 +190,7 @@ func (k Keeper) ClaimableAmountForAction(
 	claimsRecord types.ClaimsRecord,
 	action types.Action,
 	params types.Params,
-) (claimableCoins, remainder sdk.Int) {
+) (claimableCoins, remainder math.Int) {
 	// return zero if there are no coins to claim
 	if claimsRecord.InitialClaimableAmount.IsNil() || claimsRecord.InitialClaimableAmount.IsZero() {
 		return sdk.ZeroInt(), sdk.ZeroInt()
@@ -221,7 +222,8 @@ func (k Keeper) ClaimableAmountForAction(
 	claimableRatio := sdk.OneDec().Sub(elapsedDecayRatio)
 
 	// calculate the claimable coins, while rounding the decimals
-	claimableCoins = initialClaimablePerAction.ToDec().Mul(claimableRatio).RoundInt()
+	// claimableCoins = initialClaimablePerAction.ToDec().Mul(claimableRatio).RoundInt()
+	claimableCoins = claimableRatio.MulInt(initialClaimablePerAction).RoundInt()
 	remainder = initialClaimablePerAction.Sub(claimableCoins)
 	return claimableCoins, remainder
 }

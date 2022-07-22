@@ -14,7 +14,7 @@ Presently only one fully-permissioned epochs keeper is exposed, which has the ab
 // Keeper of epoch nodule maintains collections of epochs and hooks.
 type Keeper struct {
 	cdc      codec.Codec
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 	hooks    types.EpochHooks
 }
 ```

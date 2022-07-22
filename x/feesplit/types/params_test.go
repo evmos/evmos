@@ -86,7 +86,7 @@ func TestParamsValidateShares(t *testing.T) {
 		{"invalid - wrong type - bool", false, true},
 		{"invalid - wrong type - string", "", true},
 		{"invalid - wrong type - int64", int64(123), true},
-		{"invalid - wrong type - sdk.Int", sdk.NewInt(1), true},
+		{"invalid - wrong type - math.Int", sdk.NewInt(1), true},
 		{"invalid - is nil", nil, true},
 		{"invalid - is negative", sdk.NewDecFromInt(sdk.NewInt(-1)), true},
 		{"invalid - is > 1", sdk.NewDecFromInt(sdk.NewInt(2)), true},
