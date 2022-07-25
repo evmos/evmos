@@ -268,6 +268,7 @@ s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" ~/.evmosd/config/config.toml
 ```
 
 ### Create evmosd service
+
 ```bash
 echo "[Unit]
 Description=Evmosd Node
@@ -283,6 +284,7 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target" > $HOME/evmosd.service; sudo mv $HOME/evmosd.service /etc/systemd/system/
 ```
+
 ```bash
 sudo systemctl enable evmosd.service && sudo systemctl daemon-reload
 ```
