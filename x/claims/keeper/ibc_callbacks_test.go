@@ -24,6 +24,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 	timeoutHeight = clienttypes.NewHeight(0, 100)
 	mockpacket := channeltypes.NewPacket(ibcgotesting.MockPacketData, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, disabledTimeoutTimestamp)
 	ack := ibcmock.MockAcknowledgement
+	ackFail := ibcmock.MockFailAcknowledgement
 
 	testCases := []struct {
 		name string
@@ -58,8 +59,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 			"no-op: error Ack",
 			func() {
 				err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-				// ack := transfertypes.NewErrorAcknowledgement(err) <- I think this is no longer necessary, preserving if we need to bring it back. -Jacob
-				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
 				suite.Require().NoError(err)
 			},
 		},
