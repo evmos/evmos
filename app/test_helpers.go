@@ -91,7 +91,7 @@ func Setup(
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()
 
-		genesisState = genesisStateWithValSet(app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
+		genesisState = GenesisStateWithValSet(app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 
 		// Verify feeMarket genesis
 		if feemarketGenesis != nil {
@@ -120,7 +120,7 @@ func Setup(
 	return app
 }
 
-func genesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
+func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
 ) simapp.GenesisState {
