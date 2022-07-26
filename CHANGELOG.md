@@ -35,7 +35,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v6.0.3] - 2002-07-26
+
+### Bug Fixes
+
+- (deps) [\#803](https://github.com/evmos/evmos/pull/803) Bump Ethermint version to [`v0.17.2`](https://github.com/evmos/ethermint/releases/tag/v0.17.2)
+
 ## [v6.0.2] - 2022-07-13
+
+### Bug Fixes
 
 - (deps) [\#769](https://github.com/evmos/evmos/pull/769) Bump Ethermint version to [`v0.17.1`](https://github.com/evmos/ethermint/releases/tag/v0.17.1)
 
@@ -43,13 +51,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-<<<<<<< HEAD
 - (ci) [\#729](https://github.com/evmos/evmos/pull/729) Remove unshallow action in goreleaser.
-=======
-- (deps) [\#803](https://github.com/evmos/evmos/pull/803) Bump Ethermint version to [`v0.17.2`](https://github.com/evmos/ethermint/releases/tag/v0.17.2)
-- (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
-- (app) [\#760](https://github.com/evmos/evmos/pull/760) Migrate inaccessible balance of testnet faucet account to new address
->>>>>>> d01d167 (deps: bump ethermint to v0.17.2 (#803))
 
 ## [v6.0.0] - 2022-06-28
 
