@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
 
 	"github.com/evmos/evmos/v7/x/vesting/types"
 )
@@ -37,7 +39,7 @@ import (
 // 23/02 Lock ends
 var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	// Monthly vesting period
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
+	stakeDenom := claimstypes.DefaultParams().ClaimsDenom
 	amt := sdk.NewInt(1)
 	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
 	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
@@ -134,6 +136,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
+			fmt.Printf("clawbackAccount1: %v\n", clawbackAccount)
 			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
 			Expect(err).To(BeNil())
 		})
@@ -217,7 +220,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 // 23/02 Lock ends
 var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func() {
 	// Monthly vesting period
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
+	stakeDenom := claimstypes.DefaultParams().ClaimsDenom
 	amt := sdk.NewInt(1)
 	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
 	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
@@ -467,7 +470,7 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	//
 	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
 	s.Require().NoError(err)
-	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(amount)))
+	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(amount)))
 	txBuilder.SetMsgs(delegateMsg)
 	tx := txBuilder.GetTx()
 
