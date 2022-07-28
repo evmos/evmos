@@ -8,10 +8,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/evmos/evmos/v7/types"
+	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
 	inflationkeeper "github.com/evmos/evmos/v7/x/inflation/keeper"
-  claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
-
-
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v7
