@@ -1,8 +1,6 @@
 package ante
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -149,7 +147,6 @@ func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) 
 		}
 
 		clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
-		fmt.Printf("clawbackAccount2: %v\n", clawbackAccount)
 		if !isClawback {
 			// continue to next decorator as this logic only applies to vesting
 			return nil

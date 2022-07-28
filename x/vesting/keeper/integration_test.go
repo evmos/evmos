@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 	"time"
 
@@ -136,7 +135,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			fmt.Printf("clawbackAccount1: %v\n", clawbackAccount)
 			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
 			Expect(err).To(BeNil())
 		})
