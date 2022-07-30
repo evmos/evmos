@@ -128,7 +128,7 @@ Completed state snapshot   module=main height=3000 format=1
 
 Note that the snapshot interval must currently be a multiple of the `pruning-keep-every` (defaults to 100), to prevent heights from being pruned while taking snapshots. It's also usually a good idea to keep at least 2 recent snapshots, such that the previous snapshot isn't removed while a node is attempting to state sync using it.
 
-### State Syncing a Node
+## State Syncing a Node
 
 :::tip
 Looking for snapshots or archive nodes to sync your node with? Check out [this page](../snapshots_archives.md).
@@ -142,24 +142,163 @@ Once a few nodes in a network have taken state sync snapshots, new nodes can joi
 
 The trusted hash must be obtained from a trusted source (eg. a block explorer), but the RPC servers do not need to be trusted. Tendermint will use the hash to obtain trusted app hashes from the blockchain in order to verify restored application snapshots. The app hash and corresponding height are the only pieces of information that can be trusted when restoring snapshots. Everything else can be forged by adversaries.
 
-The required information can be obtained eg. via RPC.
+In this guide we use Ubuntu 20.04
+
+### Prepare system
+
+Update system
 
 ```bash
-$ curl -s http://foo.net:26657/block | \
-  jq -r '.result.block.header.height + "\n" + .result.block_id.hash'
-# <trusted height>
-# <block ID hash of trusted height>
+sudo apt update -y
 ```
 
-We can then configure Tendermint to use state sync in `config.toml`.
+Upgrade system
 
 ```bash
-[statesync]
-enable = true
-rpc_servers = “rpc.a.com:26657,rpc.b.org:26657”
-trust_height = # <trusted height>
-trust_hash = # “<block ID hash of trusted height>”
-trust_period = “336h” # 2/3 of the unbonding time
+sudo apt upgrade -y
+```
+
+Install dependencies
+
+```bash
+sudo apt-get install ca-certificates curl gnupg lsb-release make gcc git jq wget -y
+```
+
+Install Go
+
+```bash
+wget -q -O - https://raw.githubusercontent.com/canha/golang-tools-install-script/master/goinstall.sh | bash
+source ~/.bashrc
+```
+
+Set the node name
+
+```bash
+moniker="NODE_NAME"
+```
+
+## Use commands below for Testnet setup
+
+```bash
+SNAP_RPC1="http://bd-evmos-testnet-state-sync-node-01.bdnodes.net:26657"
+SNAP_RPC="http://bd-evmos-testnet-state-sync-node-02.bdnodes.net:26657"
+CHAIN_ID="evmos_9000-4"
+PEER="3a6b22e1569d9f85e9e97d1d204a1c457d860926@bd-evmos-testnet-seed-node-01.bdnodes.net:26656"
+wget -O $HOME/genesis.json https://archive.evmos.dev/evmos_9000-4/genesis.json 
+```
+
+## Use commands below for Mainnet setup
+
+```bash
+SNAP_RPC1="http://bd-evmos-mainnet-state-sync-us-01.bdnodes.net:26657"
+SNAP_RPC="http://bd-evmos-mainnet-state-sync-eu-01.bdnodes.net:26657"
+CHAIN_ID="evmos_9001-2"
+PEER="96557e26aabf3b23e8ff5282d03196892a7776fc@bd-evmos-mainnet-state-sync-us-01.bdnodes.net,dec587d55ff38827ebc6312cedda6085c59683b6@bd-evmos-mainnet-state-sync-eu-01.bdnodes.net"
+wget -O $HOME/genesis.json https://archive.evmos.org/mainnet/genesis.json 
+```
+
+### Install evmosd
+
+```bash
+git clone https://github.com/evmos/evmos.git && \ 
+cd evmos && \ 
+make install
+```
+
+### Configuration
+
+Node init
+
+```bash
+evmosd init $moniker --chain-id $CHAIN_ID
+```
+
+Move genesis file to .evmosd/config folder
+
+```bash
+mv $HOME/genesis.json ~/.evmosd/config/
+```
+
+Reset the node
+
+```bash
+evmosd tendermint unsafe-reset-all --home $HOME/.evmosd
+```
+
+Change config files (set the node name, add persistent peers, set indexer = "null")
+
+```bash
+sed -i -e "s%^moniker *=.*%moniker = \"$moniker\"%; " $HOME/.evmosd/config/config.toml
+sed -i -e "s%^indexer *=.*%indexer = \"null\"%; " $HOME/.evmosd/config/config.toml
+sed -i -e "s%^persistent_peers *=.*%persistent_peers = \"$PEER\"%; " $HOME/.evmosd/config/config.toml
+```
+
+Set the variables for start from snapshot
+
+```bash
+LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
+BLOCK_HEIGHT=$((LATEST_HEIGHT - 2000)); \
+TRUST_HASH=$(curl -s "$SNAP_RPC/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+```
+
+Check
+
+```bash
+echo $LATEST_HEIGHT $BLOCK_HEIGHT $TRUST_HASH
+```
+
+Output example (numbers will be different):
+
+```bash
+376080 374080 F0C78FD4AE4DB5E76A298206AE3C602FF30668C521D753BB7C435771AEA47189
+```
+
+If output is OK do next
+
+```bash
+sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ; \
+
+s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$SNAP_RPC,$SNAP_RPC1\"| ; \
+
+s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
+
+s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
+
+s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" ~/.evmosd/config/config.toml
+```
+
+### Create evmosd service
+
+```bash
+echo "[Unit]
+Description=Evmosd Node
+After=network.target
+#
+[Service]
+User=$USER
+Type=simple
+ExecStart=$(which evmosd) start
+Restart=on-failure
+LimitNOFILE=65535
+#
+[Install]
+WantedBy=multi-user.target" > $HOME/evmosd.service; sudo mv $HOME/evmosd.service /etc/systemd/system/
+```
+
+```bash
+sudo systemctl enable evmosd.service && sudo systemctl daemon-reload
+```
+
+### Run evmosd
+
+```bash
+sytemctl start evmosd
+```
+
+### Check logs
+
+```bash
+journalctl -u evmosd -f
 ```
 
 When the node is started it will then attempt to find a state sync snapshot in the network, and restore it:
@@ -185,8 +324,15 @@ Executed block                 height=3002 validTxs=25 invalidTxs=0
 Committed state                height=3002 txs=25 appHash=40D12E4B3
 ```
 
-The node is now state synced, having joined the network in seconds.
+The node is now state synced, having joined the network in seconds
+
+### Use this command to switch off your State Sync mode, after node fully synced to avoid problems in future node restarts!
+
+```bash
+sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1false|" $HOME/.evmosd/config/config.toml
+```
 
 :::tip
+
 **Note**: Information included in this document is sourced from [Erik Grinaker](https://medium.com/@erikgrinaker), specifically his state sync guides for [Tendermint Core](https://medium.com/tendermint/tendermint-core-state-sync-for-developers-70a96ba3ee35) and the [Cosmos SDK](https://medium.com/cosmos-blockchain/cosmos-sdk-state-sync-guide-99e4cf43be2f).
 :::
