@@ -87,7 +87,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 				It("should not transfer or recover tokens", func() {
 					s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, coinOsmo.Denom, coinOsmo.Amount.Int64(), sender, receiver, 1)
-
 					nativeEvmos := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, "aevmos")
 					Expect(nativeEvmos).To(Equal(coinEvmos))
 					ibcOsmo := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
@@ -99,14 +98,18 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 				Context("without completed actions", func() {
 					BeforeEach(func() {
 						amt := sdk.NewInt(int64(100))
+						coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
 						claim = claimtypes.NewClaimsRecord(amt)
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
+
+						// update the escrowed account balance to maintain the invariant
+						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
+						s.Require().NoError(err)
 					})
 
 					It("should not transfer or recover tokens", func() {
 						// Prevent further funds from getting stuck
 						s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, coinOsmo.Denom, coinOsmo.Amount.Int64(), sender, receiver, 1)
-
 						nativeEvmos := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, "aevmos")
 						Expect(nativeEvmos).To(Equal(coinEvmos))
 						ibcOsmo := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)

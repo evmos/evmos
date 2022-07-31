@@ -27,7 +27,7 @@ const (
 	erc20Name          = "Coin Token"
 	erc20Symbol        = "CTKN"
 	erc20Decimals      = uint8(18)
-	cosmosTokenBase    = "aevmos"
+	cosmosTokenBase    = "acoin"
 	cosmosTokenDisplay = "coin"
 	cosmosDecimals     = uint8(6)
 	defaultExponent    = uint32(18)
@@ -274,7 +274,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 
 			expPair := &types.TokenPair{
 				Erc20Address:  "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
-				Denom:         "aevmos",
+				Denom:         "acoin",
 				Enabled:       true,
 				ContractOwner: 1,
 			}

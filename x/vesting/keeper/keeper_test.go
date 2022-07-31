@@ -50,7 +50,7 @@ var (
 	participant     = tests.GenerateAddress()
 	participant2    = tests.GenerateAddress()
 	denomMint       = evm.DefaultEVMDenom
-	denomCoin       = "aevmos"
+	denomCoin       = "acoin"
 	allocationRate  = int64(5)
 	mintAllocations = sdk.DecCoins{
 		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
