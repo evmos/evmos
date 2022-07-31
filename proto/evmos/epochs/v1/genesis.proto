@@ -33,5 +33,5 @@ message EpochInfo {
 
 // GenesisState defines the epochs module's genesis state.
 message GenesisState {
-  repeated EpochInfo epochs = 1 [(gogoproto.nullable) = false];
+  repeated EpochInfo epochs = 1 [ (gogoproto.nullable) = false ];
 }

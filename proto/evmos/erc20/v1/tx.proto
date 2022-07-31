@@ -27,7 +27,7 @@ service Msg {
 message MsgConvertCoin {
   // Cosmos coin which denomination is registered in a token pair. The coin
   // amount defines the amount of coins to convert.
-  cosmos.base.v1beta1.Coin coin = 1 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin coin = 1 [ (gogoproto.nullable) = false ];
   // recipient hex address to receive ERC20 token
   string receiver = 2;
   // cosmos bech32 address from the owner of the given Cosmos coins

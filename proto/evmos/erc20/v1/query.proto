@@ -38,7 +38,7 @@ message QueryTokenPairsRequest {
 // QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
 // method.
 message QueryTokenPairsResponse {
-  repeated TokenPair token_pairs = 1 [(gogoproto.nullable) = false];
+  repeated TokenPair token_pairs = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -53,7 +53,7 @@ message QueryTokenPairRequest {
 // QueryTokenPairResponse is the response type for the Query/TokenPair RPC
 // method.
 message QueryTokenPairResponse {
-  TokenPair token_pair = 1 [(gogoproto.nullable) = false];
+  TokenPair token_pair = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -62,5 +62,5 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC
 // method.
 message QueryParamsResponse {
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }

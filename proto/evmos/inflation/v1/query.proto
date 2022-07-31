@@ -17,23 +17,27 @@ service Query {
   }
 
   // EpochMintProvision retrieves current minting epoch provision value.
-  rpc EpochMintProvision(QueryEpochMintProvisionRequest) returns (QueryEpochMintProvisionResponse) {
+  rpc EpochMintProvision(QueryEpochMintProvisionRequest)
+      returns (QueryEpochMintProvisionResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/epoch_mint_provision";
   }
 
   // SkippedEpochs retrieves the total number of skipped epochs.
-  rpc SkippedEpochs(QuerySkippedEpochsRequest) returns (QuerySkippedEpochsResponse) {
+  rpc SkippedEpochs(QuerySkippedEpochsRequest)
+      returns (QuerySkippedEpochsResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/skipped_epochs";
   }
 
   // CirculatingSupply retrieves the total number of tokens that are in
   // circulation (i.e. excluding unvested tokens).
-  rpc CirculatingSupply(QueryCirculatingSupplyRequest) returns (QueryCirculatingSupplyResponse) {
+  rpc CirculatingSupply(QueryCirculatingSupplyRequest)
+      returns (QueryCirculatingSupplyResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/circulating_supply";
   }
 
   // InflationRate retrieves the inflation rate of the current period.
-  rpc InflationRate(QueryInflationRateRequest) returns (QueryInflationRateResponse) {
+  rpc InflationRate(QueryInflationRateRequest)
+      returns (QueryInflationRateResponse) {
     option (google.api.http).get = "/evmos/inflation/v1/inflation_rate";
   }
 
@@ -111,5 +115,5 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }

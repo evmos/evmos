@@ -188,45 +188,45 @@ RUNSIM         = $(TOOLS_DESTDIR)/runsim
 runsim: $(RUNSIM)
 $(RUNSIM):
 	@echo "Installing runsim..."
-	@(cd /tmp && ${GO_MOD} go get github.com/cosmos/tools/cmd/runsim@master)
+	@(cd /tmp && ${GO_MOD} go install github.com/cosmos/tools/cmd/runsim@master)
 
 statik: $(STATIK)
 $(STATIK):
 	@echo "Installing statik..."
-	@(cd /tmp && go get github.com/rakyll/statik@v0.1.6)
+	@(cd /tmp && go install github.com/rakyll/statik@v0.1.6)
 
 contract-tools:
 ifeq (, $(shell which stringer))
 	@echo "Installing stringer..."
-	@go get golang.org/x/tools/cmd/stringer
+	@go install golang.org/x/tools/cmd/stringer@latest
 else
 	@echo "stringer already installed; skipping..."
 endif
 
 ifeq (, $(shell which go-bindata))
 	@echo "Installing go-bindata..."
-	@go get github.com/kevinburke/go-bindata/go-bindata
+	@go install github.com/kevinburke/go-bindata/go-bindata@latest
 else
 	@echo "go-bindata already installed; skipping..."
 endif
 
 ifeq (, $(shell which gencodec))
 	@echo "Installing gencodec..."
-	@go get github.com/fjl/gencodec
+	@go install github.com/fjl/gencodec@latest
 else
 	@echo "gencodec already installed; skipping..."
 endif
 
 ifeq (, $(shell which protoc-gen-go))
 	@echo "Installing protoc-gen-go..."
-	@go get github.com/fjl/gencodec
+	@go install github.com/fjl/gencodec@latest
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 else
 	@echo "protoc-gen-go already installed; skipping..."
 endif
 
 ifeq (, $(shell which protoc-gen-go-grpc))
-	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 else
 	@echo "protoc-gen-go-grpc already installed; skipping..."
 endif
