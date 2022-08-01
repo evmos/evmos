@@ -43,7 +43,7 @@ export EVMOSD_STATESYNC_TRUST_HEIGHT=$BLOCK_HEIGHT
 export EVMOSD_STATESYNC_TRUST_HASH=$TRUST_HASH
 
 # Fetch and set list of seeds from chain registry.
-export EVMOSD_P2P_SEEDS=$(curl -s https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/chain.json | jq -r '[foreach .peers.seeds[] as $item (""; "\($item.id)@\($item.address)")] | join(",")')
+export EVMOSD_P2P_SEEDS=$(curl -s https://raw.githubusercontent.com/cosmos/chain-registry/master/evmos/chain.json | jq -r '[foreach .peers.seeds[] as $item (""; "\($item.id)@\($item.address)")] | join(",")')
 
 # Start chain.
 evmosd start --x-crisis-skip-assert-invariants --db_backend pebbledb
