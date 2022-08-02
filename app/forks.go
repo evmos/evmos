@@ -8,6 +8,7 @@ import (
 
 	v2 "github.com/evmos/evmos/v7/app/upgrades/v2"
 	v4 "github.com/evmos/evmos/v7/app/upgrades/v4"
+	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
 	"github.com/evmos/evmos/v7/types"
 )
 
@@ -37,6 +38,9 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	case v4.MainnetUpgradeHeight:
 		upgradePlan.Name = v4.UpgradeName
 		upgradePlan.Info = v4.UpgradeInfo
+	case v7.MainnetUpgradeHeight:
+		upgradePlan.Name = v7.UpgradeName
+		upgradePlan.Info = v7.UpgradeInfo
 	default:
 		// No-op
 		return
