@@ -8,7 +8,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "evmos/claims/v1/claims.proto";
 import "evmos/claims/v1/genesis.proto";
 
-option go_package = "github.com/evmos/evmos/v6/x/claims/types";
+option go_package = "github.com/evmos/evmos/v7/x/claims/types";
 
 // Query defines the gRPC querier service.
 service Query {
