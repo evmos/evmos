@@ -35,6 +35,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v6.0.4] - 2002-08-03
+
+### Improvements
+
+- (deps) [\#819](https://github.com/evmos/evmos/pull/819) Bump ibc-go version to [`v3.1.1`](https://github.com/cosmos/ibc-go/releases/tag/v3.1.1)
+
+### Bug Fixes
+
+- (app) [\#820](https://github.com/evmos/evmos/pull/820) Set fork upgrade block height for `v7.0.0`
+
 ## [v6.0.3] - 2002-07-26
 
 ### Bug Fixes
