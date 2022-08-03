@@ -112,6 +112,7 @@ import (
 	v4 "github.com/evmos/evmos/v7/app/upgrades/v4"
 	v5 "github.com/evmos/evmos/v7/app/upgrades/v5"
 	v6 "github.com/evmos/evmos/v7/app/upgrades/v6"
+	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
 	"github.com/evmos/evmos/v7/x/claims"
 	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
@@ -1054,6 +1055,17 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v7 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v7.UpgradeName,
+		v7.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.BankKeeper,
+			app.InflationKeeper,
+			app.ClaimsKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1077,6 +1089,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v5
 	case v6.UpgradeName:
 		// no store upgrades in v6
+	case v7.UpgradeName:
+		// no store upgrades in v7
 	}
 
 	if storeUpgrades != nil {
