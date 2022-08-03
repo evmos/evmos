@@ -105,36 +105,37 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v6/client/docs/statik"
+	_ "github.com/evmos/evmos/v7/client/docs/statik"
 
-	"github.com/evmos/evmos/v6/app/ante"
-	v2 "github.com/evmos/evmos/v6/app/upgrades/v2"
-	v4 "github.com/evmos/evmos/v6/app/upgrades/v4"
-	v5 "github.com/evmos/evmos/v6/app/upgrades/v5"
-	v6 "github.com/evmos/evmos/v6/app/upgrades/v6"
-	"github.com/evmos/evmos/v6/x/claims"
-	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
-	"github.com/evmos/evmos/v6/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v6/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v6/x/epochs/types"
-	"github.com/evmos/evmos/v6/x/erc20"
-	erc20client "github.com/evmos/evmos/v6/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v6/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v6/x/erc20/types"
-	"github.com/evmos/evmos/v6/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v6/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v6/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v6/x/incentives/types"
-	"github.com/evmos/evmos/v6/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v6/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
-	"github.com/evmos/evmos/v6/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v6/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v6/x/recovery/types"
-	"github.com/evmos/evmos/v6/x/vesting"
-	vestingkeeper "github.com/evmos/evmos/v6/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v6/x/vesting/types"
+	"github.com/evmos/evmos/v7/app/ante"
+	v2 "github.com/evmos/evmos/v7/app/upgrades/v2"
+	v4 "github.com/evmos/evmos/v7/app/upgrades/v4"
+	v5 "github.com/evmos/evmos/v7/app/upgrades/v5"
+	v6 "github.com/evmos/evmos/v7/app/upgrades/v6"
+	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
+	"github.com/evmos/evmos/v7/x/claims"
+	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
+	"github.com/evmos/evmos/v7/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v7/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v7/x/epochs/types"
+	"github.com/evmos/evmos/v7/x/erc20"
+	erc20client "github.com/evmos/evmos/v7/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v7/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v7/x/erc20/types"
+	"github.com/evmos/evmos/v7/x/incentives"
+	incentivesclient "github.com/evmos/evmos/v7/x/incentives/client"
+	incentiveskeeper "github.com/evmos/evmos/v7/x/incentives/keeper"
+	incentivestypes "github.com/evmos/evmos/v7/x/incentives/types"
+	"github.com/evmos/evmos/v7/x/inflation"
+	inflationkeeper "github.com/evmos/evmos/v7/x/inflation/keeper"
+	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
+	"github.com/evmos/evmos/v7/x/recovery"
+	recoverykeeper "github.com/evmos/evmos/v7/x/recovery/keeper"
+	recoverytypes "github.com/evmos/evmos/v7/x/recovery/types"
+	"github.com/evmos/evmos/v7/x/vesting"
+	vestingkeeper "github.com/evmos/evmos/v7/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v7/x/vesting/types"
 )
 
 func init() {
@@ -1054,6 +1055,17 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v7 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v7.UpgradeName,
+		v7.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.BankKeeper,
+			app.InflationKeeper,
+			app.ClaimsKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1077,6 +1089,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v5
 	case v6.UpgradeName:
 		// no store upgrades in v6
+	case v7.UpgradeName:
+		// no store upgrades in v7
 	}
 
 	if storeUpgrades != nil {

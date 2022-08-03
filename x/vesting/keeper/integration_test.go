@@ -9,9 +9,9 @@ import (
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v6/app"
-	"github.com/evmos/evmos/v6/app/ante"
-	"github.com/evmos/evmos/v6/testutil"
+	"github.com/evmos/evmos/v7/app"
+	"github.com/evmos/evmos/v7/app/ante"
+	"github.com/evmos/evmos/v7/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -22,7 +22,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v6/x/vesting/types"
+	"github.com/evmos/evmos/v7/x/vesting/types"
 )
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached

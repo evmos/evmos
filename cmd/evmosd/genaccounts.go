@@ -23,10 +23,10 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	evmoskr "github.com/evmos/evmos/v6/crypto/keyring"
+	evmoskr "github.com/evmos/evmos/v7/crypto/keyring"
 
-	vestingcli "github.com/evmos/evmos/v6/x/vesting/client/cli"
-	vestingtypes "github.com/evmos/evmos/v6/x/vesting/types"
+	vestingcli "github.com/evmos/evmos/v7/x/vesting/client/cli"
+	vestingtypes "github.com/evmos/evmos/v7/x/vesting/types"
 )
 
 const (
