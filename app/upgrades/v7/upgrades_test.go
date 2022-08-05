@@ -120,10 +120,6 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
-<<<<<<< HEAD
-
-=======
->>>>>>> a1c4b7af4cecd908d703a00bbb808c66ea61ab8a
 	testCases := []struct {
 		name                  string
 		chainID               string
