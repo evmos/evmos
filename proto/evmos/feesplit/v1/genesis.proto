@@ -27,4 +27,14 @@ message Params {
   // addr_derivation_cost_create defines the cost of address derivation for
   // verifying the contract deployer at fee registration
   uint64 addr_derivation_cost_create = 3;
+  // fee_discount defines percent discount on the tx fees paid by a relayer
+  string fee_discount = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // eligible_messages defines the type URLs of eligible messages for a fee
+  // discount
+  repeated string eligible_messages = 5 [
+    (gogoproto.nullable) = false
+  ];
 }

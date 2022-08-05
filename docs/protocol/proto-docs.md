@@ -1026,6 +1026,8 @@ Params defines the feesplit module params
 | `enable_fee_split` | [bool](#bool) |  | enable_fee_split defines a parameter to enable the feesplit module |
 | `developer_shares` | [string](#string) |  | developer_shares defines the proportion of the transaction fees to be distributed to the registered contract owner |
 | `addr_derivation_cost_create` | [uint64](#uint64) |  | addr_derivation_cost_create defines the cost of address derivation for verifying the contract deployer at fee registration |
+| `fee_discount` | [string](#string) |  | fee_discount defines percent discount on the tx fees paid by a relayer |
+| `eligible_messages` | [string](#string) | repeated | eligible_messages defines the type URLs of eligible messages for a fee discount |
 
 
 
@@ -2333,3 +2335,4 @@ of unvested tokens, or a combination (tokens vest, but are still locked).
 | <a name="bool" /> bool |  | bool | boolean | boolean | bool | bool | boolean | TrueClass/FalseClass |
 | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
+
