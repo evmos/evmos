@@ -7,7 +7,7 @@ import "evmos/erc20/v1/erc20.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v6/x/erc20/types";
+option go_package = "github.com/evmos/evmos/v7/x/erc20/types";
 
 // Query defines the gRPC querier service.
 service Query {

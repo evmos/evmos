@@ -17,11 +17,11 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v6/app"
-	v7 "github.com/evmos/evmos/v6/app/upgrades/v7"
-	"github.com/evmos/evmos/v6/testutil"
-	evmostypes "github.com/evmos/evmos/v6/types"
-	claimstypes "github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v7/app"
+	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
+	"github.com/evmos/evmos/v7/testutil"
+	evmostypes "github.com/evmos/evmos/v7/types"
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
 )
 
 type UpgradeTestSuite struct {
@@ -120,7 +120,6 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
-
 	testCases := []struct {
 		name                  string
 		chainID               string

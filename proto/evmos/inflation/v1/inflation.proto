@@ -3,7 +3,7 @@ package evmos.inflation.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v6/x/inflation/types";
+option go_package = "github.com/evmos/evmos/v7/x/inflation/types";
 
 // InflationDistribution defines the distribution in which inflation is
 // allocated through minting on each epoch (staking, incentives, community). It

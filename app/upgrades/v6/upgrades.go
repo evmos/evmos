@@ -14,9 +14,9 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	v5 "github.com/evmos/evmos/v6/app/upgrades/v5"
-	"github.com/evmos/evmos/v6/types"
-	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
+	v5 "github.com/evmos/evmos/v7/app/upgrades/v5"
+	"github.com/evmos/evmos/v7/types"
+	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v6
