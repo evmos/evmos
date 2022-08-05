@@ -41,10 +41,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (build) [\#725](https://github.com/evmos/evmos/pull/725) Migrate Protobuf code generator to [Protobuf Workspaces](https://docs.buf.build/reference/workspaces)
 
+## [v7.0.0] - 2002-08-04
+
+### State Machine Breaking
+
+- (deps) Bump Ethermint version to [`v0.18.0`](https://github.com/evmos/ethermint/releases/tag/v0.18.0)
+
 ### Bug Fixes
 
-- (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
 - (app) [\#760](https://github.com/evmos/evmos/pull/760) Migrate inaccessible balance of testnet faucet account to new address
+- (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
 
 ## [v6.0.3] - 2002-07-26
 

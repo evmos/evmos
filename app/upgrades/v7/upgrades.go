@@ -7,9 +7,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/evmos/evmos/v6/types"
-	claimskeeper "github.com/evmos/evmos/v6/x/claims/keeper"
-	inflationkeeper "github.com/evmos/evmos/v6/x/inflation/keeper"
+	"github.com/evmos/evmos/v7/types"
+	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
+	inflationkeeper "github.com/evmos/evmos/v7/x/inflation/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v7
@@ -34,6 +34,7 @@ func CreateUpgradeHandler(
 				logger.Error("FAILED TO MIGRATE FAUCET BALANCES", "error", err.Error())
 			}
 		}
+
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("migrating skipped epochs value of inflation module...")
 			MigrateSkippedEpochs(ctx, ik)
@@ -49,7 +50,7 @@ func CreateUpgradeHandler(
 }
 
 // MigrateFaucetBalances transfers all balances of the inaccessible secp256k1
-// Faucet address to a eth_secp256k1 address.
+// Faucet address on testnet to a eth_secp256k1 address.
 func MigrateFaucetBalances(ctx sdk.Context, bk bankkeeper.Keeper) error {
 	from := sdk.MustAccAddressFromBech32(FaucetAddressFrom)
 	to := sdk.MustAccAddressFromBech32(FaucetAddressTo)
