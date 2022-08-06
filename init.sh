@@ -1,7 +1,7 @@
 KEY="mykey"
 CHAINID="evmos_9000-1"
 MONIKER="localtestnet"
-KEYRING="test"
+KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # to trace evm
@@ -100,6 +100,12 @@ cat $HOME/.evmosd/config/genesis.json | jq -r --arg total_supply "$total_supply"
 
 # Sign genesis transaction
 evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
+## In case you want to create multiple validators at genesis
+## 1. Back to `evmosd keys add` step, init more keys
+## 2. Back to `evmosd add-genesis-account` step, add balance for those
+## 3. Clone this ~/.evmosd home directory into some others, let's say `~/.clonedEvmosd`
+## 4. Run `gentx` in each of those folders
+## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
 
 # Collect genesis tx
 evmosd collect-gentxs
