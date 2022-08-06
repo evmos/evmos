@@ -14,8 +14,10 @@ command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Reinstall daemon
+# Clear everything of previous installation
 rm -rf ~/.evmosd*
+
+# Reinstall daemon
 make install
 
 # Set client config
