@@ -8,6 +8,7 @@ import (
 
 	v2 "github.com/evmos/evmos/v7/app/upgrades/v2"
 	v4 "github.com/evmos/evmos/v7/app/upgrades/v4"
+	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
 	"github.com/evmos/evmos/v7/types"
 )
 
@@ -17,8 +18,8 @@ import (
 //
 // CONTRACT: for this logic to work properly it is required to:
 //
-// 	1) Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
-// 	2) Release the software defined in the upgrade-info
+//  1. Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
+//  2. Release the software defined in the upgrade-info
 func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	// NOTE: there are no testnet forks for the existing versions
 	if !types.IsMainnet(ctx.ChainID()) {
@@ -29,7 +30,7 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 		Height: ctx.BlockHeight(),
 	}
 
-	// handle mainnet forks
+	// handle mainnet forks with their corresponding upgrade name and info
 	switch ctx.BlockHeight() {
 	case v2.MainnetUpgradeHeight:
 		upgradePlan.Name = v2.UpgradeName
@@ -37,11 +38,16 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	case v4.MainnetUpgradeHeight:
 		upgradePlan.Name = v4.UpgradeName
 		upgradePlan.Info = v4.UpgradeInfo
+	case v7.MainnetUpgradeHeight:
+		upgradePlan.Name = v7.UpgradeName
+		upgradePlan.Info = v7.UpgradeInfo
 	default:
 		// No-op
 		return
 	}
 
+	// schedule the upgrade plan to the current block hight, effectively performing
+	// a hard fork that uses the upgrade handler to manage the migration.
 	if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan); err != nil {
 		panic(
 			fmt.Errorf(

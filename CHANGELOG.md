@@ -41,13 +41,36 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (build) [\#725](https://github.com/evmos/evmos/pull/725) Migrate Protobuf code generator to [Protobuf Workspaces](https://docs.buf.build/reference/workspaces)
 
+## [v7.0.0] - 2002-08-04
+
+### State Machine Breaking
+
+- (deps) Bump Ethermint version to [`v0.18.0`](https://github.com/evmos/ethermint/releases/tag/v0.18.0)
+
+### Bug Fixes
+
+- (app) [\#760](https://github.com/evmos/evmos/pull/760) Migrate inaccessible balance of testnet faucet account to new address
+- (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
+
+## [v6.0.3] - 2002-07-26
+
 ### Bug Fixes
 
 - (deps) [\#803](https://github.com/evmos/evmos/pull/803) Bump Ethermint version to [`v0.17.2`](https://github.com/evmos/ethermint/releases/tag/v0.17.2)
-- (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
-- (app) [\#760](https://github.com/evmos/evmos/pull/760) Migrate inaccessible balance of testnet faucet account to new address
 
-## `v6.0.0` - 2022-06-28
+## [v6.0.2] - 2022-07-13
+
+### Bug Fixes
+
+- (deps) [\#769](https://github.com/evmos/evmos/pull/769) Bump Ethermint version to [`v0.17.1`](https://github.com/evmos/ethermint/releases/tag/v0.17.1)
+
+## [v6.0.1] - 2022-06-28
+
+### Improvements
+
+- (ci) [\#729](https://github.com/evmos/evmos/pull/729) Remove unshallow action in goreleaser.
+
+## [v6.0.0] - 2022-06-28
 
 ### State Machine Breaking
 

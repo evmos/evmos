@@ -21,9 +21,7 @@ import (
 	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
 	"github.com/evmos/evmos/v7/testutil"
 	evmostypes "github.com/evmos/evmos/v7/types"
-  claimstypes "github.com/evmos/evmos/v7/x/claims/types"
-
-
+	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
 )
 
 type UpgradeTestSuite struct {
