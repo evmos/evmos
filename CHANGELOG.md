@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v7.0.1] - 2002-08-08
+
+### Improvements
+
+- (Upgrade) [\#831](https://github.com/evmos/evmos/pull/831) Set Testnet v7 upgrade height
+
 ## [v7.0.0] - 2002-08-04
 
 ### State Machine Breaking
