@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v7/x/claims/types"
+	"github.com/evmos/evmos/v8/x/claims/types"
 )
 
 // ClaimCoinsForAction removes the claimable amount entry from a claims record
