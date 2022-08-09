@@ -35,10 +35,10 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v7/app"
-	"github.com/evmos/evmos/v7/contracts"
-	epochstypes "github.com/evmos/evmos/v7/x/epochs/types"
-	"github.com/evmos/evmos/v7/x/vesting/types"
+	"github.com/evmos/evmos/v8/app"
+	"github.com/evmos/evmos/v8/contracts"
+	epochstypes "github.com/evmos/evmos/v8/x/epochs/types"
+	"github.com/evmos/evmos/v8/x/vesting/types"
 )
 
 var (
