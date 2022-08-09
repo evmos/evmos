@@ -4,7 +4,7 @@ package evmos.feesplit.v1;
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v7/x/feesplit/types";
+option go_package = "github.com/evmos/evmos/v8/x/feesplit/types";
 
 // Msg defines the fees Msg service.
 service Msg {

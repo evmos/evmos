@@ -13,7 +13,7 @@ import (
 
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v7/x/feesplit/types"
+	"github.com/evmos/evmos/v8/x/feesplit/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/feesplit
