@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v7
+module github.com/evmos/evmos/v8
 
 go 1.18
 

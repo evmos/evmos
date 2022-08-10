@@ -11,7 +11,7 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v7/x/incentives/types"
+	"github.com/evmos/evmos/v8/x/incentives/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}

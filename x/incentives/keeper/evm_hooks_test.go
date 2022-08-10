@@ -14,9 +14,9 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v7/testutil"
-	"github.com/evmos/evmos/v7/x/incentives/types"
-	vestingtypes "github.com/evmos/evmos/v7/x/vesting/types"
+	"github.com/evmos/evmos/v8/testutil"
+	"github.com/evmos/evmos/v8/x/incentives/types"
+	vestingtypes "github.com/evmos/evmos/v8/x/vesting/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the

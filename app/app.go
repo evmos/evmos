@@ -106,40 +106,41 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v7/client/docs/statik"
+	_ "github.com/evmos/evmos/v8/client/docs/statik"
 
-	"github.com/evmos/evmos/v7/app/ante"
-	v2 "github.com/evmos/evmos/v7/app/upgrades/v2"
-	v4 "github.com/evmos/evmos/v7/app/upgrades/v4"
-	v5 "github.com/evmos/evmos/v7/app/upgrades/v5"
-	v6 "github.com/evmos/evmos/v7/app/upgrades/v6"
-	v7 "github.com/evmos/evmos/v7/app/upgrades/v7"
-	"github.com/evmos/evmos/v7/x/claims"
-	claimskeeper "github.com/evmos/evmos/v7/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
-	"github.com/evmos/evmos/v7/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v7/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v7/x/epochs/types"
-	"github.com/evmos/evmos/v7/x/erc20"
-	erc20client "github.com/evmos/evmos/v7/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v7/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v7/x/erc20/types"
-	"github.com/evmos/evmos/v7/x/feesplit"
-	feesplitkeeper "github.com/evmos/evmos/v7/x/feesplit/keeper"
-	feesplittypes "github.com/evmos/evmos/v7/x/feesplit/types"
-	"github.com/evmos/evmos/v7/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v7/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v7/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v7/x/incentives/types"
-	"github.com/evmos/evmos/v7/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v7/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v7/x/inflation/types"
-	"github.com/evmos/evmos/v7/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v7/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v7/x/recovery/types"
-	"github.com/evmos/evmos/v7/x/vesting"
-	vestingkeeper "github.com/evmos/evmos/v7/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v7/x/vesting/types"
+	"github.com/evmos/evmos/v8/app/ante"
+	v2 "github.com/evmos/evmos/v8/app/upgrades/v2"
+	v4 "github.com/evmos/evmos/v8/app/upgrades/v4"
+	v5 "github.com/evmos/evmos/v8/app/upgrades/v5"
+	v6 "github.com/evmos/evmos/v8/app/upgrades/v6"
+	v7 "github.com/evmos/evmos/v8/app/upgrades/v7"
+	v8 "github.com/evmos/evmos/v8/app/upgrades/v8"
+	"github.com/evmos/evmos/v8/x/claims"
+	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v8/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v8/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v8/x/epochs/types"
+	"github.com/evmos/evmos/v8/x/erc20"
+	erc20client "github.com/evmos/evmos/v8/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v8/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v8/x/feesplit"
+	feesplitkeeper "github.com/evmos/evmos/v8/x/feesplit/keeper"
+	feesplittypes "github.com/evmos/evmos/v8/x/feesplit/types"
+	"github.com/evmos/evmos/v8/x/incentives"
+	incentivesclient "github.com/evmos/evmos/v8/x/incentives/client"
+	incentiveskeeper "github.com/evmos/evmos/v8/x/incentives/keeper"
+	incentivestypes "github.com/evmos/evmos/v8/x/incentives/types"
+	"github.com/evmos/evmos/v8/x/inflation"
+	inflationkeeper "github.com/evmos/evmos/v8/x/inflation/keeper"
+	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
+	"github.com/evmos/evmos/v8/x/recovery"
+	recoverykeeper "github.com/evmos/evmos/v8/x/recovery/keeper"
+	recoverytypes "github.com/evmos/evmos/v8/x/recovery/types"
+	"github.com/evmos/evmos/v8/x/vesting"
+	vestingkeeper "github.com/evmos/evmos/v8/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v8/x/vesting/types"
 )
 
 func init() {
@@ -1094,6 +1095,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v8 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v8.UpgradeName,
+		v8.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1119,6 +1128,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v6
 	case v7.UpgradeName:
 		// no store upgrades in v7
+	case v8.UpgradeName:
+		// add feesplit module
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{feesplittypes.ModuleName},
+		}
 	}
 
 	if storeUpgrades != nil {
