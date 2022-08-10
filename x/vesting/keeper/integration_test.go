@@ -22,7 +22,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
 
 	"github.com/evmos/evmos/v8/x/vesting/types"
 )

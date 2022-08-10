@@ -22,7 +22,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	claimstypes "github.com/evmos/evmos/v7/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
 
 	"github.com/evmos/ethermint/encoding"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
