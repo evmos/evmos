@@ -26,7 +26,6 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
 
 	"github.com/evmos/ethermint/server"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -152,7 +151,7 @@ func collectGenFiles(cfg Config, vals []*Validator, outputDir string) error {
 	for i := 0; i < cfg.NumValidators; i++ {
 		tmCfg := vals[i].Ctx.Config
 
-		nodeDir := filepath.Join(outputDir, vals[i].Moniker, "evmosd")
+		nodeDir := filepath.Join(outputDir, vals[i].Moniker, "acred")
 		gentxsDir := filepath.Join(outputDir, "gentxs")
 
 		tmCfg.Moniker = vals[i].Moniker
@@ -210,12 +209,6 @@ func initGenFiles(cfg Config, genAccounts []authtypes.GenesisAccount, genBalance
 
 	govGenState.DepositParams.MinDeposit[0].Denom = cfg.BondDenom
 	cfg.GenesisState[govtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&govGenState)
-
-	var inflationGenState inflationtypes.GenesisState
-	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[inflationtypes.ModuleName], &inflationGenState)
-
-	inflationGenState.Params.MintDenom = cfg.BondDenom
-	cfg.GenesisState[inflationtypes.ModuleName] = cfg.Codec.MustMarshalJSON(&inflationGenState)
 
 	var crisisGenState crisistypes.GenesisState
 	cfg.Codec.MustUnmarshalJSON(cfg.GenesisState[crisistypes.ModuleName], &crisisGenState)

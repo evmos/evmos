@@ -20,7 +20,7 @@ const (
 	secp256k1VerifyCost uint64 = 21000
 )
 
-// SigVerificationGasConsumer is the Evmos implementation of SignatureVerificationGasConsumer. It consumes gas
+// SigVerificationGasConsumer is the Acrechain implementation of SignatureVerificationGasConsumer. It consumes gas
 // for signature verification based upon the public key type. The cost is fetched from the given params and is matched
 // by the concrete type.
 // The types of keys supported are:

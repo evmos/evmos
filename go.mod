@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v6
+module github.com/ArableProtocol/acrechain
 
 go 1.18
 
