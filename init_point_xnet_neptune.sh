@@ -1,5 +1,5 @@
 # apt update && apt dist-upgrade -y
-# apt install jq make -y
+# apt install jq make gcc -y
 # 
 # wget https://go.dev/dl/go1.19.linux-amd64.tar.gz
 # rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz && rm go1.19.linux-amd64.tar.gz
