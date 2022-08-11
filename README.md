@@ -4,7 +4,7 @@ parent:
 -->
 
 <div align="center">
-  <h1> Evmos </h1>
+  <h1> Point-Chain (based on Evmos) </h1>
 </div>
 
 <div align="center">
