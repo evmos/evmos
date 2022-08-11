@@ -16,7 +16,7 @@ command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https
 set -e
 
 # Clear everything of previous installation
-rm -rf ~/.evmosd*
+rm -rf ~/.evmosd
 
 # Reinstall daemon
 make install
