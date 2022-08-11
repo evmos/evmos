@@ -1,13 +1,3 @@
-# apt update && apt dist-upgrade -y
-# apt install jq make
-# 
-# wget https://go.dev/dl/go1.19.linux-amd64.tar.gz
-# rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz
-# echo 'export PATH=$PATH:/scripts' >> ~/.profile
-# source ~/.profile
-#
-# # go mod tidy # - needed?
-
 KEY="mykey"
 CHAINID="evmos_9000-1"
 MONIKER="localtestnet"
