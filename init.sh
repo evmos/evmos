@@ -18,6 +18,9 @@ set -e
 rm -rf ~/.acred*
 make install
 
+# Set moniker and chain-id for Acre (Moniker can be anything, chain-id must be an integer)
+acred init $MONIKER --chain-id $CHAINID
+
 # Set client config
 acred config keyring-backend $KEYRING
 acred config chain-id $CHAINID
@@ -25,8 +28,17 @@ acred config chain-id $CHAINID
 # if $KEY exists it should be deleted
 acred keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
-# Set moniker and chain-id for Acre (Moniker can be anything, chain-id must be an integer)
-acred init $MONIKER --chain-id $CHAINID
+# Allocate genesis accounts (cosmos formatted addresses)
+acred add-genesis-account $KEY 100000000000000000000000000uacre --keyring-backend $KEYRING
+
+# Sign genesis transaction
+acred gentx $KEY 1000000000000000000000uacre --keyring-backend $KEYRING --chain-id $CHAINID
+
+# Collect genesis tx
+acred collect-gentxs
+
+# Run this to ensure everything worked and that the genesis file is setup correctly
+acred validate-genesis
 
 # Change parameter token denominations to uacre
 cat $HOME/.acred/config/genesis.json | jq '.app_state["staking"]["params"]["bond_denom"]="uacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
@@ -52,8 +64,8 @@ cat $HOME/.acred/config/genesis.json | jq -r --arg current_date "$current_date" 
 cat $HOME/.acred/config/genesis.json | jq -r --arg current_date "$current_date" '.app_state["claims"]["params"]["duration_until_decay"]="100000s"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
 
 # Claim module account:
-# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || acre5cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
-cat $HOME/.acred/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"uacre15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"uacre", "amount":$amount_to_claim}]}]' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || acre15cvq3ljql6utxseh0zau9m8ve2j8erz8aearn8
+cat $HOME/.acred/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"acre15cvq3ljql6utxseh0zau9m8ve2j8erz8aearn8","coins":[{"denom":"uacre", "amount":$amount_to_claim}]}]' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
 
 # disable produce empty block
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -86,24 +98,12 @@ if [[ $1 == "pending" ]]; then
   fi
 fi
 
-# Allocate genesis accounts (cosmos formatted addresses)
-acred add-genesis-account $KEY 100000000000000000000000000uacre --keyring-backend $KEYRING
-
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.acred/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
 # Bc is required to add this big numbers
 # total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
 total_supply=100000000000000000000010000
 cat $HOME/.acred/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
-
-# Sign genesis transaction
-acred gentx $KEY 1000000000000000000000uacre --keyring-backend $KEYRING --chain-id $CHAINID
-
-# Collect genesis tx
-acred collect-gentxs
-
-# Run this to ensure everything worked and that the genesis file is setup correctly
-acred validate-genesis
 
 if [[ $1 == "pending" ]]; then
   echo "pending mode is on, please wait for the first block committed."
