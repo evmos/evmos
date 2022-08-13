@@ -91,7 +91,7 @@ f_install_protoc_gen_gocosmos() {
         return 1
     fi
     
-    go get github.com/regen-network/cosmos-proto/protoc-gen-gocosmos 2>/dev/null
+    go install github.com/regen-network/cosmos-proto/protoc-gen-gocosmos@latest 2>/dev/null
     f_print_done
 }
 
@@ -113,7 +113,7 @@ f_install_protoc_gen_swagger() {
     fi
     
     pushd "${TEMPDIR}" >/dev/null
-    go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+    go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
     npm install -g swagger-combine
     popd >/dev/null
     f_print_done
