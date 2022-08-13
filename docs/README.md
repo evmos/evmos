@@ -1,7 +1,7 @@
 <!--
 layout: home
 title: Evmos Documentation
-description: Evmos is a scalable and interoperable Ethereum, built on Proof-of-Stake with fast-finality.
+description: Evmos is a scalable and interoperable Ethereum blockchain, built on Proof-of-Stake with fast-finality.
 sections:
   - title: Introduction
     desc: Read a high-level overview of Evmos and its architecture.

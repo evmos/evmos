@@ -1,7 +1,6 @@
-package v6_test
+package v8_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -18,8 +17,6 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v8/app"
-	v6 "github.com/evmos/evmos/v8/app/upgrades/v6"
-	evmostypes "github.com/evmos/evmos/v8/types"
 )
 
 type UpgradeTestSuite struct {
@@ -72,40 +69,4 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 func TestUpgradeTestSuite(t *testing.T) {
 	s := new(UpgradeTestSuite)
 	suite.Run(t, s)
-}
-
-func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
-	testCases := []struct {
-		name           string
-		chainID        string
-		malleate       func()
-		expectedWindow int64
-	}{
-		{
-			"success",
-			evmostypes.MainnetChainID + "-2",
-			func() {
-				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-				params.SignedBlocksWindow = 30000
-				suite.app.SlashingKeeper.SetParams(suite.ctx, params)
-			},
-			90000,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(tc.chainID) // reset
-
-			tc.malleate()
-
-			suite.Require().NotPanics(func() {
-				v6.UpdateSlashingParams(suite.ctx, suite.app.SlashingKeeper)
-				suite.app.Commit()
-			})
-
-			params := suite.app.SlashingKeeper.GetParams(suite.ctx)
-			suite.Require().Equal(tc.expectedWindow, params.SignedBlocksWindow)
-		})
-	}
 }
