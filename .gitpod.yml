@@ -9,7 +9,7 @@ tasks:
     command: |
       go install golang.org/x/tools/cmd/goimports@latest
       go install mvdan.cc/gofumpt@latest
-      pacman -Syyu clang
+      sudo pacman -Syyu clang
       sudo make tools
-      bash scripts/proto-tools-installer.sh
+      sudo bash scripts/proto-tools-installer.sh
 
