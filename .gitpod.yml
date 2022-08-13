@@ -11,4 +11,5 @@ tasks:
       go install mvdan.cc/gofumpt@latest
       pacman -Syyu clang
       sudo make tools
+      bash scripts/proto-tools-installer.sh
 
