@@ -14,8 +14,8 @@ f_abort() {
     local l_rc=$1
     shift
     
-    echo $@ >&2
-    exit ${l_rc}
+    echo "$@" >&2
+    exit "${l_rc}"
 }
 
 case "${UNAME_S}" in
@@ -53,7 +53,7 @@ f_ensure_dirs() {
 }
 
 f_needs_install() {
-    if [ -x $1 ]; then
+    if [ -x "$1" ]; then
         echo -e "\talready installed. Skipping." >&2
         return 1
     fi
@@ -67,8 +67,8 @@ f_install_protoc() {
     
     pushd "${TEMPDIR}" >/dev/null
     curl -o "${PROTOC_ZIP}" -sSL "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP}"
-    unzip -q -o ${PROTOC_ZIP} -d ${DESTDIR}/${PREFIX} bin/protoc; \
-    unzip -q -o ${PROTOC_ZIP} -d ${DESTDIR}/${PREFIX} 'include/*'; \
+    unzip -q -o ${PROTOC_ZIP} -d "${DESTDIR}"/"${PREFIX}" bin/protoc; \
+    unzip -q -o ${PROTOC_ZIP} -d "${DESTDIR}"/"${PREFIX}" 'include/*'; \
     rm -f ${PROTOC_ZIP}
     popd >/dev/null
     f_print_done
