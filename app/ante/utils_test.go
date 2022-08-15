@@ -92,7 +92,7 @@ func (suite *AnteTestSuite) CommitAfter(t time.Duration) {
 	suite.app.EndBlock(abci.RequestEndBlock{Height: header.Height})
 	_ = suite.app.Commit()
 
-	header.Height += 1
+	header.Height++
 	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,

@@ -33,7 +33,7 @@ esac
 
 TEMPDIR="$(mktemp -d)"
 
-trap "rm -rvf ${TEMPDIR}" EXIT
+trap '"rm -rvf ${TEMPDIR}"' EXIT
 
 f_print_installing_with_padding() {
     printf "Installing %30s ..." "$1" >&2
@@ -44,7 +44,10 @@ f_print_done() {
 }
 
 f_ensure_tools() {
-    ! which curl &>/dev/null && f_abort 2 "couldn't find curl, aborting" || true
+    test=!$(which curl &>/dev/null)
+    if [[ $test ]] 
+    then f_abort 2 "couldn't find curl, aborting" else true 
+    fi
 }
 
 f_ensure_dirs() {
