@@ -138,10 +138,10 @@ f_install_clang_format() {
             fi
         ;;
         Darwin)
-            echo "\tRun: brew install clang-format" >&2
+            printf "\tRun: brew install clang-format" >&2
         ;;
         *)
-            echo "\tunknown operating system. Skipping." >&2
+            printf "\tunknown operating system. Skipping." >&2
     esac
 }
 
