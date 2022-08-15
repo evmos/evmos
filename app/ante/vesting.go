@@ -27,11 +27,11 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper) EthVestingTran
 // vesting cliff and lockup period.
 //
 // This AnteHandler decorator will fail if:
-//  - the message is not a MsgEthereumTx
-//  - sender account cannot be found
-//  - sender account is not a ClawbackvestingAccount
-//  - blocktime is before surpassing vesting cliff end (with zero vested coins) AND
-//  - blocktime is before surpassing all lockup periods (with non-zero locked coins)
+//   - the message is not a MsgEthereumTx
+//   - sender account cannot be found
+//   - sender account is not a ClawbackvestingAccount
+//   - blocktime is before surpassing vesting cliff end (with zero vested coins) AND
+//   - blocktime is before surpassing all lockup periods (with non-zero locked coins)
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)

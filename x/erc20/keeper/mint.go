@@ -9,10 +9,10 @@ import (
 )
 
 // MintingEnabled checks that:
-//  - the global parameter for erc20 conversion is enabled
-//  - minting is enabled for the given (erc20,coin) token pair
-//  - recipient address is not on the blocked list
-//  - bank module transfers are enabled for the Cosmos coin
+//   - the global parameter for erc20 conversion is enabled
+//   - minting is enabled for the given (erc20,coin) token pair
+//   - recipient address is not on the blocked list
+//   - bank module transfers are enabled for the Cosmos coin
 func (k Keeper) MintingEnabled(
 	ctx sdk.Context,
 	sender, receiver sdk.AccAddress,
