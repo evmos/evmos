@@ -64,10 +64,7 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr 
 // hook on the module keeper
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	err := h.k.AfterDelegationModified(ctx, delAddr, valAddr)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // AfterDelegationModified is called after a delegation is modified. Once a user
