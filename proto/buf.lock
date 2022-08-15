@@ -4,4 +4,4 @@ deps:
   - remote: buf.build
     owner: evmos
     repository: evmos
-    commit: 1c1bd3c5279141b198b69582881573a1
+    commit: ed3b422c3b484804b054a02f82a39603

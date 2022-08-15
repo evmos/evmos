@@ -1,10 +1,9 @@
 syntax = "proto3";
-
 package evmos.vesting.v1;
 
 import "cosmos/base/v1beta1/coin.proto";
-import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/evmos/evmos/v8/x/vesting/types";
 

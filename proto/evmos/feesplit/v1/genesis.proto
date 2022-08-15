@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 package evmos.feesplit.v1;
 
 import "evmos/feesplit/v1/feesplit.proto";

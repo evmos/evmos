@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 package evmos.erc20.v1;
 
 import "evmos/erc20/v1/erc20.proto";

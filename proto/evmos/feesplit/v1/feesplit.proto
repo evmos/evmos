@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 package evmos.feesplit.v1;
 
 option go_package = "github.com/evmos/evmos/v8/x/feesplit/types";

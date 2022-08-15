@@ -1,10 +1,9 @@
 syntax = "proto3";
-
 package evmos.recovery.v1;
 
-import "evmos/recovery/v1/genesis.proto";
-import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "evmos/recovery/v1/genesis.proto";
 
 option go_package = "github.com/evmos/evmos/v8/x/recovery/types";
 

@@ -1,11 +1,10 @@
 syntax = "proto3";
-
 package evmos.epochs.v1;
 
-import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/epochs/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/epochs/v1/genesis.proto";
 
 option go_package = "github.com/evmos/evmos/v8/x/epochs/types";
 

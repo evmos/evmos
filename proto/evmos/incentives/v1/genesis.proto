@@ -1,8 +1,7 @@
 syntax = "proto3";
-
 package evmos.incentives.v1;
-
 import "evmos/incentives/v1/incentives.proto";
+
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/evmos/evmos/v8/x/incentives/types";

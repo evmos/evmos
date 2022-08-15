@@ -1,10 +1,9 @@
 syntax = "proto3";
-
 package evmos.erc20.v1;
 
-import "cosmos/base/v1beta1/coin.proto";
-import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/evmos/evmos/v8/x/erc20/types";
 
@@ -14,13 +13,12 @@ service Msg {
   // that is registered on the token mapping.
   rpc ConvertCoin(MsgConvertCoin) returns (MsgConvertCoinResponse) {
     option (google.api.http).get = "/evmos/erc20/v1/tx/convert_coin";
-  }
-
+  };
   // ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
   // contract that is registered on the token mapping.
   rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
     option (google.api.http).get = "/evmos/erc20/v1/tx/convert_erc20";
-  }
+  };
 }
 
 // MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
