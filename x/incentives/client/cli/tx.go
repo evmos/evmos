@@ -105,6 +105,8 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 // NewCancelIncentiveProposalCmd implements the command to submit a cancel
 //
 //	incentive proposal
+//
+//nolint:staticcheck
 func NewCancelIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "cancel-incentive [contract-address]",
