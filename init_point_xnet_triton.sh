@@ -9,8 +9,8 @@
 # # go mod tidy # - needed?
 
 KEY="mykey"
-CHAINID="point_10711-1"
-MONIKER="point-xnet-neptune"
+CHAINID="point_10721-1"
+MONIKER="point-xnet-triton"
 #KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
 KEYRING="file"
 KEYALGO="eth_secp256k1"
