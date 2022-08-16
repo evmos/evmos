@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # apt update && apt dist-upgrade -y
 # apt install jq make gcc -y
 # 
@@ -7,6 +9,16 @@
 # source ~/.profile
 #
 # # go mod tidy # - needed?
+
+read -p "WARNING! This script will DELETE EVERYTHING IN ~/.evmosd and configure new chain environment. Do you want to proceed? (yes/no) " yn
+
+case $yn in 
+	yes ) echo "";;
+	no ) echo "Exiting...";
+		exit;;
+	* ) echo "Invalid response";
+		exit 1;;
+esac
 
 KEY="mykey"
 CHAINID="point_10721-1"
