@@ -35,11 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
 ## [v8.0.0] - 2022-09-16
 
 ### State Machine Breaking
 
-- (deps) Bump Ethermint version to [`v0.19.0`](https://github.com/evmos/ethermint/releases/tag/v0.19.0)
+- (deps) [\#845](https://github.com/evmos/evmos/pull/845) Bump Ethermint version to [`v0.19.0`](https://github.com/evmos/ethermint/releases/tag/v0.19.0)
 - (feesplit) Add `x/feesplit` module
 
 ### Improvements
