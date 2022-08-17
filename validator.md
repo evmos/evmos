@@ -1,5 +1,16 @@
 # Join Point-XNet-Triton as a Validator
 
+## Table of Contents
+
+* [Overview](#overview)
+* [Rewards](#rewards)
+* [Prerequisites](#prerequisites)
+* [Initialize the Node](#initialize-the-node)
+* [Run the Node](#run-the-node)
+* [Sending your first transaction](#sending-your-first-transaction)
+* [Stake XPOINT and Join as a Validator](#stake-xpoint-and-join-as-a-validator)
+* [What's Next?](#whats-next)
+
 ## Overview
 
 This document describes step-by-step instructions on joining Point-XNet-Neptune testnet as a validator.
