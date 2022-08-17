@@ -31,7 +31,7 @@ Ensure Go is installed:
 
 ```go version```
 
-If Golang is not installed, install it using official tutorial: https://go.dev/doc/install. 
+If Golang is not installed, install it using official tutorial: https://go.dev/doc/install.
 
 Also to build node you would have to have `make` installed:
 
@@ -53,15 +53,15 @@ Check if evmosd command is available for you. If you see ```evmosd: command not 
 
 ```export PATH=$PATH:$(go env GOPATH)/bin```
 
-Configure your validator key: 
+Configure your validator key:
 
 ```evmosd config keyring-backend file```
 
 ```evmosd config chain-id point_10721-1```
 
-Input you 24 words passphrase for you validator key using this command:
 
-```evmosd keys add validatorkey --keyring-backend file --algo eth_secp256k1 --recover```
+Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey```
+You may want to record output somewhere because it contains your Evmos address and other usefull information.
 
 Run the init script
 
@@ -89,7 +89,7 @@ You will get the "latest_block_height" of your node.
   
 To see current block height of blockchain run:
 
-```curl  http://xnet-neptune-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'``` 
+```curl  http://xnet-neptune-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
 
 The result is in hexadecimal, just convert to decimal and see how far are you from full sync.
 
