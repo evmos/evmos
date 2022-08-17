@@ -26,10 +26,11 @@ import (
 // ethsecp256k1 address. The expected behavior is as follows:
 //
 // First transfer from authorized source chain:
-//  - sends back IBC tokens which originated from the source chain
-//  - sends over all Evmos native tokens
+//   - sends back IBC tokens which originated from the source chain
+//   - sends over all Evmos native tokens
+//
 // Second transfer from a different authorized source chain:
-//  - only sends back IBC tokens which originated from the source chain
+//   - only sends back IBC tokens which originated from the source chain
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -225,9 +226,9 @@ func (k Keeper) OnRecvPacket(
 // GetIBCDenomDestinationIdentifiers returns the destination port and channel of
 // the IBC denomination, i.e port and channel on Evmos for the voucher. It
 // returns an error if:
-//  - the denomination is invalid
-//  - the denom trace is not found on the store
-//  - destination port or channel ID are invalid
+//   - the denomination is invalid
+//   - the denom trace is not found on the store
+//   - destination port or channel ID are invalid
 func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender string) (destinationPort, destinationChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {

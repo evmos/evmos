@@ -102,9 +102,9 @@ func (k Keeper) ConvertERC20(
 
 // convertCoinNativeCoin handles the coin conversion for a native Cosmos coin
 // token pair:
-//  - escrow coins on module account
-//  - mint tokens and send to receiver
-//  - check if token balance increased by amount
+//   - escrow coins on module account
+//   - mint tokens and send to receiver
+//   - check if token balance increased by amount
 func (k Keeper) convertCoinNativeCoin(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -188,10 +188,10 @@ func (k Keeper) convertCoinNativeCoin(
 
 // convertERC20NativeCoin handles the erc20 conversion for a native Cosmos coin
 // token pair:
-//  - burn escrowed tokens
-//  - unescrow coins that have been previously escrowed with ConvertCoin
-//  - check if coin balance increased by amount
-//  - check if token balance decreased by amount
+//   - burn escrowed tokens
+//   - unescrow coins that have been previously escrowed with ConvertCoin
+//   - check if coin balance increased by amount
+//   - check if token balance decreased by amount
 func (k Keeper) convertERC20NativeCoin(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -288,12 +288,12 @@ func (k Keeper) convertERC20NativeCoin(
 
 // convertERC20NativeToken handles the erc20 conversion for a native erc20 token
 // pair:
-//  - escrow tokens on module account
-//  - mint coins on bank module
-//  - send minted coins to the receiver
-//  - check if coin balance increased by amount
-//  - check if token balance decreased by amount
-//  - check for unexpected `Approval` event in logs
+//   - escrow tokens on module account
+//   - mint coins on bank module
+//   - send minted coins to the receiver
+//   - check if coin balance increased by amount
+//   - check if token balance decreased by amount
+//   - check for unexpected `Approval` event in logs
 func (k Keeper) convertERC20NativeToken(
 	ctx sdk.Context,
 	pair types.TokenPair,
@@ -416,11 +416,11 @@ func (k Keeper) convertERC20NativeToken(
 
 // convertCoinNativeERC20 handles the coin conversion for a native ERC20 token
 // pair:
-//  - escrow Coins on module account
-//  - unescrow Tokens that have been previously escrowed with ConvertERC20 and send to receiver
-//  - burn escrowed Coins
-//  - check if token balance increased by amount
-//  - check for unexpected `Approval` event in logs
+//   - escrow Coins on module account
+//   - unescrow Tokens that have been previously escrowed with ConvertERC20 and send to receiver
+//   - burn escrowed Coins
+//   - check if token balance increased by amount
+//   - check for unexpected `Approval` event in logs
 func (k Keeper) convertCoinNativeERC20(
 	ctx sdk.Context,
 	pair types.TokenPair,

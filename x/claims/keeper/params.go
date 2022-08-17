@@ -8,7 +8,7 @@ import (
 
 // GetParams returns the total set of claim parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramstore.GetParamSet(ctx, &params)
+	k.paramstore.GetParamSetIfExists(ctx, &params)
 	return params
 }
 

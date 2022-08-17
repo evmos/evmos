@@ -18,8 +18,8 @@ import (
 //
 // CONTRACT: for this logic to work properly it is required to:
 //
-// 	1) Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
-// 	2) Release the software defined in the upgrade-info
+//  1. Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
+//  2. Release the software defined in the upgrade-info
 func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	// NOTE: there are no testnet forks for the existing versions
 	if !types.IsMainnet(ctx.ChainID()) {
