@@ -56,7 +56,8 @@ To see current block height of blockchain run:
 
 The result is in hexadecimal, just convert to decimal and see how far are you from fully sync.
 
-Export your evmos key as an Ethereum private key: ```evmosd keys unsafe-export-eth-key validatorkey```
+In order to import the wallet in your metamask you will need the private key. You can get it with this command:
+```evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file```
 
 Now let’s import the wallet in metamask. Go to the import account section, select type “Private key” and insert the private key you got from the command above.
 
