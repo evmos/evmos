@@ -7,12 +7,12 @@ validator:
   name: alice
   staked: "100000000000000000000apoint"
 faucet:
-  name: bob 
+  name: bob
   coins: ["10apoint"]
 build:
-  binary: "evmosd"
+  binary: "pointd"
 init:
-  home: "$HOME/.evmosd"
+  home: "$HOME/.pointd"
   app:
     evm-rpc:
       address: "0.0.0.0:8545"     # change the JSON-RPC address and port

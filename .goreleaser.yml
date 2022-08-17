@@ -4,7 +4,7 @@ before:
 
 builds:
   - id: "evmosd-darwin"
-    main: ./cmd/evmosd
+    main: ./cmd/pointd
     binary: bin/evmosd
     env:
       - CGO_ENABLED=1
@@ -19,7 +19,7 @@ builds:
     ldflags:
       - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
   - id: "evmosd-darwin-arm64"
-    main: ./cmd/evmosd
+    main: ./cmd/pointd
     binary: bin/evmosd
     env:
       - CGO_ENABLED=1
@@ -34,7 +34,7 @@ builds:
     ldflags:
       - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
   - id: "evmosd-linux"
-    main: ./cmd/evmosd
+    main: ./cmd/pointd
     binary: bin/evmosd
     env:
       - CGO_ENABLED=1
@@ -49,7 +49,7 @@ builds:
     ldflags:
       - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
   - id: "evmosd-linux-arm64"
-    main: ./cmd/evmosd
+    main: ./cmd/pointd
     binary: bin/evmosd
     env:
       - CGO_ENABLED=1
@@ -64,7 +64,7 @@ builds:
     ldflags:
       - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=evmos -X github.com/cosmos/cosmos-sdk/version.AppName=evmosd -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
   - id: "evmosd-windows"
-    main: ./cmd/evmosd
+    main: ./cmd/pointd
     binary: bin/evmosd
     env:
       - CGO_ENABLED=1
@@ -96,7 +96,7 @@ archives:
   - evmosd-windows
   - evmosd-linux
   - evmosd-linux-arm64
-  
+
 checksum:
   name_template: 'checksums.txt'
 changelog:
