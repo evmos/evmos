@@ -61,7 +61,7 @@ Configure your validator key:
 
 
 Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey```
-You may want to record output somewhere because it contains your Evmos address and other usefull information.
+You may want to save output somewhere because it contains your Evmos address and other usefull information.
 
 Run the init script
 
