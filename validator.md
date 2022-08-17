@@ -33,8 +33,8 @@ Now you can import it to the metamask using private key and sand XPOINT to this 
 Tutorial how to import address to metamask using private key: https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-account
 
 Run the init script
-Init you validator where validatorkey is your validator custom name
-```evmosd init validatorkey --chain-id point_10721-1```
+Init you validator where <myvalidator> is your validator custom name
+```evmosd init  <myvalidator> --chain-id point_10721-1```
 
 In order to import the wallet in your metamask you will need the private key. You can get it with this command:
 ```evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file```
