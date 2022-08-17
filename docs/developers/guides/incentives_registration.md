@@ -6,7 +6,7 @@ order: 5
 
 Learn how to register smart contract incentives through [Evmos Governance](../../users/governance/overview.md). {synopsis}
 
-Smart contracts can register incentives through governance. After incentives are registered for a smart contract, users that interact with the contract (eg. through submission of transactions) will have rewards distributed to them. These rewards are essentially cash-back for the gas spent on the initial transactions.
+An incentive for a smart contract can be registered through governance to encourage more interaction with that contract. Users who interact with a registered contract (eg. through submission of transactions) will have rewards distributed to them. These rewards are essentially cash-back for the gas spent on the initial transactions.
 
 The incentives workflow is summarized in the following image:
 
@@ -19,6 +19,8 @@ To register smart contract incentives, consider the following stages:
 3. [The On-Chain Contract Incentives Proposal](#the-on-chain-contract-incentives-proposal)
 
 This document also discusses [incentives analysis through telemetry](#incentives-analysis-through-telemetry).
+
+Check out the [incentives module specification](../../../x/incentives/spec/README.md) for more information on incentives.
 
 ## Drafting the Contract Incentives Proposal
 

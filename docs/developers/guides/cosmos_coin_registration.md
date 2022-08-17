@@ -4,13 +4,13 @@ order: 2
 
 # Cosmos Coin Registration
 
+Learn how to register native Cosmos Coins through [Evmos Governance](../../users/governance/overview.md). {synopsis}
+
 :::tip
 **Note**: Not sure what the difference between Cosmos Coin and ERC-20 Registration is? You're in the right place if you want to add functionality to convert a native Cosmos Coin to an ERC-20 token representation. If an ERC-20 contract corresponding to your token already exists, and you want to add functionality to convert the ERC-20 token to a native Cosmos Coin denomination, check out [ERC-20 Registration](./erc20_registration.md) instead.
 
 Still confused? Learn more about the differences [here](../../../x/erc20/spec/01_concepts.md).
 :::
-
-Learn how to register native Cosmos Coins through [Evmos Governance](../../users/governance/overview.md). {synopsis}
 
 The ERC-20 Module (also known as `x/erc20`) allows users to instantly convert [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20) tokens into native Cosmos Coins, and vice versa. This allows users to exchange assets interchangeably in two entirely different layers, the EVM and Cosmos.
 
@@ -64,9 +64,7 @@ writing markdown files.
 To [submit the proposal](../../users/governance/submitting.md) to testnet through the command line with [`evmosd`](../../validators/quickstart/binary.md), use the following command with `register-coin`:
 
 ```bash
-evmosd tx gov submit-proposal \
-  register-coin \
-  <path/to/metadata.json> \
+evmosd tx gov submit-proposal register-coin <path/to/metadata.json> \
   --title=<title> \
   --description=<description> \
   --deposit="1000000aevmos" \
@@ -101,7 +99,7 @@ where `metadata.json` contains (as an example, for Osmosis):
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 
 ```bash
-evmosd tx gov submit-proposal register-coin --proposal=<path_to_json>
+evmosd tx gov submit-proposal register-coin --proposal=<path/to/proposal.json>
 ```
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
