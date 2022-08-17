@@ -159,7 +159,12 @@ There you will find more info like your VotingPower that should be bigger than 0
 
 ## What's Next?
 
-If you experience any issues with this, join our Discord: https://pointnetwork.io/discord
+Check out extra documentation for validators:
+
+- https://hub.cosmos.network/main/validators/validator-faq.html#
+- https://docs.evmos.org/validators/overview.html
+
+If you experience any issues, join our Discord: https://pointnetwork.io/discord
 
 And ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
