@@ -34,7 +34,7 @@ Tutorial how to import address to metamask using private key: https://metamask.z
 
 Run the init script
 Init you validator where <myvalidator> is your validator custom name
-```evmosd init  <myvalidator> --chain-id point_10721-1```
+```evmosd init <myvalidator> --chain-id point_10721-1```
 
 In order to import the wallet in your metamask you will need the private key. You can get it with this command:
 ```evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file```
@@ -80,7 +80,7 @@ If you have enough balance stake your assets and check the transaction:
 evmosd tx staking create-validator  
 --amount=100000000000000000000apoint \
 --pubkey=$(evmosd tendermint show-validator) \
---moniker="validatorkey" \
+--moniker="<myvalidator>" \
 --chain-id=point_10721-1 \
 --commission-rate="0.10" \
 --commission-max-rate="0.20" \
