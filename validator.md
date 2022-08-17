@@ -27,8 +27,6 @@ Configure your validator key:
 Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey```
 You may want to record output somewhere because it contains your Evmos address and other usefull information.
 
-Export your evmos key as an Ethereum private key: ```evmosd keys unsafe-export-eth-key validatorkey```
-
 Now you can import it to the metamask using private key and sand XPOINT to this address for validator stake.
 Tutorial how to import address to metamask using private key: https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-account
 
@@ -58,6 +56,7 @@ To see current block height of blockchain run:
 
 The result is in hexadecimal, just convert to decimal and see how far are you from fully sync.
 
+Export your evmos key as an Ethereum private key: ```evmosd keys unsafe-export-eth-key validatorkey```
 
 Now let’s import the wallet in metamask. Go to the import account section, select type “Private key” and insert the private key you got from the command above.
 
