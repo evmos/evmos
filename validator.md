@@ -34,9 +34,6 @@ Run the init script
 Init you validator where <myvalidator> is your validator custom name
 ```evmosd init <myvalidator> --chain-id point_10721-1```
 
-In order to import the wallet in your metamask you will need the private key. You can get it with this command:
-```evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file```
-
 Copy ```genesis.json``` and ```config.toml``` ```files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1```  into ```~/.evmosd/config```
 Validate it: ```evmosd validate-genesis```
 
