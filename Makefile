@@ -188,45 +188,45 @@ RUNSIM         = $(TOOLS_DESTDIR)/runsim
 runsim: $(RUNSIM)
 $(RUNSIM):
 	@echo "Installing runsim..."
-	@(cd /tmp && ${GO_MOD} go get github.com/cosmos/tools/cmd/runsim@master)
+	@(cd /tmp && ${GO_MOD} go install github.com/cosmos/tools/cmd/runsim@master)
 
 statik: $(STATIK)
 $(STATIK):
 	@echo "Installing statik..."
-	@(cd /tmp && go get github.com/rakyll/statik@v0.1.6)
+	@(cd /tmp && go install github.com/rakyll/statik@v0.1.6)
 
 contract-tools:
 ifeq (, $(shell which stringer))
 	@echo "Installing stringer..."
-	@go get golang.org/x/tools/cmd/stringer
+	@go install golang.org/x/tools/cmd/stringer@latest
 else
 	@echo "stringer already installed; skipping..."
 endif
 
 ifeq (, $(shell which go-bindata))
 	@echo "Installing go-bindata..."
-	@go get github.com/kevinburke/go-bindata/go-bindata
+	@go install github.com/kevinburke/go-bindata/go-bindata@latest
 else
 	@echo "go-bindata already installed; skipping..."
 endif
 
 ifeq (, $(shell which gencodec))
 	@echo "Installing gencodec..."
-	@go get github.com/fjl/gencodec
+	@go install github.com/fjl/gencodec@latest
 else
 	@echo "gencodec already installed; skipping..."
 endif
 
 ifeq (, $(shell which protoc-gen-go))
 	@echo "Installing protoc-gen-go..."
-	@go get github.com/fjl/gencodec
+	@go install github.com/fjl/gencodec@latest
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 else
 	@echo "protoc-gen-go already installed; skipping..."
 endif
 
 ifeq (, $(shell which protoc-gen-go-grpc))
-	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 else
 	@echo "protoc-gen-go-grpc already installed; skipping..."
 endif
@@ -457,10 +457,6 @@ proto-gen:
 	@echo "Generating Protobuf files"
 	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace tendermintdev/sdk-proto-gen sh ./scripts/protocgen.sh
 
-proto-swagger-gen:
-	@echo "Generating Protobuf Swagger"
-	@./scripts/protoc-swagger-gen.sh
-
 proto-format:
 	@echo "Formatting Protobuf files"
 	find ./ -not -path "./third_party/*" -name *.proto -exec clang-format -i {} \;
@@ -554,6 +550,43 @@ localnet-show-logstream:
 	docker-compose logs --tail=1000 -f
 
 .PHONY: localnet-build localnet-start localnet-stop
+
+###############################################################################
+###                                Releasing                                ###
+###############################################################################
+
+PACKAGE_NAME:=github.com/evmos/evmos
+GOLANG_CROSS_VERSION  = v1.18
+GOPATH ?= '$(HOME)/go'
+release-dry-run:
+	docker run \
+		--rm \
+		--privileged \
+		-e CGO_ENABLED=1 \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v `pwd`:/go/src/$(PACKAGE_NAME) \
+		-v ${GOPATH}/pkg:/go/pkg \
+		-w /go/src/$(PACKAGE_NAME) \
+		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+		--rm-dist --skip-validate --skip-publish --snapshot
+
+release:
+	@if [ ! -f ".release-env" ]; then \
+		echo "\033[91m.release-env is required for release\033[0m";\
+		exit 1;\
+	fi
+	docker run \
+		--rm \
+		--privileged \
+		-e CGO_ENABLED=1 \
+		--env-file .release-env \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v `pwd`:/go/src/$(PACKAGE_NAME) \
+		-w /go/src/$(PACKAGE_NAME) \
+		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+		release --rm-dist --skip-validate
+
+.PHONY: release-dry-run release
 
 ###############################################################################
 ###                                Releasing                                ###

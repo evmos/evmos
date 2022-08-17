@@ -3,12 +3,12 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v6/x/claims/types"
+	"github.com/evmos/evmos/v8/x/claims/types"
 )
 
 // GetParams returns the total set of claim parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramstore.GetParamSet(ctx, &params)
+	k.paramstore.GetParamSetIfExists(ctx, &params)
 	return params
 }
 

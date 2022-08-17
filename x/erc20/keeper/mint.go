@@ -5,14 +5,14 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v6/x/erc20/types"
+	"github.com/evmos/evmos/v8/x/erc20/types"
 )
 
 // MintingEnabled checks that:
-//  - the global parameter for erc20 conversion is enabled
-//  - minting is enabled for the given (erc20,coin) token pair
-//  - recipient address is not on the blocked list
-//  - bank module transfers are enabled for the Cosmos coin
+//   - the global parameter for erc20 conversion is enabled
+//   - minting is enabled for the given (erc20,coin) token pair
+//   - recipient address is not on the blocked list
+//   - bank module transfers are enabled for the Cosmos coin
 func (k Keeper) MintingEnabled(
 	ctx sdk.Context,
 	sender, receiver sdk.AccAddress,

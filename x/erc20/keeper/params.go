@@ -3,12 +3,12 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v6/x/erc20/types"
+	"github.com/evmos/evmos/v8/x/erc20/types"
 )
 
 // GetParams returns the total set of erc20 parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramstore.GetParamSet(ctx, &params)
+	k.paramstore.GetParamSetIfExists(ctx, &params)
 	return params
 }
 
