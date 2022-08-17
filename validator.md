@@ -63,9 +63,6 @@ Configure your validator key:
 Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey```
 You may want to record output somewhere because it contains your Evmos address and other usefull information.
 
-Now you can import it to the metamask using private key and sand XPOINT to this address for validator stake.
-Tutorial how to import address to metamask using private key: https://metamask.zendesk.com/hc/en-us/articles/360015489331-How-to-import-an-account
-
 Run the init script
 
 Init you validator where [myvalidator] is your validator custom name which will be publicly visible
