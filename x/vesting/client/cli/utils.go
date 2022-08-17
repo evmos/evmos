@@ -3,7 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,7 +23,7 @@ type InputPeriod struct {
 // readScheduleFile reads the file at path and unmarshals it to get the schedule.
 // Returns start time, periods, and error.
 func ReadScheduleFile(path string) (int64, sdkvesting.Periods, error) {
-	contents, err := ioutil.ReadFile(filepath.Clean(path))
+	contents, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return 0, nil, err
 	}

@@ -26,7 +26,7 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	inflationtypes "github.com/evmos/evmos/v6/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
 
 	"github.com/evmos/ethermint/server"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -130,7 +130,7 @@ func startInProcess(cfg Config, val *Validator) error {
 		tmEndpoint := "/websocket"
 		tmRPCAddr := fmt.Sprintf("tcp://%s", val.AppConfig.GRPC.Address)
 
-		val.jsonrpc, val.jsonrpcDone, err = server.StartJSONRPC(val.Ctx, val.ClientCtx, tmRPCAddr, tmEndpoint, *val.AppConfig)
+		val.jsonrpc, val.jsonrpcDone, err = server.StartJSONRPC(val.Ctx, val.ClientCtx, tmRPCAddr, tmEndpoint, val.AppConfig, nil)
 		if err != nil {
 			return err
 		}

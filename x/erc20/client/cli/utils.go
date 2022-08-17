@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -12,7 +12,7 @@ import (
 func ParseMetadata(cdc codec.JSONCodec, metadataFile string) (banktypes.Metadata, error) {
 	metadata := banktypes.Metadata{}
 
-	contents, err := ioutil.ReadFile(filepath.Clean(metadataFile))
+	contents, err := os.ReadFile(filepath.Clean(metadataFile))
 	if err != nil {
 		return metadata, err
 	}

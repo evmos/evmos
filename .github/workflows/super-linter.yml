@@ -4,13 +4,14 @@
 # You can adjust the behavior by modifying this file.
 # For more information, see:
 # https://github.com/github/super-linter
+---
 name: Lint Code Base
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 jobs:
   run-lint:
     runs-on: ubuntu-latest
@@ -24,6 +25,13 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
+          LINTER_RULES_PATH: /
+          YAML_CONFIG_FILE: .yamllint
           VALIDATE_ALL_CODEBASE: false
+          MARKDOWN_CONFIG_FILE: .markdownlint.yml
+          VALIDATE_NATURAL_LANGUAGE: false
+          VALIDATE_OPENAPI: false
+          VALIDATE_JSCPD: false
+          VALIDATE_GO: false
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

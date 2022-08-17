@@ -7,15 +7,15 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
-	evmos "github.com/evmos/evmos/v6/types"
+	evmos "github.com/evmos/evmos/v8/types"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
 // from an ICS20 FungibleTokenPacketData as well as the original sender bech32
 // address from the packet data. This function fails if:
-//  - the packet data is not FungibleTokenPacketData
-//  - sender address is invalid
-//  - recipient address is invalid
+//   - the packet data is not FungibleTokenPacketData
+//   - sender address is invalid
+//   - recipient address is invalid
 func GetTransferSenderRecipient(packet channeltypes.Packet) (
 	sender, recipient sdk.AccAddress,
 	senderBech32, recipientBech32 string,
