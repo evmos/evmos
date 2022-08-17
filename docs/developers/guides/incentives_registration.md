@@ -126,22 +126,6 @@ The telemetry package of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) 
 
 To enable telemetrics, set `telemetry.enabled = true` in the `app.toml` config file of the node. The Cosmos SDK currently supports enabling in-memory and [Prometheus](https://prometheus.io/) telemetry sinks. The in-memory sink is always attached (when telemetry is enabled) with a ten second interval and one minute retention. This means that metrics will be aggregated over ten seconds, and metrics will be kept alive for one minute. To query active metrics, set `api.enabled = true` in the `app.toml`. This exposes a single API endpoint: `http://localhost:1317/metrics?format={text|prometheus}`, the default being `text`.
 
-### Emitting & Collecting Metrics
-
-If telemetry is enabled via configuration, a single global metrics collector is exposed via the [`go-metrics`](https://github.com/armon/go-metrics) library. This allows for emitting and collecting metrics through a simple [API](https://github.com/cosmos/cosmos-sdk/blob/v0.46.0-rc1/telemetry/wrapper.go). For example:
-
-```go
-func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
-  defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
-
-  // ...
-}
-```
-
-Developers may use the [`telemetry`](https://docs.evmos.org/protocol/telemetry.html) package directly, which provides wrappers around metric APIs that include adding useful labels, or they must use the `go-metrics` library directly. It is preferable to add as much context and adequate dimensionality to metrics as possible, so the `telemetry` package is advised.
-
-Regardless of the package or method used, the Cosmos SDK supports `guages`, `summaries`, and `counters` as metric types.
-
 ### Incentive Metrics
 
 Evmos supports the following metrics related to the `x/incentives` module, which can be collected for incentive analysis:
