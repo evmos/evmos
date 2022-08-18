@@ -30,7 +30,7 @@ If you have any questions, join our Discord: https://pointnetwork.io/discord and
 
 If you submitted the form, you’ve received 1024 XPOINT testnet tokens on the address you’ve sent to us. The testnet is incentivized, meaning that although it runs on XPOINT, successful testnet validators will receive real POINT as the rewards.
 
-But because everyone received the same amount (1024 XPOINT), your testnet rewards will be multiplied by the same factor shared by everyone, **and** also by the amount of real POINT you will have at the mainnet launch (basically, we want to reward you on the testnet ***as if you already do that with real POINT***, but before we know how much it would’ve had). Meaning that if you have 0 POINT at the mainnet starts, your stake on the testnet is basically 0, no matter your performance on the testnet.
+But because everyone received the same amount (1024 XPOINT), your testnet rewards will be multiplied by the same factor shared by everyone, **and** also by the amount of real POINT you will have at the mainnet launch (basically, we want to reward you on the testnet ***as if you already do that with real POINT***, but before we can possibly know how much you would’ve had). Meaning that if you have 0 POINT at the mainnet starts, your stake on the testnet is basically 0, no matter your performance on the testnet. And for Validator A that will have 300 POINT and Validator B that will have 3000 POINT, their rewards will be adjusted by 300 times and 3000 times respectively (even though everyone receives 1024 XPOINT equally at the start).
 
 ## Prerequisites
 
