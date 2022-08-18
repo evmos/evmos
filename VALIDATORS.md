@@ -49,6 +49,8 @@ Ensure Go is installed:
 
 ```go version```
 
+Note: Requires Go 1.18+
+
 If Golang is not installed, install it using official tutorial: https://go.dev/doc/install.
 
 Also to build node you would have to have `make` installed:
