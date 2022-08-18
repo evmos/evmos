@@ -23,7 +23,7 @@ This document describes step-by-step instructions on joining Point-XNet-Neptune 
 
 Validators have the responsibility to keep the network operational 24/7. Do not attempt to join the testnet (and especially mainnet) if you don’t have enough experience. For example, if you install it on your laptop, join as a validator, and then close the laptop, the network will penalize you for being offline by slashing your stake (+the network quality might degrade).
 
-If you have any questions, join our Discord: https://pointnetwork.io/discord and ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
+If you have any questions, join our Discord: https://pointnetwork.io/discord and ask in #validators channel (in order to see #validators channel, you should add yourself a Validator role at #roles). This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
 ## Rewards
 
@@ -221,7 +221,7 @@ There you will find more info like your VotingPower that should be bigger than 0
 
 ## What's Next?
 
-Please post on Discord channel #validators when you succeed! https://pointnetwork.io/discord
+Please post on Discord channel #validators when you succeed! https://pointnetwork.io/discord (in order to see #validators channel, you should add yourself a Validator role at #roles)
 
 And if you have any questions, ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
