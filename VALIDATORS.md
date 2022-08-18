@@ -69,7 +69,7 @@ Configure your validator key:
 ```evmosd config chain-id point_10721-1```
 
 
-Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey```
+Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey --keyring-backend file```
 You may want to save output somewhere because it contains your Evmos address and other usefull information.
 
 Run the init script
