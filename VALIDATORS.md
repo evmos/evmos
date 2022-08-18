@@ -45,11 +45,13 @@ Minimum hardware requirements: https://docs.evmos.org/validators/overview.html#h
 
 Most of the commands here are provided for and tested on Ubuntu Server 22.04 LTS, so change them accordingly (pacman instead of apt-get if you’re on Arch for example, or brew on Mac OS)
 
-Ensure Go is installed:
+The commands have to be run in a virtual session (like `tmux` or `screen`), otherwise if you disconnect from the server, the node will be killed.
+
+Run ```tmux``` to start the virtual session (if you disconnect and connect to your server again, use ```tmux attach``` to attach to that running session)
+
+Ensure Go is installed (Note: Requires Go 1.18+):
 
 ```go version```
-
-Note: Requires Go 1.18+
 
 If Golang is not installed, install it using official tutorial: https://go.dev/doc/install.
 
@@ -110,6 +112,10 @@ Then run the node and wait for fully sync:
 If you want it to also respond to the RPC commands, you can instead run:
 
 ```evmosd start --json-rpc.enable=true --json-rpc.api "eth,txpool,personal,net,debug,web3"```
+
+Now that the node has started, you cannot type any commands in your terminal. But thankfully, your virtual session supports several windows. So if you're on tmux, you can press Ctrl+b and then letter "c" to create a new tab.
+
+Then you can switch between the tabs like this: Ctrl+b and then the window ID (try window 0 where your node runs, and window 1 where you can type commands)
 
 You can run this command to see status of your node:
   
