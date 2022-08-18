@@ -160,7 +160,7 @@ Import the wallet with the private key into your wallet (e.g. Metamask), and you
 
 Evmos has two wallet formats: Cosmos format, and Ethereum format. Cosmos format starts with `evmos` prefix, and Ethereum format starts with `0x`. Most people don't need to know about Cosmos format, but validators should have a way to change from one to another.
 
-Run ```evmosd keys list```, and you will see a list of keys attached to your node. Look at the one which has the name `validatorkey`, and note its address (it should be in Cosmos format and start with `evmos` prefix).
+Run ```evmosd keys list --keyring-backend file```, and you will see a list of keys attached to your node. Look at the one which has the name `validatorkey`, and note its address (it should be in Cosmos format and start with `evmos` prefix).
 
 (In most cases it is not needed, but if something goes wrong and if you ever want to import your validator wallet in your Metamask you will need the private key. You can get it with this command: `evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file`)
 
