@@ -28,9 +28,17 @@ If you have any questions, join our Discord: https://pointnetwork.io/discord and
 
 ## Rewards
 
-If you submitted the form, you’ve received 1024 XPOINT testnet tokens on the address you’ve sent to us. The testnet is incentivized, meaning that although it runs on XPOINT, successful testnet validators will receive real POINT as the rewards.
+Validators receive rewards according to their stake, but because everyone received the same amount (1024 XPOINT), your testnet rewards will be multiplied by the same factor shared by everyone, **and** also by the amount of real POINT you will have at the mainnet launch. Here's what it means.
 
-But because everyone received the same amount (1024 XPOINT), your testnet rewards will be multiplied by the same factor shared by everyone, **and** also by the amount of real POINT you will have at the mainnet launch (basically, we want to reward you on the testnet ***as if you already do that with real POINT***, but before we can possibly know how much you would’ve had). Meaning that if you have 0 POINT at the mainnet starts, your stake on the testnet is basically 0, no matter your performance on the testnet. And for Validator A that will have 300 POINT and Validator B that will have 3000 POINT, their rewards will be adjusted by 300 times and 3000 times respectively (even though everyone receives 1024 XPOINT equally at the start).
+Imagine if we were already on the mainnet. Let's say there are two active validators: you and someone else. You stake with 1000 POINT, and they stake with 500 POINT (and everything else is equal - uptime, etc.) Obviously, you would receive 2x the rewards than the other validator on mainnet.
+
+But right not we don't know how many real POINTs all of you would have at the mainnet start. So right now everyone gets equal amounts: 1024 XPOINT, and equal rewards (if all else considered equal - if your uptime and XPOINT stake is the same etc.)
+
+So to get to the real number, on September 1 we will multiply the rewards by a constant which will be the same for everyone, and by how many real POINT validators will have, to simulate as if they put this amount at stake.
+
+_Q: Why tie rewards to real POINTs and not give every validator equal amounts for participation?_
+
+_A: If we did this, some could spawn hundreds of validator instances to claim their rewards, and not only this would impact our funds and make it unfair to others, but slow down the network. Multiplying it by a real stake solves this - if someone has 5000 POINTs, they can create 1 or 5000 validators, it doesn't matter - they would have to split the real stake too when they claim on Sep 1, which would also split the rewards instead of accumulating them as it would have been with a constant._
 
 ## Prerequisites
 
