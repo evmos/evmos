@@ -45,8 +45,6 @@ Stay on the _main_ branch and run this to compile the node from the sources:
 
 ```make install```
 
-_Note: Point Chain is a fork of evmos, and by default the working directory is ~/.evmos. Make sure you don’t already have data for another evmos node on the device you’re running the validator from._
-
 ## Initialize the Node
 
 Check if pointd command is available for you. If you see ```pointd: command not found``` message then export path for this command:
@@ -124,7 +122,7 @@ will see your balance in Metamask or you can check your balance with this comman
 If you have enough balance stake your assets and check the transaction:
 
 ```
-pointd tx staking create-validator
+pointd tx staking create-validator \
 --amount=100000000000000000000apoint \
 --pubkey=$(pointd tendermint show-validator) \
 --moniker="<myvalidator>" \
