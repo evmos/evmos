@@ -59,7 +59,15 @@ Pull the repository of the point chain:
 
 ```git clone https://github.com/pointnetwork/point-chain```
 
-Stay on the _main_ branch and run this to compile the node from the sources:
+Go inside the folder:
+
+```cd point-chain```
+
+Switch to the triton branch:
+
+```git checkout xnet-triton```
+
+Compile the node from the sources:
 
 ```make install```
 
