@@ -38,8 +38,8 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 // the module account address. This hook applies to both token pairs that have
 // been registered through a native Cosmos coin or an ERC20 token. If token pair
 // has been registered with:
-//  - coin -> burn tokens and transfer escrowed coins on module to sender
-//  - token -> escrow tokens on module account and mint & transfer coins to sender
+//   - coin -> burn tokens and transfer escrowed coins on module to sender
+//   - token -> escrow tokens on module account and mint & transfer coins to sender
 //
 // Note that the PostTxProcessing hook is only called by sending an EVM
 // transaction that triggers `ApplyTransaction`. A cosmos tx with a
