@@ -116,7 +116,7 @@ Then you need to add XNet-Triton into Metamask:
 
 ```
 Network Title: Point XNet Triton
-RPC URL: http://xnet-neptune-1.point.space:8545/
+RPC URL: https://xnet-triton-1.point.space/
 Chain ID: 10721
 SYMBOL: XPOINT
 ```
