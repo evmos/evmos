@@ -1,11 +1,10 @@
 # Join Point-XNet-Triton as a Validator
 
-DISCLAIMER: THE DOCUMENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-OR IN CONNECTION WITH THE DOCUMENT.
+DISCLAIMER: THE DOCUMENT IS PROVIDED ON "AS IS" AND “AS DEVELOPED” BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE DOCUMENT.
 
-Following this document requires highly experienced DevOps engineers that know how to run validators. This is not the tutorial for most Point Network users! Do not attempt to run the commands from your personal computer, just in case something goes wrong!
+Following this document and/or performing validation activities requires highly experienced DevOps engineers that possess necessary knowledge how to run validators. You are fully responsible for your interaction with validator functionality and running any type of commands, we will not and shall not be liable to you for any omissions, defects, bugs, limitations and delays in the validator functionality or any other related software.
+
+This is not the tutorial for most Point Network users! Do not attempt to run the commands from your personal computer, just in case something goes wrong!
 
 ## Table of Contents
 
