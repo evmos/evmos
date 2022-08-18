@@ -155,7 +155,7 @@ will see your balance in Metamask or you can check your balance with this comman
 If you have enough balance stake your assets and check the transaction:
 
 ```
-evmosd tx staking create-validator  
+evmosd tx staking create-validator \
 --amount=100000000000000000000apoint \
 --pubkey=$(evmosd tendermint show-validator) \
 --moniker="<myvalidator>" \
