@@ -88,6 +88,10 @@ Validate it:
 
 Then run the node and wait for fully sync:
   
+```evmosd start```
+
+If you want it to also respond to the RPC commands, you can instead run:
+
 ```evmosd start --json-rpc.enable=true --json-rpc.api "eth,txpool,personal,net,debug,web3"```
 
 You can run this command to see status of your node:
@@ -104,7 +108,9 @@ The result is in hexadecimal, just convert to decimal and see how far are you fr
 
 ## Sending your first transaction
 
-Now you need to send funds to your validator address. As mentioned, you should have received an airdrop of 1024 XPOINT if you filled in the form. To see them, you can import the private key into a wallet like Metamask (not a good idea for mainnet security, but ok for testnet tokens).
+### Add custom network
+
+Now while you're waiting for the node to sync, you need to send funds to your validator address. As mentioned, you should have received an airdrop of 1024 XPOINT if you filled in the form. To see them, you can import the private key into a wallet like Metamask (not a good idea for mainnet security, but ok for testnet tokens).
 
 Then you need to add XNet-Triton into Metamask:
 
@@ -115,17 +121,33 @@ Chain ID: 10721
 SYMBOL: XPOINT
 ```
 
-In order to import the wallet in your metamask you will need the private key. You can get it with this command:
+### Add the wallet with your 1024 XPOINT
 
-```evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file```
+Remember the wallet you sent to us to be funded? In the form? It now has 1024 XPOINT.
 
-Now let’s import the wallet in metamask. Go to the import account section, select type “Private key” and insert the private key you got from the command above.
+Import the wallet with the private key into your wallet (e.g. Metamask), and you should see 1024 XPOINT there. But this is your fund wallet, not validator wallet.
 
-Now that you have an account you need to get some point to stake and run your validator. (contact point team)
+### Find out which address is your validator wallet
+
+Evmos has two wallet formats: Cosmos format, and Ethereum format. Cosmos format starts with `evmos` prefix, and Ethereum format starts with `0x`. Most people don't need to know about Cosmos format, but validators should have a way to change from one to another.
+
+Run ```evmosd keys list```, and you will see a list of keys attached to your node. Look at the one which has the name `validatorkey`, and note its address (it should be in Cosmos format and start with `evmos` prefix).
+
+(In most cases it is not needed, but if something goes wrong and if you ever want to import your validator wallet in your Metamask you will need the private key. You can get it with this command: `evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file`)
+
+Use this tool to convert it to Ethereum format: https://evmos.me/utils/tools
+
+This is your validator address in Ethereum format.
+
+### Fund the validator
+
+Finally, use the wallet to send however much you need from your fund address to the validator address (you can send all 1024 or choose a different strategy).
 
 ## Stake XPOINT and Join as a Validator
 
-Once the node is fully synced, and you got some point to stake check your balance in the node you 
+Now you have to wait for the node to fully sync, because otherwise it will not find your.
+
+Once the node is fully synced, and you got some XPOINT to stake, check your balance in the node, you 
 will see your balance in Metamask or you can check your balance with this command:
 
 ```evmosd query bank balances  <evmosaddress>```
@@ -148,13 +170,15 @@ evmosd tx staking create-validator
 --keyring-backend file
 ```
 
-You will have to provide your keystore password and approve the transaction.
+(Note the amount: it's in apoint (which is 1/1e18 XPOINT). 100000000000000000000apoint is 100 XPOINT (when you remove 18 zeroes at the end). If you decide to adjust the amount, don't forget to adjust `min-self-delegation` flag too.)
+
+You will have to provide your keystore password and approve the transaction for this command.
 
 If everything works ok you will get a txhash. You can check the status of the tx: ```evmosd query tx <txhash>```
 
-Transaction receipt may contain errors, so please check if there are any or if it's live.
+Transaction receipt may contain errors, so please check if there are any or if it's live. You can use the explorer or ask the node to provide receipt.
 
-If the transaction was correct you should become part of the validators set. Check your pubkey first:
+If the transaction was correct you should instantly become part of the validators set. Check your pubkey first:
 
 ```evmosd tendermint show-validator```
 
@@ -168,13 +192,13 @@ There you will find more info like your VotingPower that should be bigger than 0
 
 ## What's Next?
 
-Check out extra documentation for validators:
+Please post on Discord channel #validators when you succeed! https://pointnetwork.io/discord
+
+And if you have any questions, ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
+
+Also, check out extra documentation for validators:
 
 - https://hub.cosmos.network/main/validators/validator-faq.html#
 - https://docs.evmos.org/validators/overview.html
-
-If you experience any issues, join our Discord: https://pointnetwork.io/discord
-
-And ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
 Share any feedback, questions, and ideas there!
