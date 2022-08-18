@@ -18,8 +18,7 @@ import (
 )
 
 // NewRegisterIncentiveProposalCmd implements the command to submit a register
-//
-//	incentive proposal
+//  incentive proposal
 func NewRegisterIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-incentive [contract-address] [allocation] [epochs]",
@@ -101,8 +100,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 }
 
 // NewCancelIncentiveProposalCmd implements the command to submit a cancel
-//
-//	incentive proposal
+//  incentive proposal
 func NewCancelIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "cancel-incentive [contract-address]",

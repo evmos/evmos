@@ -22,7 +22,9 @@ import (
 	"github.com/evmos/evmos/v8/testutil"
 	"github.com/evmos/evmos/v8/x/feesplit/types"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -887,19 +889,31 @@ func buildEthTx(
 }
 
 func prepareEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) []byte {
-	// Sign transaction
-	err := msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
-	s.Require().NoError(err)
-
-	// Assemble transaction from fields
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	tx, err := msgEthereumTx.BuildTx(txBuilder, s.app.EvmKeeper.GetParams(s.ctx).EvmDenom)
+	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
 	s.Require().NoError(err)
 
-	// Encode transaction by default Tx encoder and broadcasted over the network
-	txEncoder := encodingConfig.TxConfig.TxEncoder()
-	bz, err := txEncoder(tx)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
+	s.Require().True(ok)
+	builder.SetExtensionOptions(option)
+
+	err = msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
+	s.Require().NoError(err)
+
+	err = txBuilder.SetMsgs(msgEthereumTx)
+	s.Require().NoError(err)
+
+	txData, err := evmtypes.UnpackTxData(msgEthereumTx.Data)
+	s.Require().NoError(err)
+
+	evmDenom := s.app.EvmKeeper.GetParams(s.ctx).EvmDenom
+	fees := sdk.Coins{{Denom: evmDenom, Amount: sdk.NewIntFromBigInt(txData.Fee())}}
+	builder.SetFeeAmount(fees)
+	builder.SetGasLimit(msgEthereumTx.GetGas())
+
+	// bz are bytes to be broadcasted over the network
+	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
 	s.Require().NoError(err)
 
 	return bz

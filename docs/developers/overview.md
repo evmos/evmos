@@ -22,12 +22,7 @@ Please find the following resources for in-depth information:
     - **[EvmosJS](./libraries/evmosjs.md)**: Javascript library for Evmos.
 - **Guides**:
     - **[Wallet Integration](./guides/wallet_integration.md)**: Connect Metamask and Keplr wallets to a UI.
-    - **[ERC-20 Registration](./guides/erc20_registration.md)**: Register interoperable ERC-20s through governance.
-    - **[Cosmos Coin Registration](./guides/cosmos_coin_registration.md)**: Register native Cosmos Coins through governance.
-    - **[Smart Contract Registration](./guides/smart_contract_registration.md)**: Register smart contracts in the dApp store to earn income.
-    - **[Incentives Registration](./guides/incentives_registration.md)**: Register smart contract incentives through governance.
-    - **[Trace Transactions](./guides/trace_transactions.md)**: Learn how to trace transactions on Evmos.
-    - **[Query Balances](./guides/query_balances.md)**: Learn how to query balances on Evmos.
+    - **[ERC-20 Registration](./guides/erc_20_registration.md)**: Register interoperable ERC-20s through governance.
 
 ### Remote Procedure Calls (RPCs)
 
