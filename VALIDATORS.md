@@ -97,7 +97,11 @@ Init you validator where [myvalidator] is your validator custom name which will 
   
 ```evmosd init [myvalidator] --chain-id point_10721-1```
 
-Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1 into `~/.evmosd/config`
+Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1 into `~/.evmosd/config`:
+
+`wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/testnet-xNet-Triton-1/config.toml`
+`wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/testnet-xNet-Triton-1/genesis.json`
+`mv config.toml genesis.json ~/.evmosd/config/`
 
 Validate it:
   
