@@ -4,7 +4,7 @@ DISCLAIMER: THE DOCUMENT IS PROVIDED ON "AS IS" AND “AS DEVELOPED” BASIS, WI
 
 Following this document and/or performing validation activities requires highly experienced DevOps engineers that possess necessary knowledge how to run validators. You are fully responsible for your interaction with validator functionality and running any type of commands, we will not and shall not be liable to you for any omissions, defects, bugs, limitations and delays in the validator functionality or any other related software.
 
-This is not the tutorial for most Point Network users! Do not attempt to run the commands from your personal computer, just in case something goes wrong!
+⚠️ This is not the tutorial for most Point Network users! Do not attempt to run the commands from your personal computer, just in case something goes wrong!
 
 ## Table of Contents
 
