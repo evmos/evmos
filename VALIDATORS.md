@@ -34,6 +34,8 @@ But because everyone received the same amount (1024 XPOINT), your testnet reward
 
 ## Prerequisites
 
+Minimum hardware requirements: https://docs.evmos.org/validators/overview.html#hardware
+
 Most of the commands here are provided for and tested on Ubuntu Server 22.04 LTS, so change them accordingly (pacman instead of apt-get if you’re on Arch for example, or brew on Mac OS)
 
 Ensure Go is installed:
