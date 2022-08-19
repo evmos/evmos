@@ -251,15 +251,3 @@ Share any feedback, questions, and ideas there!
 
   * When attempting to perform routine maintenance or planning for an upcoming coordinated upgrade, it can be useful to have your validator systematically and gracefully halt. You can achieve this by either setting the `halt-height` to the height at which you want your node to shutdown or by passing the `--halt-height` flag to `evmosd`. The node will shutdown with a zero exit code at that given height after committing the block.
 
-### Sending a transaction for validator but having a problem?
-
-Send us the output of these commands for debugging:
-
-```
-git rev-list HEAD | head -n 1
-evmosd status
-evmosd tendermint show-validator
-evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"
-evmosd query slashing signing-info $(evmosd tendermint show-validator)
-evmosd query bank balances $(evmosd keys show validatorkey | grep address: | cut -d ':' --complement -f 1)
-```
