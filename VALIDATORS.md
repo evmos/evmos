@@ -235,6 +235,12 @@ Share any feedback, questions, and ideas there!
 
 ## Useful commands
 
-- Check if your validator is active: `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` (if the output is non-empty, you are a validator)
-- See the slashing status: `evmosd query slashing signing-info $(evmosd tendermint show-validator)`
-- If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by running: `evmosd tx slashing unjail --from=validatorkey --chain-id=point-10721_1`
+* Check if your validator is active: `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` (if the output is non-empty, you are a validator)
+
+* See the slashing status: `evmosd query slashing signing-info $(evmosd tendermint show-validator)`
+
+* If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by running: `evmosd tx slashing unjail --from=validatorkey --chain-id=point-10721_1`
+
+* Halting Your Validator:
+
+  * When attempting to perform routine maintenance or planning for an upcoming coordinated upgrade, it can be useful to have your validator systematically and gracefully halt. You can achieve this by either setting the `halt-height` to the height at which you want your node to shutdown or by passing the `--halt-height` flag to `evmosd`. The node will shutdown with a zero exit code at that given height after committing the block.
