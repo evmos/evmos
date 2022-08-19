@@ -98,7 +98,7 @@ You may want to save output somewhere because it contains your Evmos address and
 
 Init you validator where [myvalidator] is your validator custom name which will be publicly visible
   
-```evmosd init [myvalidator] --chain-id point_10721-1```
+```evmosd init myvalidator --chain-id point_10721-1```
 
 Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1 into `~/.evmosd/config`:
 
