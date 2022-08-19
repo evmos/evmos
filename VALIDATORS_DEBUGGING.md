@@ -2,6 +2,8 @@
 
 Send us the output of these commands for debugging:
 
+(if your output message gets deleted from Discord due to bots being stupid - happens sometimes - send as a screenshot instead, or with https://paste.ofcode.org/)
+
 ```
 git rev-list HEAD | head -n 1
 evmosd status
