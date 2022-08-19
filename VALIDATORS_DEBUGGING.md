@@ -1,6 +1,12 @@
 ### Sending a transaction for validator but having a problem?
 
-Send us the output of these commands for debugging:
+Send us:
+
+1) what your problem is (which command you're running and what it the error/problem)
+
+AND
+
+2) the output of these commands for debugging:
 
 _(if your output message gets deleted from Discord due to bots being stupid - happens sometimes - send as a screenshot instead, or with https://paste.ofcode.org/)_
 
