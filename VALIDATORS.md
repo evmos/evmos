@@ -245,7 +245,7 @@ Share any feedback, questions, and ideas there!
 
 * See the slashing status: `evmosd query slashing signing-info $(evmosd tendermint show-validator)` Jailed until year 1970 means you are not jailed!
 
-* If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by first, starting the node, making sure it's synced to the last block, and then running: `evmosd tx slashing unjail --from=validatorkey --chain-id=point-10721_1`. Run `evmosd status` and `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` to confirm you're unjailed.
+* If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by first, starting the node, making sure it's synced to the last block, and then running: `evmosd tx slashing unjail --from=validatorkey --chain-id=point_10721-1`. Run `evmosd status` and `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` to confirm you're unjailed.
 
 * Halting Your Validator:
 
