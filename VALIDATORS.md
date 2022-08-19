@@ -114,9 +114,9 @@ Validate it:
   
 ## Run the Node
 
-Then run the node and wait for fully sync:
+Then run the node and wait for fully sync using bash script:
   
-```evmosd start```
+```./start.sh``` from repository root folder.
 
 If you want it to also respond to the RPC commands, you can instead run:
 
