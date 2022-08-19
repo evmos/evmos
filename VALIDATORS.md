@@ -16,6 +16,7 @@ Following this document and/or performing validation activities requires highly 
 * [Sending your first transaction](#sending-your-first-transaction)
 * [Stake XPOINT and Join as a Validator](#stake-xpoint-and-join-as-a-validator)
 * [What's Next?](#whats-next)
+* [Useful Commands](#useful-commands)
 
 ## Overview
 
@@ -231,3 +232,9 @@ Also, check out extra documentation for validators:
 - https://docs.evmos.org/validators/overview.html
 
 Share any feedback, questions, and ideas there!
+
+## Useful commands
+
+- Check if your validator is active: `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` (if the output is non-empty, you are a validator)
+- See the slashing status: `evmosd query slashing signing-info $(evmosd tendermint show-validator)`
+- If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by running: `evmosd tx slashing unjail --from=validatorkey --chain-id=point-10721_1`
