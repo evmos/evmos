@@ -237,6 +237,8 @@ Share any feedback, questions, and ideas there!
 
 ## Useful commands
 
+* How to run the node as a service: https://medium.com/@anttiturunen/running-point-validator-as-a-service-d8e4b0391540
+
 * Check the balance of an evmos-formatted address: `evmosd query bank balances <evmosaddress>`
 
 * Check if your validator is active: `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` (if the output is non-empty, you are a validator)
