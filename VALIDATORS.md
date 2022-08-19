@@ -188,21 +188,21 @@ If you have enough balance stake your assets and check the transaction:
 
 ```
 evmosd tx staking create-validator \
---amount=100000000000000000000apoint \
+--amount=1000000000000000000000apoint \
 --pubkey=$(evmosd tendermint show-validator) \
 --moniker="<myvalidator>" \
 --chain-id=point_10721-1 \
 --commission-rate="0.10" \
 --commission-max-rate="0.20" \
 --commission-max-change-rate="0.01" \
---min-self-delegation="100000000000000000000" \
+--min-self-delegation="1000000000000000000000" \
 --gas="400000" \
 --gas-prices="0.025apoint" \
 --from=validatorkey \
 --keyring-backend file
 ```
 
-(Note the amount: it's in apoint (which is 1/1e18 XPOINT). 100000000000000000000apoint is 100 XPOINT (when you remove 18 zeroes at the end). If you decide to adjust the amount, don't forget to adjust `min-self-delegation` flag too.)
+(Note the amount: it's in apoint (which is 1/1e18 XPOINT). 1000000000000000000000apoint is 1000 XPOINT (when you remove 18 zeroes at the end). If you decide to adjust the amount, don't forget to adjust `min-self-delegation` flag too.)
 
 You will have to provide your keystore password and approve the transaction for this command.
 
