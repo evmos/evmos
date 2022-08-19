@@ -37,12 +37,19 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+## [v8.0.0] - 2022-09-16
+
+### State Machine Breaking
+
+- (deps) [\#845](https://github.com/evmos/evmos/pull/845) Bump Ethermint version to [`v0.19.0`](https://github.com/evmos/ethermint/releases/tag/v0.19.0)
+- (feesplit) Add `x/feesplit` module
+
 ### Improvements
 
 - (deps) [\#839](https://github.com/evmos/evmos/pull/839) Bump ibc-go to [`v3.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.2.0) and Cosmos SDK to [`v0.45.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.7).
 - (build) [\#725](https://github.com/evmos/evmos/pull/725) Migrate Protobuf code generator to [Protobuf Workspaces](https://docs.buf.build/reference/workspaces)
 
-## [v7.0.0] - 2002-08-04
+## [v7.0.0] - 2022-08-04
 
 ### State Machine Breaking
 
@@ -53,7 +60,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [\#760](https://github.com/evmos/evmos/pull/760) Migrate inaccessible balance of testnet faucet account to new address
 - (inflation) [\#748](https://github.com/evmos/evmos/pull/748) Remove overcounted epochs from `skippedEpochs` value in store
 
-## [v6.0.3] - 2002-07-26
+## [v6.0.3] - 2022-07-26
 
 ### Bug Fixes
 
