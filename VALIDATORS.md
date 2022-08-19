@@ -26,6 +26,8 @@ Validators have the responsibility to keep the network operational 24/7. Do not 
 
 If you have any questions, join our Discord: https://pointnetwork.io/discord and ask in #validators channel (in order to see #validators channel, you should add yourself a Validator role at #roles). This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
+Evmos is based on Cosmos SDK (which in turn is based on Tendermint), so if you know Cosmos commands, most of them will work here too.
+
 ## Rewards
 
 Validators receive rewards according to their stake, but because everyone received the same amount (1024 XPOINT), your testnet rewards will be multiplied by the same factor shared by everyone, **and** also by the amount of real POINT you will have at the mainnet launch. Here's what it means.
@@ -234,6 +236,8 @@ Also, check out extra documentation for validators:
 Share any feedback, questions, and ideas there!
 
 ## Useful commands
+
+* Check the balance of an evmos-formatted address: `evmosd query bank balances <evmosaddress>`
 
 * Check if your validator is active: `evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"` (if the output is non-empty, you are a validator)
 
