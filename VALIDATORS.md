@@ -62,7 +62,7 @@ Also to build node you would have to have `make` installed:
 
 ```sudo apt-get install build-essential```
 
-Pull the repository of the point chain: 
+Pull the repository of the point chain:
 
 ```git clone https://github.com/pointnetwork/point-chain```
 
@@ -97,8 +97,11 @@ Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey --key
 You may want to save output somewhere because it contains your Evmos address and other usefull information.
 
 Init you validator where [myvalidator] is your validator custom name which will be publicly visible
-  
+
 ```evmosd init myvalidator --chain-id point_10721-1```
+
+Once you've initialized your validator is really important to back up the validator keys. They were generated inside ~/.evmosd/config/priv_validator_key.json
+Save this file and don't share it. It's the id of your validator and you will need it for reinstallation or migration of the node
 
 Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1 into `~/.evmosd/config`:
 
@@ -109,13 +112,13 @@ Copy `genesis.json` and `config.toml` files from this repository https://github.
 `mv config.toml genesis.json ~/.evmosd/config/`
 
 Validate it:
-  
+
 ```evmosd validate-genesis```
-  
+
 ## Run the Node
 
 Then run the node and wait for fully sync using bash script:
-  
+
 ```./start.sh``` from repository root folder.
 
 If you want it to also respond to the RPC commands, you can instead run:
@@ -127,11 +130,11 @@ Now that the node has started, you cannot type any commands in your terminal. Bu
 Then you can switch between the tabs like this: Ctrl+b and then the window ID (try window 0 where your node runs, and window 1 where you can type commands)
 
 You can run this command to see status of your node:
-  
+
 ```evmosd status```
 
 You will get the "latest_block_height" of your node.
-  
+
 To see current block height of blockchain run:
 
 ```curl  http://xnet-neptune-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
@@ -179,7 +182,7 @@ Finally, use the wallet to send however much you need from your fund address to 
 
 Now you have to wait for the node to fully sync, because otherwise it will not find your.
 
-Once the node is fully synced, and you got some XPOINT to stake, check your balance in the node, you 
+Once the node is fully synced, and you got some XPOINT to stake, check your balance in the node, you
 will see your balance in Metamask or you can check your balance with this command:
 
 ```evmosd query bank balances  <evmosaddress>```
