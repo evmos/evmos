@@ -232,7 +232,7 @@ evmosd query slashing signing-info $(evmosd tendermint show-validator) | grep ja
 And run this to see current utc time:
 
 ```
-date -u +"%Y-%m-%dT%H:%M:%SZ
+date -u +"%Y-%m-%dT%H:%M:%SZ"
 ```
 
 ## How to unjail using the key
