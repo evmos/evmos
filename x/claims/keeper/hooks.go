@@ -86,7 +86,7 @@ func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress,
 			"address", delAddr.String(),
 			"error", err.Error(),
 		)
-		return err
+		return nil
 	}
 	return nil
 }
