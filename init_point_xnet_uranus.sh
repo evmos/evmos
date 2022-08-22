@@ -80,37 +80,6 @@ cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["dura
 # 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
 cat $HOME/.pointd/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"apoint", "amount":$amount_to_claim}]}]' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
-# disable produce empty block
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' 's/create_empty_blocks = true/create_empty_blocks = false/g' $HOME/.pointd/config/config.toml
-  else
-    sed -i 's/create_empty_blocks = true/create_empty_blocks = false/g' $HOME/.pointd/config/config.toml
-fi
-
-if [[ $1 == "pending" ]]; then
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_propose = "3s"/timeout_propose = "30s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "5s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "10s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "5s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "5s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_commit = "5s"/timeout_commit = "150s"/g' $HOME/.pointd/config/config.toml
-      sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' $HOME/.pointd/config/config.toml
-  else
-      sed -i 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_propose = "3s"/timeout_propose = "30s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "5s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_prevote = "1s"/timeout_prevote = "10s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "5s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "5s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_commit = "5s"/timeout_commit = "150s"/g' $HOME/.pointd/config/config.toml
-      sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' $HOME/.pointd/config/config.toml
-  fi
-fi
-
 # Allocate genesis accounts (cosmos formatted addresses)
 pointd add-genesis-account $KEY 10000000000000000000000000apoint --keyring-backend $KEYRING
 
