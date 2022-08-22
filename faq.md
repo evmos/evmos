@@ -25,6 +25,7 @@
 * [What do I need to backup for migrating my node to other vps](#what-do-I-need-to-backup-for-migrating-my-node-to-other-vps)
 * [How to export my private key to import in metamask](#how-to-export-my-private-key-to-import-in-metamask)
 * [How to recover a key using seeds](#how-to-recover-a-key-using-seeds)
+* [How to share my seed address](#how-to-share-my-seed-address)
 
 ## My transaction failed because of sequence error
 
@@ -332,3 +333,43 @@ evmosd keys unsafe-export-eth-key <key-name> --keyring-backend file
 ```
 evmosd keys add <key-name> --keyring-backend file --recover
 ```
+
+## How to share my seed address
+
+Seed address has this format:
+<node-id>@<public-ip>:26656
+
+To get the node id run:
+
+```
+evmosd tendermint show-node-id
+```
+
+To get your public ip run:
+
+```
+dig +short myip.opendns.com @resolver1.opendns.com
+```
+
+If your server has a domain name you can provide the domain name rather than the ip
+
+584cdae540b76ac7cf4ac2c357c9820125b25ca6@167.99.40.109:26656
+
+or if you want to use domain name
+
+584cdae540b76ac7cf4ac2c357c9820125b25ca6@xnet-neptune-1.point.space:26656
+
+Share yours in validators chat.
+
+You need to make sure that your port 26656 is open. To check if port is open you can run:
+
+(replace with your public ip)
+
+```
+nc 167.99.40.109 26656
+```
+
+It could be nc or netcat tool.
+
+If you get very strange output it means the port is open and everything is ok.
+If it timeouts or connection is refused it means the port is closed and you need to check your firewall.
