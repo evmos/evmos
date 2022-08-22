@@ -63,22 +63,9 @@ cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["m
 # Set gas limit in genesis
 cat $HOME/.pointd/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
-# Set claims start time
+# Set claims unavailable
 node_address=$(pointd keys list | grep  "address: " | cut -c12-)
-current_date=$(date -u +"%Y-%m-%dT%TZ")
-cat $HOME/.pointd/config/genesis.json | jq -r --arg current_date "$current_date" '.app_state["claims"]["params"]["airdrop_start_time"]=$current_date' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
-
-# Set claims records for validator account
-amount_to_claim=10000
-cat $HOME/.pointd/config/genesis.json | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claims"]["claims_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
-
-# Set claims decay
-cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["duration_of_decay"]="1000000s"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
-cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["duration_until_decay"]="100000s"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
-
-# Claim module account:
-# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
-cat $HOME/.pointd/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"apoint", "amount":$amount_to_claim}]}]' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["claims"]["params"]["enable_claims"]=false' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Allocate genesis accounts (cosmos formatted addresses)
 pointd add-genesis-account $KEY 10000000000000000000000000apoint --keyring-backend $KEYRING
@@ -89,7 +76,7 @@ pointd add-genesis-account evmos1ev3575lx5q7dd0jg0p5rh49pvp0lffgu0f6cad 10000000
 validators_supply=$(cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
 # Bc is required to add this big numbers
 # total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
-total_supply=110000000000000000000010000
+total_supply=110000000000000000000000000
 cat $HOME/.pointd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Sign genesis transaction
