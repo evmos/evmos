@@ -1,16 +1,16 @@
 # Unstake money:
-At firrst you can see all the info for contracts doing this:
-```evmosd query staking validators```.
+At first you can see all the info for contracts doing this:
+```pointd query staking validators```.
 
 Once you find your validator (by moniker or using some id)
-```evmosd tendermint show-validator```, you can have details for yours, 
+```pointd tendermint show-validator```, you can have details for yours, 
 you need your key evmosvaloper format.
 
 Next command gives you a key starting with `evmosvaloper`:
-```evmosd keys show mykey -a --bech val```
+```pointd keys show mykey -a --bech val```
 
 Which you need for the command:
-```evmosd query staking validator <evmosvaloperkey>```
+```pointd query staking validator <evmosvaloperkey>```
 
 You will get response:
 ```
@@ -42,7 +42,7 @@ In tokens you can see the amount of staked tokens.
 
 Then you can run this command
 ```
-evmosd tx staking unbond evmosvaloper1uzwfry3nlrsc36j88zlk0un6nfyn6rrzkp86vr 98898998998000000000apoint \
+pointd tx staking unbond evmosvaloper1uzwfry3nlrsc36j88zlk0un6nfyn6rrzkp86vr 98898998998000000000apoint \
 --chain-id=point_10721-1 \
 --from=pugliese \
 --keyring-backend file \
@@ -52,13 +52,13 @@ evmosd tx staking unbond evmosvaloper1uzwfry3nlrsc36j88zlk0un6nfyn6rrzkp86vr 988
 
 If didn’t let you use the same wallet address and validator address, 
 you can try changing wallet address but it is notenough, so you need
-delete the file: ```~/.evmosd/config/priv_validator_key.json```
+delete the file: ```~/.pointd/config/priv_validator_key.json```
 
 Then restarted the node, and run the query again:
 ```
-evmosd tx staking create-validator  \
+pointd tx staking create-validator  \
 --amount=100000000000000000000apoint \
---pubkey=$(evmosd tendermint show-validator) \
+--pubkey=$(pointd tendermint show-validator) \
 --moniker="brianvalidator" \
 --chain-id=point_10721-1 \
 --commission-rate="0.10" \
@@ -73,6 +73,6 @@ evmosd tx staking create-validator  \
 
 Once you check the tx was successful you can run:
 ```
-evmosd query staking validator <evmosvaloperkey>
+pointd query staking validator <evmosvaloperkey>
 ```
 and get the info from the blockchain (
