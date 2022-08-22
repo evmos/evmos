@@ -18,6 +18,7 @@
 * [Check if validator is jailed](#check-if-validator-is-jailed)
 * [Check if jail has expired and I can unjail](#check-if-jail-has-expired-and-I-can-unjail)
 * [How to unjail using the key](#how-to-unjail-using-the-key)
+* [Unjail is not working](#unjail-is-not-working)
 * [How to delegate more tokens](#how-to-delegate-more-tokens)
 * [How to delegate tokens from one validator to another one](#how-to-delegate-tokens-from-one-validator-to-another-one)
 * [Do you have a explorer?](#do-you-have-a-explorer?)
@@ -184,6 +185,13 @@ evmosd keys show <key-name> -a --bech val
 evmosd query bank balances <evmos formated address>
 ```
 
+also you can see balances for a given key
+
+```
+evmosd query bank balances $(evmosd keys show <key-name> -a)
+```
+
+
 ## Convert between evmos formatted and ethereum formatted addresses
 
 Use this online tool:
@@ -245,6 +253,29 @@ evmosd tx slashing unjail \
 --gas="400000" \
 --gas-prices="0.025apoint"
 ```
+
+## Unjail is not working
+Check if unjail period has expired: [Check if jail has expired and I can unjail](#check-if-jail-has-expired-and-I-can-unjail)
+If it's ok check if you have enough balance to unjail yourself: [Get information for you validator providing you evmosvaloper address](#get-information-for-you-validator-providing-you-evmosvaloper-address)
+Output will be something like this:
+
+```
+- commission:
+    commission_rates:
+      max_change_rate: "0.010000000000000000"
+  ...
+  jailed: true
+  min_self_delegation: "10000000000000000"
+  ...
+  tokens: "9000000000000000"
+```
+
+If tokens amount is smaller than min_self_delegation then you cannot unajail.
+You need to delegate more tokens: [How to delegate more tokens](#how-to-delegate-more-tokens)
+
+Once you've delegated more tokens check again, if tokens amount is bigger than min_self_delegation amount then run the unjail command again: [How to unjail using the key](#how-to-unjail-using-the-key)
+
+Check jailing status: [Check if validator is jailed](#check-if-validator-is-jailed)
 
 ## How to delegate more tokens
 
