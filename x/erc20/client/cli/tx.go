@@ -232,8 +232,7 @@ Where metadata.json contains (example):
 }
 
 // NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
-//
-//nolint:staticcheck // we use deprecated flags
+// nolint:staticcheck
 func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-erc20 [erc20-address]",
