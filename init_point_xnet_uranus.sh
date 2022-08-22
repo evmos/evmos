@@ -53,12 +53,18 @@ pointd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 pointd init $MONIKER --chain-id $CHAINID
 
-# Change parameter token denominations to axpoint
+# Change parameter token denominations to apoint
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["staking"]["params"]["bond_denom"]="apoint"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["crisis"]["constant_fee"]["denom"]="apoint"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="apoint"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["evm"]["params"]["evm_denom"]="apoint"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["mint_denom"]="apoint"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+
+# Change inflation params according to apoint specification
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["inflation_distribution"]["usage_incentives"]="0"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["inflation_distribution"]["community_pool"]="0"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["inflation_distribution"]["staking_rewards"]="1.000000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+
 
 # Set gas limit in genesis
 cat $HOME/.pointd/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
