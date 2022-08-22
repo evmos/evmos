@@ -22,7 +22,7 @@ func TestInitCmd(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, "evmos_9000-1"),
 	})
 
-	err := svrcmd.Execute(rootCmd, "EVMOSD", app.DefaultNodeHome)
+	err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)
 	require.NoError(t, err)
 }
 

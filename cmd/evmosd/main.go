@@ -17,7 +17,7 @@ func main() {
 
 	rootCmd, _ := NewRootCmd()
 
-	if err := svrcmd.Execute(rootCmd, "EVMOSD", app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
 			os.Exit(e.Code)
