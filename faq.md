@@ -336,6 +336,8 @@ evmosd keys add <key-name> --keyring-backend file --recover
 
 ## How to share my seed address
 
+Note: if your ip is dynamic and changes, don't share your seeds at least you have a domain name for your server.  
+  
 Seed address has this format:
 <node-id>@<public-ip>:26656
 
