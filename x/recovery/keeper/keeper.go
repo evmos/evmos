@@ -82,10 +82,7 @@ func (k Keeper) WriteAcknowledgement(ctx sdk.Context, channelCap *capabilitytype
 	return k.ics4Wrapper.WriteAcknowledgement(ctx, channelCap, packet, ack)
 }
 
-func (k Keeper) GetAppVersion(
-	ctx sdk.Context,
-	portID,
-	channelID string,
-) (string, bool) {
-	return "UnImplement", true
+// GetAppVersion returns the underlying application version.
+func (k Keeper) GetAppVersion(ctx sdk.Context, portID, channelID string) (string, bool) {
+	return k.ics4Wrapper.GetAppVersion(ctx, portID, channelID)
 }

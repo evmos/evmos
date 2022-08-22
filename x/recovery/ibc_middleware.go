@@ -70,5 +70,5 @@ func (im IBCMiddleware) GetAppVersion(
 	portID,
 	channelID string,
 ) (string, bool) {
-	return "UnImplement", true
+	return im.keeper.GetAppVersion(ctx, portID, channelID)
 }
