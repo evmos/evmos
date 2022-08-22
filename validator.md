@@ -37,7 +37,7 @@ Also to build node you would have to have `make` installed:
 
 ```sudo apt-get install build-essential```
 
-Pull the repository of the point chain: 
+Pull the repository of the point chain:
 
 ```git clone https://github.com/pointnetwork/point-chain```
 
@@ -45,48 +45,46 @@ Stay on the _main_ branch and run this to compile the node from the sources:
 
 ```make install```
 
-_Note: Point Chain is a fork of evmos, and by default the working directory is ~/.evmos. Make sure you don’t already have data for another evmos node on the device you’re running the validator from._
-
 ## Initialize the Node
 
-Check if evmosd command is available for you. If you see ```evmosd: command not found``` message then export path for this command:
+Check if pointd command is available for you. If you see ```pointd: command not found``` message then export path for this command:
 
 ```export PATH=$PATH:$(go env GOPATH)/bin```
 
 Configure your validator key:
 
-```evmosd config keyring-backend file```
+```pointd config keyring-backend file```
 
-```evmosd config chain-id point_10721-1```
+```pointd config chain-id point_10721-1```
 
 
-Generate a new key/mnemonic for validator: ```evmosd keys add validatorkey```
-You may want to record output somewhere because it contains your Evmos address and other usefull information.
+Generate a new key/mnemonic for validator: ```pointd keys add validatorkey```
+You may want to save output somewhere because it contains your Evmos address and other usefull information.
 
 Run the init script
 
 Init you validator where [myvalidator] is your validator custom name which will be publicly visible
-  
-```evmosd init [myvalidator] --chain-id point_10721-1```
 
-Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1 into `~/.evmosd/config`
+```pointd init [myvalidator] --chain-id point_10721-1```
+
+Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Triton-1 into `~/.pointd/config`
 
 Validate it:
-  
-```evmosd validate-genesis```
-  
+
+```pointd validate-genesis```
+
 ## Run the Node
 
 Then run the node and wait for fully sync:
-  
-```evmosd start --json-rpc.enable=true --json-rpc.api "eth,txpool,personal,net,debug,web3"```
+
+```pointd start --json-rpc.enable=true --json-rpc.api "eth,txpool,personal,net,debug,web3"```
 
 You can run this command to see status of your node:
-  
-```evmosd status```
+
+```pointd status```
 
 You will get the "latest_block_height" of your node.
-  
+
 To see current block height of blockchain run:
 
 ```curl  http://xnet-neptune-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
@@ -108,7 +106,7 @@ SYMBOL: XPOINT
 
 In order to import the wallet in your metamask you will need the private key. You can get it with this command:
 
-```evmosd keys unsafe-export-eth-key validatorkey --keyring-backend file```
+```pointd keys unsafe-export-eth-key validatorkey --keyring-backend file```
 
 Now let’s import the wallet in metamask. Go to the import account section, select type “Private key” and insert the private key you got from the command above.
 
@@ -116,17 +114,17 @@ Now that you have an account you need to get some point to stake and run your va
 
 ## Stake XPOINT and Join as a Validator
 
-Once the node is fully synced, and you got some point to stake check your balance in the node you 
+Once the node is fully synced, and you got some point to stake check your balance in the node you
 will see your balance in Metamask or you can check your balance with this command:
 
-```evmosd query bank balances  <evmosaddress>```
+```pointd query bank balances  <evmosaddress>```
 
 If you have enough balance stake your assets and check the transaction:
 
 ```
-evmosd tx staking create-validator  
+pointd tx staking create-validator \
 --amount=100000000000000000000apoint \
---pubkey=$(evmosd tendermint show-validator) \
+--pubkey=$(pointd tendermint show-validator) \
 --moniker="<myvalidator>" \
 --chain-id=point_10721-1 \
 --commission-rate="0.10" \
@@ -141,25 +139,30 @@ evmosd tx staking create-validator
 
 You will have to provide your keystore password and approve the transaction.
 
-If everything works ok you will get a txhash. You can check the status of the tx: ```evmosd query tx <txhash>```
+If everything works ok you will get a txhash. You can check the status of the tx: ```pointd query tx <txhash>```
 
 Transaction receipt may contain errors, so please check if there are any or if it's live.
 
 If the transaction was correct you should become part of the validators set. Check your pubkey first:
 
-```evmosd tendermint show-validator```
+```pointd tendermint show-validator```
 
 You will see a key there, you can identify your node among other validators using that key:
 
-```evmosd query tendermint-validator-set```
+```pointd query tendermint-validator-set```
 
 There you will find more info like your VotingPower that should be bigger than 0. Also you can check your VotingPower by running:
 
-```evmosd status```
+```pointd status```
 
 ## What's Next?
 
-If you experience any issues with this, join our Discord: https://pointnetwork.io/discord
+Check out extra documentation for validators:
+
+- https://hub.cosmos.network/main/validators/validator-faq.html#
+- https://docs.evmos.org/validators/overview.html
+
+If you experience any issues, join our Discord: https://pointnetwork.io/discord
 
 And ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
