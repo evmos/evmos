@@ -2,23 +2,23 @@
     "start_time": 1646042159,  
     "periods": [
       { 
-        "coins": "12000000000000000000aevmos", 
+        "coins": "12000000000000000000apoint", 
         "length_seconds": 31556916 
       },
       {
-        "coins": "1000000000000000000aevmos",
+        "coins": "1000000000000000000apoint",
         "length_seconds": 2629743
       },
       {
-        "coins": "1000000000000000000aevmos",
+        "coins": "1000000000000000000apoint",
         "length_seconds": 2629743
       },
       {
-        "coins": "1000000000000000000aevmos",
+        "coins": "1000000000000000000apoint",
         "length_seconds": 2629743
       },
       {
-        "coins": "1000000000000000000aevmos",
+        "coins": "1000000000000000000apoint",
         "length_seconds": 2629743
       }
     ]
