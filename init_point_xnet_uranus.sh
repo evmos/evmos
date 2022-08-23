@@ -24,7 +24,7 @@ KEY="mykey"
 CHAINID="point_10731-1"
 MONIKER="point-xnet-uranus"
 #KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
-KEYRING="test"
+KEYRING="file"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # to trace evm
@@ -64,7 +64,6 @@ cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["m
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["inflation_distribution"]["usage_incentives"]="0"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["inflation_distribution"]["community_pool"]="0"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["inflation"]["params"]["inflation_distribution"]["staking_rewards"]="1.000000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
-
 
 # Set gas limit in genesis
 cat $HOME/.pointd/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json

@@ -1,0 +1,26 @@
+{
+    "start_time": 1646042159, // time at which 
+    "periods": [
+      { // first period is vesting cliff
+        "coins": "12000000000000000000aevmos", // amount of 12 months
+        "length_seconds": 31556916 // 12 months
+      },
+      {
+        "coins": "1000000000000000000aevmos",
+        "length_seconds": 2629743 // one month
+      },
+      {
+        "coins": "1000000000000000000aevmos",
+        "length_seconds": 2629743
+      },
+      {
+        "coins": "1000000000000000000aevmos",
+        "length_seconds": 2629743
+      },
+      {
+        "coins": "1000000000000000000aevmos",
+        "length_seconds": 2629743
+      },
+      // . . .
+    ]
+  }
