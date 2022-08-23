@@ -14,6 +14,7 @@ To understand how to use the metrics below, please refer to the [Cosmos SDK tele
 | :--------------------------------------------- | :---------------------------------------------------------------------------------- | :---------- | :------ |
 | `feemarket_base_fee`                           | Amount of base fee per EIP-1559 block                                               | token       | gauge   |
 | `feemarket_block_gas`                          | Amount of gas used in an EIP-1559 block                                             | token       | gauge   |
+| `feesplit_distribute_total`                    | Amount of fees distributed to registered smart contracts                            | token       | counter |
 | `recovery_ibc_on_recv_total`                   | Total number of recoveries using the ibc `onRecvPacket` callback                    | recovery    | counter |
 | `recovery_ibc_on_recv_token_total`             | Total amount of tokens recovered using the ibc `onRecvPacket` callback              | token       | counter |
 | `tx_msg_convert_coin_amount_total`             | Total amount of converted coins using a `ConvertCoin` msg                           | token       | counter |
