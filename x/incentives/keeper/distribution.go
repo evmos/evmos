@@ -15,11 +15,11 @@ import (
 
 // DistributeRewards transfers the allocated rewards to the participants of a given
 // incentive.
-//  - allocates the amount to be distributed from the inflation pool
-//  - distributes the rewards to all participants
-//  - deletes all gas meters
-//  - updates the remaining epochs of each incentive
-//  - sets the cumulative totalGas to zero
+//   - allocates the amount to be distributed from the inflation pool
+//   - distributes the rewards to all participants
+//   - deletes all gas meters
+//   - updates the remaining epochs of each incentive
+//   - sets the cumulative totalGas to zero
 func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	logger := k.Logger(ctx)
 
@@ -87,9 +87,9 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 }
 
 // rewardAllocations returns a map of each incentive's reward allocation
-//  - Iterate over all the registered and active incentives
-//  - create an allocation (module account) from escrow balance to be distributed to the contract address
-//  - check that escrow balance is sufficient
+//   - Iterate over all the registered and active incentives
+//   - create an allocation (module account) from escrow balance to be distributed to the contract address
+//   - check that escrow balance is sufficient
 func (k Keeper) rewardAllocations(
 	ctx sdk.Context,
 ) (map[common.Address]sdk.Coins, sdk.Coins, error) {
@@ -162,11 +162,11 @@ func (k Keeper) rewardAllocations(
 
 // rewardParticipants reward participants of a given Incentive, delete their gas
 // meters and returns a count of all gas meters
-//  - Check if participants spent gas on interacting with incentive
-//  - Iterate over the incentive participants' gas meters
-//    - Allocate rewards according to participants gasRatio and cap them at 100% of their gas spent on interaction with incentive
-//    - Send rewards to participants
-//    - Delete gas meter
+//   - Check if participants spent gas on interacting with incentive
+//   - Iterate over the incentive participants' gas meters
+//   - Allocate rewards according to participants gasRatio and cap them at 100% of their gas spent on interaction with incentive
+//   - Send rewards to participants
+//   - Delete gas meter
 func (k Keeper) rewardParticipants(
 	ctx sdk.Context,
 	incentive types.Incentive,

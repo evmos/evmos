@@ -79,8 +79,8 @@ func (k Keeper) ClaimCoinsForAction(
 // from both records.
 
 // This method additionally:
-//  - Always claims the IBC action, assuming both record haven't claimed it.
-//  - Marks an action as claimed for the new instance by performing an XOR operation between the 2 provided records: `merged completed action = sender completed action XOR recipient completed action`
+//   - Always claims the IBC action, assuming both record haven't claimed it.
+//   - Marks an action as claimed for the new instance by performing an XOR operation between the 2 provided records: `merged completed action = sender completed action XOR recipient completed action`
 func (k Keeper) MergeClaimsRecords(
 	ctx sdk.Context,
 	recipient sdk.AccAddress,

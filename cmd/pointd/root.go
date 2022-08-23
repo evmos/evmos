@@ -102,7 +102,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			// TODO: remove the lines below once Cosmos SDK v0.46 is released
 			serverCtx := sdkserver.GetServerContextFromCmd(cmd)
-			serverCtx.Config.Consensus.TimeoutCommit = time.Second
+			serverCtx.Config.Consensus.TimeoutCommit = 10 * time.Second
 
 			return sdkserver.SetCmdServerContext(cmd, serverCtx)
 		},
