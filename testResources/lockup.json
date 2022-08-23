@@ -1,9 +1,9 @@
 {
-    "start_time": 1646042159, // Unix time at genesis
+    "start_time": 1646042159, 
     "periods": [
       {
-        "coins": "48000000000000000000aevmos", // total vesting amount
-        "length_seconds": 31556916 // 12 months
+        "coins": "48000000000000000000apoint", 
+        "length_seconds": 31556916 
       }
     ]
   }
