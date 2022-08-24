@@ -50,7 +50,7 @@ pointd config chain-id $CHAINID
 # if $KEY exists it should be deleted
 pointd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
-# Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
+# Set moniker and chain-id for Point (Moniker can be anything, chain-id must be an integer)
 pointd init $MONIKER --chain-id $CHAINID
 
 # Change parameter token denominations to apoint
@@ -75,7 +75,7 @@ cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["claims"]["params"]["e
 # Allocate genesis accounts (cosmos formatted addresses)
 pointd add-genesis-account $KEY 10000000000000000000000000apoint --keyring-backend $KEYRING
 
-pointd add-genesis-account evmos1ev3575lx5q7dd0jg0p5rh49pvp0lffgu0f6cad 100000000000000000000000000apoint --keyring-backend $KEYRING
+pointd add-genesis-account point1ev3575lx5q7dd0jg0p5rh49pvp0lffgu4w5dq3 100000000000000000000000000apoint --keyring-backend $KEYRING
 
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
