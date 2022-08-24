@@ -1,7 +1,7 @@
 let numberOfYears: number = 22;
 let a_initialValue: number = 1000000000;
 let r_decayFactor: number = 0.558621;
-let c_longTermSupply: number = 0;
+let c_longTermSupply: number = 0;   //constant inflation
 //fraction of the staking tokens which are currently bonded
 let bondedRatio: number = 0.66;
 //the max amount to increase inflation
