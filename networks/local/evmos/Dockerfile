@@ -1,4 +1,4 @@
-FROM golang:stretch as build-env
+FROM golang:1.18.5-bullseye as build-env
 
 # Install minimum necessary dependencies
 ENV PACKAGES curl make git libc-dev bash gcc
@@ -15,7 +15,7 @@ COPY . .
 RUN make build-linux
 
 # Final image
-FROM golang:1.18 as final
+FROM golang:1.18.5-bullseye as final
 
 WORKDIR /
 
@@ -25,7 +25,7 @@ RUN apt-get update
 COPY --from=build-env /go/src/github.com/evmos/evmos/build/evmosd /
 COPY --from=build-env /go/src/github.com/evmos/evmos/scripts/start-docker.sh /
 
-EXPOSE 26656 26657 1317 8545 8546
+EXPOSE 26656 26657 1317 9090 8545 8546
 
 # Run evmosd by default, omit entrypoint to ease using container with evmosd
 ENTRYPOINT ["/bin/bash", "-c"]
