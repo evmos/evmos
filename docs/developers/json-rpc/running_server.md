@@ -11,6 +11,7 @@ Learn how to run and setup the JSON-RPC server on Evmos. {synopsis}
 :::
 
 ## Introduction
+
 JSON-RPC is provided on multiple transports. Evmos supports JSON-RPC over HTTP and WebSocket.
 
 ## Requirements
