@@ -11,7 +11,6 @@ Learn how to run and setup the JSON-RPC server on Evmos. {synopsis}
 :::
 
 ## Introduction
-
 JSON-RPC is provided on multiple transports. Evmos supports JSON-RPC over HTTP and WebSocket.
 
 ## Requirements
@@ -29,7 +28,7 @@ evmosd start --json-rpc.enable
 
 ## Defining Namespaces
 
-`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default, but for the JSON-RPC you need to add more namespaces. 
+`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default, but for the JSON-RPC you need to add more namespaces.
 In order to enable other namespaces edit `app.toml` file.
 
 ```toml
@@ -96,7 +95,7 @@ pruning-interval = "0"
 
 Websocket is a bidirectional transport protocol. A Websocket connection is maintained by client and server until it is explicitly terminated by one. Most modern browsers support Websocket which means it has good tooling.
 
-Because Websocket is bidirectional, servers can push events to clients. That makes Websocket a good choice for use-cases involving event subscription. 
+Because Websocket is bidirectional, servers can push events to clients. That makes Websocket a good choice for use-cases involving event subscription.
 Another benefit of Websocket is that after the handshake procedure, the overhead of individual messages is low, making it good for sending high number of requests.
 The WebSocket Server can be enabled from the `app.toml`
 
