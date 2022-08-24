@@ -35,7 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v8.0.0] - 2022-09-16
+## [v8.0.1] - 2022-08-29
+
+### State Machine Breaking
+
+- (feesplit)[#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support eip712 signatures.
+
+## [v8.0.0] - 2022-08-16
 
 ### State Machine Breaking
 
