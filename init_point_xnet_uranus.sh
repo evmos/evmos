@@ -78,7 +78,7 @@ node_address=$(pointd keys list | grep  "address: " | cut -c12-)
 cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["claims"]["params"]["enable_claims"]=false' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Allocate genesis accounts (cosmos formatted addresses)
-pointd add-genesis-account $KEY 10000000000000000000000000apoint --keyring-backend $KEYRING
+pointd add-genesis-account $KEY 900000000000000000000000000apoint --keyring-backend $KEYRING
 
 pointd add-genesis-account point1ev3575lx5q7dd0jg0p5rh49pvp0lffgu4w5dq3 100000000000000000000000000apoint --keyring-backend $KEYRING
 
@@ -86,7 +86,7 @@ pointd add-genesis-account point1ev3575lx5q7dd0jg0p5rh49pvp0lffgu4w5dq3 10000000
 validators_supply=$(cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
 # Bc is required to add this big numbers
 # total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
-total_supply=110000000000000000000000000
+total_supply=1000000000000000000000000000
 cat $HOME/.pointd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Sign genesis transaction
