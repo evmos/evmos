@@ -17,7 +17,7 @@ fi
 
 VOTING_POWER=$(evmosd status | jq .ValidatorInfo.VotingPower)
 
-if ["$VOTING_POWER" != "0"]; then
+if [ $VOTING_POWER != "0" ]; then
   echo "Your voting power is $VOTING_POWER, it means your validator is working ok"
 else
   echo "Your voting power is $VOTING_POWER, it means you are not a validator. Let's verify why"
