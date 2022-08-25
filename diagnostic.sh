@@ -36,7 +36,11 @@ else
     ENOUGH_TOKENS=$(bc <<< "$TOKENS > $MIN_SELF_DELEGATION")
     if [ "$ENOUGH_TOKENS" -eq 1 ]; then
       JAILED_UNTIL=$(evmosd query slashing signing-info $(evmosd tendermint show-validator) | grep jailed_until)
-      JAILED_TIMESTAMP=$(gdate --date="$(echo $JAILED_UNTIL | cut -c 16-34)"  +%s)
+      if [[ "$OSTYPE" == "darwin"* ]]; then
+        JAILED_TIMESTAMP=$(gdate --date="$(echo $JAILED_UNTIL | cut -c 16-34)"  +%s)
+      else
+        JAILED_TIMESTAMP=$(date --date="$(echo $JAILED_UNTIL | cut -c 16-34)"  +%s)
+      fi
       NOW=$(date -u +"%s")
       if [ "$NOW" -ge "$JAILED_TIMESTAMP" ]; then
         echo "You are able to unjail. Try to unjail manually running unjail command"
