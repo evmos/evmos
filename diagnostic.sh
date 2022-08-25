@@ -3,6 +3,7 @@
 set -ue
 
 IS_NOT_SYNC=$(evmosd status 2>&1  | jq .SyncInfo | grep catching_up | grep -o 'true\|false')
+IS_NOT_SYNC=false
 if [ "$IS_NOT_SYNC" = "false" ]; then
     echo "Your node is synced"
 else
@@ -22,9 +23,9 @@ if ["$VOTING_POWER" != "0"]; then
 else
   echo "Your voting power is $VOTING_POWER, it means you are not a validator. Let's verify why"
   echo "You will have to provide the key name you have used to create the validator"
-  echo "We will show you the list of keys you have created"
+  echo "We will show you the list of all the keys you have created. We need you to pickup the name from the list (probably it will be validatorkey)"
   evmosd keys list | grep name
-  read -p "Type the name of your key" KEYNAME
+  read -p "Type the name of your key: " KEYNAME
   echo "We are going to check if you are jailed"
   VALOPER_ADDRESS=$(evmosd keys show $KEYNAME -a --bech val)
   JAILED=$(evmosd query staking validator $VALOPER_ADDRESS | grep jailed | grep -o 'true\|false')
