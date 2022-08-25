@@ -80,7 +80,6 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
-		//	ante.NewRejectExtensionOptionsDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewTxTimeoutHeightDecorator(),
