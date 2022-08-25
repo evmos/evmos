@@ -1,6 +1,6 @@
-let numberOfYears: number = 22;
+let numberOfYears: number = 30;
 let a_initialValue: number = 1000000000;
-let r_decayFactor: number = 0.558621;
+let r_decayFactor: number = 0.4289090127;
 let c_longTermSupply: number = 0;   //constant inflation
 //fraction of the staking tokens which are currently bonded
 let bondedRatio: number = 0.66;
@@ -8,12 +8,14 @@ let bondedRatio: number = 0.66;
 let maxVarience: number = 0;
 //our optimal bonded ratio
 let bondingTarget: number = 0.66;
+
+let x_startingYear = 2;
 console.log("Initial supply: " + a_initialValue);
 
-for(let x: number = 1; x < numberOfYears; x++) {
+for(let i: number = x_startingYear; i < numberOfYears + x_startingYear; i++) {
     // exponentialDecay calculations
     let yearlyReduceCoeff: number = 1 - r_decayFactor;
-    yearlyReduceCoeff = yearlyReduceCoeff ** x;
+    yearlyReduceCoeff = yearlyReduceCoeff ** i;
     //console.log("yearly reduce coeff " + yearlyReduceCoeff);
 
     let arx: number = a_initialValue * yearlyReduceCoeff;
@@ -28,5 +30,12 @@ for(let x: number = 1; x < numberOfYears; x++) {
     //console.log("Bonding incentive " +bondingIncentive);
     let yearInflationAmount: number = exponentialDecay * bondingIncentive;
     a_initialValue = a_initialValue + yearInflationAmount;
-    console.log("year " + (x+1) + " TotalFunds " + a_initialValue + " Yearly inflation " + yearInflationAmount + " Epoch provision " + yearInflationAmount / 365);
+    console.log("year " + (i+1-x_startingYear) + " TotalFunds " + a_initialValue + " Yearly inflation " + yearInflationAmount + " Epoch provision " + yearInflationAmount / 365);
 }
+// Note: please restart the page if syntax highlighting works bad.
+let el = document.querySelector('#header')
+
+let msg: string = 'Hi friend, try edit me!'
+el.innerHTML = msg
+
+console.log('it shows results as you type')
