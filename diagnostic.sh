@@ -3,7 +3,6 @@
 set -ue
 
 IS_NOT_SYNC=$(evmosd status 2>&1  | jq .SyncInfo | grep catching_up | grep -o 'true\|false')
-IS_NOT_SYNC=false
 if [ "$IS_NOT_SYNC" = "false" ]; then
     echo "Your node is synced"
 else
@@ -47,6 +46,7 @@ else
 
     else
       echo "Your staked tokens are lower than your min_self_delegation param, to unjail you need to delegate more tokens"
+      echo "You currently have set min_self_delegation to: $MIN_SELF_DELEGATION but you have staked only $TOKENS tokens. You need to delegate at least $(bc <<< "$MIN_SELF_DELEGATION - $TOKENS") apoint"
       echo "Check in faq document how to delegate more tokens. After delegating re run this script"
       exit
     fi
