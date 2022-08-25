@@ -287,7 +287,7 @@ func (a appCreator) appExport(
 // return tmcfg.DefaultConfig if no custom configuration is required for the application.
 func initTendermintConfig() *tmcfg.Config {
 	cfg := tmcfg.DefaultConfig()
-	serverCtx.Config.Consensus.TimeoutCommit = time.Second
+	cfg.Consensus.TimeoutCommit = time.Second
 	// to put a higher strain on node memory, use these values:
 	// cfg.P2P.MaxNumInboundPeers = 100
 	// cfg.P2P.MaxNumOutboundPeers = 40
