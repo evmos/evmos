@@ -5,8 +5,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
-	erc20types "github.com/evmos/evmos/v8/x/erc20/types"
+	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
+	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v2

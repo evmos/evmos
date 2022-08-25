@@ -17,11 +17,11 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/app"
-	v7 "github.com/evmos/evmos/v8/app/upgrades/v7"
-	"github.com/evmos/evmos/v8/testutil"
-	evmostypes "github.com/evmos/evmos/v8/types"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/app"
+	v7 "github.com/evmos/evmos/v9/app/upgrades/v7"
+	"github.com/evmos/evmos/v9/testutil"
+	evmostypes "github.com/evmos/evmos/v9/types"
+	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 )
 
 type UpgradeTestSuite struct {

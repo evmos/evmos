@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v8/x/feesplit/types"
+	"github.com/evmos/evmos/v9/x/feesplit/types"
 )
 
 // GetParams returns the total set of fees parameters.

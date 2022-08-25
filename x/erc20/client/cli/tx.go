@@ -17,7 +17,7 @@ import (
 
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // NewTxCmd returns a root CLI command handler for erc20 transaction commands
@@ -136,7 +136,7 @@ func NewConvertERC20Cmd() *cobra.Command {
 }
 
 // NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
-// nolint:staticcheck 
+// nolint:staticcheck
 func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-coin [metadata]",
