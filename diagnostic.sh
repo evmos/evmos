@@ -1,8 +1,20 @@
 #!/bin/bash
 
+IS_CLI_OK=$(evmosd status 2>&1 | grep -o NodeInfo)
+
+echo $IS_CLI_OK
+
+if [ "$IS_CLI_OK" != "NodeInfo" ]; then
+    echo "Your evmosd cli is not working properly. Run evmosd manually to test it"
+    exit
+fi
+
 set -ue
 
 IS_NOT_SYNC=$(evmosd status 2>&1  | jq .SyncInfo | grep catching_up | grep -o 'true\|false')
+
+IS_NOT_SYNC=false
+
 if [ "$IS_NOT_SYNC" = "false" ]; then
     echo "Your node is synced"
 else
@@ -15,9 +27,9 @@ else
     exit
 fi
 
-VOTING_POWER=$(evmosd status | jq .ValidatorInfo.VotingPower)
+VOTING_POWER=$(evmosd status | jq .ValidatorInfo.VotingPower | tr -d '"')
 
-if [ $VOTING_POWER != "0" ]; then
+if [[ $VOTING_POWER -gt 0 ]]; then
   echo "Your voting power is $VOTING_POWER, it means your validator is working ok"
 else
   echo "Your voting power is $VOTING_POWER, it means you are not a validator. Let's verify why"
