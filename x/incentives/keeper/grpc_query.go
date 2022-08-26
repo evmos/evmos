@@ -7,9 +7,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/evmos/ethermint/types"
@@ -112,7 +113,7 @@ func (k Keeper) GasMeters(
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
+			sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
 		)
 	}
 
@@ -171,7 +172,7 @@ func (k Keeper) GasMeter(
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
+			sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
 		)
 	}
 
@@ -186,7 +187,7 @@ func (k Keeper) GasMeter(
 	if err := ethermint.ValidateAddress(req.Participant); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid participant address %s", req.Participant).Error(),
+			sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid participant address %s", req.Participant).Error(),
 		)
 	}
 

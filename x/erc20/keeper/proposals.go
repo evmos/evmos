@@ -3,8 +3,9 @@ package keeper
 import (
 	"strings"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -42,7 +43,7 @@ func (k Keeper) RegisterCoin(
 	// Check if the coin exists by ensuring the supply is set
 	if !k.bankKeeper.HasSupply(ctx, coinMetadata.Base) {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrInvalidCoins, "base denomination '%s' cannot have a supply of 0", coinMetadata.Base,
+			errortypes.ErrInvalidCoins, "base denomination '%s' cannot have a supply of 0", coinMetadata.Base,
 		)
 	}
 
