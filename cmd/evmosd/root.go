@@ -95,16 +95,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			customAppTemplate, customAppConfig := initAppConfig()
 			customTMConfig := initTendermintConfig()
 
-			err = sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
-			if err != nil {
-				return err
-			}
-
-			// TODO: remove the lines below once Cosmos SDK v0.46 is released
-			serverCtx := sdkserver.GetServerContextFromCmd(cmd)
-			serverCtx.Config.Consensus.TimeoutCommit = time.Second
-
-			return sdkserver.SetCmdServerContext(cmd, serverCtx)
+			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
 	}
 
