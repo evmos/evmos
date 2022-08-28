@@ -13,8 +13,6 @@ set -ue
 
 IS_NOT_SYNC=$(evmosd status 2>&1  | jq .SyncInfo | grep catching_up | grep -o 'true\|false')
 
-IS_NOT_SYNC=false
-
 if [ "$IS_NOT_SYNC" = "false" ]; then
     echo "Your node is synced"
 else
