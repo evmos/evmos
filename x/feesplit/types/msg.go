@@ -74,7 +74,7 @@ func (msg MsgRegisterFeeSplit) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg *MsgRegisterFeeSplit) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
@@ -115,7 +115,7 @@ func (msg MsgCancelFeeSplit) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg *MsgCancelFeeSplit) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
@@ -162,7 +162,7 @@ func (msg MsgUpdateFeeSplit) ValidateBasic() error {
 
 // GetSignBytes encodes the message for signing
 func (msg *MsgUpdateFeeSplit) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
