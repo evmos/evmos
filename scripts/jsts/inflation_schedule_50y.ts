@@ -33,10 +33,3 @@ for(let i: number = x_startingYear; i < numberOfYears + x_startingYear; i++) {
     a_initialValue = a_initialValue + yearInflationAmount;
     console.log("year " + (i+1-x_startingYear) + "; TotalFunds " + a_initialValue + "; Yearly inflation " + yearInflationAmount + "; Supply grow part " + growPart + "; Epoch provision " + yearInflationAmount / 365);
 }
-// Note: please restart the page if syntax highlighting works bad.
-let el = document.querySelector('#header')
-
-let msg: string = 'Hi friend, try edit me!'
-el.innerHTML = msg
-
-console.log('it shows results as you type')
