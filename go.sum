@@ -363,8 +363,8 @@ github.com/ethereum/go-ethereum v1.9.25/go.mod h1:vMkFiYLHI4tgPw4k2j4MHKoovchFE8
 github.com/ethereum/go-ethereum v1.10.19 h1:EOR5JbL4MD5yeOqv8W2iC1s4NximrTjqFccUz8lyBRA=
 github.com/ethereum/go-ethereum v1.10.19/go.mod h1:IJBNMtzKcNHPtllYihy6BL2IgK1u+32JriaTbdt4v+w=
 github.com/ettle/strcase v0.1.1/go.mod h1:hzDLsPC7/lwKyBOywSHEP89nt2pDgdy+No1NBA9o9VY=
-github.com/evmos/ethermint v0.19.0 h1:up9ZCYc/Mm75RX/HAkoGwZ4oEt/4UXLgMgwMamh13/Y=
-github.com/evmos/ethermint v0.19.0/go.mod h1:0W+4eL9DAXxobpOO37LryGJuwlNIb6EUBO+mgzv3DyM=
+github.com/evmos/ethermint v0.19.1 h1:G6qX41Oc7oNGgQ6oOieWshAx/PXEFV8stwWFVdYDH5w=
+github.com/evmos/ethermint v0.19.1/go.mod h1:0W+4eL9DAXxobpOO37LryGJuwlNIb6EUBO+mgzv3DyM=
 github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51/go.mod h1:Yg+htXGokKKdzcwhuNDwVvN+uBxDGXJ7G/VN1d8fa64=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
