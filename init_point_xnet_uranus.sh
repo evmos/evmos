@@ -76,7 +76,7 @@ cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["si
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["min_signed_per_window"]="0.050000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["downtime_jail_duration"]="600s"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["slash_fraction_double_sign"]="0.100000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
-cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["slash_fraction_downtime"]="0.005000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["slash_fraction_downtime"]="0.001000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Disable Airdrop cliams (disable recktdrop)
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["enable_claims"]="false"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
