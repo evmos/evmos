@@ -114,6 +114,7 @@ import (
 	v6 "github.com/evmos/evmos/v8/app/upgrades/v6"
 	v7 "github.com/evmos/evmos/v8/app/upgrades/v7"
 	v8 "github.com/evmos/evmos/v8/app/upgrades/v8"
+	"github.com/evmos/evmos/v8/app/upgrades/v8m1"
 	"github.com/evmos/evmos/v8/x/claims"
 	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
@@ -1089,6 +1090,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v8.UpgradeName,
 		v8.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v8.1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v8m1.UpgradeName,
+		v8m1.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)
