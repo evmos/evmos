@@ -1,6 +1,8 @@
 #!/bin/bash
 # microtick and bitcanna contributed significantly here.
-# Pebbledb state sync script.
+# Evmos state sync script
+# will expose all endpoints
+# not for validator use
 set -uxe
 
 pacman -Syyu --noconfirm base-devel go jq curl wget gcc
