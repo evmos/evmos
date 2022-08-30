@@ -21,18 +21,19 @@ import (
 // HandlerOptions defines the list of module keepers required to run the Evmos
 // AnteHandler decorators.
 type HandlerOptions struct {
-	AccountKeeper   evmtypes.AccountKeeper
-	BankKeeper      evmtypes.BankKeeper
-	IBCKeeper       *ibckeeper.Keeper
-	FeeMarketKeeper evmtypes.FeeMarketKeeper
-	StakingKeeper   vestingtypes.StakingKeeper
-	EvmKeeper       ethante.EVMKeeper
-	FeegrantKeeper  ante.FeegrantKeeper
-	SignModeHandler authsigning.SignModeHandler
-	SigGasConsumer  func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
-	Cdc             codec.BinaryCodec
-	MaxTxGasWanted  uint64
-	TxFeeChecker    ante.TxFeeChecker
+	AccountKeeper          evmtypes.AccountKeeper
+	BankKeeper             evmtypes.BankKeeper
+	ExtensionOptionChecker ante.ExtensionOptionChecker
+	IBCKeeper              *ibckeeper.Keeper
+	FeeMarketKeeper        evmtypes.FeeMarketKeeper
+	StakingKeeper          vestingtypes.StakingKeeper
+	EvmKeeper              ethante.EVMKeeper
+	FeegrantKeeper         ante.FeegrantKeeper
+	SignModeHandler        authsigning.SignModeHandler
+	SigGasConsumer         func(meter sdk.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
+	Cdc                    codec.BinaryCodec
+	MaxTxGasWanted         uint64
+	TxFeeChecker           ante.TxFeeChecker
 }
 
 // Validate checks if the keepers are defined
@@ -81,6 +82,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
 		ethante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewTxTimeoutHeightDecorator(),

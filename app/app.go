@@ -762,17 +762,18 @@ func NewEvmos(
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	options := ante.HandlerOptions{
-		AccountKeeper:   app.AccountKeeper,
-		BankKeeper:      app.BankKeeper,
-		EvmKeeper:       app.EvmKeeper,
-		StakingKeeper:   app.StakingKeeper,
-		FeegrantKeeper:  app.FeeGrantKeeper,
-		IBCKeeper:       app.IBCKeeper,
-		FeeMarketKeeper: app.FeeMarketKeeper,
-		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:  SigVerificationGasConsumer,
-		Cdc:             appCodec,
-		MaxTxGasWanted:  maxGasWanted,
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: nil,
+		EvmKeeper:              app.EvmKeeper,
+		StakingKeeper:          app.StakingKeeper,
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		IBCKeeper:              app.IBCKeeper,
+		FeeMarketKeeper:        app.FeeMarketKeeper,
+		SignModeHandler:        encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:         SigVerificationGasConsumer,
+		Cdc:                    appCodec,
+		MaxTxGasWanted:         maxGasWanted,
 	}
 
 	if err := options.Validate(); err != nil {
