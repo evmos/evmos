@@ -78,6 +78,12 @@ cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["do
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["slash_fraction_double_sign"]="0.100000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 cat $HOME/.pointd/config/genesis.json | jq '.app_state["slashing"]["params"]["slash_fraction_downtime"]="0.005000000000000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
+# Disable Airdrop cliams (disable recktdrop)
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["enable_claims"]="false"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["duration_until_decay"]="1s"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+cat $HOME/.pointd/config/genesis.json | jq '.app_state["claims"]["params"]["duration_of_decay"]="1s"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
+
+
 # Set gas limit in genesis
 cat $HOME/.pointd/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
