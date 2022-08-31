@@ -20,7 +20,7 @@ case $yn in
 		exit 1;;
 esac
 
-KEY="uranusValidator"
+KEY="mainnetValidator"
 CHAINID="point_10731-1"
 MONIKER="point-xnet-uranus"
 #KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
