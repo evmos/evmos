@@ -174,7 +174,8 @@ If you have enough balance stake your assets and check the transaction:
 Before running the command, adjust:
 * Replace <myvalidator> with your own public name for your validator!
 * Adjust commissions if you need
-* Adjust amount and min-self-delegation to stake as much as you need (remember that the amounts are in `apoint` and you need to delete 18 zeroes from the right to get to the amount of POINT)
+* Adjust amount to stake as much as you need (remember that the amounts are in `apoint` and you need to delete 18 zeroes from the right to get to the amount of POINT)
+* Adjust min-self-delegation (don't set it too high because if you ever have less - e.g. after being jailed - you will start unbonding)
 
 ```
 pointd tx staking create-validator \
@@ -185,7 +186,7 @@ pointd tx staking create-validator \
 --commission-rate="0.10" \
 --commission-max-rate="0.20" \
 --commission-max-change-rate="0.01" \
---min-self-delegation="1000000000000000000000" \
+--min-self-delegation="1" \
 --gas="400000" \
 --gas-prices="0.025apoint" \
 --from=validatorkey \
