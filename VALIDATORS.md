@@ -1,4 +1,4 @@
-# Join Point-XNet-Mainnet as a Validator
+# Join Point-Mainnet as a Validator
 
 DISCLAIMER: THE DOCUMENT IS PROVIDED ON "AS IS" AND “AS DEVELOPED” BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE DOCUMENT.
 
@@ -8,7 +8,7 @@ Following this document and/or performing validation activities requires highly 
 
 ## Table of Contents
 
-- [Join Point-XNet-Mainnet as a Validator](#join-point-xnet-mainnet-as-a-validator)
+- [Join Point-Mainnet as a Validator](#join-point-mainnet-as-a-validator)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Prerequisites](#prerequisites)
@@ -25,7 +25,7 @@ Following this document and/or performing validation activities requires highly 
 
 ## Overview
 
-This document describes step-by-step instructions on joining Point-XNet-Mainnet as a validator.
+This document describes step-by-step instructions on joining Point-Mainnet as a validator.
 
 Validators have the responsibility to keep the network operational 24/7. Do not attempt to join the mainnet (and especially mainnet) if you don’t have enough experience. For example, if you install it on your laptop, join as a validator, and then close the laptop, the network will penalize you for being offline by slashing your stake (+the network quality might degrade).
 
@@ -63,7 +63,7 @@ Go inside the folder:
 
 Switch to the mainnet branch:
 
-```git checkout xnet-mainnet```
+```git checkout mainnet```
 
 Compile the node from the sources:
 
@@ -94,7 +94,7 @@ Init you validator where [myvalidator] is your validator custom name which will 
 Once you've initialized your validator is really important to back up the validator keys. They were generated inside ~/.pointd/config/priv_validator_key.json
 Save this file and don't share it. It's the id of your validator and you will need it for reinstallation or migration of the node
 
-Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/mainnet-xNet-Mainnet-1 into `~/.pointd/config`:
+Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/mainnet-1 into `~/.pointd/config`:
 
 `wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/config.toml`
 
@@ -128,7 +128,7 @@ You will get the "latest_block_height" of your node.
 
 To see current block height of blockchain run:
 
-```curl  http://xnet-mainnet-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
+```curl  http://rpc-mainnet-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
 
 The result is in hexadecimal, just convert to decimal and see how far are you from full sync.
 
@@ -138,20 +138,14 @@ The result is in hexadecimal, just convert to decimal and see how far are you fr
 
 Now while you're waiting for the node to sync, you need to send funds to your validator address. As mentioned, you should have received an airdrop of 1024 POINT if you filled in the form. To see them, you can import the private key into a wallet like Metamask (not a good idea for mainnet security, but ok for mainnet tokens).
 
-Then you need to add XNet-Mainnet into Metamask:
+Then you need to add Point Mainnet into Metamask:
 
 ```
-Network Title: Point XNet Mainnet
-RPC URL: https://xnet-mainnet-1.point.space/
+Network Title: Point
+RPC URL: https://rpc-mainnet-1.point.space/
 Chain ID: 10687
 SYMBOL: POINT
 ```
-
-### Add the wallet with your 1024 POINT
-
-Remember the wallet you sent to us to be funded? In the form? It now has 1024 POINT.
-
-Import the wallet with the private key into your wallet (e.g. Metamask), and you should see 1024 POINT there. But this is your fund wallet, not validator wallet.
 
 ### Find out which address is your validator wallet
 
@@ -167,18 +161,22 @@ This is your validator address in Ethereum format.
 
 ### Fund the validator
 
-Finally, use the wallet to send however much you need from your fund address to the validator address (you can send all 1024 or choose a different strategy).
+Finally, send enough POINT to your validator address
 
 ## Stake POINT and Join as a Validator
 
-Now you have to wait for the node to fully sync, because otherwise it will not find your.
+Now you have to wait for the node to fully sync, because otherwise it will not "find" your address which only appears on the blockchain from the moment of the first transaction.
 
-Once the node is fully synced, and you got some POINT to stake, check your balance in the node, you
-will see your balance in Metamask or you can check your balance with this command:
+Once the node is fully synced, and you got some POINT to stake, check your balance in the node:
 
-```pointd query bank balances  <pointaddress>```
+```pointd query bank balances <pointaddress>```
 
 If you have enough balance stake your assets and check the transaction:
+
+Before running the command, adjust:
+* Replace <myvalidator> with your own public name for your validator!
+* Adjust commissions if you need
+* Adjust amount and min-self-delegation to stake as much as you need (remember that the amounts are in `apoint` and you need to delete 18 zeroes from the right to get to the amount of POINT)
 
 ```
 pointd tx staking create-validator \
@@ -233,7 +231,7 @@ Share any feedback, questions, and ideas there!
 
 * How to run the node as a service: https://medium.com/@anttiturunen/running-point-validator-as-a-service-d8e4b0391540
 
-* Check the balance of an point-formatted address: `pointd query bank balances <pointaddress>`
+* Check the balance of a point-formatted address: `pointd query bank balances <pointaddress>`
 
 * Check if your validator is active: `pointd query tendermint-validator-set | grep "$(pointd tendermint show-address)"` (if the output is non-empty, you are a validator)
 
