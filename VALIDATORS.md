@@ -11,7 +11,6 @@ Following this document and/or performing validation activities requires highly 
 - [Join Point-XNet-Uranus as a Validator](#join-point-xnet-uranus-as-a-validator)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
-  - [Rewards](#rewards)
   - [Prerequisites](#prerequisites)
   - [Initialize the Node](#initialize-the-node)
   - [Run the Node](#run-the-node)
@@ -33,20 +32,6 @@ Validators have the responsibility to keep the network operational 24/7. Do not 
 If you have any questions, join our Discord: https://pointnetwork.io/discord and ask in #validators channel (in order to see #validators channel, you should add yourself a Validator role at #roles). This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
 
 point is based on Cosmos SDK (which in turn is based on Tendermint), so if you know Cosmos commands, most of them will work here too.
-
-## Rewards
-
-Validators receive rewards according to their stake, but because everyone received the same amount (1024 XPOINT), your testnet rewards will be multiplied by the same factor shared by everyone, **and** also by the amount of real POINT you will have at the mainnet launch. Here's what it means.
-
-Imagine if we were already on the mainnet. Let's say there are two active validators: you and someone else. You stake with 1000 POINT, and they stake with 500 POINT (and everything else is equal - uptime, etc.) Obviously, you would receive 2x the rewards than the other validator on mainnet.
-
-But right not we don't know how many real POINTs all of you would have at the mainnet start. So right now everyone gets equal amounts: 1024 XPOINT, and equal rewards (if all else considered equal - if your uptime and XPOINT stake is the same etc.)
-
-So to get to the real number, on September 1 we will multiply the rewards by a constant which will be the same for everyone, and by how many real POINT validators will have, to simulate as if they put this amount at stake.
-
-_Q: Why tie rewards to real POINTs and not give every validator equal amounts for participation?_
-
-_A: If we did this, some could spawn hundreds of validator instances to claim their rewards, and not only this would impact our funds and make it unfair to others, but slow down the network. Multiplying it by a real stake solves this - if someone has 5000 POINTs, they can create 1 or 5000 validators, it doesn't matter - they would have to split the real stake too when they claim on Sep 1, which would also split the rewards instead of accumulating them as it would have been with a constant._
 
 ## Prerequisites
 
