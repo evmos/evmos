@@ -136,9 +136,7 @@ The result is in hexadecimal, just convert to decimal and see how far are you fr
 
 ### Add custom network
 
-Now while you're waiting for the node to sync, you need to send funds to your validator address. As mentioned, you should have received an airdrop of 1024 POINT if you filled in the form. To see them, you can import the private key into a wallet like Metamask (not a good idea for mainnet security, but ok for mainnet tokens).
-
-Then you need to add Point Mainnet into Metamask:
+Now while you're waiting for the node to sync, you need to send funds to your validator address. You will need to import a custom network into your wallet, e.g. for Metamask:
 
 ```
 Network Title: Point
