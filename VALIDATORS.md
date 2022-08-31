@@ -1,4 +1,4 @@
-# Join Point-XNet-Uranus as a Validator
+# Join Point-XNet-Mainnet as a Validator
 
 DISCLAIMER: THE DOCUMENT IS PROVIDED ON "AS IS" AND “AS DEVELOPED” BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE DOCUMENT.
 
@@ -8,7 +8,7 @@ Following this document and/or performing validation activities requires highly 
 
 ## Table of Contents
 
-- [Join Point-XNet-Uranus as a Validator](#join-point-xnet-uranus-as-a-validator)
+- [Join Point-XNet-Mainnet as a Validator](#join-point-xnet-mainnet-as-a-validator)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Prerequisites](#prerequisites)
@@ -16,20 +16,20 @@ Following this document and/or performing validation activities requires highly 
   - [Run the Node](#run-the-node)
   - [Sending your first transaction](#sending-your-first-transaction)
     - [Add custom network](#add-custom-network)
-    - [Add the wallet with your 1024 XPOINT](#add-the-wallet-with-your-1024-xpoint)
+    - [Add the wallet with your 1024 POINT](#add-the-wallet-with-your-1024-point)
     - [Find out which address is your validator wallet](#find-out-which-address-is-your-validator-wallet)
     - [Fund the validator](#fund-the-validator)
-  - [Stake XPOINT and Join as a Validator](#stake-xpoint-and-join-as-a-validator)
+  - [Stake POINT and Join as a Validator](#stake-point-and-join-as-a-validator)
   - [What's Next?](#whats-next)
   - [Useful commands](#useful-commands)
 
 ## Overview
 
-This document describes step-by-step instructions on joining Point-XNet-uranus testnet as a validator.
+This document describes step-by-step instructions on joining Point-XNet-Mainnet as a validator.
 
-Validators have the responsibility to keep the network operational 24/7. Do not attempt to join the testnet (and especially mainnet) if you don’t have enough experience. For example, if you install it on your laptop, join as a validator, and then close the laptop, the network will penalize you for being offline by slashing your stake (+the network quality might degrade).
+Validators have the responsibility to keep the network operational 24/7. Do not attempt to join the mainnet (and especially mainnet) if you don’t have enough experience. For example, if you install it on your laptop, join as a validator, and then close the laptop, the network will penalize you for being offline by slashing your stake (+the network quality might degrade).
 
-If you have any questions, join our Discord: https://pointnetwork.io/discord and ask in #validators channel (in order to see #validators channel, you should add yourself a Validator role at #roles). This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
+If you have any questions, join our Discord: https://pointnetwork.io/discord and ask in #validators channel (in order to see #validators channel, you should add yourself a Validator role at #roles). This is the channel where we will sync our mainnet efforts and communicate with each other about what's happening.
 
 point is based on Cosmos SDK (which in turn is based on Tendermint), so if you know Cosmos commands, most of them will work here too.
 
@@ -61,9 +61,9 @@ Go inside the folder:
 
 ```cd point-chain```
 
-Switch to the uranus branch:
+Switch to the mainnet branch:
 
-```git checkout xnet-uranus```
+```git checkout xnet-mainnet```
 
 Compile the node from the sources:
 
@@ -81,7 +81,7 @@ Configure your validator key:
 
 ```pointd config keyring-backend file```
 
-```pointd config chain-id point_10731-1```
+```pointd config chain-id point_10687-1```
 
 
 Generate a new key/mnemonic for validator: ```pointd keys add validatorkey --keyring-backend file```
@@ -89,16 +89,16 @@ You may want to save output somewhere because it contains your point address and
 
 Init you validator where [myvalidator] is your validator custom name which will be publicly visible
 
-```pointd init myvalidator --chain-id point_10731-1```
+```pointd init myvalidator --chain-id point_10687-1```
 
 Once you've initialized your validator is really important to back up the validator keys. They were generated inside ~/.pointd/config/priv_validator_key.json
 Save this file and don't share it. It's the id of your validator and you will need it for reinstallation or migration of the node
 
-Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/testnet-xNet-Uranus-1 into `~/.pointd/config`:
+Copy `genesis.json` and `config.toml` files from this repository https://github.com/pointnetwork/point-chain-config/tree/main/mainnet-xNet-Mainnet-1 into `~/.pointd/config`:
 
-`wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/testnet-xNet-Uranus-1/config.toml`
+`wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/config.toml`
 
-`wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/testnet-xNet-Uranus-1/genesis.json`
+`wget https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/genesis.json`
 
 `mv config.toml genesis.json ~/.pointd/config/`
 
@@ -128,7 +128,7 @@ You will get the "latest_block_height" of your node.
 
 To see current block height of blockchain run:
 
-```curl  http://xnet-uranus-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
+```curl  http://xnet-mainnet-1.point.space:8545 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'```
 
 The result is in hexadecimal, just convert to decimal and see how far are you from full sync.
 
@@ -136,22 +136,22 @@ The result is in hexadecimal, just convert to decimal and see how far are you fr
 
 ### Add custom network
 
-Now while you're waiting for the node to sync, you need to send funds to your validator address. As mentioned, you should have received an airdrop of 1024 XPOINT if you filled in the form. To see them, you can import the private key into a wallet like Metamask (not a good idea for mainnet security, but ok for testnet tokens).
+Now while you're waiting for the node to sync, you need to send funds to your validator address. As mentioned, you should have received an airdrop of 1024 POINT if you filled in the form. To see them, you can import the private key into a wallet like Metamask (not a good idea for mainnet security, but ok for mainnet tokens).
 
-Then you need to add XNet-Uranus into Metamask:
+Then you need to add XNet-Mainnet into Metamask:
 
 ```
-Network Title: Point XNet Uranus
-RPC URL: https://xnet-uranus-1.point.space/
-Chain ID: 10731
-SYMBOL: XPOINT
+Network Title: Point XNet Mainnet
+RPC URL: https://xnet-mainnet-1.point.space/
+Chain ID: 10687
+SYMBOL: POINT
 ```
 
-### Add the wallet with your 1024 XPOINT
+### Add the wallet with your 1024 POINT
 
-Remember the wallet you sent to us to be funded? In the form? It now has 1024 XPOINT.
+Remember the wallet you sent to us to be funded? In the form? It now has 1024 POINT.
 
-Import the wallet with the private key into your wallet (e.g. Metamask), and you should see 1024 XPOINT there. But this is your fund wallet, not validator wallet.
+Import the wallet with the private key into your wallet (e.g. Metamask), and you should see 1024 POINT there. But this is your fund wallet, not validator wallet.
 
 ### Find out which address is your validator wallet
 
@@ -161,7 +161,7 @@ Run ```pointd keys list --keyring-backend file```, and you will see a list of ke
 
 (In most cases it is not needed, but if something goes wrong and if you ever want to import your validator wallet in your Metamask you will need the private key. You can get it with this command: `pointd keys unsafe-export-eth-key validatorkey --keyring-backend file`)
 
-Use this tool to convert it to Ethereum format: https://point.me/utils/tools
+Use this tool to convert it to Ethereum format: https://pointnetwork.io/converter.html
 
 This is your validator address in Ethereum format.
 
@@ -169,11 +169,11 @@ This is your validator address in Ethereum format.
 
 Finally, use the wallet to send however much you need from your fund address to the validator address (you can send all 1024 or choose a different strategy).
 
-## Stake XPOINT and Join as a Validator
+## Stake POINT and Join as a Validator
 
 Now you have to wait for the node to fully sync, because otherwise it will not find your.
 
-Once the node is fully synced, and you got some XPOINT to stake, check your balance in the node, you
+Once the node is fully synced, and you got some POINT to stake, check your balance in the node, you
 will see your balance in Metamask or you can check your balance with this command:
 
 ```pointd query bank balances  <pointaddress>```
@@ -185,7 +185,7 @@ pointd tx staking create-validator \
 --amount=1000000000000000000000apoint \
 --pubkey=$(pointd tendermint show-validator) \
 --moniker="<myvalidator>" \
---chain-id=point_10731-1 \
+--chain-id=point_10687-1 \
 --commission-rate="0.10" \
 --commission-max-rate="0.20" \
 --commission-max-change-rate="0.01" \
@@ -196,7 +196,7 @@ pointd tx staking create-validator \
 --keyring-backend file
 ```
 
-(Note the amount: it's in apoint (which is 1/1e18 XPOINT). 1000000000000000000000apoint is 1000 XPOINT (when you remove 18 zeroes at the end). If you decide to adjust the amount, don't forget to adjust `min-self-delegation` flag too.)
+(Note the amount: it's in apoint (which is 1/1e18 POINT). 1000000000000000000000apoint is 1000 POINT (when you remove 18 zeroes at the end). If you decide to adjust the amount, don't forget to adjust `min-self-delegation` flag too.)
 
 You will have to provide your keystore password and approve the transaction for this command.
 
@@ -220,7 +220,7 @@ There you will find more info like your VotingPower that should be bigger than 0
 
 Please post on Discord channel #validators when you succeed! https://pointnetwork.io/discord (in order to see #validators channel, you should add yourself a Validator role at #roles)
 
-And if you have any questions, ask in #validators channel. This is the channel where we will sync our testnet efforts and communicate with each other about what's happening.
+And if you have any questions, ask in #validators channel. This is the channel where we will sync our mainnet efforts and communicate with each other about what's happening.
 
 Also, check out extra documentation for validators:
 
@@ -239,7 +239,7 @@ Share any feedback, questions, and ideas there!
 
 * See the slashing status: `pointd query slashing signing-info $(pointd tendermint show-validator)` Jailed until year 1970 means you are not jailed!
 
-* If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by first, starting the node, making sure it's synced to the last block, and then running: `pointd tx slashing unjail --from=validatorkey --chain-id=point_10731-1`. Run `pointd status` and `pointd query tendermint-validator-set | grep "$(pointd tendermint show-address)"` to confirm you're unjailed.
+* If the slashing status says you're jailed for downtime, you can unjail yourself once you're back online by first, starting the node, making sure it's synced to the last block, and then running: `pointd tx slashing unjail --from=validatorkey --chain-id=point_10687-1`. Run `pointd status` and `pointd query tendermint-validator-set | grep "$(pointd tendermint show-address)"` to confirm you're unjailed.
 
 * Halting Your Validator:
 
