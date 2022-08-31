@@ -104,7 +104,7 @@ total_supply=1000000000000000000000000000
 cat $HOME/.pointd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Sign genesis transaction
-pointd gentx $KEY 1000000000000000000apoint --keyring-backend $KEYRING --chain-id $CHAINID
+pointd gentx $KEY 100000000000000000000apoint --keyring-backend $KEYRING --chain-id $CHAINID
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `pointd keys add` step, init more keys
 ## 2. Back to `pointd add-genesis-account` step, add balance for those
@@ -123,4 +123,4 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-//pointd start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001apoint --json-rpc.api eth,txpool,personal,net,debug,web3
+pointd start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001apoint --json-rpc.api eth,txpool,personal,net,debug,web3
