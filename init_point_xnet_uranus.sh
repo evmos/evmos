@@ -20,7 +20,7 @@ case $yn in
 		exit 1;;
 esac
 
-KEY="mykey"
+KEY="uranusValidator"
 CHAINID="point_10731-1"
 MONIKER="point-xnet-uranus"
 #KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
@@ -32,23 +32,23 @@ LOGLEVEL="info"
 TRACE=""
 
 # validate dependencies are installed
-command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
+#command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
 
 # used to exit on first error (any non-zero exit code)
-set -e
+#set -e
 
 # Clear everything of previous installation
-rm -rf ~/.pointd
+#rm -rf ~/.pointd
 
 # Reinstall daemon
-make install
+#make install
 
 # Set client config
 pointd config keyring-backend $KEYRING
 pointd config chain-id $CHAINID
 
 # if $KEY exists it should be deleted
-pointd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
+#pointd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
 # Set moniker and chain-id for Point (Moniker can be anything, chain-id must be an integer)
 pointd init $MONIKER --chain-id $CHAINID
@@ -92,9 +92,9 @@ node_address=$(pointd keys list | grep  "address: " | cut -c12-)
 cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["claims"]["params"]["enable_claims"]=false' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Allocate genesis accounts (cosmos formatted addresses)
-pointd add-genesis-account $KEY 900000000000000000000000000apoint --keyring-backend $KEYRING
+pointd add-genesis-account point1m5ztmx2zwqfvwpvchx523kwmgr3awupxuuz6eq 999999000000000000000000000apoint --keyring-backend $KEYRING
 
-pointd add-genesis-account point1ev3575lx5q7dd0jg0p5rh49pvp0lffgu4w5dq3 100000000000000000000000000apoint --keyring-backend $KEYRING
+pointd add-genesis-account $KEY 1000000000000000000000apoint --keyring-backend $KEYRING
 
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.pointd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
@@ -104,7 +104,7 @@ total_supply=1000000000000000000000000000
 cat $HOME/.pointd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.pointd/config/tmp_genesis.json && mv $HOME/.pointd/config/tmp_genesis.json $HOME/.pointd/config/genesis.json
 
 # Sign genesis transaction
-pointd gentx $KEY 1000000000000000000000apoint --keyring-backend $KEYRING --chain-id $CHAINID
+pointd gentx $KEY 1000000000000000000apoint --keyring-backend $KEYRING --chain-id $CHAINID
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `pointd keys add` step, init more keys
 ## 2. Back to `pointd add-genesis-account` step, add balance for those
