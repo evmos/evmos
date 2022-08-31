@@ -8,13 +8,13 @@
 * [Check if I am a validator](#check-if-I-am-a-validator)
 * [Check my voting power](#check-my-voting-power)
 * [Kind of keys](#kind-of-keys)
-* [Get evmos address for a given key name](#get-evmos-address-for-a-given-key-name)
-* [Get evmosvaloper address for a given key name](#get-evmosvaloper-address-for-a-given-key-name)
-* [Check balance for a given evmos formatted address](#check-balance-for-a-given-evmos-formatted-address)
-* [Convert between evmos formatted and ethereum formatted addresses](#convert-between-evmos-formatted-and-ethereum-formatted-addresses)
-* [Get evmosvalcons address](#get-evmosvalcons-address)
+* [Get point address for a given key name](#get-point-address-for-a-given-key-name)
+* [Get pointvaloper address for a given key name](#get-pointvaloper-address-for-a-given-key-name)
+* [Check balance for a given point formatted address](#check-balance-for-a-given-point-formatted-address)
+* [Convert between point formatted and ethereum formatted addresses](#convert-between-point-formatted-and-ethereum-formatted-addresses)
+* [Get pointvalcons address](#get-pointvalcons-address)
 * [Get information for all validators](#get-information-for-all-validators)
-* [Get information for you validator providing you evmosvaloper address](#get-information-for-you-validator-providing-you-evmosvaloper-address)
+* [Get information for you validator providing you pointvaloper address](#get-information-for-you-validator-providing-you-pointvaloper-address)
 * [Check if validator is jailed](#check-if-validator-is-jailed)
 * [Check if jail has expired and I can unjail](#check-if-jail-has-expired-and-I-can-unjail)
 * [How to unjail using the key](#how-to-unjail-using-the-key)
@@ -43,7 +43,7 @@ for the error above it's waiting for sequence 1 so you need to add flag
 ## Check if node is synced
 
 ```
-evmosd status 2>&1 | jq .SyncInfo | grep catching_up
+pointd status 2>&1 | jq .SyncInfo | grep catching_up
 ```
 
 If response says "catching_up": false it means you are synced.
@@ -51,54 +51,54 @@ If response says "catching_up": false it means you are synced.
 ## Verify transactions
 
 ```
-evmosd query tx <tx-id>
+pointd query tx <tx-id>
 ```
 
 ## Check if I am a validator
 
 ```
-evmosd query slashing signing-info $(evmosd tendermint show-validator)
+pointd query slashing signing-info $(pointd tendermint show-validator)
 ```
 
 Also you should find your address here:
 
 ```
-evmosd query tendermint-validator-set
+pointd query tendermint-validator-set
 ```
 
-you can use grep to see if your evmosvalcons address is part of active validators:
+you can use grep to see if your pointvalcons address is part of active validators:
 
 ```
-evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"
+pointd query tendermint-validator-set | grep "$(pointd tendermint show-address)"
 ```
 
 ## Check my voting power
 
 ```
-evmosd status | jq .ValidatorInfo.VotingPower
+pointd status | jq .ValidatorInfo.VotingPower
 ```
 
 ## Kind of keys
 
 ### Tendermint Key
-This is a unique key used to sign block hashes. It is associated with a public key evmosvalconspub when you create your validator.
-This key is saved in file ~/.evmosd/config/priv_validator_key.json (backup this file if you plan to move the node to other vps)
+This is a unique key used to sign block hashes. It is associated with a public key pointvalconspub when you create your validator.
+This key is saved in file ~/.pointd/config/priv_validator_key.json (backup this file if you plan to move the node to other vps)
 You can see information for this key using.
 
 To see public validator key
 ```
-evmosd tendermint show-validator
+pointd tendermint show-validator
 ```
 
-and also to see validator address (evmosvalcons format)
+and also to see validator address (pointvalcons format)
 
 ```
-evmosd tendermint show-address
+pointd tendermint show-address
 ```
 
 When you run the command to see current validators you will see a list with each validator
 
-- address: evmosvalcons1wqkgnazus8m7r6jcjkqshcmxq2qq9hcxjt437c
+- address: pointvalcons1wqkgnazus8m7r6jcjkqshcmxq2qq9hcxjt437c
   proposer_priority: "23635"
   pub_key:
     type: tendermint/PubKeyEd25519
@@ -110,7 +110,7 @@ As you can see here validators are uniquely identify using this address and publ
 When you run the command to see validators config
 
 ```
-evmosd query staking validators
+pointd query staking validators
 ```
 
 the output returns an array with commisions per validator
@@ -133,26 +133,26 @@ the output returns an array with commisions per validator
     website: ""
   jailed: false
   min_self_delegation: "1"
-  operator_address: evmosvaloper1arflh3r9cm8amy3tdlhtu79ywhq7gpwdnqlgfg
+  operator_address: pointvaloper1arflh3r9cm8amy3tdlhtu79ywhq7gpwdnqlgfg
   status: BOND_STATUS_BONDED
   tokens: "197029810999998702260"
   unbonding_height: "211800"
   unbonding_time: "2022-09-09T17:02:49.643431493Z"
 ```
-  Here you can see there are a relationship between tendermint public key and the operation_address (evmosvaloper) used for staking the funds.
+  Here you can see there are a relationship between tendermint public key and the operation_address (pointvaloper) used for staking the funds.
   That operation address is related to your application key.
 
 ### Application keys
-These keys are created from the application and used to sign transactions. As a validator, you will probably use one key to sign staking-related transactions, and another key to sign oracle-related transactions. Application keys are associated with a public key evmospub- and an address evmos-. Both are derived from account keys generated by evmosd keys add.
+These keys are created from the application and used to sign transactions. As a validator, you will probably use one key to sign staking-related transactions, and another key to sign oracle-related transactions. Application keys are associated with a public key pointpub- and an address point-. Both are derived from account keys generated by pointd keys add.
 
 When you create a validator you associate this key with your validator public key. See the command below and pay attention to flags --pubkey and --from
 
 ```
-evmosd tx staking create-validator  \
+pointd tx staking create-validator  \
 --amount=100000000000000000000apoint \
---pubkey=$(evmosd tendermint show-validator) \
---moniker="brianvalidator" \
---chain-id=point_10721-1 \
+--pubkey=$(pointd tendermint show-validator) \
+--moniker="yourmoniker" \
+--chain-id=point_10687-1 \
 --commission-rate="0.10" \
 --commission-max-rate="0.20" \
 --commission-max-change-rate="0.01" \
@@ -163,70 +163,70 @@ evmosd tx staking create-validator  \
 --keyring-backend file
 ```
 
-For each key, you have a evmosvaloper that you can get using: [Get evmosvaloper address](#get-evmosvaloper-address-for-a-given-key-name)
-Also you can get evmos address using: [Get evmos address](#get-evmos-address-for-a-given-key-name)
+For each key, you have a pointvaloper that you can get using: [Get pointvaloper address](#get-pointvaloper-address-for-a-given-key-name)
+Also you can get point address using: [Get point address](#get-point-address-for-a-given-key-name)
 
-## Get evmos address for a given key name
-
-```
-evmosd keys show <key-name>
-```
-
-## Get evmosvaloper address for a given key name
+## Get point address for a given key name
 
 ```
-evmosd keys show <key-name> -a --bech val
+pointd keys show <key-name>
+```
+
+## Get pointvaloper address for a given key name
+
+```
+pointd keys show <key-name> -a --bech val
 ```
 
 
-## Check balance for a given evmos formatted address
+## Check balance for a given point formatted address
 
 ```
-evmosd query bank balances <evmos formated address>
+pointd query bank balances <point formated address>
 ```
 
 also you can see balances for a given key
 
 ```
-evmosd query bank balances $(evmosd keys show <key-name> -a)
+pointd query bank balances $(pointd keys show <key-name> -a)
 ```
 
 
-## Convert between evmos formatted and ethereum formatted addresses
+## Convert between point formatted and ethereum formatted addresses
 
 Use this online tool:
 
-https://evmos.me/utils/tools
+https://pointnetwork.io/converter.html
 
 
-## Get evmosvalcons address
+## Get pointvalcons address
 
 ```
-evmosd tendermint show-address
+pointd tendermint show-address
 ```
 
 ## Get information for all validators
 ```
-evmosd query staking validators
+pointd query staking validators
 ```
 
-## Get information for you validator providing you evmosvaloper address
+## Get information for you validator providing you pointvaloper address
 
 ```
-evmosd query staking validator <evmosvaloperaddress>
+pointd query staking validator <pointvaloperaddress>
 ```
 
 or you can try providing your key name
 
 ```
-evmosd query staking validator  $(evmosd keys show <key-name> -a --bech val)
+pointd query staking validator  $(pointd keys show <key-name> -a --bech val)
 
 ```
 
 ## Check if validator is jailed
 
 ```
-evmosd query staking validator  $(evmosd keys show <key-name> -a --bech val) | grep jailed
+pointd query staking validator  $(pointd keys show <key-name> -a --bech val) | grep jailed
 ```
 
 ## Check if jail has expired and I can unjail
@@ -234,7 +234,7 @@ evmosd query staking validator  $(evmosd keys show <key-name> -a --bech val) | g
 Run this to see when you can unjail:
 
 ```
-evmosd query slashing signing-info $(evmosd tendermint show-validator) | grep jailed_until
+pointd query slashing signing-info $(pointd tendermint show-validator) | grep jailed_until
 ```
 
 And run this to see current utc time:
@@ -246,9 +246,9 @@ date -u +"%Y-%m-%dT%H:%M:%SZ"
 ## How to unjail using the key
 
 ```
-evmosd tx slashing unjail \
+pointd tx slashing unjail \
 --from=<key-name> \
---chain-id=point_10721-1 \
+--chain-id=point_10687-1 \
 --keyring-backend file \
 --gas="400000" \
 --gas-prices="0.025apoint"
@@ -256,7 +256,7 @@ evmosd tx slashing unjail \
 
 ## Unjail is not working
 Check if unjail period has expired: [Check if jail has expired and I can unjail](#check-if-jail-has-expired-and-I-can-unjail)
-If it's ok check if you have enough balance to unjail yourself: [Get information for you validator providing you evmosvaloper address](#get-information-for-you-validator-providing-you-evmosvaloper-address)
+If it's ok check if you have enough balance to unjail yourself: [Get information for you validator providing you pointvaloper address](#get-information-for-you-validator-providing-you-pointvaloper-address)
 Output will be something like this:
 
 ```
@@ -282,16 +282,16 @@ Check jailing status: [Check if validator is jailed](#check-if-validator-is-jail
 First check your available balance for the key
 
 ```
-evmosd query bank balances $(evmosd keys show <key-name> -a)
+pointd query bank balances $(pointd keys show <key-name> -a)
 ```
 
 this is command supposing you have 100000000apoint to delegate, adjust for you use case and replace <key-name> with your key name.
 
 ```
-evmosd tx staking delegate <evmosvaloperaddress> "100000000apoint" \
+pointd tx staking delegate <pointvaloperaddress> "100000000apoint" \
 --from <key-name> \
 --keyring-backend file \
---chain-id=point_10721-1 \
+--chain-id=point_10687-1 \
 --gas="400000" \
 --gas-prices="0.025apoint"
 ```
@@ -299,11 +299,11 @@ evmosd tx staking delegate <evmosvaloperaddress> "100000000apoint" \
 ## How to delegate tokens from one validator to another one
 
 Here we are delegating 900000000000000000000apoint.
-To see how much you can delegate run command [See validator info](#get-information-for-you-validator-providing-you-evmosvaloper-address)
+To see how much you can delegate run command [See validator info](#get-information-for-you-validator-providing-you-pointvaloper-address)
 In tokens section you will see the max amount you can delegate to other validator
 
 ```
-evmosd tx staking redelegate <evmosvaloper-source> <evmosvaloper-dest> "900000000000000000000apoint" --gas="400000" --gas-prices="0.025apoint" --from=<key-related-to-source-validator> --keyring-backend file
+pointd tx staking redelegate <pointvaloper-source> <pointvaloper-dest> "900000000000000000000apoint" --gas="400000" --gas-prices="0.025apoint" --from=<key-related-to-source-validator> --keyring-backend file
 ```
 
 ## Do you have a explorer?
@@ -313,7 +313,7 @@ Yes, go to https://explorer-xnet-triton.point.space
 
 ## What do I need to backup for migrating my node to other vps
 
-In the folder ~/.evmosd/config you will find a file called priv_validator_key.json generated when the node is created with evmosd init, this is the : [tendermint key](#tendermint-key)
+In the folder ~/.pointd/config you will find a file called priv_validator_key.json generated when the node is created with pointd init, this is the : [tendermint key](#tendermint-key)
 
 
 
@@ -324,11 +324,11 @@ In the folder ~/.evmosd/config you will find a file called priv_validator_key.js
 Don't share the output of this command, it's your private key
 
 ```
-evmosd keys unsafe-export-eth-key <key-name> --keyring-backend file
+pointd keys unsafe-export-eth-key <key-name> --keyring-backend file
 ```
 
 ## How to recover a key using seeds
 
 ```
-evmosd keys add <key-name> --keyring-backend file --recover
+pointd keys add <key-name> --keyring-backend file --recover
 ```
