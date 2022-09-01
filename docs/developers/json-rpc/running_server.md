@@ -104,3 +104,23 @@ The WebSocket Server can be enabled from the `app.toml`
 # Address defines the EVM WebSocket server address to bind to.
 ws-address = "0.0.0.0:8546"
 ```
+
+## ETH Tx Indexer
+
+The ETH Tx Indexer provides an optional indexer services for Ethereum transactions to optimize JSON RPC performance. This removes the need for Tendermint Tx Indexer to support RPCs which reduces considerably storage costs.
+
+### Enable Indexer
+
+To enable the ETH Indexer run the following command
+
+```bash
+evmosd start --json-rpc.enable-indexer 
+```
+
+If the chain had already started and you need the ETH Indexer to catch up on old transactions, you could run the `index-eth-tx` command to index historical ETH transactions.
+
+```bash
+evmosd index-eth-tx backward
+```
+
+After the eth indexer has finished catching up, the Tendermint indexer can be disabled for JSON RPC support.
