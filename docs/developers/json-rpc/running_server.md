@@ -117,6 +117,8 @@ To enable the ETH Indexer run the following command
 evmosd start --json-rpc.enable-indexer 
 ```
 
+### Index Historical Transactions
+
 If the chain had already started and you need the ETH Indexer to catch up on old transactions, you could run the `index-eth-tx` command to index historical ETH transactions.
 
 ```bash
