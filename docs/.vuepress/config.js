@@ -72,7 +72,7 @@ module.exports = {
     custom: true,
     project: {
       name: "Point Chain",
-      denom: "Point Chain",
+      denom: "POINT",
       ticker: "Point Chain",
       binary: "Point Chaind",
       testnet_denom: "tPoint Chain",
@@ -149,85 +149,6 @@ module.exports = {
               title: "Technical Concepts",
               directory: true,
               path: "/users/technical_concepts",
-            },
-          ],
-        },
-        {
-          title: "For dApp Devs",
-          children: [
-            {
-              title: "Overview",
-              directory: false,
-              path: "/developers/overview",
-            },
-            {
-              title: "Quick Connect",
-              directory: false,
-              path: "/developers/connect",
-            },
-            {
-              title: "Clients",
-              directory: false,
-              path: "/developers/clients",
-            },
-            {
-              title: "Guides",
-              directory: true,
-              path: "/developers/guides",
-            },
-            {
-              title: "Localnet",
-              directory: true,
-              path: "/developers/localnet",
-            },
-            {
-              title: "Testnet",
-              directory: true,
-              path: "/developers/testnet",
-            },
-            {
-              title: "Ethereum Tooling",
-              directory: true,
-              path: "/developers/tools",
-            },
-            {
-              title: "Client Libraries",
-              directory: true,
-              path: "/developers/libraries",
-            },
-            {
-              title: "Ethereum JSON-RPC",
-              directory: true,
-              path: "/developers/json-rpc",
-            },
-            {
-              title: "Tendermint RPC",
-              path: "https://docs.tendermint.com/v0.34/rpc/",
-            },
-          ],
-        },
-        {
-          title: "For Protocol Devs",
-          children: [
-            {
-              title: "Modules",
-              directory: true,
-              path: "/modules",
-            },
-            {
-              title: "Module Accounts",
-              directory: false,
-              path: "/protocol/moduleaccounts",
-            },
-            {
-              title: "IBC Channels",
-              directory: false,
-              path: "/protocol/ibc",
-            },
-            {
-              title: "Point Chain Protobuf",
-              directory: false,
-              path: "/protocol/proto-docs",
             },
           ],
         },
