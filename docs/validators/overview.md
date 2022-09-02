@@ -51,8 +51,8 @@ As the usage of the blockchain grows, the server requirements may increase as we
 Seek legal advice if you intend to run a validator.
 :::
 
-Set up a dedicated validator's website, social profile (eg: Twitter) and signal your intention to become a validator on Discord. This is important since users will want to have information about the entity they are staking their EVMOS to.
+Set up a dedicated validator's website, social profile (eg: Twitter) and signal your intention to become a validator on Discord. This is important since users will want to have information about the entity they are staking their POINT to.
 
 ## Community
 
-Discuss the finer details of being a validator and seek advise from the rest of the validator community on our [Discord](https://discord.gg/evmos).
+Discuss the finer details of being a validator and seek advise from the rest of the validator community on our [Discord](https://discord.com/invite/DkH6zxCXWz).
