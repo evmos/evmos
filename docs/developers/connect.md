@@ -4,11 +4,11 @@ order: 2
 
 # Quick Connect
 
-Quickly connect your app or client to Evmos services {synopsis}
+Quickly connect your app or client to Point network services {synopsis}
 
 ## Public Available Endpoints
 
-Below is a list of publicly available endpoints that you can use to connect to the Evmos mainnet and
+Below is a list of publicly available endpoints that you can use to connect to the Point network mainnet and
 public testnets:
 
 ::: tip

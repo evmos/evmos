@@ -27,30 +27,30 @@ Set up the Cosmovisor environment variables. We recommend setting these in your 
 
 ```bash
 echo "# Setup Cosmovisor" >> ~/.profile
-echo "export DAEMON_NAME=evmosd" >> ~/.profile
-echo "export DAEMON_HOME=$HOME/.evmosd" >> ~/.profile
+echo "export DAEMON_NAME=pointd" >> ~/.profile
+echo "export DAEMON_HOME=$HOME/.pointd" >> ~/.profile
 source ~/.profile
 ```
 
-After this, you must make the necessary folders for `cosmosvisor` in your `DAEMON_HOME` directory (`~/.evmosd`) and copy over the current binary.
+After this, you must make the necessary folders for `cosmosvisor` in your `DAEMON_HOME` directory (`~/.pointd`) and copy over the current binary.
 
 ```bash
-mkdir -p ~/.evmosd/cosmovisor
-mkdir -p ~/.evmosd/cosmovisor/genesis
-mkdir -p ~/.evmosd/cosmovisor/genesis/bin
-mkdir -p ~/.evmosd/cosmovisor/upgrades
+mkdir -p ~/.pointd/cosmovisor
+mkdir -p ~/.pointd/cosmovisor/genesis
+mkdir -p ~/.pointd/cosmovisor/genesis/bin
+mkdir -p ~/.pointd/cosmovisor/upgrades
 
-cp $GOPATH/bin/evmosd ~/.evmosd/cosmovisor/genesis/bin
+cp $GOPATH/bin/pointd ~/.pointd/cosmovisor/genesis/bin
 ```
 
-To check that you did this correctly, ensure your versions of `cosmovisor` and `evmosd` are the same:
+To check that you did this correctly, ensure your versions of `cosmovisor` and `pointd` are the same:
 
 ```bash
 cosmovisor version
-evmosd version
+pointd version
 ```
 
-### 2. Download the Evmos release
+### 2. Download the Point network release
 
 #### 2.a) Manual Download
 
@@ -80,11 +80,11 @@ cosmovisor/
 ├── current/   # either genesis or upgrades/<name>
 ├── genesis
 │   └── bin
-│       └── evmosd
+│       └── pointd
 └── upgrades
     └── v3.0.0
         ├── bin
-        │   └── evmosd
+        │   └── pointd
         └── upgrade-info.json
 ```
 
@@ -113,9 +113,9 @@ cosmovisor start
 You will need some way to keep the process always running. If you're on linux, you can do this by creating a service.
 
 ```bash
-sudo tee /etc/systemd/system/evmosd.service > /dev/null <<EOF
+sudo tee /etc/systemd/system/pointd.service > /dev/null <<EOF
 [Unit]
-Description=Evmos Daemon
+Description=Point network Daemon
 After=network-online.target
 
 [Service]
@@ -125,8 +125,8 @@ Restart=always
 RestartSec=3
 LimitNOFILE=infinity
 
-Environment="DAEMON_HOME=$HOME/.evmosd"
-Environment="DAEMON_NAME=evmosd"
+Environment="DAEMON_HOME=$HOME/.pointd"
+Environment="DAEMON_NAME=pointd"
 Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
 Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
 
@@ -139,12 +139,12 @@ Then update and start the node
 
 ```bash
 sudo -S systemctl daemon-reload
-sudo -S systemctl enable evmosd
-sudo -S systemctl start evmosd
+sudo -S systemctl enable pointd
+sudo -S systemctl start pointd
 ```
 
 You can check the status with:
 
 ```bash
-systemctl status evmosd
+systemctl status pointd
 ```

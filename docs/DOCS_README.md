@@ -11,7 +11,7 @@ If you want to open a PR on the Cosmos SDK to update the documentation, please f
 
 ## Docs Build Workflow
 
-The documentation for Evmos is hosted at [evmos.dev](https://evmos.dev/)
+The documentation for Point network is hosted at [evmos.dev](https://evmos.dev/)
 
 built from the files in this (`/docs`) directory for
 [master](https://github.com/evmos/evmos/tree/main/docs).
@@ -96,7 +96,7 @@ We are using [Algolia](https://www.algolia.com) to power full-text search. This 
 ### Update and Build the RPC docs
 
 1. Execute the following command at the root directory to install the swagger-ui generate tool.
-  
+
    ```bash
    make tools
    ```
@@ -105,7 +105,7 @@ We are using [Algolia](https://www.algolia.com) to power full-text search. This 
    1. Directly Edit API docs manually: `client/lcd/swagger-ui/swagger.yaml`.
    2. Edit API docs within the [Swagger Editor](https://editor.swagger.io/). Please refer to this [document](https://swagger.io/docs/specification/2-0/basic-structure/) for the correct structure in `.yaml`.
 3. Download `swagger.yaml` and replace the old `swagger.yaml` under fold `client/lcd/swagger-ui`.
-4. Compile evmosd
+4. Compile pointd
 
    ```bash
    make install

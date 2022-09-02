@@ -4,7 +4,7 @@ order: 4
 
 # Keplr
 
-Connect your Keplr wallet with Evmos. {synopsis}
+Connect your Keplr wallet with Point network. {synopsis}
 
 - [Install Keplr](https://www.keplr.app/) {prereq}
 
@@ -77,4 +77,4 @@ There are several ways to import an existing account:
 
 ## Connect Keplr to Mainnet
 
-Once you are signed in to the Keplr extension, you can connect the wallet with the Evmos network. The Evmos mainnet network is already built into Keplr; look for the `Evmos (beta)` network.
+Once you are signed in to the Keplr extension, you can connect the wallet with the Point network network. The Point network mainnet network is already built into Keplr; look for the `Point network (beta)` network.

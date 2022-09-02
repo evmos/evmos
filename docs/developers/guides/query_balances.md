@@ -4,11 +4,11 @@ order: 7
 
 # Query Balances
 
-Learn how to query balances of IBC Cosmos Coins and ERC-20s on Evmos. {synopsis}
+Learn how to query balances of IBC Cosmos Coins and ERC-20s on Point network. {synopsis}
 
 This guide will cover the following query methods:
 
-- [`evmosd` & Tendermint RPC](#evmosd--tendermint-rpc)
+- [`pointd` & Tendermint RPC](#pointd--tendermint-rpc)
 - [JSON-RPC](#json-rpc)
 - [gRPC](#grpc)
 
@@ -16,12 +16,12 @@ This guide will cover the following query methods:
 **Note**: In this document, the command line is used to interact with endpoints. For dApp developers, using libraries such as [cosmjs](https://github.com/cosmos/cosmjs) and [evmosjs](../libraries/evmosjs.md) is recommended instead.
 :::
 
-## `evmosd` & Tendermint RPC
+## `pointd` & Tendermint RPC
 
-Upon [installation](../../validators/quickstart/installation.md) and [configuration](../../validators/quickstart/binary.md) of the Evmos Daemon, developers can query account balances using `evmosd` with the following CLI command:
+Upon [installation](../../validators/quickstart/installation.md) and [configuration](../../validators/quickstart/binary.md) of the Point network Daemon, developers can query account balances using `pointd` with the following CLI command:
 
 ```bash
-$ evmosd query bank balances $EVMOSADDRESS --count-total=$COUNTTOTAL --height=$HEIGHT --output=$OUTPUT --node=$NODE
+$ pointd query bank balances $EVMOSADDRESS --count-total=$COUNTTOTAL --height=$HEIGHT --output=$OUTPUT --node=$NODE
 balances:
 - amount: "1000000000000000000"
   denom: aevmos
@@ -34,7 +34,7 @@ pagination:
 
 where:
 
-- `$EVMOSADDRESS` is the Evmos address with balances of interest (eg. `evmos1...`).
+- `$EVMOSADDRESS` is the Point network address with balances of interest (eg. `evmos1...`).
 - (optional) `$COUNTTOTAL` counts the total number of records in all balances to query for.
 - (optional) `$HEIGHT` is the specific height to query state at (can error if node is pruning state).
 - (optional) `$OUTPUT` is the output format (eg. `text`).
@@ -43,7 +43,7 @@ where:
 Details of non-native currencies (ie. not `aevmos`) can be queried with the following CLI command:
 
 ```bash
-$ evmosd query erc20 token-pair $DENOM --node=$NODE --height=$HEIGHT --output=$OUTPUT
+$ pointd query erc20 token-pair $DENOM --node=$NODE --height=$HEIGHT --output=$OUTPUT
 token_pair:
   contract_owner: OWNER_MODULE
   denom: ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518
@@ -68,7 +68,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":[`$ETHA
 where:
 
 - `$ETHADDRESS` is the Etherum hex-address the balance is to be queried from.
-    Note that Evmos addresses (those beginning with `evmos1...`) can be converte.d to Ethereum addresses using libraries such as [evmosjs](../libraries/evmosjs.md).
+    Note that Point network addresses (those beginning with `evmos1...`) can be converte.d to Ethereum addresses using libraries such as [evmosjs](../libraries/evmosjs.md).
 - `$BLOCK` is the block number or block hash (eg. `"0x0"`).
     The reasoning for this parameter is due to [EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md).
 - (optional if running local node) `$NODE` is the JSON-RPC node information is requested from (eg. `https://eth.bd.evmos.org:8545`).
@@ -117,7 +117,7 @@ grpcurl $OUTPUT -d '{"address":`$EVMOSADDRESS`}' $NODE cosmos.bank.v1beta1.Query
 
 where:
 
-- `$EVMOSADDRESS` is the Evmos address with balances of interest (eg. `"evmos1..."`).
+- `$EVMOSADDRESS` is the Point network address with balances of interest (eg. `"evmos1..."`).
 - `$NODE` is the Cosmos gRPC node information is requested from (eg. `https://grpc.bd.evmos.org:9090`).
 - (optional) `$OUTPUT` is the output format (eg. `plaintext`).
 
@@ -135,7 +135,7 @@ import (
 )
 
 func queryState() error {
-    myAddress, err := GetEvmosAddressFromBech32("evmos1...") // evmos address with balances of interest.
+    myAddress, err := GetPoint networkAddressFromBech32("evmos1...") // evmos address with balances of interest.
     if err != nil {
         return err
     }
@@ -163,13 +163,13 @@ func queryState() error {
 }
 
 // evmosjs address converter.
-func GetEvmosAddressFromBech32(address string) (string, error) {...}
+func GetPoint networkAddressFromBech32(address string) (string, error) {...}
 ```
 
 :::tip
 **Note**: The following tools will be useful when using gRPC:
 
-- [Evmos Swagger API](https://api.evmos.dev/): a comprehensive description of all gRPC endpoints
-- [Cosmos SDK Go API](https://pkg.go.dev/github.com/cosmos/cosmos-sdk) & [Evmos Go API](https://pkg.go.dev/github.com/tharsis/evmos): packages to implement queries in Go scripts
+- [Point network Swagger API](https://api.evmos.dev/): a comprehensive description of all gRPC endpoints
+- [Cosmos SDK Go API](https://pkg.go.dev/github.com/cosmos/cosmos-sdk) & [Point network Go API](https://pkg.go.dev/github.com/tharsis/evmos): packages to implement queries in Go scripts
 
 :::

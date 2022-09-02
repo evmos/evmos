@@ -1,6 +1,6 @@
 module.exports = {
   theme: "cosmos",
-  title: "Evmos Documentation",
+  title: "Point Network Documentation",
   locales: {
     "/": {
       lang: "en-US",
@@ -64,39 +64,39 @@ module.exports = {
     // ['link', { rel: "apple-touch-icon-precomposed", href: "/apple-touch-icon-precomposed.png" }],
   ],
   themeConfig: {
-    repo: "tharsis/evmos",
-    docsRepo: "tharsis/evmos",
+    repo: "tharsis/Point Network",
+    docsRepo: "tharsis/Point Network",
     docsBranch: "main",
     docsDir: "docs",
     editLinks: true,
     custom: true,
     project: {
-      name: "Evmos",
-      denom: "Evmos",
-      ticker: "EVMOS",
-      binary: "evmosd",
-      testnet_denom: "tEvmos",
-      testnet_ticker: "tEVMOS",
-      rpc_url: "https://eth.bd.evmos.org:8545",
-      rpc_url_testnet: "https://eth.bd.evmos.dev:8545",
+      name: "Point Network",
+      denom: "Point Network",
+      ticker: "Point Network",
+      binary: "Point Networkd",
+      testnet_denom: "tPoint Network",
+      testnet_ticker: "tPoint Network",
+      rpc_url: "https://eth.bd.Point Network.org:8545",
+      rpc_url_testnet: "https://eth.bd.Point Network.dev:8545",
       rpc_url_local: "http://localhost:8545/",
-      chain_id: "9001",
-      testnet_chain_id: "9000",
+      chain_id: "10687",
+      testnet_chain_id: "10731",
       latest_version: "v7.0.0",
       version_number: "2",
       testnet_version_number: "4",
-      testnet_evm_explorer_url: "https://evm.evmos.dev",
-      evm_explorer_url: "https://evm.evmos.org",
-      testnet_cosmos_explorer_url: "https://explorer.evmos.dev/",
-      cosmos_explorer_url: "https://www.mintscan.io/evmos",
+      testnet_evm_explorer_url: "https://evm.Point Network.dev",
+      evm_explorer_url: "https://evm.Point Network.org",
+      testnet_cosmos_explorer_url: "https://explorer.Point Network.dev/",
+      cosmos_explorer_url: "https://www.mintscan.io/Point Network",
     },
     logo: {
-      src: "/evmos-black.svg",
+      src: "/Point Network-black.svg",
     },
     algolia: {
       id: "K3VQTEW3G5",
       key: "bf836a3c934b1d4df091d5c5b69c65d7",
-      index: "evmos",
+      index: "Point Network",
     },
     topbar: {
       banner: false,
@@ -105,21 +105,21 @@ module.exports = {
       auto: false,
       nav: [
         {
-          title: "About Evmos",
+          title: "About Point Network",
           children: [
             {
               title: "Introduction",
               directory: true,
               path: "/about/intro",
             },
-            {
-              title: "Evmos Ecosystem",
-              path: "https://evmos.space/",
-            },
-            {
-              title: "Awesome Evmos",
-              path: "https://github.com/tharsis/awesome",
-            },
+            // {
+            //   title: "Evmos Ecosystem",
+            //   path: "https://evmos.space/",
+            // },
+            // {
+            //   title: "Awesome Evmos",
+            //   path: "https://github.com/tharsis/awesome",
+            // },
           ],
         },
         {
@@ -141,7 +141,7 @@ module.exports = {
               path: "/users/keys",
             },
             {
-              title: "Evmos Governance",
+              title: "Point Network Governance",
               directory: true,
               path: "/users/governance",
             },
@@ -229,15 +229,15 @@ module.exports = {
               path: "/protocol/ibc",
             },
             {
-              title: "Evmos Go API",
+              title: "Point Network Go API",
               path: "https://pkg.go.dev/github.com/evmos/evmos",
             },
             {
               title: "Ethermint Library Go API",
-              path: "https://pkg.go.dev/github.com/evmos/ethermint",
+              path: "https://pkg.go.dev/github.com/Point Network/ethermint",
             },
             {
-              title: "Evmos Protobuf",
+              title: "Point Network Protobuf",
               directory: false,
               path: "/protocol/proto-docs",
             },
@@ -307,11 +307,11 @@ module.exports = {
             },
             {
               title: "Blockscout (EVM)",
-              path: "https://evm.evmos.org",
+              path: "https://evm.Point Network.org",
             },
             {
               title: "Mintscan (Cosmos)",
-              path: "https://www.mintscan.io/evmos/",
+              path: "https://www.mintscan.io/Point Network/",
             },
           ],
         },
@@ -321,14 +321,14 @@ module.exports = {
       title: "Help & Support",
       chat: {
         title: "Discord Channel",
-        text: "Chat with Evmos users and team on Discord.",
-        url: "https://discord.gg/evmos",
+        text: "Chat with Point Network users and team on Discord.",
+        url: "https://discord.gg/Point Network",
         bg: "linear-gradient(103.75deg, #1B1E36 0%, #22253F 100%)",
       },
       forum: {
         title: "Commonwealth Forum",
-        text: "Join the Evmos Commonwealth forum",
-        url: "https://commonwealth.im/evmos",
+        text: "Join the Point Network Commonwealth forum",
+        url: "https://commonwealth.im/Point Network",
         bg: "linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)",
       },
       github: {
@@ -340,8 +340,8 @@ module.exports = {
     footer: {
       logo: "/evmos-black.svg",
       textLink: {
-        text: "evmos.org",
-        url: "https://evmos.org",
+        text: "Point Network",
+        url: "https://pointnetwork.io/",
       },
       services: [
         {
@@ -398,10 +398,10 @@ module.exports = {
           ],
         },
         {
-          title: "Evmos",
+          title: "Point Network",
           children: [
             {
-              title: "Jobs at Evmos",
+              title: "Jobs at Point Network",
               url: "https://tharsis.notion.site/",
             },
           ],
