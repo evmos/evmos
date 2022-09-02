@@ -70,7 +70,7 @@ If it's empty, make sure to edit the field with some value, for example `10token
  # The minimum gas prices a validator is willing to accept for processing a
  # transaction. A transaction's fees must meet the minimum of any denomination
  # specified in this config (e.g. 0.25token1;0.0001token2).
- minimum-gas-prices = "0aevmos"
+ minimum-gas-prices = "0apoint"
 ```
 
 ### Pruning of State
@@ -85,7 +85,7 @@ The following pruning state settings are available:
 - `custom`: Specify pruning settings with the `pruning-keep-recent`, `pruning-keep-every`, and `pruning-interval` parameters.
 
 By default, every node is in `default` mode which is the recommended setting for most environments.
-If you would like to change your nodes pruning strategy then you must do so when the node is initialized. Passing a flag when starting `evmos` will always override settings in the `app.toml` file, if you would like to change your node to the `everything` mode then you can pass the `---pruning everything` flag when you call `pointd start`.
+If you would like to change your nodes pruning strategy then you must do so when the node is initialized. Passing a flag when starting `pointd` will always override settings in the `app.toml` file, if you would like to change your node to the `everything` mode then you can pass the `---pruning everything` flag when you call `pointd start`.
 
 ::: warning
 **IMPORTANT**:
@@ -109,13 +109,13 @@ pointd config
 
 We can make changes to the default settings upon our choices, so it allows users to set the configuration beforehand all at once, so it would be ready with the same config afterward.
 
-For example, the chain identifier can be changed to `evmos_9000-4` from a blank name by using:
+For example, the chain identifier can be changed to `point_10687-1` from a blank name by using:
 
 ```bash
-pointd config "chain-id" evmos_9000-4
+pointd config "chain-id" point_10687-1
 pointd config
 {
- "chain-id": "evmos_9000-4",
+ "chain-id": "point_10687-1",
  "keyring-backend": "os",
  "output": "text",
  "node": "tcp://localhost:26657",
@@ -125,7 +125,7 @@ pointd config
 
 Other values can be changed in the same way.
 
-Alternatively, we can directly make the changes to the config values in one place at client.toml. It is under the path of `.evmos/config/client.toml` in the folder where we installed evmos:
+Alternatively, we can directly make the changes to the config values in one place at client.toml. It is under the path of `.pointd/config/client.toml` in the folder where we installed pointd:
 
 ```toml
 ############################################################################
@@ -135,7 +135,7 @@ Alternatively, we can directly make the changes to the config values in one plac
 
 # The network chain ID
 
-chain-id = "evmos_9000-4"
+chain-id = "point_10687-1"
 
 # The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
 
@@ -154,12 +154,12 @@ node = "tcp://localhost:26657"
 broadcast-mode = "sync"
 ```
 
-After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` to `evmostest_9000-1`, and output to number, it would change instantly as shown below.
+After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `point_{{ $themeConfig.project.testnet_chain_id }}-1` to `point_10687-1`, and output to number, it would change instantly as shown below.
 
 ```bash
 pointd config
 {
- "chain-id": "evmostest_9000-1",
+ "chain-id": "point_10687-1",
  "keyring-backend": "os",
  "output": "number",
  "node": "tcp://localhost:26657",
