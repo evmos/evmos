@@ -119,7 +119,7 @@ Your validator is active if the following command returns anything:
 pointd query tendermint-validator-set | grep "$(pointd tendermint show-address)"
 ```
 
-You should now see your validator in one of Point network explorers. You are looking for the `bech32` encoded `address` in the `~/.pointd/config/priv_validator.json` file.
+You should now see your validator in one of Point Chain explorers. You are looking for the `bech32` encoded `address` in the `~/.pointd/config/priv_validator.json` file.
 
 ::: warning Note
 To be in the validator set, you need to have more total voting power than the 100th validator.
@@ -163,7 +163,7 @@ The default number of files Linux can open (per-process) is `1024`. `pointd` is 
 ```toml
 # /etc/systemd/system/pointd.service
 [Unit]
-Description=Point network Node
+Description=Point Chain Node
 After=network.target
 
 [Service]

@@ -4,13 +4,13 @@ order: 1
 
 # Overview
 
-Learn about validating on Point network {synopsis}
+Learn about validating on Point Chain {synopsis}
 
 ## Introduction
 
-Point network is based on [Tendermint Core](https://github.com/tendermint/tendermint/blob/master/docs/introduction/what-is-tendermint.md), which relies on a set of validators that are responsible for committing new blocks in the blockchain. These validators participate in the consensus protocol by broadcasting votes which contain cryptographic signatures signed by each validator's private key.
+Point Chain is based on [Tendermint Core](https://github.com/tendermint/tendermint/blob/master/docs/introduction/what-is-tendermint.md), which relies on a set of validators that are responsible for committing new blocks in the blockchain. These validators participate in the consensus protocol by broadcasting votes which contain cryptographic signatures signed by each validator's private key.
 
-Validator candidates can bond their own staking tokens and have the tokens "delegated", or staked, to them by token holders. The **{{ $themeConfig.project.denom }}** is Point network's native token. At its onset, Point network will launch with 150 validators. The validators are determined by who has the most stake delegated to them - the top 150 validator candidates with the most stake will become Point network validators.
+Validator candidates can bond their own staking tokens and have the tokens "delegated", or staked, to them by token holders. The **{{ $themeConfig.project.denom }}** is Point Chain's native token. At its onset, Point Chain will launch with 150 validators. The validators are determined by who has the most stake delegated to them - the top 150 validator candidates with the most stake will become Point Chain validators.
 
 Validators and their delegators will earn {{ $themeConfig.project.denom }} as block provisions and tokens as transaction fees through execution of the Tendermint consensus protocol. Initially, transaction fees will be paid in POINT but in the future, any token in the Cosmos ecosystem will be valid as fee tender if it is whitelisted by governance. Note that validators can set commission on the fees their delegators receive as additional incentive.
 

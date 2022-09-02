@@ -4,9 +4,9 @@ order: 1
 
 # Faucet
 
-Check how to obtain testnet tokens from the Point network faucet website {synopsis}
+Check how to obtain testnet tokens from the Point Chain faucet website {synopsis}
 
-The Point network Testnet Faucet distributes small amounts of {{ $themeConfig.project.testnet_denom }} to anyone who can provide a valid testnet address for free. Request funds from the faucet either by using the [Keplr Wallet](../../users/wallets/keplr.md) or follow the instructions on this page.
+The Point Chain Testnet Faucet distributes small amounts of {{ $themeConfig.project.testnet_denom }} to anyone who can provide a valid testnet address for free. Request funds from the faucet either by using the [Keplr Wallet](../../users/wallets/keplr.md) or follow the instructions on this page.
 
 ::: tip
 Follow the [Metamask](../../users/wallets/metamask.md), [Keplr](../../users/wallets/keplr.md) or [Keyring](../../users/keys/keyring.md) guides for more info on how to setup your wallet account.
@@ -22,7 +22,7 @@ Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet
 After approval, you can see a transaction confirmation informing you that {{ $themeConfig.project.testnet_denom }} have been successfully transferred to your [evmos address](../../users/technical_concepts/accounts.md#address-formats-for-clients) on the testnet.
 
 ::: warning
-**Note**: only Ethereum compatible addresses (i.e `eth_secp256k1` keys) are supported on Point network.
+**Note**: only Ethereum compatible addresses (i.e `eth_secp256k1` keys) are supported on Point Chain.
 :::
 
 ![chain add request](../../img/keplr_transaction.png)
@@ -47,7 +47,7 @@ View your account balance either by clicking on the Keplr extension or by using 
 All addresses **MUST** be authenticated using ReCAPTCHA before requesting tokens.
 :::
 
-To prevent the faucet account from draining the available funds, the Point network testnet faucet imposes a maximum number of requests for a period of time. By default, the faucet service accepts 1 request per day per address. You can request {{ $themeConfig.project.testnet_denom }} from the faucet for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
+To prevent the faucet account from draining the available funds, the Point Chain testnet faucet imposes a maximum number of requests for a period of time. By default, the faucet service accepts 1 request per day per address. You can request {{ $themeConfig.project.testnet_denom }} from the faucet for each address only once every 24h. If you try to request multiple times within the 24h cooldown phase, no transaction will be initiated. Please try again in 24 hours.
 
 ## Amount
 

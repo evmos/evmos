@@ -50,7 +50,7 @@ cosmovisor version
 pointd version
 ```
 
-### 2. Download the Point network release
+### 2. Download the Point Chain release
 
 #### 2.a) Manual Download
 
@@ -115,7 +115,7 @@ You will need some way to keep the process always running. If you're on linux, y
 ```bash
 sudo tee /etc/systemd/system/pointd.service > /dev/null <<EOF
 [Unit]
-Description=Point network Daemon
+Description=Point Chain Daemon
 After=network-online.target
 
 [Service]

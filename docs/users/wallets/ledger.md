@@ -4,7 +4,7 @@ order: 5
 
 # Ledger
 
-Get started with your Ledger hardware wallet on Point network {synopsis}
+Get started with your Ledger hardware wallet on Point Chain {synopsis}
 
 ## Pre-requisites
 
@@ -31,7 +31,7 @@ Get started with your Ledger hardware wallet on Point network {synopsis}
 
 ## Ethereum Ledger App
 
-If you want to connect to Point network mainnet and Point network testnet, you can use the Ethereum Ledger app on Ledger Live by setting the chain ID.
+If you want to connect to Point Chain mainnet and Point Chain testnet, you can use the Ethereum Ledger app on Ledger Live by setting the chain ID.
 
 First, you will need to install the Ethereum Ledger app by following the instructions below:
 
@@ -48,8 +48,8 @@ In the table below you can find a list of Chain IDs to use with the Ethereum Led
 
 |               | EIP155 chain ID |
 | ------------- | --------------- |
-| Point network mainnet | `9001`          |
-| Point network testnet | `9000`          |
+| Point Chain mainnet | `9001`          |
+| Point Chain testnet | `9000`          |
 
 ## Import your Ledger Account
 
@@ -58,7 +58,7 @@ In the table below you can find a list of Chain IDs to use with the Ethereum Led
 Now that you've installed the app on Ledger Live, you can connect your Ledger to your computer and unlock it with your PIN-code and open the Ethereum app.
 
 ::: tip
-Follow our [Metamask Guide](./metamask.md) to add the Point network Mainnet and Testnet to your Settings
+Follow our [Metamask Guide](./metamask.md) to add the Point Chain Mainnet and Testnet to your Settings
 :::
 
 Now you can import your Ledger account to MetaMask by using the following steps:
@@ -85,7 +85,7 @@ In order to sign Cosmos transactions (staking, voting on proposals, IBC transfer
 
 EIP712 means that the signer will generate a signature for something like a JSON representation of the Cosmos transaction and that signature will be included in the Cosmos transaction itself.
 
-### Step-by Cosmos transaction using Point network.me
+### Step-by Cosmos transaction using Point Chain.me
 
 1. **Get your address in both encodings**
 
@@ -141,7 +141,7 @@ This step should be done automatically by the same service that generated the me
 
 ### Common errors
 
-- Make sure that the Ethereum Ledger app is installed. The Cosmos Ledger app is not supported on the Point network chain at the moment (see [FAQ](#faq)).
+- Make sure that the Ethereum Ledger app is installed. The Cosmos Ledger app is not supported on the Point Chain chain at the moment (see [FAQ](#faq)).
 - Make sure you have created at least one Ethereum address on the Ledger Ethereum app.
 - Make sure the Ledger device is unlocked and with the Ledger Ethereum app opened before starting the importing process.
 
@@ -158,19 +158,19 @@ This step should be done automatically by the same service that generated the me
 
 1. **How can I generate Cosmos `secp256k1` keys with Ledger?**
 
-Cosmos `secp256k1` keys are not supported on Point network with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
+Cosmos `secp256k1` keys are not supported on Point Chain with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
 
 2. **I can’t generate keys using the CLI with `pointd` with the `--ledger` flag**
 
 CLI bindings with `pointd` binary are not currently supported. In the meantime, you can use the Ethereum Ledger App with EIP712 using [evmos.me](https://evmos.me). See the [`EIP712 Signing`](#eip712-signing) section for reference.
 
-3. **I can’t generate a key for the Point network native multisig using the `pointd` CLI and and Ledger**
+3. **I can’t generate a key for the Point Chain native multisig using the `pointd` CLI and and Ledger**
 
 You can generate a multisig wallet using the `pointd` CLI, although the `--ledger` option is not available at the moment.
 
 4. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
 
-Since Point network only support Ethereum keys and uses the same HD path as Ethereum, the Cosmos Ledger app doesn’t work to sign cosmos transactions.
+Since Point Chain only support Ethereum keys and uses the same HD path as Ethereum, the Cosmos Ledger app doesn’t work to sign cosmos transactions.
 
 <!-- 4. **I can’t use Ledger for my validator**
 

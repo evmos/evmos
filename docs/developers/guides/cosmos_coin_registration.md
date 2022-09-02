@@ -4,7 +4,7 @@ order: 2
 
 # Cosmos Coin Registration
 
-Learn how to register native Cosmos Coins through [Point network Governance](../../users/governance/overview.md). {synopsis}
+Learn how to register native Cosmos Coins through [Point Chain Governance](../../users/governance/overview.md). {synopsis}
 
 :::tip
 **Note**: Not sure what the difference between Cosmos Coin and ERC-20 Registration is? You're in the right place if you want to add functionality to convert a native Cosmos Coin to an ERC-20 token representation. If an ERC-20 contract corresponding to your token already exists, and you want to add functionality to convert the ERC-20 token to a native Cosmos Coin denomination, check out [ERC-20 Registration](./erc20_registration.md) instead.
@@ -14,14 +14,14 @@ Still confused? Learn more about the differences [here](../../../x/erc20/spec/01
 
 The ERC-20 Module (also known as `x/erc20`) allows users to instantly convert [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20) tokens into native Cosmos Coins, and vice versa. This allows users to exchange assets interchangeably in two entirely different layers, the EVM and Cosmos.
 
-Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrate with Point network and the Cosmos ecosystem. Using the module, developers can build smart contracts on Point network and use the generated ERC-20 tokens for other [applications on the Cosmos ecosystem](https://mapofzones.com), such as:
+Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrate with Point Chain and the Cosmos ecosystem. Using the module, developers can build smart contracts on Point Chain and use the generated ERC-20 tokens for other [applications on the Cosmos ecosystem](https://mapofzones.com), such as:
 
 - earning $OSMO staking rewards
 - taking part in governance proposals by voting with $ATOM
 
 Registering a native Cosmos Coin means registering a new mapping between a Cosmos Coin denomination and a new ERC-20 token contract, also known as a Token Pair. Token Pairs enable users to convert ERC-20 tokens into their native Cosmos Coin representation (and vice-versa), and can only be created via a governance proposal.
 
-More information can be found in [this blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273), which introduced the ERC-20 Module on Point network.
+More information can be found in [this blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273), which introduced the ERC-20 Module on Point Chain.
 
 To register a Cosmos Coin, consider the following stages:
 
@@ -45,7 +45,7 @@ The following topics must be addressed when drafting a Cosmos Coin Proposal:
 
     Give a breakdown of the proposal's payload, and explain in layman terms what the proposal will do if it passes. Detail precautions taken during contract and proposal formulation, if applicable (including consultations made prior to proposal creation, how contracts were tested, and any third-party reviews). Finally, mention the risks involved in the proposal, depending on the direction of IBC Coin and ERC-20.
 
-Remember to provide links to the relevant [Commonwealth Point network community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+Remember to provide links to the relevant [Commonwealth Point Chain community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
 ## Submitting the Cosmos Coin Proposal
 
@@ -116,7 +116,7 @@ The deposit period currently lasts 14 days. If you submitted your transaction wi
 
 This is a stage where proposals may begin to get broader attention. Most popular explorers currently display proposals that are in the deposit period, but due to proposal spamming, this may change.
 
-A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Point network community to prepare validators to vote and EVMOS-holders that are staking.
+A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Point Chain community to prepare validators to vote and EVMOS-holders that are staking.
 
 ### The Voting Period
 

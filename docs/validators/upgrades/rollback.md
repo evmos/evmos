@@ -25,7 +25,7 @@ rm -rf ~/.pointd/data
 mv backup/.pointd/data ~/.pointd/data
 ```
 
-3. Next, install the previous version of Point network.
+3. Next, install the previous version of Point Chain.
 
 ```bash
 # from evmos directory

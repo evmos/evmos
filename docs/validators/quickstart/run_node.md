@@ -4,7 +4,7 @@ order: 4
 
 # Run a Node
 
-Configure and run an Point network node {synopsis}
+Configure and run an Point Chain node {synopsis}
 
 ## Pre-requisite Readings
 
@@ -46,7 +46,7 @@ echo "your mnemonic here" | pointd keys add $KEY --recover
 ```
 
 ::: tip
-Point network currently only supports 24 word mnemonics.
+Point Chain currently only supports 24 word mnemonics.
 :::
 
 You can generate a new key/mnemonic with:
@@ -71,7 +71,7 @@ pointd keys -h
 
 The instructions above include commands to use `test` as the `keyring-backend`. This is an unsecured
 keyring that doesn't require entering a password and should not be used in production. Otherwise,
-Point network supports using a file or OS keyring backend for key storage. To create and use a file
+Point Chain supports using a file or OS keyring backend for key storage. To create and use a file
 stored key instead of defaulting to the OS keyring, add the flag `--keyring-backend file` to any
 relevant command and the password prompt will occur through the command line. This can also be saved
 as a CLI config option with:
@@ -168,4 +168,4 @@ which will show the rate of transactions processed.
 
 ## Next {hide}
 
-Learn about running a Point network [testnet](./../testnet.md) {hide}
+Learn about running a Point Chain [testnet](./../testnet.md) {hide}

@@ -12,8 +12,8 @@ You specify the network you want to join by setting the **genesis file** and **s
 
 | Testnet Chain ID | Description                       | Site                                                                       | Version                                                                                  | Status  |
 | ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------- |
-| `evmos_9000-4`   | Point network_9000-4 Testnet              | [Point network 9000-4](https://github.com/tharsis/testnets/tree/main/evmos_9000-4) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
-| `evmos_9000-3`   | Point network_9000-3 Testnet              | [Point network 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v1.0.0-beta1)             | `Stale` |
+| `evmos_9000-4`   | Point Chain_9000-4 Testnet              | [Point Chain 9000-4](https://github.com/tharsis/testnets/tree/main/evmos_9000-4) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
+| `evmos_9000-3`   | Point Chain_9000-3 Testnet              | [Point Chain 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v1.0.0-beta1)             | `Stale` |
 | `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/evmos/evmos/releases)                                    | `Stale` |
 | `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/evmos/evmos/releases)                                    | `Stale` |
 
@@ -103,7 +103,7 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.pointd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 
-A list of available persistent peers is also available in the `#find-peers` channel in the [Point network Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
+A list of available persistent peers is also available in the `#find-peers` channel in the [Point Chain Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
 PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evmos_9000-4/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
@@ -127,7 +127,7 @@ For more details on how to run your validator, follow [these](./setup/run_valida
 pointd tx staking create-validator \
   --amount=1000000000000atevmos \
   --pubkey=$(pointd tendermint show-validator) \
-  --moniker="Point networkWhale" \
+  --moniker="Point ChainWhale" \
   --chain-id=<chain_id> \
   --commission-rate="0.10" \
   --commission-max-rate="0.20" \
@@ -183,7 +183,7 @@ pointd start
 
 ## Share your Peer
 
-You can share your peer to posting it in the `#find-peers` channel in the [Point network Discord](https://discord.gg/evmos).
+You can share your peer to posting it in the `#find-peers` channel in the [Point Chain Discord](https://discord.gg/evmos).
 
 ::: tip
 To get your Node ID use

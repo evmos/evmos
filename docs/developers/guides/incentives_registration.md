@@ -4,7 +4,7 @@ order: 5
 
 # Smart Contract Incentive Registration
 
-Learn how to register smart contract incentives through [Point network Governance](../../users/governance/overview.md). {synopsis}
+Learn how to register smart contract incentives through [Point Chain Governance](../../users/governance/overview.md). {synopsis}
 
 An incentive for a smart contract can be registered through governance to encourage more interaction with that contract. Users who interact with a registered contract (eg. through submission of transactions) will have rewards distributed to them. These rewards are essentially cash-back for the gas spent on the initial transactions.
 
@@ -32,13 +32,13 @@ The following topics must be addressed when drafting a Contract Incentives Propo
 
 2. Promote understanding of the `x/incentives` Module.
 
-    Make sure to mention the [`x/incentives` Module Documentation](../../../x/incentives/spec/README.md) along with a brief explanation of what the `x/incentives` Module does. It's also a good idea to link the [Point network Token Model](https://medium.com/evmos/the-evmos-token-model-edc07014978b), since incentives are directly intertwined with Point network tokenomics!
+    Make sure to mention the [`x/incentives` Module Documentation](../../../x/incentives/spec/README.md) along with a brief explanation of what the `x/incentives` Module does. It's also a good idea to link the [Point Chain Token Model](https://medium.com/evmos/the-evmos-token-model-edc07014978b), since incentives are directly intertwined with Point Chain tokenomics!
 
 3. Describe what changes are being made, and why they are required.
 
     Give a breakdown of the proposal's payload, and explain in layman's terms what the proposal will do if it passes. For the smart contract in question, provide general information on its purpose, along with an argument for why it requires incentives. Mention risks involved in the proposal, depending on the traction of the smart contract involved and the timetable for the proposed incentives. Finally, detail precautions taken during proposal formulation, if applicable (including consultations made prior to proposal creation, and any third-party reviews).
 
-Remember to provide links to the relevant [Commonwealth Point network community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+Remember to provide links to the relevant [Commonwealth Point Chain community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
 ## Submitting the Contract Incentives Proposal
 
@@ -106,7 +106,7 @@ The deposit period currently lasts 14 days. If you submitted your transaction wi
 
 This is a stage where proposals may begin to get broader attention. Most popular explorers currently display proposals that are in the deposit period, but due to proposal spamming, this may change.
 
-A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Point network community to prepare validators to vote and EVMOS-holders that are staking.
+A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Point Chain community to prepare validators to vote and EVMOS-holders that are staking.
 
 ### The Voting Period
 
@@ -128,7 +128,7 @@ To enable telemetrics, set `telemetry.enabled = true` in the `app.toml` config f
 
 ### Incentive Metrics
 
-Point network supports the following metrics related to the `x/incentives` module, which can be collected for incentive analysis:
+Point Chain supports the following metrics related to the `x/incentives` module, which can be collected for incentive analysis:
 
 | Metric                                         | Description                                                                         | Unit        | Type    |
 | :--------------------------------------------- | :---------------------------------------------------------------------------------- | :---------- | :------ |
@@ -146,4 +146,4 @@ In addition, gRPC queries related to the `x/incentives` module found [here](../.
 See the telemetry sources below for details not covered above:
 
 - [Cosmos SDK Telemetry Documentation](https://docs.cosmos.network/master/core/telemetry.html)
-- [Point network Supported Telemetry Metrics](https://docs.evmos.org/protocol/telemetry.html)
+- [Point Chain Supported Telemetry Metrics](https://docs.evmos.org/protocol/telemetry.html)

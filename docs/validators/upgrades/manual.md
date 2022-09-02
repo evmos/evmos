@@ -9,13 +9,13 @@ Learn how to manually upgrade your node. {synopsis}
 
 ## Pre-requisites
 
-- [Install Point network](./../quickstart/installation.md) {prereq}
+- [Install Point Chain](./../quickstart/installation.md) {prereq}
 
-## 1. Upgrade the Point network version
+## 1. Upgrade the Point Chain version
 
-Before upgrading the Point network version. Stop your instance of `pointd` using `Ctrl/Cmd+C`.
+Before upgrading the Point Chain version. Stop your instance of `pointd` using `Ctrl/Cmd+C`.
 
-Next, upgrade the software to the desired release version. Check the Point network [releases page](https://github.com/evmos/evmos/releases) for details on each release.
+Next, upgrade the software to the desired release version. Check the Point Chain [releases page](https://github.com/evmos/evmos/releases) for details on each release.
 
 ::: warning
 Ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).
@@ -31,7 +31,7 @@ make install
 If you have issues at this step, please check that you have the latest stable version of [Golang](https://golang.org/dl/) installed.
 :::
 
-Verify that you've successfully installed Point network on your system by using the `version` command:
+Verify that you've successfully installed Point Chain on your system by using the `version` command:
 
 ```bash
 $ pointd version --long

@@ -7,7 +7,7 @@ order: 3
 Customize the configuration settings to lower the disk requirements for your validator node {synopsis}
 
 Blockchain database tends to grow over time, depending e.g. on block
-speed and transaction amount. For Point network, we are talking about close to
+speed and transaction amount. For Point Chain, we are talking about close to
 100GB of disk usage in first two weeks.
 
 There are few configurations that can be done to reduce the required
@@ -30,7 +30,7 @@ under the database directory with name `data/tx_index.db/`.
 
 ## State-sync snapshots
 
-I believe this was disabled by default on Point network, but listing it in any
+I believe this was disabled by default on Point Chain, but listing it in any
 case here. On `app.toml` set
 
 ```toml
@@ -74,7 +74,7 @@ Also ensure your log rotation is configured properly.
 
 ## Results
 
-Below is the disk usage after two weeks of Point network Arsia Mons testnet. The default
+Below is the disk usage after two weeks of Point Chain Arsia Mons testnet. The default
 configuration results in disk usage of 90GB.
 
 ```bash

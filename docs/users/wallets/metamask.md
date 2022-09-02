@@ -4,14 +4,14 @@ order: 2
 
 # MetaMask
 
-Connect your Metamask wallet with Point network. {synopsis}
+Connect your Metamask wallet with Point Chain. {synopsis}
 
 - [Install Metamask](https://metamask.io/download/) {prereq}
 
 The [MetaMask](https://metamask.io/) browser extension is a wallet for accessing Ethereum-enabled applications and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet or via a locally-running {{ $themeConfig.project.name }} node.
 
 ::: tip
-If you are planning on developing on Point network locally and you haven’t already set up your own local node, refer to [the quickstart tutorial](../../validators/quickstart/run_node.md), or follow the instructions in the [GitHub repository](https://github.com/evmos/evmos/).
+If you are planning on developing on Point Chain locally and you haven’t already set up your own local node, refer to [the quickstart tutorial](../../validators/quickstart/run_node.md), or follow the instructions in the [GitHub repository](https://github.com/pointnetwork/point-chain/).
 :::
 
 ## Adding a New Network
@@ -60,9 +60,9 @@ Here is the list of fields that you can use to paste on Metamask:
 Once you have added {{ $themeConfig.project.name }} to the Metamask `Networks`, you can automatically import your accounts by:
 
 1. Go to the official EVM Chain ID Registry website: [chainlist.org](https://chainlist.org/)
-2. Search for `"Point network"`
+2. Search for `"Point Chain"`
    ![chainlist.org website](./../../img/chainlist.png)
-3. Click the `Connect Wallet` button under `Point network Testnet`
+3. Click the `Connect Wallet` button under `Point Chain Testnet`
    ![add accounts via chainlist](./../../img/chainlist_metamask.png)
 
 ### Manual Import

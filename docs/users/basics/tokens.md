@@ -4,19 +4,19 @@ order: 2
 
 # Tokens
 
-Learn about the the different types of tokens available in Point network. {synopsis}
+Learn about the the different types of tokens available in Point Chain. {synopsis}
 
 ## Introduction
 
-Point network is a Cosmos-based chain with full Ethereum Virtual Machine (EVM) support. Because of this [architecture](./../technical_concepts/architecture.md), tokens and assets in the network may come from different independent sources.
+Point Chain is a Cosmos-based chain with full Ethereum Virtual Machine (EVM) support. Because of this [architecture](./../technical_concepts/architecture.md), tokens and assets in the network may come from different independent sources.
 
-## The EVMOS Token
+## The POINT Token
 
-The denomination used for staking, governance and gas consumption on the EVM is the EVMOS. The EVMOS provides the utility of: securing the Proof-of-Stake chain, token used for governance proposals, distribution of fees to validator and users, and as a mean of gas for running smart contracts on the EVM.
+The denomination used for staking, governance and gas consumption on the EVM is the POINT. The POINT provides the utility of: securing the Proof-of-Stake chain, token used for governance proposals, distribution of fees to validator and users, and as a mean of gas for running smart contracts on the EVM.
 
-Point network uses [Atto](https://en.wikipedia.org/wiki/Atto-) EVMOS as the base denomination to maintain parity with Ethereum.
+Point Chain uses [Atto](https://en.wikipedia.org/wiki/Atto-) POINT as the base denomination to maintain parity with Ethereum.
 
-1 evmos = 10<sup>18</sup> aevmos
+1 POINT = 10<sup>18</sup> aPOINT
 
 This matches Ethereum denomination of:
 
@@ -28,5 +28,5 @@ Accounts can own Cosmos coins in their balance, which are used for operations wi
 
 ## EVM Tokens
 
-Point network is compatible with ERC20 tokens and other non-fungible token standards (EIP721, EIP1155)
+Point Chain is compatible with ERC20 tokens and other non-fungible token standards (EIP721, EIP1155)
 that are natively supported by the EVM.

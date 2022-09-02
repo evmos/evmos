@@ -191,4 +191,4 @@ A list of commonly used `pointd` commands. You can obtain the full list by using
 | `config`     | Client configuration     |                                                                           |
 | `init`       | Initialize full node     |                                                                           |
 | `start`      | Run full node            |                                                                           |
-| `version`    | Point network version            |                                                                           |
+| `version`    | Point Chain version            |                                                                           |

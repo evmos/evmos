@@ -4,17 +4,17 @@ order: 7
 
 # Validator FAQ
 
-Check the FAQ for running a validator on Point network {synopsis}
+Check the FAQ for running a validator on Point Chain {synopsis}
 
 ## General Concepts
 
 ### What is a validator?
 
-Point network is powered by [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) Core, which relies on a set of validators to secure the network. Validators run a full node and participate in consensus by broadcasting votes which contain cryptographic signatures signed by their private key. Validators commit new blocks in the blockchain and receive revenue in exchange for their work. They also participate in on-procotol treasury governance by voting on governance proposals. A validator's voting influence is weighted according to their total stake.
+Point Chain is powered by [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) Core, which relies on a set of validators to secure the network. Validators run a full node and participate in consensus by broadcasting votes which contain cryptographic signatures signed by their private key. Validators commit new blocks in the blockchain and receive revenue in exchange for their work. They also participate in on-procotol treasury governance by voting on governance proposals. A validator's voting influence is weighted according to their total stake.
 
 ### What is "staking"?
 
-Point network is a public Proof-of-Stake (PoS) blockchain, meaning that validator's weight is determined by the amount of staking tokens (EVMOS) bonded as collateral. These staking tokens can be staked directly by the validator or delegated to them by EVMOS holders.
+Point Chain is a public Proof-of-Stake (PoS) blockchain, meaning that validator's weight is determined by the amount of staking tokens (EVMOS) bonded as collateral. These staking tokens can be staked directly by the validator or delegated to them by EVMOS holders.
 
 Any user in the system can declare its intention to become a validator by sending a [`create-validator`](#how-to-become-a-validator) transaction. From there, they become validators.
 
@@ -132,7 +132,7 @@ Delegators are free to choose validators according to their own subjective crite
 
 - **Track record:** Delegators will likely look at the track record of the validators they plan to delegate to. This includes seniority, past votes on proposals, historical average uptime and how often the node was compromised.
 
-Apart from these criteria, there will be a possibility for validators to signal a website address to complete their resume. Validators will need to build reputation one way or another to attract delegators. For example, it would be a good practice for validators to have their setup audited by third parties. Note though, that the Point network team will not approve or conduct any audit itself.
+Apart from these criteria, there will be a possibility for validators to signal a website address to complete their resume. Validators will need to build reputation one way or another to attract delegators. For example, it would be a good practice for validators to have their setup audited by third parties. Note though, that the Point Chain team will not approve or conduct any audit itself.
 
 ## Responsibilites
 
@@ -146,7 +146,7 @@ Validators have three main responsibilities:
 
 - **Be able to constantly run a correct version of the software:** validators need to make sure that their servers are always online and their private keys are not compromised.
 
-- **Provide oversight and feedback on correct deployment of community pool funds:** the Point network protocol includes the a governance system for proposals to the facilitate adoption of its currencies. Validators are expected to hold budget executors to account to provide transparency and efficient use of funds.
+- **Provide oversight and feedback on correct deployment of community pool funds:** the Point Chain protocol includes the a governance system for proposals to the facilitate adoption of its currencies. Validators are expected to hold budget executors to account to provide transparency and efficient use of funds.
 
 Additionally, validators are expected to be active members of the community. They should always be up-to-date with the current state of the ecosystem so that they can easily adapt to any change.
 
@@ -174,8 +174,8 @@ To understand more about the proposer selection process in Tendermint BFT consen
 
 Each member of a validator's staking pool earns different types of revenue:
 
-- **Block rewards:** Native tokens of applications run by validators (e.g. EVMOS on Point network) are inflated to produce block provisions. These provisions exist to incentivize EVMOS holders to bond their stake, as non-bonded EVMOS will be diluted over time.
-- **Transaction fees:** Point network maintains a whitelist of token that are accepted as fee payment. The initial fee token is the `evmos`.
+- **Block rewards:** Native tokens of applications run by validators (e.g. EVMOS on Point Chain) are inflated to produce block provisions. These provisions exist to incentivize EVMOS holders to bond their stake, as non-bonded EVMOS will be diluted over time.
+- **Transaction fees:** Point Chain maintains a whitelist of token that are accepted as fee payment. The initial fee token is the `evmos`.
 
 This total revenue is divided among validators' staking pools according to each validator's weight. Then, within each validator's staking pool the revenue is divided among delegators in proportion to each delegator's stake. A commission on delegators' revenue is applied by the validator before it is distributed.
 
@@ -187,7 +187,7 @@ Validators also play a major role in governance. If a delegator does not vote, t
 
 ### What is a validator's commission?
 
-Revenue received by a validator's pool is split between the validator and its delegators. The validator can apply a commission on the part of the revenue that goes to its delegators. This commission is set as a percentage. Each validator is free to set its initial commission, maximum daily commission change rate and maximum commission. Point network enforces the parameter that each validator sets. These parameters can only be defined when initially declaring candidacy, and may only be constrained further after being declared.
+Revenue received by a validator's pool is split between the validator and its delegators. The validator can apply a commission on the part of the revenue that goes to its delegators. This commission is set as a percentage. Each validator is free to set its initial commission, maximum daily commission change rate and maximum commission. Point Chain enforces the parameter that each validator sets. These parameters can only be defined when initially declaring candidacy, and may only be constrained further after being declared.
 
 ### How are block provisions distributed?
 
@@ -246,7 +246,7 @@ In order for delegators to have some guarantee about how much skin-in-the-game t
 
 ### How to prevent concentration of stake in the hands of a few top validators?
 
-For now the community is expected to behave in a smart and self-preserving way. When a mining pool in Bitcoin gets too much mining power the community usually stops contributing to that pool. Point network will rely on the same effect initially. In the future, other mechanisms will be deployed to smoothen this process as much as possible:
+For now the community is expected to behave in a smart and self-preserving way. When a mining pool in Bitcoin gets too much mining power the community usually stops contributing to that pool. Point Chain will rely on the same effect initially. In the future, other mechanisms will be deployed to smoothen this process as much as possible:
 
 - **Penalty-free re-delegation:** This is to allow delegators to easily switch from one validator to another, in order to reduce validator stickiness.
 - **UI warning:** Wallets can implement warnings that will be displayed to users if they want to delegate to a validator that already has a significant amount of staking power.
@@ -261,11 +261,11 @@ We expect that a modest level of hardware specifications will be needed initiall
 
 ### What are software requirements?
 
-In addition to running an Point network node, validators should develop monitoring, alerting and management solutions.
+In addition to running an Point Chain node, validators should develop monitoring, alerting and management solutions.
 
 ### What are bandwidth requirements?
 
-Point network has the capacity for very high throughput compared to chains like Ethereum or Bitcoin.
+Point Chain has the capacity for very high throughput compared to chains like Ethereum or Bitcoin.
 
 As such, we recommend that the data center nodes only connect to trusted full nodes in the cloud or other validators that know each other socially. This relieves the data center node from the burden of mitigating denial-of-service attacks.
 
@@ -285,7 +285,7 @@ Validators should expect to run an HSM that supports ed25519 keys. Here are pote
 - Thales nShield support
 - [Strangelove Horocrux](https://github.com/strangelove-ventures/horcrux)
 
-The Point network team does not recommend one solution above the other. The community is encouraged to bolster the effort to improve HSMs and the security of key management.
+The Point Chain team does not recommend one solution above the other. The community is encouraged to bolster the effort to improve HSMs and the security of key management.
 
 ### What can validators expect in terms of operations?
 

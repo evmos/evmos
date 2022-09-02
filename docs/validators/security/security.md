@@ -28,7 +28,7 @@ See documentation [here](https://github.com/strangelove-ventures/horcrux/blob/ma
 
 It is mission critical that an attacker cannot steal a validator's key. If this is possible, it puts the entire stake delegated to the compromised validator at risk. Hardware security modules are an important strategy for mitigating this risk.
 
-HSM modules must support `ed25519` signatures for Point network. The [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/) supports `ed25519` and can be used with this YubiKey [library](https://github.com/iqlusioninc/yubihsm.rs).
+HSM modules must support `ed25519` signatures for Point Chain. The [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/) supports `ed25519` and can be used with this YubiKey [library](https://github.com/iqlusioninc/yubihsm.rs).
 
 ::: danger
 🚨 **IMPORTANT**: The YubiHSM can protect a private key but **cannot ensure** in a secure setting that it won't sign the same block twice.
@@ -74,7 +74,7 @@ private_peer_ids = "node_ids_of_private_peers"
 
 By default, uppercase environment variables with the following prefixes will replace lowercase command-line flags:
 
-- `EVMOS` (for Point network flags)
+- `EVMOS` (for Point Chain flags)
 - `TM` (for Tendermint flags)
 - `BC` (for democli or basecli flags)
 

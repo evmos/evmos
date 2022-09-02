@@ -4,7 +4,7 @@ order: 5
 
 # Run an IBC Relayer
 
-Learn how to run an IBC Relayer for Point network. {synopsis}
+Learn how to run an IBC Relayer for Point Chain. {synopsis}
 
 ## Minimum Requirements
 
@@ -16,16 +16,16 @@ If running many nodes on a single VM, [ensure your open files limit is increased
 
 ## Prerequisites
 <!-- textlint-disable -->
-Before beginning, ensure you have an Point network node running in the background of the same machine that you intend to relay on. Follow [this guide](quickstart/run_node.md) to set up an Point network node if you have not already.
+Before beginning, ensure you have an Point Chain node running in the background of the same machine that you intend to relay on. Follow [this guide](quickstart/run_node.md) to set up an Point Chain node if you have not already.
 <!-- textlint-enable -->
 
-In this guide, we will be relaying between [Point network (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers). When setting up your Point network and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
+In this guide, we will be relaying between [Point Chain (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers). When setting up your Point Chain and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
 
 <!-- textlint-disable -->
-In this example, the default ports for Point network will be used, and the ports of the Cosmos Hub node will be manually changed.
+In this example, the default ports for Point Chain will be used, and the ports of the Cosmos Hub node will be manually changed.
 <!-- textlint-enable -->
 
-## Point network Daemon Settings
+## Point Chain Daemon Settings
 
 First, set `grpc server` on port `9090` in the `app.toml` file from the `$HOME/.pointd/config` directory:
 

@@ -1,6 +1,6 @@
 module.exports = {
   theme: "cosmos",
-  title: "Point Network Documentation",
+  title: "Point Chain Documentation",
   locales: {
     "/": {
       lang: "en-US",
@@ -64,39 +64,39 @@ module.exports = {
     // ['link', { rel: "apple-touch-icon-precomposed", href: "/apple-touch-icon-precomposed.png" }],
   ],
   themeConfig: {
-    repo: "tharsis/Point Network",
-    docsRepo: "tharsis/Point Network",
+    repo: "tharsis/Point Chain",
+    docsRepo: "tharsis/Point Chain",
     docsBranch: "main",
     docsDir: "docs",
     editLinks: true,
     custom: true,
     project: {
-      name: "Point Network",
-      denom: "Point Network",
-      ticker: "Point Network",
-      binary: "Point Networkd",
-      testnet_denom: "tPoint Network",
-      testnet_ticker: "tPoint Network",
-      rpc_url: "https://eth.bd.Point Network.org:8545",
-      rpc_url_testnet: "https://eth.bd.Point Network.dev:8545",
+      name: "Point Chain",
+      denom: "Point Chain",
+      ticker: "Point Chain",
+      binary: "Point Chaind",
+      testnet_denom: "tPoint Chain",
+      testnet_ticker: "tPoint Chain",
+      rpc_url: "https://eth.bd.Point Chain.org:8545",
+      rpc_url_testnet: "https://eth.bd.Point Chain.dev:8545",
       rpc_url_local: "http://localhost:8545/",
       chain_id: "10687",
       testnet_chain_id: "10731",
       latest_version: "v7.0.0",
       version_number: "2",
       testnet_version_number: "4",
-      testnet_evm_explorer_url: "https://evm.Point Network.dev",
-      evm_explorer_url: "https://evm.Point Network.org",
-      testnet_cosmos_explorer_url: "https://explorer.Point Network.dev/",
-      cosmos_explorer_url: "https://www.mintscan.io/Point Network",
+      testnet_evm_explorer_url: "https://evm.Point Chain.dev",
+      evm_explorer_url: "https://evm.Point Chain.org",
+      testnet_cosmos_explorer_url: "https://explorer.Point Chain.dev/",
+      cosmos_explorer_url: "https://www.mintscan.io/Point Chain",
     },
     logo: {
-      src: "/Point Network-black.svg",
+      src: "/evmos-black.svg",
     },
     algolia: {
       id: "K3VQTEW3G5",
       key: "bf836a3c934b1d4df091d5c5b69c65d7",
-      index: "Point Network",
+      index: "Point Chain",
     },
     topbar: {
       banner: false,
@@ -105,7 +105,7 @@ module.exports = {
       auto: false,
       nav: [
         {
-          title: "About Point Network",
+          title: "About Point Chain",
           children: [
             {
               title: "Introduction",
@@ -141,7 +141,7 @@ module.exports = {
               path: "/users/keys",
             },
             {
-              title: "Point Network Governance",
+              title: "Point Chain Governance",
               directory: true,
               path: "/users/governance",
             },
@@ -229,15 +229,15 @@ module.exports = {
               path: "/protocol/ibc",
             },
             {
-              title: "Point Network Go API",
+              title: "Point Chain Go API",
               path: "https://pkg.go.dev/github.com/evmos/evmos",
             },
             {
               title: "Ethermint Library Go API",
-              path: "https://pkg.go.dev/github.com/Point Network/ethermint",
+              path: "https://pkg.go.dev/github.com/Point Chain/ethermint",
             },
             {
-              title: "Point Network Protobuf",
+              title: "Point Chain Protobuf",
               directory: false,
               path: "/protocol/proto-docs",
             },
@@ -307,11 +307,11 @@ module.exports = {
             },
             {
               title: "Blockscout (EVM)",
-              path: "https://evm.Point Network.org",
+              path: "https://evm.Point Chain.org",
             },
             {
               title: "Mintscan (Cosmos)",
-              path: "https://www.mintscan.io/Point Network/",
+              path: "https://www.mintscan.io/Point Chain/",
             },
           ],
         },
@@ -321,14 +321,14 @@ module.exports = {
       title: "Help & Support",
       chat: {
         title: "Discord Channel",
-        text: "Chat with Point Network users and team on Discord.",
-        url: "https://discord.gg/Point Network",
+        text: "Chat with Point Chain users and team on Discord.",
+        url: "https://discord.gg/Point Chain",
         bg: "linear-gradient(103.75deg, #1B1E36 0%, #22253F 100%)",
       },
       forum: {
         title: "Commonwealth Forum",
-        text: "Join the Point Network Commonwealth forum",
-        url: "https://commonwealth.im/Point Network",
+        text: "Join the Point Chain Commonwealth forum",
+        url: "https://commonwealth.im/Point Chain",
         bg: "linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)",
       },
       github: {
@@ -340,7 +340,7 @@ module.exports = {
     footer: {
       logo: "/evmos-black.svg",
       textLink: {
-        text: "Point Network",
+        text: "Point Chain",
         url: "https://pointnetwork.io/",
       },
       services: [
@@ -398,10 +398,10 @@ module.exports = {
           ],
         },
         {
-          title: "Point Network",
+          title: "Point Chain",
           children: [
             {
-              title: "Jobs at Point Network",
+              title: "Jobs at Point Chain",
               url: "https://tharsis.notion.site/",
             },
           ],

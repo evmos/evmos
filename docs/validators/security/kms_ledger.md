@@ -92,7 +92,7 @@ The KMS may complain that it cannot connect to `pointd`. That is fine, we will f
 This output indicates the validator key linked to this particular device is: `evmosvalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f`
 Take note of the validator pubkey that appears in your screen. *We will use it in the next section.*
 
-## Point network configuration
+## Point Chain configuration
 
 You need to enable KMS access by editing `.pointd/config/config.toml`. In this file, modify `priv_validator_laddr` to create a listening address/port or a unix socket in `pointd`.
 

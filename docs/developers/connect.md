@@ -4,11 +4,11 @@ order: 2
 
 # Quick Connect
 
-Quickly connect your app or client to Point network services {synopsis}
+Quickly connect your app or client to Point Chain services {synopsis}
 
 ## Public Available Endpoints
 
-Below is a list of publicly available endpoints that you can use to connect to the Point network mainnet and
+Below is a list of publicly available endpoints that you can use to connect to the Point Chain mainnet and
 public testnets:
 
 ::: tip

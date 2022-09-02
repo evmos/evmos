@@ -22,7 +22,7 @@ Additionally, validators can choose how to manage the upgrade according to their
 
 ### Planned Upgrades
 
-Planned upgrades are coordinated scheduled upgrades that use the [upgrade module](https://docs.evmos.org/modules/upgrade/) logic. This facilitates smoothly upgrading Point network to a new (breaking) software version as it automatically handles the state migration for the new release.
+Planned upgrades are coordinated scheduled upgrades that use the [upgrade module](https://docs.evmos.org/modules/upgrade/) logic. This facilitates smoothly upgrading Point Chain to a new (breaking) software version as it automatically handles the state migration for the new release.
 
 #### Governance Proposal
 

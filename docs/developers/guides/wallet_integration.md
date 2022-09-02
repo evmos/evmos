@@ -4,7 +4,7 @@ order: 1
 
 # Wallet Integration
 
-Learn how to properly integrate [Metamask](https://metamask.io/) or [Keplr](https://www.keplr.app/) with a dApp on Point network. {synopsis}
+Learn how to properly integrate [Metamask](https://metamask.io/) or [Keplr](https://www.keplr.app/) with a dApp on Point Chain. {synopsis}
 
 :::tip
 **Note**: want to learn more about wallet integration beyond what's covered here? Check out both the [MetaMask Wallet documentation](https://docs.metamask.io/guide/) and [Keplr Wallet documentation](https://docs.keplr.app/).
@@ -45,7 +45,7 @@ After the user's wallet type has been determined, developers can proceed with cr
 #### Create the Transaction
 
 :::tip
-**Note**: The example below uses the Point network Testnet `chainID`. For more info, check the Point network Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
+**Note**: The example below uses the Point Chain Testnet `chainID`. For more info, check the Point Chain Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
 :::
 
 Developers can create `MsgSend` transactions using the [evmosjs](../libraries/evmosjs.md) library.
@@ -89,13 +89,13 @@ const msg = createMessageSend(chain, sender, fee, memo, params)
 #### Sign and Broadcast the Transaction
 
 :::tip
-**Note**: The example below uses an Point network Testnet [RPC node](../connect.md#public-available-endpoints).
+**Note**: The example below uses an Point Chain Testnet [RPC node](../connect.md#public-available-endpoints).
 :::
 
 <!-- textlint-disable -->
 After creating the transaction, developers need to send the payload to the appropriate wallet to be signed ([`msg.signDirect`](https://docs.keplr.app/api/#sign-direct-protobuf) is the transaction in Keplr format, and `msg.eipToSign` is the [`EIP712`](https://eips.ethereum.org/EIPS/eip-712) data to sign with MetaMask).
 
-With the signature, we add a Web3Extension to the transaction and broadcast it to the Point network node.
+With the signature, we add a Web3Extension to the transaction and broadcast it to the Point Chain node.
 
 <!-- textlint-enable -->
 ```js
@@ -137,4 +137,4 @@ let response = await broadcastPost.json();
 
 ### Connections
 
-For Ethereum RPC, Point network gRPC, and/or REST queries, dApp developers should implement providers client-side, and store RPC details in the environment variable as secrets.
+For Ethereum RPC, Point Chain gRPC, and/or REST queries, dApp developers should implement providers client-side, and store RPC details in the environment variable as secrets.
