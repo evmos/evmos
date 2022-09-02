@@ -77,18 +77,18 @@ module.exports = {
       binary: "Point Chaind",
       testnet_denom: "tPoint Chain",
       testnet_ticker: "tPoint Chain",
-      rpc_url: "https://eth.bd.Point Chain.org:8545",
-      rpc_url_testnet: "https://eth.bd.Point Chain.dev:8545",
+      rpc_url: "https://rpc-mainnet-1.point.space",
+      rpc_url_testnet: "http://xnet-uranus-1.point.space/",
       rpc_url_local: "http://localhost:8545/",
       chain_id: "10687",
       testnet_chain_id: "10731",
       latest_version: "v7.0.0",
-      version_number: "2",
-      testnet_version_number: "4",
-      testnet_evm_explorer_url: "https://evm.Point Chain.dev",
-      evm_explorer_url: "https://evm.Point Chain.org",
-      testnet_cosmos_explorer_url: "https://explorer.Point Chain.dev/",
-      cosmos_explorer_url: "https://www.mintscan.io/Point Chain",
+      version_number: "1",
+      testnet_version_number: "1",
+      testnet_evm_explorer_url: "https://explorer.pointnetwork.io/",
+      evm_explorer_url: "https://explorer.pointnetwork.io/",
+      testnet_cosmos_explorer_url: "https://cosmos.pointnetwork.io/point",
+      cosmos_explorer_url: "https://cosmos.pointnetwork.io/point",
     },
     logo: {
       src: "/evmos-black.svg",
@@ -201,10 +201,6 @@ module.exports = {
               path: "/developers/json-rpc",
             },
             {
-              title: "Cosmos gRPC & REST",
-              path: "https://api.evmos.dev/",
-            },
-            {
               title: "Tendermint RPC",
               path: "https://docs.tendermint.com/v0.34/rpc/",
             },
@@ -227,14 +223,6 @@ module.exports = {
               title: "IBC Channels",
               directory: false,
               path: "/protocol/ibc",
-            },
-            {
-              title: "Point Chain Go API",
-              path: "https://pkg.go.dev/github.com/evmos/evmos",
-            },
-            {
-              title: "Ethermint Library Go API",
-              path: "https://pkg.go.dev/github.com/Point Chain/ethermint",
             },
             {
               title: "Point Chain Protobuf",
@@ -322,14 +310,8 @@ module.exports = {
       chat: {
         title: "Discord Channel",
         text: "Chat with Point Chain users and team on Discord.",
-        url: "https://discord.gg/Point Chain",
+        url: "https://discord.com/invite/DkH6zxCXWz",
         bg: "linear-gradient(103.75deg, #1B1E36 0%, #22253F 100%)",
-      },
-      forum: {
-        title: "Commonwealth Forum",
-        text: "Join the Point Chain Commonwealth forum",
-        url: "https://commonwealth.im/Point Chain",
-        bg: "linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)",
       },
       github: {
         title: "Found an Issue?",
@@ -346,26 +328,26 @@ module.exports = {
       services: [
         {
           service: "github",
-          url: "https://github.com/evmos/evmos",
+          url: "https://github.com/pointnetwork/point-chain",
         },
         {
           service: "twitter",
-          url: "https://twitter.com/EvmosOrg",
+          url: "https://twitter.com/pointnetwork",
         },
         {
           service: "telegram",
-          url: "https://t.me/EvmosOrg",
+          url: "https://t.me/pointnetworkchat",
         },
         {
           service: "linkedin",
-          url: "https://www.linkedin.com/company/tharsis-finance/",
+          url: "https://www.linkedin.com/company/point-network",
         },
         {
           service: "medium",
-          url: "https://evmos.blog/",
+          url: "https://medium.com/@Pointnetwork",
         },
       ],
-      smallprint: "This website is maintained by Tharsis Labs Ltd.",
+      smallprint: "This website is maintained by Point Network.",
       links: [
         {
           title: "Ecosystem Documentation",
@@ -388,21 +370,17 @@ module.exports = {
           title: "Community",
           children: [
             {
-              title: "Evmos Discord Community",
-              url: "https://discord.gg/evmos",
-            },
-            {
-              title: "Evmos Commonwealth Forum",
-              url: "https://commonwealth.im/evmos",
-            },
+              title: "Point Network Discord Community",
+              url: "https://discord.com/invite/DkH6zxCXWz",
+            }
           ],
         },
         {
           title: "Point Chain",
           children: [
             {
-              title: "Jobs at Point Chain",
-              url: "https://tharsis.notion.site/",
+              title: "Jobs at Point Network",
+              url: "https://pointnetwork-1639566514062.freshteam.com/jobs",
             },
           ],
         },
