@@ -48,8 +48,8 @@ In the table below you can find a list of Chain IDs to use with the Ethereum Led
 
 |               | EIP155 chain ID |
 | ------------- | --------------- |
-| Point Chain mainnet | `9001`          |
-| Point Chain testnet | `9000`          |
+| Point Chain mainnet | `10687`          |
+| Point Chain testnet | `10731`          |
 
 ## Import your Ledger Account
 
@@ -84,38 +84,6 @@ Now you can import your Ledger account to MetaMask by using the following steps:
 In order to sign Cosmos transactions (staking, voting on proposals, IBC transfers), with Ledger hardware wallets, we implemented EIP712.
 
 EIP712 means that the signer will generate a signature for something like a JSON representation of the Cosmos transaction and that signature will be included in the Cosmos transaction itself.
-
-### Step-by Cosmos transaction using Point Chain.me
-
-1. **Get your address in both encodings**
-
-After connecting the Ledger wallet to Metamask and connecting to the [https://evmos.me](https://evmos.me) webpage, it will display our wallet formatted on `bech32` and `hex` representation, we need these values to make sure that the message that we are going to sign is the correct one.
-
-![addresses.png](./../../img/addresses.png)
-
-2. **Create a Cosmos transaction**
-
-In this example, we are going to create a simple message to send tokens to a recipient*.*
-
-![msgsend.png](./../../img/msgsend.png)
-
-After clicking `Send Coins`, Metamask will ask us to sign the typed message
-
-3. **Sign with Metamask and Ledger**
-
-![mm5.png](./../../img/mm5.png)
-
-You can see the complete message to be signed
-
-![eipmessage.png](./../../img/eipmessage.png)
-
-4. **Validate the data before signing!**
-
-- `feePayer`: represents the wallet that is signing the message. So it MUST match yours, if it’s different your transaction will be invalid.
-- `fee`: amount to be paid to send the transaction.
-- `gas`: max gas that can be spent by this transaction (aka gas limit).
-- `memo`: transaction note or comment.
-- `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds. Also, we can verify that we are actually sending *10000aevmos* to that wallet.
 
 ### Ledger signing
 
