@@ -1,17 +1,17 @@
 #!/bin/bash
 
-IS_CLI_OK=$(evmosd status 2>&1 | grep -o NodeInfo)
+IS_CLI_OK=$(pointd status 2>&1 | grep -o NodeInfo)
 
 echo $IS_CLI_OK
 
 if [ "$IS_CLI_OK" != "NodeInfo" ]; then
-    echo "Your evmosd cli is not working properly. Run evmosd manually to test it"
+    echo "Your pointd cli is not working properly. Run pointd manually to test it"
     exit
 fi
 
 set -ue
 
-IS_NOT_SYNC=$(evmosd status 2>&1  | jq .SyncInfo | grep catching_up | grep -o 'true\|false')
+IS_NOT_SYNC=$(pointd status 2>&1  | jq .SyncInfo | grep catching_up | grep -o 'true\|false')
 
 if [ "$IS_NOT_SYNC" = "false" ]; then
     echo "Your node is synced"
@@ -25,7 +25,7 @@ else
     exit
 fi
 
-VOTING_POWER=$(evmosd status | jq .ValidatorInfo.VotingPower | tr -d '"')
+VOTING_POWER=$(pointd status | jq .ValidatorInfo.VotingPower | tr -d '"')
 
 if [[ $VOTING_POWER -gt 0 ]]; then
   echo "Your voting power is $VOTING_POWER, it means your validator is working ok"
@@ -33,19 +33,19 @@ else
   echo "Your voting power is $VOTING_POWER, it means you are not a validator. Let's verify why"
   echo "You will have to provide the key name you have used to create the validator"
   echo "We will show you the list of all the keys you have created. We need you to pickup the name from the list (probably it will be validatorkey)"
-  evmosd keys list | grep name
+  pointd keys list | grep name
   read -p "Type the name of your key: " KEYNAME
   echo "We are going to check if you are jailed"
-  VALOPER_ADDRESS=$(evmosd keys show $KEYNAME -a --bech val)
-  JAILED=$(evmosd query staking validator $VALOPER_ADDRESS | grep jailed | grep -o 'true\|false')
+  VALOPER_ADDRESS=$(pointd keys show $KEYNAME -a --bech val)
+  JAILED=$(pointd query staking validator $VALOPER_ADDRESS | grep jailed | grep -o 'true\|false')
   if [ "$JAILED" = "true" ]; then
     echo "Your node is jailed"
     echo "We will check if you can unjail"
-    MIN_SELF_DELEGATION=$(evmosd query staking validator $VALOPER_ADDRESS | grep min_self_delegation | grep -Eo '[0-9]+')
-    TOKENS=$(evmosd query staking validator $VALOPER_ADDRESS | grep tokens | grep -Eo '[0-9]+')
+    MIN_SELF_DELEGATION=$(pointd query staking validator $VALOPER_ADDRESS | grep min_self_delegation | grep -Eo '[0-9]+')
+    TOKENS=$(pointd query staking validator $VALOPER_ADDRESS | grep tokens | grep -Eo '[0-9]+')
     ENOUGH_TOKENS=$(bc <<< "$TOKENS > $MIN_SELF_DELEGATION")
     if [ "$ENOUGH_TOKENS" -eq 1 ]; then
-      JAILED_UNTIL=$(evmosd query slashing signing-info $(evmosd tendermint show-validator) | grep jailed_until)
+      JAILED_UNTIL=$(pointd query slashing signing-info $(pointd tendermint show-validator) | grep jailed_until)
       if [[ "$OSTYPE" == "darwin"* ]]; then
         JAILED_TIMESTAMP=$(gdate --date="$(echo $JAILED_UNTIL | cut -c 16-34)"  +%s)
       else
