@@ -51,12 +51,7 @@ Many proposals allow for long form text to be included, usually under the key `d
 {
   "title": "Airdrop Claim Mission",
   "description": "Vote to claim",
-  "deposit": [
-    {
-      "denom": "aevmos",
-      "amount": "10000000000000000000"
-    }
-  ]
+  "deposit": "10000000000000000000aevmos"
 }
 ```
 
@@ -89,12 +84,7 @@ The `deposit` of `64000000000000000000aevmos` results in 64 EVMOS being used fro
       "amount": "1000000000000000000"
     }
   ],
-  "deposit": [
-    {
-      "denom": "aevmos",
-      "amount": "64000000000000000000"
-    }
-  ]
+  "deposit": "64000000000000000000aevmos"
 }
 
 ```
@@ -120,12 +110,7 @@ Users can query the proposal details with the `evmosd` command-line interface us
       "denom": "aevmos"
     }
   ],
-  "deposit": [
-    {
-      "denom": "aevmos",
-      "amount": "64000000000000000000"
-    }
-  ]
+  "deposit": "64000000000000000000aevmos"
 }
 ```
 
@@ -169,12 +154,7 @@ Users can query the proposal details with the evmosd command-line interface usin
       "max_deposit_period":"1209600000000000"}
     }
   ],
-  "deposit": [
-    {
-      "denom": "aevmos",
-      "amount": "20100000000000000000"
-    }
-  ]
+  "deposit": "20100000000000000000aevmos"
 }
 ```
 
