@@ -15,10 +15,10 @@ import (
 	"github.com/evmos/ethermint/tests"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/claims"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/pointnetwork/point-chain/v8/app"
+	"github.com/pointnetwork/point-chain/v8/testutil"
+	"github.com/pointnetwork/point-chain/v8/x/claims"
+	"github.com/pointnetwork/point-chain/v8/x/claims/types"
 )
 
 type GenesisTestSuite struct {

@@ -184,7 +184,7 @@ SNAP_RPC1="http://bd-evmos-testnet-state-sync-node-01.bdnodes.net:26657"
 SNAP_RPC="http://bd-evmos-testnet-state-sync-node-02.bdnodes.net:26657"
 CHAIN_ID="evmos_9000-4"
 PEER="3a6b22e1569d9f85e9e97d1d204a1c457d860926@bd-evmos-testnet-seed-node-01.bdnodes.net:26656"
-wget -O $HOME/genesis.json https://archive.evmos.dev/evmos_9000-4/genesis.json 
+wget -O $HOME/genesis.json https://archive.evmos.dev/evmos_9000-4/genesis.json
 ```
 
 ## Use commands below for Mainnet setup
@@ -194,14 +194,14 @@ SNAP_RPC1="http://bd-evmos-mainnet-state-sync-us-01.bdnodes.net:26657"
 SNAP_RPC="http://bd-evmos-mainnet-state-sync-eu-01.bdnodes.net:26657"
 CHAIN_ID="evmos_9001-2"
 PEER="96557e26aabf3b23e8ff5282d03196892a7776fc@bd-evmos-mainnet-state-sync-us-01.bdnodes.net,dec587d55ff38827ebc6312cedda6085c59683b6@bd-evmos-mainnet-state-sync-eu-01.bdnodes.net"
-wget -O $HOME/genesis.json https://archive.evmos.org/mainnet/genesis.json 
+wget -O $HOME/genesis.json https://archive.evmos.org/mainnet/genesis.json
 ```
 
 ### Install evmosd
 
 ```bash
-git clone https://github.com/evmos/evmos.git && \ 
-cd evmos && \ 
+git clone https://github.com/pointnetwork/point-chain.git && \
+cd evmos && \
 make install
 ```
 

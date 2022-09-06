@@ -9,9 +9,9 @@ import (
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/app/ante"
 	"github.com/evmos/evmos/v8/testutil"
+	"github.com/pointnetwork/point-chain/v8/app"
+	"github.com/pointnetwork/point-chain/v8/app/ante"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
