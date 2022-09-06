@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v8
+module github.com/pointnetwork/point-chain/v8
 
 go 1.18
 
