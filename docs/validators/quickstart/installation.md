@@ -4,7 +4,7 @@ order: 1
 
 # Installation
 
-Build and install the Evmos binaries from source or using Docker. {synopsis}
+Build and install the Point binaries from source or using Docker. {synopsis}
 
 ## Pre-requisites
 
@@ -14,7 +14,7 @@ Build and install the Evmos binaries from source or using Docker. {synopsis}
 ## Install Go
 
 ::: warning
-Evmos is built using [Go](https://golang.org/dl/) version `1.18+`
+POint is built using [Go](https://golang.org/dl/) version `1.18+`
 :::
 
 ```bash
@@ -22,7 +22,7 @@ go version
 ```
 
 :::tip
-If the `evmosd: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
+If the `pointd: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
 
 ```bash
 export PATH=$PATH:$(go env GOPATH)/bin
@@ -42,14 +42,14 @@ Clone and build {{ $themeConfig.project.name }} using `git`:
 
 ```bash
 git clone https://github.com/pointnetwork/point-chain.git
-cd evmos
+cd point-chain
 make install
 ```
 
 Check that the `{{ $themeConfig.project.binary }}` binaries have been successfully installed:
 
 ```bash
-evmosd version
+pointd version
 ```
 
 ### Docker
@@ -60,16 +60,16 @@ You can build {{ $themeConfig.project.name }} using Docker by running:
 make build-docker
 ```
 
-The command above will create a docker container: `tharsishq/evmos:latest`. Now you can run `evmosd` in the container.
+The command above will create a docker container: `tharsishq/evmos:latest`. Now you can run `pointd` in the container.
 
 ```bash
-docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd version
+docker run -it -p 26657:26657 -p 26656:26656 -v ~/.pointd/:/root/.evmosd tharsishq/evmos:latest pointd version
 
 # To initialize
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd init test-chain --chain-id test_9000-2
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.pointd/:/root/.pointd tharsishq/evmos:latest pointd init test-chain --chain-id test_9000-2
 
 # To run
-# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd start
+# docker run -it -p 26657:26657 -p 26656:26656 -v ~/.pointd/:/root/.pointd tharsishq/evmos:latest pointd start
 ```
 
 ### Releases
