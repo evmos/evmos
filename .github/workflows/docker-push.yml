@@ -31,8 +31,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: docker.io
-          username: pointnetwork
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASS }}
       -
         name: Build and push
         uses: docker/build-push-action@v3
