@@ -13,6 +13,7 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+      -
         name: Git fetch everything
         run: git fetch --prune --unshallow
       -
@@ -40,4 +41,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64, linux/386, linux/arm64
-          tags: tharsishq/evmos:latest, tharsishq/evmos:${{ steps.meta.outputs.tag }}
+          tags: pointnetwork/point_chain:latest, pointnetwork/point_chain:${{ steps.meta.outputs.tag }}
