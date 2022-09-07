@@ -14,7 +14,7 @@ Build and install the Point binaries from source or using Docker. {synopsis}
 ## Install Go
 
 ::: warning
-POint is built using [Go](https://golang.org/dl/) version `1.18+`
+Point is built using [Go](https://golang.org/dl/) version `1.18+`
 :::
 
 ```bash
