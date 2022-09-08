@@ -4,7 +4,7 @@ order: 1
 
 # Installation
 
-Build and install the Point binaries from source or using Docker. {synopsis}
+Build and install the Point Chain binaries from source or using Docker. {synopsis}
 
 ## Pre-requisites
 
@@ -14,7 +14,7 @@ Build and install the Point binaries from source or using Docker. {synopsis}
 ## Install Go
 
 ::: warning
-Point is built using [Go](https://golang.org/dl/) version `1.18+`
+Point Chain is built using [Go](https://golang.org/dl/) version `1.18+`
 :::
 
 ```bash

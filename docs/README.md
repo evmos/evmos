@@ -1,14 +1,14 @@
 <!--
 layout: home
-title: Evmos Documentation
-description: Evmos is a scalable and interoperable Ethereum blockchain, built on Proof-of-Stake with fast-finality.
+title: Point Chain Documentation
+description: Point Chain is a scalable and interoperable Ethereum blockchain, built on Proof-of-Stake with fast-finality.
 sections:
   - title: Introduction
-    desc: Read a high-level overview of Evmos and its architecture.
+    desc: Read a high-level overview of Point Chain and its architecture.
     url: /about/intro/overview
     icon: ethereum-intro
   - title: Basics
-    desc: Start with the basic concepts of Evmos, like accounts and transactions.
+    desc: Start with the basic concepts of Point Chain, like accounts and transactions.
     url: /users/basics/transactions
     icon: basics
 stack:
@@ -23,7 +23,7 @@ stack:
     label: ethereum-black
     url: https://eth.wiki
   - title: Tendermint Core
-    desc: The leading BFT engine for building blockchains, powering Evmos.
+    desc: The leading BFT engine for building blockchains, powering Point Chain.
     color: "#00BB00"
     label: core
     url: http://docs.tendermint.com
@@ -32,17 +32,17 @@ footer:
 aside: false
 -->
 
-# Evmos Documentation
+# Point Chain Documentation
 
 ## Get Started
 
-- **[Introduction](./about/intro/overview.md)**: High-level overview of Evmos.
+- **[Introduction](./about/intro/overview.md)**: High-level overview of Point Chain.
 
 ## Reference
 
-- **[Users](./users/)**: Documentation on relevant technical concepts for users like `accounts`, `gas`, `tokens` or `transactions` on Evmos as well as more advanced topics.
+- **[Users](./users/)**: Documentation on relevant technical concepts for users like `accounts`, `gas`, `tokens` or `transactions` on Point Chain as well as more advanced topics.
 - **[Developers](./developers/)**: Documentation on `block explorers`, `clients`, the `JSON-RPC` implementation or the testnet `faucet` can be found here.
-- **[Validators](./validators/)**: Documentation on how to become an Evmos validator, hardware requirements, configuring a `node` and connecting to the `testnet` and `mainnet`,
+- **[Validators](./validators/)**: Documentation on how to become an Point Chain validator, hardware requirements, configuring a `node` and connecting to the `testnet` and `mainnet`,
 
 ## Other Resources
 

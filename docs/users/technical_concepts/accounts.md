@@ -4,30 +4,30 @@ order: 3
 
 # Accounts
 
-This document describes the in-built accounts system of Evmos. {synopsis}
+This document describes the in-built accounts system of Point Chain. {synopsis}
 
 ## Pre-requisite Readings
 
 - [Cosmos SDK Accounts](https://docs.cosmos.network/main/basics/accounts.html) {prereq}
 - [Ethereum Accounts](https://ethereum.org/en/whitepaper/#ethereum-accounts) {prereq}
 
-## Evmos Accounts
+## Point Chain Accounts
 
-Evmos defines its own custom `Account` type that uses Ethereum's ECDSA secp256k1 curve for keys. This
+Point Chain defines its own custom `Account` type that uses Ethereum's ECDSA secp256k1 curve for keys. This
 satisfies the [EIP84](https://github.com/ethereum/EIPs/issues/84) for full [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) paths.
-The root HD path for Evmos-based accounts is `m/44'/60'/0'/0`.
+The root HD path for Point Chain-based accounts is `m/44'/60'/0'/0`.
 
 +++ https://github.com/evmos/ethermint/blob/main/types/account.pb.go#L28-L33
 
 ## Addresses and Public Keys
 
-[BIP-0173](https://github.com/satoshilabs/slips/blob/master/slip-0173.md) defines a new format for segregated witness output addresses that contains a human-readable part that identifies the Bech32 usage. Evmos uses the following HRP (human readable prefix) as the base HRP:
+[BIP-0173](https://github.com/satoshilabs/slips/blob/master/slip-0173.md) defines a new format for segregated witness output addresses that contains a human-readable part that identifies the Bech32 usage. Point Chain uses the following HRP (human readable prefix) as the base HRP:
 
 | Network   | Mainnet | Testnet |
 |-----------|---------|---------|
-| Evmos     | `evmos` | `evmos` |
+| Point Chain     | `point` | `xpoint` |
 
-There are 3 main types of HRP for the `Addresses`/`PubKeys` available by default on Evmos:
+There are 3 main types of HRP for the `Addresses`/`PubKeys` available by default on Point Chain:
 
 - Addresses and Keys for **accounts**, which identify users (e.g. the sender of a `message`). They are derived using the **`eth_secp256k1`** curve.
 - Addresses and Keys for **validator operators**, which identify the operators of validators. They are derived using the **`eth_secp256k1`** curve.
@@ -35,46 +35,46 @@ There are 3 main types of HRP for the `Addresses`/`PubKeys` available by default
 
 |                    | Address bech32 Prefix | Pubkey bech32 Prefix | Curve           | Address byte length | Pubkey byte length |
 |--------------------|-----------------------|----------------------|-----------------|---------------------|--------------------|
-| Accounts           | `evmos`               | `evmospub`           | `eth_secp256k1` | `20`                | `33` (compressed)  |
-| Validator Operator | `evmosvaloper`        | `evmosvaloperpub`    | `eth_secp256k1` | `20`                | `33` (compressed)  |
-| Consensus Nodes    | `evmosvalcons`        | `evmosvalconspub`    | `ed25519`       | `20`                | `32`               |
+| Accounts           | `point`               | `pointpub`           | `eth_secp256k1` | `20`                | `33` (compressed)  |
+| Validator Operator | `pointvaloper`        | `pointvaloperpub`    | `eth_secp256k1` | `20`                | `33` (compressed)  |
+| Consensus Nodes    | `pointvalcons`        | `pointvalconspub`    | `ed25519`       | `20`                | `32`               |
 
 ## Address formats for clients
 
-`EthAccount` can be represented in both [Bech32](https://en.bitcoin.it/wiki/Bech32) (`evmos1...`) and hex (`0x...`) formats for Ethereum's Web3 tooling compatibility.
+`EthAccount` can be represented in both [Bech32](https://en.bitcoin.it/wiki/Bech32) (`point1...`) and hex (`0x...`) formats for Ethereum's Web3 tooling compatibility.
 
 The Bech32 format is the default format for Cosmos-SDK queries and transactions through CLI and REST
 clients. The hex format on the other hand, is the Ethereum `common.Address` representation of a
 Cosmos `sdk.AccAddress`.
 
-- **Address (Bech32)**: `evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw`
+- **Address (Bech32)**: `point1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw`
 - **Address ([EIP55](https://eips.ethereum.org/EIPS/eip-55) Hex)**: `0x91defC7fE5603DFA8CC9B655cF5772459BF10c6f`
 - **Compressed Public Key**: `{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2"}`
 
 ### Address conversion
 
-The `evmosd debug addr <address>` can be used to convert an address between hex and bech32 formats. For example:
+The `pointd debug addr <address>` can be used to convert an address between hex and bech32 formats. For example:
 
 :::: tabs
 ::: tab Bech32
 
 ```bash
-evmosd debug addr evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+pointd debug addr point1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
   Address: [20 87 74 109 255 45 223 158 7 130 139 67 69 211 4 9 25 175 86 82]
   Address (hex): 14574A6DFF2DDF9E07828B4345D3040919AF5652
-  Bech32 Acc: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
-  Bech32 Val: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
+  Bech32 Acc: point1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+  Bech32 Val: pointvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
 ```
 
 :::
 ::: tab Hex
 
 ```bash
-evmosd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
+pointd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Address: [20 87 74 109 255 45 223 158 7 130 139 67 69 211 4 9 25 175 86 82]
   Address (hex): 14574A6DFF2DDF9E07828B4345D3040919AF5652
-  Bech32 Acc: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
-  Bech32 Val: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
+  Bech32 Acc: point1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+  Bech32 Val: pointvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
 ```
 
 :::
@@ -83,20 +83,20 @@ evmosd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
 ### Key output
 
 ::: tip
-The Cosmos SDK Keyring output (i.e `evmosd keys`) only supports addresses and public keys in Bech32 format.
+The Cosmos SDK Keyring output (i.e `pointd keys`) only supports addresses and public keys in Bech32 format.
 :::
 
-We can use the `keys show` command of `evmosd` with the flag `--bech <type> (acc|val|cons)` to
+We can use the `keys show` command of `pointd` with the flag `--bech <type> (acc|val|cons)` to
 obtain the addresses and keys as mentioned above,
 
 :::: tabs
 ::: tab Account
 
 ```bash
-evmosd keys show mykey --bech acc
+pointd keys show mykey --bech acc
 - name: mykey
   type: local
-  address: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+  address: point1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2"}'
   mnemonic: ""
 ```
@@ -105,10 +105,10 @@ evmosd keys show mykey --bech acc
 ::: tab Validator
 
 ```bash
-evmosd keys show mykey --bech val
+pointd keys show mykey --bech val
 - name: mykey
   type: local
-  address: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
+  address: pointvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2"}'
   mnemonic: ""
 ```
@@ -117,10 +117,10 @@ evmosd keys show mykey --bech val
 ::: tab Consensus
 
 ```bash
-evmosd keys show mykey --bech cons
+pointd keys show mykey --bech cons
 - name: mykey
   type: local
-  address: evmosvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n
+  address: pointvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A/fVLgIqiLykFQxum96JkSOoTemrXD0tFaFQ1B0cpB2c"}'
   mnemonic: ""
 ```
@@ -136,12 +136,12 @@ You can query an account address using the CLI, gRPC or
 
 ```bash
 # NOTE: the --output (-o) flag will define the output format in JSON or YAML (text)
-evmosd q auth account $(evmosd keys show mykey -a) -o text
+pointd q auth account $(pointd keys show mykey -a) -o text
 |
   '@type': /ethermint.types.v1.EthAccount
   base_account:
     account_number: "0"
-    address: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+    address: point1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
     pub_key:
       '@type': /ethermint.crypto.v1.ethsecp256k1.PubKey
       key: AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2
@@ -153,7 +153,7 @@ evmosd q auth account $(evmosd keys show mykey -a) -o text
 
 ``` bash
 # GET /cosmos/auth/v1beta1/accounts/{address}
-curl -X GET "http://localhost:10337/cosmos/auth/v1beta1/accounts/evmos14au322k9munkmx5wrchz9q30juf5wjgz2cfqku" -H "accept: application/json"
+curl -X GET "http://localhost:10337/cosmos/auth/v1beta1/accounts/point14au322k9munkmx5wrchz9q30juf5wjgz2cfqku" -H "accept: application/json"
 ```
 
 ### JSON-RPC

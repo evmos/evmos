@@ -2,19 +2,19 @@
 order: 1
 -->
 
-# EvmosJS
+# Point ChainJS
 
-Learn about the EvmosJS Library for connecting clients to Evmos. {synopsis}
+Learn about the Point ChainJS Library for connecting clients to Point Chain. {synopsis}
 
-[`evmosjs`](https://github.com/pointnetwork/point-chainjs) is a JavaScript and TypeScript client library for [Evmos](https://github.com/pointnetwork/point-chain) and [Ethermint](https://github.com/evmos/ethermint) nodes.
+[`evmosjs`](https://github.com/evmos/evmosjs) is a JavaScript and TypeScript client library for [Point Chain](https://github.com/evmos/evmos) and [Ethermint](https://github.com/evmos/ethermint) nodes.
 
 ## Tools
 
 - **Address converter:** convert between `eth` and `evmos` addresses
-- **Basic transaction generator**: used to create Evmos transactions
-- **`EIP-712` transaction generator**: used to create `EIP-712` signed Evmos transactions
-- **Protobuf files**: used to create Cosmos Hub and Evmos transactions
-- **REST provider**: used to query the Evmos REST API and interact with Evmos nodes
+- **Basic transaction generator**: used to create Point Chain transactions
+- **`EIP-712` transaction generator**: used to create `EIP-712` signed Point Chain transactions
+- **Protobuf files**: used to create Cosmos Hub and Point Chain transactions
+- **REST provider**: used to query the Point Chain REST API and interact with Point Chain nodes
 
 ## Package List
 

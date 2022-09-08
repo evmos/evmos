@@ -4,7 +4,7 @@ order: 5
 
 # Smart Contract Incentive Registration
 
-Learn how to register smart contract incentives through [Evmos Governance](../../users/governance/overview.md). {synopsis}
+Learn how to register smart contract incentives through [Point Chain Governance](../../users/governance/overview.md). {synopsis}
 
 An incentive for a smart contract can be registered through governance to encourage more interaction with that contract. Users who interact with a registered contract (eg. through submission of transactions) will have rewards distributed to them. These rewards are essentially cash-back for the gas spent on the initial transactions.
 
@@ -32,13 +32,13 @@ The following topics must be addressed when drafting a Contract Incentives Propo
 
 2. Promote understanding of the `x/incentives` Module.
 
-    Make sure to mention the [`x/incentives` Module Documentation](../../../x/incentives/spec/README.md) along with a brief explanation of what the `x/incentives` Module does. It's also a good idea to link the [Evmos Token Model](https://medium.com/evmos/the-evmos-token-model-edc07014978b), since incentives are directly intertwined with Evmos tokenomics!
+    Make sure to mention the [`x/incentives` Module Documentation](../../../x/incentives/spec/README.md) along with a brief explanation of what the `x/incentives` Module does. It's also a good idea to link the [Point Chain Token Model](https://medium.com/evmos/the-evmos-token-model-edc07014978b), since incentives are directly intertwined with Point Chain tokenomics!
 
 3. Describe what changes are being made, and why they are required.
 
     Give a breakdown of the proposal's payload, and explain in layman's terms what the proposal will do if it passes. For the smart contract in question, provide general information on its purpose, along with an argument for why it requires incentives. Mention risks involved in the proposal, depending on the traction of the smart contract involved and the timetable for the proposed incentives. Finally, detail precautions taken during proposal formulation, if applicable (including consultations made prior to proposal creation, and any third-party reviews).
 
-Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+Remember to provide links to the relevant [Commonwealth Point Chain community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
 ## Submitting the Contract Incentives Proposal
 
@@ -54,10 +54,10 @@ writing markdown files.
 
 ### Submit the Proposal to Testnet
 
-To [submit the proposal](../../users/governance/submitting.md) to testnet through the command line with [`evmosd`](../../validators/quickstart/binary.md), use the following command with `register-incentive`:
+To [submit the proposal](../../users/governance/submitting.md) to testnet through the command line with [`pointd`](../../validators/quickstart/binary.md), use the following command with `register-incentive`:
 
 ```bash
-evmosd tx gov submit-proposal \
+pointd tx gov submit-proposal \
   register-incentive \
   $CONTRACTADDRESS \
   $ALLOCATION \
@@ -83,13 +83,13 @@ with the following arguments:
 See below for an example using [Diffusion Finance's](https://diffusion.fi/) router contract:
 
 ```bash
-evmosd tx gov submit-proposal register-incentive 0xFCd2Ce20ef8ed3D43Ab4f8C2dA13bbF1C6d9512F 0.050000000000000000aevmos 13 --description=$DESCRIPTION --title=$PROPOSALTITLE
+pointd tx gov submit-proposal register-incentive 0xFCd2Ce20ef8ed3D43Ab4f8C2dA13bbF1C6d9512F 0.050000000000000000aevmos 13 --description=$DESCRIPTION --title=$PROPOSALTITLE
 ```
 
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 
 ```bash
-evmosd tx gov submit-proposal register-incentive --proposal=<path_to_json>
+pointd tx gov submit-proposal register-incentive --proposal=<path_to_json>
 ```
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
@@ -106,7 +106,7 @@ The deposit period currently lasts 14 days. If you submitted your transaction wi
 
 This is a stage where proposals may begin to get broader attention. Most popular explorers currently display proposals that are in the deposit period, but due to proposal spamming, this may change.
 
-A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Evmos community to prepare validators to vote and EVMOS-holders that are staking.
+A large cross-section of the blockchain/cryptocurrency community exists on Twitter. Having your proposal in the deposit period is a good time to engage the Point Chain community to prepare validators to vote and EVMOS-holders that are staking.
 
 ### The Voting Period
 
@@ -128,7 +128,7 @@ To enable telemetrics, set `telemetry.enabled = true` in the `app.toml` config f
 
 ### Incentive Metrics
 
-Evmos supports the following metrics related to the `x/incentives` module, which can be collected for incentive analysis:
+Point Chain supports the following metrics related to the `x/incentives` module, which can be collected for incentive analysis:
 
 | Metric                                         | Description                                                                         | Unit        | Type    |
 | :--------------------------------------------- | :---------------------------------------------------------------------------------- | :---------- | :------ |
@@ -146,4 +146,4 @@ In addition, gRPC queries related to the `x/incentives` module found [here](../.
 See the telemetry sources below for details not covered above:
 
 - [Cosmos SDK Telemetry Documentation](https://docs.cosmos.network/master/core/telemetry.html)
-- [Evmos Supported Telemetry Metrics](https://docs.evmos.org/protocol/telemetry.html)
+- [Point Chain Supported Telemetry Metrics](https://docs.evmos.org/protocol/telemetry.html)
