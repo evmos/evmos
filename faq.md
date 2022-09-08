@@ -82,6 +82,7 @@ pointd status | jq .ValidatorInfo.VotingPower
 ## Kind of keys
 
 ### Tendermint Key
+
 This is a unique key used to sign block hashes. It is associated with a public key pointvalconspub when you create your validator.
 This key is saved in file ~/.pointd/config/priv_validator_key.json (backup this file if you plan to move the node to other vps)
 You can see information for this key using.
@@ -256,6 +257,7 @@ pointd tx slashing unjail \
 ```
 
 ## Unjail is not working
+
 Check if unjail period has expired: [Check if jail has expired and I can unjail](#check-if-jail-has-expired-and-I-can-unjail)
 If it's ok check if you have enough balance to unjail yourself: [Get information for you validator providing you pointvaloper address](#get-information-for-you-validator-providing-you-pointvaloper-address)
 Output will be something like this:

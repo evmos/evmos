@@ -230,7 +230,7 @@ module.exports = {
             },
             {
               title: "Evmos Go API",
-              path: "https://pkg.go.dev/github.com/evmos/evmos",
+              path: "https://pkg.go.dev/github.com/pointnetwork/point-chain",
             },
             {
               title: "Ethermint Library Go API",
@@ -346,7 +346,7 @@ module.exports = {
       services: [
         {
           service: "github",
-          url: "https://github.com/evmos/evmos",
+          url: "https://github.com/pointnetwork/point-chain",
         },
         {
           service: "twitter",
