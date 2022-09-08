@@ -16,8 +16,8 @@ You need to set the **genesis file** and **seeds**. If you need more information
 
 | Chain ID       | Description     | Site                                                               | Version                                                      | Status  |
 | -------------- | --------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------- |
-| `evmos_9001-2` | Point Chain Mainnet 2 | [Point Chain](https://github.com/tharsis/mainnet/tree/main/evmos_9001-2) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
-| `evmos_9001-1` | Point Chain Mainnet 1 | [Point Chain](https://github.com/tharsis/mainnet/tree/main/evmos_9001-1) | [`v2.0.1`](https://github.com/evmos/evmos/releases/v2.0.1) | `Stale` |
+| `point_10687-1` | Point Mainnet 1 | [Point](https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/genesis.json) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/pointnetwork/point-chain/releases) | `Live`  |
+
 
 ::: warning
 **IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security/security.md) recommendations!
@@ -40,7 +40,7 @@ See the Official [Chain IDs](./../users/technical_concepts/chain_id.md#official-
 :::
 
 ```bash
-pointd config chain-id evmos_9001-2
+pointd config chain-id point_10687-1
 ```
 
 ## Initialize Node
@@ -48,7 +48,7 @@ pointd config chain-id evmos_9001-2
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-pointd init <your_custom_moniker> --chain-id evmos_9001-2
+pointd init <your_custom_moniker> --chain-id point_10687-1
 ```
 
 ::: danger
@@ -62,12 +62,8 @@ In the `config` directory, the most important files for configuration are `app.t
 
 ### Copy the Genesis File
 
-Download the `genesis.json` file from the [`archive`](https://archive.evmos.org/mainnet/genesis.json) and copy it over to the `config` directory: `~/.pointd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+Download the `genesis.json` file from the [`raw_file`](https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/genesis.json) and copy it over to the `config` directory: `~/.pointd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
-```bash
-wget https://archive.evmos.org/mainnet/genesis.json
-mv genesis.json ~/.pointd/config/
-```
 
 Then verify the correctness of the genesis configuration file:
 
@@ -93,13 +89,6 @@ Edit the file located in `~/.pointd/config/config.toml` and the `seeds` to the f
 seeds = "<node-id>@<ip>:<p2p port>"
 ```
 
-You can use the following code to get seeds from the repo and add it to your config:
-
-```bash
-SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/mainnet/main/evmos_9001-2/seeds.txt | awk '{print $1}' | paste -s -d, -`
-sed -i.bak -e "s/^seeds =.*/seeds = \"$SEEDS\"/" ~/.pointd/config/config.toml
-```
-
 :::tip
 For more information on seeds and peers, you can the Tendermint [P2P documentation](https://docs.tendermint.com/master/spec/p2p/peer.html).
 :::
@@ -108,12 +97,6 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 
 We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.pointd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
 available peers on the [`mainnet`](https://github.com/tharsis/mainnet) repo.
-
-A list of available persistent peers is also available in the `#find-peers` channel in the [Point Chain Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
-
-```bash
-PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/mainnet/main/evmos_9001-2/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
-```
 
 Use `sed` to include them into the configuration. You can also add them manually:
 
@@ -129,16 +112,16 @@ For more details on how to run your validator, follow the validator [these](./se
 
 ```bash
 pointd tx staking create-validator \
-  --amount=1000000000000aevmos \
-  --pubkey=$(pointd tendermint show-validator) \
-  --moniker="Point ChainWhale" \
+  --amount=1000000000000apoint \
+  --pubkey=$(pointdd tendermint show-validator) \
+  --moniker="PointWhale" \
   --chain-id=<chain_id> \
   --commission-rate="0.05" \
   --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
-  --gas-prices="0.025aevmos" \
+  --gas-prices="0.025apoint" \
   --from=<key_name>
 ```
 
@@ -156,19 +139,9 @@ The final step is to [start the nodes](./quickstart/run_node.md#start-node). Onc
 pointd start
 ```
 
-## Share your Peer
-
-You can share your peer to posting it in the `#find-peers` channel in the [Point Chain Discord](https://discord.gg/evmos).
-
 ::: tip
 To get your Node ID use
 
 ```bash
 pointd tendermint show-node-id
 ```
-
-:::
-
-## State Syncing a Node
-
-If you want to join the network using State Sync (quick, but not applicable for archive nodes), check our [State Sync](https://docs.evmos.org/validators/setup/statesync.html) page

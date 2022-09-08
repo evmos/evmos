@@ -200,8 +200,8 @@ wget -O $HOME/genesis.json https://archive.evmos.org/mainnet/genesis.json
 ### Install pointd
 
 ```bash
-git clone https://github.com/evmos/evmos.git && \
-cd evmos && \
+git clone https://github.com/pointnetwork/point-chain.git && \
+cd point && \
 make install
 ```
 
@@ -212,6 +212,7 @@ Node init
 ```bash
 pointd init $moniker --chain-id $CHAIN_ID
 ```
+
 
 Move genesis file to .pointd/config folder
 
@@ -271,7 +272,7 @@ s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" ~/.pointd/config/config.toml
 
 ```bash
 echo "[Unit]
-Description=pointd Node
+Description=Pointd Node
 After=network.target
 #
 [Service]

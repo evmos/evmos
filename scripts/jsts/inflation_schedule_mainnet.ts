@@ -1,6 +1,6 @@
-let numberOfYears: number = 30;
+let numberOfYears: number = 50;
 let a_initialValue: number = 1000000000;
-let r_decayFactor: number = 0.4289090127;
+let r_decayFactor: number = 0.1;
 let c_longTermSupply: number = 0;   //constant inflation
 //fraction of the staking tokens which are currently bonded
 let bondedRatio: number = 0.66;
@@ -9,7 +9,7 @@ let maxVarience: number = 0;
 //our optimal bonded ratio
 let bondingTarget: number = 0.66;
 
-let x_startingYear = 2;
+let x_startingYear = 32;
 console.log("Initial supply: " + a_initialValue);
 
 for(let i: number = x_startingYear; i < numberOfYears + x_startingYear; i++) {
@@ -29,6 +29,7 @@ for(let i: number = x_startingYear; i < numberOfYears + x_startingYear; i++) {
     let bondingIncentive: number = mv1 - mvbtbr;
     //console.log("Bonding incentive " +bondingIncentive);
     let yearInflationAmount: number = exponentialDecay * bondingIncentive;
+    let growPart: number = yearInflationAmount / a_initialValue;
     a_initialValue = a_initialValue + yearInflationAmount;
-    console.log("year " + (i+1-x_startingYear) + " TotalFunds " + a_initialValue + " Yearly inflation " + yearInflationAmount + " Epoch provision " + yearInflationAmount / 365);
+    console.log("year " + (i+1-x_startingYear) + "; TotalFunds " + a_initialValue + "; Yearly inflation " + yearInflationAmount + "; Supply grow part " + growPart + "; Epoch provision " + yearInflationAmount / 365);
 }
