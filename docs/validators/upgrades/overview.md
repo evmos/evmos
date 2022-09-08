@@ -22,7 +22,7 @@ Additionally, validators can choose how to manage the upgrade according to their
 
 ### Planned Upgrades
 
-Planned upgrades are coordinated scheduled upgrades that use the [upgrade module](https://docs.evmos.org/modules/upgrade/) logic. This facilitates smoothly upgrading Evmos to a new (breaking) software version as it automatically handles the state migration for the new release.
+Planned upgrades are coordinated scheduled upgrades that use the [upgrade module](https://docs.evmos.org/modules/upgrade/) logic. This facilitates smoothly upgrading Point Chain to a new (breaking) software version as it automatically handles the state migration for the new release.
 
 #### Governance Proposal
 
@@ -47,7 +47,7 @@ In order to execute an upgrade hard fork, a [patch version](#patch-versions) nee
 
 ### Unplanned Upgrades
 
-Unplanned upgrades are upgrades where all the validators need to gracefully halt and shut down their nodes at exactly the same point in the process. This can be done by setting the `--halt-height` flag when running the `evmosd start` command.
+Unplanned upgrades are upgrades where all the validators need to gracefully halt and shut down their nodes at exactly the same point in the process. This can be done by setting the `--halt-height` flag when running the `pointd start` command.
 
 If there are breaking changes during an unplanned upgrade (see below), validators will need to migrate the state and genesis before restarting their nodes.
 
@@ -73,7 +73,7 @@ If the new version you are upgrading to has breaking changes, you will have to:
 
 This needs to be done to prevent [double signing or halting the chain during consensus](https://docs.tendermint.com/master/spec/consensus/signing.html#double-signing).
 
-To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `evmosd export` command.
+To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `pointd export` command.
 
 #### Minor Versions
 

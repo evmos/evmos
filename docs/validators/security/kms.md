@@ -4,7 +4,7 @@ order: 2
 
 # Tendermint KMS
 
-Set up a Key Management System for Evmos {synopsis}
+Set up a Key Management System for Point Chain {synopsis}
 
 [Tendermint KMS](https://github.com/iqlusioninc/tmkms) is a Key Management Service (KMS) that allows separating key management from Tendermint nodes. In addition it provides other advantages such as:
 
@@ -29,13 +29,13 @@ You will need the following prerequisites:
       ```
 
     - ✅ RedHat/CentOS
-  
+
       ```bash
       yum install libusb1-devel
       ```
 
     - ✅ macOS (Homebrew)
-  
+
       ```
       brew install libusb
       ```
@@ -73,7 +73,7 @@ If successful, it will produce the `tmkms` executable located at: `./target/rele
 A KMS can be configured using the following HSMs
 
 ### YubiHSM
-  
+
 Detailed information on how to setup a KMS with [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/) can be found [here](https://github.com/iqlusioninc/tmkms/blob/master/README.yubihsm.md).
 
 ### Ledger Tendermint app

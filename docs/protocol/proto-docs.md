@@ -8,13 +8,13 @@
     - [Claim](#evmos.claims.v1.Claim)
     - [ClaimsRecord](#evmos.claims.v1.ClaimsRecord)
     - [ClaimsRecordAddress](#evmos.claims.v1.ClaimsRecordAddress)
-  
+
     - [Action](#evmos.claims.v1.Action)
-  
+
 - [evmos/claims/v1/genesis.proto](#evmos/claims/v1/genesis.proto)
     - [GenesisState](#evmos.claims.v1.GenesisState)
     - [Params](#evmos.claims.v1.Params)
-  
+
 - [evmos/claims/v1/query.proto](#evmos/claims/v1/query.proto)
     - [QueryClaimsRecordRequest](#evmos.claims.v1.QueryClaimsRecordRequest)
     - [QueryClaimsRecordResponse](#evmos.claims.v1.QueryClaimsRecordResponse)
@@ -24,33 +24,33 @@
     - [QueryParamsResponse](#evmos.claims.v1.QueryParamsResponse)
     - [QueryTotalUnclaimedRequest](#evmos.claims.v1.QueryTotalUnclaimedRequest)
     - [QueryTotalUnclaimedResponse](#evmos.claims.v1.QueryTotalUnclaimedResponse)
-  
+
     - [Query](#evmos.claims.v1.Query)
-  
+
 - [evmos/epochs/v1/genesis.proto](#evmos/epochs/v1/genesis.proto)
     - [EpochInfo](#evmos.epochs.v1.EpochInfo)
     - [GenesisState](#evmos.epochs.v1.GenesisState)
-  
+
 - [evmos/epochs/v1/query.proto](#evmos/epochs/v1/query.proto)
     - [QueryCurrentEpochRequest](#evmos.epochs.v1.QueryCurrentEpochRequest)
     - [QueryCurrentEpochResponse](#evmos.epochs.v1.QueryCurrentEpochResponse)
     - [QueryEpochsInfoRequest](#evmos.epochs.v1.QueryEpochsInfoRequest)
     - [QueryEpochsInfoResponse](#evmos.epochs.v1.QueryEpochsInfoResponse)
-  
+
     - [Query](#evmos.epochs.v1.Query)
-  
+
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
     - [ToggleTokenConversionProposal](#evmos.erc20.v1.ToggleTokenConversionProposal)
     - [TokenPair](#evmos.erc20.v1.TokenPair)
-  
+
     - [Owner](#evmos.erc20.v1.Owner)
-  
+
 - [evmos/erc20/v1/genesis.proto](#evmos/erc20/v1/genesis.proto)
     - [GenesisState](#evmos.erc20.v1.GenesisState)
     - [Params](#evmos.erc20.v1.Params)
-  
+
 - [evmos/erc20/v1/query.proto](#evmos/erc20/v1/query.proto)
     - [QueryParamsRequest](#evmos.erc20.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.erc20.v1.QueryParamsResponse)
@@ -58,24 +58,24 @@
     - [QueryTokenPairResponse](#evmos.erc20.v1.QueryTokenPairResponse)
     - [QueryTokenPairsRequest](#evmos.erc20.v1.QueryTokenPairsRequest)
     - [QueryTokenPairsResponse](#evmos.erc20.v1.QueryTokenPairsResponse)
-  
+
     - [Query](#evmos.erc20.v1.Query)
-  
+
 - [evmos/erc20/v1/tx.proto](#evmos/erc20/v1/tx.proto)
     - [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin)
     - [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse)
     - [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20)
     - [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response)
-  
+
     - [Msg](#evmos.erc20.v1.Msg)
-  
+
 - [evmos/feesplit/v1/feesplit.proto](#evmos/feesplit/v1/feesplit.proto)
     - [FeeSplit](#evmos.feesplit.v1.FeeSplit)
-  
+
 - [evmos/feesplit/v1/genesis.proto](#evmos/feesplit/v1/genesis.proto)
     - [GenesisState](#evmos.feesplit.v1.GenesisState)
     - [Params](#evmos.feesplit.v1.Params)
-  
+
 - [evmos/feesplit/v1/query.proto](#evmos/feesplit/v1/query.proto)
     - [QueryDeployerFeeSplitsRequest](#evmos.feesplit.v1.QueryDeployerFeeSplitsRequest)
     - [QueryDeployerFeeSplitsResponse](#evmos.feesplit.v1.QueryDeployerFeeSplitsResponse)
@@ -87,9 +87,9 @@
     - [QueryParamsResponse](#evmos.feesplit.v1.QueryParamsResponse)
     - [QueryWithdrawerFeeSplitsRequest](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsRequest)
     - [QueryWithdrawerFeeSplitsResponse](#evmos.feesplit.v1.QueryWithdrawerFeeSplitsResponse)
-  
+
     - [Query](#evmos.feesplit.v1.Query)
-  
+
 - [evmos/feesplit/v1/tx.proto](#evmos/feesplit/v1/tx.proto)
     - [MsgCancelFeeSplit](#evmos.feesplit.v1.MsgCancelFeeSplit)
     - [MsgCancelFeeSplitResponse](#evmos.feesplit.v1.MsgCancelFeeSplitResponse)
@@ -97,19 +97,19 @@
     - [MsgRegisterFeeSplitResponse](#evmos.feesplit.v1.MsgRegisterFeeSplitResponse)
     - [MsgUpdateFeeSplit](#evmos.feesplit.v1.MsgUpdateFeeSplit)
     - [MsgUpdateFeeSplitResponse](#evmos.feesplit.v1.MsgUpdateFeeSplitResponse)
-  
+
     - [Msg](#evmos.feesplit.v1.Msg)
-  
+
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [GasMeter](#evmos.incentives.v1.GasMeter)
     - [Incentive](#evmos.incentives.v1.Incentive)
     - [RegisterIncentiveProposal](#evmos.incentives.v1.RegisterIncentiveProposal)
-  
+
 - [evmos/incentives/v1/genesis.proto](#evmos/incentives/v1/genesis.proto)
     - [GenesisState](#evmos.incentives.v1.GenesisState)
     - [Params](#evmos.incentives.v1.Params)
-  
+
 - [evmos/incentives/v1/query.proto](#evmos/incentives/v1/query.proto)
     - [QueryAllocationMeterRequest](#evmos.incentives.v1.QueryAllocationMeterRequest)
     - [QueryAllocationMeterResponse](#evmos.incentives.v1.QueryAllocationMeterResponse)
@@ -125,17 +125,17 @@
     - [QueryIncentivesResponse](#evmos.incentives.v1.QueryIncentivesResponse)
     - [QueryParamsRequest](#evmos.incentives.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.incentives.v1.QueryParamsResponse)
-  
+
     - [Query](#evmos.incentives.v1.Query)
-  
+
 - [evmos/inflation/v1/inflation.proto](#evmos/inflation/v1/inflation.proto)
     - [ExponentialCalculation](#evmos.inflation.v1.ExponentialCalculation)
     - [InflationDistribution](#evmos.inflation.v1.InflationDistribution)
-  
+
 - [evmos/inflation/v1/genesis.proto](#evmos/inflation/v1/genesis.proto)
     - [GenesisState](#evmos.inflation.v1.GenesisState)
     - [Params](#evmos.inflation.v1.Params)
-  
+
 - [evmos/inflation/v1/query.proto](#evmos/inflation/v1/query.proto)
     - [QueryCirculatingSupplyRequest](#evmos.inflation.v1.QueryCirculatingSupplyRequest)
     - [QueryCirculatingSupplyResponse](#evmos.inflation.v1.QueryCirculatingSupplyResponse)
@@ -149,36 +149,36 @@
     - [QueryPeriodResponse](#evmos.inflation.v1.QueryPeriodResponse)
     - [QuerySkippedEpochsRequest](#evmos.inflation.v1.QuerySkippedEpochsRequest)
     - [QuerySkippedEpochsResponse](#evmos.inflation.v1.QuerySkippedEpochsResponse)
-  
+
     - [Query](#evmos.inflation.v1.Query)
-  
+
 - [evmos/recovery/v1/genesis.proto](#evmos/recovery/v1/genesis.proto)
     - [GenesisState](#evmos.recovery.v1.GenesisState)
     - [Params](#evmos.recovery.v1.Params)
-  
+
 - [evmos/recovery/v1/query.proto](#evmos/recovery/v1/query.proto)
     - [QueryParamsRequest](#evmos.recovery.v1.QueryParamsRequest)
     - [QueryParamsResponse](#evmos.recovery.v1.QueryParamsResponse)
-  
+
     - [Query](#evmos.recovery.v1.Query)
-  
+
 - [evmos/vesting/v1/query.proto](#evmos/vesting/v1/query.proto)
     - [QueryBalancesRequest](#evmos.vesting.v1.QueryBalancesRequest)
     - [QueryBalancesResponse](#evmos.vesting.v1.QueryBalancesResponse)
-  
+
     - [Query](#evmos.vesting.v1.Query)
-  
+
 - [evmos/vesting/v1/tx.proto](#evmos/vesting/v1/tx.proto)
     - [MsgClawback](#evmos.vesting.v1.MsgClawback)
     - [MsgClawbackResponse](#evmos.vesting.v1.MsgClawbackResponse)
     - [MsgCreateClawbackVestingAccount](#evmos.vesting.v1.MsgCreateClawbackVestingAccount)
     - [MsgCreateClawbackVestingAccountResponse](#evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse)
-  
+
     - [Msg](#evmos.vesting.v1.Msg)
-  
+
 - [evmos/vesting/v1/vesting.proto](#evmos/vesting/v1/vesting.proto)
     - [ClawbackVestingAccount](#evmos.vesting.v1.ClawbackVestingAccount)
-  
+
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -1764,7 +1764,7 @@ f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
 InflationDistribution defines the distribution in which inflation is
 allocated through minting on each epoch (staking, incentives, community). It
 excludes the team vesting distribution, as this is minted once at genesis.
-The initial InflationDistribution can be calculated from the Evmos Token
+The initial InflationDistribution can be calculated from the Point Chain Token
 Model like this:
 mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 0.5333333         = 40%           / (1 - 25%)

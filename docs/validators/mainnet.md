@@ -18,6 +18,7 @@ You need to set the **genesis file** and **seeds**. If you need more information
 | -------------- | --------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------- |
 | `point_10687-1` | Point Mainnet 1 | [Point](https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/genesis.json) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/pointnetwork/point-chain/releases) | `Live`  |
 
+
 ::: warning
 **IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security/security.md) recommendations!
 :::
@@ -62,6 +63,7 @@ In the `config` directory, the most important files for configuration are `app.t
 ### Copy the Genesis File
 
 Download the `genesis.json` file from the [`raw_file`](https://raw.githubusercontent.com/pointnetwork/point-chain-config/main/mainnet-1/genesis.json) and copy it over to the `config` directory: `~/.pointd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+
 
 Then verify the correctness of the genesis configuration file:
 
