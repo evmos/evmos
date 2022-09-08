@@ -62,7 +62,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			epochs, err := strconv.ParseUint(args[2], 10, 32)
+			epochs, err := strconv.ParseUint(args[2], 10, 31)
 			if err != nil {
 				return err
 			}
