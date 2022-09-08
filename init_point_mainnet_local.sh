@@ -32,23 +32,23 @@ LOGLEVEL="info"
 TRACE="--trace"
 
 # validate dependencies are installed
-#command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
+command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
 
 # used to exit on first error (any non-zero exit code)
-#set -e
+set -e
 
 # Clear everything of previous installation
-#rm -rf ~/.pointd
+rm -rf ~/.pointd
 
 # Reinstall daemon
-#make install
+make install -B
 
 # Set client config
 pointd config keyring-backend $KEYRING
 pointd config chain-id $CHAINID
 
 # if $KEY exists it should be deleted
-#pointd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
+pointd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
 # Set moniker and chain-id for Point (Moniker can be anything, chain-id must be an integer)
 pointd init $MONIKER --chain-id $CHAINID

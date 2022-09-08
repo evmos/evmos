@@ -3,7 +3,7 @@ package ibc
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/pointnetwork/point-chain/v8/x/claims/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
