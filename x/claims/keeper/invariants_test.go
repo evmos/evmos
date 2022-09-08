@@ -5,8 +5,8 @@ import (
 
 	"github.com/evmos/ethermint/tests"
 
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/pointnetwork/point-chain/v8/testutil"
+	"github.com/pointnetwork/point-chain/v8/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestClaimsInvariant() {
