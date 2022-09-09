@@ -9,7 +9,7 @@ import (
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v8/testutil"
+	"github.com/pointnetwork/point-chain/v8/testutil"
 	"github.com/pointnetwork/point-chain/v8/app"
 	"github.com/pointnetwork/point-chain/v8/app/ante"
 
@@ -22,7 +22,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/x/vesting/types"
+	"github.com/pointnetwork/point-chain/v8/x/vesting/types"
 )
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
@@ -461,7 +461,7 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
 	s.Require().NoError(err)
 	//
-	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
+	val, err := sdk.ValAddressFromBech32("pointvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjwwptf4")
 	s.Require().NoError(err)
 	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(amount)))
 	txBuilder.SetMsgs(delegateMsg)
