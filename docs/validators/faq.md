@@ -98,7 +98,7 @@ A validator's operator key is directly tied to an application key, but uses rese
 After a validator is created with a `create-validator` transaction, it can be in three states:
 
 - `bonded`: Validator is in the active set and participates in consensus. Validator is earning rewards and can be slashed for misbehaviour.
-- `unbonding`: Validator is not in the active set and does not participate in consensus. Validator is not earning rewards, but can still be slashed for misbehaviour. This is a transition state from `bonded` to `unbonded`. If validator does not send a `rebond` transaction while in `unbonding` mode, it will take three weeks for the state transition to complete.
+- `unbonding`: Validator is not in the active set and does not participate in consensus. Validator is not earning rewards, but can still be slashed for misbehaviour. This is a transition state from `bonded` to `unbonded`. If validator does not send a `rebond` transaction while in `unbonding` mode, it will take two weeks for the state transition to complete.
 - `unbonded`: Validator is not in the active set, and therefore not signing blocks. Unbonded validators cannot be slashed, but do not earn any rewards from their operation. It is still possible to delegate EVMOS to this validator. Un-delegating from an `unbonded` validator is immediate.
 
 Delegators have the same state as their validator.
@@ -152,7 +152,7 @@ Additionally, validators are expected to be active members of the community. The
 
 ### What does staking imply?
 
-Staking EVMOS can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an unbonding transaction. Then, EVMOS undergo a *three weeks unbonding period* during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
+Staking EVMOS can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an unbonding transaction. Then, the deposit undergoes a *two week unbonding period* during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
 
 Validators, and by association delegators, receive block provisions, block rewards, and fee rewards. If a validator misbehaves, a certain portion of its total stake is slashed (the severity of the penalty depends on the type of misbehavior). This means that every user that bonded EVMOS to this validator gets penalized in proportion to its stake. Delegators are therefore incentivized to delegate to validators that they anticipate will function safely.
 
