@@ -9,7 +9,7 @@ import (
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v8/testutil"
+	"github.com/pointnetwork/point-chain/v8/testutil"
 	"github.com/pointnetwork/point-chain/v8/app"
 	"github.com/pointnetwork/point-chain/v8/app/ante"
 
@@ -22,7 +22,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/x/vesting/types"
+	"github.com/pointnetwork/point-chain/v8/x/vesting/types"
 )
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
