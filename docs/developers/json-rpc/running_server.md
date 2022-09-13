@@ -126,3 +126,13 @@ evmosd index-eth-tx backward
 ```
 
 After the eth indexer has finished catching up, the Tendermint indexer can be disabled for JSON RPC support.
+
+If you need to index transactions from the last indexed block to the top of the chain, you can run
+
+```bash
+evmosd index-eth-tx forward
+```
+
+### Eth Tx Indexer and State sync
+
+If setting up a node with state sync, you need to first start the node and index at least one block before turning on the eth tx indexer.
