@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -14,9 +15,9 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v9/testutil"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -223,7 +224,7 @@ func convertCoin(priv *ethsecp256k1.PrivKey, coin sdk.Coin) {
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
-func convertERC20(priv *ethsecp256k1.PrivKey, amt sdk.Int, contract common.Address) {
+func convertERC20(priv *ethsecp256k1.PrivKey, amt math.Int, contract common.Address) {
 	addrBz := priv.PubKey().Address().Bytes()
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))

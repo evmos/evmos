@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/evmos/evmos/v8/x/feesplit/types"
+import "github.com/evmos/evmos/v9/x/feesplit/types"
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.FeesplitKeeper.GetParams(suite.ctx)

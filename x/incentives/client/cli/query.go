@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v8/x/incentives/types"
+	"github.com/evmos/evmos/v9/x/incentives/types"
 )
 
 // GetQueryCmd returns the parent command for all incentives CLI query commands.

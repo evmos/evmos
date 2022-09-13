@@ -1,14 +1,14 @@
 package v4
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcclientkeeper "github.com/cosmos/ibc-go/v3/modules/core/02-client/keeper"
-	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	ibcclientkeeper "github.com/cosmos/ibc-go/v5/modules/core/02-client/keeper"
+	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
 
-	"github.com/evmos/evmos/v8/types"
+	"github.com/evmos/evmos/v9/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v4

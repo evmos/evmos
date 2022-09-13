@@ -3,19 +3,21 @@ package incentives
 import (
 	"strconv"
 
+	sdkerrors "cosmossdk.io/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v8/x/incentives/keeper"
-	"github.com/evmos/evmos/v8/x/incentives/types"
+	"github.com/evmos/evmos/v9/x/incentives/keeper"
+	"github.com/evmos/evmos/v9/x/incentives/types"
 )
 
 // NewIncentivesProposalHandler creates a governance handler to manage new
 // proposal types.
-func NewIncentivesProposalHandler(k *keeper.Keeper) govtypes.Handler {
-	return func(ctx sdk.Context, content govtypes.Content) error {
+func NewIncentivesProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
+	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		switch c := content.(type) {
 		case *types.RegisterIncentiveProposal:
 			return handleRegisterIncentiveProposal(ctx, k, c)
@@ -23,7 +25,7 @@ func NewIncentivesProposalHandler(k *keeper.Keeper) govtypes.Handler {
 			return handleCancelIncentiveProposal(ctx, k, c)
 		default:
 			return sdkerrors.Wrapf(
-				sdkerrors.ErrUnknownRequest,
+				errortypes.ErrUnknownRequest,
 				"unrecognized %s proposal content type: %T", types.ModuleName, c,
 			)
 		}

@@ -3,13 +3,14 @@ package keeper
 import (
 	"context"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v8/x/feesplit/types"
+	"github.com/evmos/evmos/v9/x/feesplit/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -39,7 +40,7 @@ func (k Keeper) RegisterFeeSplit(
 	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
 	if deployerAccount == nil {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrNotFound,
+			errortypes.ErrNotFound,
 			"deployer account not found %s", msg.DeployerAddress,
 		)
 	}
@@ -85,7 +86,7 @@ func (k Keeper) RegisterFeeSplit(
 
 	if contract != derivedContract {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrorInvalidSigner,
+			errortypes.ErrorInvalidSigner,
 			"not contract deployer or wrong nonce: expected %s instead of %s",
 			derivedContract, msg.ContractAddress,
 		)
@@ -153,7 +154,7 @@ func (k Keeper) UpdateFeeSplit(
 	// error if the msg deployer address is not the same as the fee's deployer
 	if msg.DeployerAddress != feeSplit.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized,
+			errortypes.ErrUnauthorized,
 			"%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}
@@ -226,7 +227,7 @@ func (k Keeper) CancelFeeSplit(
 
 	if msg.DeployerAddress != fee.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized,
+			errortypes.ErrUnauthorized,
 			"%s is not the contract deployer", msg.DeployerAddress,
 		)
 	}

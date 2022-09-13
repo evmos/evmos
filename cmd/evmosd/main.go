@@ -7,8 +7,8 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v8/app"
-	cmdcfg "github.com/evmos/evmos/v8/cmd/config"
+	"github.com/evmos/evmos/v9/app"
+	cmdcfg "github.com/evmos/evmos/v9/cmd/config"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 
 	rootCmd, _ := NewRootCmd()
 
-	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
 			os.Exit(e.Code)

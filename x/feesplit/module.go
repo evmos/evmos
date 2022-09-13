@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/evmos/evmos/v8/x/feesplit/client/cli"
-	"github.com/evmos/evmos/v8/x/feesplit/keeper"
-	"github.com/evmos/evmos/v8/x/feesplit/types"
+	"github.com/evmos/evmos/v9/x/feesplit/client/cli"
+	"github.com/evmos/evmos/v9/x/feesplit/keeper"
+	"github.com/evmos/evmos/v9/x/feesplit/types"
 )
 
 // type check to ensure the interface is properly implemented

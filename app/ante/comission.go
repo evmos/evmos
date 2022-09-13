@@ -3,8 +3,9 @@ package ante
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -70,13 +71,13 @@ func (vcd ValidatorCommissionDecorator) validateMsg(_ sdk.Context, msg sdk.Msg) 
 	case *stakingtypes.MsgCreateValidator:
 		if msg.Commission.Rate.LT(minCommission) {
 			return sdkerrors.Wrapf(
-				sdkerrors.ErrInvalidRequest,
+				errortypes.ErrInvalidRequest,
 				"validator commission %s be lower than minimum of %s", msg.Commission.Rate, minCommission)
 		}
 	case *stakingtypes.MsgEditValidator:
 		if msg.CommissionRate != nil && msg.CommissionRate.LT(minCommission) {
 			return sdkerrors.Wrapf(
-				sdkerrors.ErrInvalidRequest,
+				errortypes.ErrInvalidRequest,
 				"validator commission %s be lower than minimum of %s", msg.CommissionRate, minCommission)
 		}
 	}

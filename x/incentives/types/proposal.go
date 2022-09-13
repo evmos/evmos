@@ -5,7 +5,7 @@ import (
 	fmt "fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	ethermint "github.com/evmos/ethermint/types"
 )
 
@@ -17,15 +17,15 @@ const (
 
 // Implements Proposal Interface
 var (
-	_ govtypes.Content = &RegisterIncentiveProposal{}
-	_ govtypes.Content = &CancelIncentiveProposal{}
+	_ govv1beta1.Content = &RegisterIncentiveProposal{}
+	_ govv1beta1.Content = &CancelIncentiveProposal{}
 )
 
 func init() {
-	govtypes.RegisterProposalType(ProposalTypeRegisterIncentive)
-	govtypes.RegisterProposalType(ProposalTypeCancelIncentive)
-	govtypes.RegisterProposalTypeCodec(&RegisterIncentiveProposal{}, "incentives/RegisterIncentiveProposal")
-	govtypes.RegisterProposalTypeCodec(&CancelIncentiveProposal{}, "incentives/CancelIncentiveProposal")
+	govv1beta1.RegisterProposalType(ProposalTypeRegisterIncentive)
+	govv1beta1.RegisterProposalType(ProposalTypeCancelIncentive)
+	govv1beta1.ModuleCdc.Amino.RegisterConcrete(&RegisterIncentiveProposal{}, "incentives/RegisterIncentiveProposal", nil)
+	govv1beta1.ModuleCdc.Amino.RegisterConcrete(&CancelIncentiveProposal{}, "incentives/CancelIncentiveProposal", nil)
 }
 
 // NewRegisterIncentiveProposal returns new instance of RegisterIncentiveProposal
@@ -33,7 +33,7 @@ func NewRegisterIncentiveProposal(
 	title, description, contract string,
 	allocations sdk.DecCoins,
 	epochs uint32,
-) govtypes.Content {
+) govv1beta1.Content {
 	return &RegisterIncentiveProposal{
 		Title:       title,
 		Description: description,
@@ -65,7 +65,7 @@ func (rip *RegisterIncentiveProposal) ValidateBasic() error {
 		return err
 	}
 
-	return govtypes.ValidateAbstract(rip)
+	return govv1beta1.ValidateAbstract(rip)
 }
 
 // validateAllocations checks if each allocation has
@@ -102,7 +102,7 @@ func validateEpochs(epochs uint32) error {
 // NewCancelIncentiveProposal returns new instance of RegisterIncentiveProposal
 func NewCancelIncentiveProposal(
 	title, description, contract string,
-) govtypes.Content {
+) govv1beta1.Content {
 	return &CancelIncentiveProposal{
 		Title:       title,
 		Description: description,
@@ -124,5 +124,5 @@ func (rip *CancelIncentiveProposal) ValidateBasic() error {
 		return err
 	}
 
-	return govtypes.ValidateAbstract(rip)
+	return govv1beta1.ValidateAbstract(rip)
 }

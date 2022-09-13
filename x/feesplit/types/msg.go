@@ -1,8 +1,9 @@
 package types
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/evmos/ethermint/types"
 )
@@ -62,11 +63,11 @@ func (msg MsgRegisterFeeSplit) ValidateBasic() error {
 	}
 
 	if len(msg.Nonces) < 1 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - empty array")
+		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid nonces - empty array")
 	}
 
 	if len(msg.Nonces) > 20 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - array length must be less than 20")
+		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid nonces - array length must be less than 20")
 	}
 
 	return nil

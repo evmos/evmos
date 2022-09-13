@@ -4,14 +4,15 @@ import (
 	"context"
 	"math/big"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v8/contracts"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/contracts"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -329,7 +330,7 @@ func (k Keeper) convertERC20NativeToken(
 	}
 
 	if !unpackedRet.Value {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute transfer")
+		return nil, sdkerrors.Wrap(errortypes.ErrLogic, "failed to execute transfer")
 	}
 
 	// Check expected escrow balance after transfer execution
@@ -456,7 +457,7 @@ func (k Keeper) convertCoinNativeERC20(
 	}
 
 	if !unpackedRet.Value {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "failed to execute unescrow tokens from user")
+		return nil, sdkerrors.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
 	}
 
 	// Check expected Receiver balance after transfer execution

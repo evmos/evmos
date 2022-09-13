@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v8/x/vesting/types"
+	"github.com/evmos/evmos/v9/x/vesting/types"
 )
 
 // Keeper of this module maintains collections of vesting.
 type Keeper struct {
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
 	accountKeeper types.AccountKeeper
@@ -22,7 +23,7 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the vesting Keeper
 func NewKeeper(
-	storeKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,

@@ -4,11 +4,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v8/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
 )
 
 // EthVestingTransactionDecorator validates if clawback vesting accounts are
@@ -36,14 +37,14 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest,
+			return ctx, sdkerrors.Wrapf(errortypes.ErrUnknownRequest,
 				"invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil),
 			)
 		}
 
 		acc := vtd.ak.GetAccount(ctx, msgEthTx.GetFrom())
 		if acc == nil {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownAddress,
+			return ctx, sdkerrors.Wrapf(errortypes.ErrUnknownAddress,
 				"account %s does not exist", acc)
 		}
 
@@ -141,7 +142,7 @@ func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) 
 		acc := vdd.ak.GetAccount(ctx, addr)
 		if acc == nil {
 			return sdkerrors.Wrapf(
-				sdkerrors.ErrUnknownAddress,
+				errortypes.ErrUnknownAddress,
 				"account %s does not exist", addr,
 			)
 		}
