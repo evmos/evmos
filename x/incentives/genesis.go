@@ -35,6 +35,7 @@ func InitGenesis(
 	}
 
 	// Set allocation meters
+	/* #nosec */
 	for denom, amount := range allocationMeters {
 		am := sdk.DecCoin{
 			Denom:  denom,
