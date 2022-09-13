@@ -344,7 +344,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 	Expect(submitEvent.Type).To(Equal("submit_proposal"))
 	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
 
-	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
+	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64) // nosec
 	s.Require().NoError(err)
 
 	return proposalId
