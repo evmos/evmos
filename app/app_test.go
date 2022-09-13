@@ -7,21 +7,44 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/ibc-go/v5/testing/mock"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
+	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v8/types"
+	"github.com/evmos/evmos/v9/types"
+	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 )
 
 func TestEvmosExport(t *testing.T) {
+	privVal := mock.NewPV()
+	pubKey, _ := privVal.GetPubKey()
+
+	// create validator set with single validator
+	validator := tmtypes.NewValidator(pubKey, 1)
+	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+
+	// generate genesis account
+	senderPrivKey := secp256k1.GenPrivKey()
+	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+	balance := banktypes.Balance{
+		Address: acc.GetAddress().String(),
+		Coins:   sdk.NewCoins(sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(100000000000000))),
+	}
+
 	db := dbm.NewMemDB()
 	app := NewEvmos(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
 
 	genesisState := NewDefaultGenesisState()
+	genesisState = GenesisStateWithValSet(app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 	stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
 	require.NoError(t, err)
 

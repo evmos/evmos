@@ -9,12 +9,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/evmos/ethermint/x/evm/statedb"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v9/x/inflation/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
@@ -40,11 +40,11 @@ type BankKeeper interface {
 // GovKeeper defines the expected governance keeper interface used on incentives
 type GovKeeper interface {
 	Logger(sdk.Context) log.Logger
-	GetVotingParams(ctx sdk.Context) govtypes.VotingParams
-	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
+	GetVotingParams(ctx sdk.Context) govv1beta1.VotingParams
+	GetProposal(ctx sdk.Context, proposalID uint64) (govv1beta1.Proposal, bool)
 	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
 	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
-	SetProposal(ctx sdk.Context, proposal govtypes.Proposal)
+	SetProposal(ctx sdk.Context, proposal govv1beta1.Proposal)
 }
 
 // InflationKeeper defines the expected mint keeper interface used on incentives

@@ -12,9 +12,9 @@ import (
 
 	"github.com/evmos/ethermint/encoding"
 
-	"github.com/evmos/evmos/v8/app"
-	v2 "github.com/evmos/evmos/v8/x/erc20/migrations/v2"
-	erc20types "github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/app"
+	v2 "github.com/evmos/evmos/v9/x/erc20/migrations/v2"
+	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 func TestUpdateParams(t *testing.T) {
@@ -23,7 +23,7 @@ func TestUpdateParams(t *testing.T) {
 	tErc20Key := sdk.NewTransientStoreKey(fmt.Sprintf("%s_test", erc20types.StoreKey))
 	ctx := testutil.DefaultContext(erc20Key, tErc20Key)
 	paramstore := paramtypes.NewSubspace(
-		encCfg.Marshaler, encCfg.Amino, erc20Key, tErc20Key, "erc20",
+		encCfg.Codec, encCfg.Amino, erc20Key, tErc20Key, "erc20",
 	)
 	paramstore = paramstore.WithKeyTable(erc20types.ParamKeyTable())
 	require.True(t, paramstore.HasKeyTable())

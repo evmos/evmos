@@ -5,7 +5,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 var (
@@ -42,7 +42,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgConvertERC20{},
 	)
 	registry.RegisterImplementations(
-		(*govtypes.Content)(nil),
+		(*govv1beta1.Content)(nil),
 		&RegisterCoinProposal{},
 		&RegisterERC20Proposal{},
 		&ToggleTokenConversionProposal{},

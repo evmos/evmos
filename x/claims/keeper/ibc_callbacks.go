@@ -1,15 +1,16 @@
 package keeper
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v8/ibc"
-	evmos "github.com/evmos/evmos/v8/types"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/ibc"
+	evmos "github.com/evmos/evmos/v9/types"
+	"github.com/evmos/evmos/v9/x/claims/types"
 )
 
 // OnAcknowledgementPacket performs an IBC send callback. Once a user submits an
@@ -33,7 +34,7 @@ func (k Keeper) OnAcknowledgementPacket(
 
 	var ack channeltypes.Acknowledgement
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
+		return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
 	}
 
 	// no-op if the acknowledgement is an error ACK
@@ -87,17 +88,17 @@ func (k Keeper) OnRecvPacket(
 	// readable prefix (HRP) of the sender to `evmos1`
 	sender, recipient, senderBech32, recipientBech32, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	// return error ACK for blocked sender and recipient addresses
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(
-				sdkerrors.ErrUnauthorized,
+				errortypes.ErrUnauthorized,
 				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
 				senderBech32, recipientBech32,
-			).Error(),
+			),
 		)
 	}
 
@@ -125,7 +126,7 @@ func (k Keeper) OnRecvPacket(
 			return channeltypes.NewErrorAcknowledgement(
 				sdkerrors.Wrapf(
 					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
-				).Error(),
+				),
 			)
 		default:
 			// sender/recipient has funds stuck -> return ack to trigger withdrawal
@@ -142,7 +143,7 @@ func (k Keeper) OnRecvPacket(
 
 	amt, err := ibc.GetTransferAmount(packet)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	isTriggerAmt := amt == types.IBCTriggerAmt
@@ -158,7 +159,7 @@ func (k Keeper) OnRecvPacket(
 		// have already been claimed by one or the other
 		recipientClaimsRecord, err = k.MergeClaimsRecords(ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
 		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(err.Error())
+			return channeltypes.NewErrorAcknowledgement(err)
 		}
 
 		// update the recipient's record with the new merged one and delete the
@@ -206,7 +207,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err.Error())
+		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	// return the original success acknowledgement

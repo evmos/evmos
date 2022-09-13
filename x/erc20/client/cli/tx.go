@@ -11,13 +11,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // NewTxCmd returns a root CLI command handler for erc20 transaction commands
@@ -136,6 +136,7 @@ func NewConvertERC20Cmd() *cobra.Command {
 }
 
 // NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
+// nolint:staticcheck
 func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-coin [metadata]",
@@ -202,7 +203,7 @@ Where metadata.json contains (example):
 
 			content := types.NewRegisterCoinProposal(title, description, metadata)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}
@@ -231,6 +232,7 @@ Where metadata.json contains (example):
 }
 
 // NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
+// nolint:staticcheck
 func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-erc20 [erc20-address]",
@@ -268,7 +270,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 			from := clientCtx.GetFromAddress()
 			content := types.NewRegisterERC20Proposal(title, description, erc20Addr)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}
@@ -297,6 +299,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 }
 
 // NewToggleTokenConversionProposalCmd implements the command to submit a community-pool-spend proposal
+// nolint:staticcheck
 func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "toggle-token-conversion [token]",
@@ -334,7 +337,7 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 			token := args[0]
 			content := types.NewToggleTokenConversionProposal(title, description, token)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}

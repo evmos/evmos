@@ -436,16 +436,15 @@ lint-fix-contracts:
 .PHONY: lint lint-fix
 
 format:
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs gofmt -w -s
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs goimports -w -local github.com/evmos/evmos
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs gofumpt -w -l 
+
 .PHONY: format
 
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
 
-containerProtoVer=v0.2
+containerProtoVer=v0.7
 containerProtoImage=tendermintdev/sdk-proto-gen:$(containerProtoVer)
 containerProtoGen=cosmos-sdk-proto-gen-$(containerProtoVer)
 containerProtoGenSwagger=cosmos-sdk-proto-gen-swagger-$(containerProtoVer)
@@ -468,11 +467,11 @@ proto-check-breaking:
 	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)#branch=main
 
 
-TM_URL              = https://raw.githubusercontent.com/tendermint/tendermint/v0.34.15/proto/tendermint
+TM_URL              = https://raw.githubusercontent.com/tendermint/tendermint/v0.34.20/proto/tendermint
 GOGO_PROTO_URL      = https://raw.githubusercontent.com/regen-network/protobuf/cosmos
-COSMOS_SDK_URL      = https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.1
-ETHERMINT_URL      	= https://raw.githubusercontent.com/tharsis/ethermint/v0.10.0
-IBC_GO_URL      		= https://raw.githubusercontent.com/cosmos/ibc-go/v3.0.0-rc0
+COSMOS_SDK_URL      = https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.46.0
+ETHERMINT_URL       = https://raw.githubusercontent.com/evmos/ethermint/v0.6.1
+IBC_GO_URL          = https://raw.githubusercontent.com/cosmos/ibc-go/v5.0.0-beta1
 COSMOS_PROTO_URL    = https://raw.githubusercontent.com/regen-network/cosmos-proto/master
 
 TM_CRYPTO_TYPES     = third_party/proto/tendermint/crypto
@@ -480,7 +479,6 @@ TM_ABCI_TYPES       = third_party/proto/tendermint/abci
 TM_TYPES            = third_party/proto/tendermint/types
 
 GOGO_PROTO_TYPES    = third_party/proto/gogoproto
-
 COSMOS_PROTO_TYPES  = third_party/proto/cosmos_proto
 
 proto-update-deps:

@@ -3,8 +3,9 @@ package types
 import (
 	"time"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
@@ -55,7 +56,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	lockupCoins := sdk.NewCoins()
 	for i, period := range msg.LockupPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
@@ -63,7 +64,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	vestingCoins := sdk.NewCoins()
 	for i, period := range msg.VestingPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
@@ -72,7 +73,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
 		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
+		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
 	}
 
 	return nil

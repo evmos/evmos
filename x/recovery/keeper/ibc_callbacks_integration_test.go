@@ -4,12 +4,12 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/testutil"
-	claimtypes "github.com/evmos/evmos/v8/x/claims/types"
-	"github.com/evmos/evmos/v8/x/recovery/types"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v9/testutil"
+	claimtypes "github.com/evmos/evmos/v9/x/claims/types"
+	"github.com/evmos/evmos/v9/x/recovery/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -87,7 +87,6 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 				It("should not transfer or recover tokens", func() {
 					s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, coinOsmo.Denom, coinOsmo.Amount.Int64(), sender, receiver, 1)
-
 					nativeEvmos := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, "aevmos")
 					Expect(nativeEvmos).To(Equal(coinEvmos))
 					ibcOsmo := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)
@@ -99,14 +98,18 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 				Context("without completed actions", func() {
 					BeforeEach(func() {
 						amt := sdk.NewInt(int64(100))
+						coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
 						claim = claimtypes.NewClaimsRecord(amt)
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
+
+						// update the escrowed account balance to maintain the invariant
+						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
+						s.Require().NoError(err)
 					})
 
 					It("should not transfer or recover tokens", func() {
 						// Prevent further funds from getting stuck
 						s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, coinOsmo.Denom, coinOsmo.Amount.Int64(), sender, receiver, 1)
-
 						nativeEvmos := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, "aevmos")
 						Expect(nativeEvmos).To(Equal(coinEvmos))
 						ibcOsmo := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, uosmoIbcdenom)

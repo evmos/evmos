@@ -1,18 +1,19 @@
 package erc20
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v8/x/erc20/keeper"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/x/erc20/keeper"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // NewErc20ProposalHandler creates a governance handler to manage new proposal types.
-func NewErc20ProposalHandler(k *keeper.Keeper) govtypes.Handler {
-	return func(ctx sdk.Context, content govtypes.Content) error {
+func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
+	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		switch c := content.(type) {
 		case *types.RegisterCoinProposal:
 			return handleRegisterCoinProposal(ctx, k, c)
@@ -22,7 +23,7 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govtypes.Handler {
 			return handleToggleConversionProposal(ctx, k, c)
 
 		default:
-			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
+			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
 	}
 }

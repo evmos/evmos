@@ -8,9 +8,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v8/app"
-	v2 "github.com/evmos/evmos/v8/x/claims/migrations/v2"
-	claims "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/app"
+	v2 "github.com/evmos/evmos/v9/x/claims/migrations/v2"
+	claims "github.com/evmos/evmos/v9/x/claims/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,7 +20,7 @@ func TestStoreMigration(t *testing.T) {
 	tClaimsKey := sdk.NewTransientStoreKey(fmt.Sprintf("%s_test", claims.StoreKey))
 	ctx := testutil.DefaultContext(claimsKey, tClaimsKey)
 	paramstore := paramtypes.NewSubspace(
-		encCfg.Marshaler, encCfg.Amino, claimsKey, tClaimsKey, "claims",
+		encCfg.Codec, encCfg.Amino, claimsKey, tClaimsKey, "claims",
 	)
 	paramstore = paramstore.WithKeyTable(claims.ParamKeyTable())
 	require.True(t, paramstore.HasKeyTable())

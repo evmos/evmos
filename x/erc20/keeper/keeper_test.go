@@ -14,6 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	testutilmock "github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -45,9 +47,11 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/contracts"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v9/contracts"
+	"github.com/evmos/evmos/v9/x/erc20/types"
+
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 type KeeperTestSuite struct {
@@ -102,18 +106,29 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector
 		coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(int64(params.TxGas)-1)))
-		genesisState := app.ModuleBasics.DefaultGenesis(suite.app.AppCodec())
+		privVal := testutilmock.NewPV()
+		pubKey, err := privVal.GetPubKey()
+		if err != nil {
+			panic(err)
+		}
+		// create validator set with single validator
+		validator := tmtypes.NewValidator(pubKey, 1)
+		valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+
+		// generate genesis account
+		senderPrivKey := secp256k1.GenPrivKey()
+		acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+
 		balances := []banktypes.Balance{
 			{
 				Address: suite.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName).String(),
 				Coins:   coins,
 			},
 		}
-		// update total supply
-		bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt((int64(params.TxGas)-1)))), []banktypes.Metadata{})
-		bz := suite.app.AppCodec().MustMarshalJSON(bankGenesis)
-		require.NotNil(t, bz)
-		genesisState[banktypes.ModuleName] = suite.app.AppCodec().MustMarshalJSON(bankGenesis)
+
+		genesisState := app.NewDefaultGenesisState()
+
+		genesisState = app.GenesisStateWithValSet(suite.app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balances...)
 
 		// we marshal the genesisState of all module to a byte array
 		stateBytes, err := tmjson.MarshalIndent(genesisState, "", " ")

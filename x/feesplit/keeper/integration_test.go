@@ -5,6 +5,8 @@ import (
 	"math/big"
 	"strings"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	. "github.com/onsi/ginkgo/v2"
@@ -18,9 +20,9 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/feesplit/types"
+	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v9/testutil"
+	"github.com/evmos/evmos/v9/x/feesplit/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
@@ -919,7 +921,7 @@ func checkEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumT
 	return res
 }
 
-func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.Msg) []byte {
+func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) []byte {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
@@ -979,14 +981,14 @@ func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.
 	return bz
 }
 
-func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx {
+func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx {
 	bz := prepareCosmosTx(priv, gasPrice, msgs...)
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
 	return res
 }
 
-func checkTx(priv *ethsecp256k1.PrivKey, gasPrice *sdk.Int, msgs ...sdk.Msg) abci.ResponseCheckTx {
+func checkTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseCheckTx {
 	bz := prepareCosmosTx(priv, gasPrice, msgs...)
 	req := abci.RequestCheckTx{Tx: bz}
 	res := s.app.BaseApp.CheckTx(req)

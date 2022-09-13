@@ -1,10 +1,11 @@
 package erc20
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // NewHandler defines the erc20 module handler instance
@@ -20,7 +21,7 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 			res, err := server.ConvertERC20(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
-			err := sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
+			err := sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, err
 		}
 	}

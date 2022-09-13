@@ -7,13 +7,14 @@ import (
 
 	"github.com/armon/go-metrics"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v8/x/vesting/types"
+	"github.com/evmos/evmos/v9/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -33,7 +34,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 	to := sdk.MustAccAddressFromBech32(msg.ToAddress)
 
 	if bk.BlockedAddr(to) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,
+		return nil, sdkerrors.Wrapf(errortypes.ErrUnauthorized,
 			"%s is not allowed to receive funds", msg.ToAddress,
 		)
 	}
@@ -60,7 +61,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 	// The vesting and lockup schedules must describe the same total amount.
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if !(vestingCoins.IsAllLTE(lockupCoins) && lockupCoins.IsAllLTE(vestingCoins)) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest,
+		return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest,
 			"lockup and vesting amounts must be equal",
 		)
 	}
@@ -77,13 +78,13 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 		switch {
 		case !msg.Merge && isClawback:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists; consider using --merge", msg.ToAddress)
+			return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "account %s already exists; consider using --merge", msg.ToAddress)
 		case !msg.Merge && !isClawback:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
+			return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "account %s already exists", msg.ToAddress)
 		case msg.Merge && !isClawback:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrNotSupported, "account %s must be a clawback vesting account", msg.ToAddress)
+			return nil, sdkerrors.Wrapf(errortypes.ErrNotSupported, "account %s must be a clawback vesting account", msg.ToAddress)
 		case msg.FromAddress != vestingAcc.FunderAddress:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, vestingAcc.FunderAddress)
+			return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.ToAddress, vestingAcc.FunderAddress)
 		}
 
 		err := k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
@@ -165,7 +166,7 @@ func (k Keeper) Clawback(
 	}
 
 	if bk.BlockedAddr(dest) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,
+		return nil, sdkerrors.Wrapf(errortypes.ErrUnauthorized,
 			"%s is not allowed to receive funds", msg.DestAddress,
 		)
 	}
@@ -173,23 +174,23 @@ func (k Keeper) Clawback(
 	// Check if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "account %s does not exist", msg.AccountAddress)
+		return nil, sdkerrors.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.AccountAddress)
 	}
 
 	// Check if account has a clawback account
 	va, ok := acc.(*types.ClawbackVestingAccount)
 	if !ok {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
+		return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
 	}
 
 	// Check if account funder is same as in msg
 	if va.FunderAddress != msg.FunderAddress {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+		return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
 	}
 
 	// Return error if clawback is attempted before start time
 	if ctx.BlockTime().Before(va.StartTime) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
+		return nil, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
 	}
 
 	// Perform clawback transfer
@@ -248,7 +249,7 @@ func (k Keeper) addGrant(
 	// cap DV at the current unvested amount, DF rounds out to current delegated
 	unvested := va.GetVestingCoins(ctx.BlockTime())
 	va.DelegatedVesting = delegated.Min(unvested)
-	va.DelegatedFree = delegated.Sub(va.DelegatedVesting)
+	va.DelegatedFree = delegated.Sub(va.DelegatedVesting...)
 	return nil
 }
 

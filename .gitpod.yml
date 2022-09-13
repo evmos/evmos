@@ -6,8 +6,10 @@ image: ghcr.io/notional-labs/cosmos
 
 tasks:
   - name: install tools
-    command: 
+    command: |
       go install golang.org/x/tools/cmd/goimports@latest
       go install mvdan.cc/gofumpt@latest
+      sudo pacman -Syyu clang --noconfirm
       sudo make tools
+      sudo bash scripts/proto-tools-installer.sh
 

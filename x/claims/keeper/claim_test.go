@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -14,10 +15,10 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
 	ethermint "github.com/evmos/ethermint/types"
-	"github.com/evmos/evmos/v8/testutil"
-	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
+	"github.com/evmos/evmos/v9/testutil"
+	inflationtypes "github.com/evmos/evmos/v9/x/inflation/types"
 
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
@@ -25,8 +26,8 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 		name         string
 		claimsRecord types.ClaimsRecord
 		params       types.Params
-		expAmt       sdk.Int
-		expRemainder sdk.Int
+		expAmt       math.Int
+		expRemainder math.Int
 	}{
 		{
 			"zero initial claimable amount",
@@ -110,7 +111,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 	testCases := []struct {
 		name     string
 		malleate func()
-		expAmt   sdk.Int
+		expAmt   math.Int
 	}{
 		{
 			"zero - no claim record",
@@ -183,8 +184,8 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 		claimsRecord    types.ClaimsRecord
 		action          types.Action
 		params          types.Params
-		expAmt          sdk.Int
-		expClawedBack   sdk.Int
+		expAmt          math.Int
+		expClawedBack   math.Int
 		expError        bool
 		expDeleteRecord bool
 	}{
@@ -932,15 +933,14 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 				ctx := suite.ctx.WithBlockTime(blockTime)
 
 				coins, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(ctx, claimsRecord, types.ActionEVM, params)
-
-				suite.Require().Equal(claimsRecord.InitialClaimableAmount.ToDec().Mul(claimablePercent).Quo(sdk.NewDec(4)).RoundInt().String(), coins.String())
+				suite.Require().Equal(claimablePercent.MulInt(claimsRecord.InitialClaimableAmount).QuoInt64(4).RoundInt().String(), coins.String())
 				suite.Require().Equal(sdk.NewInt(13).String(), remainder.String())
 
 				_, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(ctx, addr1, claimsRecord, types.ActionEVM, params)
 				suite.Require().NoError(err)
-				bal := suite.app.BankKeeper.GetAllBalances(ctx, addr1)
 
-				suite.Require().Equal(claimsRecord.InitialClaimableAmount.ToDec().Mul(claimablePercent).Quo(sdk.NewDec(4)).RoundInt().String(),
+				bal := suite.app.BankKeeper.GetAllBalances(ctx, addr1)
+				suite.Require().Equal(claimablePercent.MulInt(claimsRecord.InitialClaimableAmount).QuoInt64(4).RoundInt().String(),
 					bal.AmountOf(params.GetClaimsDenom()).String())
 			},
 		},
@@ -1107,7 +1107,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 
 // GetUserTotalClaimable returns claimable amount for a specific action done by
 // an address at a given block time
-func (suite *KeeperTestSuite) getUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) sdk.Int {
+func (suite *KeeperTestSuite) getUserTotalClaimable(ctx sdk.Context, addr sdk.AccAddress) math.Int {
 	totalClaimable := sdk.ZeroInt()
 
 	claimsRecord, found := suite.app.ClaimsKeeper.GetClaimsRecord(ctx, addr)

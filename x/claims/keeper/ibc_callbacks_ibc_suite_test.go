@@ -8,15 +8,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v8/app"
-	ibctesting "github.com/evmos/evmos/v8/ibc/testing"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/app"
+	ibctesting "github.com/evmos/evmos/v9/ibc/testing"
+	"github.com/evmos/evmos/v9/testutil"
+	"github.com/evmos/evmos/v9/x/claims/types"
 )
 
 type IBCTestingSuite struct {
@@ -132,13 +132,8 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 			"correct execution - Claimed transfer",
 			func(claimableAmount int64) {
 				amt := sdk.NewInt(claimableAmount)
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
 
 				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainA.GetContext(), senderAddr, types.ClaimsRecord{InitialClaimableAmount: amt, ActionsCompleted: []bool{true, true, true, true}})
-
-				// update the escrowed account balance to maintain the invariant
-				err := testutil.FundModuleAccount(suite.chainA.App.(*app.Evmos).BankKeeper, suite.chainA.GetContext(), types.ModuleName, coins)
-				suite.Require().NoError(err)
 			},
 			4,
 			0,

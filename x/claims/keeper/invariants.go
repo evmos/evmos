@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/x/claims/types"
 )
 
 // RegisterInvariants registers the claims module invariants
@@ -28,7 +28,7 @@ func (k Keeper) ClaimsInvariant() sdk.Invariant {
 		// iterate over all the claim records and sum the unclaimed amounts
 		k.IterateClaimsRecords(ctx, func(_ sdk.AccAddress, cr types.ClaimsRecord) bool {
 			// IMPORTANT: use Dec to prevent truncation errors
-			initialClaimablePerAction := cr.InitialClaimableAmount.ToDec().Quo(numActions)
+			initialClaimablePerAction := sdk.NewDecFromInt(cr.InitialClaimableAmount).Quo(numActions)
 			for _, actionCompleted := range cr.ActionsCompleted {
 				if !actionCompleted {
 					// NOTE: only add the initial claimable amount per action for the ones that haven't been claimed
@@ -41,14 +41,14 @@ func (k Keeper) ClaimsInvariant() sdk.Invariant {
 		moduleAccAddr := k.GetModuleAccountAddress()
 		balance := k.bankKeeper.GetBalance(ctx, moduleAccAddr, params.ClaimsDenom)
 
-		isInvariantBroken := !expectedUnclaimed.Equal(balance.Amount.ToDec())
+		isInvariantBroken := !expectedUnclaimed.Equal(sdk.NewDecFromInt(balance.Amount))
 		msg = sdk.FormatInvariant(
 			types.ModuleName,
 			"claims",
 			fmt.Sprintf(
 				"\tsum of unclaimed amount: %s\n"+
 					"\tescrowed balance amount: %s\n",
-				expectedUnclaimed, balance.Amount.ToDec(),
+				expectedUnclaimed, sdk.NewDecFromInt(balance.Amount),
 			),
 		)
 

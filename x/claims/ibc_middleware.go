@@ -3,12 +3,12 @@ package claims
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v8/ibc"
-	"github.com/evmos/evmos/v8/x/claims/keeper"
+	"github.com/evmos/evmos/v9/ibc"
+	"github.com/evmos/evmos/v9/x/claims/keeper"
 )
 
 var _ porttypes.Middleware = &IBCMiddleware{}
@@ -77,4 +77,13 @@ func (im IBCMiddleware) WriteAcknowledgement(
 	ack exported.Acknowledgement,
 ) error {
 	return im.keeper.WriteAcknowledgement(ctx, chanCap, packet, ack)
+}
+
+// GetAppVersion implements the ICS4 Wrapper interface
+func (im IBCMiddleware) GetAppVersion(
+	ctx sdk.Context,
+	portID,
+	channelID string,
+) (string, bool) {
+	return im.keeper.GetAppVersion(ctx, portID, channelID)
 }
