@@ -1,6 +1,8 @@
 package incentives
 
 import (
+	"sort"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
@@ -35,10 +37,16 @@ func InitGenesis(
 	}
 
 	// Set allocation meters
-	for denom, amount := range allocationMeters {
+	denoms := make([]string, 0, len(allocationMeters))
+	for k := range allocationMeters {
+		denoms = append(denoms, k)
+	}
+	sort.Strings(denoms)
+
+	for _, denom := range denoms {
 		am := sdk.DecCoin{
 			Denom:  denom,
-			Amount: amount,
+			Amount: allocationMeters[denom],
 		}
 		k.SetAllocationMeter(ctx, am)
 	}
