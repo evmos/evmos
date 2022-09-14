@@ -9,8 +9,6 @@ jobs:
   Gosec:
     permissions:
       security-events: write
-      actions: read
-      contents: read
 
     runs-on: ubuntu-latest
     env:
