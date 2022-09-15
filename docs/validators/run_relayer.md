@@ -182,6 +182,7 @@ rpc_addr = 'http://127.0.0.1:26657'
 grpc_addr = 'http://127.0.0.1:9090'
 websocket_addr = 'ws://127.0.0.1:26657/websocket'
 ...
+address_type = { derivation = 'ethermint', proto_type = { pk_type = '/ethermint.crypto.v1.ethsecp256k1.PubKey' } }
 [chains.packet_filter]
 policy = 'allow'
 list = [
