@@ -34,6 +34,10 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://grpc.evmos.nodestake.top`            | `Cosmos` `gRPC`        | [NodeStake](https://nodestake.top/)     |
 | `https://api.evmos.nodestake.top`             | `Cosmos` `REST`        | [NodeStake](https://nodestake.top/)     |
 | `https://jsonrpc.evmos.nodestake.top`         | `Ethereum` `JSON-RPC`  | [NodeStake](https://nodestake.top/)     |
+| `https://rpc.evmos.chaintools.tech/`          | `Cosmos` `JSON-RPC`    | [ChainTools](https://chaintools.tech/)  |
+| `https://evmos.grpcui.chaintools.host`        | `Cosmos` `gRPC`        | [ChainTools](https://chaintools.tech/)  |
+| `https://api.evmos.chaintools.tech/`          | `Cosmos` `API`         | [ChainTools](https://chaintools.tech/)  |
+
 :::
 ::: tab Testnet
 <!-- markdown-link-check-disable -->
