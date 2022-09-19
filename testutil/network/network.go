@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"testing"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -107,7 +106,7 @@ func DefaultConfig() Config {
 		AppConstructor:    NewAppConstructor(encCfg),
 		GenesisState:      app.ModuleBasics.DefaultGenesis(encCfg.Marshaler),
 		TimeoutCommit:     2 * time.Second,
-		ChainID:           fmt.Sprintf("acrechain_%d-1", tmrand.Int63n(9999999999999)+1),
+		ChainID:           fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1),
 		NumValidators:     4,
 		BondDenom:         ethermint.AttoPhoton,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", ethermint.AttoPhoton),
@@ -122,7 +121,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// NewAppConstructor returns a new AcreChain AppConstructor
+// NewAppConstructor returns a new Evmos AppConstructor
 func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
 	return func(val Validator) servertypes.Application {
 		return app.NewAcreChain(
@@ -190,7 +189,6 @@ type Logger interface {
 }
 
 var (
-	_ Logger = (*testing.T)(nil)
 	_ Logger = (*CLILogger)(nil)
 )
 
@@ -330,8 +328,8 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		ctx.Logger = logger
 
 		nodeDirName := fmt.Sprintf("node%d", i)
-		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "acred")
-		clientDir := filepath.Join(network.BaseDir, nodeDirName, "acrecli")
+		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "evmosd")
+		clientDir := filepath.Join(network.BaseDir, nodeDirName, "evmoscli")
 		gentxsDir := filepath.Join(network.BaseDir, "gentxs")
 
 		err := os.MkdirAll(filepath.Join(nodeDir, "config"), 0o750)
