@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/server"
@@ -18,7 +17,6 @@ func main() {
 
 	rootCmd, _ := NewRootCmd()
 
-	fmt.Printf(app.DefaultNodeHome)
 	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
