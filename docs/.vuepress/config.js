@@ -64,8 +64,8 @@ module.exports = {
     // ['link', { rel: "apple-touch-icon-precomposed", href: "/apple-touch-icon-precomposed.png" }],
   ],
   themeConfig: {
-    repo: "tharsis/evmos",
-    docsRepo: "tharsis/evmos",
+    repo: "evmos/evmos",
+    docsRepo: "evmos/evmos",
     docsBranch: "main",
     docsDir: "docs",
     editLinks: true,
@@ -82,7 +82,7 @@ module.exports = {
       rpc_url_local: "http://localhost:8545/",
       chain_id: "9001",
       testnet_chain_id: "9000",
-      latest_version: "v7.0.0",
+      latest_version: "v8.1.0",
       version_number: "2",
       testnet_version_number: "4",
       testnet_evm_explorer_url: "https://evm.evmos.dev",
@@ -114,11 +114,7 @@ module.exports = {
             },
             {
               title: "Evmos Ecosystem",
-              path: "https://evmos.space/",
-            },
-            {
-              title: "Awesome Evmos",
-              path: "https://github.com/tharsis/awesome",
+              path: "https://evmos.org/ecosystem",
             },
           ],
         },
@@ -402,7 +398,7 @@ module.exports = {
           children: [
             {
               title: "Jobs at Evmos",
-              url: "https://tharsis.notion.site/",
+              url: "https://boards.eu.greenhouse.io/evmos",
             },
           ],
         },
