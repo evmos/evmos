@@ -33,7 +33,7 @@ module.exports = {
     [
       "@vuepress/google-analytics",
       {
-        ga: "UA-232833231-1",
+        ga: process.env.GOOGLE_ANALYTICS_ID || '',
       },
     ],
   ],
@@ -94,8 +94,8 @@ module.exports = {
       src: "/evmos-black.svg",
     },
     algolia: {
-      id: "K3VQTEW3G5",
-      key: "bf836a3c934b1d4df091d5c5b69c65d7",
+      id: process.env.ALGOLIA_ID || '',
+      key: process.env.ALGOLIA_KEY || '',
       index: "evmos",
     },
     topbar: {
