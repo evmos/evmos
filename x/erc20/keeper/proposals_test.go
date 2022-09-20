@@ -5,9 +5,9 @@ import (
 
 	"github.com/ArableProtocol/acrechain/x/erc20/keeper"
 	"github.com/ArableProtocol/acrechain/x/erc20/types"
+	minttypes "github.com/ArableProtocol/acrechain/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
