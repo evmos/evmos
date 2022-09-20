@@ -25,9 +25,15 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register an ERC-20, consider the following stages:
 
-1. [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
-2. [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
-3. [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+- [ERC-20 Registration](#erc-20-registration)
+  - [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
+  - [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
+    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
+    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+  - [Register Token and Network to Chain-Token-Registry repo](#register-token-and-network-to-chain-token-registry-repo)
+  - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+    - [The Deposit Period](#the-deposit-period)
+    - [The Voting Period](#the-voting-period)
 
 ## Drafting the ERC-20 Proposal
 
@@ -91,6 +97,10 @@ evmosd tx gov submit-proposal register-erc20 --proposal=<path/to/proposal.json>
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
 
 Submitting your proposal to the testnet increases the likelihood of engagement and the possibility that you will be alerted to a flaw before deploying your proposal to mainnet.
+
+## Register Token and Network to Chain-Token-Registry repo
+
+Before proceeding to an On-Chain proposal, it is crucial to list the token pair and network to our chain and token registry, found [here](https://github.com/evmos/chain-token-registry). The information in the repo will help power the Evmos Dashboard [Assets Page](https://app.evmos.org/assets) and allow users to deposit, withdraw, and convert token pairs between IBC and ERC-20 state. We currently use the [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) repo to pull in the list of RPC, gRPC, and REST endpoints to use for our Dashboard. It is important to insure the most updated information is present. If there are a set of endpoints or preferred providers, please do suggest it in the pull request. Please consult our chain registry schema for more details. Once the governance proposal passes, the pull request should be merged in around one business day.
 
 ## The On-Chain ERC-20 Proposal
 

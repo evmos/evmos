@@ -25,9 +25,15 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register a Cosmos Coin, consider the following stages:
 
-1. [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
-2. [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
-3. [The On-Chain Cosmos Coin Proposal](#the-on-chain-cosmos-coin-proposal)
+- [Cosmos Coin Registration](#cosmos-coin-registration)
+  - [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
+  - [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
+  - [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
+    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
+    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+  - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+    - [The Deposit Period](#the-deposit-period)
+    - [The Voting Period](#the-voting-period)
 
 ## Drafting the Cosmos Coin Proposal
 
@@ -46,6 +52,10 @@ The following topics must be addressed when drafting a Cosmos Coin Proposal:
     Give a breakdown of the proposal's payload, and explain in layman terms what the proposal will do if it passes. Detail precautions taken during contract and proposal formulation, if applicable (including consultations made prior to proposal creation, how contracts were tested, and any third-party reviews). Finally, mention the risks involved in the proposal, depending on the direction of IBC Coin and ERC-20.
 
 Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+
+## Adding Network to Evmos Chain Registry
+
+Evmos created a repo to hold all chain registry information [here](https://github.com/evmos/chain-token-registry). We use the [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) to pull in the list of RPC, gRPC, and REST endpoints to power our Evmos Dashboard. Please submit a pull request with the network detail. Pull request should be merged one business post governance passes.
 
 ## Submitting the Cosmos Coin Proposal
 
