@@ -189,7 +189,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 }
 
 func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
-	unbondingDuration := suite.app.GetStakingKeeper().UnbondingTime(suite.ctx)
+	unbondingDuration := suite.app.GetStakingKeeperSDK().UnbondingTime(suite.ctx)
 
 	testCases := []struct {
 		name              string

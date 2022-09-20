@@ -990,6 +990,11 @@ func (app *Evmos) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
+// GetStakingKeeper implements the TestingApp interface.
+func (app *Evmos) GetStakingKeeperSDK() stakingkeeper.Keeper {
+	return app.StakingKeeper
+}
+
 // GetIBCKeeper implements the TestingApp interface.
 func (app *Evmos) GetIBCKeeper() *ibckeeper.Keeper {
 	return app.IBCKeeper
