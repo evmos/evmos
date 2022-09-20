@@ -9,7 +9,8 @@ option go_package = "github.com/evmos/evmos/v8/x/feesplit/types";
 // Msg defines the fees Msg service.
 service Msg {
   // RegisterFeeSplit registers a new contract for receiving transaction fees
-  rpc RegisterFeeSplit(MsgRegisterFeeSplit) returns (MsgRegisterFeeSplitResponse) {
+  rpc RegisterFeeSplit(MsgRegisterFeeSplit)
+      returns (MsgRegisterFeeSplitResponse) {
     option (google.api.http).post = "/evmos/feesplit/v1/tx/register_feesplit";
   };
   // UpdateFeeSplit updates the withdrawer address of a fee split

@@ -31350,7 +31350,6 @@ paths:
                                           description: >-
                                             Commit contains the evidence that a
                                             block was committed by a set of
-
                                             validators.
                                     validator_set:
                                       type: object
@@ -31504,9 +31503,7 @@ paths:
                             Commit.
                     description: >-
                       Commit contains the evidence that a block was committed by
-                      a set of
-
-                      validators.
+                      a set of validators.
             description: >-
               GetLatestBlockResponse is the response type for the
               Query/GetLatestBlock RPC method.
@@ -32116,7 +32113,6 @@ paths:
                                           description: >-
                                             Commit contains the evidence that a
                                             block was committed by a set of
-
                                             validators.
                                     validator_set:
                                       type: object
@@ -32270,9 +32266,7 @@ paths:
                             Commit.
                     description: >-
                       Commit contains the evidence that a block was committed by
-                      a set of
-
-                      validators.
+                      a set of validators.
             description: >-
               GetBlockByHeightResponse is the response type for the
               Query/GetBlockByHeight RPC method.
@@ -49760,9 +49754,7 @@ definitions:
                                           in a Commit.
                                   description: >-
                                     Commit contains the evidence that a block
-                                    was committed by a set of
-
-                                    validators.
+                                    was committed by a set of validators.
                             validator_set:
                               type: object
                               properties:
@@ -49911,9 +49903,7 @@ definitions:
                   description: CommitSig is a part of the Vote included in a Commit.
             description: >-
               Commit contains the evidence that a block was committed by a set
-              of
-
-              validators.
+              of validators.
       pagination:
         description: pagination defines a pagination for the response.
         type: object
@@ -52605,9 +52595,7 @@ definitions:
                                       in a Commit.
                               description: >-
                                 Commit contains the evidence that a block was
-                                committed by a set of
-
-                                validators.
+                                committed by a set of validators.
                         validator_set:
                           type: object
                           properties:
@@ -52754,7 +52742,7 @@ definitions:
                   type: string
                   format: byte
               description: CommitSig is a part of the Vote included in a Commit.
-        description: |-
+        description: >-
           Commit contains the evidence that a block was committed by a set of
           validators.
   tendermint.types.BlockIDFlag:
@@ -52816,7 +52804,7 @@ definitions:
               type: string
               format: byte
           description: CommitSig is a part of the Vote included in a Commit.
-    description: |-
+    description: >-
       Commit contains the evidence that a block was committed by a set of
       validators.
   tendermint.types.CommitSig:
@@ -53260,9 +53248,7 @@ definitions:
                             Commit.
                     description: >-
                       Commit contains the evidence that a block was committed by
-                      a set of
-
-                      validators.
+                      a set of validators.
               validator_set:
                 type: object
                 properties:
@@ -53642,9 +53628,7 @@ definitions:
                                   Commit.
                           description: >-
                             Commit contains the evidence that a block was
-                            committed by a set of
-
-                            validators.
+                            committed by a set of validators.
                     validator_set:
                       type: object
                       properties:
@@ -53876,9 +53860,7 @@ definitions:
                   description: CommitSig is a part of the Vote included in a Commit.
             description: >-
               Commit contains the evidence that a block was committed by a set
-              of
-
-              validators.
+              of validators.
       validator_set:
         type: object
         properties:
@@ -54075,9 +54057,7 @@ definitions:
                       description: CommitSig is a part of the Vote included in a Commit.
                 description: >-
                   Commit contains the evidence that a block was committed by a
-                  set of
-
-                  validators.
+                  set of validators.
           validator_set:
             type: object
             properties:
@@ -54304,7 +54284,7 @@ definitions:
                   type: string
                   format: byte
               description: CommitSig is a part of the Vote included in a Commit.
-        description: |-
+        description: >-
           Commit contains the evidence that a block was committed by a set of
           validators.
   tendermint.types.SignedMsgType:
@@ -54855,9 +54835,7 @@ definitions:
                                           in a Commit.
                                   description: >-
                                     Commit contains the evidence that a block
-                                    was committed by a set of
-
-                                    validators.
+                                    was committed by a set of validators.
                             validator_set:
                               type: object
                               properties:
@@ -55006,9 +54984,7 @@ definitions:
                   description: CommitSig is a part of the Vote included in a Commit.
             description: >-
               Commit contains the evidence that a block was committed by a set
-              of
-
-              validators.
+              of validators.
     description: >-
       GetBlockByHeightResponse is the response type for the
       Query/GetBlockByHeight RPC method.
@@ -55413,9 +55389,7 @@ definitions:
                                           in a Commit.
                                   description: >-
                                     Commit contains the evidence that a block
-                                    was committed by a set of
-
-                                    validators.
+                                    was committed by a set of validators.
                             validator_set:
                               type: object
                               properties:
@@ -55564,9 +55538,7 @@ definitions:
                   description: CommitSig is a part of the Vote included in a Commit.
             description: >-
               Commit contains the evidence that a block was committed by a set
-              of
-
-              validators.
+              of validators.
     description: >-
       GetLatestBlockResponse is the response type for the Query/GetLatestBlock
       RPC method.
