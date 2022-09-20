@@ -1130,8 +1130,7 @@ QueryFeeSplitsRequest is the request type for the Query/FeeSplits RPC method.
 <a name="evmos.feesplit.v1.QueryFeeSplitsResponse"></a>
 
 ### QueryFeeSplitsResponse
-QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC
-method.
+QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC method.
 
 
 | Field | Type | Label | Description |

@@ -76,8 +76,7 @@ func (m *QueryFeeSplitsRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
-// QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC
-// method.
+// QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC method.
 type QueryFeeSplitsResponse struct {
 	FeeSplits []FeeSplit `protobuf:"bytes,1,rep,name=fee_splits,json=feeSplits,proto3" json:"fee_splits"`
 	// pagination defines the pagination in the response.

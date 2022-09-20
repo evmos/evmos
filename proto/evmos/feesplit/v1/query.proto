@@ -18,8 +18,7 @@ service Query {
 
   // FeeSplit retrieves a registered fee split for a given contract address
   rpc FeeSplit(QueryFeeSplitRequest) returns (QueryFeeSplitResponse) {
-    option (google.api.http).get =
-        "/evmos/feesplit/v1/feesplits/{contract_address}";
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{contract_address}";
   }
 
   // Params retrieves the feesplit module params
@@ -31,16 +30,14 @@ service Query {
   // registered
   rpc DeployerFeeSplits(QueryDeployerFeeSplitsRequest)
       returns (QueryDeployerFeeSplitsResponse) {
-    option (google.api.http).get =
-        "/evmos/feesplit/v1/feesplits/{deployer_address}";
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{deployer_address}";
   }
 
   // WithdrawerFeeSplits retrieves all fees plits with a given withdrawer
   // address
   rpc WithdrawerFeeSplits(QueryWithdrawerFeeSplitsRequest)
       returns (QueryWithdrawerFeeSplitsResponse) {
-    option (google.api.http).get =
-        "/evmos/feesplit/v1/feesplits/{withdrawer_address}";
+    option (google.api.http).get = "/evmos/feesplit/v1/feesplits/{withdrawer_address}";
   }
 }
 
@@ -50,8 +47,7 @@ message QueryFeeSplitsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC
-// method.
+// QueryFeeSplitsResponse is the response type for the Query/FeeSplits RPC method.
 message QueryFeeSplitsResponse {
   repeated FeeSplit fee_splits = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
@@ -93,6 +89,7 @@ message QueryDeployerFeeSplitsResponse {
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
+
 
 // QueryWithdrawerFeeSplitsRequest is the request type for the
 // Query/WithdrawerFeeSplits RPC method.
