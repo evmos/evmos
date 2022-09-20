@@ -26,14 +26,14 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 To register an ERC-20, consider the following stages:
 
 - [ERC-20 Registration](#erc-20-registration)
-  - [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
-  - [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
-    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
-    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
-  - [Register Token and Network to Chain-Token-Registry repo](#register-token-and-network-to-chain-token-registry-repo)
-  - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
-    - [The Deposit Period](#the-deposit-period)
-    - [The Voting Period](#the-voting-period)
+    - [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
+    - [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
+        - [Formatting the Proposal's Text](#formatting-the-proposals-text)
+        - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+    - [Register Token and Network to Chain-Token-Registry repo](#register-token-and-network-to-chain-token-registry-repo)
+    - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+        - [The Deposit Period](#the-deposit-period)
+        - [The Voting Period](#the-voting-period)
 
 ## Drafting the ERC-20 Proposal
 
