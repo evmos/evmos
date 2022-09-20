@@ -1,0 +1,45 @@
+syntax = "proto3";
+package acrechain.mint.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "acrechain/mint/v1beta1/mint.proto";
+
+option go_package = "github.com/ArableProtocol/acrechain/x/mint/types";
+
+// Query provides defines the gRPC querier service.
+service Query {
+  // Params returns the total set of minting parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/acrechain/mint/v1beta1/params";
+  }
+
+  // DailyProvisions current minting epoch provisions value.
+  rpc DailyProvisions(QueryDailyProvisionsRequest)
+      returns (QueryDailyProvisionsResponse) {
+    option (google.api.http).get = "/acrechain/mint/v1beta1/daily_provisions";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryDailyProvisionsRequest is the request type for the
+// Query/DailyProvisions RPC method.
+message QueryDailyProvisionsRequest {}
+
+// QueryDailyProvisionsResponse is the response type for the
+// Query/DailyProvisions RPC method.
+message QueryDailyProvisionsResponse {
+  // daily_provisions is the current minting per epoch provisions value.
+  bytes daily_provisions = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}

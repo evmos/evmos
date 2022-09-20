@@ -1,0 +1,54 @@
+syntax = "proto3";
+package acrechain.mint.v1beta1;
+
+option go_package = "github.com/ArableProtocol/acrechain/x/mint/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
+
+// Minter represents the minting state.
+message Minter {
+  // last mint time
+  int64 last_mint_time = 1;
+  // current daily provisions
+  string daily_provisions = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message DistributionProportions {
+  // staking defines the proportion of the minted minted_denom that is to be
+  // allocated as staking rewards.
+  string staking = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // TODO: need to add more distribution targets as more infrastructure come to the chain (DEX, liquidity mining etc.)
+}
+
+// Params holds parameters for the mint module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+
+  // type of coin to mint
+  string mint_denom = 1;
+  // daily provisions from the genesis
+  string genesis_daily_provisions = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // number of seconds take to reduce rewards
+  int64 reduction_period_in_seconds = 3;
+  // reduction multiplier to execute on each period
+  string reduction_factor = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // distribution_proportions defines the proportion of the minted denom
+  DistributionProportions distribution_proportions = 5 [ (gogoproto.nullable) = false ];
+  // next block to reduce minting rewards
+  int64 next_rewards_reduction_time = 6;
+}
