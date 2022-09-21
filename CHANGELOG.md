@@ -39,7 +39,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (feesplit)[\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support eip712 signatures.
+- (feesplit) [\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support eip712 signatures.
+
+### API Breaking
+
+- (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`  
 
 ### Improvements
 
