@@ -29,33 +29,55 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 }
 
 func handleRegisterCoinProposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterCoinProposal) error {
-	pair, err := k.RegisterCoin(ctx, p.Metadata)
-	if err != nil {
-		return err
+	// Check if the conversion is globally enabled
+	params := k.GetParams(ctx)
+	if !params.EnableErc20 {
+		return sdkerrors.Wrap(
+			types.ErrERC20Disabled, "registration is currently disabled by governance",
+		)
 	}
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeRegisterCoin,
-			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-		),
-	)
+
+	for _, metadata := range p.Metadata {
+		pair, err := k.RegisterCoin(ctx, metadata)
+		if err != nil {
+			return err
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterCoin,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
+	}
 
 	return nil
 }
 
 func handleRegisterERC20Proposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterERC20Proposal) error {
-	pair, err := k.RegisterERC20(ctx, common.HexToAddress(p.Erc20Address))
-	if err != nil {
-		return err
+	// Check if the conversion is globally enabled
+	params := k.GetParams(ctx)
+	if !params.EnableErc20 {
+		return sdkerrors.Wrap(
+			types.ErrERC20Disabled, "registration is currently disabled by governance",
+		)
 	}
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeRegisterERC20,
-			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-		),
-	)
+
+	for _, address := range p.Erc20Addresses {
+		pair, err := k.RegisterERC20(ctx, common.HexToAddress(address))
+		if err != nil {
+			return err
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterERC20,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
+	}
 
 	return nil
 }

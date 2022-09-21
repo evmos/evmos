@@ -625,7 +625,7 @@ native Cosmos coin.
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | metadata of the native Cosmos coin |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) | repeated | metadata slice of the native Cosmos coins |
 
 
 
@@ -643,7 +643,7 @@ ERC20 token
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `erc20address` | [string](#string) |  | contract address of ERC20 token |
+| `erc20addresses` | [string](#string) | repeated | contract addresses of ERC20 tokens |
 
 
 
