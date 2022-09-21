@@ -66,3 +66,10 @@ message ToggleTokenConversionProposal {
   // Cosmos base denomination
   string token = 3;
 }
+
+// ProposalMetadata is used to parse a slice of denom metadata and generate
+// the RegisterCoinProposal content.
+message ProposalMetadata {
+  // metadata slice of the native Cosmos coins
+  repeated cosmos.bank.v1beta1.Metadata metadata = 1 [(gogoproto.nullable) = false];
+}

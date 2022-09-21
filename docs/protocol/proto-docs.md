@@ -40,6 +40,7 @@
     - [Query](#evmos.epochs.v1.Query)
   
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
+    - [ProposalMetadata](#evmos.erc20.v1.ProposalMetadata)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
     - [ToggleTokenConversionProposal](#evmos.erc20.v1.ToggleTokenConversionProposal)
@@ -611,6 +612,22 @@ Query defines the gRPC querier service.
 <p align="right"><a href="#top">Top</a></p>
 
 ## evmos/erc20/v1/erc20.proto
+
+
+
+<a name="evmos.erc20.v1.ProposalMetadata"></a>
+
+### ProposalMetadata
+ProposalMetadata is used to parse a slice of denom metadata and generate
+the RegisterCoinProposal content.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) | repeated | metadata slice of the native Cosmos coins |
+
+
+
 
 
 
