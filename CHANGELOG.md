@@ -35,27 +35,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v8.1.0] - 2022-08-30
-
-### State Machine Breaking
-
-- (feesplit)[\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support eip712 signatures.
-- (deps) Bump Ethermint version to [`v0.19.2`](https://github.com/evmos/ethermint/releases/tag/v0.19.2)
-
-## [v8.0.0] - 2022-08-16
-
-### State Machine Breaking
-
-- (deps) Bump Ethermint version to [`v0.19.0`](https://github.com/evmos/ethermint/releases/tag/v0.19.0)
-- (feesplit) Add `x/feesplit` module
-
-### State Machine Breaking
-
-- (feesplit)[\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support eip712 signatures.
+## Unreleased
 
 ### Improvements
 
 - (docs) [883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
+
+## [v8.1.0] - 2022-08-30
+
+### State Machine Breaking
+
+- (feesplit)[\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support EIP-712 signatures.
+- (deps) Bump Ethermint version to [`v0.19.2`](https://github.com/evmos/ethermint/releases/tag/v0.19.2)
 
 ## [v8.0.0] - 2022-09-16
 
