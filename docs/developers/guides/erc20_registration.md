@@ -53,7 +53,9 @@ The following topics must be addressed when drafting an ERC-20 Proposal:
 
 4. Document adherence to ERC-20 Contract expectations.
 
-   Ensure that the ERC-20 contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev)), and that the contracts are deployed open-source. Security-wise, the following are required: - the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/)) - the contracts do not extend the `IERC20.sol` interface through a malicious implementation - the transfer logic is not modified (i.e. transfer logic is not directly manipulated) - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
+   Ensure that the ERC-20 contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev)), and that the contracts are deployed open-source.
+   Security-wise, the following are required: that the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/)), that the contracts do not extend the `IERC20.sol` interface through a malicious implementation, that the transfer logic is not modified (i.e. transfer logic is not directly manipulated), and that no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance.
+
    Take note of the above in your proposal description!
 
 Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
@@ -98,7 +100,8 @@ Submitting your proposal to the testnet increases the likelihood of engagement a
 
 ## Register Token and Network to Chain-Token-Registry repo
 
-Before proceeding to an On-Chain proposal, it is crucial to list the token pair and network to our chain and token registry, found [here](https://github.com/evmos/chain-token-registry). The information in the repo will help power the Evmos Dashboard [Assets Page](https://app.evmos.org/assets) and allow users to deposit, withdraw, and convert token pairs between IBC and ERC-20 state. We currently use the [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) repo to pull in the list of RPC, gRPC, and REST endpoints to use for our Dashboard. It is important to insure the most updated information is present. If there are a set of endpoints or preferred providers, please do suggest it in the pull request. Please consult our chain registry schema for more details. Once the governance proposal passes, the pull request should be merged in around one business day.
+Before proceeding to an On-Chain proposal, it is crucial to list the token pair and network to our chain and token registry, found [here](https://github.com/evmos/chain-token-registry). The information in the repo will help power the Evmos Dashboard [Assets Page](https://app.evmos.org/assets) and allow users to deposit, withdraw, and convert token pairs between IBC and ERC-20 state. We currently use the [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) repo to pull in the list of RPC, gRPC, and REST endpoints to use for our Dashboard. It is important to ensure the most updated information is present. If there are a set of endpoints or preferred providers, please do suggest it in the pull request. Please consult our chain registry schema for more details. Once the governance proposal passes, the pull request should be merged in around one business day.
+
 
 ## The On-Chain ERC-20 Proposal
 
