@@ -10,13 +10,6 @@ import (
 	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
-// RegisterCoins deploys an erc20 contract and creates the token pair for the
-// existing cosmos coin
-func (k Keeper) RegisterCoins(
-	ctx sdk.Context,
-	coinMetadatas []banktypes.Metadata,
-)
-
 // RegisterCoin deploys an erc20 contract and creates the token pair for the
 // existing cosmos coin
 func (k Keeper) RegisterCoin(

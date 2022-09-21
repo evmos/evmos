@@ -190,42 +190,6 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			false,
 		},
 		{
-			"evm denom registration - evm",
-			func() {
-				metadata.Base = "evm"
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
-				suite.Require().NoError(err)
-			},
-			false,
-		},
-		{
-			"evm denom registration - evmos",
-			func() {
-				metadata.Base = "evmos"
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
-				suite.Require().NoError(err)
-			},
-			false,
-		},
-		{
-			"evm denom registration - aevmos",
-			func() {
-				metadata.Base = "aevmos"
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
-				suite.Require().NoError(err)
-			},
-			false,
-		},
-		{
-			"evm denom registration - wevmos",
-			func() {
-				metadata.Base = "wevmos"
-				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
-				suite.Require().NoError(err)
-			},
-			false,
-		},
-		{
 			"ok",
 			func() {
 				metadata.Base = cosmosTokenBase
@@ -299,15 +263,6 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 		malleate func()
 		expPass  bool
 	}{
-		{
-			"conversion is disabled globally",
-			func() {
-				params := types.DefaultParams()
-				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
-			},
-			false,
-		},
 		{
 			"token ERC20 already registered",
 			func() {
