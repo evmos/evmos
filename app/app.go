@@ -118,7 +118,8 @@ import (
 	v6 "github.com/evmos/evmos/v9/app/upgrades/v6"
 	v7 "github.com/evmos/evmos/v9/app/upgrades/v7"
 	v8 "github.com/evmos/evmos/v9/app/upgrades/v8"
-	"github.com/evmos/evmos/v9/app/upgrades/v8m1"
+	v81 "github.com/evmos/evmos/v9/app/upgrades/v8_1"
+	v82 "github.com/evmos/evmos/v9/app/upgrades/v8_2"
 	"github.com/evmos/evmos/v9/x/claims"
 	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -1129,8 +1130,16 @@ func (app *Evmos) setupUpgradeHandlers() {
 
 	// v8.1 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v8m1.UpgradeName,
-		v8m1.CreateUpgradeHandler(
+		v81.UpgradeName,
+		v81.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v8.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v82.UpgradeName,
+		v82.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)
@@ -1165,8 +1174,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{feesplittypes.ModuleName},
 		}
-	case v8m1.UpgradeName:
+	case v81.UpgradeName:
+		// NOTE: store upgrade for mainnet was not registered and was replaced by
+		// the v8.2 upgrade.
+	case v82.UpgradeName:
 		// add feesplit module for mainnet (v7 -> v8.1)
+		// IMPORTANT: this upgrade CANNOT be executed for testnet!
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{feesplittypes.ModuleName},
 		}
