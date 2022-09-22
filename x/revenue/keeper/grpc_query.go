@@ -33,11 +33,11 @@ func (k Keeper) Revenues(
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
-		var fee types.Revenue
-		if err := k.cdc.Unmarshal(value, &fee); err != nil {
+		var revenue types.Revenue
+		if err := k.cdc.Unmarshal(value, &revenue); err != nil {
 			return err
 		}
-		revenues = append(revenues, fee)
+		revenues = append(revenues, revenue)
 		return nil
 	})
 	if err != nil {
