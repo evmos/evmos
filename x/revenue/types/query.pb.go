@@ -598,16 +598,16 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Revenues retrieves all registered fees plits
+	// Revenues retrieves all registered revenues
 	Revenues(ctx context.Context, in *QueryRevenuesRequest, opts ...grpc.CallOption) (*QueryRevenuesResponse, error)
-	// Revenue retrieves a registered fee split for a given contract address
+	// Revenue retrieves a registered revenue for a given contract address
 	Revenue(ctx context.Context, in *QueryRevenueRequest, opts ...grpc.CallOption) (*QueryRevenueResponse, error)
 	// Params retrieves the revenue module params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// DeployerRevenues retrieves all fee splits that a given deployer has
+	// DeployerRevenues retrieves all revenues that a given deployer has
 	// registered
 	DeployerRevenues(ctx context.Context, in *QueryDeployerRevenuesRequest, opts ...grpc.CallOption) (*QueryDeployerRevenuesResponse, error)
-	// WithdrawerRevenues retrieves all fees plits with a given withdrawer
+	// WithdrawerRevenues retrieves all revenues with a given withdrawer
 	// address
 	WithdrawerRevenues(ctx context.Context, in *QueryWithdrawerRevenuesRequest, opts ...grpc.CallOption) (*QueryWithdrawerRevenuesResponse, error)
 }
@@ -667,16 +667,16 @@ func (c *queryClient) WithdrawerRevenues(ctx context.Context, in *QueryWithdrawe
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Revenues retrieves all registered fees plits
+	// Revenues retrieves all registered revenues
 	Revenues(context.Context, *QueryRevenuesRequest) (*QueryRevenuesResponse, error)
-	// Revenue retrieves a registered fee split for a given contract address
+	// Revenue retrieves a registered revenue for a given contract address
 	Revenue(context.Context, *QueryRevenueRequest) (*QueryRevenueResponse, error)
 	// Params retrieves the revenue module params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// DeployerRevenues retrieves all fee splits that a given deployer has
+	// DeployerRevenues retrieves all revenues that a given deployer has
 	// registered
 	DeployerRevenues(context.Context, *QueryDeployerRevenuesRequest) (*QueryDeployerRevenuesResponse, error)
-	// WithdrawerRevenues retrieves all fees plits with a given withdrawer
+	// WithdrawerRevenues retrieves all revenues with a given withdrawer
 	// address
 	WithdrawerRevenues(context.Context, *QueryWithdrawerRevenuesRequest) (*QueryWithdrawerRevenuesResponse, error)
 }

@@ -393,7 +393,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// RegisterRevenue registers a new contract for receiving transaction fees
 	RegisterRevenue(ctx context.Context, in *MsgRegisterRevenue, opts ...grpc.CallOption) (*MsgRegisterRevenueResponse, error)
-	// UpdateRevenue updates the withdrawer address of a fee split
+	// UpdateRevenue updates the withdrawer address of a revenue
 	UpdateRevenue(ctx context.Context, in *MsgUpdateRevenue, opts ...grpc.CallOption) (*MsgUpdateRevenueResponse, error)
 	// CancelRevenue cancels a contract's fee registration and further receival
 	// of transaction fees
@@ -439,7 +439,7 @@ func (c *msgClient) CancelRevenue(ctx context.Context, in *MsgCancelRevenue, opt
 type MsgServer interface {
 	// RegisterRevenue registers a new contract for receiving transaction fees
 	RegisterRevenue(context.Context, *MsgRegisterRevenue) (*MsgRegisterRevenueResponse, error)
-	// UpdateRevenue updates the withdrawer address of a fee split
+	// UpdateRevenue updates the withdrawer address of a revenue
 	UpdateRevenue(context.Context, *MsgUpdateRevenue) (*MsgUpdateRevenueResponse, error)
 	// CancelRevenue cancels a contract's fee registration and further receival
 	// of transaction fees
