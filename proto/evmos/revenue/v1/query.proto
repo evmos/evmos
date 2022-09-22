@@ -11,7 +11,7 @@ option go_package = "github.com/evmos/evmos/v8/x/revenue/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Revenues retrieves all registered fees plits
+  // Revenues retrieves all registered revenues
   rpc Revenues(QueryRevenuesRequest) returns (QueryRevenuesResponse) {
     option (google.api.http).get = "/evmos/revenue/v1/revenues";
   }
@@ -33,7 +33,7 @@ service Query {
     option (google.api.http).get = "/evmos/revenue/v1/revenues/{deployer_address}";
   }
 
-  // WithdrawerRevenues retrieves all fees plits with a given withdrawer
+  // WithdrawerRevenues retrieves all revenues with a given withdrawer
   // address
   rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest)
       returns (QueryWithdrawerRevenuesResponse) {
