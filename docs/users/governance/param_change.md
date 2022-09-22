@@ -28,6 +28,6 @@ For a comprehensive list of available module parameters see the table below:
 | `feemarket`    | `ethermint`  | [reference](https://docs.evmos.org/modules/feemarket/07_params.html)              |
 | `claims`       | `evmos`      | [reference](https://docs.evmos.org/modules/claims/06_parameters.html)             |
 | `erc20`        | `evmos`      | [reference](https://docs.evmos.org/modules/erc20/07_parameters.html)              |
-| `feesplit`     | `evmos`      | [reference](https://docs.evmos.org/modules/feesplit/07_parameters.html)                   |
+| `revenue`     | `evmos`      | [reference](https://docs.evmos.org/modules/revenue/07_parameters.html)                   |
 | `incentives`   | `evmos`      | [reference](https://docs.evmos.org/modules/incentives/07_parameters.html)         |
 | `inflation`    | `evmos`      | [reference](https://docs.evmos.org/modules/inflation/05_parameters.html)          |
