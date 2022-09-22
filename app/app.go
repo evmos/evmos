@@ -115,6 +115,7 @@ import (
 	v7 "github.com/evmos/evmos/v8/app/upgrades/v7"
 	v8 "github.com/evmos/evmos/v8/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v8/app/upgrades/v8_1"
+	v82 "github.com/evmos/evmos/v8/app/upgrades/v8_2"
 	"github.com/evmos/evmos/v8/x/claims"
 	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
@@ -1102,6 +1103,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v8.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v82.UpgradeName,
+		v82.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1128,7 +1137,16 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v7.UpgradeName:
 		// no store upgrades in v7
 	case v8.UpgradeName:
-		// add feesplit module
+		// add feesplit module for testnet (v7 -> v8)
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{feesplittypes.ModuleName},
+		}
+	case v81.UpgradeName:
+		// NOTE: store upgrade for mainnet was not registered and was replaced by
+		// the v8.2 upgrade.
+	case v82.UpgradeName:
+		// add  missing feesplit module for mainnet (v8.1 -> v8.2)
+		// IMPORTANT: this upgrade CANNOT be executed for testnet!
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{feesplittypes.ModuleName},
 		}

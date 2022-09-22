@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v8.2.0] - 2022-09-22
+
+### State Machine Breaking
+
+- (app) [\#918](https://github.com/evmos/evmos/pull/918) Fix unregistered `feesplit` module for `v8.1.0` store upgrade
+
 ## [v8.1.1] - 2022-09-22
 
 ### Bug Fixes
