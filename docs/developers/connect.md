@@ -37,6 +37,9 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://rpc.evmos.chaintools.tech/`          | `Tendermint` `RPC`     | [ChainTools](https://chaintools.tech/)  |
 | `https://evmos.grpcui.chaintools.host`        | `Cosmos` `gRPC`        | [ChainTools](https://chaintools.tech/)  |
 | `https://api.evmos.chaintools.tech/`          | `Tendermint` `API`     | [ChainTools](https://chaintools.tech/)  |
+| `https://rpc.evmos.silknodes.io`              | `Tendermint` `RPC`     | [Silk Nodes](https://silknodes.io/)     |
+| `https://grpc.evmos.silknodes.io`             | `Cosmos` `gRPC`        | [Silk Nodes](https://silknodes.io/)     |
+| `https://api.evmos.silknodes.io`              | `Cosmos` `REST`        | [Silk Nodes](https://silknodes.io/)     |
 
 :::
 ::: tab Testnet
