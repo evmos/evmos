@@ -16,7 +16,7 @@ service Query {
     option (google.api.http).get = "/evmos/revenue/v1/revenues";
   }
 
-  // Revenue retrieves a registered fee split for a given contract address
+  // Revenue retrieves a registered revenue for a given contract address
   rpc Revenue(QueryRevenueRequest) returns (QueryRevenueResponse) {
     option (google.api.http).get = "/evmos/revenue/v1/revenues/{contract_address}";
   }
@@ -26,7 +26,7 @@ service Query {
     option (google.api.http).get = "/evmos/revenue/v1/params";
   }
 
-  // DeployerRevenues retrieves all fee splits that a given deployer has
+  // DeployerRevenues retrieves all revenues that a given deployer has
   // registered
   rpc DeployerRevenues(QueryDeployerRevenuesRequest)
       returns (QueryDeployerRevenuesResponse) {

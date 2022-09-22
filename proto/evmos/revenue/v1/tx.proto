@@ -12,7 +12,7 @@ service Msg {
   rpc RegisterRevenue(MsgRegisterRevenue) returns (MsgRegisterRevenueResponse) {
     option (google.api.http).post = "/evmos/revenue/v1/tx/register_revenue";
   };
-  // UpdateRevenue updates the withdrawer address of a fee split
+  // UpdateRevenue updates the withdrawer address of a revenue
   rpc UpdateRevenue(MsgUpdateRevenue) returns (MsgUpdateRevenueResponse) {
     option (google.api.http).post = "/evmos/revenue/v1/tx/update_revenue";
   };

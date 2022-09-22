@@ -83,7 +83,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		var registeredContract common.Address
 
 		BeforeAll(func() {
-			// fee split registered before disabling params
+			// revenue registered before disabling params
 			nonce := getNonce(deployerAddress.Bytes())
 			registeredContract = deployContract(deployerKey, contractCode)
 			res := registerFee(deployerKey, &registeredContract, nil, []uint64{nonce})
@@ -133,7 +133,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Expect(balance).To(Equal(preBalance))
 		})
 
-		It("should not allow fee split updates for previously registered contracts", func() {
+		It("should not allow revenue updates for previously registered contracts", func() {
 			withdrawerAddress := sdk.AccAddress(tests.GenerateAddress().Bytes())
 			msg := types.NewMsgUpdateRevenue(
 				registeredContract,
@@ -272,7 +272,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			})
 		})
 
-		Describe("Interacting with a registered fee split contract", func() {
+		Describe("Interacting with a registered revenue contract", func() {
 			var contractAddress common.Address
 			var nonce uint64
 
@@ -283,7 +283,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 			})
 
-			Context("with a 50/50 validators-developers fee split", func() {
+			Context("with a 50/50 validators-developers revenue", func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDecWithPrec(50, 2)
@@ -330,7 +330,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("with a 100/0 validators-developers fee split", func() {
+			Context("with a 100/0 validators-developers revenue", func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(0)
@@ -360,7 +360,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			Context("with a 0/100 validators-developers fee split", func() {
+			Context("with a 0/100 validators-developers revenue", func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
@@ -391,7 +391,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			})
 		})
 
-		Describe("Updating registered fee split", func() {
+		Describe("Updating registered revenue", func() {
 			Context("with a withdraw address that is different from the deployer address", Ordered, func() {
 				var withdrawerAddress sdk.AccAddress
 				var contractAddress common.Address
@@ -411,7 +411,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					Expect(fee.WithdrawerAddress).To(Equal(""))
 				})
 
-				It("should update fee split successfully", func() {
+				It("should update revenue successfully", func() {
 					msg := types.NewMsgUpdateRevenue(
 						contractAddress,
 						deployerAddress,
@@ -465,7 +465,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					Expect(fee.WithdrawerAddress).To(Equal(""))
 				})
 
-				It("should not update fee split", func() {
+				It("should not update revenue", func() {
 					msg := types.NewMsgUpdateRevenue(
 						contractAddress,
 						deployerAddress,
@@ -509,8 +509,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			})
 		})
 
-		Describe("Canceling a fee split registration", func() {
-			When("the registered fee split exists", Ordered, func() {
+		Describe("Canceling a revenue registration", func() {
+			When("the registered revenue exists", Ordered, func() {
 				var contractAddress common.Address
 				var nonce uint64
 
@@ -552,7 +552,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 			})
 
-			When("the fee split does not exist", func() {
+			When("the revenue does not exist", func() {
 				It("should not be possible", func() {
 					contractAddress := tests.GenerateAddress()
 					msg := types.NewMsgCancelRevenue(contractAddress, deployerAddress)

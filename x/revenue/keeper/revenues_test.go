@@ -17,11 +17,11 @@ func (suite *KeeperTestSuite) TestGetFees() {
 		malleate func()
 	}{
 		{
-			"no fee splits registered",
+			"no revenues registered",
 			func() { expRes = []types.Revenue{} },
 		},
 		{
-			"one fee split registered with withdraw address",
+			"one revenue registered with withdraw address",
 			func() {
 				feeSplit := types.NewRevenue(contract, deployer, withdraw)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
@@ -29,7 +29,7 @@ func (suite *KeeperTestSuite) TestGetFees() {
 			},
 		},
 		{
-			"one fee split registered with no withdraw address",
+			"one revenue registered with no withdraw address",
 			func() {
 				feeSplit := types.NewRevenue(contract, deployer, nil)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) TestGetFees() {
 			},
 		},
 		{
-			"multiple fee splits registered",
+			"multiple revenues registered",
 			func() {
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 				contract2 := tests.GenerateAddress()
@@ -71,11 +71,11 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 		malleate func()
 	}{
 		{
-			"no fee splits registered",
+			"no revenues registered",
 			func() { expRes = []types.Revenue{} },
 		},
 		{
-			"one fee split registered with withdraw address",
+			"one revenue registered with withdraw address",
 			func() {
 				feeSplit := types.NewRevenue(contract, deployer, withdraw)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
@@ -85,7 +85,7 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 			},
 		},
 		{
-			"one fee split registered with no withdraw address",
+			"one revenue registered with no withdraw address",
 			func() {
 				feeSplit := types.NewRevenue(contract, deployer, nil)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
@@ -95,7 +95,7 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 			},
 		},
 		{
-			"multiple fee splits registered",
+			"multiple revenues registered",
 			func() {
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 				contract2 := tests.GenerateAddress()
@@ -228,9 +228,9 @@ func (suite *KeeperTestSuite) TestDeleteRevenue() {
 		malleate func()
 		ok       bool
 	}{
-		{"existing fee split", func() {}, true},
+		{"existing revenue", func() {}, true},
 		{
-			"deleted fee split",
+			"deleted revenue",
 			func() {
 				suite.app.RevenueKeeper.DeleteRevenue(suite.ctx, feeSplit)
 			},
@@ -321,9 +321,9 @@ func (suite *KeeperTestSuite) TestIsRevenueRegistered() {
 		contract common.Address
 		ok       bool
 	}{
-		{"registered fee split", contract, true},
-		{"fee split not registered", common.Address{}, false},
-		{"fee split not registered", tests.GenerateAddress(), false},
+		{"registered revenue", contract, true},
+		{"revenue not registered", common.Address{}, false},
+		{"revenue not registered", tests.GenerateAddress(), false},
 	}
 	for _, tc := range testCases {
 		found := suite.app.RevenueKeeper.IsRevenueRegistered(suite.ctx, tc.contract)

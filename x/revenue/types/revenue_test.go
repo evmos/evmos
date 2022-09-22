@@ -34,7 +34,7 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 		expectPass bool
 	}{
 		{
-			"Create fee split- pass",
+			"Create revenue- pass",
 			tests.GenerateAddress(),
 			suite.address1,
 			suite.address2,
@@ -48,14 +48,14 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 			true,
 		},
 		{
-			"Create fee split- invalid contract address",
+			"Create revenue- invalid contract address",
 			common.Address{},
 			suite.address1,
 			suite.address2,
 			false,
 		},
 		{
-			"Create fee split- invalid deployer address",
+			"Create revenue- invalid deployer address",
 			tests.GenerateAddress(),
 			sdk.AccAddress{},
 			suite.address2,
@@ -82,7 +82,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		expectPass bool
 	}{
 		{
-			"Create fee split- pass",
+			"Create revenue- pass",
 			Revenue{
 				tests.GenerateAddress().String(),
 				suite.address1.String(),
@@ -91,7 +91,7 @@ func (suite *RevenueTestSuite) TestFee() {
 			true,
 		},
 		{
-			"Create fee split- invalid contract address (not hex)",
+			"Create revenue- invalid contract address (not hex)",
 			Revenue{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				suite.address1.String(),
@@ -100,7 +100,7 @@ func (suite *RevenueTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee split- invalid contract address (invalid length 1)",
+			"Create revenue- invalid contract address (invalid length 1)",
 			Revenue{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				suite.address1.String(),
@@ -109,7 +109,7 @@ func (suite *RevenueTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee split- invalid contract address (invalid length 2)",
+			"Create revenue- invalid contract address (invalid length 2)",
 			Revenue{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				suite.address1.String(),
@@ -118,7 +118,7 @@ func (suite *RevenueTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee split- invalid deployer address",
+			"Create revenue- invalid deployer address",
 			Revenue{
 				tests.GenerateAddress().String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
@@ -127,7 +127,7 @@ func (suite *RevenueTestSuite) TestFee() {
 			false,
 		},
 		{
-			"Create fee split- invalid withdraw address",
+			"Create revenue- invalid withdraw address",
 			Revenue{
 				tests.GenerateAddress().String(),
 				suite.address1.String(),

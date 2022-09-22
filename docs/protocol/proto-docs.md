@@ -2011,9 +2011,9 @@ Query defines the gRPC querier service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Revenues` | [QueryRevenuesRequest](#evmos.revenue.v1.QueryRevenuesRequest) | [QueryRevenuesResponse](#evmos.revenue.v1.QueryRevenuesResponse) | Revenues retrieves all registered fees plits | GET|/evmos/revenue/v1/revenues|
-| `Revenue` | [QueryRevenueRequest](#evmos.revenue.v1.QueryRevenueRequest) | [QueryRevenueResponse](#evmos.revenue.v1.QueryRevenueResponse) | Revenue retrieves a registered fee split for a given contract address | GET|/evmos/revenue/v1/revenues/{contract_address}|
+| `Revenue` | [QueryRevenueRequest](#evmos.revenue.v1.QueryRevenueRequest) | [QueryRevenueResponse](#evmos.revenue.v1.QueryRevenueResponse) | Revenue retrieves a registered revenue for a given contract address | GET|/evmos/revenue/v1/revenues/{contract_address}|
 | `Params` | [QueryParamsRequest](#evmos.revenue.v1.QueryParamsRequest) | [QueryParamsResponse](#evmos.revenue.v1.QueryParamsResponse) | Params retrieves the revenue module params | GET|/evmos/revenue/v1/params|
-| `DeployerRevenues` | [QueryDeployerRevenuesRequest](#evmos.revenue.v1.QueryDeployerRevenuesRequest) | [QueryDeployerRevenuesResponse](#evmos.revenue.v1.QueryDeployerRevenuesResponse) | DeployerRevenues retrieves all fee splits that a given deployer has registered | GET|/evmos/revenue/v1/revenues/{deployer_address}|
+| `DeployerRevenues` | [QueryDeployerRevenuesRequest](#evmos.revenue.v1.QueryDeployerRevenuesRequest) | [QueryDeployerRevenuesResponse](#evmos.revenue.v1.QueryDeployerRevenuesResponse) | DeployerRevenues retrieves all revenues that a given deployer has registered | GET|/evmos/revenue/v1/revenues/{deployer_address}|
 | `WithdrawerRevenues` | [QueryWithdrawerRevenuesRequest](#evmos.revenue.v1.QueryWithdrawerRevenuesRequest) | [QueryWithdrawerRevenuesResponse](#evmos.revenue.v1.QueryWithdrawerRevenuesResponse) | WithdrawerRevenues retrieves all fees plits with a given withdrawer address | GET|/evmos/revenue/v1/revenues/{withdrawer_address}|
 
  <!-- end services -->
@@ -2123,7 +2123,7 @@ Msg defines the fees Msg service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `RegisterRevenue` | [MsgRegisterRevenue](#evmos.revenue.v1.MsgRegisterRevenue) | [MsgRegisterRevenueResponse](#evmos.revenue.v1.MsgRegisterRevenueResponse) | RegisterRevenue registers a new contract for receiving transaction fees | POST|/evmos/revenue/v1/tx/register_revenue|
-| `UpdateRevenue` | [MsgUpdateRevenue](#evmos.revenue.v1.MsgUpdateRevenue) | [MsgUpdateRevenueResponse](#evmos.revenue.v1.MsgUpdateRevenueResponse) | UpdateRevenue updates the withdrawer address of a fee split | POST|/evmos/revenue/v1/tx/update_revenue|
+| `UpdateRevenue` | [MsgUpdateRevenue](#evmos.revenue.v1.MsgUpdateRevenue) | [MsgUpdateRevenueResponse](#evmos.revenue.v1.MsgUpdateRevenueResponse) | UpdateRevenue updates the withdrawer address of a revenue | POST|/evmos/revenue/v1/tx/update_revenue|
 | `CancelRevenue` | [MsgCancelRevenue](#evmos.revenue.v1.MsgCancelRevenue) | [MsgCancelRevenueResponse](#evmos.revenue.v1.MsgCancelRevenueResponse) | CancelRevenue cancels a contract's fee registration and further receival of transaction fees | POST|/evmos/revenue/v1/tx/cancel_revenue|
 
  <!-- end services -->

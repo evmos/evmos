@@ -77,7 +77,7 @@ func (k Keeper) RegisterRevenue(
 	for _, nonce := range msg.Nonces {
 		ctx.GasMeter().ConsumeGas(
 			params.AddrDerivationCostCreate,
-			"fee split registration: address derivation CREATE opcode",
+			"revenue registration: address derivation CREATE opcode",
 		)
 
 		derivedContract = crypto.CreateAddress(derivedContract, nonce)
@@ -97,7 +97,7 @@ func (k Keeper) RegisterRevenue(
 	k.SetDeployerMap(ctx, deployer, contract)
 
 	// The effective withdrawer is the withdraw address that is stored after the
-	// fee split registration is completed. It defaults to the deployer address if
+	// revenue registration is completed. It defaults to the deployer address if
 	// the withdraw address in the msg is omitted. When omitted, the withdraw map
 	// dosn't need to be set.
 	effectiveWithdrawer := msg.DeployerAddress
@@ -163,11 +163,11 @@ func (k Keeper) UpdateRevenue(
 		msg.WithdrawerAddress = ""
 	}
 
-	// fee split with the given withdraw address is already registered
+	// revenue with the given withdraw address is already registered
 	if msg.WithdrawerAddress == feeSplit.WithdrawerAddress {
 		return nil, sdkerrors.Wrapf(
 			types.ErrRevenueAlreadyRegistered,
-			"fee split with withdraw address %s", msg.WithdrawerAddress,
+			"revenue with withdraw address %s", msg.WithdrawerAddress,
 		)
 	}
 
@@ -184,7 +184,7 @@ func (k Keeper) UpdateRevenue(
 			contract,
 		)
 	}
-	// update fee split
+	// update revenue
 	feeSplit.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetRevenue(ctx, feeSplit)
 

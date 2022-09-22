@@ -39,7 +39,7 @@ func GetQueryCmd() *cobra.Command {
 func GetCmdQueryRevenues() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "contracts",
-		Short: "Query all fee splits",
+		Short: "Query all revenues",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
