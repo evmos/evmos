@@ -1108,7 +1108,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v82.UpgradeName,
 		v82.CreateUpgradeHandler(
 			app.mm, app.configurator,
-		),
+			app.RevenueKeeper),
 	)
 
 	// When a planned update height is reached, the old binary will panic
