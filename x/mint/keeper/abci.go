@@ -12,12 +12,25 @@ func (k Keeper) EndBlocker(ctx sdk.Context) {
 	params := k.GetParams(ctx)
 	blockTime := ctx.BlockTime().Unix()
 
+	// skip minting if it's before minting rewards distribution time
+	if blockTime < params.MintingRewardsDistributionStartTime {
+		return
+	}
+
 	// fetch stored minter & params
 	minter := k.GetMinter(ctx)
 
+	// if it's the first block after minting rewards distribution start time,
+	// skip minting and just set last mint time
+	if minter.LastMintTime == 0 {
+		minter.LastMintTime = ctx.BlockTime().Unix()
+		k.SetMinter(ctx, minter)
+		return
+	}
+
 	// reduce minting amount when reduction time come
 	if blockTime >= params.NextRewardsReductionTime {
-		minter.DailyProvisions = minter.DailyProvisions.Mul(sdk.OneDec().Sub(params.ReductionFactor))
+		minter.DailyProvisions = minter.DailyProvisions.Mul(params.ReductionFactor)
 		k.SetMinter(ctx, minter)
 		k.SetNextReductionTime(ctx, blockTime+params.ReductionPeriodInSeconds)
 	}
