@@ -1178,7 +1178,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// NOTE: store upgrade for mainnet was not registered and was replaced by
 		// the v8.2 upgrade.
 	case v82.UpgradeName:
-		// add feesplit module for mainnet (v7 -> v8.1)
+		// add  missing feesplit module for mainnet (v8.1 -> v8.2)
 		// IMPORTANT: this upgrade CANNOT be executed for testnet!
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{feesplittypes.ModuleName},
