@@ -206,14 +206,14 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res, tc.name)
 
-				feeSplit, ok := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
-				suite.Require().True(ok, "unregistered feeSplit")
-				suite.Require().Equal(tc.contract.String(), feeSplit.ContractAddress, "wrong contract")
-				suite.Require().Equal(tc.deployer.String(), feeSplit.DeployerAddress, "wrong deployer")
+				revenue, ok := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
+				suite.Require().True(ok, "unregistered revenue")
+				suite.Require().Equal(tc.contract.String(), revenue.ContractAddress, "wrong contract")
+				suite.Require().Equal(tc.deployer.String(), revenue.DeployerAddress, "wrong deployer")
 				if tc.withdraw.String() != tc.deployer.String() {
-					suite.Require().Equal(tc.withdraw.String(), feeSplit.WithdrawerAddress, "wrong withdraw address")
+					suite.Require().Equal(tc.withdraw.String(), revenue.WithdrawerAddress, "wrong withdraw address")
 				} else {
-					suite.Require().Equal("", feeSplit.WithdrawerAddress, "wrong withdraw address")
+					suite.Require().Equal("", revenue.WithdrawerAddress, "wrong withdraw address")
 				}
 			} else {
 				suite.Require().Error(err, tc.name)
@@ -433,19 +433,19 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res, tc.name)
 
-				feeSplit, ok := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
-				suite.Require().True(ok, "unregistered feeSplit")
-				suite.Require().Equal(tc.contract.String(), feeSplit.ContractAddress, "wrong contract")
-				suite.Require().Equal(tc.deployer.String(), feeSplit.DeployerAddress, "wrong deployer")
+				revenue, ok := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
+				suite.Require().True(ok, "unregistered revenue")
+				suite.Require().Equal(tc.contract.String(), revenue.ContractAddress, "wrong contract")
+				suite.Require().Equal(tc.deployer.String(), revenue.DeployerAddress, "wrong deployer")
 
 				found := suite.app.RevenueKeeper.IsWithdrawerMapSet(suite.ctx, tc.withdraw, tc.contract)
 				suite.Require().False(found)
 				if tc.newWithdrawer.String() != tc.deployer.String() {
-					suite.Require().Equal(tc.newWithdrawer.String(), feeSplit.WithdrawerAddress, "wrong withdraw address")
+					suite.Require().Equal(tc.newWithdrawer.String(), revenue.WithdrawerAddress, "wrong withdraw address")
 					found := suite.app.RevenueKeeper.IsWithdrawerMapSet(suite.ctx, tc.newWithdrawer, tc.contract)
 					suite.Require().True(found)
 				} else {
-					suite.Require().Equal("", feeSplit.WithdrawerAddress, "wrong withdraw address")
+					suite.Require().Equal("", revenue.WithdrawerAddress, "wrong withdraw address")
 					found := suite.app.RevenueKeeper.IsWithdrawerMapSet(suite.ctx, tc.newWithdrawer, tc.contract)
 					suite.Require().False(found)
 				}
@@ -619,7 +619,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 				suite.Require().Equal(expRes, res, tc.name)
 
 				_, ok := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
-				suite.Require().False(ok, "registered feeSplit")
+				suite.Require().False(ok, "registered revenue")
 
 				found := suite.app.RevenueKeeper.IsWithdrawerMapSet(suite.ctx, withdrawer, tc.contract)
 				suite.Require().False(found)

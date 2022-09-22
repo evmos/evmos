@@ -92,8 +92,8 @@ func (k Keeper) RegisterRevenue(
 	}
 
 	// prevent storing the same address for deployer and withdrawer
-	feeSplit := types.NewRevenue(contract, deployer, withdrawer)
-	k.SetRevenue(ctx, feeSplit)
+	revenue := types.NewRevenue(contract, deployer, withdrawer)
+	k.SetRevenue(ctx, revenue)
 	k.SetDeployerMap(ctx, deployer, contract)
 
 	// The effective withdrawer is the withdraw address that is stored after the
@@ -142,7 +142,7 @@ func (k Keeper) UpdateRevenue(
 	}
 
 	contract := common.HexToAddress(msg.ContractAddress)
-	feeSplit, found := k.GetRevenue(ctx, contract)
+	revenue, found := k.GetRevenue(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
 			types.ErrRevenueContractNotRegistered,
@@ -151,7 +151,7 @@ func (k Keeper) UpdateRevenue(
 	}
 
 	// error if the msg deployer address is not the same as the fee's deployer
-	if msg.DeployerAddress != feeSplit.DeployerAddress {
+	if msg.DeployerAddress != revenue.DeployerAddress {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrUnauthorized,
 			"%s is not the contract deployer", msg.DeployerAddress,
@@ -159,12 +159,12 @@ func (k Keeper) UpdateRevenue(
 	}
 
 	// check if updating revenue to default withdrawer
-	if msg.WithdrawerAddress == feeSplit.DeployerAddress {
+	if msg.WithdrawerAddress == revenue.DeployerAddress {
 		msg.WithdrawerAddress = ""
 	}
 
 	// revenue with the given withdraw address is already registered
-	if msg.WithdrawerAddress == feeSplit.WithdrawerAddress {
+	if msg.WithdrawerAddress == revenue.WithdrawerAddress {
 		return nil, sdkerrors.Wrapf(
 			types.ErrRevenueAlreadyRegistered,
 			"revenue with withdraw address %s", msg.WithdrawerAddress,
@@ -172,8 +172,8 @@ func (k Keeper) UpdateRevenue(
 	}
 
 	// only delete withdrawer map if is not default
-	if feeSplit.WithdrawerAddress != "" {
-		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(feeSplit.WithdrawerAddress), contract)
+	if revenue.WithdrawerAddress != "" {
+		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(revenue.WithdrawerAddress), contract)
 	}
 
 	// only add withdrawer map if new entry is not default
@@ -185,8 +185,8 @@ func (k Keeper) UpdateRevenue(
 		)
 	}
 	// update revenue
-	feeSplit.WithdrawerAddress = msg.WithdrawerAddress
-	k.SetRevenue(ctx, feeSplit)
+	revenue.WithdrawerAddress = msg.WithdrawerAddress
+	k.SetRevenue(ctx, revenue)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

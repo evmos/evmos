@@ -17,10 +17,10 @@ func (k Keeper) GetRevenues(ctx sdk.Context) []types.Revenue {
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var feeSplit types.Revenue
-		k.cdc.MustUnmarshal(iterator.Value(), &feeSplit)
+		var revenue types.Revenue
+		k.cdc.MustUnmarshal(iterator.Value(), &revenue)
 
-		revenues = append(revenues, feeSplit)
+		revenues = append(revenues, revenue)
 	}
 
 	return revenues
@@ -37,10 +37,10 @@ func (k Keeper) IterateRevenues(
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var feeSplit types.Revenue
-		k.cdc.MustUnmarshal(iterator.Value(), &feeSplit)
+		var revenue types.Revenue
+		k.cdc.MustUnmarshal(iterator.Value(), &revenue)
 
-		if handlerFn(feeSplit) {
+		if handlerFn(revenue) {
 			break
 		}
 	}
@@ -57,16 +57,16 @@ func (k Keeper) GetRevenue(
 		return types.Revenue{}, false
 	}
 
-	var feeSplit types.Revenue
-	k.cdc.MustUnmarshal(bz, &feeSplit)
-	return feeSplit, true
+	var revenue types.Revenue
+	k.cdc.MustUnmarshal(bz, &revenue)
+	return revenue, true
 }
 
 // SetRevenue stores the Revenue for a registered contract.
-func (k Keeper) SetRevenue(ctx sdk.Context, feeSplit types.Revenue) {
+func (k Keeper) SetRevenue(ctx sdk.Context, revenue types.Revenue) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
-	key := feeSplit.GetContractAddr()
-	bz := k.cdc.MustMarshal(&feeSplit)
+	key := revenue.GetContractAddr()
+	bz := k.cdc.MustMarshal(&revenue)
 	store.Set(key.Bytes(), bz)
 }
 

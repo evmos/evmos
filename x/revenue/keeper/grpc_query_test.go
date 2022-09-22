@@ -35,8 +35,8 @@ func (suite *KeeperTestSuite) TestRevenues() {
 				req = &types.QueryRevenuesRequest{
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
 				}
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 
 				expRes = &types.QueryRevenuesResponse{
 					Pagination: &query.PageResponse{Total: 1},
@@ -56,9 +56,9 @@ func (suite *KeeperTestSuite) TestRevenues() {
 			func() {
 				req = &types.QueryRevenuesRequest{}
 				contract2 := tests.GenerateAddress()
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit2)
 
 				expRes = &types.QueryRevenuesResponse{
@@ -149,8 +149,8 @@ func (suite *KeeperTestSuite) TestFee() {
 		{
 			"fee info found",
 			func() {
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 
 				req = &types.QueryRevenueRequest{
 					ContractAddress: contract.Hex(),
@@ -219,8 +219,8 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 					DeployerAddress: deployer.String(),
 				}
 
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetDeployerMap(suite.ctx, deployer, contract)
 				suite.app.RevenueKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
@@ -240,8 +240,8 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 					DeployerAddress: deployer.String(),
 				}
 				contract2 := tests.GenerateAddress()
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetDeployerMap(suite.ctx, deployer, contract)
 				suite.app.RevenueKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
@@ -325,8 +325,8 @@ func (suite *KeeperTestSuite) TestWithdrawerRevenues() {
 					WithdrawerAddress: withdraw.String(),
 				}
 
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetDeployerMap(suite.ctx, deployer, contract)
 				suite.app.RevenueKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 
@@ -348,8 +348,8 @@ func (suite *KeeperTestSuite) TestWithdrawerRevenues() {
 				contract2 := tests.GenerateAddress()
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetDeployerMap(suite.ctx, deployer, contract)
 				suite.app.RevenueKeeper.SetWithdrawerMap(suite.ctx, withdraw, contract)
 

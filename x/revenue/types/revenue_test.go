@@ -78,7 +78,7 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 func (suite *RevenueTestSuite) TestFee() {
 	testCases := []struct {
 		msg        string
-		feeSplit   Revenue
+		revenue    Revenue
 		expectPass bool
 	}{
 		{
@@ -138,7 +138,7 @@ func (suite *RevenueTestSuite) TestFee() {
 	}
 
 	for _, tc := range testCases {
-		err := tc.feeSplit.Validate()
+		err := tc.revenue.Validate()
 
 		if tc.expectPass {
 			suite.Require().NoError(err, tc.msg)

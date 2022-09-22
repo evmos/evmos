@@ -53,14 +53,14 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	// if the contract is not registered to receive fees, do nothing
-	feeSplit, found := k.GetRevenue(ctx, *contract)
+	revenue, found := k.GetRevenue(ctx, *contract)
 	if !found {
 		return nil
 	}
 
-	withdrawer := feeSplit.GetWithdrawerAddr()
+	withdrawer := revenue.GetWithdrawerAddr()
 	if len(withdrawer) == 0 {
-		withdrawer = feeSplit.GetDeployerAddr()
+		withdrawer = revenue.GetDeployerAddr()
 	}
 
 	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
@@ -91,7 +91,7 @@ func (k Keeper) PostTxProcessing(
 				[]metrics.Label{
 					telemetry.NewLabel("sender", msg.From().String()),
 					telemetry.NewLabel("withdraw_address", withdrawer.String()),
-					telemetry.NewLabel("contract", feeSplit.ContractAddress),
+					telemetry.NewLabel("contract", revenue.ContractAddress),
 				},
 			)
 		}

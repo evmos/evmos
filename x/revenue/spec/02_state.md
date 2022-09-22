@@ -10,7 +10,7 @@ The `x/revenue` module keeps the following objects in state:
 
 | State Object          | Description                           | Key                                                               | Value              | Store |
 | :-------------------- | :------------------------------------ | :---------------------------------------------------------------- | :----------------- | :---- |
-| `Revenue`            | Fee split bytecode                     | `[]byte{1} + []byte(contract_address)`                            | `[]byte{feeSplit}` | KV    |
+| `Revenue`            | Fee split bytecode                     | `[]byte{1} + []byte(contract_address)`                            | `[]byte{revenue}` | KV    |
 | `DeployerRevenues`   | Contract by deployer address bytecode | `[]byte{2} + []byte(deployer_address) + []byte(contract_address)` | `[]byte{1}`        | KV    |
 | `WithdrawerRevenues` | Contract by withdraw address bytecode | `[]byte{3} + []byte(withdraw_address) + []byte(contract_address)` | `[]byte{1}`        | KV    |
 

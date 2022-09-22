@@ -23,17 +23,17 @@ func (suite *KeeperTestSuite) TestGetFees() {
 		{
 			"one revenue registered with withdraw address",
 			func() {
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
-				expRes = []types.Revenue{feeSplit}
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
+				expRes = []types.Revenue{revenue}
 			},
 		},
 		{
 			"one revenue registered with no withdraw address",
 			func() {
-				feeSplit := types.NewRevenue(contract, deployer, nil)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
-				expRes = []types.Revenue{feeSplit}
+				revenue := types.NewRevenue(contract, deployer, nil)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
+				expRes = []types.Revenue{revenue}
 			},
 		},
 		{
@@ -42,13 +42,13 @@ func (suite *KeeperTestSuite) TestGetFees() {
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 				contract2 := tests.GenerateAddress()
 				contract3 := tests.GenerateAddress()
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				feeSplit3 := types.NewRevenue(contract3, deployer2, nil)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit2)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit3)
-				expRes = []types.Revenue{feeSplit, feeSplit2, feeSplit3}
+				expRes = []types.Revenue{revenue, feeSplit2, feeSplit3}
 			},
 		},
 	}
@@ -77,8 +77,8 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 		{
 			"one revenue registered with withdraw address",
 			func() {
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				expRes = []types.Revenue{
 					types.NewRevenue(contract, deployer, withdraw),
 				}
@@ -87,8 +87,8 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 		{
 			"one revenue registered with no withdraw address",
 			func() {
-				feeSplit := types.NewRevenue(contract, deployer, nil)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				revenue := types.NewRevenue(contract, deployer, nil)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				expRes = []types.Revenue{
 					types.NewRevenue(contract, deployer, nil),
 				}
@@ -100,13 +100,13 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 				contract2 := tests.GenerateAddress()
 				contract3 := tests.GenerateAddress()
-				feeSplit := types.NewRevenue(contract, deployer, withdraw)
+				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				feeSplit3 := types.NewRevenue(contract3, deployer2, nil)
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit2)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit3)
-				expRes = []types.Revenue{feeSplit, feeSplit2, feeSplit3}
+				expRes = []types.Revenue{revenue, feeSplit2, feeSplit3}
 			},
 		},
 	}
@@ -115,8 +115,8 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 			suite.SetupTest() // reset
 			tc.malleate()
 
-			suite.app.RevenueKeeper.IterateRevenues(suite.ctx, func(feeSplit types.Revenue) (stop bool) {
-				suite.Require().Contains(expRes, feeSplit, tc.name)
+			suite.app.RevenueKeeper.IterateRevenues(suite.ctx, func(revenue types.Revenue) (stop bool) {
+				suite.Require().Contains(expRes, revenue, tc.name)
 				return false
 			})
 		})
@@ -178,12 +178,12 @@ func (suite *KeeperTestSuite) TestGetRevenue() {
 			suite.SetupTest() // reset
 
 			if tc.found {
-				feeSplit := types.NewRevenue(tc.contract, tc.deployer, tc.withdraw)
+				revenue := types.NewRevenue(tc.contract, tc.deployer, tc.withdraw)
 				if tc.deployer.Equals(tc.withdraw) {
-					feeSplit.WithdrawerAddress = ""
+					revenue.WithdrawerAddress = ""
 				}
 
-				suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetDeployerMap(suite.ctx, tc.deployer, tc.contract)
 			}
 
@@ -191,22 +191,22 @@ func (suite *KeeperTestSuite) TestGetRevenue() {
 				suite.app.RevenueKeeper.SetWithdrawerMap(suite.ctx, tc.withdraw, tc.contract)
 			}
 
-			feeSplit, found := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
+			revenue, found := suite.app.RevenueKeeper.GetRevenue(suite.ctx, tc.contract)
 			foundD := suite.app.RevenueKeeper.IsDeployerMapSet(suite.ctx, tc.deployer, tc.contract)
 			foundW := suite.app.RevenueKeeper.IsWithdrawerMapSet(suite.ctx, tc.withdraw, tc.contract)
 
 			if tc.found {
 				suite.Require().True(found, tc.name)
-				suite.Require().Equal(tc.deployer.String(), feeSplit.DeployerAddress, tc.name)
-				suite.Require().Equal(tc.contract.Hex(), feeSplit.ContractAddress, tc.name)
+				suite.Require().Equal(tc.deployer.String(), revenue.DeployerAddress, tc.name)
+				suite.Require().Equal(tc.contract.Hex(), revenue.ContractAddress, tc.name)
 
 				suite.Require().True(foundD, tc.name)
 
 				if tc.expWithdraw {
-					suite.Require().Equal(tc.withdraw.String(), feeSplit.WithdrawerAddress, tc.name)
+					suite.Require().Equal(tc.withdraw.String(), revenue.WithdrawerAddress, tc.name)
 					suite.Require().True(foundW, tc.name)
 				} else {
-					suite.Require().Equal("", feeSplit.WithdrawerAddress, tc.name)
+					suite.Require().Equal("", revenue.WithdrawerAddress, tc.name)
 					suite.Require().False(foundW, tc.name)
 				}
 			} else {
@@ -217,8 +217,8 @@ func (suite *KeeperTestSuite) TestGetRevenue() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteRevenue() {
-	feeSplit := types.NewRevenue(contract, deployer, withdraw)
-	suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+	revenue := types.NewRevenue(contract, deployer, withdraw)
+	suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 
 	initialFee, found := suite.app.RevenueKeeper.GetRevenue(suite.ctx, contract)
 	suite.Require().True(found)
@@ -232,20 +232,20 @@ func (suite *KeeperTestSuite) TestDeleteRevenue() {
 		{
 			"deleted revenue",
 			func() {
-				suite.app.RevenueKeeper.DeleteRevenue(suite.ctx, feeSplit)
+				suite.app.RevenueKeeper.DeleteRevenue(suite.ctx, revenue)
 			},
 			false,
 		},
 	}
 	for _, tc := range testCases {
 		tc.malleate()
-		feeSplit, found := suite.app.RevenueKeeper.GetRevenue(suite.ctx, contract)
+		revenue, found := suite.app.RevenueKeeper.GetRevenue(suite.ctx, contract)
 		if tc.ok {
 			suite.Require().True(found, tc.name)
-			suite.Require().Equal(initialFee, feeSplit, tc.name)
+			suite.Require().Equal(initialFee, revenue, tc.name)
 		} else {
 			suite.Require().False(found, tc.name)
-			suite.Require().Equal(types.Revenue{}, feeSplit, tc.name)
+			suite.Require().Equal(types.Revenue{}, revenue, tc.name)
 		}
 	}
 }
@@ -311,8 +311,8 @@ func (suite *KeeperTestSuite) TestDeleteWithdrawMap() {
 }
 
 func (suite *KeeperTestSuite) TestIsRevenueRegistered() {
-	feeSplit := types.NewRevenue(contract, deployer, withdraw)
-	suite.app.RevenueKeeper.SetRevenue(suite.ctx, feeSplit)
+	revenue := types.NewRevenue(contract, deployer, withdraw)
+	suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 	_, found := suite.app.RevenueKeeper.GetRevenue(suite.ctx, contract)
 	suite.Require().True(found)
 

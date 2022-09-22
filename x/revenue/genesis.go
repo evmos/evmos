@@ -15,13 +15,13 @@ func InitGenesis(
 ) {
 	k.SetParams(ctx, data.Params)
 
-	for _, feeSplit := range data.Revenues {
-		contract := feeSplit.GetContractAddr()
-		deployer := feeSplit.GetDeployerAddr()
-		withdrawer := feeSplit.GetWithdrawerAddr()
+	for _, revenue := range data.Revenues {
+		contract := revenue.GetContractAddr()
+		deployer := revenue.GetDeployerAddr()
+		withdrawer := revenue.GetWithdrawerAddr()
 
 		// Set initial contracts receiving transaction fees
-		k.SetRevenue(ctx, feeSplit)
+		k.SetRevenue(ctx, revenue)
 		k.SetDeployerMap(ctx, deployer, contract)
 
 		if len(withdrawer) != 0 {

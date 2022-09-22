@@ -76,7 +76,7 @@ func (k Keeper) Revenue(
 		)
 	}
 
-	feeSplit, found := k.GetRevenue(ctx, common.HexToAddress(req.ContractAddress))
+	revenue, found := k.GetRevenue(ctx, common.HexToAddress(req.ContractAddress))
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
@@ -85,7 +85,7 @@ func (k Keeper) Revenue(
 		)
 	}
 
-	return &types.QueryRevenueResponse{Revenue: feeSplit}, nil
+	return &types.QueryRevenueResponse{Revenue: revenue}, nil
 }
 
 // Params returns the fees module params
