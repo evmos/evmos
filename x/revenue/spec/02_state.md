@@ -53,7 +53,7 @@ type GenesisState struct {
 	// module parameters
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// active registered contracts for fee distribution
-	Revenues []Revenue `protobuf:"bytes,2,rep,name=revenues,json=feeSplits,proto3" json:"revenues"`
+	Revenues []Revenue `protobuf:"bytes,2,rep,name=revenues,json=revenues,proto3" json:"revenues"`
 }
 
 ```

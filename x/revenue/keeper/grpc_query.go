@@ -29,7 +29,7 @@ func (k Keeper) Revenues(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var feeSplits []types.Revenue
+	var revenues []types.Revenue
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
@@ -37,14 +37,14 @@ func (k Keeper) Revenues(
 		if err := k.cdc.Unmarshal(value, &fee); err != nil {
 			return err
 		}
-		feeSplits = append(feeSplits, fee)
+		revenues = append(revenues, fee)
 		return nil
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &types.QueryRevenuesResponse{
-		Revenues:   feeSplits,
+		Revenues:   revenues,
 		Pagination: pageRes,
 	}, nil
 }

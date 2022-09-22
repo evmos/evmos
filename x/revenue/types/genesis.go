@@ -3,10 +3,10 @@ package types
 import "fmt"
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(params Params, feeSplits []Revenue) GenesisState {
+func NewGenesisState(params Params, revenues []Revenue) GenesisState {
 	return GenesisState{
 		Params:   params,
-		Revenues: feeSplits,
+		Revenues: revenues,
 	}
 }
 

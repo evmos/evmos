@@ -10,7 +10,7 @@ import (
 
 // GetRevenues returns all registered Revenues.
 func (k Keeper) GetRevenues(ctx sdk.Context) []types.Revenue {
-	feeSplits := []types.Revenue{}
+	revenues := []types.Revenue{}
 
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
@@ -20,10 +20,10 @@ func (k Keeper) GetRevenues(ctx sdk.Context) []types.Revenue {
 		var feeSplit types.Revenue
 		k.cdc.MustUnmarshal(iterator.Value(), &feeSplit)
 
-		feeSplits = append(feeSplits, feeSplit)
+		revenues = append(revenues, feeSplit)
 	}
 
-	return feeSplits
+	return revenues
 }
 
 // IterateRevenues iterates over all registered contracts and performs a
