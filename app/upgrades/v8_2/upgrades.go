@@ -6,7 +6,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v8.1
+// CreateUpgradeHandler creates an SDK upgrade handler for v8.2
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
