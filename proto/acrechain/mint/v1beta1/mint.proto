@@ -51,4 +51,6 @@ message Params {
   DistributionProportions distribution_proportions = 5 [ (gogoproto.nullable) = false ];
   // next block to reduce minting rewards
   int64 next_rewards_reduction_time = 6;
+  // the time to start providing minter rewards
+  int64 minting_rewards_distribution_start_time = 7;
 }
