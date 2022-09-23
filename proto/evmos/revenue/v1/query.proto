@@ -1,0 +1,109 @@
+syntax = "proto3";
+package evmos.revenue.v1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "evmos/revenue/v1/genesis.proto";
+import "evmos/revenue/v1/revenue.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v8/x/revenue/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Revenues retrieves all registered revenues
+  rpc Revenues(QueryRevenuesRequest) returns (QueryRevenuesResponse) {
+    option (google.api.http).get = "/evmos/revenue/v1/revenues";
+  }
+
+  // Revenue retrieves a registered revenue for a given contract address
+  rpc Revenue(QueryRevenueRequest) returns (QueryRevenueResponse) {
+    option (google.api.http).get = "/evmos/revenue/v1/revenues/{contract_address}";
+  }
+
+  // Params retrieves the revenue module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/evmos/revenue/v1/params";
+  }
+
+  // DeployerRevenues retrieves all revenues that a given deployer has
+  // registered
+  rpc DeployerRevenues(QueryDeployerRevenuesRequest)
+      returns (QueryDeployerRevenuesResponse) {
+    option (google.api.http).get = "/evmos/revenue/v1/revenues/{deployer_address}";
+  }
+
+  // WithdrawerRevenues retrieves all revenues with a given withdrawer
+  // address
+  rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest)
+      returns (QueryWithdrawerRevenuesResponse) {
+    option (google.api.http).get = "/evmos/revenue/v1/revenues/{withdrawer_address}";
+  }
+}
+
+// QueryRevenuesRequest is the request type for the Query/Revenues RPC method.
+message QueryRevenuesRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryRevenuesResponse is the response type for the Query/Revenues RPC method.
+message QueryRevenuesResponse {
+  repeated Revenue revenues = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryRevenueRequest is the request type for the Query/Revenue RPC method.
+message QueryRevenueRequest {
+  // contract identifier is the hex contract address of a contract
+  string contract_address = 1;
+}
+
+// QueryRevenueResponse is the response type for the Query/Revenue RPC method.
+message QueryRevenueResponse {
+  Revenue revenue = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryDeployerRevenuesRequest is the request type for the
+// Query/DeployerRevenues RPC method.
+message QueryDeployerRevenuesRequest {
+  // deployer bech32 address
+  string deployer_address = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryDeployerRevenuesResponse is the response type for the
+// Query/DeployerRevenues RPC method.
+message QueryDeployerRevenuesResponse {
+  repeated string contract_addresses = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+
+// QueryWithdrawerRevenuesRequest is the request type for the
+// Query/WithdrawerRevenues RPC method.
+message QueryWithdrawerRevenuesRequest {
+  // withdrawer bech32 address
+  string withdrawer_address = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryWithdrawerRevenuesResponse is the response type for the
+// Query/WithdrawerRevenues RPC method.
+message QueryWithdrawerRevenuesResponse {
+  repeated string contract_addresses = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
