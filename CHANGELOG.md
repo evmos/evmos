@@ -35,13 +35,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v8.2.0] - 2022-09-22
+## [v8.2.0] - 2022-09-23
 
 ### State Machine Breaking
 
 - (app) [\#918](https://github.com/evmos/evmos/pull/918) Fix unregistered `revenue` module for `v8.1.0` store upgrade
 
-## [v8.1.1] - 2022-09-22
+### Bug Fixes
+
+- (app,docs) [\#933](https://github.com/evmos/evmos/pull/933) Replace invalid linux `x86_64` [architecture](https://go.dev/doc/install/source#environment) to `amd64`.
+
+## [v8.1.1] - 2022-09-23
 
 ### Bug Fixes
 
