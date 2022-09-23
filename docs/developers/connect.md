@@ -27,9 +27,11 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://eth.bd.evmos.org:8545`               | `Ethereum` `JSON-RPC`  | [Blockdaemon](https://blockdaemon.com/) |
 | `wss://eth.bd.evmos.org:8546`                 | `Ethereum` `Websocket` | [Blockdaemon](https://blockdaemon.com/) |
 | `https://evmos-json-rpc.stakely.io`           | `Ethereum` `JSON-RPC`  | [Stakely](https://stakely.io/)          |
-| `https://jsonrpc-evmos-ia.notional.ventures/` | `Ethereum` `JSON-RPC`  | [Notional](https://notional.finance/)   |
 | `https://evmos-json-rpc.stakely.io`           | `Ethereum` `JSON-RPC`  | [Stakely](https://stakely.io)           |
-| `https://rpc-evmos-ia.notional.ventures:443`  | `Tendermint` `RPC`     | [Notional](https://notional.finance/)   |
+| `https://jsonrpc-evmos-ia.cosmosia.notional.ventures/` | `Ethereum` `JSON-RPC`  | [Notional](https://notional.ventures/)  |
+| `https://rpc-evmos-ia.cosmosia.notional.ventures:443`  | `Tendermint` `RPC`     | [Notional](https://notional.ventures/)  |
+| `https://grpc-evmos-ia.cosmosia.notional.ventures:443` | `Tendermint` `gRPC`    | [Notional](https://notional.ventures/)  |
+| `https://api-evmos-ia.cosmosia.notional.ventures:443`  | `Tendermint` `RPC`     | [Notional](https://notional.ventures/)  |
 | `https://rpc.evmos.nodestake.top`             | `Tendermint` `RPC`     | [NodeStake](https://nodestake.top/)     |
 | `https://grpc.evmos.nodestake.top`            | `Cosmos` `gRPC`        | [NodeStake](https://nodestake.top/)     |
 | `https://api.evmos.nodestake.top`             | `Cosmos` `REST`        | [NodeStake](https://nodestake.top/)     |
