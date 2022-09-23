@@ -57,7 +57,6 @@ Remember to provide links to the relevant [Commonwealth Evmos community](https:/
 
 All chain registry information can be found [here](https://github.com/evmos/chain-token-registry). The [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) is used to pull in the list of RPC, gRPC, and REST endpoints to power the Evmos Dashboard. To add chain registry information, please submit a pull request with the network details. Pull requests should be merged one business day after governance passes.
 
-
 ## Submitting the Cosmos Coin Proposal
 
 After the drafting process, the Cosmos Coin Proposal can be submitted.
