@@ -43,7 +43,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-- (app,docs) [\#933](https://github.com/evmos/evmos/pull/933) Replace invalid linux `x64_64` [architecture](https://go.dev/doc/install/source#environment) to `amd64`.
+- (app,docs) [\#933](https://github.com/evmos/evmos/pull/933) Replace invalid linux `x86_64` [architecture](https://go.dev/doc/install/source#environment) to `amd64`.
 
 ## [v8.1.1] - 2022-09-23
 
