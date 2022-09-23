@@ -15,7 +15,7 @@ func CreateUpgradeHandler(
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		// feesplit module is deprecated since it is renamed to "revenue" module
-		logger.Debug("deleting feesplit module from verison map...")
+		logger.Debug("deleting feesplit module from version map...")
 		delete(vm, "feesplit")
 
 		// Refs:
