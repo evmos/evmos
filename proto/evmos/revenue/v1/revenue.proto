@@ -1,0 +1,16 @@
+syntax = "proto3";
+package evmos.revenue.v1;
+
+option go_package = "github.com/evmos/evmos/v8/x/revenue/types";
+
+// Revenue defines an instance that organizes fee distribution conditions for
+// the owner of a given smart contract
+message Revenue {
+  // hex address of registered contract
+  string contract_address = 1;
+  // bech32 address of contract deployer
+  string deployer_address = 2;
+  // bech32 address of account receiving the transaction fees it defaults to
+  // deployer_address
+  string withdrawer_address = 3;
+}
