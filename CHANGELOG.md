@@ -41,7 +41,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 
-
 ## [v8.2.0] - 2022-09-23
 
 ### State Machine Breaking
