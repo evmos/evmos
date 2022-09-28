@@ -25,12 +25,12 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register a Cosmos Coin, consider the following stages:
 
- - [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
- - [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
- - [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
+- [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
+- [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
+- [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
     - [Formatting the Proposal's Text](#formatting-the-proposals-text)
     - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
- - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+- [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
     - [The Deposit Period](#the-deposit-period)
     - [The Voting Period](#the-voting-period)
 
@@ -54,7 +54,7 @@ Remember to provide links to the relevant [Commonwealth Evmos community](https:/
 
 ## Adding Network to Evmos Chain Registry
 
-All chain registry information can be found [here](https://github.com/evmos/chain-token-registry). The [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) is used to pull in the list of RPC, gRPC, and REST endpoints to power the Evmos Dashboard. To add chain registry information, please submit a pull request with the network details. Pull requests should be merged one business day after governance passes. This PR is required before token can show up on the Dashboard Assets Page.
+All chain registry information can be found [here](https://github.com/evmos/chain-token-registry). The [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) is used to pull in the list of RPC, gRPC, and REST endpoints to power the Evmos Dashboard. To add chain registry information, please submit a pull request with the network details. Pull requests should be merged one business day after governance passes.
 
 ## Submitting the Cosmos Coin Proposal
 
