@@ -102,7 +102,7 @@ Users can query the proposal details with the `evmosd` command-line interface us
 ```json
 {
   "title": "Grant proposal for Flux Protocol an oracle solution live on Evmos",
-  "description": "proposal: https://gateway.pinata.cloud/ipfs/QmfZknL4KRHvJ6XUDwtyRKANVs44FFmjGuM8YbArqqfWwF discussion: https://commonwealth.im/evmos/discussion/4915-evmos-grant-flux-oracle-solution"
+  "description": "proposal: https://gateway.pinata.cloud/ipfs/QmfZknL4KRHvJ6XUDwtyRKANVs44FFmjGuM8YbArqqfWwF discussion: https://commonwealth.im/evmos/discussion/4915-evmos-grant-flux-oracle-solution",
   "recipient": "evmos15dxa2e3lc8zvmryv62x3stt86yhplu2vs9kxct",
   "amount": [
     {

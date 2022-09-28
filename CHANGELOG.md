@@ -37,27 +37,39 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-### State Machine Breaking
-
-- (app) [\#918](https://github.com/evmos/evmos/pull/918) Fix unregistered `feesplit` module for `v8.1.0` store upgrade
-
 ### Improvements
 
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
+
+## [v8.2.0] - 2022-09-23
+
+### State Machine Breaking
+
+- (app) [\#918](https://github.com/evmos/evmos/pull/918) Fix unregistered `revenue` module for `v8.1.0` store upgrade
+
+### Bug Fixes
+
+- (app,docs) [\#933](https://github.com/evmos/evmos/pull/933) Replace invalid linux `x86_64` [architecture](https://go.dev/doc/install/source#environment) to `amd64`.
+
+## [v8.1.1] - 2022-09-23
+
+### Bug Fixes
+
+- (app) [\#922](https://github.com/evmos/evmos/pull/922) Add hard fork logic for `v8.2.0`
 
 ## [v8.1.0] - 2022-08-30
 
 ### State Machine Breaking
 
-- (feesplit)[\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/feesplit` module to support EIP-712 signatures.
+- (revenue) [\#859](https://github.com/evmos/evmos/pull/859) Add amino codecs to `x/revenue` module to support EIP-712 signatures.
 - (deps) Bump Ethermint version to [`v0.19.2`](https://github.com/evmos/ethermint/releases/tag/v0.19.2)
 
-## [v8.0.0] - 2022-09-16
+## [v8.0.0] - 2022-08-16
 
 ### State Machine Breaking
 
 - (deps) [\#845](https://github.com/evmos/evmos/pull/845) Bump Ethermint version to [`v0.19.0`](https://github.com/evmos/ethermint/releases/tag/v0.19.0)
-- (feesplit) Add `x/feesplit` module
+- (revenue) Add `x/revenue` module
 
 ### Improvements
 
@@ -111,9 +123,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (deps) [\#714](https://github.com/evmos/evmos/pull/714) Bump Go version to `1.18`.
 - (cmd) [\#696](https://github.com/evmos/evmos/pull/696) Set a custom tendermint node configuration on initialization.
-- (feesplit) [\#685](https://github.com/evmos/evmos/pull/685) Internal Specification audit.
-- (feesplit) [\#691](https://github.com/evmos/evmos/pull/691) Internal API audit.
-- (feesplit) [\#715](https://github.com/evmos/evmos/pull/715) Internal state machine audit.
+- (revenue) [\#685](https://github.com/evmos/evmos/pull/685) Internal Specification audit.
+- (revenue) [\#691](https://github.com/evmos/evmos/pull/691) Internal API audit.
+- (revenue) [\#715](https://github.com/evmos/evmos/pull/715) Internal state machine audit.
 
 ## [v5.0.0] - 2022-06-14
 
@@ -142,7 +154,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (app) [\#682](https://github.com/evmos/evmos/pull/682) Fix Tendermint consensus params (Evidence `MaxAgeNumBlocks` and `MaxAgeDuration`)
 - (incentives) [\#656](https://github.com/evmos/evmos/pull/656) Fix incentives that were previously only allocated to `EthAccount`s.
-- (feesplit) [\#612](https://github.com/evmos/evmos/pull/612) Fix fees registration cli command and description
+- (revenue) [\#612](https://github.com/evmos/evmos/pull/612) Fix fees registration cli command and description
 - (inflation) [\#554](https://github.com/evmos/evmos/pull/554) Changing erroneous epoch skips to `daily` instead of `weekly`
 - (claims) [\#626](https://github.com/evmos/evmos/pull/626) fix durations denominated in `nanoseconds`
 - (epochs) [\#629](https://github.com/evmos/evmos/pull/629) fix epochs durations denominated in `nanoseconds`
