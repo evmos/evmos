@@ -130,9 +130,6 @@ import (
 	erc20client "github.com/evmos/evmos/v9/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v9/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
-	"github.com/evmos/evmos/v9/x/feesplit"
-	feesplitkeeper "github.com/evmos/evmos/v9/x/feesplit/keeper"
-	feesplittypes "github.com/evmos/evmos/v9/x/feesplit/types"
 	"github.com/evmos/evmos/v9/x/incentives"
 	incentivesclient "github.com/evmos/evmos/v9/x/incentives/client"
 	incentiveskeeper "github.com/evmos/evmos/v9/x/incentives/keeper"
@@ -143,6 +140,9 @@ import (
 	"github.com/evmos/evmos/v9/x/recovery"
 	recoverykeeper "github.com/evmos/evmos/v9/x/recovery/keeper"
 	recoverytypes "github.com/evmos/evmos/v9/x/recovery/types"
+	"github.com/evmos/evmos/v9/x/revenue"
+	revenuekeeper "github.com/evmos/evmos/v9/x/revenue/keeper"
+	revenuetypes "github.com/evmos/evmos/v9/x/revenue/types"
 	"github.com/evmos/evmos/v9/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v9/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
@@ -207,7 +207,7 @@ var (
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
 		recovery.AppModuleBasic{},
-		feesplit.AppModuleBasic{},
+		revenue.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -289,7 +289,7 @@ type Evmos struct {
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
 	RecoveryKeeper   *recoverykeeper.Keeper
-	FeesplitKeeper   feesplitkeeper.Keeper
+	RevenueKeeper    revenuekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -346,7 +346,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		feesplittypes.StoreKey,
+		revenuetypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -480,8 +480,8 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
 	)
 
-	app.FeesplitKeeper = feesplitkeeper.NewKeeper(
-		keys[feesplittypes.StoreKey], appCodec, app.GetSubspace(feesplittypes.ModuleName),
+	app.RevenueKeeper = revenuekeeper.NewKeeper(
+		keys[revenuetypes.StoreKey], appCodec, app.GetSubspace(revenuetypes.ModuleName),
 		app.BankKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
 	)
@@ -505,7 +505,7 @@ func NewEvmos(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
-			app.FeesplitKeeper.Hooks(),
+			app.RevenueKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
 	)
@@ -607,7 +607,7 @@ func NewEvmos(
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		recovery.NewAppModule(*app.RecoveryKeeper),
-		feesplit.NewAppModule(app.FeesplitKeeper, app.AccountKeeper),
+		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -644,7 +644,7 @@ func NewEvmos(
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
-		feesplittypes.ModuleName,
+		revenuetypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -677,7 +677,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
-		feesplittypes.ModuleName,
+		revenuetypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -698,7 +698,7 @@ func NewEvmos(
 		govtypes.ModuleName,
 		ibchost.ModuleName,
 		// Ethermint modules
-		// evm module denomination is used by the feesplit module, in AnteHandle
+		// evm module denomination is used by the revenue module, in AnteHandle
 		evmtypes.ModuleName,
 		// NOTE: feemarket module needs to be initialized before genutil module:
 		// gentx transactions use MinGasPriceDecorator.AnteHandle
@@ -717,7 +717,7 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
-		feesplittypes.ModuleName,
+		revenuetypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -1059,7 +1059,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
-	paramsKeeper.Subspace(feesplittypes.ModuleName)
+	paramsKeeper.Subspace(revenuetypes.ModuleName)
 	return paramsKeeper
 }
 
@@ -1170,18 +1170,19 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v7.UpgradeName:
 		// no store upgrades in v7
 	case v8.UpgradeName:
-		// add feesplit module for testnet (v7 -> v8)
+		// add revenue module for testnet (v7 -> v8)
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{feesplittypes.ModuleName},
+			Added: []string{"feesplit"},
 		}
 	case v81.UpgradeName:
 		// NOTE: store upgrade for mainnet was not registered and was replaced by
 		// the v8.2 upgrade.
 	case v82.UpgradeName:
-		// add  missing feesplit module for mainnet (v8.1 -> v8.2)
+		// add  missing revenue module for mainnet (v8.1 -> v8.2)
 		// IMPORTANT: this upgrade CANNOT be executed for testnet!
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{feesplittypes.ModuleName},
+			Added:   []string{revenuetypes.ModuleName},
+			Deleted: []string{"feesplit"},
 		}
 	}
 

@@ -43,10 +43,14 @@ Clone and build {{ $themeConfig.project.name }} using `git`:
 ```bash
 git clone https://github.com/evmos/evmos.git
 cd evmos
+git fetch
+git checkout <tag>
 make install
 ```
 
-Check that the `{{ $themeConfig.project.binary }}` binaries have been successfully installed:
+`<tag>` refers to a released tag from the tags [page](https://github.com/evmos/evmos/tags).
+
+After installation is done, check that the `{{ $themeConfig.project.binary }}` binaries have been successfully installed:
 
 ```bash
 evmosd version
@@ -70,12 +74,4 @@ docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsis
 
 # To run
 # docker run -it -p 26657:26657 -p 26656:26656 -v ~/.evmosd/:/root/.evmosd tharsishq/evmos:latest evmosd start
-```
-
-### Releases
-
-You can also download a specific release available on the {{ $themeConfig.project.name }} [repository](https://github.com/evmos/evmos/releases) or via command line:
-
-```bash
-go install github.com/evmos/evmos@latest
 ```
