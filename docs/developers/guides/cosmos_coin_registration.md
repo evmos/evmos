@@ -25,15 +25,14 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register a Cosmos Coin, consider the following stages:
 
-- [Cosmos Coin Registration](#cosmos-coin-registration)
-    - [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
-    - [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
-    - [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
-        - [Formatting the Proposal's Text](#formatting-the-proposals-text)
-        - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
-    - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
-        - [The Deposit Period](#the-deposit-period)
-        - [The Voting Period](#the-voting-period)
+ - [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
+ - [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
+ - [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
+    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
+    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+ - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+    - [The Deposit Period](#the-deposit-period)
+    - [The Voting Period](#the-voting-period)
 
 ## Drafting the Cosmos Coin Proposal
 

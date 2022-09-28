@@ -102,7 +102,6 @@ Submitting your proposal to the testnet increases the likelihood of engagement a
 
 Before proceeding to an On-Chain proposal, it is crucial to list the token pair and network to our chain and token registry, found [here](https://github.com/evmos/chain-token-registry). The information in the repo will help power the Evmos Dashboard [Assets Page](https://app.evmos.org/assets) and allow users to deposit, withdraw, and convert token pairs between IBC and ERC-20 state. We currently use the [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) repo to pull in the list of RPC, gRPC, and REST endpoints to use for our Dashboard. It is important to ensure the most updated information is present. If there are a set of endpoints or preferred providers, please do suggest it in the pull request. Please consult our chain registry schema for more details. Once the governance proposal passes, the pull request should be merged in around one business day.
 
-
 ## The On-Chain ERC-20 Proposal
 
 A majority of the voting community should probably be aware of the proposal and have considered it before the proposal goes live on-chain. If you're taking a conservative approach, you should have reasonable confidence that your proposal will pass before risking deposit contributions by [submitting the proposal](../../users/governance/submitting.md). Make revisions to your draft proposal after each stage of engagement.
