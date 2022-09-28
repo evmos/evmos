@@ -55,5 +55,9 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://eth.bd.evmos.dev:8545`              | `Ethereum` `JSON-RPC`  | [Blockdaemon](https://blockdaemon.com/) |
 | `wss://eth.bd.evmos.dev:8546`                | `Ethereum` `Websocket` | [Blockdaemon](https://blockdaemon.com/) |
 | `https://evmos-testnet-rpc.polkachu.com:443` | `Tendermint` `RPC`     | [Polkachu](https://polkachu.com)        |
+| `https://rpc-t.evmos.nodestake.top`          | `Tendermint` `RPC`     | [NodeStake](https://nodestake.top/)     |
+| `https://grpc-t.evmos.nodestake.top`         | `Cosmos` `gRPC`        | [NodeStake](https://nodestake.top/)     |
+| `https://api-t.evmos.nodestake.top`          | `Cosmos` `REST`        | [NodeStake](https://nodestake.top/)     |
+| `https://jsonrpc-t.evmos.nodestake.top`      | `Ethereum` `JSON-RPC`  | [NodeStake](https://nodestake.top/)     |
 :::
 ::::
