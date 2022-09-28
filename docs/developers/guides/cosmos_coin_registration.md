@@ -54,7 +54,7 @@ Remember to provide links to the relevant [Commonwealth Evmos community](https:/
 
 ## Adding Network to Evmos Chain Registry
 
-All chain registry information can be found [here](https://github.com/evmos/chain-token-registry). The [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) is used to pull in the list of RPC, gRPC, and REST endpoints to power the Evmos Dashboard. To add chain registry information, please submit a pull request with the network details. Pull requests should be merged one business day after governance passes.
+All chain registry information can be found [here](https://github.com/evmos/chain-token-registry). The [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) is used to pull in the list of RPC, gRPC, and REST endpoints to power the Evmos Dashboard. To add chain registry information, please submit a pull request with the network details. Pull requests should be merged one business day after governance passes. This PR is required before token can show up on the Dashboard Assets Page.
 
 ## Submitting the Cosmos Coin Proposal
 
