@@ -10,7 +10,7 @@ require (
 	github.com/cosmos/ibc-go/v5 v5.0.0-rc2
 	github.com/ethereum/go-ethereum v1.10.19
 	github.com/evmos/ethermint v0.6.1-0.20220919141022-34226aa7b1fa //TODO: update to ethermint v0.20.0 after it's released.
-	github.com/evmos/evmos-ledger-go v0.1.1
+	github.com/evmos/evmos-ledger-go v0.1.2-alpha
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
@@ -190,5 +190,6 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
+	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.1-0.20220929201819-d6844283f759
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
