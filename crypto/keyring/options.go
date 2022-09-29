@@ -5,11 +5,12 @@ import (
 	cosmosLedger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 
+	sdkhd "github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
 	ledger "github.com/evmos/evmos-ledger-go"
-	"github.com/evmos/evmos/v6/app"
+	"github.com/evmos/evmos/v9/app"
 )
 
 var (
@@ -18,7 +19,7 @@ var (
 	SupportedAlgorithms = keyring.SigningAlgoList{hd.EthSecp256k1}
 	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Evmos for the Ledger device:
 	//  - eth_secp256k1 (Ethereum)
-	SupportedAlgorithmsLedger = keyring.SigningAlgoList{hd.EthSecp256k1}
+	SupportedAlgorithmsLedger = keyring.SigningAlgoList{sdkhd.Secp256k1}
 	// Use the Evmos Ledger Go derivation (Ethereum app with EIP-712 signing)
 	LedgerDerivation = ledger.EvmosLedgerDerivation(encoding.MakeConfig(app.ModuleBasics))
 	// Use the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
