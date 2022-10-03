@@ -43,7 +43,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://grpc.evmos.silknodes.io`             | `Cosmos` `gRPC`        | [Silk Nodes](https://silknodes.io/)     |
 | `https://api.evmos.silknodes.io`              | `Cosmos` `REST`        | [Silk Nodes](https://silknodes.io/)     |
 | `https://evmos-mainnet.public.blastapi.io`    | `Ethereum` `JSON-RPC`  | [BLAST](https://blastapi.io/)           |
-| `wss://evmos-mainnet.public.blastapi.io`      | `Ethereum` `Websocket` | [BLAST](https://blastapi.io/)
+| `wss://evmos-mainnet.public.blastapi.io`      | `Ethereum` `Websocket` | [BLAST](https://blastapi.io/)           | 
 | `http://rpc-2.evmos.testnet.run:7545`         | `Ethereum` `JSON-RPC`  | [TestnetRun](https://stake.testnet.run/) |
 | `https://rpc.evmos.testnet.run`               | `Tendermint` `RPC`     | [TestnetRun](https://stake.testnet.run/) |
 | `https://api.evmos.testnet.run`               | `Cosmos` `REST`        | [TestnetRun](https://stake.testnet.run/) |
