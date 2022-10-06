@@ -18,8 +18,7 @@ Evmos is a public Proof-of-Stake (PoS) blockchain, meaning that validator's weig
 
 Any user in the system can declare its intention to become a validator by sending a [`create-validator`](#how-to-become-a-validator) transaction. From there, they become validators.
 
-The weight (i.e. total stake or voting power) of a validator determines wether or not it is an active validator, and also how frequently this node will have to propose a block and how much revenue it will obtain. Initially, only the top 150 validators with the most weight will be active validators. If validators double-sign, or are frequently offline, they risk their staked tokens (including EVMOS delegated by users) being "
-ed" by the protocol to penalize negligence and misbehavior.
+The weight (i.e. total stake or voting power) of a validator determines wether or not it is an active validator, and also how frequently this node will have to propose a block and how much revenue it will obtain. Initially, only the top 150 validators with the most weight will be active validators. If validators double-sign, or are frequently offline, they risk their staked tokens (including EVMOS delegated by users) being "slashed" by the protocol to penalize negligence and misbehavior.
 
 ### What is a full node?
 
