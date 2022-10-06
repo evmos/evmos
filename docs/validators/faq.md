@@ -18,7 +18,8 @@ Evmos is a public Proof-of-Stake (PoS) blockchain, meaning that validator's weig
 
 Any user in the system can declare its intention to become a validator by sending a [`create-validator`](#how-to-become-a-validator) transaction. From there, they become validators.
 
-The weight (i.e. total stake or voting power) of a validator determines wether or not it is an active validator, and also how frequently this node will have to propose a block and how much revenue it will obtain. Initially, only the top 150 validators with the most weight will be active validators. If validators double-sign, or are frequently offline, they risk their staked tokens (including EVMOS delegated by users) being "slashed" by the protocol to penalize negligence and misbehavior.
+The weight (i.e. total stake or voting power) of a validator determines wether or not it is an active validator, and also how frequently this node will have to propose a block and how much revenue it will obtain. Initially, only the top 150 validators with the most weight will be active validators. If validators double-sign, or are frequently offline, they risk their staked tokens (including EVMOS delegated by users) being "
+ed" by the protocol to penalize negligence and misbehavior.
 
 ### What is a full node?
 
@@ -229,7 +230,7 @@ $$9R ~ + ~ R ~ + ~ 5\%(R) ~ = ~ 1005 ~ \Leftrightarrow ~ R ~ = ~ 1005 ~/ ~10.05 
 
 If a validator misbehaves, its bonded stake along with its delegators' stake and will be slashed. The severity of the punishment depends on the type of fault. There are 3 main faults that can result in slashing of funds for a validator and its delegators:
 
-- **Double-signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator will get slashed on chain A.
+- **Double-signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator will get slashed on chain A. The penalty for double signing is 10.00% of total stake.
 
 - **Downtime:** If a validator misses more than 50% of the last 90.000 blocks, they will get slashed by 0.50%.
 - **Unavailability:** If a validator's signature has not been included in the last X blocks, the validator will get slashed by a marginal amount proportional to X. If X is above a certain limit Y, then the validator will get unbonded.
