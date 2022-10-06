@@ -63,3 +63,27 @@ func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 
 	return data.Amount, nil
 }
+
+// GetTransferDenomination returns the denomination from an ICS20 FungibleTokenPacketData.
+func GetTransferPrefixedDenomination(packet channeltypes.Packet) (string, error) {
+	// Unmarshal packet data to obtain the coin denomination
+	var data transfertypes.FungibleTokenPacketData
+	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		return "", sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+	}
+	
+	// Validate the prefixed denomination
+	if err := transfertypes.ValidatePrefixedDenom(data.GetDenom()); err != nil {
+		return "", sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "invalid prefixed denomination")
+	}
+
+	// Get the baseDenom from the prefixed denomination, validate
+	denomTrace := transfertypes.ParseDenomTrace(data.GetDenom())
+	baseDenom := denomTrace.GetBaseDenom()
+	if err = transfertypes.ValidateIBCDenom(baseDenom); err != nil {
+		return "", sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "invalid base denomination")
+	}
+
+	// Return base denomination
+	return baseDenom, nil 
+}

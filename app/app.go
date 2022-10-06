@@ -529,9 +529,12 @@ func NewEvmos(
 		app.ClaimsKeeper,
 	)
 
-	// Set the ICS4 wrappers for claims and recovery middlewares
+	// NOTE: app.ERC20Keeper is already initialized elsewhere
+
+	// Set the ICS4 wrappers for claims, recovery, and erc-20 middlewares
 	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
 	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
+	app.ERC20Keeper.SetICS4Wrapper(app.ClaimsKeeper)
 	// NOTE: ICS4 wrapper for Transfer Keeper already set
 
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
@@ -539,12 +542,14 @@ func NewEvmos(
 	// transfer stack contains (from top to bottom):
 	// - Recovery Middleware
 	// - Airdrop Claims Middleware
+	// - ERC-20 Middleware
 	// - Transfer
 
 	// create IBC module from bottom to top of stack
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
+	transferStack = erc20.NewIBCMiddleware(*app.ERC20Keeper, transferStack)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
 
