@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	gomath "math"
 	"time"
 
 	"cosmossdk.io/math"
@@ -1037,6 +1038,8 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 	suite.SetupTestWithEscrow()
 
+	dust := int64(gomath.Pow10(15))
+
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 	tests := []struct {
 		name           string
@@ -1080,7 +1083,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 		suite.Require().NoError(err, tc.name)
 		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, tc.claimsRecord)
-		coins := sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), 100))
+		coins := sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), dust))
 
 		err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
 		suite.Require().NoError(err, tc.name)
@@ -1099,7 +1102,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.ZeroInt(),
 				"balance incorrect. test: %s", tc.name)
 		} else {
-			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.NewInt(100),
+			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.NewInt(dust),
 				"balance incorrect. test: %s", tc.name)
 		}
 	}
