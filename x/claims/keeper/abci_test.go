@@ -157,7 +157,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"balance non zero, not claim denom",
+			"balance non zero not on claim denominations, is ignored",
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
