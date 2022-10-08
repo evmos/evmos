@@ -1,6 +1,6 @@
 package v83
 
-var accounts = map[string]string{
+var Accounts = map[string]string{
 	"evmos1009egsf8sk3puq3aynt8eymmcqnneezkkvceav": "20299404928815863552",
 	"evmos100wr0u56zfmzyfzjqv0zp0wmczy6am7yel2na9": "1001000000000000000",
 	"evmos102wuee7tga22vnnxkmev7w79ch5hpudd7an3eh": "4054851449586459648",
@@ -568,7 +568,6 @@ var accounts = map[string]string{
 	"evmos1a2y8ku22ghemqv95dzm0as06sd26e7jumxxm52": "91766008167085735936",
 	"evmos1a3ldlunrsdsru69pn0gn4dzgwmudeyj2jndcp2": "91766008167085735936",
 	"evmos1a4h36y8lxhau7ykswkhywacj50sl50jkhcrms7": "103603289674385197824",
-	"evmos1a53udazy8ayufvy0s434pfwjcedzqv345dnt3x": "3167501226339726493675414",
 	"evmos1a6uxzplfs0s3s7acl33a949x7c70ha4y3g76s6": "1100000000000000",
 	"evmos1a6v29fygpaqm7jf00296r20w3lhq8x7nyn35pz": "1100000000000000",
 	"evmos1a7zhg8kltyuftnanelmzs6ppuytngz8fa28arc": "45882504083542867968",

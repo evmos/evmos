@@ -18,21 +18,9 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		// if types.IsTestnet(ctx.ChainID()) {
-		// 	logger.Debug("migrate feesplit to revenue...")
-		// }
-
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("recovering lost funds from clawback...")
-			for account, fund := range accounts {
-				if err := returnFundsFromCommunityPool(ctx, dk, account, fund); err != nil {
-					panic(err) // TODO: CHECK WHAT TO DO IN THIS CASE
-				}
-			}
-		}
-
-		if types.IsMainnet(ctx.ChainID()) {
-			logger.Debug("migrate IBC module account")
+			ReturnFundsFromCommunityPool(ctx, dk)
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
@@ -41,7 +29,15 @@ func CreateUpgradeHandler(
 	}
 }
 
-func returnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount string) error {
+func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) {
+	for account, fund := range Accounts {
+		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, account, fund); err != nil {
+			panic(err) // TODO: CHECK WHAT TO DO IN THIS CASE
+		}
+	}
+}
+
+func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount string) error {
 	to := sdk.MustAccAddressFromBech32(account)
 	res, _ := sdkmath.NewIntFromString(amount)
 	balance := sdk.NewCoin("aevmos", res)
