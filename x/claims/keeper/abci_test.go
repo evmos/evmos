@@ -131,7 +131,8 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			"balance non zero, module account is ignored",
 			0,
 			func() {
-				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewEmptyModuleAccount("testmodule"))
+				ba := authtypes.NewBaseAccount(addr, nil, 0, 0)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewModuleAccount(ba, "testmodule"))
 
 				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
 				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
@@ -157,7 +158,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
-			"balance non zero not on claim denominations, is ignored",
+			"balance zero on claims denoms and non zero in other denoms, is ignored",
 			0,
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
