@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"math"
 	"strconv"
 
 	sdkerrors "cosmossdk.io/errors"
@@ -144,7 +143,7 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 
 		// dust amount sent on genesis
 		dustCoin := sdk.Coin{
-			Amount: sdk.NewInt(int64(math.Pow10(15))),
+			Amount: sdk.NewInt(types.GenesisDust),
 			Denom:  claimsDenom,
 		}
 
