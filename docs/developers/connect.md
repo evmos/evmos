@@ -44,6 +44,9 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://api.evmos.silknodes.io`              | `Cosmos` `REST`        | [Silk Nodes](https://silknodes.io/)     |
 | `https://evmos-mainnet.public.blastapi.io`    | `Ethereum` `JSON-RPC`  | [BLAST](https://blastapi.io/)           |
 | `wss://evmos-mainnet.public.blastapi.io`      | `Ethereum` `Websocket` | [BLAST](https://blastapi.io/)           |
+| `https://evmos-evm.publicnode.com`            | `Ethereum` `JSON-RPC`  | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-rpc.publicnode.com`            | `Tendermint` `RPC`     | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-rest.publicnode.com`           | `Cosmos` `REST`        | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
 
 :::
 ::: tab Testnet
