@@ -30,8 +30,8 @@ func CreateUpgradeHandler(
 }
 
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) {
-	for account := range Accounts {
-		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, account, Accounts[account]); err != nil {
+	for i := range Accounts {
+		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], Accounts[i][1]); err != nil {
 			panic(err) // TODO: CHECK WHAT TO DO IN THIS CASE
 		}
 	}

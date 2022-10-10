@@ -95,9 +95,9 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 	v83.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
 
 	// CHECK BALANCE OF AFFECTED ACCOUNTS
-	for account, amount := range v83.Accounts {
-		addr := sdk.MustAccAddressFromBech32(account)
-		res, _ := sdkmath.NewIntFromString(amount)
+	for i := range v83.Accounts {
+		addr := sdk.MustAccAddressFromBech32(v83.Accounts[i][0])
+		res, _ := sdkmath.NewIntFromString(v83.Accounts[i][1])
 		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
 		suite.Require().Equal(balance.Amount, res)
 	}
