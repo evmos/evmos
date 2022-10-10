@@ -1,9 +1,11 @@
-package v8_test
+package v9_test
 
 import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -17,6 +19,9 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v9/app"
+	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
+	evmostypes "github.com/evmos/evmos/v9/types"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 type UpgradeTestSuite struct {
@@ -69,4 +74,31 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 func TestUpgradeTestSuite(t *testing.T) {
 	s := new(UpgradeTestSuite)
 	suite.Run(t, s)
+}
+
+func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
+
+	suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+
+	// SEND FUNDS TO THE COMMUNITY POOL
+	priv, err := ethsecp256k1.GenerateKey()
+	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+	sender := sdk.AccAddress(address.Bytes())
+	res, _ := sdkmath.NewIntFromString("73575669925896300000000")
+	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
+	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
+	suite.Require().NoError(err)
+
+	// RETURN FUNDS TO ACCOUNTS AFFECTED
+	v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
+
+	// CHECK BALANCE OF AFFECTED ACCOUNTS
+	for i := range v9.Accounts {
+		addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
+		res, _ := sdkmath.NewIntFromString(v9.Accounts[i][1])
+		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
+		suite.Require().Equal(balance.Amount, res)
+	}
 }

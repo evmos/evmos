@@ -120,7 +120,7 @@ import (
 	v8 "github.com/evmos/evmos/v9/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v9/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v9/app/upgrades/v8_2"
-	v83 "github.com/evmos/evmos/v9/app/upgrades/v8_3"
+	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
 	"github.com/evmos/evmos/v9/x/claims"
 	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -1145,10 +1145,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v8.3 upgrade handler
+	// v9 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v83.UpgradeName,
-		v83.CreateUpgradeHandler(
+		v9.UpgradeName,
+		v9.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.DistrKeeper,
 		),
@@ -1194,8 +1194,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Added:   []string{revenuetypes.ModuleName},
 			Deleted: []string{"feesplit"},
 		}
-	case v83.UpgradeName:
-		// no store upgrade in v83
+	case v9.UpgradeName:
+		// no store upgrade in v9
 	}
 
 	if storeUpgrades != nil {
