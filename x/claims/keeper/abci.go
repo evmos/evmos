@@ -147,8 +147,8 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			Denom:  claimsDenom,
 		}
 
-		// check if acc has claims denom balance
-		// and only clawback if the balance is the same as the initial dust sent on genesis
+		// check if acc has claims denom balance and only clawback if the balance is
+		// the same as the initial dust sent on genesis
 		found, clawbackCoin := accountBalances.Find(claimsDenom)
 		if !found || !clawbackCoin.Equal(dustCoin) {
 			return false
