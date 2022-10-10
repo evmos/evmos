@@ -47,6 +47,9 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `http://rpc-2.evmos.testnet.run:7545`         | `Ethereum` `JSON-RPC`  | [TestnetRun](https://stake.testnet.run/) |
 | `https://rpc.evmos.testnet.run`               | `Tendermint` `RPC`     | [TestnetRun](https://stake.testnet.run/) |
 | `https://api.evmos.testnet.run`               | `Cosmos` `REST`        | [TestnetRun](https://stake.testnet.run/) |
+| `https://evmos-evm.publicnode.com`            | `Ethereum` `JSON-RPC`  | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-rpc.publicnode.com`            | `Tendermint` `RPC`     | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-rest.publicnode.com`           | `Cosmos` `REST`        | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
 
 :::
 ::: tab Testnet
