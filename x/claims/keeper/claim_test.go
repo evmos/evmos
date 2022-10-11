@@ -1080,7 +1080,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 		suite.Require().NoError(err, tc.name)
 		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 		suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, tc.claimsRecord)
-		coins := sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), 100))
+		coins := sdk.NewCoins(sdk.NewInt64Coin(params.GetClaimsDenom(), types.GenesisDust))
 
 		err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
 		suite.Require().NoError(err, tc.name)
@@ -1099,7 +1099,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.ZeroInt(),
 				"balance incorrect. test: %s", tc.name)
 		} else {
-			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.NewInt(100),
+			suite.Require().Equal(coins.AmountOfNoDenomValidation(params.GetClaimsDenom()), sdk.NewInt(types.GenesisDust),
 				"balance incorrect. test: %s", tc.name)
 		}
 	}
