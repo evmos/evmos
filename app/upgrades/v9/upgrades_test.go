@@ -78,23 +78,24 @@ func TestUpgradeTestSuite(t *testing.T) {
 
 func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 
-	suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+	suite.SetupTest(evmostypes.TestnetChainID + "-2")
 
-	// SEND FUNDS TO THE COMMUNITY POOL
+	// send funds to the community pool
 	priv, err := ethsecp256k1.GenerateKey()
 	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	sender := sdk.AccAddress(address.Bytes())
-	res, _ := sdkmath.NewIntFromString("73575669925896300000000")
+	res, _ := sdkmath.NewIntFromString(v9.MaxRecover)
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
 	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 	suite.Require().NoError(err)
 
-	// RETURN FUNDS TO ACCOUNTS AFFECTED
-	v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
+	// return funds to accounts affected
+	err = v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
+	suite.Require().NoError(err)
 
-	// CHECK BALANCE OF AFFECTED ACCOUNTS
+	// check balance of affected accounts
 	for i := range v9.Accounts {
 		addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
 		res, _ := sdkmath.NewIntFromString(v9.Accounts[i][1])

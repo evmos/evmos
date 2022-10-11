@@ -1,6 +1,8 @@
 package v9
 
 import (
+	"fmt"
+
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -20,7 +22,10 @@ func CreateUpgradeHandler(
 
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("recovering lost funds from clawback...")
-			ReturnFundsFromCommunityPool(ctx, dk)
+			if err := ReturnFundsFromCommunityPool(ctx, dk); err != nil {
+				// log error instead of aborting the upgrade
+				logger.Error("FAILED TO RECOVER FROM COMMUNITY FUNDS", "error", err.Error())
+			}
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
@@ -29,12 +34,19 @@ func CreateUpgradeHandler(
 	}
 }
 
-func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) {
+func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
+	availableCoins, _ := sdkmath.NewIntFromString(MaxRecover)
 	for i := range Accounts {
-		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], Accounts[i][1]); err != nil {
-			panic(err) // TODO: CHECK WHAT TO DO IN THIS CASE
+		transferCoin, _ := sdkmath.NewIntFromString(Accounts[i][1])
+		if availableCoins.LT(transferCoin) {
+			return fmt.Errorf("max transfer reached")
 		}
+		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], Accounts[i][1]); err != nil {
+			return err
+		}
+		availableCoins = availableCoins.Sub(transferCoin)
 	}
+	return nil
 }
 
 func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount string) error {
