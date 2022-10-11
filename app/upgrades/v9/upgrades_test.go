@@ -82,6 +82,7 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 
 	// send funds to the community pool
 	priv, err := ethsecp256k1.GenerateKey()
+	suite.Require().NoError(err)
 	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	sender := sdk.AccAddress(address.Bytes())
 	res, _ := sdkmath.NewIntFromString(v9.MaxRecover)
@@ -90,6 +91,9 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 	suite.Require().NoError(err)
+
+	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+	suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
 
 	// return funds to accounts affected
 	err = v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
@@ -102,4 +106,7 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
 		suite.Require().Equal(balance.Amount, res)
 	}
+
+	balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+	suite.Require().True(balanceAfter.IsZero())
 }

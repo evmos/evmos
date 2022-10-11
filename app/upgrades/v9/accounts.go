@@ -1,7 +1,5 @@
 package v9
 
-const MaxRecover = "73575669925896300000000"
-
 var Accounts = [1810][2]string{
 	{"evmos1009egsf8sk3puq3aynt8eymmcqnneezkkvceav", "20299404928815863552"},
 	{"evmos100wr0u56zfmzyfzjqv0zp0wmczy6am7yel2na9", "1001000000000000000"},
