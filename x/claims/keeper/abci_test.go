@@ -171,6 +171,24 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
+			"balance on claims denoms and non zero in other denoms, only claimsDenom is clawed back",
+			types.GenesisDust,
+			func() {
+
+				baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
+				ethAccount := ethermint.EthAccount{
+					BaseAccount: baseAccount,
+					CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
+				}
+				suite.app.AccountKeeper.SetAccount(suite.ctx, &ethAccount)
+
+				coins := sdk.NewCoins(sdk.NewCoin("testcoin1", sdk.NewInt(types.GenesisDust)), sdk.NewCoin("testcoin", sdk.NewInt(types.GenesisDust)), sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
+				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				suite.Require().NoError(err)
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
+			},
+		},
+		{
 			"balance more than dust, is ignored",
 			0,
 			func() {
