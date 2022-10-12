@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 
+### Bug Fixes
+
+- (claims) [#951](https://github.com/evmos/evmos/pull/951) Fix ClawbackEmptyAccounts logic 
+
 ## [v8.2.0] - 2022-09-23
 
 ### State Machine Breaking
