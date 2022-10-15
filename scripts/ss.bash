@@ -19,9 +19,11 @@ export GOPATH=~/go
 export PATH=$PATH:~/go/bin
 
 # Install with pebbledb 
-go mod edit -replace github.com/tendermint/tm-db=github.com/baabeetaa/tm-db@pebble
-go mod tidy
-go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb' '-X github.com/tendermint/tm-db.ForceSync=1' -tags pebbledb ./...
+# go mod edit -replace github.com/tendermint/tm-db=github.com/baabeetaa/tm-db@pebble
+# go mod tidy
+# go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb' '-X github.com/tendermint/tm-db.ForceSync=1' -tags pebbledb ./...
+
+go install ./...
 
 # NOTE: ABOVE YOU CAN USE ALTERNATIVE DATABASES, HERE ARE THE EXACT COMMANDS
 # go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb' -tags rocksdb ./...
@@ -57,4 +59,4 @@ export EVMOSD_STATESYNC_TRUST_HASH=$TRUST_HASH
 export EVMOSD_P2P_SEEDS=$(curl -s https://raw.githubusercontent.com/cosmos/chain-registry/master/evmos/chain.json | jq -r '[foreach .peers.seeds[] as $item (""; "\($item.id)@\($item.address)")] | join(",")')
 
 # Start chain.
-evmosd start --x-crisis-skip-assert-invariants --db_backend pebbledb
+evmosd start --x-crisis-skip-assert-invariants 
