@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- (cli)[#971](https://github.com/evmos/evmos/pull/971) Add `prune` command.
+
 ## [v8.2.2] - 2022-10-14
 
 ### Improvements
