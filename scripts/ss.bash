@@ -1,6 +1,17 @@
 #!/bin/bash
 # microtick and bitcanna contributed significantly here.
 # Pebbledb state sync script.
+# invoke like: bash scripts/ss.bash
+
+
+
+## USAGE RUNDOWN
+# Not for use on live nodes
+# For use when testing.
+# Assumes that ~/.evmosd doesn't exist
+# can be modified to suit your purposes if ~/.evmosd does already exist
+
+
 set -uxe
 
 # Set Golang environment variables.
