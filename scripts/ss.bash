@@ -51,7 +51,7 @@ echo "trust_hash: $TRUST_HASH"
 # Export state sync variables.
 export EVMOSD_STATESYNC_ENABLE=true
 export EVMOSD_P2P_MAX_NUM_OUTBOUND_PEERS=200
-export EVMOSD_STATESYNC_RPC_SERVERS="https://rpc.evmos.interbloc.org:443,https://evmos-rpc.polkachu.com:443,https://tendermint.bd.evmos.org:26657"
+export EVMOSD_STATESYNC_RPC_SERVERS="https://rpc.evmos.interbloc.org:443,https://evmos-rpc.polkachu.com:443,https://tendermint.bd.evmos.org:26657,https://rpc.evmos.posthuman.digital:443,https://rpc.evmos.testnet.run:443,https://rpc.evmos.bh.rocks:443"
 export EVMOSD_STATESYNC_TRUST_HEIGHT=$BLOCK_HEIGHT
 export EVMOSD_STATESYNC_TRUST_HASH=$TRUST_HASH
 
