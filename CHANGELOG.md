@@ -37,7 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v8.2.3] - 2022-10-15
 
-- (cmd) [973](https://github.com/evmos/evmos/pull/973) Set IAVL config
+### Improvements
+
+- (cmd) [#973](https://github.com/evmos/evmos/pull/973) Set IAVL config
+- (cli) [#971](https://github.com/evmos/evmos/pull/971) Add `prune` command.
 
 ## [v8.2.2] - 2022-10-14
 
