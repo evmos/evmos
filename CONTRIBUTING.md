@@ -93,6 +93,7 @@ To pull in updates from the origin repo, run:
 New branch should be rebased before submitting a PR in case there have been changes to avoid merge commits.
 
 i.e. this branches state:
+
 ```
           A---B---C new-branch
          /
@@ -100,12 +101,15 @@ i.e. this branches state:
             |   |
          (F, G) changes happened after `new-branch` forked
 ```
+
 should become this after rebase:
+
 ```
                   A'--B'--C' new-branch
                  /
     D---E---F---G target-branch
 ```
+
 More about rebase [here](https://git-scm.com/docs/git-rebase) and [here](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase#:~:text=What%20is%20git%20rebase%3F,of%20a%20feature%20branching%20workflow.)
 
 Please **NO DOT** make Pull Requests from `development`.
