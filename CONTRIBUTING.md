@@ -92,7 +92,7 @@ To pull in updates from the origin repo, run:
 
 New branch should be rebased before submitting a PR in case there have been changes to avoid merge commits.
 
-i.e. this branches state:
+i.e. this branch state:
 
 ```
           A---B---C new-branch
