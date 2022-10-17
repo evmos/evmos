@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (claims) [#951](https://github.com/evmos/evmos/pull/951) Fix ClawbackEmptyAccounts logic 
+- (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to corresponding cosmos-sdk version.
 
 ## [v8.2.0] - 2022-09-23
 
