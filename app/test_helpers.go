@@ -16,8 +16,8 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/cmd/config"
-	"github.com/evmos/evmos/v8/types"
+	"github.com/evmos/evmos/v9/cmd/config"
+	"github.com/evmos/evmos/v9/types"
 )
 
 func init() {

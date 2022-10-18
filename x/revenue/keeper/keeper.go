@@ -8,7 +8,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evmos/evmos/v9/x/revenue/types"
 )
 
 // Keeper of this module maintains collections of revenues for contracts

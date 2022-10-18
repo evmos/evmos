@@ -3,8 +3,8 @@ package revenue
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v8/x/revenue/keeper"
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evmos/evmos/v9/x/revenue/keeper"
+	"github.com/evmos/evmos/v9/x/revenue/types"
 )
 
 // InitGenesis import module genesis

@@ -21,11 +21,11 @@ import (
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	"github.com/evmos/evmos/v8/app"
-	v5 "github.com/evmos/evmos/v8/app/upgrades/v5"
-	evmostypes "github.com/evmos/evmos/v8/types"
-	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/app"
+	v5 "github.com/evmos/evmos/v9/app/upgrades/v5"
+	evmostypes "github.com/evmos/evmos/v9/types"
+	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 )
 
 type UpgradeTestSuite struct {

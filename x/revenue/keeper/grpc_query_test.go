@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evmos/evmos/v9/x/revenue/types"
 )
 
 func (suite *KeeperTestSuite) TestRevenues() {
