@@ -707,14 +707,14 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						Expect(fee.WithdrawerAddress).To(Equal(""))
 
 						// Check addressDerivationCostCreate is subtracted 3 times
-						setFeeInverseCost := int64(17)
-						Expect(res.GasUsed).To(Equal(
+						setFeeInverseCost := int64(20)
+						Expect(res.GetGasUsed()).To(Equal(
 							gasUsedOneDerivation + int64(gasCost)*2 + setFeeInverseCost,
 						))
 					},
 					// FIXME: make both test Entries pass
-					// Entry("with address derivation cost of 50", 50),
-					// Entry("with address derivation cost of 500", 500),
+					Entry("with address derivation cost of 50", 50),
+					Entry("with address derivation cost of 500", 500),
 				)
 			})
 		})
