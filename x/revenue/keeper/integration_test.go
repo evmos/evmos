@@ -712,7 +712,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 							gasUsedOneDerivation + int64(gasCost)*2 + setFeeInverseCost,
 						))
 					},
-					// FIXME: make both test Entries pass
 					Entry("with address derivation cost of 50", 50),
 					Entry("with address derivation cost of 500", 500),
 				)
