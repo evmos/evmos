@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v9.0.0] - 2022-10-19
+
+### Bug Fixes
+
+- (claims) [#951](https://github.com/evmos/evmos/pull/951) Fix ClawbackEmptyAccounts logic
+
 ## [v8.2.3] - 2022-10-15
 
 ### Improvements
@@ -47,10 +53,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (deps)[#965](https://github.com/evmos/evmos/pull/965) Bump SDK to v0.45.9 and Ethermint to v0.19.3
-
-### Bug Fixes
-
-- (claims) [#951](https://github.com/evmos/evmos/pull/951) Fix ClawbackEmptyAccounts logic 
 
 ## [v8.2.0] - 2022-09-23
 
