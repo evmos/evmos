@@ -19,3 +19,4 @@ jobs:
           folder-path: "docs"
           check-modified-files-only: "yes"
           use-quiet-mode: "yes"
+          base-branch: "main"
