@@ -71,7 +71,7 @@ In this simple example (below), a network explorer will list the governance prop
 
 The `amount` is `1000000000000000000aevmos`. This is equal to 1 EVMOS, so `recipient` address `evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp` will receive 1 EVMOS if this proposal is passed.
 
-The `deposit` of `64000000000000000000aevmos` results in 64 EVMOS being used from the proposal submitter's account. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 5-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if quorum isn't met in the vote or if the proposal is vetoed.
+The `deposit` of `192000000000000000000aevmos` results in 192 EVMOS being used from the proposal submitter's account. A minimum deposit is required for a proposal to enter the voting period, and anyone may contribute to this deposit within 3 days. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if the quorum isn't met in the vote or the proposal is vetoed.
 
 ```json
 {
@@ -158,7 +158,7 @@ Users can query the proposal details with the evmosd command-line interface usin
 }
 ```
 
-The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`. Therefore, a deposit of 20.1 EVMOS will be included with this proposal. At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period (and subsequently passed). There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 5-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
+The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`. Therefore, a deposit of 20.1 EVMOS will be included with this proposal. At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period (and subsequently passed). The minimum deposit amount is currently 192 EVMOS. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 3-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
 
 ## Sending the transaction that submits your governance proposal
 
@@ -191,7 +191,7 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
    - if this number isn't high enough and there isn't enough gas to process your transaction, the transaction will fail
    - the transaction will only use the amount of gas needed to process the transaction
 5. `--gas-prices` is the flat-rate per unit of gas value for a validator to process your transaction
-6. `--chain-id evmos_90001-2` is Evmos Mainnet. For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
+6. `--chain-id evmos_9001-2` is Evmos Mainnet. For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
    - the testnet chain ID is [evmos_9000-4](https://testnet.mintscan.io/evmos). For current and past testnet information, please look at the [testnet repository](https://github.com/evmos/testnets)
 7. `--node` is using a full node to send the transaction to the Evmos Mainnet
 
