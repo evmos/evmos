@@ -22,9 +22,9 @@ import (
 	feemarketv011 "github.com/evmos/ethermint/x/feemarket/migrations/v011"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/types"
-	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/types"
+	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 )
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet

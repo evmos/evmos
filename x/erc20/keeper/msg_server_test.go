@@ -11,8 +11,8 @@ import (
 
 	"github.com/evmos/ethermint/x/evm/statedb"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v8/x/erc20/keeper"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/x/erc20/keeper"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {

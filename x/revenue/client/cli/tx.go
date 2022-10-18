@@ -13,7 +13,7 @@ import (
 
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evmos/evmos/v9/x/revenue/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/revenue

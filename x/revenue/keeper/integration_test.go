@@ -18,9 +18,9 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v9/testutil"
+	"github.com/evmos/evmos/v9/x/revenue/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
