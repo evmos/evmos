@@ -182,6 +182,25 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			},
 		},
 		{
+			"multiple denoms, only claims denom is clawed back",
+			types.GenesisDust,
+			func() {
+				ethAccount := newEthAccount(authtypes.NewBaseAccount(addr, nil, 0, 0))
+				suite.app.AccountKeeper.SetAccount(suite.ctx, &ethAccount)
+
+				coin1 := sdk.NewCoin("testcoin", sdk.NewInt(types.GenesisDust))
+				coin2 := sdk.NewCoin("testcoin1", sdk.NewInt(types.GenesisDust))
+				coin3 := sdk.NewCoin("testcoin2", sdk.NewInt(types.GenesisDust))
+				coin4 := sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust))
+
+				coins := sdk.NewCoins(coin1, coin2, coin3, coin4)
+
+				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				suite.Require().NoError(err)
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
+			},
+		},
+		{
 			"multiple accounts, all clawed back",
 			types.GenesisDust * 3,
 			func() {
