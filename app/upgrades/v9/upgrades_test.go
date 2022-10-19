@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
@@ -102,7 +101,7 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 	// check balance of affected accounts
 	for i := range v9.Accounts {
 		addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
-		res, _ := sdkmath.NewIntFromString(v9.Accounts[i][1])
+		res, _ := sdk.NewIntFromString(v9.Accounts[i][1])
 		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
 		suite.Require().Equal(balance.Amount, res)
 	}

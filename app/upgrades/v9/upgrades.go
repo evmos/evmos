@@ -3,7 +3,6 @@ package v9
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -35,26 +34,25 @@ func CreateUpgradeHandler(
 }
 
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
-	availableCoins, _ := sdkmath.NewIntFromString(MaxRecover)
+	availableCoins, _ := sdk.NewIntFromString(MaxRecover)
 	for i := range Accounts {
-		refund, _ := sdkmath.NewIntFromString(Accounts[i][1])
+		refund, _ := sdk.NewIntFromString(Accounts[i][1])
 		if availableCoins.LT(refund) {
 			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
 		}
 		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], refund); err != nil {
 			return err
 		}
-		availableCoins = availableCoins.Sub(transferCoin)
+		availableCoins = availableCoins.Sub(refund)
 	}
 	return nil
 }
 
-func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount string) error {
+func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdk.Int) error {
 	to := sdk.MustAccAddressFromBech32(account)
-	res, _ := sdk.NewIntFromString(amount)
 	balance := sdk.Coin{
-		Denom: "aevmos",
-		Amount: res,
+		Denom:  "aevmos",
+		Amount: amount,
 	}
 
 	if err := dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to); err != nil {
