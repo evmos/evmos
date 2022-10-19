@@ -75,7 +75,7 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool {
+func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.SetupTest(evmostypes.TestnetChainID + "-2")
 
 	// send funds to the community pool
