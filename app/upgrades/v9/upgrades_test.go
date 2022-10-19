@@ -76,7 +76,6 @@ func TestUpgradeTestSuite(t *testing.T) {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
-
 	suite.SetupTest(evmostypes.TestnetChainID + "-2")
 
 	// send funds to the community pool
