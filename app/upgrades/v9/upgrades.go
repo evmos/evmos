@@ -37,11 +37,11 @@ func CreateUpgradeHandler(
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
 	availableCoins, _ := sdkmath.NewIntFromString(MaxRecover)
 	for i := range Accounts {
-		transferCoin, _ := sdkmath.NewIntFromString(Accounts[i][1])
-		if availableCoins.LT(transferCoin) {
-			return fmt.Errorf("max transfer reached")
+		refund, _ := sdkmath.NewIntFromString(Accounts[i][1])
+		if availableCoins.LT(refund) {
+			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
 		}
-		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], Accounts[i][1]); err != nil {
+		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], refund); err != nil {
 			return err
 		}
 		availableCoins = availableCoins.Sub(transferCoin)
@@ -52,9 +52,12 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount string) error {
 	to := sdk.MustAccAddressFromBech32(account)
 	res, _ := sdk.NewIntFromString(amount)
-	balance := sdk.NewCoin("aevmos", res)
+	balance := sdk.Coin{
+		Denom: "aevmos",
+		Amount: res,
+	}
 
-	if err := dk.DistributeFromFeePool(ctx, sdk.NewCoins(balance), to); err != nil {
+	if err := dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to); err != nil {
 		return err
 	}
 	return nil
