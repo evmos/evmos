@@ -33,6 +33,7 @@ func CreateUpgradeHandler(
 	}
 }
 
+// ReturnFundsFromCommunityPool handles the return of funds from the community pool to accounts affected during the claims clawback
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
 	availableCoins, ok := sdk.NewIntFromString(MaxRecover)
 	if !ok || availableCoins.IsNegative() {
@@ -51,6 +52,7 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 	return nil
 }
 
+// ReturnFundsFromCommunityPoolToAccount sends specified amount from the community pool to the affected account
 func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdk.Int) error {
 	to := sdk.MustAccAddressFromBech32(account)
 	balance := sdk.Coin{
