@@ -35,7 +35,7 @@ func CreateUpgradeHandler(
 
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
 	availableCoins, ok := sdk.NewIntFromString(MaxRecover)
-	if !ok {
+	if !ok || availableCoins.IsNegative() {
 		return fmt.Errorf("failed to read amount to recover from community funds")
 	}
 	for i := range Accounts {
