@@ -45,7 +45,7 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (
 	return sender, recipient, data.Sender, data.Receiver, nil
 }
 
-// GetTransferAmount returns the amount from an ICS20 FungibleTokenPacketData.
+// GetTransferAmount returns the amount from an ICS20 FungibleTokenPacketData as a string.
 func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 	// unmarshal packet data to obtain the sender and recipient
 	var data transfertypes.FungibleTokenPacketData
@@ -65,7 +65,7 @@ func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 }
 
 // GetTransferDenomination returns the denomination from an ICS20 FungibleTokenPacketData.
-func GetTransferPrefixedDenomination(packet channeltypes.Packet) (string, error) {
+func GetTransferDenomination(packet channeltypes.Packet) (string, error) {
 	// Unmarshal packet data to obtain the coin denomination
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
@@ -80,7 +80,7 @@ func GetTransferPrefixedDenomination(packet channeltypes.Packet) (string, error)
 	// Get the baseDenom from the prefixed denomination, validate
 	denomTrace := transfertypes.ParseDenomTrace(data.GetDenom())
 	baseDenom := denomTrace.GetBaseDenom()
-	if err = transfertypes.ValidateIBCDenom(baseDenom); err != nil {
+	if err := transfertypes.ValidateIBCDenom(baseDenom); err != nil {
 		return "", sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "invalid base denomination")
 	}
 
