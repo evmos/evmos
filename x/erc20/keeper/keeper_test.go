@@ -354,10 +354,19 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name strin
 	return crypto.CreateAddress(suite.address, nonce)
 }
 
+// Commit commits and starts a new block with an updated context.
 func (suite *KeeperTestSuite) Commit() {
-	_ = suite.app.Commit()
+	suite.CommitAfter(time.Second * 0)
+}
+
+// Commit commits a block at a given time.
+func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
+	suite.app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: header.Height})
+	_ = suite.app.Commit()
+
 	header.Height += 1
+	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
