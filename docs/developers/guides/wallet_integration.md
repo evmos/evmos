@@ -217,7 +217,6 @@ async function signAndBroadcastEthereumTx() {
 }
 ```
 
-
 ### Connections
 
 For Ethereum RPC, Evmos gRPC, and/or REST queries, dApp developers should implement providers client-side, and store RPC details in the environment variable as secrets.
