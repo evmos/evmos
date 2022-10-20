@@ -16,7 +16,7 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		switch c := content.(type) {
 		case *types.RegisterCoinProposal:
-			return handleRegisterCoinProposal(ctx, k, c)
+			return HandleRegisterCoinProposal(ctx, k, c)
 		case *types.RegisterERC20Proposal:
 			return handleRegisterERC20Proposal(ctx, k, c)
 		case *types.ToggleTokenConversionProposal:
@@ -28,7 +28,13 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	}
 }
 
-func handleRegisterCoinProposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterCoinProposal) error {
+// HandleRegisterCoinProposal handles the registration proposal for multiple
+// native Cosmos coins
+func HandleRegisterCoinProposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.RegisterCoinProposal,
+) error {
 	// Check if the conversion is globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
@@ -55,7 +61,13 @@ func handleRegisterCoinProposal(ctx sdk.Context, k *keeper.Keeper, p *types.Regi
 	return nil
 }
 
-func handleRegisterERC20Proposal(ctx sdk.Context, k *keeper.Keeper, p *types.RegisterERC20Proposal) error {
+// handleRegisterERC20Proposal handles the registration proposal for multiple
+// ERC20 tokens
+func handleRegisterERC20Proposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.RegisterERC20Proposal,
+) error {
 	// Check if the conversion is globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 {
@@ -82,7 +94,12 @@ func handleRegisterERC20Proposal(ctx sdk.Context, k *keeper.Keeper, p *types.Reg
 	return nil
 }
 
-func handleToggleConversionProposal(ctx sdk.Context, k *keeper.Keeper, p *types.ToggleTokenConversionProposal) error {
+// handleToggleConversionProposal handles the toggle proposal for a token pair
+func handleToggleConversionProposal(
+	ctx sdk.Context,
+	k *keeper.Keeper,
+	p *types.ToggleTokenConversionProposal,
+) error {
 	pair, err := k.ToggleConversion(ctx, p.Token)
 	if err != nil {
 		return err
