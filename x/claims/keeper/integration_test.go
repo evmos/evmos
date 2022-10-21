@@ -49,7 +49,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	totalClaimsAmount := sdk.NewCoin(claimsDenom, claimValue.MulRaw(int64(accountCount)))
 
 	// account initial balances
-	initClaimsAmount := sdk.NewInt(int64(math.Pow10(5) * 2))
+	initClaimsAmount := sdk.NewInt(types.GenesisDust)
 	initEvmAmount := sdk.NewInt(int64(math.Pow10(18) * 2))
 	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))

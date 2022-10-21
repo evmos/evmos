@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
+	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/evmos/evmos/v9/x/claims/types"
 )
@@ -112,6 +113,11 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
+		// ignore non ETH accounts
+		if _, isEthAccount := acc.(ethermint.EthAccountI); !isEthAccount {
+			return false
+		}
+
 		seq, err := k.accountKeeper.GetSequence(ctx, addr)
 		if err != nil {
 			logger.Debug(
@@ -125,12 +131,27 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 			return false
 		}
 
-		clawbackCoin := k.bankKeeper.GetBalance(ctx, addr, claimsDenom)
+		// get all balances to check if address has balances in other denoms
+		accountBalances := k.bankKeeper.GetAllBalances(ctx, addr)
 
-		// prune empty accounts from the airdrop
-		if clawbackCoin.IsZero() {
+		// only prune empty accounts from the airdrop
+		if accountBalances.IsZero() {
 			k.accountKeeper.RemoveAccount(ctx, acc)
 			accPruned++
+			return false
+		}
+
+		// dust amount sent on genesis
+		dustCoin := sdk.Coin{
+			Amount: sdk.NewInt(types.GenesisDust),
+			Denom:  claimsDenom,
+		}
+
+		// check if acc has claims denom balance and only clawback if the balance is
+		// the same as the initial dust sent on genesis
+		found, clawbackCoin := findCoin(accountBalances, claimsDenom)
+		// found, clawbackCoin := accountBalances.Find(claimsDenom)
+		if !found || !clawbackCoin.Equal(dustCoin) {
 			return false
 		}
 
@@ -165,4 +186,14 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 		"clawbacked-accounts", strconv.FormatInt(accClawbacked, 10),
 		"pruned-accounts", strconv.FormatInt(accPruned, 10),
 	)
+}
+
+func findCoin(coins []sdk.Coin, denom string) (found bool, coin sdk.Coin) {
+	for i := range coins {
+		if coins[i].Denom == denom {
+			return true, coins[i]
+		}
+	}
+
+	return false, sdk.Coin{}
 }

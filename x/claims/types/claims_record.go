@@ -3,12 +3,17 @@ package types
 import (
 	"errors"
 	"fmt"
+	gomath "math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// IBCTriggerAmt is the amount required to trigger a merge/migration of claims records
-var IBCTriggerAmt = "63743"
+var (
+	// IBCTriggerAmt is the amount required to trigger a merge/migration of claims records
+	IBCTriggerAmt = "63743"
+	// GenesisDust is the amount of aevmos sent on genesis for accounts to be able to claim
+	GenesisDust = int64(gomath.Pow10(15))
+)
 
 // NewClaimsRecord creates a new claims record instance
 func NewClaimsRecord(initialClaimableAmt sdk.Int) ClaimsRecord {
