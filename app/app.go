@@ -1154,6 +1154,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v9 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v9.UpgradeName,
+		v9.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.DistrKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
