@@ -117,6 +117,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		MigrateGenesisCmd(),
+		GenerateGenesisCmd(app.DefaultNodeHome, app.ModuleBasics),
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
