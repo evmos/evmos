@@ -45,7 +45,7 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
 		}
 		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], refund); err != nil {
-			return fmt.Errorf("failed to return the following funds to address %s: %s", Accounts[i][1], availableCoins.String())
+			return err
 		}
 		availableCoins = availableCoins.Sub(refund)
 	}
