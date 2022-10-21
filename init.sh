@@ -29,10 +29,10 @@ acred config chain-id $CHAINID
 acred keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 
 # Allocate genesis accounts (cosmos formatted addresses)
-acred add-genesis-account $KEY 100000000000000000000000000uacre --keyring-backend $KEYRING
+acred add-genesis-account $KEY 100000000000000000000000000aacre --keyring-backend $KEYRING
 
 # Sign genesis transaction
-acred gentx $KEY 1000000000000000000000uacre --keyring-backend $KEYRING --chain-id $CHAINID
+acred gentx $KEY 1000000000000000000000aacre --keyring-backend $KEYRING --chain-id $CHAINID
 
 # Collect genesis tx
 acred collect-gentxs
@@ -40,12 +40,13 @@ acred collect-gentxs
 # Run this to ensure everything worked and that the genesis file is setup correctly
 acred validate-genesis
 
-# Change parameter token denominations to uacre
-cat $HOME/.acred/config/genesis.json | jq '.app_state["staking"]["params"]["bond_denom"]="uacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
-cat $HOME/.acred/config/genesis.json | jq '.app_state["crisis"]["constant_fee"]["denom"]="uacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
-cat $HOME/.acred/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="uacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
-cat $HOME/.acred/config/genesis.json | jq '.app_state["evm"]["params"]["evm_denom"]="uacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
-cat $HOME/.acred/config/genesis.json | jq '.app_state["inflation"]["params"]["mint_denom"]="uacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+# Change parameter token denominations to aacre
+cat $HOME/.acred/config/genesis.json | jq '.app_state["staking"]["params"]["bond_denom"]="aacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+cat $HOME/.acred/config/genesis.json | jq '.app_state["crisis"]["constant_fee"]["denom"]="aacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+cat $HOME/.acred/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+cat $HOME/.acred/config/genesis.json | jq '.app_state["gov"]["voting_params"]["voting_period"]="20s"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+cat $HOME/.acred/config/genesis.json | jq '.app_state["evm"]["params"]["evm_denom"]="aacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+cat $HOME/.acred/config/genesis.json | jq '.app_state["inflation"]["params"]["mint_denom"]="aacre"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
 
 # Set gas limit in genesis
 cat $HOME/.acred/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
@@ -65,7 +66,7 @@ cat $HOME/.acred/config/genesis.json | jq -r --arg current_date "$current_date" 
 
 # Claim module account:
 # 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || acre15cvq3ljql6utxseh0zau9m8ve2j8erz8aearn8
-cat $HOME/.acred/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"acre15cvq3ljql6utxseh0zau9m8ve2j8erz8aearn8","coins":[{"denom":"uacre", "amount":$amount_to_claim}]}]' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
+cat $HOME/.acred/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"acre15cvq3ljql6utxseh0zau9m8ve2j8erz8aearn8","coins":[{"denom":"aacre", "amount":$amount_to_claim}]}]' > $HOME/.acred/config/tmp_genesis.json && mv $HOME/.acred/config/tmp_genesis.json $HOME/.acred/config/genesis.json
 
 # disable produce empty block
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -110,4 +111,4 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-acred start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001uacre --json-rpc.api eth,txpool,personal,net,debug,web3
+acred start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aacre --json-rpc.api eth,txpool,personal,net,debug,web3

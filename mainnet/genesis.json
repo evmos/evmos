@@ -14,9 +14,7 @@
       "max_bytes": "1048576"
     },
     "validator": {
-      "pub_key_types": [
-        "ed25519"
-      ]
+      "pub_key_types": ["ed25519"]
     },
     "version": {}
   },
@@ -53,7 +51,7 @@
           "address": "acre1zasg70674vau3zaxh3ygysf8lgscz50al84jww",
           "coins": [
             {
-              "denom": "uacre",
+              "denom": "aacre",
               "amount": "1000000000000000000000000000"
             }
           ]
@@ -61,7 +59,7 @@
       ],
       "supply": [
         {
-          "denom": "uacre",
+          "denom": "aacre",
           "amount": "1000000000000000000000000000"
         }
       ],
@@ -73,7 +71,7 @@
     },
     "crisis": {
       "constant_fee": {
-        "denom": "uacre",
+        "denom": "aacre",
         "amount": "1000000000000000000"
       }
     },
@@ -161,7 +159,7 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "uacre",
+            "denom": "aacre",
             "amount": "500000000000000000000"
           }
         ],
@@ -182,10 +180,7 @@
         "clients_consensus": [],
         "clients_metadata": [],
         "params": {
-          "allowed_clients": [
-            "06-solomachine",
-            "07-tendermint"
-          ]
+          "allowed_clients": ["06-solomachine", "07-tendermint"]
         },
         "create_localhost": false,
         "next_client_sequence": "0"
@@ -249,7 +244,7 @@
     },
     "mint": {
       "params": {
-        "mint_denom": "uacre",
+        "mint_denom": "aacre",
         "genesis_daily_provisions": "821917808219.000000000000000000",
         "reduction_period_in_seconds": "31536000",
         "reduction_factor": "0.666600000000000000",
@@ -278,7 +273,7 @@
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 10000,
-        "bond_denom": "uacre"
+        "bond_denom": "aacre"
       },
       "last_total_power": "0",
       "last_validator_powers": [],

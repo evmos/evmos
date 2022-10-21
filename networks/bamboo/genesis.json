@@ -14,9 +14,7 @@
       "max_bytes": "1048576"
     },
     "validator": {
-      "pub_key_types": [
-        "ed25519"
-      ]
+      "pub_key_types": ["ed25519"]
     },
     "version": {}
   },
@@ -86,7 +84,7 @@
           "address": "acre1str3zwm44jf42gdc80chy4pptc62c4xrndmj6p",
           "coins": [
             {
-              "denom": "uacre",
+              "denom": "aacre",
               "amount": "5000000000000000000000"
             }
           ]
@@ -95,7 +93,7 @@
           "address": "acre1jq249kqjdtnlr2x678rcmaxfenpraadwe9fyna",
           "coins": [
             {
-              "denom": "uacre",
+              "denom": "aacre",
               "amount": "5000000000000000000000"
             }
           ]
@@ -104,7 +102,7 @@
           "address": "acre1c95wkhgexr2w7lk6ztumfux8clq73pq2tkyrq9",
           "coins": [
             {
-              "denom": "uacre",
+              "denom": "aacre",
               "amount": "5000000000000000000000"
             }
           ]
@@ -113,7 +111,7 @@
           "address": "acre1hz8v6h6z58y6rvffatp5yg5rc20w35q4ajsqtq",
           "coins": [
             {
-              "denom": "uacre",
+              "denom": "aacre",
               "amount": "5000000000000000000000"
             }
           ]
@@ -128,7 +126,7 @@
     },
     "crisis": {
       "constant_fee": {
-        "denom": "uacre",
+        "denom": "aacre",
         "amount": "1000"
       }
     },
@@ -157,7 +155,7 @@
     "evm": {
       "accounts": [],
       "params": {
-        "evm_denom": "uacre",
+        "evm_denom": "aacre",
         "enable_create": true,
         "enable_call": true,
         "extra_eips": [],
@@ -224,7 +222,7 @@
                   "key": "oAg2Y7eOJIDAXm7Whu8NCrrE63zreWHZihHdgQUfvJ0="
                 },
                 "value": {
-                  "denom": "uacre",
+                  "denom": "aacre",
                   "amount": "100000000000000000000"
                 }
               }
@@ -285,7 +283,7 @@
                   "key": "WY1tE4i8Si+ZeK/XgztJHV4a3zYDRdYuv7tEeiNY8bI="
                 },
                 "value": {
-                  "denom": "uacre",
+                  "denom": "aacre",
                   "amount": "100000000000000000000"
                 }
               }
@@ -346,7 +344,7 @@
                   "key": "I3s+gVGMvGhdV2Xmvf1+yJTL/Co1Eo3sMLrnWsxfxzA="
                 },
                 "value": {
-                  "denom": "uacre",
+                  "denom": "aacre",
                   "amount": "100000000000000000000"
                 }
               }
@@ -407,7 +405,7 @@
                   "key": "41053uqYNSK3tai0DE4x/zkGZDXe0emAjXTZZlnTZ28="
                 },
                 "value": {
-                  "denom": "uacre",
+                  "denom": "aacre",
                   "amount": "100000000000000000000"
                 }
               }
@@ -453,7 +451,7 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "uacre",
+            "denom": "aacre",
             "amount": "10000000"
           }
         ],
@@ -474,10 +472,7 @@
         "clients_consensus": [],
         "clients_metadata": [],
         "params": {
-          "allowed_clients": [
-            "06-solomachine",
-            "07-tendermint"
-          ]
+          "allowed_clients": ["06-solomachine", "07-tendermint"]
         },
         "create_localhost": false,
         "next_client_sequence": "0"
@@ -533,7 +528,7 @@
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 10000,
-        "bond_denom": "uacre"
+        "bond_denom": "aacre"
       },
       "last_total_power": "0",
       "last_validator_powers": [],

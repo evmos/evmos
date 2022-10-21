@@ -1,22 +1,26 @@
-
 # Update the system
+
 ```
 sudo apt-get update -y && sudo apt upgrade -y
 ```
 
 # Install git, gcc and make
+
 ```
 sudo apt-get install make build-essential gcc git jq chrony -y
 ```
 
-# Install Go 
+# Install Go
+
 ```
 wget https://golang.org/dl/go1.18.5.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.18.5.linux-amd64.tar.gz
 ```
 
 # Export environment variables
+
 ### Please don't forget to define your KEY_NAME and MONIKER_NAME for own at the rows of the end
+
 ```
 cat <<EOF >> $HOME/.profile
 export GOROOT=/usr/local/go
@@ -24,14 +28,15 @@ export GOPATH=$HOME/go
 export GO111MODULE=on
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 export CHAIN_ID=bamboo_9000-1
-export SERVICE_NAME=acred 
-export PROJECT_PATH=.acred 
-export PROJECT_NAME=acred 
-export TOKEN=uacre
+export SERVICE_NAME=acred
+export PROJECT_PATH=.acred
+export PROJECT_NAME=acred
+export TOKEN=aacre
 export KEY_NAME=write_your_key_name
 export MONIKER_NAME=write_your_moniker_name
 EOF
 ```
+
 ```
 source $HOME/.profile
 
@@ -40,12 +45,14 @@ go version
 ```
 
 # Build
+
 ```
 git clone https://github.com/ArableProtocol/acrechain && cd acrechain
 git checkout testnet_bamboo
 make install
 
 ```
+
 ```
 acred version --long
 
@@ -58,6 +65,7 @@ acred version --long
 ```
 
 # Copy binary - Setting up config
+
 ```
 sudo cp $HOME/go/bin/$SERVICE_NAME /usr/local/bin/$SERVICE_NAME
 
@@ -68,8 +76,9 @@ $SERVICE_NAME init $MONIKER_NAME --chain-id $CHAIN_ID
 ```
 
 # Create service
+
 ```
-sudo tee /etc/systemd/system/$SERVICE_NAME.service > /dev/null <<EOF  
+sudo tee /etc/systemd/system/$SERVICE_NAME.service > /dev/null <<EOF
 [Unit]
 Description=$PROJECT_NAME Node
 After=network-online.target
@@ -88,6 +97,7 @@ EOF
 ```
 
 # Download genesis
+
 ```
 wget -O $HOME/$PROJECT_PATH/config/genesis.json https://raw.githubusercontent.com/ArableProtocol/acrechain/testnet_bamboo/networks/bamboo/genesis.json
 
@@ -96,11 +106,13 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/$P
 ```
 
 # Clear db
+
 ```
 $SERVICE_NAME tendermint unsafe-reset-all --home $HOME/$PROJECT_PATH
 ```
 
 # Start service
+
 ```
 sudo systemctl daemon-reload && \
 sudo systemctl enable $SERVICE_NAME && \
@@ -109,8 +121,9 @@ sudo journalctl -u $SERVICE_NAME -f -o cat
 ```
 
 # Create a wallet and a validator after syncing
+
 ```
-$SERVICE_NAME keys add $KEY_NAME 
+$SERVICE_NAME keys add $KEY_NAME
 $SERVICE_NAME tx staking create-validator \
   --amount="<AMOUNT>$TOKEN" \
   --pubkey=$($SERVICE_NAME tendermint show-validator) \
