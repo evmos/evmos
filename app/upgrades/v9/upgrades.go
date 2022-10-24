@@ -21,9 +21,16 @@ func CreateUpgradeHandler(
 
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("recovering lost funds from clawback...")
-			if err := ReturnFundsFromCommunityPool(ctx, dk); err != nil {
+
+			// use a cache context as a rollback mechanism in case
+			// the refund fails
+			cacheCtx, writeFn := ctx.CacheContext()
+			err := ReturnFundsFromCommunityPool(cacheCtx, dk)
+			if err != nil {
 				// log error instead of aborting the upgrade
 				logger.Error("FAILED TO RECOVER FROM COMMUNITY FUNDS", "error", err.Error())
+			} else {
+				writeFn()
 			}
 		}
 
@@ -40,11 +47,17 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 		return fmt.Errorf("failed to read maximum amount to recover from community funds")
 	}
 	for i := range Accounts {
-		refund, _ := sdk.NewIntFromString(Accounts[i][1])
+		address := Accounts[i][0]
+		amt := Accounts[i][1]
+
+		refund, _ := sdk.NewIntFromString(amt)
 		if availableCoins.LT(refund) {
-			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
+			return fmt.Errorf(
+				"refund to address %s exceeds the total available coins: %s > %s",
+				address, amt, availableCoins,
+			)
 		}
-		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, Accounts[i][0], refund); err != nil {
+		if err := ReturnFundsFromCommunityPoolToAccount(ctx, dk, address, refund); err != nil {
 			return err
 		}
 		availableCoins = availableCoins.Sub(refund)
