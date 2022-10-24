@@ -55,12 +55,9 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 // ReturnFundsFromCommunityPoolToAccount sends specified amount from the community pool to the affected account
 func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdk.Int) error {
 	to := sdk.MustAccAddressFromBech32(account)
-	balance := sdk.Coin{
-		Denom:  "aevmos",
-		Amount: amount,
-	}
+	balance := sdk.NewCoin("aevmos", amount)
 
-	if err := dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to); err != nil {
+	if err := dk.DistributeFromFeePool(ctx, sdk.NewCoins(balance), to); err != nil {
 		return err
 	}
 	return nil
