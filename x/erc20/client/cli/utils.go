@@ -11,7 +11,6 @@ import (
 )
 
 // ParseRegisterCoinProposal reads and parses a ParseRegisterCoinProposal from a file.
-// TODO: add unit test
 func ParseMetadata(cdc codec.JSONCodec, metadataFile string) ([]banktypes.Metadata, error) {
 	proposalMetadata := types.ProposalMetadata{}
 

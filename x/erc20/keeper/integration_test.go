@@ -116,23 +116,56 @@ var _ = Describe("ERC20:", Ordered, func() {
 			})
 
 			It("should create a governance proposal", func() {
+				// register with sufficient deposit
 				id = registerCoinProposal(privKey, []banktypes.Metadata{metadataIbc})
 				s.Commit()
 				_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 				s.Require().True(found)
+
 				// TODO Make proposal pass
+				// vote
 				// vote(privKey, id)
 				// s.Commit()
-				// proposal, found = s.app.GovKeeper.GetProposal(s.ctx, id)
-				// fmt.Println(proposal.Status)
-
-				// duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 10000000000
-				// s.CommitAfter(duration)
+				// fmt.Println("******************************")
 				// fmt.Println(s.ctx.BlockTime())
 
+				// duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
+				// s.CommitAfter(duration)
+
 				// proposal, found = s.app.GovKeeper.GetProposal(s.ctx, id)
 				// fmt.Println(proposal.Status)
+				// fmt.Println(proposal.VotingEndTime)
+				// fmt.Println(s.ctx.BlockTime())
+				// fmt.Println(proposal.FinalTallyResult)
+
+				// delegations := s.app.StakingKeeper.GetAllDelegations(s.ctx)
+				// fmt.Println(delegations)
+				// fmt.Println(accAddr.String())
+				// fmt.Println(s.app.AccountKeeper.GetAccount(s.ctx, delegations[0].GetDelegatorAddr()))
+				// fmt.Println("******************************")
 				// s.Require().True(!found)
+
+			})
+		})
+		Describe("for multiple Cosmos Coins", func() {
+			BeforeEach(func() {
+				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
+				coins := sdk.NewCoins(
+					sdk.NewCoin("aevmos", sdk.NewInt(10000000000)),
+					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000000000)),
+					sdk.NewCoin(metadataIbc.Base, sdk.NewInt(1)),
+					sdk.NewCoin(metadataCoin.Base, sdk.NewInt(1)),
+				)
+				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, coins)
+				s.Require().NoError(err)
+				s.Commit()
+			})
+
+			It("should create a governance proposal", func() {
+				id = registerCoinProposal(privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
+				s.Commit()
+				_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
+				s.Require().True(found)
 			})
 		})
 	})

@@ -149,26 +149,28 @@ The proposal details must be supplied via a JSON file.`,
 
 Where metadata.json contains (example):
 
-[
-	{
-		"description": "The native staking and governance token of the Osmosis chain",
-		"denom_units": [
-			{
-					"denom": "ibc/<HASH>",
-					"exponent": 0,
-					"aliases": ["ibcuosmo"]
-			},
-			{
-					"denom": "OSMO",
-					"exponent": 6
-			}
-		],
-		"base": "ibc/<HASH>",
-		"display": "OSMO",
-		"name": "Osmo",
-		"symbol": "OSMO"
-	}
-]`, version.AppName,
+{
+  "metadata": [
+    {
+			"description": "The native staking and governance token of the Osmosis chain",
+			"denom_units": [
+				{
+						"denom": "ibc/<HASH>",
+						"exponent": 0,
+						"aliases": ["ibcuosmo"]
+				},
+				{
+						"denom": "OSMO",
+						"exponent": 6
+				}
+			],
+			"base": "ibc/<HASH>",
+			"display": "OSMO",
+			"name": "Osmo",
+			"symbol": "OSMO"
+		}
+	]
+}`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

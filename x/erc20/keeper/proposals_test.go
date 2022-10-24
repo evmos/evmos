@@ -46,7 +46,7 @@ var (
 				Exponent: 0,
 			},
 			{
-				Denom:    cosmosTokenBase,
+				Denom:    cosmosTokenDisplay,
 				Exponent: defaultExponent,
 			},
 		},
