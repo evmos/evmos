@@ -3,6 +3,7 @@ package v9
 import (
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -35,12 +36,12 @@ func CreateUpgradeHandler(
 
 // ReturnFundsFromCommunityPool handles the return of funds from the community pool to accounts affected during the claims clawback
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
-	availableCoins, ok := sdk.NewIntFromString(MaxRecover)
+	availableCoins, ok := sdkmath.NewIntFromString(MaxRecover)
 	if !ok || availableCoins.IsNegative() {
 		return fmt.Errorf("failed to read maximum amount to recover from community funds")
 	}
 	for i := range Accounts {
-		refund, _ := sdk.NewIntFromString(Accounts[i][1])
+		refund, _ := sdkmath.NewIntFromString(Accounts[i][1])
 		if availableCoins.LT(refund) {
 			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
 		}
@@ -53,7 +54,7 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 }
 
 // ReturnFundsFromCommunityPoolToAccount sends specified amount from the community pool to the affected account
-func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdk.Int) error {
+func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdkmath.Int) error {
 	to := sdk.MustAccAddressFromBech32(account)
 	balance := sdk.NewCoin("aevmos", amount)
 
