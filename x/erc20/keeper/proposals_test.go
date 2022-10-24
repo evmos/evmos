@@ -89,27 +89,15 @@ func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Ad
 	return contract
 }
 
-func (suite *KeeperTestSuite) setupRegisterCoin() (banktypes.Metadata, *types.TokenPair) {
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadataCoin.Base, 1)})
+func (suite *KeeperTestSuite) setupRegisterCoin(metadata banktypes.Metadata) *types.TokenPair {
+	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
 	suite.Require().NoError(err)
 
 	// pair := types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
-	pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, metadataCoin)
+	pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, metadata)
 	suite.Require().NoError(err)
 	suite.Commit()
-	return metadataCoin, pair
-}
-
-// TODO refactor to use setupRegisterCoin
-func (suite *KeeperTestSuite) setupRegisterIBCVoucher() (banktypes.Metadata, *types.TokenPair) {
-	err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadataIbc.Base, 1)})
-	suite.Require().NoError(err)
-
-	// pair := types.NewTokenPair(contractAddr, cosmosTokenBase, true, types.OWNER_MODULE)
-	pair, err := suite.app.Erc20Keeper.RegisterCoin(suite.ctx, metadataIbc)
-	suite.Require().NoError(err)
-	suite.Commit()
-	return metadataIbc, pair
+	return pair
 }
 
 func (suite KeeperTestSuite) TestRegisterCoin() {
@@ -338,10 +326,6 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 			}
 		})
 	}
-}
-
-func (suite *KeeperTestSuite) TestRegisterIBCVoucher() {
-	suite.setupRegisterIBCVoucher()
 }
 
 func (suite KeeperTestSuite) TestToggleConverision() {
