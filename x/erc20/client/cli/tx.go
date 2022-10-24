@@ -242,7 +242,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 		Use:     "register-erc20 ERC20_ADDRESS...",
 		Args:    cobra.MinimumNArgs(1),
 		Short:   "Submit a proposal to register ERC20 token",
-		Long:    "Submit a proposal to register ERC20 tokens along with an initial deposit.",
+		Long:    "Submit a proposal to register ERC20 tokens along with an initial deposit. To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>` ",
 		Example: fmt.Sprintf("$ %s tx gov submit-proposal register-erc20 <contract-address> --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

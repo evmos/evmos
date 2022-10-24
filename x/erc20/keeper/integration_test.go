@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"strconv"
 
@@ -92,9 +93,11 @@ var _ = Describe("ERC20:", Ordered, func() {
 	moduleAcc := s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName).GetAddress()
 
 	var (
-		pair *types.TokenPair
-		coin sdk.Coin
-		id   uint64
+		pair      *types.TokenPair
+		coin      sdk.Coin
+		id        uint64
+		contract  common.Address
+		contract2 common.Address
 	)
 
 	BeforeEach(func() {
@@ -102,52 +105,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 	})
 
 	Describe("Registering Token Pairs through governance", func() {
-		Describe("for a single Cosmos Coin", func() {
-			BeforeEach(func() {
-				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
-				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", sdk.NewInt(10000000000)),
-					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000000000)),
-					sdk.NewCoin(metadataIbc.Base, sdk.NewInt(1)),
-				)
-				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, coins)
-				s.Require().NoError(err)
-				s.Commit()
-			})
-
-			It("should create a governance proposal", func() {
-				// register with sufficient deposit
-				id = registerCoinProposal(privKey, []banktypes.Metadata{metadataIbc})
-				s.Commit()
-				_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-				s.Require().True(found)
-
-				// TODO Make proposal pass
-				// vote
-				// vote(privKey, id)
-				// s.Commit()
-				// fmt.Println("******************************")
-				// fmt.Println(s.ctx.BlockTime())
-
-				// duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
-				// s.CommitAfter(duration)
-
-				// proposal, found = s.app.GovKeeper.GetProposal(s.ctx, id)
-				// fmt.Println(proposal.Status)
-				// fmt.Println(proposal.VotingEndTime)
-				// fmt.Println(s.ctx.BlockTime())
-				// fmt.Println(proposal.FinalTallyResult)
-
-				// delegations := s.app.StakingKeeper.GetAllDelegations(s.ctx)
-				// fmt.Println(delegations)
-				// fmt.Println(accAddr.String())
-				// fmt.Println(s.app.AccountKeeper.GetAccount(s.ctx, delegations[0].GetDelegatorAddr()))
-				// fmt.Println("******************************")
-				// s.Require().True(!found)
-
-			})
-		})
-		Describe("for multiple Cosmos Coins", func() {
+		Context("with existing coins", func() {
 			BeforeEach(func() {
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
 				coins := sdk.NewCoins(
@@ -160,12 +118,83 @@ var _ = Describe("ERC20:", Ordered, func() {
 				s.Require().NoError(err)
 				s.Commit()
 			})
+			Describe("for a single Cosmos Coin", func() {
+				It("should create a governance proposal", func() {
+					// register with sufficient deposit
+					id = registerCoinProposal(privKey, []banktypes.Metadata{metadataIbc})
+					s.Commit()
+					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
+					s.Require().True(found)
 
-			It("should create a governance proposal", func() {
-				id = registerCoinProposal(privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
+					// TODO Make proposal pass
+					// vote
+					vote(privKey, id)
+					s.Commit()
+
+					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
+					s.CommitAfter(duration)
+
+					proposal, found = s.app.GovKeeper.GetProposal(s.ctx, id)
+					fmt.Println(proposal.Status)
+
+					// !DEBUG
+					// fmt.Println("******************************")
+					// fmt.Println(s.ctx.BlockTime())
+					// fmt.Println(proposal.VotingEndTime)
+					// fmt.Println(s.ctx.BlockTime())
+					// fmt.Println(proposal.FinalTallyResult)
+
+					// delegations := s.app.StakingKeeper.GetAllDelegations(s.ctx)
+					// fmt.Println(delegations)
+					// fmt.Println(accAddr.String())
+					// fmt.Println(s.app.AccountKeeper.GetAccount(s.ctx, delegations[0].GetDelegatorAddr()))
+					// fmt.Println("******************************")
+					// s.Require().True(!found)
+
+					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
+					s.Require().Equal(len(tokenPairs), 1)
+				})
+			})
+			Describe("for multiple Cosmos Coins", func() {
+				It("should create a governance proposal", func() {
+					id = registerCoinProposal(privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
+					s.Commit()
+					_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
+					s.Require().True(found)
+				})
+			})
+		})
+		Context("with deployed contracts", func() {
+			BeforeEach(func() {
+				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
+				contract, _ = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+				contract2, _ = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+
+				coins := sdk.NewCoins(
+					sdk.NewCoin("aevmos", sdk.NewInt(10000000000)),
+					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000000000)),
+				)
+				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, coins)
+				s.Require().NoError(err)
 				s.Commit()
-				_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-				s.Require().True(found)
+			})
+			Describe("for a single ERC20 token", func() {
+				It("should create a governance proposal", func() {
+					// register with sufficient deposit
+					id = registerERC20Proposal(privKey, []string{contract.String()})
+					s.Commit()
+					_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
+					s.Require().True(found)
+				})
+			})
+			Describe("for a single ERC20 token", func() {
+				It("should create a governance proposal", func() {
+					// register with sufficient deposit
+					id = registerERC20Proposal(privKey, []string{contract.String(), contract2.String()})
+					s.Commit()
+					_, found := s.app.GovKeeper.GetProposal(s.ctx, id)
+					s.Require().True(found)
+				})
 			})
 		})
 	})
@@ -292,9 +321,18 @@ var _ = Describe("ERC20:", Ordered, func() {
 	})
 })
 
-func registerCoinProposal(priv *ethsecp256k1.PrivKey, metadata []banktypes.Metadata) uint64 {
+func registerCoinProposal(priv *ethsecp256k1.PrivKey, metadata []banktypes.Metadata) (id uint64) {
+	content := types.NewRegisterCoinProposal("test Coin", "foo", metadata...)
+	return submitProposal(priv, content)
+}
+
+func registerERC20Proposal(priv *ethsecp256k1.PrivKey, addrs []string) (id uint64) {
+	content := types.NewRegisterERC20Proposal("test token", "foo", addrs...)
+	return submitProposal(priv, content)
+}
+
+func submitProposal(priv *ethsecp256k1.PrivKey, content govv1beta1.Content) (id uint64) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	content := types.NewRegisterCoinProposal("test", "description", metadata...)
 	stakeDenom := stakingtypes.DefaultParams().BondDenom
 
 	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
@@ -316,7 +354,7 @@ func registerCoinProposal(priv *ethsecp256k1.PrivKey, metadata []banktypes.Metad
 func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 2)
+	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 1)
 	deliverTx(priv, voteMsg)
 }
 
