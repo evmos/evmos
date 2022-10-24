@@ -142,9 +142,7 @@ func NewRegisterCoinProposalCmd() *cobra.Command {
 		Use:   "register-coin METADATA_FILE",
 		Args:  cobra.ExactArgs(1),
 		Short: "Submit a register coin proposal",
-		Long: `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit.
-Upon passing, the
-The proposal details must be supplied via a JSON file.`,
+		Long:  `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. The proposal details must be supplied via a JSON file.`,
 		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin metadata.json --from=<key_or_address>
 
 Where metadata.json contains (example):

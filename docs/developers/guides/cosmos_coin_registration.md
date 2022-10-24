@@ -25,9 +25,14 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register a Cosmos Coin, consider the following stages:
 
-1. [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
-2. [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
-3. [The On-Chain Cosmos Coin Proposal](#the-on-chain-cosmos-coin-proposal)
+- [Cosmos Coin Registration](#cosmos-coin-registration)
+  - [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
+  - [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
+    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
+    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+  - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+    - [The Deposit Period](#the-deposit-period)
+    - [The Voting Period](#the-voting-period)
 
 ## Drafting the Cosmos Coin Proposal
 
@@ -77,24 +82,48 @@ where `metadata.json` contains (as an example, for Osmosis):
 
 ```json
 {
-        "description": "The native staking and governance token of the Osmosis chain",
-        "denom_units": [
-                {
-                                "denom": "ibc/<HASH>",
-                                "exponent": 0,
-                                "aliases": ["ibcuosmo"]
-                },
-                {
-                                "denom": "OSMO",
-                                "exponent": 6
-                }
-        ],
-        "base": "ibc/<HASH>",
-        "display": "OSMO",
-        "name": "Osmo",
-        "symbol": "OSMO"
+    "metadata": [
+        {
+			"description": "The native staking and governance token of the Osmosis chain",
+			"denom_units": [
+				{
+						"denom": "ibc/<HASH>",
+						"exponent": 0,
+						"aliases": ["ibcuosmo"]
+				},
+				{
+						"denom": "OSMO",
+						"exponent": 6
+				}
+			],
+			"base": "ibc/<HASH>",
+			"display": "OSMO",
+			"name": "Osmo",
+			"symbol": "OSMO"
+		}
+	]
 }
 ```
+
+Note that you can register multiple coins in one proposal by extending the `"metadata"` array with multiple metadata entries, e.g.
+
+```json
+{
+    "metadata": [
+        {
+			"description": "The native staking and governance token of the Osmosis chain",
+            // ...
+   			"symbol": "OSMO"
+		},
+        {
+			"description": "The native staking and governance token of the Cosmos chain",
+            // ...
+   			"symbol": "ATOM"
+		},
+	]
+}
+```
+
 
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 
