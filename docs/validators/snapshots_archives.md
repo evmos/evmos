@@ -44,7 +44,7 @@ tar xf evmos_9001-2-410819.tar
 
 ### PebbleDB
 
-To use pebbledb instead of goleveldb when using snapshots from Notional:
+To use PebbleDB instead of GoLevelDB when using snapshots from Notional:
 
 Build:
 
