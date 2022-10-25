@@ -133,7 +133,7 @@ let response = await broadcastPost.json();
 
 #### Sign and Broadcast EVM Transactions
 
-Developers can use Metamask or Keplr to sign off on EVM transactions as well, to manage NFTs, exchange ERC-20 tokens, and more.
+Developers can use Metamask or Keplr to help users sign off on EVM transactions with either Ledger or software keys, to manage NFTs, exchange ERC-20 tokens, and more.
 
 ```js
 import { JsonRpcProvider } from '@ethersproject/providers';
