@@ -3,6 +3,8 @@ package v9
 import (
 	"fmt"
 
+	"github.com/tendermint/tendermint/libs/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -21,22 +23,26 @@ func CreateUpgradeHandler(
 
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("recovering lost funds from clawback...")
-
-			// use a cache context as a rollback mechanism in case
-			// the refund fails
-			cacheCtx, writeFn := ctx.CacheContext()
-			err := ReturnFundsFromCommunityPool(cacheCtx, dk)
-			if err != nil {
-				// log error instead of aborting the upgrade
-				logger.Error("FAILED TO RECOVER FROM COMMUNITY FUNDS", "error", err.Error())
-			} else {
-				writeFn()
-			}
+			ExecuteReturnFunds(ctx, dk, logger)
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
+	}
+}
+
+// ExecuteReturnFunds tries to return funds to the community, and commits to the db if succesfull
+func ExecuteReturnFunds(ctx sdk.Context, dk distrKeeper.Keeper, logger log.Logger) {
+	// use a cache context as a rollback mechanism in case
+	// the refund fails
+	cacheCtx, writeFn := ctx.CacheContext()
+	err := ReturnFundsFromCommunityPool(cacheCtx, dk)
+	if err != nil {
+		// log error instead of aborting the upgrade
+		logger.Error("FAILED TO RECOVER FROM COMMUNITY FUNDS", "error", err.Error())
+	} else {
+		writeFn()
 	}
 }
 

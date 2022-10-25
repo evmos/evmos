@@ -1,6 +1,7 @@
 package v9_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -75,36 +76,122 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
-	suite.SetupTest(evmostypes.TestnetChainID + "-2")
+func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 
-	// send funds to the community pool
-	priv, err := ethsecp256k1.GenerateKey()
-	suite.Require().NoError(err)
-	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	sender := sdk.AccAddress(address.Bytes())
-	res, _ := sdk.NewIntFromString(v9.MaxRecover)
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
-	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
-	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
-	suite.Require().NoError(err)
+	firstAccountAmount := v9.Accounts[0][1]
+	thousandAccountAmount := v9.Accounts[1000][1]
 
-	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-	suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+	testCases := []struct {
+		name            string
+		chainID         string
+		malleate        func()
+		expectedSuccess bool
+	}{
+		{
+			"Mainnet - sucess",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+				// send funds to the community pool
+				priv, err := ethsecp256k1.GenerateKey()
+				suite.Require().NoError(err)
+				address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+				sender := sdk.AccAddress(address.Bytes())
+				res, _ := sdk.NewIntFromString(v9.MaxRecover)
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
+				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+				suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
+				suite.Require().NoError(err)
 
-	// return funds to accounts affected
-	err = v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
-	suite.Require().NoError(err)
+				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+			},
+			true,
+		},
+		{
+			"Mainnet - first account > MaxRecover",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+				// send funds to the community pool
+				priv, err := ethsecp256k1.GenerateKey()
+				suite.Require().NoError(err)
+				address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+				sender := sdk.AccAddress(address.Bytes())
+				res, _ := sdk.NewIntFromString(v9.MaxRecover)
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
+				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+				suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
+				suite.Require().NoError(err)
 
-	// check balance of affected accounts
-	for i := range v9.Accounts {
-		addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
-		res, _ := sdk.NewIntFromString(v9.Accounts[i][1])
-		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
-		suite.Require().Equal(balance.Amount, res)
+				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+
+				v9.Accounts[0][1] = v9.MaxRecover
+			},
+			false,
+		},
+		{
+			"Mainnet - middle account > MaxRecover",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+				// send funds to the community pool
+				priv, err := ethsecp256k1.GenerateKey()
+				suite.Require().NoError(err)
+				address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+				sender := sdk.AccAddress(address.Bytes())
+				res, _ := sdk.NewIntFromString(v9.MaxRecover)
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
+				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+				suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
+				suite.Require().NoError(err)
+
+				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+
+				v9.Accounts[1000][1] = v9.MaxRecover
+			},
+			false,
+		},
+		{
+			"Mainnet - fail communityFund is empty",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+			},
+			false,
+		},
 	}
 
-	balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-	suite.Require().True(balanceAfter.IsZero())
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest(tc.chainID)
+
+			tc.malleate()
+
+			logger := suite.ctx.Logger().With("upgrade", "Test v9 Upgrade")
+			v9.ExecuteReturnFunds(suite.ctx, suite.app.DistrKeeper, logger)
+
+			// check balance of affected accounts
+			if tc.expectedSuccess {
+				for i := range v9.Accounts {
+					addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
+					res, _ := sdk.NewIntFromString(v9.Accounts[i][1])
+					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
+					suite.Require().Equal(balance.Amount, res)
+				}
+
+				balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				suite.Require().True(balanceAfter.IsZero())
+			} else {
+				for i := range v9.Accounts {
+					addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
+					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
+					suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+				}
+			}
+			v9.Accounts[0][1] = firstAccountAmount
+			v9.Accounts[1000][1] = thousandAccountAmount
+		})
+	}
 }
