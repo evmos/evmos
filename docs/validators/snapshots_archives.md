@@ -43,6 +43,7 @@ tar xf evmos_9001-2-410819.tar
 ```
 
 ### pebbledb
+
 To use pebbledb instead of goleveldb when using snapshots from Notional:
 
 Build:
