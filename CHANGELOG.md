@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v9.1.0] - 2022-10-25
+
+### Improvements
+
+- (deps) [\#1011](https://github.com/evmos/evmos/pull/1011) Bump Cosmos SDK to [`v0.45.10`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.10)
+
 ## [v9.0.0] - 2022-10-21
 
 ### Bug Fixes
