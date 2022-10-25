@@ -42,7 +42,7 @@ wget https://snapshots.nodes.guru/evmos_9001-2/evmos_9001-2-410819.tar
 tar xf evmos_9001-2-410819.tar
 ```
 
-### pebbledb
+### PebbleDB
 
 To use pebbledb instead of goleveldb when using snapshots from Notional:
 
@@ -70,4 +70,4 @@ Set `db_backend = "pebbledb"` in `config.toml` or start with `--db_backend=pebbl
 evmosd start --db_backend=pebbledb
 ```
 
-Note: a [workaround](https://github.com/notional-labs/cosmosia/blob/main/docs/pebbledb.md) when upgrading a node running pebbledb.
+**Note**: use this [workaround](https://github.com/notional-labs/cosmosia/blob/main/docs/pebbledb.md) when upgrading a node running PebbleDB.
