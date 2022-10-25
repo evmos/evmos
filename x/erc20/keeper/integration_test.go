@@ -114,7 +114,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					sdk.NewCoin(metadataIbc.Base, sdk.NewInt(1)),
 					sdk.NewCoin(metadataCoin.Base, sdk.NewInt(1)),
 				)
-				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, coins)
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
 
 				tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
@@ -185,7 +185,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000000000)),
 				)
-				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, coins)
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
 
 				tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
@@ -256,9 +256,9 @@ var _ = Describe("ERC20:", Ordered, func() {
 				coin = sdk.NewCoin(pair.Denom, amt)
 
 				denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.TokensFromConsensusPower(100, ethermint.PowerReduction))))
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.TokensFromConsensusPower(100, ethermint.PowerReduction))))
 				s.Require().NoError(err)
-				err = testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(coin))
+				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(coin))
 				s.Require().NoError(err)
 			})
 
@@ -315,7 +315,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				coin = sdk.NewCoin(pair.Denom, amt)
 
 				denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-				err := testutil.FundAccount(s.app.BankKeeper, s.ctx, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(1000))))
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(1000))))
 				s.Require().NoError(err)
 
 				_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))
@@ -438,7 +438,6 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(100_000_000)

@@ -110,7 +110,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				vestingAcc := vestingtypes.NewClawbackVestingAccount(bAcc, funder, coins, time.Now().UTC(), nil, nil)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
 
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -134,7 +134,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(amount)))
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
@@ -148,11 +148,11 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr3, nil, 0, 0))
 
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
-				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr2, coins)
+				err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr2, coins)
 				suite.Require().NoError(err)
-				err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr3, coins)
+				err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr3, coins)
 				suite.Require().NoError(err)
 
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
@@ -199,7 +199,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			amount,
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(amount)))
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 		},
