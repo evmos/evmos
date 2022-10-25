@@ -47,6 +47,7 @@ tar xf evmos_9001-2-410819.tar
 To use pebbledb instead of goleveldb when using snapshots from Notional:
 
 Build:
+
 ```bash
 go mod edit -replace github.com/tendermint/tm-db=github.com/baabeetaa/tm-db@pebble
 go mod tidy
@@ -54,6 +55,7 @@ go install -tags pebbledb -ldflags "-w -s -X github.com/cosmos/cosmos-sdk/types.
 ```
 
 Download snapshot:
+
 ```bash
 cd $HOME/.evmosd/
 URL_SNAPSHOT="https://snapshot.notional.ventures/evmos/data_20221024_193254.tar.gz"
@@ -63,6 +65,7 @@ wget -O - "$URL_SNAPSHOT" |tar -xzf -
 Start:
 
 Set `db_backend = "pebbledb"` in `config.toml` or start with `--db_backend=pebbledb`
+
 ```bash
 evmosd start --db_backend=pebbledb
 ```
