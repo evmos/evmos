@@ -23,7 +23,7 @@ func CreateUpgradeHandler(
 
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("recovering lost funds from clawback...")
-			ExecuteReturnFunds(ctx, dk, logger)
+			HandleMainnetUpgrade(ctx, dk, logger)
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
@@ -32,8 +32,8 @@ func CreateUpgradeHandler(
 	}
 }
 
-// ExecuteReturnFunds tries to return funds to the community, and commits to the db if succesfull
-func ExecuteReturnFunds(ctx sdk.Context, dk distrKeeper.Keeper, logger log.Logger) {
+// HandleMainnetUpgrade tries to return funds to the community, and commits to the db if successful
+func HandleMainnetUpgrade(ctx sdk.Context, dk distrKeeper.Keeper, logger log.Logger) {
 	// use a cache context as a rollback mechanism in case
 	// the refund fails
 	cacheCtx, writeFn := ctx.CacheContext()

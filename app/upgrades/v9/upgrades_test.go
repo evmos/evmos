@@ -170,7 +170,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 			tc.malleate()
 
 			logger := suite.ctx.Logger().With("upgrade", "Test v9 Upgrade")
-			v9.ExecuteReturnFunds(suite.ctx, suite.app.DistrKeeper, logger)
+			v9.HandleMainnetUpgrade(suite.ctx, suite.app.DistrKeeper, logger)
 
 			// check balance of affected accounts
 			if tc.expectedSuccess {
