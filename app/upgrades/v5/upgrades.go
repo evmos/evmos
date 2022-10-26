@@ -23,8 +23,6 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v9/types"
-	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 )
 
 // TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
@@ -52,7 +50,6 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
-	ck *claimskeeper.Keeper,
 	sk stakingkeeper.Keeper,
 	pk paramskeeper.Keeper,
 	tk ibctransferkeeper.Keeper,
@@ -81,11 +78,6 @@ func CreateUpgradeHandler(
 		logger.Debug("updating IBC transfer denom traces...")
 		UpdateIBCDenomTraces(ctx, tk)
 
-		logger.Debug("swaping claims record actions...")
-		ResolveAirdrop(ctx, ck)
-
-		logger.Debug("migrating early contributor claim record...")
-		MigrateContributorClaim(ctx, ck)
 		// define from versions of the modules that have a new consensus version
 
 		// migrate fee market module, other modules are left as-is to
@@ -129,77 +121,6 @@ func MigrateGenesis(appState genutiltypes.AppMap, clientCtx client.Context) genu
 	return appState
 }
 
-// ResolveAirdrop iterates over all the available claim records and
-// attempts to swap claimed actions and unclaimed actions.
-// The following priority is considered, and only one swap will be performed:
-// 1 - Unclaimed EVM      <-> claimed IBC
-// 2 - Unclaimed EVM      <-> claimed Vote
-// 3 - Unclaimed EVM      <-> claimed Delegate
-// 4 - Unclaimed Vote     <-> claimed IBC
-// 5 - Unclaimed Delegate <-> claimed IBC
-//
-// Rationale: A few users tokens are still locked due to issues with the airdrop
-// By swapping claimed actions we allow the users to migrate the records via IBC if needed
-// or mark the Evm action as completed for the Keplr users who are not able to complete it
-// Since no actual claiming of action is occurring, balance will remain unchanged
-func ResolveAirdrop(ctx sdk.Context, k *claimskeeper.Keeper) {
-	claimsRecords := []claimstypes.ClaimsRecordAddress{}
-	k.IterateClaimsRecords(ctx, func(addr sdk.AccAddress, cr claimstypes.ClaimsRecord) (stop bool) {
-		// Perform any possible swap
-		override := swapUnclaimedAction(cr, claimstypes.ActionEVM, claimstypes.ActionIBCTransfer) ||
-			swapUnclaimedAction(cr, claimstypes.ActionEVM, claimstypes.ActionVote) ||
-			swapUnclaimedAction(cr, claimstypes.ActionEVM, claimstypes.ActionDelegate) ||
-			swapUnclaimedAction(cr, claimstypes.ActionVote, claimstypes.ActionIBCTransfer) ||
-			swapUnclaimedAction(cr, claimstypes.ActionDelegate, claimstypes.ActionIBCTransfer)
-
-		// If any actions were swapped, override the previous claims record
-		if override {
-			claim := claimstypes.ClaimsRecordAddress{
-				Address:                addr.String(),
-				InitialClaimableAmount: cr.InitialClaimableAmount,
-				ActionsCompleted:       cr.ActionsCompleted,
-			}
-			claimsRecords = append(claimsRecords, claim)
-		}
-		return false
-	})
-
-	for _, claim := range claimsRecords {
-		addr := sdk.MustAccAddressFromBech32(claim.Address)
-		cr := claimstypes.ClaimsRecord{
-			InitialClaimableAmount: claim.InitialClaimableAmount,
-			ActionsCompleted:       claim.ActionsCompleted,
-		}
-
-		k.SetClaimsRecord(ctx, addr, cr)
-	}
-}
-
-func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimstypes.Action) bool {
-	if !cr.HasClaimedAction(unclaimed) && cr.HasClaimedAction(claimed) {
-		cr.ActionsCompleted[unclaimed-1] = true
-		cr.ActionsCompleted[claimed-1] = false
-		return true
-	}
-	return false
-}
-
-// MigrateContributorClaim migrates the claims record of a specific early
-// contributor (Blockchain at Berkeley) from one address to another.
-// See https://medium.com/evmos/the-evmos-rektdrop-abbe931ba823 for details about
-// Early Contributors.
-func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
-	from := sdk.MustAccAddressFromBech32(ContributorAddrFrom)
-	to := sdk.MustAccAddressFromBech32(ContributorAddrTo)
-
-	cr, found := k.GetClaimsRecord(ctx, from)
-	if !found {
-		return
-	}
-
-	k.DeleteClaimsRecord(ctx, from)
-	k.SetClaimsRecord(ctx, to, cr)
-}
 
 // UpdateConsensusParams updates the Tendermint Consensus Evidence params (MaxAgeDuration and
 // MaxAgeNumBlocks) to match the unbonding period and use the expected avg block time based on the

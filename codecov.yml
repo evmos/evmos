@@ -61,6 +61,8 @@ ignore:
   - "proto"
   - "third_party"
   - "testutil"
+  - "x/claims"
+  - "x/recovery"
   - "**/test_*.go"
   - "**/*.pb.go"
   - "**/*.pb.gw.go"

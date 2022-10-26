@@ -16,7 +16,6 @@ import (
 
 	v5 "github.com/evmos/evmos/v9/app/upgrades/v5"
 	"github.com/evmos/evmos/v9/types"
-	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v6
@@ -24,7 +23,6 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
-	ck *claimskeeper.Keeper,
 	sk stakingkeeper.Keeper,
 	pk paramskeeper.Keeper,
 	tk ibctransferkeeper.Keeper,
@@ -51,12 +49,6 @@ func CreateUpgradeHandler(
 
 			logger.Debug("updating IBC transfer denom traces...")
 			v5.UpdateIBCDenomTraces(ctx, tk)
-
-			logger.Debug("swaping claims record actions...")
-			v5.ResolveAirdrop(ctx, ck)
-
-			logger.Debug("migrating early contributor claim record...")
-			v5.MigrateContributorClaim(ctx, ck)
 
 			// define from versions of the modules that have a new consensus version
 			// migrate fee market module

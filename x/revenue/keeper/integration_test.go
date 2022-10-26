@@ -923,7 +923,6 @@ func checkEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumT
 func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) []byte {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
 
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
@@ -932,7 +931,8 @@ func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...
 		_gasPrice := sdk.NewInt(1)
 		gasPrice = &_gasPrice
 	}
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(1000000)}}
+
+	fees := &sdk.Coins{{Denom: s.denom, Amount: gasPrice.MulRaw(1000000)}}
 	txBuilder.SetFeeAmount(*fees)
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)

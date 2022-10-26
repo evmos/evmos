@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
+	cosmossdk.io/errors v1.0.0-beta.7
 	github.com/armon/go-metrics v0.4.1
 	github.com/cosmos/cosmos-sdk v0.46.3
 	github.com/cosmos/go-bip39 v1.0.0
@@ -29,7 +30,6 @@ require (
 	google.golang.org/protobuf v1.28.1
 )
 
-require cosmossdk.io/errors v1.0.0-beta.7
 
 require (
 	cloud.google.com/go v0.102.1 // indirect

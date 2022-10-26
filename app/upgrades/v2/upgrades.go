@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 )
 
@@ -21,7 +20,6 @@ func CreateUpgradeHandler(
 
 		// migrate claims and ERC20 module, other modules are left as-is to
 		// avoid running InitGenesis.
-		vm[claimstypes.ModuleName] = 1
 		vm[erc20types.ModuleName] = 1
 
 		return mm.RunMigrations(ctx, configurator, vm)

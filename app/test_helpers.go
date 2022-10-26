@@ -20,7 +20,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 
 	"github.com/evmos/ethermint/encoding"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
@@ -34,6 +33,9 @@ func init() {
 	config.SetBech32Prefixes(cfg)
 	config.SetBip44CoinType(cfg)
 }
+
+// DefaultDenom defines the default denom used for testing
+const DefaultDenom = "aevmos"
 
 // DefaultTestingAppInit defines the IBC application used for testing
 var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
@@ -81,7 +83,7 @@ func Setup(
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(DefaultDenom, sdk.NewInt(100000000000000))),
 	}
 
 	db := dbm.NewMemDB()
@@ -154,7 +156,7 @@ func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 	}
 	// set validators and delegations
 	stakingparams := stakingtypes.DefaultParams()
-	stakingparams.BondDenom = claimstypes.DefaultGenesis().Params.GetClaimsDenom()
+	stakingparams.BondDenom = DefaultDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingparams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -166,13 +168,13 @@ func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 
 	for range delegations {
 		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, bondAmt))
+		totalSupply = totalSupply.Add(sdk.NewCoin(DefaultDenom, bondAmt))
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(DefaultDenom, bondAmt)},
 	})
 
 	// update total supply
