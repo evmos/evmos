@@ -69,7 +69,7 @@ func (k Keeper) OnRecvPacket(
 			return channeltypes.NewErrorAcknowledgement(
 				sdkerrors.Wrapf(
 					errortypes.ErrInvalidCoins,
-					"invalid amount",
+					"invalid amount: %s", stringAmount,
 				),
 			)
 		}
