@@ -140,10 +140,11 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
+
 	// TODO change to setup with 1 validator
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 2)
-
-	if validators[0].Status == 3 {
+	// set a bonded validator that takes part in consensus
+	if validators[0].Status == stakingtypes.Bonded {
 		suite.validator = validators[0]
 	} else {
 		suite.validator = validators[1]
