@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
+- (app) [\#1012](https://github.com/evmos/evmos/pull/1012) Remove `claims` and `recovery` IBC middleware from the application.
+
 ### Improvements
 
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
