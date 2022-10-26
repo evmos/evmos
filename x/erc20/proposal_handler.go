@@ -14,9 +14,17 @@ import (
 // NewErc20ProposalHandler creates a governance handler to manage new proposal types.
 func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
+		// Check if the conversion is globally enabled
+		params := k.GetParams(ctx)
+		if !params.EnableErc20 {
+			return sdkerrors.Wrap(
+				types.ErrERC20Disabled, "registration is currently disabled by governance",
+			)
+		}
+
 		switch c := content.(type) {
 		case *types.RegisterCoinProposal:
-			return HandleRegisterCoinProposal(ctx, k, c)
+			return handleRegisterCoinProposal(ctx, k, c)
 		case *types.RegisterERC20Proposal:
 			return handleRegisterERC20Proposal(ctx, k, c)
 		case *types.ToggleTokenConversionProposal:
@@ -28,21 +36,13 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	}
 }
 
-// HandleRegisterCoinProposal handles the registration proposal for multiple
+// handleRegisterCoinProposal handles the registration proposal for multiple
 // native Cosmos coins
-func HandleRegisterCoinProposal(
+func handleRegisterCoinProposal(
 	ctx sdk.Context,
 	k *keeper.Keeper,
 	p *types.RegisterCoinProposal,
 ) error {
-	// Check if the conversion is globally enabled
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 {
-		return sdkerrors.Wrap(
-			types.ErrERC20Disabled, "registration is currently disabled by governance",
-		)
-	}
-
 	for _, metadata := range p.Metadata {
 		pair, err := k.RegisterCoin(ctx, metadata)
 		if err != nil {
@@ -68,14 +68,6 @@ func handleRegisterERC20Proposal(
 	k *keeper.Keeper,
 	p *types.RegisterERC20Proposal,
 ) error {
-	// Check if the conversion is globally enabled
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 {
-		return sdkerrors.Wrap(
-			types.ErrERC20Disabled, "registration is currently disabled by governance",
-		)
-	}
-
 	for _, address := range p.Erc20Addresses {
 		pair, err := k.RegisterERC20(ctx, common.HexToAddress(address))
 		if err != nil {

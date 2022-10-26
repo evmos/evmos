@@ -26,14 +26,14 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 To register a Cosmos Coin, consider the following stages:
 
 - [Cosmos Coin Registration](#cosmos-coin-registration)
-  - [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
-  - [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
-  - [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
-    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
-    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
-  - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
-    - [The Deposit Period](#the-deposit-period)
-    - [The Voting Period](#the-voting-period)
+	- [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
+	- [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
+	- [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
+		- [Formatting the Proposal's Text](#formatting-the-proposals-text)
+		- [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+	- [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+		- [The Deposit Period](#the-deposit-period)
+		- [The Voting Period](#the-voting-period)
 
 ## Drafting the Cosmos Coin Proposal
 
@@ -130,7 +130,6 @@ Note that you can register multiple coins in one proposal by extending the `"met
 	]
 }
 ```
-
 
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 
