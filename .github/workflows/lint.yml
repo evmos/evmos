@@ -18,7 +18,7 @@ jobs:
         with:
           go-version: 1.18.3
       - uses: actions/checkout@v3
-      - uses: technote-space/get-diff-action@v6.1.0
+      - uses: technote-space/get-diff-action@v6.1.1
         with:
           PATTERNS: |
             **/**.go
@@ -38,13 +38,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
-      - uses: technote-space/get-diff-action@v6.1.0
+      - uses: technote-space/get-diff-action@v6.1.1
         with:
           PATTERNS: |
             docs/**/*.md
             x/**/*.md
             README.md
-      - uses: nosborn/github-action-markdown-cli@v3.1.0
+      - uses: nosborn/github-action-markdown-cli@v3.2.0
         with:
           files: .
           config_file: .markdownlint.yml

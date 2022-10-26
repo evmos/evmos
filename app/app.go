@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -81,6 +82,7 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
@@ -101,6 +103,7 @@ import (
 	"github.com/evmos/ethermint/x/evm"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/ethermint/x/evm/vm/geth"
 	"github.com/evmos/ethermint/x/feemarket"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
@@ -115,6 +118,9 @@ import (
 	v6 "github.com/evmos/evmos/v9/app/upgrades/v6"
 	v7 "github.com/evmos/evmos/v9/app/upgrades/v7"
 	v8 "github.com/evmos/evmos/v9/app/upgrades/v8"
+	v81 "github.com/evmos/evmos/v9/app/upgrades/v8_1"
+	v82 "github.com/evmos/evmos/v9/app/upgrades/v8_2"
+	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
 	"github.com/evmos/evmos/v9/x/claims"
 	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -125,9 +131,6 @@ import (
 	erc20client "github.com/evmos/evmos/v9/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v9/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
-	"github.com/evmos/evmos/v9/x/feesplit"
-	feesplitkeeper "github.com/evmos/evmos/v9/x/feesplit/keeper"
-	feesplittypes "github.com/evmos/evmos/v9/x/feesplit/types"
 	"github.com/evmos/evmos/v9/x/incentives"
 	incentivesclient "github.com/evmos/evmos/v9/x/incentives/client"
 	incentiveskeeper "github.com/evmos/evmos/v9/x/incentives/keeper"
@@ -138,6 +141,9 @@ import (
 	"github.com/evmos/evmos/v9/x/recovery"
 	recoverykeeper "github.com/evmos/evmos/v9/x/recovery/keeper"
 	recoverytypes "github.com/evmos/evmos/v9/x/recovery/types"
+	"github.com/evmos/evmos/v9/x/revenue"
+	revenuekeeper "github.com/evmos/evmos/v9/x/revenue/keeper"
+	revenuetypes "github.com/evmos/evmos/v9/x/revenue/types"
 	"github.com/evmos/evmos/v9/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v9/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
@@ -202,7 +208,7 @@ var (
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
 		recovery.AppModuleBasic{},
-		feesplit.AppModuleBasic{},
+		revenue.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -284,7 +290,7 @@ type Evmos struct {
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
 	RecoveryKeeper   *recoverykeeper.Keeper
-	FeesplitKeeper   feesplitkeeper.Keeper
+	RevenueKeeper    revenuekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -341,7 +347,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		feesplittypes.StoreKey,
+		revenuetypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -409,7 +415,7 @@ func NewEvmos(
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
-		tracer,
+		nil, geth.NewEVM, tracer,
 	)
 
 	// Create IBC Keeper
@@ -475,8 +481,8 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
 	)
 
-	app.FeesplitKeeper = feesplitkeeper.NewKeeper(
-		keys[feesplittypes.StoreKey], appCodec, app.GetSubspace(feesplittypes.ModuleName),
+	app.RevenueKeeper = revenuekeeper.NewKeeper(
+		keys[revenuetypes.StoreKey], appCodec, app.GetSubspace(revenuetypes.ModuleName),
 		app.BankKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
 	)
@@ -500,7 +506,7 @@ func NewEvmos(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
-			app.FeesplitKeeper.Hooks(),
+			app.RevenueKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
 	)
@@ -607,7 +613,7 @@ func NewEvmos(
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		recovery.NewAppModule(*app.RecoveryKeeper),
-		feesplit.NewAppModule(app.FeesplitKeeper, app.AccountKeeper),
+		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -644,7 +650,7 @@ func NewEvmos(
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
-		feesplittypes.ModuleName,
+		revenuetypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -677,7 +683,7 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
-		feesplittypes.ModuleName,
+		revenuetypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -698,7 +704,7 @@ func NewEvmos(
 		govtypes.ModuleName,
 		ibchost.ModuleName,
 		// Ethermint modules
-		// evm module denomination is used by the feesplit module, in AnteHandle
+		// evm module denomination is used by the revenue module, in AnteHandle
 		evmtypes.ModuleName,
 		// NOTE: feemarket module needs to be initialized before genutil module:
 		// gentx transactions use MinGasPriceDecorator.AnteHandle
@@ -717,7 +723,7 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
-		feesplittypes.ModuleName,
+		revenuetypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -860,7 +866,14 @@ func (app *Evmos) LoadHeight(height int64) error {
 // ModuleAccountAddrs returns all the app's module account addresses.
 func (app *Evmos) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
-	for acc := range maccPerms {
+
+	accs := make([]string, 0, len(maccPerms))
+	for k := range maccPerms {
+		accs = append(accs, k)
+	}
+	sort.Strings(accs)
+
+	for _, acc := range accs {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
@@ -871,7 +884,14 @@ func (app *Evmos) ModuleAccountAddrs() map[string]bool {
 // allowed to receive external tokens.
 func (app *Evmos) BlockedAddrs() map[string]bool {
 	blockedAddrs := make(map[string]bool)
-	for acc := range maccPerms {
+
+	accs := make([]string, 0, len(maccPerms))
+	for k := range maccPerms {
+		accs = append(accs, k)
+	}
+	sort.Strings(accs)
+
+	for _, acc := range accs {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
 	}
 
@@ -974,7 +994,12 @@ func (app *Evmos) GetBaseApp() *baseapp.BaseApp {
 }
 
 // GetStakingKeeper implements the TestingApp interface.
-func (app *Evmos) GetStakingKeeper() stakingkeeper.Keeper {
+func (app *Evmos) GetStakingKeeper() ibctestingtypes.StakingKeeper {
+	return app.StakingKeeper
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *Evmos) GetStakingKeeperSDK() stakingkeeper.Keeper {
 	return app.StakingKeeper
 }
 
@@ -1040,7 +1065,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
-	paramsKeeper.Subspace(feesplittypes.ModuleName)
+	paramsKeeper.Subspace(revenuetypes.ModuleName)
 	return paramsKeeper
 }
 
@@ -1109,6 +1134,31 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v8.1 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v81.UpgradeName,
+		v81.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v8.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v82.UpgradeName,
+		v82.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v9 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v9.UpgradeName,
+		v9.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.DistrKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1135,10 +1185,22 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v7.UpgradeName:
 		// no store upgrades in v7
 	case v8.UpgradeName:
-		// add feesplit module
+		// add revenue module for testnet (v7 -> v8)
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{feesplittypes.ModuleName},
+			Added: []string{"feesplit"},
 		}
+	case v81.UpgradeName:
+		// NOTE: store upgrade for mainnet was not registered and was replaced by
+		// the v8.2 upgrade.
+	case v82.UpgradeName:
+		// add  missing revenue module for mainnet (v8.1 -> v8.2)
+		// IMPORTANT: this upgrade CANNOT be executed for testnet!
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added:   []string{revenuetypes.ModuleName},
+			Deleted: []string{"feesplit"},
+		}
+	case v9.UpgradeName:
+		// no store upgrade in v9
 	}
 
 	if storeUpgrades != nil {

@@ -25,9 +25,15 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register an ERC-20, consider the following stages:
 
-1. [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
-2. [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
-3. [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+- [ERC-20 Registration](#erc-20-registration)
+    - [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
+    - [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
+        - [Formatting the Proposal's Text](#formatting-the-proposals-text)
+        - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
+    - [Register Token and Network to Chain-Token-Registry repo](#register-token-and-network-to-chain-token-registry-repo)
+    - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
+        - [The Deposit Period](#the-deposit-period)
+        - [The Voting Period](#the-voting-period)
 
 ## Drafting the ERC-20 Proposal
 
@@ -35,24 +41,22 @@ The following topics must be addressed when drafting an ERC-20 Proposal:
 
 1. Provide the profile of the person(s)/entity making the proposal.
 
-    Who are you? What is your involvement in Cosmos and/or other blockchain networks? If you are working with a team, who are the team members involved and what is their relevant experience? What is the mission statement of your organization or business? Do you have a website? Showcase some work you've done and some proof of who you are.
+   Who are you? What is your involvement in Cosmos and/or other blockchain networks? If you are working with a team, who are the team members involved and what is their relevant experience? What is the mission statement of your organization or business? Do you have a website? Showcase some work you've done and some proof of who you are.
 
 2. Promote understanding of the ERC-20 Module.
 
-    Make sure to mention the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module, along with a brief explanation of what the ERC-20 Module does. It's also a good idea to link the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)!
+   Make sure to mention the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module, along with a brief explanation of what the ERC-20 Module does. It's also a good idea to link the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)!
 
 3. Describe how ERC-20 Module changes will be made.
 
-    Give a breakdown of the proposal's payload, and explain in layman terms what the proposal will do if it passes. Detail precautions taken during contract and proposal formulation, if applicable (including consultations made prior to proposal creation, how contracts were tested, and any third-party reviews). Finally, mention the risks involved in the proposal, depending on the direction of IBC Coin and ERC-20.
+   Give a breakdown of the proposal's payload, and explain in layman terms what the proposal will do if it passes. Detail precautions taken during contract and proposal formulation, if applicable (including consultations made prior to proposal creation, how contracts were tested, and any third-party reviews). Finally, mention the risks involved in the proposal, depending on the direction of IBC Coin and ERC-20.
 
 4. Document adherence to ERC-20 Contract expectations.
 
-    Ensure that the ERC-20 contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev)), and that the contracts are deployed open-source. Security-wise, the following are required:
-        - the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/))
-        - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
-        - the transfer logic is not modified (i.e. transfer logic is not directly manipulated)
-        - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
-    Take note of the above in your proposal description!
+   Ensure that the ERC-20 contracts are verified (either through the [EVM explorer](https://evm.evmos.org) or via [Sourcify](https://sourcify.dev)), and that the contracts are deployed open-source.
+   Security-wise, the following are required: that the contracts use the main libraries for ERC-20s (eg. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/)), that the contracts do not extend the `IERC20.sol` interface through a malicious implementation, that the transfer logic is not modified (i.e. transfer logic is not directly manipulated), and that no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance.
+
+   Take note of the above in your proposal description!
 
 Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
@@ -64,7 +68,9 @@ After the drafting process, the ERC-20 Proposal can be submitted.
 
 The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMd](https://hackmd.io/). Markdown
 is a simple and accessible format for writing plain text files that is easy to
+
 <!-- markdown-link-check-disable-next-line -->
+
 learn. See the [Github Markdown Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for details on
 writing markdown files.
 
@@ -91,6 +97,10 @@ evmosd tx gov submit-proposal register-erc20 --proposal=<path/to/proposal.json>
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
 
 Submitting your proposal to the testnet increases the likelihood of engagement and the possibility that you will be alerted to a flaw before deploying your proposal to mainnet.
+
+## Register Token and Network to Chain-Token-Registry repo
+
+Before proceeding to an On-Chain proposal, it is crucial to list the token pair and network to our chain and token registry, found [here](https://github.com/evmos/chain-token-registry). The information in the repo will help power the Evmos Dashboard [Assets Page](https://app.evmos.org/assets) and allow users to deposit, withdraw, and convert token pairs between IBC and ERC-20 state. We currently use the [Cosmos Chain Registry](https://github.com/cosmos/chain-registry) repo to pull in the list of RPC, gRPC, and REST endpoints to use for our Dashboard. It is important to ensure the most updated information is present. If there are a set of endpoints or preferred providers, please do suggest it in the pull request. Please consult our chain registry schema for more details. Once the governance proposal passes, the pull request should be merged in around one business day.
 
 ## The On-Chain ERC-20 Proposal
 
