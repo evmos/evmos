@@ -1,29 +1,24 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
-	"strconv"
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
 	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/evmos/evmos/v9/app"
 	"github.com/evmos/evmos/v9/testutil"
 	"github.com/evmos/evmos/v9/x/erc20/types"
 
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -95,13 +90,17 @@ var _ = Describe("ERC20:", Ordered, func() {
 	var (
 		pair      *types.TokenPair
 		coin      sdk.Coin
-		id        uint64
 		contract  common.Address
 		contract2 common.Address
 	)
 
 	BeforeEach(func() {
 		s.SetupTest()
+
+		tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
+		tallyParams.Quorum = "0.0000000001"
+		s.app.GovKeeper.SetTallyParams(s.ctx, tallyParams)
+
 	})
 
 	Describe("Registering Token Pairs through governance", func() {
@@ -109,65 +108,110 @@ var _ = Describe("ERC20:", Ordered, func() {
 			BeforeEach(func() {
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
 				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
+					sdk.NewCoin("aevmos", sdk.NewInt(1000000000000000000)),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000000000)),
 					sdk.NewCoin(metadataIbc.Base, sdk.NewInt(1)),
 					sdk.NewCoin(metadataCoin.Base, sdk.NewInt(1)),
 				)
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
-
-				tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
-				tallyParams.Quorum = "0.0000001"
-				s.app.GovKeeper.SetTallyParams(s.ctx, tallyParams)
-
 				s.Commit()
+
+				fmt.Println("**********Balances***********")
+				balances := s.app.BankKeeper.GetAccountsBalances(s.ctx)
+				fmt.Println(balances)
 			})
 			Describe("for a single Cosmos Coin", func() {
 				It("should create a governance proposal", func() {
+					fmt.Println()
 					// register with sufficient deposit
-					id = submitRegisterCoinProposal(privKey, []banktypes.Metadata{metadataIbc})
+					fmt.Println("**********Proposal***********")
+					id, err := submitRegisterCoinProposal(s.ctx, s.app, privKey, []banktypes.Metadata{metadataIbc})
+					s.Require().NoError(err)
+					fmt.Println(s.ctx.BlockTime(), "BlockTime before Commit")
+					s.Commit()
+
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
+					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
+					fmt.Println(proposal.VotingStartTime, "VotingStartTime")
+					fmt.Println(proposal.VotingEndTime, "VotingEndTime")
 
 					// delegate
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					delegate(privKey, sdk.NewCoin("aevmos", sdk.NewInt(50000000000000)))
+					fmt.Println("**********Delegate***********")
 					s.Commit()
+					fmt.Println(s.ctx.BlockTime(), "BlockTime before Commit")
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					s.Require().NoError(err)
+					s.Commit()
+					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
+
+					delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, accAddr)
+					fmt.Println(delegations)
+
+					validators := s.app.StakingKeeper.GetAllValidators(s.ctx)
+					fmt.Println(validators, "validators")
+					fmt.Println(len(validators), "len validators")
 
 					// vote
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					vote(privKey, id)
+					fmt.Println("**********Vote***********")
 					s.Commit()
+					fmt.Println(s.ctx.BlockTime(), "BlockTime before Commit")
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					s.Require().NoError(err)
+					s.Commit()
+					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
+
+					votes := s.app.GovKeeper.GetAllVotes(s.ctx)
+					fmt.Println(votes, "votes")
+
+					proposal, _ = s.app.GovKeeper.GetProposal(s.ctx, id)
+					fmt.Println(proposal.Status, "Status")
 
 					// Make proposal pass
-					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
+					fmt.Println("**********Passing End time Block***********")
+					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + time.Hour*1
 					s.CommitAndBeginBlockAfter(duration)
-					s.Commit()
+					fmt.Println(s.ctx.BlockTime(), "BlockTime Before Commit")
 
+					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.Commit()
+					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
+					proposal, _ = s.app.GovKeeper.GetProposal(s.ctx, id)
+					fmt.Println(proposal.Status, "Status")
+					fmt.Println(proposal.FinalTallyResult)
+
+					fmt.Println("**********Token Pairs***********")
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
+					fmt.Println(tokenPairs)
 					s.Require().Equal(1, len(tokenPairs))
 				})
 			})
 			Describe("for multiple Cosmos Coins", func() {
 				It("should create a governance proposal", func() {
-					id = submitRegisterCoinProposal(privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
+					id, err := submitRegisterCoinProposal(s.ctx, s.app, privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
+					s.Require().NoError(err)
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
 					// delegate
 					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					delegate(privKey, sdk.NewCoin("aevmos", sdk.NewInt(50000000000000)))
-					s.Commit()
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					s.Require().NoError(err)
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					// vote
 					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					vote(privKey, id)
-					s.Commit()
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					s.Require().NoError(err)
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					// Make proposal pass
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
+					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 					s.Commit()
 
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
@@ -182,7 +226,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				contract2, _ = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 
 				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
+					sdk.NewCoin("aevmos", sdk.NewInt(1000000000000000000)),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(10000000000)),
 				)
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
@@ -197,50 +241,59 @@ var _ = Describe("ERC20:", Ordered, func() {
 			Describe("for a single ERC20 token", func() {
 				It("should create a governance proposal", func() {
 					// register with sufficient deposit
-					id = submitRegisterERC20Proposal(privKey, []string{contract.String()})
+					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String()})
+					s.Require().NoError(err)
+
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
 					// delegate
 					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					delegate(privKey, sdk.NewCoin("aevmos", sdk.NewInt(50000000000000)))
-					s.Commit()
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					s.Require().NoError(err)
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					// vote
 					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					vote(privKey, id)
-					s.Commit()
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					s.Require().NoError(err)
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					// Make proposal pass
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.Commit()
+					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(1, len(tokenPairs))
 				})
 			})
-			Describe("for a single ERC20 token", func() {
+			Describe("for multiple ERC20 tokens", func() {
 				It("should create a governance proposal", func() {
 					// register with sufficient deposit
-					id = submitRegisterERC20Proposal(privKey, []string{contract.String(), contract2.String()})
+					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String(), contract2.String()})
+					s.Require().NoError(err)
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
 					// delegate
 					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					delegate(privKey, sdk.NewCoin("aevmos", sdk.NewInt(50000000000000)))
-					s.Commit()
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					s.Require().NoError(err)
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					// vote
 					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					vote(privKey, id)
-					s.Commit()
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					s.Require().NoError(err)
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					// Make proposal pass
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.Commit()
+					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(2, len(tokenPairs))
@@ -264,7 +317,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 
 			Describe("a Cosmos coin into an ERC20 token", func() {
 				BeforeEach(func() {
-					convertCoin(privKey, coin)
+					convertCoin(s.ctx, s.app, privKey, coin)
 				})
 
 				It("should decrease coins on the sender account", func() {
@@ -285,9 +338,9 @@ var _ = Describe("ERC20:", Ordered, func() {
 
 			Describe("an ERC20 token into a Cosmos coin", func() {
 				BeforeEach(func() {
-					convertCoin(privKey, coin)
+					convertCoin(s.ctx, s.app, privKey, coin)
 					s.Commit()
-					convertERC20(privKey, amt, pair.GetERC20Contract())
+					convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
 				})
 
 				It("should increase coins on the sender account", func() {
@@ -324,7 +377,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 
 			Describe("an ERC20 token into a Cosmos coin", func() {
 				BeforeEach(func() {
-					convertERC20(privKey, amt, pair.GetERC20Contract())
+					convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
 				})
 
 				It("should decrease tokens on the sender account", func() {
@@ -346,9 +399,9 @@ var _ = Describe("ERC20:", Ordered, func() {
 
 			Describe("a Cosmos coin into an ERC20 token", func() {
 				BeforeEach(func() {
-					convertERC20(privKey, amt, pair.GetERC20Contract())
+					convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
 					s.Commit()
-					convertCoin(privKey, coin)
+					convertCoin(s.ctx, s.app, privKey, coin)
 				})
 
 				It("should increase tokens on the sender account", func() {
@@ -371,126 +424,31 @@ var _ = Describe("ERC20:", Ordered, func() {
 	})
 })
 
-func submitRegisterCoinProposal(pk *ethsecp256k1.PrivKey, metadata []banktypes.Metadata) (id uint64) {
+func submitRegisterCoinProposal(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, metadata []banktypes.Metadata) (id uint64, err error) {
 	content := types.NewRegisterCoinProposal("test Coin", "foo", metadata...)
-	return submitProposal(pk, content)
+	return testutil.SubmitProposal(ctx, appEvmos, pk, content, 8)
 }
 
-func submitRegisterERC20Proposal(pk *ethsecp256k1.PrivKey, addrs []string) (id uint64) {
+func submitRegisterERC20Proposal(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, addrs []string) (id uint64, err error) {
 	content := types.NewRegisterERC20Proposal("test token", "foo", addrs...)
-	return submitProposal(pk, content)
+	return testutil.SubmitProposal(ctx, appEvmos, pk, content, 8)
 }
 
-func submitProposal(pk *ethsecp256k1.PrivKey, content govv1beta1.Content) (id uint64) {
-	accountAddress := sdk.AccAddress(pk.PubKey().Address().Bytes())
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
-
-	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
-	msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, accountAddress)
-	s.Require().NoError(err)
-
-	res := deliverTx(pk, msg)
-	s.Require().Equal(uint32(0), res.Code, res.Log)
-
-	submitEvent := res.GetEvents()[8]
-	Expect(submitEvent.Type).To(Equal("submit_proposal"))
-	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
-
-	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
-	s.Require().NoError(err)
-	return proposalId
-}
-
-func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 1)
-	deliverTx(priv, voteMsg)
-}
-
-func delegate(priv *ethsecp256k1.PrivKey, delegateAmount sdk.Coin) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	val, err := sdk.ValAddressFromBech32(s.validator.OperatorAddress)
-	s.Require().NoError(err)
-
-	delegateMsg := stakingtypes.NewMsgDelegate(accountAddress, val, delegateAmount)
-	deliverTx(priv, delegateMsg)
-}
-
-func convertCoin(priv *ethsecp256k1.PrivKey, coin sdk.Coin) {
-	addrBz := priv.PubKey().Address().Bytes()
+func convertCoin(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, coin sdk.Coin) {
+	addrBz := pk.PubKey().Address().Bytes()
 
 	convertCoinMsg := types.NewMsgConvertCoin(coin, common.BytesToAddress(addrBz), sdk.AccAddress(addrBz))
-	res := deliverTx(priv, convertCoinMsg)
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, convertCoinMsg)
+	s.Require().NoError(err)
+	// res := deliverTx(pk, convertCoinMsg)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
-func convertERC20(priv *ethsecp256k1.PrivKey, amt math.Int, contract common.Address) {
-	addrBz := priv.PubKey().Address().Bytes()
+func convertERC20(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, amt math.Int, contract common.Address) {
+	addrBz := pk.PubKey().Address().Bytes()
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
-	res := deliverTx(priv, convertERC20Msg)
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, convertERC20Msg)
+	s.Require().NoError(err)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
-}
-
-func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	txBuilder.SetGasLimit(100_000_000)
-	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: sdk.NewInt(1)}})
-	err := txBuilder.SetMsgs(msgs...)
-	s.Require().NoError(err)
-
-	seq, err := s.app.AccountKeeper.GetSequence(s.ctx, accountAddress)
-	s.Require().NoError(err)
-
-	// First round: we gather all the signer infos. We use the "set empty
-	// signature" hack to do that.
-	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
-			Signature: nil,
-		},
-		Sequence: seq,
-	}
-
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := s.app.AccountKeeper.GetAccount(s.ctx, accountAddress).GetAccountNumber()
-	signerData := authsigning.SignerData{
-		ChainID:       s.ctx.ChainID(),
-		AccountNumber: accNumber,
-		Sequence:      seq,
-	}
-	sigV2, err = tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
-		seq,
-	)
-	s.Require().NoError(err)
-
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// bz are bytes to be broadcasted over the network
-	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
-	s.Require().NoError(err)
-
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	return res
-}
-
-func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
-	return sdk.AccAddress(priv.PubKey().Address().Bytes())
 }

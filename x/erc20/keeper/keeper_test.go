@@ -142,8 +142,14 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
-	suite.validator = validators[0]
+	// TODO change to setup with 1 validator
+	validators := s.app.StakingKeeper.GetValidators(s.ctx, 2)
+
+	if validators[0].Status == 3 {
+		suite.validator = validators[0]
+	} else {
+		suite.validator = validators[1]
+	}
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 }
@@ -437,24 +443,23 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name strin
 
 // Commit commits and starts a new block with an updated context.
 func (suite *KeeperTestSuite) Commit() {
-	suite.CommitAndBeginBlockAfter(time.Second * 1)
+	suite.CommitAndBeginBlockAfter(time.Hour * 1)
 }
 
-// Commit commits a block at a given time.
+// Commit commits a block at a given time. Reminder: At the end of each
+// Tendermint Consensus round the following methods are run
+//  1. BeginBlock
+//  2. DeliverTx
+//  3. EndBlock
+//  4. Commit
 func (suite *KeeperTestSuite) CommitAndBeginBlockAfter(t time.Duration) {
-
-	// BeginBlock
-	// DeliverTx
-	// EndBlock
-	// Commit
-
 	header := suite.ctx.BlockHeader()
+	// suite.app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: header.Height})
 
-	suite.app.EndBlocker(suite.ctx, abci.RequestEndBlock{Height: header.Height})
 	_ = suite.app.Commit()
 
-	header.Time = header.Time.Add(t)
 	header.Height += 1
+	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
