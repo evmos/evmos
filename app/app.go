@@ -1060,7 +1060,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-
 	// v7 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v7.UpgradeName,
