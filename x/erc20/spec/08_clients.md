@@ -33,7 +33,7 @@ The `tx gov submit-proposal` commands allow users to query create a proposal usi
 
 **`register-coin`**
 
-Allows users to submit a `RegisterCoinProposal`. Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. Upon passing, theThe proposal details must be supplied via a JSON file.
+Allows users to submit a `RegisterCoinProposal`. Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. Upon passing, the proposal details must be supplied via a JSON file.
 
 ```bash
 evmosd tx gov submit-proposal register-coin METADATA_FILE [flags]

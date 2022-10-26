@@ -35,24 +35,19 @@ func SubmitProposal(
 	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
 	msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, accountAddress)
 	if err != nil {
-		return 0, err
+		return id, err
 	}
 	res, err := DeliverTx(ctx, appEvmos, pk, msg)
 	if err != nil {
-		return 0, err
+		return id, err
 	}
 
 	submitEvent := res.GetEvents()[eventNum]
 	if submitEvent.Type != "submit_proposal" || string(submitEvent.Attributes[0].Key) != "proposal_id" {
-		return 0, sdkerrors.Wrapf(sdkerrors.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
+		return id, sdkerrors.Wrapf(sdkerrors.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
 	}
 
-	proposalID, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return proposalID, nil
+	return strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
 }
 
 // Delegate delivers a delegate tx
