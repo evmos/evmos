@@ -47,12 +47,12 @@ func SubmitProposal(
 		return 0, sdkerrors.Wrapf(sdkerrors.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
 	}
 
-	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
+	proposalID, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
 	if err != nil {
 		return 0, err
 	}
 
-	return proposalId, nil
+	return proposalID, nil
 }
 
 // Delegate delivers a delegate tx
