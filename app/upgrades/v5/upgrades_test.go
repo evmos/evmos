@@ -14,6 +14,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
@@ -78,10 +79,7 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-
 func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
-	unbondingDuration := suite.app.GetStakingKeeperSDK().UnbondingTime(suite.ctx)
-
 	testCases := []struct {
 		name              string
 		malleate          func()
@@ -112,8 +110,8 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 				subspace.Set(suite.ctx, baseapp.ParamStoreKeyEvidenceParams, ep)
 			},
 			&tmproto.EvidenceParams{
-				MaxAgeDuration:  unbondingDuration,
-				MaxAgeNumBlocks: int64(unbondingDuration / (2 * time.Second)),
+				MaxAgeDuration:  stakingtypes.DefaultUnbondingTime,
+				MaxAgeNumBlocks: int64(stakingtypes.DefaultUnbondingTime / (2 * time.Second)),
 				MaxBytes:        suite.ctx.ConsensusParams().Evidence.MaxBytes,
 			},
 		},
