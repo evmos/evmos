@@ -1,9 +1,11 @@
-package v8_test
+package v9_test
 
 import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -17,6 +19,9 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v9/app"
+	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
+	evmostypes "github.com/evmos/evmos/v9/types"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 type UpgradeTestSuite struct {
@@ -69,4 +74,39 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 func TestUpgradeTestSuite(t *testing.T) {
 	s := new(UpgradeTestSuite)
 	suite.Run(t, s)
+}
+
+func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
+
+	suite.SetupTest(evmostypes.TestnetChainID + "-2")
+
+	// send funds to the community pool
+	priv, err := ethsecp256k1.GenerateKey()
+	suite.Require().NoError(err)
+	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
+	sender := sdk.AccAddress(address.Bytes())
+	res, _ := sdkmath.NewIntFromString(v9.MaxRecover)
+	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
+	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
+	suite.Require().NoError(err)
+
+	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+	suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+
+	// return funds to accounts affected
+	err = v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
+	suite.Require().NoError(err)
+
+	// check balance of affected accounts
+	for i := range v9.Accounts {
+		addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
+		res, _ := sdkmath.NewIntFromString(v9.Accounts[i][1])
+		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
+		suite.Require().Equal(balance.Amount, res)
+	}
+
+	balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+	suite.Require().True(balanceAfter.IsZero())
 }

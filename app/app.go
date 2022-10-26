@@ -116,6 +116,7 @@ import (
 	v8 "github.com/evmos/evmos/v9/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v9/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v9/app/upgrades/v8_2"
+	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
 	"github.com/evmos/evmos/v9/x/claims"
 	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -1095,6 +1096,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v9 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v9.UpgradeName,
+		v9.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.DistrKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1127,6 +1137,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Added:   []string{revenuetypes.ModuleName},
 			Deleted: []string{"feesplit"},
 		}
+	case v9.UpgradeName:
+		// no store upgrade in v9
 	}
 
 	if storeUpgrades != nil {
