@@ -3,6 +3,7 @@ package v9
 import (
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -53,7 +54,7 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 }
 
 // ReturnFundsFromCommunityPoolToAccount sends specified amount from the community pool to the affected account
-func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdk.Int) error {
+func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keeper, account string, amount sdkmath.Int) error {
 	to := sdk.MustAccAddressFromBech32(account)
 	balance := sdk.Coin{
 		Denom:  "aevmos",
