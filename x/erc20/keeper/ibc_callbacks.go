@@ -39,16 +39,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// Check and return error ACK if:
-	// - ERC20s are disabled
 	// - Sender or recipient addresses are blocked
-	if !(erc20Params.GetEnableErc20()) {
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(
-				types.ErrERC20Disabled,
-				"erc20 module is currently disabled by governance",
-			),
-		)
-	}
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrapf(
@@ -57,6 +48,13 @@ func (k Keeper) OnRecvPacket(
 				senderBech32, recipientBech32,
 			),
 		)
+	}
+
+	// Return acknowledgement if:
+	// - ERC20s are disabled
+	// - The denomination is not registered
+	if !(erc20Params.GetEnableErc20()) || !k.IsDenomRegistered(ctx, denom) {
+		return ack
 	}
 
 	// Inward conversion, concerned only with IBC Coins:

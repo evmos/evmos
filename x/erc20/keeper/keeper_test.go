@@ -45,6 +45,10 @@ import (
 	evm "github.com/evmos/ethermint/x/evm/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	// claimtypes "github.com/evmos/evmos/v9/x/claims/types"
+	// //inflationtypes "github.com/evmos/evmos/v9/x/inflation/types"
+	// recoverytypes "github.com/evmos/evmos/v9/x/recovery/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/evmos/evmos/v9/app"
@@ -52,6 +56,9 @@ import (
 	"github.com/evmos/evmos/v9/x/erc20/types"
 
 	tmtypes "github.com/tendermint/tendermint/types"
+
+	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
+	// ibctesting "github.com/evmos/evmos/v9/ibc/testing"
 )
 
 type KeeperTestSuite struct {
@@ -67,6 +74,19 @@ type KeeperTestSuite struct {
 	ethSigner        ethtypes.Signer
 	signer           keyring.Signer
 	mintFeeCollector bool
+
+	coordinator *ibcgotesting.Coordinator
+
+	// testing chains used for convenience and readability
+	EvmosChain      *ibcgotesting.TestChain
+	IBCOsmosisChain *ibcgotesting.TestChain
+	IBCCosmosChain  *ibcgotesting.TestChain
+
+	pathOsmosisEvmos  *ibcgotesting.Path
+	pathCosmosEvmos   *ibcgotesting.Path
+	pathOsmosisCosmos *ibcgotesting.Path
+
+	suiteIBCTesting    bool
 }
 
 var s *KeeperTestSuite

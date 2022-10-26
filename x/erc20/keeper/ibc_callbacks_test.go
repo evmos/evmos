@@ -150,13 +150,13 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			coins,
 		},
 		{
-			"error - params disabled",
-			func() {
-				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+			"error - params disabled", // we disable params while running test
+			func() {				
+				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
+			true,
 			false,
 			secpAddr,
 			big.NewInt(0),
@@ -321,6 +321,13 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Register Token Pair for testing
 			metadata, pair := suite.setupRegisterCoin()
 			suite.Require().NotNil(metadata)
+
+			// For specific test, disable ERC20
+			if tc.name == "error - params disabled" {
+				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+				params.EnableErc20 = false
+				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+			}
 
 			// Perform IBC callback
 			ack := suite.app.Erc20Keeper.OnRecvPacket(suite.ctx, packet, expAck)
