@@ -1148,6 +1148,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v9.UpgradeName:
 		// no store upgrade in v9
 	case v10.UpgradeName:
+		// remove clains and recovery IBC middlewares since the airdrop is over
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"claims", "recovery"},
 		}
