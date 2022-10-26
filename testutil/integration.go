@@ -80,10 +80,11 @@ func Vote(
 	appEvmos *app.Evmos,
 	priv *ethsecp256k1.PrivKey,
 	proposalID uint64,
+	voteOption govv1beta1.VoteOption,
 ) (abci.ResponseDeliverTx, error) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 1)
+	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, voteOption)
 	return DeliverTx(ctx, appEvmos, priv, voteMsg)
 }
 

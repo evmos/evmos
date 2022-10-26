@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 	"time"
 
@@ -11,16 +10,17 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/evmos/evmos/v9/app"
 	"github.com/evmos/evmos/v9/testutil"
 	"github.com/evmos/evmos/v9/x/erc20/types"
-
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
@@ -100,10 +100,9 @@ var _ = Describe("ERC20:", Ordered, func() {
 		tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
 		tallyParams.Quorum = "0.0000000001"
 		s.app.GovKeeper.SetTallyParams(s.ctx, tallyParams)
-
 	})
 
-	Describe("Registering Token Pairs through governance", func() {
+	Describe("Submitting a token pair proposal through governance", func() {
 		Context("with existing coins", func() {
 			BeforeEach(func() {
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
@@ -116,106 +115,58 @@ var _ = Describe("ERC20:", Ordered, func() {
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
 				s.Commit()
-
-				fmt.Println("**********Balances***********")
-				balances := s.app.BankKeeper.GetAccountsBalances(s.ctx)
-				fmt.Println(balances)
 			})
 			Describe("for a single Cosmos Coin", func() {
-				It("should create a governance proposal", func() {
-					fmt.Println()
-					// register with sufficient deposit
-					fmt.Println("**********Proposal***********")
+				BeforeEach(func() {
 					id, err := submitRegisterCoinProposal(s.ctx, s.app, privKey, []banktypes.Metadata{metadataIbc})
 					s.Require().NoError(err)
-					fmt.Println(s.ctx.BlockTime(), "BlockTime before Commit")
-					s.Commit()
 
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
-					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
-					fmt.Println(proposal.VotingStartTime, "VotingStartTime")
-					fmt.Println(proposal.VotingEndTime, "VotingEndTime")
 
-					// delegate
-					fmt.Println("**********Delegate***********")
-					s.Commit()
-					fmt.Println(s.ctx.BlockTime(), "BlockTime before Commit")
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
-					s.Commit()
-					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
 
-					delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, accAddr)
-					fmt.Println(delegations)
-
-					validators := s.app.StakingKeeper.GetAllValidators(s.ctx)
-					fmt.Println(validators, "validators")
-					fmt.Println(len(validators), "len validators")
-
-					// vote
-					fmt.Println("**********Vote***********")
-					s.Commit()
-					fmt.Println(s.ctx.BlockTime(), "BlockTime before Commit")
-					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
 					s.Require().NoError(err)
-					s.Commit()
-					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
 
-					votes := s.app.GovKeeper.GetAllVotes(s.ctx)
-					fmt.Println(votes, "votes")
-
-					proposal, _ = s.app.GovKeeper.GetProposal(s.ctx, id)
-					fmt.Println(proposal.Status, "Status")
-
-					// Make proposal pass
-					fmt.Println("**********Passing End time Block***********")
+					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + time.Hour*1
 					s.CommitAndBeginBlockAfter(duration)
-					fmt.Println(s.ctx.BlockTime(), "BlockTime Before Commit")
-
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
-					s.Commit()
-					fmt.Println(s.ctx.BlockTime(), "BlockTime after Commit")
 					proposal, _ = s.app.GovKeeper.GetProposal(s.ctx, id)
-					fmt.Println(proposal.Status, "Status")
-					fmt.Println(proposal.FinalTallyResult)
-
-					fmt.Println("**********Token Pairs***********")
+				})
+				It("should create a token pairs owned by the erc20 module", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
-					fmt.Println(tokenPairs)
 					s.Require().Equal(1, len(tokenPairs))
+					s.Require().Equal(types.OWNER_MODULE, tokenPairs[0].ContractOwner)
 				})
 			})
 			Describe("for multiple Cosmos Coins", func() {
-				It("should create a governance proposal", func() {
+				BeforeEach(func() {
 					id, err := submitRegisterCoinProposal(s.ctx, s.app, privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
 					s.Require().NoError(err)
+
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					// delegate
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
-					// vote
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
 					s.Require().NoError(err)
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
-					// Make proposal pass
+					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
-
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 					s.Commit()
 
+				})
+				It("should create a token pairs owned by the erc20 module", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(2, len(tokenPairs))
+					s.Require().Equal(types.OWNER_MODULE, tokenPairs[0].ContractOwner)
 				})
 			})
 		})
@@ -231,15 +182,10 @@ var _ = Describe("ERC20:", Ordered, func() {
 				)
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
-
-				tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
-				tallyParams.Quorum = "0.0000001"
-				s.app.GovKeeper.SetTallyParams(s.ctx, tallyParams)
-
 				s.Commit()
 			})
 			Describe("for a single ERC20 token", func() {
-				It("should create a governance proposal", func() {
+				BeforeEach(func() {
 					// register with sufficient deposit
 					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String()})
 					s.Require().NoError(err)
@@ -247,56 +193,48 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					// delegate
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
-					// vote
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
 					s.Require().NoError(err)
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
-					// Make proposal pass
+					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-
+					s.Commit()
+				})
+				It("should create a token pairs owned by the contract deployer", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(1, len(tokenPairs))
+					s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[0].ContractOwner)
 				})
 			})
 			Describe("for multiple ERC20 tokens", func() {
-				It("should create a governance proposal", func() {
+				BeforeEach(func() {
 					// register with sufficient deposit
 					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String(), contract2.String()})
 					s.Require().NoError(err)
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					// delegate
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
-					// vote
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-					_, err = testutil.Vote(s.ctx, s.app, privKey, id)
+					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
 					s.Require().NoError(err)
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
 
-					// Make proposal pass
+					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
-					s.CommitAndBeginBlockAfter(time.Hour * 1)
-
+					s.Commit()
+				})
+				It("should create a token pairs owned by the contract deployer", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(2, len(tokenPairs))
+					s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[0].ContractOwner)
 				})
 			})
 		})

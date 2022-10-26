@@ -353,7 +353,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, 2)
+	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, govv1beta1.OptionAbstain)
 	deliverTx(priv, voteMsg)
 }
 
