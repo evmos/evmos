@@ -71,7 +71,7 @@ func GetTransferDenomination(packet channeltypes.Packet) (string, error) {
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return "", sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 	}
-	
+
 	// Validate the prefixed denomination
 	if err := transfertypes.ValidatePrefixedDenom(data.GetDenom()); err != nil {
 		return "", sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "invalid prefixed denomination")
@@ -85,5 +85,5 @@ func GetTransferDenomination(packet channeltypes.Packet) (string, error) {
 	}
 
 	// Return base denomination
-	return baseDenom, nil 
+	return baseDenom, nil
 }

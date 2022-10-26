@@ -3,8 +3,8 @@ package keeper
 import (
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
@@ -23,7 +23,6 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
-
 	// Setup for OnRecvPacket:
 	// - Get erc20 parameters for keeper
 	// - Get sender/recipient addresses of transfer in `evmos1` and the original bech32 format
@@ -59,7 +58,7 @@ func (k Keeper) OnRecvPacket(
 
 	// Inward conversion, concerned only with IBC Coins:
 	// (ERC20s would be registered with their contract address, would fail here)
-	if (k.IsDenomRegistered(ctx, denom)) {
+	if k.IsDenomRegistered(ctx, denom) {
 		stringAmount, err := ibc.GetTransferAmount(packet)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
