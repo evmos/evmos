@@ -10,7 +10,7 @@ docs/ @danburck
 x/claims/ @ramacarlucho
 x/epochs/ @ramacarlucho
 x/erc20/ @ramacarlucho @hanchon
-x/feesplit/ @ramacarlucho
+x/revenue/ @ramacarlucho
 x/incentives/ @ramacarlucho
 x/inflation/ @ramacarlucho
 x/recovery/ @ramacarlucho
