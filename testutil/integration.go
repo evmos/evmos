@@ -6,6 +6,7 @@ import (
 	sdkerrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -154,7 +155,7 @@ func DeliverTx(
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := appEvmos.BaseApp.DeliverTx(req)
 	if res.Code != 0 {
-		return abci.ResponseDeliverTx{}, sdkerrors.Wrapf(sdkerrors.Error{}, res.Log)
+		return abci.ResponseDeliverTx{}, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, res.Log)
 	}
 
 	return res, nil
