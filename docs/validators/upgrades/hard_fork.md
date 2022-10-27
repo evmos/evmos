@@ -14,7 +14,7 @@ The high-level strategy for coordinating an upgrade is as follows:
 
 1. The vulnerability is fixed on a private branch that contains breaking changes.
 2. A new patch release needs to be created that contains a hard fork logic and performs an upgrade at a predefined block height.
-3. Validators upgrade their nodes to the patch release. In order to perform the hard fork successfully, It’s important that enough validators upgrade to the patch release so that they make up at least 2/3 of the total validator voting power.
+3. Validators upgrade their nodes to the patch release. In order to perform the hard fork successfully, it’s important that enough validators upgrade to the patch release so that they make up at least 2/3 of the total validator voting power.
 4. One hour before the upgrade time (corresponding to the upgrade block height), a new major release including the vulnerability fix is published.
 
 ::: danger
