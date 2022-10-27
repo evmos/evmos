@@ -195,7 +195,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 
 				coins := sdk.NewCoins(coin1, coin2, coin3, coin4)
 
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr, coins)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 			},
