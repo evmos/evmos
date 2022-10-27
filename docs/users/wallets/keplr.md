@@ -12,7 +12,7 @@ Connect your Keplr wallet with Evmos. {synopsis}
 **Note**: The Keplr extension is officially supported only on Chromium-based explorers.
 :::
 
-The [Keplr](https://www.keplr.app/) browser extension is a wallet for accessing applications in the Cosmos ecosystem and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} through the official testnet and request Funds from the Faucet.
+The [Keplr](https://www.keplr.app/) browser extension is a wallet for accessing applications in the Cosmos ecosystem and managing user identities. It can be used to connect to {{ $themeConfig.project.name }} mainnet and claim rewards, send and stake tokens, interact with governance, and more.
 
 ## Set Up Keplr
 
@@ -72,8 +72,11 @@ There are several ways to import an existing account:
 
 1. In the initial pop-up window, choose **Import Ledger**
    - If you have used Keplr before, click on the silhouette in the upper-right corner, then the blue box labeled **Add Account**, and select **Import Ledger**
+   - Be sure you have both the Cosmos and Ethereum Ledger apps downloaded on your Ledger device
 2. To complete the connection with your Ledger Nano Hard Wallet, follow the steps described in the pop-up that appears (a detailed tutorial can be found [here](https://medium.com/chainapsis/how-to-use-ledger-nano-hardware-wallet-with-keplr-9ea7f07826c2))
 3. If you have not used Keplr before, set a password for the Keplr extension, and click **Confirm**
+4. Switch to the Ethereum app on the Ledger, then select “Evmos (Beta)” from the Keplr chain registry to connect the public key
+   - All signing from Keplr will use the Ledger Ethereum app, with either [EIP-712 transactions](https://eips.ethereum.org/EIPS/eip-712) or standard [Ethereum transactions](https://ethereum.org/en/developers/docs/transactions/).
 
 ## Connect Keplr to Mainnet
 
