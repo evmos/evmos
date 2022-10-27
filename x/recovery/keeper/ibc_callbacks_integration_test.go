@@ -103,7 +103,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
 
 						// update the escrowed account balance to maintain the invariant
-						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
+						err := testutil.FundModuleAccount(s.EvmosChain.GetContext(), s.EvmosChain.App.(*app.Evmos).BankKeeper, claimtypes.ModuleName, coins)
 						s.Require().NoError(err)
 					})
 
@@ -127,7 +127,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
 
 						// update the escrowed account balance to maintain the invariant
-						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
+						err := testutil.FundModuleAccount(s.EvmosChain.GetContext(), s.EvmosChain.App.(*app.Evmos).BankKeeper, claimtypes.ModuleName, coins)
 						s.Require().NoError(err)
 
 						// aevmos & ibc tokens that originated from the sender's chain

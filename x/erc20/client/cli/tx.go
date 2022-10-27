@@ -40,7 +40,7 @@ func NewTxCmd() *cobra.Command {
 // NewConvertCoinCmd returns a CLI command handler for converting a Cosmos coin
 func NewConvertCoinCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "convert-coin [coin] [receiver_hex]",
+		Use:   "convert-coin COIN [RECEIVER_HEX]",
 		Short: "Convert a Cosmos coin to ERC20. When the receiver [optional] is omitted, the ERC20 tokens are transferred to the sender.",
 		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -87,7 +87,7 @@ func NewConvertCoinCmd() *cobra.Command {
 // NewConvertERC20Cmd returns a CLI command handler for converting an ERC20
 func NewConvertERC20Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "convert-erc20 [contract-address] [amount] [receiver]",
+		Use:   "convert-erc20 CONTRACT_ADDRESS AMOUNT [RECEIVER]",
 		Short: "Convert an ERC20 token to Cosmos coin.  When the receiver [optional] is omitted, the Cosmos coins are transferred to the sender.",
 		Args:  cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -139,33 +139,35 @@ func NewConvertERC20Cmd() *cobra.Command {
 // nolint:staticcheck
 func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "register-coin [metadata]",
+		Use:   "register-coin METADATA_FILE",
 		Args:  cobra.ExactArgs(1),
 		Short: "Submit a register coin proposal",
-		Long: `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit.
-Upon passing, the
-The proposal details must be supplied via a JSON file.`,
-		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin <path/to/metadata.json> --from=<key_or_address>
+		Long:  `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. The proposal details must be supplied via a JSON file.`,
+		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin metadata.json --from=<key_or_address>
 
 Where metadata.json contains (example):
 
 {
-	"description": "The native staking and governance token of the Osmosis chain",
-	"denom_units": [
-		{
-				"denom": "ibc/<HASH>",
-				"exponent": 0,
-				"aliases": ["ibcuosmo"]
-		},
-		{
-				"denom": "OSMO",
-				"exponent": 6
+  "metadata": [
+    {
+			"description": "The native staking and governance token of the Osmosis chain",
+			"denom_units": [
+				{
+						"denom": "ibc/<HASH>",
+						"exponent": 0,
+						"aliases": ["ibcuosmo"]
+				},
+				{
+						"denom": "OSMO",
+						"exponent": 6
+				}
+			],
+			"base": "ibc/<HASH>",
+			"display": "OSMO",
+			"name": "Osmo",
+			"symbol": "OSMO"
 		}
-	],
-	"base": "ibc/<HASH>",
-	"display": "OSMO",
-	"name": "Osmo",
-	"symbol": "OSMO"
+	]
 }`, version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -201,7 +203,7 @@ Where metadata.json contains (example):
 
 			from := clientCtx.GetFromAddress()
 
-			content := types.NewRegisterCoinProposal(title, description, metadata)
+			content := types.NewRegisterCoinProposal(title, description, metadata...)
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
@@ -235,10 +237,10 @@ Where metadata.json contains (example):
 // nolint:staticcheck
 func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "register-erc20 [erc20-address]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Submit a proposal to register an ERC20 token",
-		Long:    "Submit a proposal to register an ERC20 token to the erc20 along with an initial deposit.",
+		Use:     "register-erc20 ERC20_ADDRESS...",
+		Args:    cobra.MinimumNArgs(1),
+		Short:   "Submit a proposal to register ERC20 token",
+		Long:    "Submit a proposal to register ERC20 tokens along with an initial deposit. To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>` ",
 		Example: fmt.Sprintf("$ %s tx gov submit-proposal register-erc20 <contract-address> --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -266,9 +268,9 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 				return err
 			}
 
-			erc20Addr := args[0]
+			erc20Addresses := args
 			from := clientCtx.GetFromAddress()
-			content := types.NewRegisterERC20Proposal(title, description, erc20Addr)
+			content := types.NewRegisterERC20Proposal(title, description, erc20Addresses...)
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
@@ -302,11 +304,11 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 // nolint:staticcheck
 func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "toggle-token-conversion [token]",
+		Use:     "toggle-token-conversion TOKEN",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Submit a toggle token conversion proposal",
 		Long:    "Submit a proposal to toggle the conversion of a token pair along with an initial deposit.",
-		Example: fmt.Sprintf("$ %s tx gov submit-proposal toggle-token-conversion <denom_or_contract> --from=<key_or_address>", version.AppName),
+		Example: fmt.Sprintf("$ %s tx gov submit-proposal toggle-token-conversion DENOM_OR_CONTRACT --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

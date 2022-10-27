@@ -8,9 +8,11 @@ The erc20 modules allows for two types of registration state transitions. Depend
 
 ## Token Pair Registration
 
+Both the Cosmos coin and the ERC20 token registration allow for registering several token pairs with one proposal. For simplicity, the following description describes the registration of only one token pair per proposal.
+
 ### 1. Register Coin
 
-A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approvald by governance), the ERC20 module uses a factory pattern to deploy an ERC20 token contract representation of the Cosmos Coin. Note that the native Evmos coin cannot be registered, as any coin including "evm" in its denomination cannot be registered. Instead the Evmos token can be converted by Nomand's wrapped Evmos (WEVMOS) contract.
+A user registers a native Cosmos Coin. Once the proposal passes (i.e is approved by governance), the ERC20 module uses a factory pattern to deploy an ERC20 token contract representation of the Cosmos Coin. Note that the native Evmos coin cannot be registered, as any coin including "evm" in its denomination cannot be registered. Instead the Evmos token can be converted by Nomand's wrapped Evmos (WEVMOS) contract.
 
 1. User submits a `RegisterCoinProposal`
 2. Validators of the Evmos Hub vote on the proposal using `MsgVote` and proposal passes

@@ -221,7 +221,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 				invalidDenom := "ibc/1"
 				coins := sdk.NewCoins(sdk.NewCoin(invalidDenom, sdk.NewInt(1000)))
-				testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+				suite.Require().NoError(err)
 			},
 			false,
 			false,
@@ -319,7 +320,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
-			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			suite.Require().NoError(err)
 
 			// Perform IBC callback
 			ack := suite.app.RecoveryKeeper.OnRecvPacket(suite.ctx, packet, expAck)
@@ -578,7 +580,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
 				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
 			)
-			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			suite.Require().NoError(err)
 
 			// Perform IBC callback
 			ack := suite.app.RecoveryKeeper.OnRecvPacket(suite.ctx, packet, expAck)
