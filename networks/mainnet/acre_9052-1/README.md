@@ -53,6 +53,6 @@ acred gentx <YOUR_KEY> 100000000000000000000aacre --moniker="" --min-self-delega
 
 ## Push the GenTx generated to the repository
 
-Fork `acrechain` repo and clone
-Copy `$HOME/.acred/config/gentx/gentx-<xxxxx>.json` to `<repo>/networks/mainnet/acre_9052-1/gentx/<moniker>.json`  
-Create PR into the repo
+1. Fork `acrechain` repo and clone
+2. Copy `$HOME/.acred/config/gentx/gentx-<xxxxx>.json` to `<repo>/networks/mainnet/acre_9052-1/gentx/<moniker>.json`
+3. Create PR into the repo
