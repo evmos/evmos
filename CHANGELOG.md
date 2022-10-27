@@ -45,6 +45,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to cosmos-sdk docs.
 - (cmd) [\#974](https://github.com/evmos/evmos/pull/974) Add `prune` command.
 
+## [v9.1.0] - 2022-10-25
+
+### Improvements
+
+- (deps) [\#1011](https://github.com/evmos/evmos/pull/1011) Bump Cosmos SDK to [`v0.45.10`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.10)
+
+## [v9.0.0] - 2022-10-21
+
 ### Bug Fixes
 
 - (claims) [#951](https://github.com/evmos/evmos/pull/951) Fix ClawbackEmptyAccounts logic
