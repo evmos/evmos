@@ -537,7 +537,7 @@ func NewEvmos(
 
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 
-	// Set the ICS4 wrappers for claims, recovery, and erc-20 middlewares
+	// Set the ICS4 wrappers for custom module middlewares
 	app.Erc20Keeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
 	app.RecoveryKeeper.SetICS4Wrapper(app.Erc20Keeper)
 	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)

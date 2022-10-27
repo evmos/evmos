@@ -66,8 +66,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		name        string
 		malleate    func()
 		ackSuccess  bool
-		ibcConv     bool
-		reciever    sdk.AccAddress
+		expConversion bool
+		receiver    sdk.AccAddress
 		expErc20s   *big.Int
 		expCoins    sdk.Coins
 	}{
@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			coins,
 		},
 		{
-			"error - invalid sender (no '1') ",
+			"error - invalid sender (no '1')",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", "evmos", ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -96,7 +96,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			coins,
 		},
 		{
-			"error - invalid sender (bad address) ",
+			"error - invalid sender (bad address)",
 			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -334,7 +334,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			// Check acknowledgement
 			if tc.ackSuccess {
-				
 				suite.Require().True(ack.Success(), string(ack.Acknowledgement()))
 				suite.Require().Equal(expAck, ack)
 			} else {
