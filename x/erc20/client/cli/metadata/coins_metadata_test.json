@@ -1,0 +1,41 @@
+{
+  "metadata": [
+    {
+      "description": "The native staking and governance token of the Evmos chain",
+      "denom_units": [
+        {
+          "denom": "aevmos",
+          "exponent": 0
+        },
+        {
+          "denom": "evmos",
+          "exponent": 18
+        }
+      ],
+      "base": "aevmos",
+      "display": "aevmos",
+      "name": "aevmos",
+      "symbol": "EVMOS"
+    },
+    {
+      "description": "The native staking and governance token of the Osmosis chain",
+      "denom_units": [
+        {
+          "denom": "ibc/0429A217F7AFD21E67CABA80049DD56BB0380B77E9C58C831366D6626D42F399",
+          "exponent": 0,
+          "aliases": [
+            "ibcuosmo"
+          ]
+        },
+        {
+          "denom": "OSMO",
+          "exponent": 6
+        }
+      ],
+      "base": "ibc/0429A217F7AFD21E67CABA80049DD56BB0380B77E9C58C831366D6626D42F399",
+      "display": "OSMO",
+      "name": "Osmo",
+      "symbol": "OSMO"
+    }
+  ]
+}

@@ -147,7 +147,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 
 			// Mint coins to pay gas fee
 			coins := sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(30000000)))
-			err = testutil.FundAccount(suite.app.BankKeeper, suite.ctx, sdk.AccAddress(suite.address.Bytes()), coins)
+			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, sdk.AccAddress(suite.address.Bytes()), coins)
 			suite.Require().NoError(err)
 
 			// Submit tx

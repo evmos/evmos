@@ -82,7 +82,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				suite.app.ClaimsKeeper.AfterProposalVote(suite.ctx, 1, addr)
@@ -205,7 +205,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
@@ -337,7 +337,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				err = suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
