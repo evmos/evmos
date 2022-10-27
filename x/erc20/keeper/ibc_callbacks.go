@@ -23,7 +23,7 @@ func (k Keeper) OnRecvPacket(
 	packet channeltypes.Packet,
 	ack exported.Acknowledgement,
 ) exported.Acknowledgement {
-
+	
 	// Setup for OnRecvPacket:
 	// - Get erc20 parameters for keeper
 	// - Get sender/recipient addresses of transfer in `evmos1` and the original bech32 format
