@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -10,25 +11,22 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v9/testutil"
-	
 
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 	ibcmock "github.com/cosmos/ibc-go/v5/testing/mock"
+	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 
+	"github.com/evmos/evmos/v9/contracts"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 	"github.com/evmos/evmos/v9/x/erc20/keeper"
 	"github.com/evmos/evmos/v9/x/erc20/types"
-	"github.com/evmos/evmos/v9/contracts"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
 )
 
-var (
-	erc20Denom   = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"
-)
+var erc20Denom = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"
 
 func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	// secp256k1 account
@@ -58,18 +56,18 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 	coins := sdk.NewCoins(
 		sdk.NewCoin("aevmos", sdk.NewInt(1000)),
-		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)), // some ERC20 token
+		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),      // some ERC20 token
 		sdk.NewCoin(cosmosTokenBase, sdk.NewInt(1000)), // some coin with a registered token pair
 	)
 
 	testCases := []struct {
-		name        string
-		malleate    func()
-		ackSuccess  bool
+		name          string
+		malleate      func()
+		ackSuccess    bool
 		expConversion bool
-		receiver    sdk.AccAddress
-		expErc20s   *big.Int
-		expCoins    sdk.Coins
+		receiver      sdk.AccAddress
+		expErc20s     *big.Int
+		expCoins      sdk.Coins
 	}{
 		{
 			"error - non ics-20 packet",
@@ -151,7 +149,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		},
 		{
 			"error - params disabled", // we disable params while running test
-			func() {				
+			func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
@@ -277,7 +275,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 			),
 		},
-		
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -343,8 +340,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Check conversions
 			if tc.ibcConv {
 				// Check ERC20 balances
-				balanceTokenAfter :=
-						suite.app.Erc20Keeper.BalanceOf(suite.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(tc.reciever.Bytes()))
+				balanceTokenAfter := suite.app.Erc20Keeper.BalanceOf(suite.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(tc.receiver.Bytes()))
 				suite.Require().Equal(tc.expErc20s, balanceTokenAfter)
 				// Check Cosmos Coin Balances
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
