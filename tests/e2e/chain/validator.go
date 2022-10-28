@@ -7,6 +7,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdkcrypto "github.com/cosmos/cosmos-sdk/crypto"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -25,6 +26,8 @@ import (
 	"github.com/tendermint/tendermint/privval"
 	tmtypes "github.com/tendermint/tendermint/types"
 
+	"github.com/evmos/ethermint/encoding"
+
 	evmosApp "github.com/evmos/evmos/v9/app"
 	evmoskr "github.com/evmos/evmos/v9/crypto/keyring"
 	"github.com/evmos/evmos/v9/tests/e2e/util"
@@ -39,6 +42,7 @@ type internalValidator struct {
 	privateKey   cryptotypes.PrivKey
 	consensusKey privval.FilePVKey
 	nodeKey      p2p.NodeKey
+	codec        codec.Codec
 }
 
 func (v *internalValidator) instanceName() string {
@@ -133,7 +137,7 @@ func (v *internalValidator) createConsensusKey() error {
 }
 
 func (v *internalValidator) createKeyFromMnemonic(name, mnemonic string) error {
-	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, v.configDir(), nil, evmoskr.Option())
+	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, v.configDir(), nil, v.codec, evmoskr.Option())
 	if err != nil {
 		return err
 	}
@@ -242,6 +246,8 @@ func (v *internalValidator) initialize() error {
 	if err = genutil.ExportGenesisFile(genDoc, config.GenesisFile()); err != nil {
 		return fmt.Errorf("failed to export app genesis state: %w", err)
 	}
+	cfg := encoding.MakeConfig(evmosApp.ModuleBasics)
+	v.codec = cfg.Codec
 
 	tmcfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
 	return nil

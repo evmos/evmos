@@ -13,7 +13,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/evmos/ethermint/server/config"
 	"github.com/spf13/viper"
 	tmconfig "github.com/tendermint/tendermint/config"
@@ -165,25 +164,25 @@ func updateBankModule(appGenState map[string]json.RawMessage) error {
 	return nil
 }
 
-func updateGovModule(appGenState map[string]json.RawMessage) error {
-	var govGenState govtypes.GenesisState
-	if err := util.Cdc.UnmarshalJSON(appGenState[govtypes.ModuleName], &govGenState); err != nil {
-		return err
-	}
+// func updateGovModule(appGenState map[string]json.RawMessage) error {
+// 	var govGenState govtypes.
+// 	if err := util.Cdc.UnmarshalJSON(appGenState[govtypes.ModuleName], &govGenState); err != nil {
+// 		return err
+// 	}
 
-	govGenState.VotingParams = govtypes.VotingParams{
-		VotingPeriod: VotingPeriod,
-	}
+// 	govGenState.VotingParams = govtypes.VotingParams{
+// 		VotingPeriod: VotingPeriod,
+// 	}
 
-	govGenState.DepositParams.MinDeposit = sdk.NewCoins(sdk.NewCoin("aevmos", sdk.ZeroInt()))
+// 	govGenState.DepositParams.MinDeposit = sdk.NewCoins(sdk.NewCoin("aevmos", sdk.ZeroInt()))
 
-	gz, err := util.Cdc.MarshalJSON(&govGenState)
-	if err != nil {
-		return err
-	}
-	appGenState[govtypes.ModuleName] = gz
-	return nil
-}
+// 	gz, err := util.Cdc.MarshalJSON(&govGenState)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	appGenState[govtypes.ModuleName] = gz
+// 	return nil
+// }
 
 func updateStakingModule(appGenState map[string]json.RawMessage) error {
 	var stakingGenState stakingtypes.GenesisState
@@ -339,9 +338,9 @@ func initGenesis(c *internalChain) error {
 	if err := updateBankModule(appGenState); err != nil {
 		return err
 	}
-	if err := updateGovModule(appGenState); err != nil {
-		return err
-	}
+	// if err := updateGovModule(appGenState); err != nil {
+	// 	return err
+	// }
 	if err := updateGenTxs(appGenState, c); err != nil {
 		return err
 	}
@@ -386,21 +385,26 @@ func initNodes(c *internalChain, numVal int) error {
 	if err := c.createValidators(numVal); err != nil {
 		return err
 	}
-
 	// initialize a genesis file for the first validator
 	val0ConfigDir := c.validators[0].configDir()
 	for _, val := range c.validators {
-		if c.chainMeta.ID == ChainAID {
-			if err := addAccount(val0ConfigDir, "", InitBalanceStrA, val.getKeyInfo().GetAddress()); err != nil {
-				return err
-			}
-		} else if c.chainMeta.ID == ChainBID {
-			if err := addAccount(val0ConfigDir, "", InitBalanceStrB, val.getKeyInfo().GetAddress()); err != nil {
-				return err
-			}
+		addr, err := val.getKeyInfo().GetAddress()
+		if err != nil {
+			return err
+		}
+		var initBalance string
+		switch c.chainMeta.ID {
+		case ChainAID:
+			initBalance = InitBalanceStrA
+		case ChainBID:
+			initBalance = InitBalanceStrB
+		default:
+			return fmt.Errorf("unknown chain-id")
+		}
+		if err := addAccount(val0ConfigDir, "", initBalance, addr); err != nil {
+			return err
 		}
 	}
-
 	// copy the genesis file to the remaining validators
 	for _, val := range c.validators[1:] {
 		_, err := util.CopyFile(
