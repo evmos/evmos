@@ -1106,15 +1106,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v9 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v9.UpgradeName,
-		v9.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
 	// v9.1 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v91.UpgradeName,
