@@ -98,7 +98,7 @@ A validator's operator key is directly tied to an application key, but uses rese
 After a validator is created with a `create-validator` transaction, it can be in three states:
 
 - `bonded`: Validator is in the active set and participates in consensus. Validator is earning rewards and can be slashed for misbehaviour.
-- `unbonding`: Validator is not in the active set and does not participate in consensus. Validator is not earning rewards, but can still be slashed for misbehaviour. This is a transition state from `bonded` to `unbonded`. If validator does not send a `rebond` transaction while in `unbonding` mode, it will take three weeks for the state transition to complete.
+- `unbonding`: Validator is not in the active set and does not participate in consensus. Validator is not earning rewards, but can still be slashed for misbehaviour. This is a transition state from `bonded` to `unbonded`. If validator does not send a `rebond` transaction while in `unbonding` mode, it will take two weeks for the state transition to complete.
 - `unbonded`: Validator is not in the active set, and therefore not signing blocks. Unbonded validators cannot be slashed, but do not earn any rewards from their operation. It is still possible to delegate EVMOS to this validator. Un-delegating from an `unbonded` validator is immediate.
 
 Delegators have the same state as their validator.
@@ -152,7 +152,7 @@ Additionally, validators are expected to be active members of the community. The
 
 ### What does staking imply?
 
-Staking EVMOS can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an unbonding transaction. Then, EVMOS undergo a *three weeks unbonding period* during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
+Staking EVMOS can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an unbonding transaction. Then, the deposit undergoes a *two week unbonding period* during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
 
 Validators, and by association delegators, receive block provisions, block rewards, and fee rewards. If a validator misbehaves, a certain portion of its total stake is slashed (the severity of the penalty depends on the type of misbehavior). This means that every user that bonded EVMOS to this validator gets penalized in proportion to its stake. Delegators are therefore incentivized to delegate to validators that they anticipate will function safely.
 
@@ -229,9 +229,9 @@ $$9R ~ + ~ R ~ + ~ 5\%(R) ~ = ~ 1005 ~ \Leftrightarrow ~ R ~ = ~ 1005 ~/ ~10.05 
 
 If a validator misbehaves, its bonded stake along with its delegators' stake and will be slashed. The severity of the punishment depends on the type of fault. There are 3 main faults that can result in slashing of funds for a validator and its delegators:
 
-- **Double-signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator will get slashed on chain A.
+- **Double-signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator will get slashed on chain A. The penalty for double signing is 10.00% of total stake.
 
-- **Downtime:** If a validator misses more than 95% of the last 10.000 blocks, they will get slashed by 0.01%.
+- **Downtime:** If a validator misses more than 50% of the last 90.000 blocks, they will get slashed by 0.50%.
 - **Unavailability:** If a validator's signature has not been included in the last X blocks, the validator will get slashed by a marginal amount proportional to X. If X is above a certain limit Y, then the validator will get unbonded.
 
 Note that even if a validator does not intentionally misbehave, it can still be slashed if its node crashes, looses connectivity, gets DDoSed, or if its private key is compromised.
@@ -283,7 +283,7 @@ Validators should expect to run an HSM that supports ed25519 keys. Here are pote
 - Ledger Nano S
 - Ledger BOLOS SGX enclave
 - Thales nShield support
-- [Strangelove Horocrux](https://github.com/strangelove-ventures/horcrux)
+- [Strangelove Horcrux](https://github.com/strangelove-ventures/horcrux)
 
 The Evmos team does not recommend one solution above the other. The community is encouraged to bolster the effort to improve HSMs and the security of key management.
 

@@ -12,14 +12,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/evmos/v8/x/incentives/types"
+	"github.com/evmos/evmos/v9/x/incentives/types"
 )
 
 // NewRegisterIncentiveProposalCmd implements the command to submit a register
 //
 //	incentive proposal
+//
+//nolint:staticcheck // we use deprecated flags
 func NewRegisterIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-incentive [contract-address] [allocation] [epochs]",
@@ -72,7 +74,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 			from := clientCtx.GetFromAddress()
 			content := types.NewRegisterIncentiveProposal(title, description, contract, allocation, uint32(epochs))
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}
@@ -103,6 +105,8 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 // NewCancelIncentiveProposalCmd implements the command to submit a cancel
 //
 //	incentive proposal
+//
+//nolint:staticcheck
 func NewCancelIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "cancel-incentive [contract-address]",
@@ -145,7 +149,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 			from := clientCtx.GetFromAddress()
 			content := types.NewCancelIncentiveProposal(title, description, contract)
 
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
 				return err
 			}

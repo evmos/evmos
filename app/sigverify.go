@@ -3,10 +3,11 @@ package app
 import (
 	"fmt"
 
+	sdkerrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -43,7 +44,7 @@ func SigVerificationGasConsumer(
 	case *ed25519.PubKey:
 		// Validator keys
 		meter.ConsumeGas(params.SigVerifyCostED25519, "ante verify: ed25519")
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, "ED25519 public keys are unsupported")
+		return sdkerrors.Wrap(errortypes.ErrInvalidPubKey, "ED25519 public keys are unsupported")
 
 	case multisig.PubKey:
 		// Multisig keys
@@ -54,7 +55,7 @@ func SigVerificationGasConsumer(
 		return ConsumeMultisignatureVerificationGas(meter, multisignature, pubkey, params, sig.Sequence)
 
 	default:
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "unrecognized/unsupported public key type: %T", pubkey)
+		return sdkerrors.Wrapf(errortypes.ErrInvalidPubKey, "unrecognized/unsupported public key type: %T", pubkey)
 	}
 }
 

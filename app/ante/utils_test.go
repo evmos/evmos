@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -18,8 +19,8 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
-	"github.com/evmos/evmos/v8/app"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evmos/evmos/v9/app"
+	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -91,7 +92,7 @@ func (suite *AnteTestSuite) CommitAfter(t time.Duration) {
 	suite.app.EndBlock(abci.RequestEndBlock{Height: header.Height})
 	_ = suite.app.Commit()
 
-	header.Height += 1
+	header.Height++
 	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
@@ -101,7 +102,7 @@ func (suite *AnteTestSuite) CommitAfter(t time.Duration) {
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 }
 
-func (s *AnteTestSuite) CreateTestTxBuilder(gasPrice sdk.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
+func (s *AnteTestSuite) CreateTestTxBuilder(gasPrice math.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	gasLimit := uint64(1000000)
 

@@ -14,8 +14,8 @@ f_abort() {
     local l_rc=$1
     shift
     
-    echo $@ >&2
-    exit ${l_rc}
+    echo "$@" >&2
+    exit "${l_rc}"
 }
 
 case "${UNAME_S}" in
@@ -33,7 +33,7 @@ esac
 
 TEMPDIR="$(mktemp -d)"
 
-trap "rm -rvf ${TEMPDIR}" EXIT
+trap '"rm -rvf ${TEMPDIR}"' EXIT
 
 f_print_installing_with_padding() {
     printf "Installing %30s ..." "$1" >&2
@@ -44,7 +44,10 @@ f_print_done() {
 }
 
 f_ensure_tools() {
-    ! which curl &>/dev/null && f_abort 2 "couldn't find curl, aborting" || true
+    test=!$(which curl &>/dev/null)
+    if [[ $test ]] 
+    then f_abort 2 "couldn't find curl, aborting" else true 
+    fi
 }
 
 f_ensure_dirs() {
@@ -53,7 +56,7 @@ f_ensure_dirs() {
 }
 
 f_needs_install() {
-    if [ -x $1 ]; then
+    if [ -x "$1" ]; then
         echo -e "\talready installed. Skipping." >&2
         return 1
     fi
@@ -67,8 +70,8 @@ f_install_protoc() {
     
     pushd "${TEMPDIR}" >/dev/null
     curl -o "${PROTOC_ZIP}" -sSL "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP}"
-    unzip -q -o ${PROTOC_ZIP} -d ${DESTDIR}/${PREFIX} bin/protoc; \
-    unzip -q -o ${PROTOC_ZIP} -d ${DESTDIR}/${PREFIX} 'include/*'; \
+    unzip -q -o ${PROTOC_ZIP} -d "${DESTDIR}"/"${PREFIX}" bin/protoc; \
+    unzip -q -o ${PROTOC_ZIP} -d "${DESTDIR}"/"${PREFIX}" 'include/*'; \
     rm -f ${PROTOC_ZIP}
     popd >/dev/null
     f_print_done
@@ -91,7 +94,7 @@ f_install_protoc_gen_gocosmos() {
         return 1
     fi
     
-    go get github.com/regen-network/cosmos-proto/protoc-gen-gocosmos 2>/dev/null
+    go install github.com/regen-network/cosmos-proto/protoc-gen-gocosmos@latest 2>/dev/null
     f_print_done
 }
 
@@ -113,7 +116,7 @@ f_install_protoc_gen_swagger() {
     fi
     
     pushd "${TEMPDIR}" >/dev/null
-    go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+    go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
     npm install -g swagger-combine
     popd >/dev/null
     f_print_done
@@ -138,10 +141,10 @@ f_install_clang_format() {
             fi
         ;;
         Darwin)
-            echo "\tRun: brew install clang-format" >&2
+            printf "\tRun: brew install clang-format" >&2
         ;;
         *)
-            echo "\tunknown operating system. Skipping." >&2
+            printf "\tunknown operating system. Skipping." >&2
     esac
 }
 

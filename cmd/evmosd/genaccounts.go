@@ -23,10 +23,10 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	evmoskr "github.com/evmos/evmos/v8/crypto/keyring"
+	evmoskr "github.com/evmos/evmos/v9/crypto/keyring"
 
-	vestingcli "github.com/evmos/evmos/v8/x/vesting/client/cli"
-	vestingtypes "github.com/evmos/evmos/v8/x/vesting/types"
+	vestingcli "github.com/evmos/evmos/v9/x/vesting/client/cli"
+	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
 )
 
 const (
@@ -65,6 +65,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 						keyringBackend,
 						clientCtx.HomeDir,
 						inBuf,
+						clientCtx.Codec,
 						evmoskr.Option(),
 					)
 					if err != nil {
@@ -79,7 +80,10 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					return fmt.Errorf("failed to get address from Keyring: %w", err)
 				}
 
-				addr = info.GetAddress()
+				addr, err = info.GetAddress()
+				if err != nil {
+					return fmt.Errorf("failed to get address from Keyring: %w", err)
+				}
 			}
 
 			coins, err := sdk.ParseCoinsNormalized(args[1])

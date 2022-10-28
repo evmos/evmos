@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -155,7 +156,7 @@ func (suite *MsgsTestSuite) TestMsgConvertERC20Getters() {
 func (suite *MsgsTestSuite) TestMsgConvertERC20New() {
 	testCases := []struct {
 		msg        string
-		amount     sdk.Int
+		amount     math.Int
 		receiver   sdk.AccAddress
 		contract   common.Address
 		sender     common.Address
@@ -186,7 +187,7 @@ func (suite *MsgsTestSuite) TestMsgConvertERC20New() {
 func (suite *MsgsTestSuite) TestMsgConvertERC20() {
 	testCases := []struct {
 		msg        string
-		amount     sdk.Int
+		amount     math.Int
 		receiver   string
 		contract   string
 		sender     string

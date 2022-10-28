@@ -16,8 +16,8 @@ type RegisterCoinProposal struct {
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// proposal description
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// token pair of Cosmos native denom and ERC20 token address
-	Metadata types.Metadata `protobuf:"bytes,3,opt,name=metadata,proto3" json:"metadata"`
+	// metadata slice of the native Cosmos coins
+	Metadata []types.Metadata `protobuf:"bytes,3,rep,name=metadata,proto3" json:"metadata"`
 }
 ```
 
@@ -43,8 +43,8 @@ type RegisterERC20Proposal struct {
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// proposal description
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// contract address of ERC20 token
-	Erc20Address string `protobuf:"bytes,3,opt,name=erc20address,proto3" json:"erc20address,omitempty"`
+	// contract addresses of ERC20 tokens
+	Erc20Addresses []string `protobuf:"bytes,3,rep,name=erc20addresses,proto3" json:"erc20addresses,omitempty"`
 }
 ```
 
@@ -52,7 +52,7 @@ The proposal Content stateless validation fails if:
 
 - Title is invalid (length or char)
 - Description is invalid (length or char)
-- ERC20Address is invalid
+- ERC20Addresses is invalid
 
 ## `MsgConvertCoin`
 

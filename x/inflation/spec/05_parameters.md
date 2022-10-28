@@ -7,26 +7,26 @@ order: 7
 The `x/inflation` module contains the parameters described below. All parameters
 can be modified via governance.
 
-| Key                      | Type                   | Default Value                                                                 |
-| ------------------------ | ---------------------- | ----------------------------------------------------------------------------- |
-| `MintDenom`              | string                 | `evm.DefaultEVMDenom` // “aevmos”                                             |
-| `ExponentialCalculation` | ExponentialCalculation | `A: sdk.NewDec(int64(300_000_000))`                                           |
-|                          |                        | `R: sdk.NewDecWithPrec(50, 2)`                                                |
-|                          |                        | `C: sdk.NewDec(int64(9_375_000))`                                             |
-|                          |                        | `BondingTarget: sdk.NewDecWithPrec(66, 2)`                                    |
-|                          |                        | `MaxVariance: sdk.ZeroDec()`                                                  |
-| `InflationDistribution`  | InflationDistribution  | `StakingRewards: sdk.NewDecWithPrec(533333334, 9)`  // 0.53 = 40% / (1 - 25%) |
-|                          |                        | `UsageIncentives: sdk.NewDecWithPrec(333333333, 9)` // 0.33 = 25% / (1 - 25%) |
-|                          |                        | `CommunityPool: sdk.NewDecWithPrec(133333333, 9)`  // 0.13 = 10% / (1 - 25%)  |
-| `EnableInflation`        | bool                   | `true`                                                                        |
+| Key                                   | Type                   | Default Value                                                                 |
+| ------------------------              | ---------------------- | ----------------------------------------------------------------------------- |
+| `ParamStoreKeyMintDenom`              | string                 | `evm.DefaultEVMDenom` // “aevmos”                                             |
+| `ParamStoreKeyExponentialCalculation` | ExponentialCalculation | `A: sdk.NewDec(int64(300_000_000))`                                           |
+|                                       |                        | `R: sdk.NewDecWithPrec(50, 2)`                                                |
+|                                       |                        | `C: sdk.NewDec(int64(9_375_000))`                                             |
+|                                       |                        | `BondingTarget: sdk.NewDecWithPrec(66, 2)`                                    |
+|                                       |                        | `MaxVariance: sdk.ZeroDec()`                                                  |
+| `ParamStoreKeyInflationDistribution`  | InflationDistribution  | `StakingRewards: sdk.NewDecWithPrec(533333334, 9)`  // 0.53 = 40% / (1 - 25%) |
+|                                       |                        | `UsageIncentives: sdk.NewDecWithPrec(333333333, 9)` // 0.33 = 25% / (1 - 25%) |
+|                                       |                        | `CommunityPool: sdk.NewDecWithPrec(133333333, 9)`  // 0.13 = 10% / (1 - 25%)  |
+| `ParamStoreKeyEnableInflation`        | bool                   | `true`                                                                        |
 
 ## Mint Denom
 
-The `MintDenom` parameter sets the denomination in which new coins are minted.
+The `ParamStoreKeyMintDenom` parameter sets the denomination in which new coins are minted.
 
 ## Exponential Calculation
 
-The `ExponentialCalculation` parameter holds all values required for the
+The `ParamStoreKeyExponentialCalculation` parameter holds all values required for the
 calculation of the `epochMintProvision`. The values `A`, `R` and `C` describe
 the descrease of inflation over time. The `BondingTarget` and `MaxVariance`
 allow for an increase in inflation, which is automatically regulated by the
@@ -36,7 +36,7 @@ can be found under
 
 ## Inflation Distribution
 
-The `IinflationDistribution` parameter defines the distribution in which
+The `ParamStoreKeyInflationDistribution` parameter defines the distribution in which
 inflation is allocated through minting on each epoch (`stakingRewards`,
 `usageIncentives`,  `CommunityPool`). The `x/inflation` excludes the team
 vesting distribution, as team vesting is minted once at genesis. To reflect this
@@ -52,6 +52,6 @@ stakingRewards = evmosTokenModelDistribution / (1 - teamVestingDistribution)
 
 ## Enable Inflation
 
-The `EnableInflation` parameter enables the daily inflation. If it is disabled,
+The `ParamStoreKeyEnableInflation` parameter enables the daily inflation. If it is disabled,
 no tokens are minted and the number of skipped epochs increases for each passed
 epoch.

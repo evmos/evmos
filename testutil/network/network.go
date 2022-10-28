@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
@@ -34,13 +35,13 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -48,7 +49,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/ethermint/crypto/hd"
-	"github.com/evmos/evmos/v8/app"
+	"github.com/evmos/evmos/v9/app"
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/server/config"
@@ -75,9 +76,9 @@ type Config struct {
 	AppConstructor    AppConstructor      // the ABCI application constructor
 	GenesisState      simapp.GenesisState // custom gensis state to provide
 	TimeoutCommit     time.Duration       // the consensus commitment timeout
-	AccountTokens     sdk.Int             // the amount of unique validator tokens (e.g. 1000node0)
-	StakingTokens     sdk.Int             // the amount of tokens each validator has available to stake
-	BondedTokens      sdk.Int             // the amount of tokens each validator stakes
+	AccountTokens     math.Int            // the amount of unique validator tokens (e.g. 1000node0)
+	StakingTokens     math.Int            // the amount of tokens each validator has available to stake
+	BondedTokens      math.Int            // the amount of tokens each validator stakes
 	NumValidators     int                 // the total number of validators to create and bond
 	ChainID           string              // the network chain-id
 	BondDenom         string              // the staking bond denomination
@@ -99,22 +100,22 @@ func DefaultConfig() Config {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 
 	return Config{
-		Codec:             encCfg.Marshaler,
+		Codec:             encCfg.Codec,
 		TxConfig:          encCfg.TxConfig,
 		LegacyAmino:       encCfg.Amino,
 		InterfaceRegistry: encCfg.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor:    NewAppConstructor(encCfg),
-		GenesisState:      app.ModuleBasics.DefaultGenesis(encCfg.Marshaler),
+		GenesisState:      app.ModuleBasics.DefaultGenesis(encCfg.Codec),
 		TimeoutCommit:     2 * time.Second,
 		ChainID:           fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1),
 		NumValidators:     4,
-		BondDenom:         ethermint.AttoPhoton,
+		BondDenom:         "aevmos",
 		MinGasPrices:      fmt.Sprintf("0.000006%s", ethermint.AttoPhoton),
-		AccountTokens:     sdk.TokensFromConsensusPower(1000, ethermint.PowerReduction),
-		StakingTokens:     sdk.TokensFromConsensusPower(500, ethermint.PowerReduction),
-		BondedTokens:      sdk.TokensFromConsensusPower(100, ethermint.PowerReduction),
-		PruningStrategy:   storetypes.PruningOptionNothing,
+		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, ethermint.PowerReduction),
+		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, ethermint.PowerReduction),
+		BondedTokens:      sdk.TokensFromConsensusPower(100000000000000000, ethermint.PowerReduction),
+		PruningStrategy:   pruningtypes.PruningOptionNothing,
 		CleanupDir:        true,
 		SigningAlgo:       string(hd.EthSecp256k1Type),
 		KeyringOptions:    []keyring.Option{hd.EthSecp256k1Option()},
@@ -129,7 +130,7 @@ func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			encodingCfg,
 			simapp.EmptyAppOptions{},
-			baseapp.SetPruning(storetypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
+			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
 			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
 		)
 	}
@@ -369,7 +370,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		nodeIDs[i] = nodeID
 		valPubKeys[i] = pubKey
 
-		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, cfg.KeyringOptions...)
+		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, cfg.Codec, cfg.KeyringOptions...)
 		if err != nil {
 			return nil, err
 		}

@@ -1,11 +1,12 @@
 package keeper
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // MintingEnabled checks that:
@@ -47,7 +48,7 @@ func (k Keeper) MintingEnabled(
 
 	if k.bankKeeper.BlockedAddr(receiver.Bytes()) {
 		return types.TokenPair{}, sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized, "%s is not allowed to receive transactions", receiver,
+			errortypes.ErrUnauthorized, "%s is not allowed to receive transactions", receiver,
 		)
 	}
 

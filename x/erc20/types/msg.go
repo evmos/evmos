@@ -1,10 +1,12 @@
 package types
 
 import (
+	sdkerrors "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -42,14 +44,14 @@ func (msg MsgConvertCoin) ValidateBasic() error {
 	}
 
 	if !msg.Coin.Amount.IsPositive() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "cannot mint a non-positive amount")
+		return sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "cannot mint a non-positive amount")
 	}
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(err, "invalid sender address")
 	}
 	if !common.IsHexAddress(msg.Receiver) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver hex address %s", msg.Receiver)
+		return sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid receiver hex address %s", msg.Receiver)
 	}
 	return nil
 }
@@ -66,7 +68,7 @@ func (msg MsgConvertCoin) GetSigners() []sdk.AccAddress {
 }
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
-func NewMsgConvertERC20(amount sdk.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { // nolint: interfacer
+func NewMsgConvertERC20(amount math.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { // nolint: interfacer
 	return &MsgConvertERC20{
 		ContractAddress: contract.String(),
 		Amount:          amount,
@@ -84,17 +86,17 @@ func (msg MsgConvertERC20) Type() string { return TypeMsgConvertERC20 }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgConvertERC20) ValidateBasic() error {
 	if !common.IsHexAddress(msg.ContractAddress) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract hex address '%s'", msg.ContractAddress)
+		return sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid contract hex address '%s'", msg.ContractAddress)
 	}
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "cannot mint a non-positive amount")
+		return sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "cannot mint a non-positive amount")
 	}
 	_, err := sdk.AccAddressFromBech32(msg.Receiver)
 	if err != nil {
 		return sdkerrors.Wrap(err, "invalid receiver address")
 	}
 	if !common.IsHexAddress(msg.Sender) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender hex address %s", msg.Sender)
+		return sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid sender hex address %s", msg.Sender)
 	}
 	return nil
 }

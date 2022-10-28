@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"math/big"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,8 +16,8 @@ import (
 	"github.com/evmos/ethermint/server/config"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/contracts"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evmos/evmos/v9/contracts"
+	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
@@ -179,7 +180,7 @@ func (k Keeper) CallEVMWithData(
 			Data: (*hexutil.Bytes)(&data),
 		})
 		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
+			return nil, sdkerrors.Wrapf(errortypes.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
 		}
 
 		gasRes, err := k.evmKeeper.EstimateGas(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{

@@ -88,10 +88,6 @@ const msg = createMessageSend(chain, sender, fee, memo, params)
 
 #### Sign and Broadcast the Transaction
 
-:::tip
-**Note**: The example below uses an Evmos Testnet [RPC node](../connect.md#public-available-endpoints).
-:::
-
 <!-- textlint-disable -->
 After creating the transaction, developers need to send the payload to the appropriate wallet to be signed ([`msg.signDirect`](https://docs.keplr.app/api/#sign-direct-protobuf) is the transaction in Keplr format, and `msg.eipToSign` is the [`EIP712`](https://eips.ethereum.org/EIPS/eip-712) data to sign with MetaMask).
 
@@ -133,6 +129,92 @@ let broadcastPost = await fetch(
     postOptions
 );
 let response = await broadcastPost.json();
+```
+
+#### Sign and Broadcast EVM Transactions
+
+Developers can use Metamask or Keplr to help users sign off on EVM transactions with either Ledger or software keys, to manage NFTs, exchange ERC-20 tokens, and more.
+
+```js
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { evmosToEth } from "@tharsis/address-converter"
+const provider = new JsonRpcProvider('https://eth.bd.evmos.org:8545');
+const chainId = 'evmos_9001-1';
+
+// EIP-1559
+async function signAndBroadcastEthereumTx() {
+
+  // Enable access to Evmos on Keplr
+  await window.keplr.enable(chainId);
+  
+  // Get Keplr signer address
+  const offlineSigner = window.getOfflineSigner(chainId);
+  let wallets = await offlineSigner.getAccounts();
+  const signerAddressBech32 = wallets[0].address;
+
+  // Get Keplr signer address in hex
+  const signerAddressEth = evmosToEth(signerAddressBech32);
+
+  // Define Ethereum Tx
+  let ethSendTx = {
+    chainId: 9001,
+    to: '0x4646464646464646464646464646464646464646',
+    value: '0x46',
+    data: '0x0406080a',
+    accessList: [],
+    type: 2,
+  }
+
+  // Calculate and set nonce
+  const nonce = await provider.getTransactionCount(signerAddressEth);
+  ethSendTx['nonce'] = nonce;
+
+  // Calculate and set gas fees
+  const gasLimit = await provider.estimateGas(ethSendTx);
+  const gasFee = await provider.getFeeData();
+
+  ethSendTx['gasLimit'] = gasLimit.toHexString();
+  if (!gasFee.maxPriorityFeePerGas || !gasFee.maxFeePerGas) { 
+    // Handle error
+    return;
+  }
+  ethSendTx['maxPriorityFeePerGas'] = gasFee.maxPriorityFeePerGas.toHexString();
+  ethSendTx['maxFeePerGas'] = gasFee.maxFeePerGas.toHexString();
+
+  if (!window.keplr) {
+    // Handle error
+    return;
+  }
+
+  const rlpEncodedTx = await window.keplr.signEthereum(
+    chainId,
+    signerAddressBech32,
+    JSON.stringify(ethSendTx),
+    'transaction'
+  );
+  
+  const res = await provider.sendTransaction(rlpEncodedTx);
+  console.log(res);
+  
+  // Result:
+  // {
+  //   chainId: 1337,
+  //   confirmations: 0,
+  //   data: '0x',
+  //   from: '0x8577181F3D8A38a532Ef8F3D6Fd9a31baE73b1EA',
+  //   gasLimit: { BigNumber: "21000" },
+  //   gasPrice: { BigNumber: "1" },
+  //   hash: '0x200818a533113c00057ceccd3277249871c4a1ac09514214f03c3b96099b6c92',
+  //   nonce: 4,
+  //   r: '0x1727bd07080a5d3586422edad86805918e9772adda231d51c32870a1f1cabffb',
+  //   s: '0x7afc6be528befb79b9ed250356f6eacd63e853685091e9a3987a3d266c6cb26a',
+  //   to: '0x5555763613a12D8F3e73be831DFf8598089d3dCa',
+  //   type: null,
+  //   v: 2709,
+  //   value: { BigNumber: "3141590000000000000" },
+  //   wait: [Function]
+  // }
+}
 ```
 
 ### Connections

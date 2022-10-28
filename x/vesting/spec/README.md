@@ -11,7 +11,7 @@ parent:
 
 This document specifies the internal `x/vesting` module of the Evmos Hub.
 
-The `x/vesting` module introduces the `ClawbackVestingAccount`,  a new vesting account type that implements the Cosmos SDK [`VestingAccount`](https://docs.cosmos.network/v0.42/modules/auth/05_vesting.html#vesting-account-types) interface. This account is used to allocate tokens that are subject to vesting, lockup, and clawback.
+The `x/vesting` module introduces the `ClawbackVestingAccount`,  a new vesting account type that implements the Cosmos SDK [`VestingAccount`](https://docs.cosmos.network/main/modules/vesting#vesting-account-types) interface. This account is used to allocate tokens that are subject to vesting, lockup, and clawback.
 
 The `ClawbackVestingAccount` allows any two parties to agree on a future rewarding schedule, where tokens are granted permissions over time. The parties can use this account to enforce legal contracts or commit to mutual long-term interests.
 

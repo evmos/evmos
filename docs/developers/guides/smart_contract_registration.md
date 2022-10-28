@@ -1,12 +1,12 @@
 <!--
-order: 4
+order: 2
 -->
 
 # dApp Store Contract Registration
 
 This guide explains how to register your smart contract in the Evmos dApp store, and start earning income every time a user interacts with your smart contract. {synopsis}
 
-The Evmos dApp store is a revenue-per-transaction model, which allows developers to get paid for deploying their decentralized application (dApps) on Evmos. Developers generate revenue every time a user interacts with their dApp in the dApp store, providing them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the [x/feesplit module](../../../x/feesplit/spec/01_concepts.md).
+The Evmos dApp store is a revenue-per-transaction model, which allows developers to get paid for deploying their decentralized application (dApps) on Evmos. Developers generate revenue every time a user interacts with their dApp in the dApp store, providing them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the [x/revenue module](../../../x/revenue/spec/01_concepts.md).
 
 ## Requirements
 
@@ -21,7 +21,7 @@ The Evmos dApp store is a revenue-per-transaction model, which allows developers
 
 ## Register Contract
 
-To add your contract in the Evmos dApp Store, you need to register a `feesplit` for that contract. The `feesplit` includes the details for receiving a cut of the transaction fees, which users pay for interacting with your smart contract. Every time a user submits a transaction to your registered smart contract, a part of the transaction fees (50% by default) is transferred to the withdrawer address specified in the `feesplit`. If the withdrawer is not specified, the transaction fees are sent to the contract deployer.
+To add your contract in the Evmos dApp Store, you need to register a `revenue` for that contract. The `revenue` includes the details for receiving a cut of the transaction fees, which users pay for interacting with your smart contract. Every time a user submits a transaction to your registered smart contract, a part of the transaction fees (50% by default) is transferred to the withdrawer address specified in the `revenue`. If the withdrawer is not specified, the transaction fees are sent to the contract deployer.
 
 You can register a contract by signing a transaction with the address that originally deployed the contract. You can use the following CLI command, where
 
@@ -30,20 +30,20 @@ You can register a contract by signing a transaction with the address that origi
 - (optional) `$WITHDRAWER` is the bech32 address of the address to receive the transaction fees (e.g. `evmos1keyy3teyq7t7kuxgeek3v65n0j27k20v2ugysf`):
 
 ```bash
-# Register a feesplit for your contract
-evmosd tx feesplit register $CONTRACT $NONCE $WITHDRAWER \
+# Register a revenue for your contract
+evmosd tx revenue register $CONTRACT $NONCE $WITHDRAWER \
 --from=mykey \ # contract deployer key
 --gas=700000 --gas-prices=10000aevmos \ # can vary depending on the network
 ```
 
-After your transaction is submitted successfully, you can query your `feesplit` with :
+After your transaction is submitted successfully, you can query your `revenue` with :
 
 ```bash
-# Check feesplits
-evmosd q feesplit contract $CONTRACT
+# Check revenues
+evmosd q revenue contract $CONTRACT
 ```
 
-Congrats ☄️☄️☄️ Now that you've registered a feesplit for your contract, it is part of the Evmos dApp store and you will receive a cut of the transaction fees every time a user interacts with your contract. If you wondering how large your cut is, have a look at the [feesplit parameter `DeveloperShares`](../../../x/feesplit/spec/07_parameters.md#developer-shares-amount), which is controlled through governance. You can query the parameters using our [OpenAPI documentation](https://api.evmos.org).
+Congrats ☄️☄️☄️ Now that you've registered a revenue for your contract, it is part of the Evmos dApp store and you will receive a cut of the transaction fees every time a user interacts with your contract. If you wondering how large your cut is, have a look at the [revenue parameter `DeveloperShares`](../../../x/revenue/spec/07_parameters.md#developer-shares-amount), which is controlled through governance. You can query the parameters using our [OpenAPI documentation](https://api.evmos.org).
 
 ### Deployed Factory Pattern
 
@@ -53,24 +53,24 @@ You can also register a contract which has been deployed by a smart contract ins
 
 ## Update Contract
 
-Registered contracts can also be updated. To update the withdrawer address of your `feesplit`, use the following CLI command:
+Registered contracts can also be updated. To update the withdrawer address of your `revenue`, use the following CLI command:
 
 ```bash
 # Update withdrawer for your contract
-evmosd tx feesplit update $CONTRACT $WITHDRAWER \
+evmosd tx revenue update $CONTRACT $WITHDRAWER \
 --gas=700000 --gas-prices=10000aevmos \
 --from=mm
 ```
 
-If the specified withdrawer is the same address as the deployer, then the feesplit is updated with an empty withdrawer address, so that all transaction fees are sent to the deployer address.
+If the specified withdrawer is the same address as the deployer, then the revenue is updated with an empty withdrawer address, so that all transaction fees are sent to the deployer address.
 
 ## Cancel Contract
 
-Feesplits can also be canceled. In order to stop receiving transaction fees for interaction with your contract, use the following CLI command:
+Revenues can also be canceled. In order to stop receiving transaction fees for interaction with your contract, use the following CLI command:
 
 ```bash
-# Cancel feesplit for your contract
-evmosd tx feesplit cancel $CONTRACT \
+# Cancel revenue for your contract
+evmosd tx revenue cancel $CONTRACT \
 --gas=700000 --gas-prices=10000aevmos \
 --from=mm
 ```

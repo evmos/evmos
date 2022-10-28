@@ -2,17 +2,18 @@ package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v8/x/inflation/types"
+	"github.com/evmos/evmos/v9/x/inflation/types"
 )
 
 // Keeper of the inflation store
 type Keeper struct {
-	storeKey   sdk.StoreKey
+	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
@@ -25,7 +26,7 @@ type Keeper struct {
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
-	storeKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
 	ak types.AccountKeeper,

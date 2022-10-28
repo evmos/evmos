@@ -201,7 +201,7 @@ func ConjunctPeriods(
 		totalAmountPeriodsA = totalAmountPeriodsA.Add(periodsA[idxPeriodsA].Amount...)
 		min := totalAmountPeriodsA.Min(totalAmountPeriodsB)
 		if amount.IsAllLTE(min) {
-			diff := min.Sub(amount)
+			diff := min.Sub(amount...)
 			if !diff.IsZero() {
 				emit(nextTime, diff)
 			}
@@ -216,7 +216,7 @@ func ConjunctPeriods(
 		totalAmountPeriodsB = totalAmountPeriodsB.Add(periodsB[idxPeriodsB].Amount...)
 		min := totalAmountPeriodsA.Min(totalAmountPeriodsB)
 		if amount.IsAllLTE(min) {
-			diff := min.Sub(amount)
+			diff := min.Sub(amount...)
 			if !diff.IsZero() {
 				emit(nextTime, diff)
 			}
@@ -232,7 +232,7 @@ func ConjunctPeriods(
 		totalAmountPeriodsB = totalAmountPeriodsB.Add(periodsB[idxPeriodsB].Amount...)
 		min := totalAmountPeriodsA.Min(totalAmountPeriodsB)
 		if amount.IsAllLTE(min) {
-			diff := min.Sub(amount)
+			diff := min.Sub(amount...)
 			if !diff.IsZero() {
 				emit(nextTime, diff)
 			}
