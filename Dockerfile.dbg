@@ -1,0 +1,8 @@
+FROM golang:1.19.2-bullseye
+
+WORKDIR /go/src/github.com/evmos/
+
+RUN apt-get update -y
+RUN apt-get install git -y
+
+RUN git clone --depth 1 --branch v9.0.0 https://github.com/evmos/evmos.git
