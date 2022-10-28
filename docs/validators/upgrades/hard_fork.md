@@ -24,7 +24,7 @@ The high-level strategy for coordinating an upgrade is as follows:
 2. A new patch release (e.g. `v8.0.0` -> `v8.0.1`) needs to be created that
    contains a hard fork logic and performs an upgrade to the next breaking
    version (e.g. `v9.0.0`) at a predefined block height.
-3. Validators upgrade their nodes to the patch release. In order to perform the
+3. Validators upgrade their nodes to the patch release (e.g. `v8.0.1`). In order to perform the
    hard fork successfully, it’s important that enough validators upgrade to the
    patch release so that they make up at least 2/3 of the total validator voting
    power.
