@@ -5,8 +5,6 @@ run:
 
 linters:
   enable:
-    # - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -19,35 +17,27 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    # - lll TODO: enable
+    - lll
     - misspell
-    # - maligned
     - nakedret
     - prealloc
     - exportloopref
     - staticcheck
-    # - structcheck
     - stylecheck
     - typecheck
     - unconvert
-    # - unparam
     - unused
-    - varcheck
-    # - nolintlint
+    - nolintlint
     - asciicheck
-    # - exhaustive
     - exportloopref
     - gofumpt
     - gomodguard
-    # - nestif
-    # - nlreturn
-    # - noctx
-    # - rowserrcheck
-    # - whitespace
-    # - wsl
 
 issues:
   exclude-rules:
+    - text: "leading space"
+      linters:
+        - nolintlint
     - path: _test\.go
       linters:
         - gosec
@@ -61,8 +51,6 @@ linters-settings:
     max-blank-identifiers: 3
   golint:
     min-confidence: 0
-  maligned:
-    suggest-new: true
   misspell:
     locale: US
   nolintlint:
