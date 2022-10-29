@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v9/x/revenue/types"
+	"github.com/evmos/evmos/v10/x/revenue/types"
 )
 
 var _ types.MsgServer = &Keeper{}
