@@ -68,6 +68,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		receiver      sdk.AccAddress
 		expErc20s     *big.Int
 		expCoins      sdk.Coins
+		ibcConv        bool
 	}{
 		{
 			"error - non ics-20 packet",
@@ -79,6 +80,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - invalid sender (no '1')",
@@ -92,6 +94,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - invalid sender (bad address)",
@@ -105,6 +108,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - invalid recipient (bad address)",
@@ -118,6 +122,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - blocked sender",
@@ -132,6 +137,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - blocked recipient",
@@ -146,6 +152,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - params disabled", // we disable params while running test
@@ -159,6 +166,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"no-op - destination channel not authorized",
@@ -172,6 +180,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"no-op - base denomination",
@@ -185,6 +194,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"no-op - erc20 denomination",
@@ -198,6 +208,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"error - invalid denomination",
@@ -211,6 +222,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			secpAddr,
 			big.NewInt(0),
 			coins,
+			false,
 		},
 		{
 			"ibc conversion - sender == receiver",
@@ -228,6 +240,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(900)),
 			),
+			false,
 		},
 		{
 			"ibc conversion - sender != receiver",
@@ -247,6 +260,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(500)),
 			),
+			false,
 		},
 		{
 			"conversion - receiver is a vesting account (eth address)",
@@ -274,6 +288,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 			),
+			false,
 		},
 	}
 	for _, tc := range testCases {
