@@ -26,7 +26,7 @@ func (suite *KeeperTestSuite) TestTotalUnclaimed() {
 		{
 			"non-empty balance",
 			func() {
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			}, coins,
 		},

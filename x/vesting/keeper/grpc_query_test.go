@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 			func() {
 				vestingStart := s.ctx.BlockTime()
 				funder := sdk.AccAddress(types.ModuleName)
-				err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, funder, balances)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, funder, balances)
 				suite.Require().NoError(err)
 
 				msg := types.NewMsgCreateClawbackVestingAccount(

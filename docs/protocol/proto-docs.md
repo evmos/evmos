@@ -40,6 +40,7 @@
     - [Query](#evmos.epochs.v1.Query)
   
 - [evmos/erc20/v1/erc20.proto](#evmos/erc20/v1/erc20.proto)
+    - [ProposalMetadata](#evmos.erc20.v1.ProposalMetadata)
     - [RegisterCoinProposal](#evmos.erc20.v1.RegisterCoinProposal)
     - [RegisterERC20Proposal](#evmos.erc20.v1.RegisterERC20Proposal)
     - [ToggleTokenConversionProposal](#evmos.erc20.v1.ToggleTokenConversionProposal)
@@ -614,6 +615,22 @@ Query defines the gRPC querier service.
 
 
 
+<a name="evmos.erc20.v1.ProposalMetadata"></a>
+
+### ProposalMetadata
+ProposalMetadata is used to parse a slice of denom metadata and generate
+the RegisterCoinProposal content.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) | repeated | metadata slice of the native Cosmos coins |
+
+
+
+
+
+
 <a name="evmos.erc20.v1.RegisterCoinProposal"></a>
 
 ### RegisterCoinProposal
@@ -625,7 +642,7 @@ native Cosmos coin.
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) |  | metadata of the native Cosmos coin |
+| `metadata` | [cosmos.bank.v1beta1.Metadata](#cosmos.bank.v1beta1.Metadata) | repeated | metadata slice of the native Cosmos coins |
 
 
 
@@ -643,7 +660,7 @@ ERC20 token
 | ----- | ---- | ----- | ----------- |
 | `title` | [string](#string) |  | title of the proposal |
 | `description` | [string](#string) |  | proposal description |
-| `erc20address` | [string](#string) |  | contract address of ERC20 token |
+| `erc20addresses` | [string](#string) | repeated | contract addresses of ERC20 tokens |
 
 
 

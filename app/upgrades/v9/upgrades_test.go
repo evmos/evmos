@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
@@ -76,8 +75,7 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
-
+func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.SetupTest(evmostypes.TestnetChainID + "-2")
 
 	// send funds to the community pool
@@ -85,7 +83,7 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 	suite.Require().NoError(err)
 	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	sender := sdk.AccAddress(address.Bytes())
-	res, _ := sdkmath.NewIntFromString(v9.MaxRecover)
+	res, _ := sdk.NewIntFromString(v9.MaxRecover)
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
 	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
@@ -102,7 +100,7 @@ func (suite *UpgradeTestSuite) TestMigrateIBCModuleAccount() {
 	// check balance of affected accounts
 	for i := range v9.Accounts {
 		addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
-		res, _ := sdkmath.NewIntFromString(v9.Accounts[i][1])
+		res, _ := sdk.NewIntFromString(v9.Accounts[i][1])
 		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
 		suite.Require().Equal(balance.Amount, res)
 	}

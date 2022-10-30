@@ -25,8 +25,10 @@ import (
 )
 
 func TestEvmosExport(t *testing.T) {
+	// create public key
 	privVal := mock.NewPV()
-	pubKey, _ := privVal.GetPubKey()
+	pubKey, err := privVal.GetPubKey()
+	require.NoError(t, err, "public key should be created without error")
 
 	// create validator set with single validator
 	validator := tmtypes.NewValidator(pubKey, 1)

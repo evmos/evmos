@@ -33,18 +33,45 @@ The `tx gov submit-proposal` commands allow users to query create a proposal usi
 
 **`register-coin`**
 
-Allows users to submit a `RegisterCoinProposal`.
+Allows users to submit a `RegisterCoinProposal`. Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. Upon passing, the proposal details must be supplied via a JSON file.
 
 ```bash
-evmosd tx gov submit-proposal register-coin [metadata] [flags]
+evmosd tx gov submit-proposal register-coin METADATA_FILE [flags]
+```
+
+Where METADATA_FILE contains (example):
+
+```json
+{
+  "metadata": [
+    {
+			"description": "The native staking and governance token of the Osmosis chain",
+			"denom_units": [
+				{
+						"denom": "ibc/<HASH>",
+						"exponent": 0,
+						"aliases": ["ibcuosmo"]
+				},
+				{
+						"denom": "OSMO",
+						"exponent": 6
+				}
+			],
+			"base": "ibc/<HASH>",
+			"display": "OSMO",
+			"name": "Osmo",
+			"symbol": "OSMO"
+		}
+	]
+}
 ```
 
 **`register-erc20`**
 
-Allows users to submit a `RegisterERC20Proposal`.
+Allows users to submit a `RegisterERC20Proposal`. Submit a proposal to register ERC20 tokens along with an initial deposit. To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>`.
 
 ```bash
-evmosd tx gov submit-proposal register-erc20 [erc20-address] [flags]
+evmosd tx gov submit-proposal register-erc20 ERC20_ADDRESS... [flags]
 ```
 
 **`toggle-token-conversion`**

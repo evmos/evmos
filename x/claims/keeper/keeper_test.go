@@ -133,7 +133,7 @@ func (suite *KeeperTestSuite) SetupTestWithEscrow() {
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 
 	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(10000000)))
-	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+	err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)
 }
 

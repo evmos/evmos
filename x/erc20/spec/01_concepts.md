@@ -10,7 +10,7 @@ The `x/erc20` module maintains a canonical one-to-one mapping of native Cosmos C
 
 ## Token Pair Registration
 
-Users can register a new token pair proposal through the governance module and initiate a vote to include the token pair in the module. Depending on which exists first, the coin or the token, you can either register a Cosmos Coin or a ERC20 Token to create a token pair.
+Users can register a new token pair proposal through the governance module and initiate a vote to include the token pair in the module. Depending on which exists first, the coin or the token, you can either register a Cosmos Coin or a ERC20 Token to create a token pair. One proposal can inculde several token pairs.
 
 When the proposal passes, the erc20 module registers the Cosmos Coin and ERC20 Token mapping on the application's store.
 

@@ -11,7 +11,7 @@
 // The scripts that were used to find affected accounts were made public at https://github.com/evmos/claims_fixer
 // with detail instructions on how to run them.
 
-package v9
+package v91
 
 var Accounts = [2145][2]string{
 	{"evmos1009egsf8sk3puq3aynt8eymmcqnneezkkvceav", "20299404928815863552"},

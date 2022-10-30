@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"strings"
-
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -18,21 +16,6 @@ func (k Keeper) RegisterCoin(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) (*types.TokenPair, error) {
-	// Check if the conversion is globally enabled
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 {
-		return nil, sdkerrors.Wrap(
-			types.ErrERC20Disabled, "registration is currently disabled by governance",
-		)
-	}
-
-	// Prohibit denominations that contain the evm denom
-	if strings.Contains(coinMetadata.Base, "evm") {
-		return nil, sdkerrors.Wrapf(
-			types.ErrEVMDenom, "cannot register the EVM denomination %s", coinMetadata.Base,
-		)
-	}
-
 	// Check if denomination is already registered
 	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
 		return nil, sdkerrors.Wrapf(
@@ -74,14 +57,6 @@ func (k Keeper) RegisterERC20(
 	ctx sdk.Context,
 	contract common.Address,
 ) (*types.TokenPair, error) {
-	// Check if the conversion is globally enabled
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 {
-		return nil, sdkerrors.Wrap(
-			types.ErrERC20Disabled, "registration is currently disabled by governance",
-		)
-	}
-
 	// Check if ERC20 is already registered
 	if k.IsERC20Registered(ctx, contract) {
 		return nil, sdkerrors.Wrapf(
