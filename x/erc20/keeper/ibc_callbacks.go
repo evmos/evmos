@@ -14,10 +14,10 @@ import (
 	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
-// OnRecvPacket has been modified to use ConvertCoin.
-// ConvertCoin converts IBC Coins to their ERC-20 Representations,
-// given that the Token Pair is registered through governance.
-// This conversion happens after the original IBC transfer.
+// OnRecvPacket performs an IBC receive callback. Once a user receives
+// an IBC transfer and the transfer is successful, the IBC Coins gets converted
+// to their ERC-20 Representations, given that the Token Pair is
+// registered through governance.
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,

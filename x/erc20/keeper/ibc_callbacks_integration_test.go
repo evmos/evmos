@@ -36,7 +36,6 @@ import (
 )
 
 var (
-
 	uosmoDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
 		BaseDenom: "uosmo",
@@ -69,7 +68,7 @@ func (suite *KeeperTestSuite) SetupIBCTests() {
 		suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
 		suite.IBCOsmosisChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
 		suite.IBCCosmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))
-	
+
 		// Mint coins locked on the evmos account generated with secp.
 		coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(1000))
 		coins := sdk.NewCoins(coinEvmos)
@@ -77,7 +76,7 @@ func (suite *KeeperTestSuite) SetupIBCTests() {
 		suite.Require().NoError(err)
 		err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
 		suite.Require().NoError(err)
-	
+
 		// Mint coins on the osmosis side which we'll send over to evmos (won't be converted, not creating token pair)
 		coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(1000))
 		coins = sdk.NewCoins(coinOsmo)
@@ -85,7 +84,7 @@ func (suite *KeeperTestSuite) SetupIBCTests() {
 		suite.Require().NoError(err)
 		err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
 		suite.Require().NoError(err)
-	
+
 		// Mint coins on the cosmos side which we'll send over to evmos (will be converted, creating token pair)
 		coinAtom := sdk.NewCoin("uatom", sdk.NewInt(1000))
 		coins = sdk.NewCoins(coinAtom)
@@ -93,7 +92,7 @@ func (suite *KeeperTestSuite) SetupIBCTests() {
 		suite.Require().NoError(err)
 		err = suite.IBCCosmosChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, suite.IBCCosmosChain.SenderAccount.GetAddress(), coins)
 		suite.Require().NoError(err)
-	
+
 		// Create paths
 		suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
 		suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
@@ -104,41 +103,41 @@ func (suite *KeeperTestSuite) SetupIBCTests() {
 		suite.Require().Equal("07-tendermint-0", suite.pathOsmosisEvmos.EndpointA.ClientID)
 		suite.Require().Equal("connection-0", suite.pathOsmosisEvmos.EndpointA.ConnectionID)
 		suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
-	
+
 		// Set up Evmos Chain w/ EVM, ERC20 Module
 		priv, err := ethsecp256k1.GenerateKey()
 		suite.Require().NoError(err)
 		suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 		suite.signer = tests.NewSigner(priv)
-	
+
 		priv, err = ethsecp256k1.GenerateKey()
 		suite.Require().NoError(err)
 		suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
-	
+
 		// Important: controls context, allows us to make ERC-20 Keeper calls
 		suite.EvmosChain.CurrentHeader.ProposerAddress = suite.consAddress.Bytes()
-	
+
 		valAddr := sdk.ValAddress(suite.address.Bytes())
 		validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 		suite.Require().NoError(err)
 		err = suite.EvmosChain.App.(*app.Evmos).StakingKeeper.SetValidatorByConsAddr(suite.EvmosChain.GetContext(), validator)
 		suite.Require().NoError(err)
 		suite.EvmosChain.App.(*app.Evmos).StakingKeeper.SetValidator(suite.EvmosChain.GetContext(), validator)
-	
+
 		encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 		suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 		suite.ethSigner = ethtypes.LatestSignerForChainID(suite.EvmosChain.App.(*app.Evmos).EvmKeeper.ChainID())
-	
+
 		// Set params for claims, recovery, and ERC-20 module
 		claimparams := claimtypes.DefaultParams()
 		claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
 		claimparams.EnableClaims = false // claims complete at the time of adding ERC20 IBC Middleware
 		suite.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
-	
+
 		recoveryparams := recoverytypes.DefaultParams()
 		recoveryparams.EnableRecovery = true
 		suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), recoveryparams)
-	
+
 		erc20params := types.DefaultParams()
 		erc20params.EnableErc20 = true
 		suite.EvmosChain.App.(*app.Evmos).Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), erc20params)
@@ -188,7 +187,7 @@ func (suite *KeeperTestSuite) TestIBCIntegration() {
 		expConv       bool
 		sender        sdk.AccAddress
 		reciever      sdk.AccAddress
-		expErc20s     *big.Int  
+		expErc20s     *big.Int
 		expCoins      sdk.Coins
 	}{
 		{
@@ -258,3 +257,4 @@ func (suite *KeeperTestSuite) TestIBCIntegration() {
 		})
 	}
 }
+
