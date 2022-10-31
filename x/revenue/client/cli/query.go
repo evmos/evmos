@@ -75,7 +75,7 @@ func GetCmdQueryRevenues() *cobra.Command {
 // distribution
 func GetCmdQueryRevenue() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "contract [contract-address]",
+		Use:     "contract CONTRACT_ADDRESS",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query a registered contract for fee distribution by hex address",
 		Long:    "Query a registered contract for fee distribution by hex address",
@@ -137,7 +137,7 @@ func GetCmdQueryParams() *cobra.Command {
 // that a deployer has registered for fee distribution
 func GetCmdQueryDeployerRevenues() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "deployer-contracts [deployer-address]",
+		Use:     "deployer-contracts DEPLOYER_ADDRESS",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query all contracts that a given deployer has registered for fee distribution",
 		Long:    "Query all contracts that a given deployer has registered for fee distribution",
@@ -176,7 +176,7 @@ func GetCmdQueryDeployerRevenues() *cobra.Command {
 // address
 func GetCmdQueryWithdrawerRevenues() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "withdrawer-contracts [withdrawer-address]",
+		Use:     "withdrawer-contracts WITHDRAWER_ADDRESS",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query all contracts that have been registered for fee distribution with a given withdrawer address",
 		Long:    "Query all contracts that have been registered for fee distribution with a given withdrawer address",

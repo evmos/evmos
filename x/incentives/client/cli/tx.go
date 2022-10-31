@@ -24,7 +24,7 @@ import (
 //nolint:staticcheck // we use deprecated flags
 func NewRegisterIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "register-incentive [contract-address] [allocation] [epochs]",
+		Use:     "register-incentive CONTRACT_ADDRESS ALLOCATION EPOCHS",
 		Args:    cobra.ExactArgs(3),
 		Short:   "Submit a proposal to register a contract incentive",
 		Long:    "Submit a proposal to register a contract incentive.",
@@ -109,7 +109,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 //nolint:staticcheck
 func NewCancelIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "cancel-incentive [contract-address]",
+		Use:     "cancel-incentive CONTRACT_ADDRESS",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Submit a proposal to cancel a contract incentive",
 		Long:    "Submit a proposal to cancel a contract incentive.",

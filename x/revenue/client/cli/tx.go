@@ -39,9 +39,9 @@ func NewTxCmd() *cobra.Command {
 // contract for fee distribution
 func NewRegisterRevenue() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "register [contract_hex] [nonces] [withdraw_bech32]",
+		Use:   "register CONTRACT_HEX NONCE... [WITHDRAWER_BECH32]",
 		Short: "Register a contract for fee distribution. **NOTE** Please ensure, that the deployer of the contract (or the factory that deployes the contract) is an account that is owned by your project, to avoid that an individual deployer who leaves your project becomes malicious.",
-		Long:  "Register a contract for fee distribution.\nOnly the contract deployer can register a contract.\nProvide the account nonce(s) used to derive the contract address. E.g.: you have an account nonce of 4 when you send a deployment transaction for a contract A; you use this contract as a factory, to create another contract B. If you register A, the nonces value is \"4\". If you register B, the nonces value is \"4,1\" (B is the first contract created by A). \nThe withdraw address defaults to the deployer address if not provided.",
+		Long:  "Register a contract for fee distribution.\nOnly the contract deployer can register a contract.\nProvide the account nonce(s) used to derive the contract address. E.g.: you have an account nonce of 4 when you send a deployment transaction for a contract A; you use this contract as a factory, to create another contract B. If you register A, the nonces value is \"4\". If you register B, the nonces value is \"4,1\" (B is the first contract created by A). \nThe withdrawer address defaults to the deployer address if not provided.",
 		Args:  cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -49,7 +49,7 @@ func NewRegisterRevenue() *cobra.Command {
 				return err
 			}
 
-			var withdraw string
+			var withdrawer string
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
@@ -63,22 +63,22 @@ func NewRegisterRevenue() *cobra.Command {
 			}
 
 			if len(args) == 3 {
-				withdraw = args[2]
-				if _, err := sdk.AccAddressFromBech32(withdraw); err != nil {
-					return fmt.Errorf("invalid withdraw bech32 address %w", err)
+				withdrawer = args[2]
+				if _, err := sdk.AccAddressFromBech32(withdrawer); err != nil {
+					return fmt.Errorf("invalid withdrawer bech32 address %w", err)
 				}
 			}
 
 			// If withdraw address is the same as contract deployer, remove the
 			// field for avoiding storage bloat
-			if deployer.String() == withdraw {
-				withdraw = ""
+			if deployer.String() == withdrawer {
+				withdrawer = ""
 			}
 
 			msg := &types.MsgRegisterRevenue{
 				ContractAddress:   contract,
 				DeployerAddress:   deployer.String(),
-				WithdrawerAddress: withdraw,
+				WithdrawerAddress: withdrawer,
 				Nonces:            nonces,
 			}
 
@@ -98,7 +98,7 @@ func NewRegisterRevenue() *cobra.Command {
 // contract for fee distribution
 func NewCancelRevenue() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "cancel [contract_hex]",
+		Use:   "cancel CONTRACT_HEX",
 		Short: "Cancel a contract from fee distribution",
 		Long:  "Cancel a contract from fee distribution. The deployer will no longer receive fees from users interacting with the contract. \nOnly the contract deployer can cancel a contract.",
 		Args:  cobra.ExactArgs(1),
@@ -136,9 +136,9 @@ func NewCancelRevenue() *cobra.Command {
 // address of a contract for fee distribution
 func NewUpdateRevenue() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update [contract_hex] [withdraw_bech32]",
-		Short: "Update withdraw address for a contract registered for fee distribution.",
-		Long:  "Update withdraw address for a contract registered for fee distribution. \nOnly the contract deployer can update the withdraw address.",
+		Use:   "update CONTRACT_HEX WITHDRAWER_BECH32",
+		Short: "Update withdrawer address for a contract registered for fee distribution.",
+		Long:  "Update withdrawer address for a contract registered for fee distribution. \nOnly the contract deployer can update the withdrawer address.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -153,15 +153,15 @@ func NewUpdateRevenue() *cobra.Command {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
-			withdraw := args[1]
-			if _, err := sdk.AccAddressFromBech32(withdraw); err != nil {
-				return fmt.Errorf("invalid withdraw bech32 address %w", err)
+			withdrawer := args[1]
+			if _, err := sdk.AccAddressFromBech32(withdrawer); err != nil {
+				return fmt.Errorf("invalid withdrawer bech32 address %w", err)
 			}
 
 			msg := &types.MsgUpdateRevenue{
 				ContractAddress:   contract,
 				DeployerAddress:   deployer.String(),
-				WithdrawerAddress: withdraw,
+				WithdrawerAddress: withdrawer,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
