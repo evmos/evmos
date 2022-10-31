@@ -3,6 +3,7 @@ package upgrade
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/ory/dockertest/v3/docker"
@@ -20,7 +21,7 @@ func (m *Manager) RunExec(ctx context.Context, execID string) (bytes.Buffer, byt
 	return outBuf, errBuf, err
 }
 
-func (m *Manager) CreateProposalExec(ctx context.Context, targetVersion string) (string, error) {
+func (m *Manager) CreateSubmitProposalExec(ctx context.Context, targetVersion string, upgradeHeight uint) (string, error) {
 	exec, err := m.pool.Client.CreateExec(docker.CreateExecOptions{
 		Context:      ctx,
 		AttachStdout: true,
@@ -33,7 +34,7 @@ func (m *Manager) CreateProposalExec(ctx context.Context, targetVersion string) 
 			"software-upgrade", targetVersion,
 			"--title=\"TEST\"",
 			"--description=\"Test upgrade proposal\"",
-			"--upgrade-height=50",
+			fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
 			"--upgrade-info=\"\"",
 			"--chain-id=evmos_9000-1",
 			"--from=mykey", "-b=block",
@@ -42,7 +43,7 @@ func (m *Manager) CreateProposalExec(ctx context.Context, targetVersion string) 
 			"--gas=auto",
 		},
 	})
-
+	m.proposalCounter++
 	return exec.ID, err
 }
 
@@ -58,7 +59,7 @@ func (m *Manager) CreateDepositProposalExec(ctx context.Context) (string, error)
 			"tx",
 			"gov",
 			"deposit",
-			"1",
+			fmt.Sprint(m.proposalCounter),
 			"10000000aevmos",
 			"--from=mykey",
 			"--chain-id=evmos_9000-1",
@@ -84,7 +85,7 @@ func (m *Manager) CreateVoteProposalExec(ctx context.Context) (string, error) {
 			"tx",
 			"gov",
 			"vote",
-			"1",
+			fmt.Sprint(m.proposalCounter),
 			"yes",
 			"--from=mykey",
 			"--chain-id=evmos_9000-1",

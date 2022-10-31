@@ -22,8 +22,9 @@ DOCKER_IMAGE := $(NAMESPACE)/$(PROJECT)
 COMMIT_HASH := $(shell git rev-parse --short=7 HEAD)
 DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
-PRE_UPGRADE_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
-POST_UPGRADE_VERSION := $(shell git describe --tags --abbrev=0)
+INITIAL_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
+TARGET_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --max-count=1`)
+MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
 MIGRATE_GENESIS := false
 
@@ -175,14 +176,14 @@ all: build
 
 build-all: tools build lint test
 
-docker-build-debug:
-	@docker build -t evmos:debug --build-arg BASE_IMG_TAG=debug -f Dockerfile .
+docker-build-local:
+	@docker build -t evmos:local -f Dockerfile .
 
-docker-build-e2e-chain-init:
+docker-build-e2e-init:
 	@docker build \
-	-t evmos-e2e-chain-init:debug \
-	--build-arg PRE_UPGRADE_VERSION=$(PRE_UPGRADE_VERSION) \
-	-f tests/e2e/chain_init/Dockerfile .
+	-t evmos:initial \
+	--build-arg INITIAL_VERSION=$(INITIAL_VERSION) \
+	-f tests/e2e/upgrade/Dockerfile.init .
 
 
 .PHONY: distclean clean build-all
@@ -354,8 +355,9 @@ $(TEST_TARGETS): run-tests
 test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
-test-e2e: docker-build-e2e-chain-init docker-build-debug
-	PRE_UPGRADE_VERSION=$(PRE_UPGRADE_VERSION) POST_UPGRADE_VERSION=$(POST_UPGRADE_VERSION) MIGRATE_GENESIS=$(MIGRATE_GENESIS) E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) go test ./tests/e2e/...
+test-e2e: docker-build-e2e-init docker-build-local
+	INITIAL_VERSION=$(PRE_UPGRADE_VERSION) TARGET_VERSION=$(TARGET_VERSION) MIGRATE_GENESIS=$(MIGRATE_GENESIS) E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) MOUNT_PATH=$(MOUNT_PATH) go test ./tests/e2e/...
+
 
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))

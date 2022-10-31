@@ -13,21 +13,11 @@ import (
 )
 
 func (s *IntegrationTestSuite) TestUpgrade() {
-	s.initUpgrade()
-
-	s.stopAllNodeContainers()
-	s.replaceContainers()
-	if s.upgradeParams.MigrateGenesis {
-		newGenesis := s.migrateGenesis(s.valResources[s.chains[0].ChainMeta.ID][0].Container.ID)
-		s.replaceGenesis(newGenesis)
-	}
-	s.stopAllNodeContainers()
+	s.runInitialNode()
+	s.proposeUpgrade()
+	s.depositToProposal()
+	s.voteForProposal()
 	s.upgrade()
-	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chains[0].ChainMeta.ID][0].GetHostPort("1317/tcp"))
-	balancesA, err := queryBalances(chainAAPIEndpoint, s.chains[0].Validators[0].PublicAddress)
-	s.Require().NoError(err)
-	s.Require().NotNil(balancesA)
-	s.Require().Equal(2, len(balancesA))
 }
 
 func queryBalances(endpoint, addr string) (sdk.Coins, error) {

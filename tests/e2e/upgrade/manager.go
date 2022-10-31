@@ -16,7 +16,8 @@ type Manager struct {
 	pool    *dockertest.Pool
 	network *dockertest.Network
 
-	CurrentNode *dockertest.Resource
+	CurrentNode     *dockertest.Resource
+	proposalCounter uint
 }
 
 func NewManager() (*Manager, error) {
@@ -81,6 +82,10 @@ func (m *Manager) ContainerID() string {
 	return m.CurrentNode.Container.ID
 }
 
+func (m *Manager) Client() *docker.Client {
+	return m.pool.Client
+}
+
 func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	var currentHeight int
 	var err error
@@ -128,12 +133,12 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 	return h, nil
 }
 
-func (m *Manager) ExportState() error {
+func (m *Manager) ExportState(targetDir string) error {
 	cmd := exec.Command(
 		"docker",
 		"cp",
 		fmt.Sprintf("%s:/root/.evmosd", m.ContainerID()),
-		"./build",
+		targetDir,
 	)
 	return cmd.Run()
 }

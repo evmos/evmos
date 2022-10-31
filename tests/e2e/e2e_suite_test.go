@@ -1,23 +1,24 @@
 package e2e
 
 import (
-	"fmt"
+	"context"
 	"os"
-	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
-	"time"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v9/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v9/tests/e2e/util"
 )
 
 const (
 	localRepository = "evmos"
 	initialTag      = "initial"
+	localVersionTag = "local"
+
+	firstUpgradeHeight = 50
 )
 
 var (
@@ -26,10 +27,12 @@ var (
 )
 
 type upgradeParams struct {
-	PreUpgradeVersion  string
-	PostUpgradeVersion string
-	MigrateGenesis     bool
-	SkipCleanup        bool
+	InitialVersion string
+	TargetVersion  string
+	MountPath      string
+
+	MigrateGenesis bool
+	SkipCleanup    bool
 }
 
 type IntegrationTestSuite struct {
@@ -56,23 +59,26 @@ func TestIntegrationTestSuite(t *testing.T) {
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up e2e integration test suite...")
 	var err error
+
+	s.loadUpgradeParams()
+
 	s.upgradeManager, err = upgrade.NewManager()
 	s.NoError(err, "upgrade manager creation error")
 
 }
 
 func (s *IntegrationTestSuite) loadUpgradeParams() {
-	preV := os.Getenv("PRE_UPGRADE_VERSION")
+	preV := os.Getenv("INITIAL_VERSION")
 	if preV == "" {
 		s.Fail("no pre-upgrade version specified")
 	}
-	s.upgradeParams.PreUpgradeVersion = preV
+	s.upgradeParams.InitialVersion = preV
 
-	postV := os.Getenv("POST_UPGRADE_VERSION")
+	postV := os.Getenv("TARGET_VERSION")
 	if postV == "" {
 		s.Fail("no post-upgrade version specified")
 	}
-	s.upgradeParams.PostUpgradeVersion = postV
+	s.upgradeParams.TargetVersion = postV
 
 	migrateGenFlag := os.Getenv("MIGRATE_GENESIS")
 	migrateGenesis, err := strconv.ParseBool(migrateGenFlag)
@@ -83,6 +89,13 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	skipCleanup, err := strconv.ParseBool(skipFlag)
 	s.Require().NoError(err, "invalid skip cleanup flag")
 	s.upgradeParams.SkipCleanup = skipCleanup
+
+	mountPath := os.Getenv("MOUNT_PATH")
+	if postV == "" {
+		s.Fail("no mount path specified")
+	}
+	s.upgradeParams.MountPath = mountPath
+	s.T().Log("upgrade params: ", s.upgradeParams)
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {
@@ -98,28 +111,101 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 
 }
 
-func (s *IntegrationTestSuite) initUpgrade() {
+func (s *IntegrationTestSuite) runInitialNode() {
+	err := s.upgradeManager.RunNode(localRepository, initialTag)
+	s.NoError(err, "can't run initial node")
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	err = s.upgradeManager.WaitForHeight(ctx, 5)
+	s.NoError(err)
+
+	s.T().Logf("successfully started initial node version: %s", s.upgradeParams.InitialVersion)
+}
+
+func (s *IntegrationTestSuite) proposeUpgrade() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	exec, err := s.upgradeManager.CreateSubmitProposalExec(
+		ctx,
+		s.upgradeParams.TargetVersion,
+		firstUpgradeHeight,
+	)
+	s.NoError(err, "can't create submit proposal exec")
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoErrorf(
+		err,
+		"failed to submit upgrade proposal; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+	)
+
+	s.Require().Truef(
+		strings.Contains(outBuf.String(), "code: 0"),
+		"tx returned non code 0"+outBuf.String(),
+	)
+
+	s.T().Logf("successfully submitted upgrade proposal")
+}
+
+func (s *IntegrationTestSuite) depositToProposal() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	exec, err := s.upgradeManager.CreateDepositProposalExec(
+		ctx,
+	)
+	s.NoError(err, "can't create deposit to proposal tx exec")
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoErrorf(
+		err,
+		"failed to submit deposit to proposal tx; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+	)
+
+	s.Require().Truef(
+		strings.Contains(outBuf.String(), "code: 0"),
+		"tx returned non code 0"+outBuf.String(),
+	)
+
+	s.T().Logf("successfully deposited to proposal")
+}
+
+func (s *IntegrationTestSuite) voteForProposal() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	exec, err := s.upgradeManager.CreateVoteProposalExec(
+		ctx,
+	)
+	s.NoError(err, "can't create vote for proposal exec")
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoErrorf(
+		err,
+		"failed to vote for proposal tx; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+	)
+
+	s.Require().Truef(
+		strings.Contains(outBuf.String(), "code: 0"),
+		"tx returned non code 0"+outBuf.String(),
+	)
+
+	s.T().Logf("successfully voted for upgrade proposal")
 }
 
 func (s *IntegrationTestSuite) upgrade() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-		s.Require().Eventually(
-			func() bool {
-				height, _ := s.chainStatus(s.valResources[chain.ChainMeta.ID][i].Container.ID)
-				s.Require().Greater(height, 50)
-				if height <= 70 {
-					fmt.Printf("current block height is %v, waiting to hit blocks\n", height)
-				}
-				return height > 70
-			},
-			2*time.Minute,
-			5*time.Second,
-		)
-		s.T().Logf("upgrade successful on %s validator container: %s", chain.ChainMeta.ID, s.valResources[chain.ChainMeta.ID][i].Container.ID)
-	}
+	err := s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight)
+	s.NoError(err, "can't reach upgrade height")
+	buildeDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
+	err = s.upgradeManager.ExportState(buildeDir)
+	s.NoError(err, "can't export node container state to local")
 
+	err = s.upgradeManager.KillCurrentNode()
+	s.NoError(err, "can't kill current node")
+
+	err = s.upgradeManager.RunMountedNode(localRepository, localVersionTag, s.upgradeParams.MountPath)
+	s.NoError(err, "can't mount and run upgraded node container")
+
+	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)
+	s.NoError(err, "node not produce blocks")
+
+	s.T().Logf("successfully node for new version: %s", s.upgradeParams.TargetVersion)
 }
-
-
-
