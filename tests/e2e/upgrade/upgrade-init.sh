@@ -14,12 +14,6 @@ command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Clear everything of previous installation
-rm -rf ~/.evmosd*
-
-# Reinstall daemon
-make install
-
 # Set client config
 evmosd config keyring-backend $KEYRING
 evmosd config chain-id $CHAINID
