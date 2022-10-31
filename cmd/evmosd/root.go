@@ -39,9 +39,9 @@ import (
 	srvflags "github.com/evmos/ethermint/server/flags"
 	tmcfg "github.com/tendermint/tendermint/config"
 
-	"github.com/evmos/evmos/v9/app"
-	cmdcfg "github.com/evmos/evmos/v9/cmd/config"
-	evmoskr "github.com/evmos/evmos/v9/crypto/keyring"
+	"github.com/evmos/evmos/v10/app"
+	cmdcfg "github.com/evmos/evmos/v10/cmd/config"
+	evmoskr "github.com/evmos/evmos/v10/crypto/keyring"
 )
 
 const (
