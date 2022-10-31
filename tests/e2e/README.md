@@ -12,21 +12,19 @@ As a result, the test suite may provide the desired Evmos version to Docker cont
 * `e2e_suite_test.go`: defines the testing suite and contains the core bootstrapping logic that creates a testing environment via Docker containers. A testing network is created dynamically with 2 test validators.
 * `e2e_test.go`: contains the actual end-to-end integration tests that utilize the testing suite.
 
-### `chain` Package
-
-The `chain` package defines the logic necessary for initializing a chain by creating a genesis file and all required configuration files such as the `app.toml`. This package directly depends on the Evmos codebase.
+### `upgrade` Package
 
 ## Chain Upgrades
 
 e2e testing logic utilizes four parameters:
 
 ```shell
-# PRE_UPGRADE_VERSION is the tag of evmos node which will be used to build initial validators containers
+# INITIAL_VERSION is the tag of evmos node which will be used to build initial validators containers
 # by default it gets previous git tag from current, e.g. if current tag is v9.1.0 it will get v9.0.0 from git
-PRE_UPGRADE_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
+INITIAL_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
 
 # current latest tag
-POST_UPGRADE_VERSION := $(shell git describe --tags --abbrev=0)
+TARGET_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --max-count=1`)
 
 # flag to skip containers cleanup after upgrade
 # should be set true with make test-e2e command if you need access to the node after upgrade
@@ -45,46 +43,19 @@ make test-e2e MIGRATE_GENESIS=true E2E_SKIP_CLEANUP=true PRE_UPGRADE_VERSION=v8.
 
 Testing a chain upgrade is a three step process:
 
-1. Build a chain initializer docker image with pre-upgrade version (e.g. `v9.0.0`)
-2. Build a docker image for the evmos post-upgrade version (e.g. `v9.1.0`)
+1. Build a initial node version docker container (e.g. `v9.0.0`)
+2. Build a docker image for the evmos target version(local repo by default) (e.g. `v9.1.0`)
 3. Run tests
-
-### Building `pre-upgrade` image
-
-This logic included into `test-e2e` makefile command and runs before the testing.
-
-Download evmos node of provided version tag and builds `chain_init` binary:
-
-```docker
-. . .
-RUN git clone --depth 1 --branch $PRE_UPGRADE_VERSION https://github.com/evmos/evmos.git
-
-WORKDIR /go/evmos/
-
-RUN GO111MODULE=on go build -o ./build/chain_init ./tests/e2e/chain_init
-. . .
-
-```
-
-Specific separated command also included into Makefile:
-
-```shell
-make docker-build-e2e-chain-init
-```
-
-### Create`post-upgrade` image
-
-Builds container with current evmos node version.
-
-This logic included into `test-e2e` makefile command and runs before the testing.
 
 ### Run upgrade tests
 
-The e2e test will first execute the `chain_initializer` and create the necessary files to run a node. Then it will run two validators via docker with the tag provided (`PRE_UPGRADE_VERSION`).
+The e2e test will first run a `INITIAL_VERSION` node.
 
-The node will submit a proposal for upgrading to the `POST_UPGRADE_VERSION`.
+The node will submit, deposit and vote for an upgrade proposal for upgrading to the `TARGET_VERSION`.
 
-After block `50` is reached, the test suite destroys the previously used docker images and runs the docker images with the `debug` tag. This will execute the upgrade, and check that it was successful.
+After block `50` is reached, the test suite exports `/.evmosd` folder from docker container to local `build/` and than purge the container.
+
+Suite will mount `TARGET_VERSION` node to local `build/` dir and start the node. Node will get upgrade information from `upgrade-info.json` and will execute the upgrade.
 
 ```shell
 make test-e2e
@@ -92,7 +63,7 @@ make test-e2e
 
 ### Testing Results
 
-Running the e2e test make script, will output the test results for each testing file. In case of an sucessfull upgrade the script will output like `ok  	github.com/evmos/evmos/v5/tests/e2e	174.137s`.
+Running the e2e test make script, will output the test results for each testing file. In case of an sucessfull upgrade the script will output like `ok  	github.com/evmos/evmos/v9/tests/e2e	174.137s`.
 
 In case of test failure, the container wont be deleted. To analyze the error, run
 
