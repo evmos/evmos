@@ -14,6 +14,12 @@ As a result, the test suite may provide the desired Evmos version to Docker cont
 
 ### `upgrade` Package
 
+The `e2e` package defines an upgrade `Manager` abstraction. Suite will utilize `Manager`'s functions to run different versions of evmos containers, propose, vote and delegate.
+
+* `manager.go`: defines core manager logic for running containers, export state and create networks.
+
+* `govexec.go`: defines `gov-specific` exec commands to submit/delegate/vote thru nodes `gov` module.
+
 ## Chain Upgrades
 
 e2e testing logic utilizes four parameters:
