@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -99,6 +100,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
+	a := appCreator{encodingConfig}
 	rootCmd.AddCommand(
 		ethermintclient.ValidateChainID(
 			InitCmd(app.ModuleBasics, app.DefaultNodeHome),
@@ -112,9 +114,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		NewTestnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
+		pruning.PruningCmd(a.newApp),
 	)
 
-	a := appCreator{encodingConfig}
 	ethermintserver.AddCommands(rootCmd, app.DefaultNodeHome, a.newApp, a.appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
@@ -201,6 +203,7 @@ func initAppConfig() (string, interface{}) {
 
 	srvCfg.StateSync.SnapshotInterval = 1500
 	srvCfg.StateSync.SnapshotKeepRecent = 2
+	srvCfg.IAVLDisableFastNode = false
 
 	return customAppTemplate, srvCfg
 }
@@ -241,6 +244,8 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		baseapp.SetInterBlockCache(cache),
 		baseapp.SetTrace(cast.ToBool(appOpts.Get(sdkserver.FlagTrace))),
 		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(sdkserver.FlagIndexEvents))),
+		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(sdkserver.FlagIAVLCacheSize))),
+		baseapp.SetIAVLDisableFastNode(cast.ToBool(appOpts.Get(sdkserver.FlagIAVLFastNode))),
 	)
 
 	return evmosApp

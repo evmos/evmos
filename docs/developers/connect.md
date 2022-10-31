@@ -27,7 +27,8 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://eth.bd.evmos.org:8545`               | `Ethereum` `JSON-RPC`  | [Blockdaemon](https://blockdaemon.com/) |
 | `wss://eth.bd.evmos.org:8546`                 | `Ethereum` `Websocket` | [Blockdaemon](https://blockdaemon.com/) |
 | `https://evmos-json-rpc.stakely.io`           | `Ethereum` `JSON-RPC`  | [Stakely](https://stakely.io/)          |
-| `https://evmos-json-rpc.stakely.io`           | `Ethereum` `JSON-RPC`  | [Stakely](https://stakely.io)           |
+| `https://evmos-rpc.stakely.io`                | `Cosmos` `RPC`         | [Stakely](https://stakely.io/)          |
+| `https://evmos-lcd.stakely.io`                | `Cosmos` `REST`        | [Stakely](https://stakely.io/)          |
 | `https://jsonrpc-evmos-ia.cosmosia.notional.ventures/` | `Ethereum` `JSON-RPC`  | [Notional](https://notional.ventures/)  |
 | `https://rpc-evmos-ia.cosmosia.notional.ventures:443`  | `Tendermint` `RPC`     | [Notional](https://notional.ventures/)  |
 | `https://grpc-evmos-ia.cosmosia.notional.ventures:443` | `Tendermint` `gRPC`    | [Notional](https://notional.ventures/)  |
@@ -42,6 +43,11 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://rpc.evmos.silknodes.io`              | `Tendermint` `RPC`     | [Silk Nodes](https://silknodes.io/)     |
 | `https://grpc.evmos.silknodes.io`             | `Cosmos` `gRPC`        | [Silk Nodes](https://silknodes.io/)     |
 | `https://api.evmos.silknodes.io`              | `Cosmos` `REST`        | [Silk Nodes](https://silknodes.io/)     |
+| `https://evmos-mainnet.public.blastapi.io`    | `Ethereum` `JSON-RPC`  | [BLAST](https://blastapi.io/)           |
+| `wss://evmos-mainnet.public.blastapi.io`      | `Ethereum` `Websocket` | [BLAST](https://blastapi.io/)           |
+| `https://evmos-evm.publicnode.com`            | `Ethereum` `JSON-RPC`  | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-rpc.publicnode.com`            | `Tendermint` `RPC`     | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-rest.publicnode.com`           | `Cosmos` `REST`        | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
 
 :::
 ::: tab Testnet
@@ -59,5 +65,8 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://grpc-t.evmos.nodestake.top`         | `Cosmos` `gRPC`        | [NodeStake](https://nodestake.top/)     |
 | `https://api-t.evmos.nodestake.top`          | `Cosmos` `REST`        | [NodeStake](https://nodestake.top/)     |
 | `https://jsonrpc-t.evmos.nodestake.top`      | `Ethereum` `JSON-RPC`  | [NodeStake](https://nodestake.top/)     |
+| `https://evmos-testnet-rpc.qubelabs.io`      | `Tendermint` `RPC`     | [Qubelabs](https://qubelabs.io/)        |
+| `https://evmos-testnet-lcd.qubelabs.io`      | `Cosmos` `REST`        | [Qubelabs](https://qubelabs.io/)        |
+| `https://evmos-testnet-grpc.qubelabs.io`     | `Cosmos` `gRPC`        | [Qubelabs](https://qubelabs.io/)        |
 :::
 ::::

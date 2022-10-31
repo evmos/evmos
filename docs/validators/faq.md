@@ -229,9 +229,9 @@ $$9R ~ + ~ R ~ + ~ 5\%(R) ~ = ~ 1005 ~ \Leftrightarrow ~ R ~ = ~ 1005 ~/ ~10.05 
 
 If a validator misbehaves, its bonded stake along with its delegators' stake and will be slashed. The severity of the punishment depends on the type of fault. There are 3 main faults that can result in slashing of funds for a validator and its delegators:
 
-- **Double-signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator will get slashed on chain A.
+- **Double-signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator will get slashed on chain A. The penalty for double signing is 10.00% of total stake.
 
-- **Downtime:** If a validator misses more than 95% of the last 10.000 blocks, they will get slashed by 0.01%.
+- **Downtime:** If a validator misses more than 50% of the last 90.000 blocks, they will get slashed by 0.50%.
 - **Unavailability:** If a validator's signature has not been included in the last X blocks, the validator will get slashed by a marginal amount proportional to X. If X is above a certain limit Y, then the validator will get unbonded.
 
 Note that even if a validator does not intentionally misbehave, it can still be slashed if its node crashes, looses connectivity, gets DDoSed, or if its private key is compromised.
@@ -283,7 +283,7 @@ Validators should expect to run an HSM that supports ed25519 keys. Here are pote
 - Ledger Nano S
 - Ledger BOLOS SGX enclave
 - Thales nShield support
-- [Strangelove Horocrux](https://github.com/strangelove-ventures/horcrux)
+- [Strangelove Horcrux](https://github.com/strangelove-ventures/horcrux)
 
 The Evmos team does not recommend one solution above the other. The community is encouraged to bolster the effort to improve HSMs and the security of key management.
 

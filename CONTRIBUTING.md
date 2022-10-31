@@ -9,6 +9,7 @@
 * [Testing](#testing)
 * [Updating Documentation](#updating_doc)
 * [Branching Model and Release](#braching_model_and_release)
+    * [Commit messages](#commit_messages)
     * [PR Targeting](#pr_targeting)
     * [Pull Requests](#pull_requests)
     * [Process for reviewing PRs](#reviewing_prs)
@@ -89,6 +90,28 @@ To pull in updates from the origin repo, run:
 1. `git fetch upstream`
 2. `git rebase upstream/master` (or whatever branch you want)
 
+New branch should be rebased before submitting a PR in case there have been changes to avoid merge commits.
+
+i.e. this branch state:
+
+```
+          A---B---C new-branch
+         /
+    D---E---F---G target-branch
+            |   |
+         (F, G) changes happened after `new-branch` forked
+```
+
+should become this after rebase:
+
+```
+                  A'--B'--C' new-branch
+                 /
+    D---E---F---G target-branch
+```
+
+More about rebase [here](https://git-scm.com/docs/git-rebase) and [here](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase#:~:text=What%20is%20git%20rebase%3F,of%20a%20feature%20branching%20workflow.)
+
 Please **NO DOT** make Pull Requests from `development`.
 
 ## <span id="dependencies">Dependencies</span>
@@ -161,6 +184,12 @@ User-facing repos should adhere to the [trunk based development branching model]
 Libraries need not follow the model strictly, but would be wise to.
 
 Evmos utilizes [semantic versioning](https://semver.org/).
+
+### <span id="commit_messages">Commit messages</span>
+
+Commit messages should be written in a short, descriptive manner and be prefixed with tags for the change type and scope (if possible) according to the [semantic commit](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716) scheme.
+
+For example, a new change to the `bank` module might have the following message: `feat(bank): add balance query cli command`
 
 ### <span id="pr_targeting">PR Targeting</span>
 
