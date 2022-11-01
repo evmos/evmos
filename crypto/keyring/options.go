@@ -24,11 +24,12 @@ var (
 	//  - secp256k1 (in order to comply with Cosmos SDK)
 	// The Ledger derivation function is responsible for all signing and address generation.
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{sdkhd.Secp256k1}
-	// Use the Evmos Ledger Go derivation (Ethereum app with EIP-712 signing)
+	// LedgerDerivation defines the Evmos Ledger Go derivation (Ethereum app with EIP-712 signing)
 	LedgerDerivation = ledger.EvmosLedgerDerivation(encoding.MakeConfig(app.ModuleBasics))
-	// Use the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
+	// CreatePubkey uses the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
 	CreatePubkey = func(key []byte) types.PubKey { return &ethsecp256k1.PubKey{Key: key} }
-	// Skip DER Conversion since it is not required with the Ethereum Ledger
+	// SkipDERConversion represents whether the signed Ledger output should skip conversion from DER to BER, true for
+	// signing performed by the Ledger Ethereum app.
 	SkipDERConversion = true
 )
 
