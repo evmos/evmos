@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	epochstypes "github.com/evmos/evmos/v9/x/epochs/types"
+	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
 )
 
 // BeforeEpochStart performs a no-op
