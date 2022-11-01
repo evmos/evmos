@@ -35,7 +35,7 @@ evmosd query claims records [flags]
 Allows users to query a claims record for a given user.
 
 ```bash
-evmosd query claims record [address] [flags]
+evmosd query claims record ADDRESS [flags]
 ```
 
 **`params`**

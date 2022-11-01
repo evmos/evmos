@@ -9,8 +9,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v9/contracts"
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/contracts"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the erc20 hook is already set
@@ -149,8 +149,8 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 
 			suite.ensureHooksSet()
 
-			metadata, pair := suite.setupRegisterCoin()
-			suite.Require().NotNil(metadata)
+			pair := suite.setupRegisterCoin(metadataCoin)
+			suite.Require().NotNil(metadataCoin)
 			suite.Require().NotNil(pair)
 
 			sender := sdk.AccAddress(suite.address.Bytes())
@@ -172,7 +172,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 			suite.Commit()
 
 			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
-			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
+			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
 			suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
 			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
@@ -180,7 +180,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 			_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(tc.reconvert))
 
 			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
-			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadata.Base)
+			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
 
 			if tc.result {
 				// Check if the execution was successful

@@ -25,16 +25,6 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register an ERC-20, consider the following stages:
 
-- [ERC-20 Registration](#erc-20-registration)
-    - [Drafting the ERC-20 Proposal](#drafting-the-erc-20-proposal)
-    - [Submitting the ERC-20 Proposal](#submitting-the-erc-20-proposal)
-        - [Formatting the Proposal's Text](#formatting-the-proposals-text)
-        - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
-    - [Register Token and Network to Chain-Token-Registry repo](#register-token-and-network-to-chain-token-registry-repo)
-    - [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
-        - [The Deposit Period](#the-deposit-period)
-        - [The Voting Period](#the-voting-period)
-
 ## Drafting the ERC-20 Proposal
 
 The following topics must be addressed when drafting an ERC-20 Proposal:
@@ -79,7 +69,7 @@ writing markdown files.
 To [submit the proposal](../../users/governance/submitting.md) to testnet through the command line with [`evmosd`](../../validators/quickstart/binary.md), use the following command with `register-erc20`:
 
 ```bash
-evmosd tx gov submit-proposal register-erc20 <erc20-address> \
+evmosd tx gov submit-proposal register-erc20 ERC20_ADDRESS...\
   --title=<title> \
   --description=<description> \
   --deposit="1000000aevmos" \
@@ -87,6 +77,8 @@ evmosd tx gov submit-proposal register-erc20 <erc20-address> \
   --chain-id=<testnet_chain_id> \
   --node <address>
 ```
+
+To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>`.
 
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 

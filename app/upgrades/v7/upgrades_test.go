@@ -17,11 +17,11 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v9/app"
-	v7 "github.com/evmos/evmos/v9/app/upgrades/v7"
-	"github.com/evmos/evmos/v9/testutil"
-	evmostypes "github.com/evmos/evmos/v9/types"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
+	"github.com/evmos/evmos/v10/app"
+	v7 "github.com/evmos/evmos/v10/app/upgrades/v7"
+	"github.com/evmos/evmos/v10/testutil"
+	evmostypes "github.com/evmos/evmos/v10/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 )
 
 type UpgradeTestSuite struct {
@@ -97,7 +97,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 			suite.SetupTest(tc.chainID) // reset
 
 			coins := sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewInt(1000)))
-			err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, from, coins)
+			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, from, coins)
 			suite.Require().NoError(err)
 
 			suite.Require().NotPanics(func() {

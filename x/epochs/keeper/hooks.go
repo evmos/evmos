@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v9/x/epochs/types"
+	"github.com/evmos/evmos/v10/x/epochs/types"
 )
 
 var _ types.EpochHooks = MultiEpochHooks{}

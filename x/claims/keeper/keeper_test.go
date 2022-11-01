@@ -19,9 +19,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/testutil"
-	"github.com/evmos/evmos/v9/x/claims/types"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/testutil"
+	"github.com/evmos/evmos/v10/x/claims/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -133,7 +133,7 @@ func (suite *KeeperTestSuite) SetupTestWithEscrow() {
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 
 	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(10000000)))
-	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+	err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)
 }
 

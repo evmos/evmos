@@ -16,18 +16,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	v3 "github.com/evmos/evmos/v9/app/upgrades/v3"
-	v5 "github.com/evmos/evmos/v9/app/upgrades/v5"
-	"github.com/evmos/evmos/v9/types"
+	"github.com/evmos/evmos/v10/types"
 )
 
 // FlagGenesisTime defines the genesis time in string format
 const FlagGenesisTime = "genesis-time"
 
-var migrationMap = genutiltypes.MigrationMap{
-	"v3": v3.MigrateGenesis, // migration to v3
-	"v5": v5.MigrateGenesis, // migration to v5
-}
+var migrationMap = genutiltypes.MigrationMap{}
 
 // GetMigrationCallback returns a MigrationCallback for a given version.
 func GetMigrationCallback(version, chainID string) genutiltypes.MigrationCallback {
@@ -41,7 +36,7 @@ func GetMigrationCallback(version, chainID string) genutiltypes.MigrationCallbac
 // MigrateGenesisCmd returns a command to execute genesis state migration.
 func MigrateGenesisCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "migrate [target-version] [genesis-file]",
+		Use:   "migrate TARGET_VERSION GENESIS_FILE",
 		Short: "Migrate genesis to a specified target version",
 		Long:  "Migrate the source genesis into the target version and print to STDOUT.",
 		Example: fmt.Sprintf(

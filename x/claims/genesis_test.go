@@ -15,10 +15,10 @@ import (
 	"github.com/evmos/ethermint/tests"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/testutil"
-	"github.com/evmos/evmos/v9/x/claims"
-	"github.com/evmos/evmos/v9/x/claims/types"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/testutil"
+	"github.com/evmos/evmos/v10/x/claims"
+	"github.com/evmos/evmos/v10/x/claims/types"
 )
 
 type GenesisTestSuite struct {
@@ -114,7 +114,7 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 			},
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(2_800)))
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			false,
@@ -138,7 +138,7 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 			},
 			func() {
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
-				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
 			false,
@@ -185,7 +185,7 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 	}
 
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
-	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
+	err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
 	claims.InitGenesis(suite.ctx, *suite.app.ClaimsKeeper, suite.genesis)

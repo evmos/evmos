@@ -25,30 +25,21 @@ More information can be found in [this blog post](https://medium.com/evmos/intro
 
 To register a Cosmos Coin, consider the following stages:
 
-- [Drafting the Cosmos Coin Proposal](#drafting-the-cosmos-coin-proposal)
-- [Adding Network to Evmos Chain Registry](#adding-network-to-evmos-chain-registry)
-- [Submitting the Cosmos Coin Proposal](#submitting-the-cosmos-coin-proposal)
-    - [Formatting the Proposal's Text](#formatting-the-proposals-text)
-    - [Submit the Proposal to Testnet](#submit-the-proposal-to-testnet)
-- [The On-Chain ERC-20 Proposal](#the-on-chain-erc-20-proposal)
-    - [The Deposit Period](#the-deposit-period)
-    - [The Voting Period](#the-voting-period)
-
 ## Drafting the Cosmos Coin Proposal
 
 The following topics must be addressed when drafting a Cosmos Coin Proposal:
 
 1. Provide the profile of the person(s)/entity making the proposal.
 
-   Who are you? What is your involvement in Cosmos and/or other blockchain networks? If you are working with a team, who are the team members involved and what is their relevant experience? What is the mission statement of your organization or business? Do you have a website? Showcase some work you've done and some proof of who you are.
+	Who are you? What is your involvement in Cosmos and/or other blockchain networks? If you are working with a team, who are the team members involved and what is their relevant experience? What is the mission statement of your organization or business? Do you have a website? Showcase some work you've done and some proof of who you are.
 
 2. Promote understanding of the ERC-20 Module.
 
-   Make sure to mention the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module, along with a brief explanation of what the ERC-20 Module does. It's also a good idea to link the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)!
+  Make sure to mention the original [blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273) that introduced the ERC-20 Module, along with a brief explanation of what the ERC-20 Module does. It's also a good idea to link the [ERC-20 Module documentation](https://docs.evmos.org/modules/erc20/)!
 
 3. Describe how ERC-20 Module changes will be made.
 
-   Give a breakdown of the proposal's payload, and explain in layman terms what the proposal will do if it passes. Detail precautions taken during contract and proposal formulation, if applicable (including consultations made prior to proposal creation, how contracts were tested, and any third-party reviews). Finally, mention the risks involved in the proposal, depending on the direction of IBC Coin and ERC-20.
+  Give a breakdown of the proposal's payload, and explain in layman terms what the proposal will do if it passes. Detail precautions taken during contract and proposal formulation, if applicable (including consultations made prior to proposal creation, how contracts were tested, and any third-party reviews). Finally, mention the risks involved in the proposal, depending on the direction of IBC Coin and ERC-20.
 
 Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
 
@@ -88,22 +79,45 @@ where `metadata.json` contains (as an example, for Osmosis):
 
 ```json
 {
-  "description": "The native staking and governance token of the Osmosis chain",
-  "denom_units": [
-    {
-      "denom": "ibc/<HASH>",
-      "exponent": 0,
-      "aliases": ["ibcuosmo"]
-    },
-    {
-      "denom": "OSMO",
-      "exponent": 6
-    }
-  ],
-  "base": "ibc/<HASH>",
-  "display": "OSMO",
-  "name": "Osmo",
-  "symbol": "OSMO"
+    "metadata": [
+        {
+			"description": "The native staking and governance token of the Osmosis chain",
+			"denom_units": [
+				{
+						"denom": "ibc/<HASH>",
+						"exponent": 0,
+						"aliases": ["ibcuosmo"]
+				},
+				{
+						"denom": "OSMO",
+						"exponent": 6
+				}
+			],
+			"base": "ibc/<HASH>",
+			"display": "OSMO",
+			"name": "Osmo",
+			"symbol": "OSMO"
+		}
+	]
+}
+```
+
+Note that you can register multiple coins in one proposal by extending the `"metadata"` array with multiple metadata entries, e.g.
+
+```json
+{
+    "metadata": [
+        {
+			"description": "The native staking and governance token of the Osmosis chain",
+            // ...
+   			"symbol": "OSMO"
+		},
+        {
+			"description": "The native staking and governance token of the Cosmos chain",
+            // ...
+   			"symbol": "ATOM"
+		},
+	]
 }
 ```
 

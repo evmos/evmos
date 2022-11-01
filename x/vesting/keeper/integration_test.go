@@ -10,9 +10,9 @@ import (
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/app/ante"
-	"github.com/evmos/evmos/v9/testutil"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/app/ante"
+	"github.com/evmos/evmos/v10/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -22,9 +22,9 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 
-	"github.com/evmos/evmos/v9/x/vesting/types"
+	"github.com/evmos/evmos/v10/x/vesting/types"
 )
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
@@ -87,7 +87,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			lockupPeriods,
 			vestingPeriods,
 		)
-		err := testutil.FundAccount(s.app.BankKeeper, s.ctx, addr, vestingAmtTotal)
+		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, addr, vestingAmtTotal)
 		s.Require().NoError(err)
 		acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
@@ -264,7 +264,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 		// Create and fund periodic vesting account
 		vestingStart := s.ctx.BlockTime()
-		testutil.FundAccount(s.app.BankKeeper, s.ctx, funder, vestingAmtTotal)
+		testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, vestingAmtTotal)
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)

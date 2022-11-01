@@ -6,10 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/testutil"
-	claimtypes "github.com/evmos/evmos/v9/x/claims/types"
-	"github.com/evmos/evmos/v9/x/recovery/types"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/testutil"
+	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v10/x/recovery/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -103,7 +103,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
 
 						// update the escrowed account balance to maintain the invariant
-						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
+						err := testutil.FundModuleAccount(s.EvmosChain.GetContext(), s.EvmosChain.App.(*app.Evmos).BankKeeper, claimtypes.ModuleName, coins)
 						s.Require().NoError(err)
 					})
 
@@ -127,7 +127,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
 
 						// update the escrowed account balance to maintain the invariant
-						err := testutil.FundModuleAccount(s.EvmosChain.App.(*app.Evmos).BankKeeper, s.EvmosChain.GetContext(), claimtypes.ModuleName, coins)
+						err := testutil.FundModuleAccount(s.EvmosChain.GetContext(), s.EvmosChain.App.(*app.Evmos).BankKeeper, claimtypes.ModuleName, coins)
 						s.Require().NoError(err)
 
 						// aevmos & ibc tokens that originated from the sender's chain
