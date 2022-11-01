@@ -85,7 +85,7 @@ evmosd keys add test --recover
 Check the balance of the account address:
 
 ```bash
-evmosd q bank balances [address]
+evmosd q bank balances ADDRESS
 ```
 
 Use this test account to manually test against the test network.

@@ -74,7 +74,7 @@ func GetIncentivesCmd() *cobra.Command {
 // GetIncentiveCmd queries a given contract incentive
 func GetIncentiveCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "incentive [contract-address]",
+		Use:   "incentive CONTRACT_ADDRESS",
 		Short: "Gets incentive for a given contract",
 		Long:  "Gets incentive for a given contract",
 		Args:  cobra.ExactArgs(1),
@@ -110,7 +110,7 @@ func GetIncentiveCmd() *cobra.Command {
 // GetGasMetersCmd queries the list of incentives
 func GetGasMetersCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gas-meters [contract-address]",
+		Use:   "gas-meters CONTRACT_ADDRESS",
 		Short: "Gets gas meters for a given incentive",
 		Long:  "Gets gas meters for a given incentive",
 		Args:  cobra.ExactArgs(1),
@@ -152,7 +152,7 @@ func GetGasMetersCmd() *cobra.Command {
 // GetGasMeterCmd queries the list of incentives
 func GetGasMeterCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gas-meter [contract-address] [participant-address]",
+		Use:   "gas-meter CONTRACT_ADDRESS PARTICIPANT_ADDRESS",
 		Short: "Gets gas meter for a given incentive and user",
 		Long:  "Gets gas meter for a given incentive and user",
 		Args:  cobra.ExactArgs(2),
@@ -230,7 +230,7 @@ func GetAllocationMetersCmd() *cobra.Command {
 // GetAllocationMeterCmd queries a given denom allocation meter
 func GetAllocationMeterCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "allocation-meter [denom]",
+		Use:   "allocation-meter DENOM",
 		Short: "Gets allocation meter for a denom",
 		Long:  "Gets allocation meter for a denom",
 		Args:  cobra.ExactArgs(1),

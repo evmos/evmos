@@ -134,7 +134,7 @@ func GetCmdQueryClaimsRecords() *cobra.Command {
 // GetCmdQueryClaimsRecord implements the query claims record command.
 func GetCmdQueryClaimsRecord() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "record [address]",
+		Use:     "record ADDRESS",
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query the claims records for an account.",
 		Long:    "Query the claims records for an account.\nThis contains an address' initial claimable amount, and the claims per action.",
