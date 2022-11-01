@@ -1,3 +1,4 @@
+#!/bin/bash
 KEYS[0]="mykey"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
