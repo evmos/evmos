@@ -40,7 +40,7 @@ func (m *Manager) RunNode(node *Node) error {
 	// sleep to let container start to prevent querying panics
 	defer time.Sleep(5 * time.Second)
 	if node.withRunOptions {
-		resource, err := m.pool.RunWithOptions(&node.runOptions)
+		resource, err := m.pool.RunWithOptions(node.runOptions)
 		if err != nil {
 			return err
 		}
@@ -99,9 +99,13 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("run exec error: %w", err)
 	}
-	index := strings.Index(outBuff.String(), "\"height\":")
-	qq := outBuff.String()[index+10 : index+12]
-	h, _ := strconv.Atoi(qq)
+	outStr := outBuff.String()
+	var h int
+	if outStr != "<nil>" && outStr != "" {
+		index := strings.Index(outBuff.String(), "\"height\":")
+		qq := outStr[index+10 : index+12]
+		h, _ = strconv.Atoi(qq)
+	}
 	if errBuff.String() != "" {
 		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
 	}

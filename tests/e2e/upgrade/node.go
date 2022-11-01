@@ -8,7 +8,7 @@ type Node struct {
 	repository string
 	version    string
 
-	runOptions     dockertest.RunOptions
+	runOptions     *dockertest.RunOptions
 	withRunOptions bool
 }
 
@@ -16,12 +16,11 @@ func NewNode(repository, version string) *Node {
 	return &Node{
 		repository: repository,
 		version:    version,
-		runOptions: dockertest.RunOptions{
+		runOptions: &dockertest.RunOptions{
 			Repository: repository,
 			Tag:        version,
 			Cmd:        baseCmd,
 		},
-		withRunOptions: false,
 	}
 }
 

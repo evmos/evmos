@@ -181,7 +181,7 @@ docker-build-local:
 
 docker-build-e2e-init:
 	@docker build \
-	-t evmos:initial \
+	-t evmos:$(INITIAL_VERSION) \
 	--build-arg INITIAL_VERSION=$(INITIAL_VERSION) \
 	-f tests/e2e/upgrade/Dockerfile.init .
 
@@ -356,6 +356,7 @@ test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=a
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-e2e: docker-build-e2e-init docker-build-local
+	mkdir -p ./build
 	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
 	MIGRATE_GENESIS=$(MIGRATE_GENESIS) E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) \
 	MOUNT_PATH=$(MOUNT_PATH) go test ./tests/e2e/...

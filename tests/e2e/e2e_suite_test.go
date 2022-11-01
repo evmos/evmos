@@ -15,7 +15,6 @@ import (
 
 const (
 	localRepository = "evmos"
-	initialTag      = "initial"
 	localVersionTag = "local"
 
 	firstUpgradeHeight = 50
@@ -112,7 +111,7 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
-	node := upgrade.NewNode(localRepository, initialTag)
+	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
 	err := s.upgradeManager.RunNode(node)
 	s.NoError(err, "can't run initial node")
 
@@ -191,8 +190,8 @@ func (s *IntegrationTestSuite) upgrade() {
 
 	err := s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight)
 	s.NoError(err, "can't reach upgrade height")
-	buildeDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
-	err = s.upgradeManager.ExportState(buildeDir)
+	buildDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
+	err = s.upgradeManager.ExportState(buildDir)
 	s.NoError(err, "can't export node container state to local")
 
 	err = s.upgradeManager.KillCurrentNode()
@@ -200,10 +199,10 @@ func (s *IntegrationTestSuite) upgrade() {
 
 	node := upgrade.NewNode(localRepository, localVersionTag).Mount(s.upgradeParams.MountPath)
 	err = s.upgradeManager.RunNode(node)
-	s.NoError(err, "can't mount and run upgraded node container")
+	s.Require().NoError(err, "can't mount and run upgraded node container")
 
 	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)
-	s.NoError(err, "node not produce blocks")
+	s.Require().NoError(err, "node not produce blocks")
 
 	s.T().Logf("successfully started node version: %s", s.upgradeParams.TargetVersion)
 }
