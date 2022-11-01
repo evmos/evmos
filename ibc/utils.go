@@ -64,26 +64,47 @@ func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 	return data.Amount, nil
 }
 
-// GetTransferDenomination returns the denomination from an ICS20 FungibleTokenPacketData.
-func GetTransferDenomination(packet channeltypes.Packet) (string, error) {
-	// Unmarshal packet data to obtain the coin denomination
-	var data transfertypes.FungibleTokenPacketData
-	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return "", sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
+// GetReceivedCoin returns the transferred coin from an ICS20 FungibleTokenPacketData
+// as seen from the destination chain.
+// If the receiving chain is the source chain of the tokens, it removes the prefix
+// path added by source (i.e sender) chain to the denom. Otherwise, it adds the
+// prefix path from the destination chain to the denom.
+func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt string) sdk.Coin {
+	// NOTE: Denom and amount are already validated
+	amount, _ := sdk.NewIntFromString(rawAmt)
+
+	if transfertypes.ReceiverChainIsSource(srcPort, srcChannel, rawDenom) {
+		// remove prefix added by sender chain
+		voucherPrefix := transfertypes.GetDenomPrefix(srcPort, srcChannel)
+		unprefixedDenom := rawDenom[len(voucherPrefix):]
+
+		// coin denomination used in sending from the escrow address
+		denom := unprefixedDenom
+
+		// The denomination used to send the coins is either the native denom or the hash of the path
+		// if the denomination is not native.
+		denomTrace := transfertypes.ParseDenomTrace(unprefixedDenom)
+		if denomTrace.Path != "" {
+			denom = denomTrace.IBCDenom()
+		}
+
+		return sdk.Coin{
+			Denom:  denom,
+			Amount: amount,
+		}
 	}
 
-	// Validate the prefixed denomination
-	if err := transfertypes.ValidatePrefixedDenom(data.GetDenom()); err != nil {
-		return "", sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "invalid prefixed denomination")
-	}
+	// since SendPacket did not prefix the denomination, we must prefix denomination here
+	sourcePrefix := transfertypes.GetDenomPrefix(dstPort, dstChannel)
+	// NOTE: sourcePrefix contains the trailing "/"
+	prefixedDenom := sourcePrefix + rawDenom
 
-	// Get the baseDenom from the prefixed denomination, validate
-	denomTrace := transfertypes.ParseDenomTrace(data.GetDenom())
-	baseDenom := denomTrace.GetBaseDenom()
-	if err := transfertypes.ValidateIBCDenom(baseDenom); err != nil {
-		return "", sdkerrors.Wrapf(errortypes.ErrInvalidCoins, "invalid base denomination")
-	}
+	// construct the denomination trace from the full raw denomination
+	denomTrace := transfertypes.ParseDenomTrace(prefixedDenom)
+	voucherDenom := denomTrace.IBCDenom()
 
-	// Return base denomination
-	return baseDenom, nil
+	return sdk.Coin{
+		Denom:  voucherDenom,
+		Amount: amount,
+	}
 }

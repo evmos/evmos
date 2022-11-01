@@ -68,7 +68,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		receiver      sdk.AccAddress
 		expErc20s     *big.Int
 		expCoins      sdk.Coins
-		ibcConv        bool
+		ibcConv       bool
 	}{
 		{
 			"error - non ics-20 packet",
@@ -273,7 +273,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 				// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 				// We do this since we are interested in the conversion portion w/ OnRecvPacket
-				testutil.FundAccount(suite.app.BankKeeper, suite.ctx, ethsecpAddr, coins)
+				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, ethsecpAddr, coins)
+				suite.Require().NoError(err)
 
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "1000", ethsecpAddrCosmos, ethsecpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -323,7 +324,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			// We do this since we are interested in the conversion portion w/ OnRecvPacket
-			testutil.FundAccount(suite.app.BankKeeper, suite.ctx, secpAddr, coins)
+			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			suite.Require().NoError(err)
 
 			// Enable ERC20
 			params := suite.app.Erc20Keeper.GetParams(suite.ctx)

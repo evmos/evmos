@@ -10,14 +10,18 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
+	"github.com/evmos/evmos/v9/ibc"
 	evmos "github.com/evmos/evmos/v9/types"
 	"github.com/evmos/evmos/v9/x/erc20/types"
 )
 
-// OnRecvPacket performs an IBC receive callback. Once a user receives
-// an IBC transfer and the transfer is successful, the IBC Coins gets converted
-// to their ERC-20 Representations, given that the Token Pair is
-// registered through governance.
+// OnRecvPacket performs the ICS20 middleware receive callback for automatically
+// converting an IBC Coin to their ERC20 representation.
+// For the conversion to succeed, the IBC denomination must have previously been
+// registered via governance. Note that the native staking denomination (e.g. "aevmos"),
+// is excluded from the conversion.
+//
+// CONTRACT: This middleware MUST be executed transfer after the ICS20 OnRecvPacket
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -25,53 +29,50 @@ func (k Keeper) OnRecvPacket(
 ) exported.Acknowledgement {
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		// NOTE: shouldn't happen as the packet has already
+		// been decoded on ICS20 transfer logic
 		err = sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "cannot unmarshal ICS-20 transfer packet data")
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
-	denomTrace := transfertypes.ParseDenomTrace(data.Denom)
-	denom := denomTrace.GetBaseDenom()
-
 	// Return acknowledgement and continue with the next layer of the IBC middleware
 	// stack if if:
 	// - ERC20s are disabled
+	// - Denomination is native staking token
 	// - The base denomination is not registered as ERC20
 	erc20Params := k.GetParams(ctx)
 	if !erc20Params.EnableErc20 {
 		return ack
 	}
 
-	// TODO: check if the token denom is source?
-	if !k.IsDenomRegistered(ctx, denom) {
+	// parse the transferred denom
+	coin := ibc.GetReceivedCoin(
+		packet.SourcePort, packet.SourceChannel,
+		packet.DestinationPort, packet.DestinationChannel,
+		data.Denom, data.Amount,
+	)
+
+	// check if the coin is a native staking token
+	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	if coin.Denom == bondDenom {
+		// no-op, received coin is the staking denomination
 		return ack
 	}
 
-	amount, _ := sdk.NewIntFromString(data.Amount)
-
-	// Setup for OnRecvPacket:
-	// - Get erc20 parameters for keeper
-	// - Get denomination of packet's IBC transfer
-
-	// TODO:
-	// denom, err := ibc.GetTransferDenomination(packet)
-	// if err != nil {
-	// 	// NOTE: shouldn't occur, as the transfer has already been validated and
-	// 	// processed by the IBC transfer module
-	// 	return channeltypes.NewErrorAcknowledgement(err)
-	// }
-
-	// Inward conversion, concerned only with IBC Coins:
-	// (ERC20s would be registered with their contract address, would fail here)
+	// short-circuit: if the denom is not registered, conversion will fail
+	// so we can continue with the rest of the stack
+	if !k.IsDenomRegistered(ctx, coin.Denom) {
+		return ack
+	}
 
 	recipient, err := evmos.GetEvmosAddressFromBech32(data.Receiver)
 	if err != nil {
+		// NOTE: shouldn't happen as the receiving address has already
+		// been validated on ICS20 transfer logic
 		return channeltypes.NewErrorAcknowledgement(
 			sdkerrors.Wrap(err, "invalid recipient"),
 		)
 	}
-
-	// Build coin for transfer without validating it again
-	coin := sdk.Coin{Denom: denom, Amount: amount}
 
 	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
 	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(recipient.Bytes()), recipient)
