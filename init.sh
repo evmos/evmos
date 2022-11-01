@@ -1,4 +1,7 @@
-KEYS=("mykey" "dev1" "dev2" "dev3" "dev4")
+KEYS[0]="mykey"
+KEYS[1]="dev1"
+KEYS[2]="dev2"
+KEYS[3]="dev3"
 CHAINID="evmos_9000-1"
 MONIKER="localtestnet"
 KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
@@ -25,7 +28,7 @@ evmosd config keyring-backend $KEYRING
 evmosd config chain-id $CHAINID
 
 # If keys exist they should be deleted
-for KEY in ${KEYS[@]}
+for KEY in "${KEYS[@]}"
 do
   evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
 done
@@ -93,8 +96,7 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Allocate genesis accounts (cosmos formatted addresses)
-INIT_AMOUNT=100000000000000000000000000
-for KEY in ${KEYS[@]}
+for KEY in "${KEYS[@]}"
 do
   evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
 done 
