@@ -1,4 +1,4 @@
-KEY="mykey"
+KEYS=("mykey" "dev1" "dev2" "dev3" "dev4")
 CHAINID="evmos_9000-1"
 MONIKER="localtestnet"
 KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
@@ -24,8 +24,11 @@ make install
 evmosd config keyring-backend $KEYRING
 evmosd config chain-id $CHAINID
 
-# if $KEY exists it should be deleted
-evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
+# If keys exist they should be deleted
+for KEY in ${KEYS[@]}
+do
+  evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO
+done
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 evmosd init $MONIKER --chain-id $CHAINID
@@ -41,12 +44,13 @@ cat $HOME/.evmosd/config/genesis.json | jq '.app_state["inflation"]["params"]["m
 cat $HOME/.evmosd/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="10000000"' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Set claims start time
-node_address=$(evmosd keys list | grep  "address: " | cut -c12-)
 current_date=$(date -u +"%Y-%m-%dT%TZ")
 cat $HOME/.evmosd/config/genesis.json | jq -r --arg current_date "$current_date" '.app_state["claims"]["params"]["airdrop_start_time"]=$current_date' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Set claims records for validator account
 amount_to_claim=10000
+claims_key=${KEYS[0]}
+node_address=$(evmosd keys show $claims_key | grep "address" | cut -c12-)
 cat $HOME/.evmosd/config/genesis.json | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claims"]["claims_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Set claims decay
@@ -89,17 +93,20 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
+INIT_AMOUNT=100000000000000000000000000
+for KEY in ${KEYS[@]}
+do
+  evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
+done 
 
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.evmosd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
-# Bc is required to add this big numbers
-# total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
-total_supply=100000000000000000000010000
+# Bc is required to add these big numbers
+total_supply=$(echo "${#KEYS[@]} * 100000000000000000000000000 + $amount_to_claim" | bc)
 cat $HOME/.evmosd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.evmosd/config/tmp_genesis.json && mv $HOME/.evmosd/config/tmp_genesis.json $HOME/.evmosd/config/genesis.json
 
 # Sign genesis transaction
-evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
+evmosd gentx ${KEYS[0]} 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `evmosd keys add` step, init more keys
 ## 2. Back to `evmosd add-genesis-account` step, add balance for those
