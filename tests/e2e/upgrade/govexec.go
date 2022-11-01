@@ -24,16 +24,18 @@ func (m *Manager) RunExec(ctx context.Context, execID string) (bytes.Buffer, byt
 func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	opts := docker.CreateExecOptions{
+	exec, err := m.pool.Client.CreateExec(docker.CreateExecOptions{
 		Context:      ctx,
 		AttachStdout: true,
 		AttachStderr: true,
 		User:         "root",
 		Container:    containerID,
 		Cmd:          cmd,
+	})
+	if err != nil {
+		return "", err
 	}
-	exec, err := m.pool.Client.CreateExec(opts)
-	return exec.ID, err
+	return exec.ID, nil
 }
 
 func (m *Manager) CreateSubmitProposalExec(ctx context.Context, targetVersion string, upgradeHeight uint) (string, error) {

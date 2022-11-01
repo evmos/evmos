@@ -198,7 +198,7 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.KillCurrentNode()
 	s.NoError(err, "can't kill current node")
 
-	node := upgrade.NewNode(localRepository, initialTag).Mount(s.upgradeParams.MountPath)
+	node := upgrade.NewNode(localRepository, localVersionTag).Mount(s.upgradeParams.MountPath)
 	err = s.upgradeManager.RunNode(node)
 	s.NoError(err, "can't mount and run upgraded node container")
 
