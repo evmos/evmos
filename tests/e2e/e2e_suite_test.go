@@ -205,5 +205,5 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)
 	s.NoError(err, "node not produce blocks")
 
-	s.T().Logf("successfully node for new version: %s", s.upgradeParams.TargetVersion)
+	s.T().Logf("successfully started node version: %s", s.upgradeParams.TargetVersion)
 }

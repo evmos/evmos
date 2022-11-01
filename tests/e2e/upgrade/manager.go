@@ -43,6 +43,7 @@ func (m *Manager) RunNode(node *Node) error {
 			return err
 		}
 		m.CurrentNode = resource
+		return nil
 	}
 	resource, err := m.pool.Run(node.repository, node.version, []string{})
 	if err != nil {

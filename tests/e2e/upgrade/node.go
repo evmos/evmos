@@ -21,6 +21,7 @@ func NewNode(repository, version string) *Node {
 			Tag:        version,
 			Cmd:        baseCmd,
 		},
+		withRunOptions: false,
 	}
 }
 
