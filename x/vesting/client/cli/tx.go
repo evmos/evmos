@@ -49,7 +49,7 @@ func NewTxCmd() *cobra.Command {
 // MsgCreateClawbackVestingAccount transaction.
 func NewMsgCreateClawbackVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-clawback-vesting-account [to_address]",
+		Use:   "create-clawback-vesting-account TO_ADDRESS",
 		Short: "Create a new vesting account funded with an allocation of tokens, subject to clawback.",
 		Long: `Must provide a lockup periods file (--lockup), a vesting periods file (--vesting), or both.
 If both files are given, they must describe schedules for the same total amount.
@@ -132,7 +132,7 @@ with a start time and an array of coins strings and durations relative to the st
 // MsgClawback transaction.
 func NewMsgClawbackCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "clawback [address]",
+		Use:   "clawback ADDRESS",
 		Short: "Transfer unvested amount out of a ClawbackVestingAccount.",
 		Long: `Must be requested by the original funder address (--from).
 		May provide a destination address (--dest), otherwise the coins return to the funder.
