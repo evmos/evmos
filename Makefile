@@ -356,7 +356,7 @@ test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=a
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-e2e: docker-build-e2e-init docker-build-local
-	INITIAL_VERSION=$(PRE_UPGRADE_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
+	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
 	MIGRATE_GENESIS=$(MIGRATE_GENESIS) E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) \
 	MOUNT_PATH=$(MOUNT_PATH) go test ./tests/e2e/...
 
