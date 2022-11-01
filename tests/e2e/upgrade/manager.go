@@ -37,6 +37,8 @@ func NewManager() (*Manager, error) {
 }
 
 func (m *Manager) RunNode(node *Node) error {
+	// sleep to let container start to prevent querying panics
+	defer time.Sleep(5 * time.Second)
 	if node.withRunOptions {
 		resource, err := m.pool.RunWithOptions(&node.runOptions)
 		if err != nil {
@@ -50,8 +52,6 @@ func (m *Manager) RunNode(node *Node) error {
 		return err
 	}
 	m.CurrentNode = resource
-	// sleep to let container start to prevent querying panics
-	time.Sleep(5 * time.Second)
 	return nil
 }
 
