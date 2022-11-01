@@ -112,7 +112,8 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
-	err := s.upgradeManager.RunNode(localRepository, initialTag)
+	node := upgrade.NewNode(localRepository, initialTag)
+	err := s.upgradeManager.RunNode(node)
 	s.NoError(err, "can't run initial node")
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -197,7 +198,8 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.KillCurrentNode()
 	s.NoError(err, "can't kill current node")
 
-	err = s.upgradeManager.RunMountedNode(localRepository, localVersionTag, s.upgradeParams.MountPath)
+	node := upgrade.NewNode(localRepository, initialTag).Mount(s.upgradeParams.MountPath)
+	err = s.upgradeManager.RunNode(node)
 	s.NoError(err, "can't mount and run upgraded node container")
 
 	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)

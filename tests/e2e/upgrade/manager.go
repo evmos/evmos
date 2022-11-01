@@ -36,36 +36,21 @@ func NewManager() (*Manager, error) {
 	}, nil
 }
 
-func (m *Manager) RunNode(repository, version string) error {
-	resource, err := m.pool.Run(repository, version, []string{})
+func (m *Manager) RunNode(node *Node) error {
+	if node.withRunOptions {
+		resource, err := m.pool.RunWithOptions(&node.runOptions)
+		if err != nil {
+			return err
+		}
+		m.CurrentNode = resource
+	}
+	resource, err := m.pool.Run(node.repository, node.version, []string{})
 	if err != nil {
 		return err
 	}
-	time.Sleep(5 * time.Second)
 	m.CurrentNode = resource
-	return nil
-}
-
-func (m *Manager) RunMountedNode(repository, version, mountPath string) error {
-	resource, err := m.pool.RunWithOptions(
-		&dockertest.RunOptions{
-			Repository: repository,
-			Tag:        version,
-			User:       "root",
-			Mounts: []string{
-				mountPath,
-			},
-			Cmd: []string{
-				"evmosd",
-				"start",
-			},
-		},
-	)
-	if err != nil {
-		return err
-	}
+	// sleep to let container start to prevent querying panics
 	time.Sleep(5 * time.Second)
-	m.CurrentNode = resource
 	return nil
 }
 
