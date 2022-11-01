@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v9/app"
 )
 
-// Use the Ethereum Ledger app
+// AppName defines the Ledger app used for signing. Evmos uses the Ethereum app
 const AppName = "Ethereum"
 
 var (
