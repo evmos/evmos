@@ -107,8 +107,8 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 	s.Require().NoError(s.upgradeManager.KillCurrentNode())
 
 	s.Require().NoError(s.upgradeManager.RemoveNetwork())
-	// TODO: cleanup ./build/
 
+	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
@@ -149,9 +149,7 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 func (s *IntegrationTestSuite) depositToProposal() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateDepositProposalExec(
-		ctx,
-	)
+	exec, err := s.upgradeManager.CreateDepositProposalExec()
 	s.NoError(err, "can't create deposit to proposal tx exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -170,9 +168,7 @@ func (s *IntegrationTestSuite) depositToProposal() {
 func (s *IntegrationTestSuite) voteForProposal() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec(
-		ctx,
-	)
+	exec, err := s.upgradeManager.CreateVoteProposalExec()
 	s.NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(

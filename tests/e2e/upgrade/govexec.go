@@ -21,80 +21,75 @@ func (m *Manager) RunExec(ctx context.Context, execID string) (bytes.Buffer, byt
 	return outBuf, errBuf, err
 }
 
+func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	opts := docker.CreateExecOptions{
+		Context:      ctx,
+		AttachStdout: true,
+		AttachStderr: true,
+		User:         "root",
+		Container:    containerID,
+		Cmd:          cmd,
+	}
+	exec, err := m.pool.Client.CreateExec(opts)
+	return exec.ID, err
+}
+
 func (m *Manager) CreateSubmitProposalExec(ctx context.Context, targetVersion string, upgradeHeight uint) (string, error) {
-	exec, err := m.pool.Client.CreateExec(docker.CreateExecOptions{
-		Context:      ctx,
-		AttachStdout: true,
-		AttachStderr: true,
-		Container:    m.ContainerID(),
-		User:         "root",
-		Cmd: []string{
-			"evmosd",
-			"tx", "gov", "submit-proposal",
-			"software-upgrade", targetVersion,
-			"--title=\"TEST\"",
-			"--description=\"Test upgrade proposal\"",
-			fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
-			"--upgrade-info=\"\"",
-			"--chain-id=evmos_9000-1",
-			"--from=mykey", "-b=block",
-			"--yes", "--keyring-backend=test",
-			"--log_format=json", "--fees=20aevmos",
-			"--gas=auto",
-		},
-	})
+	cmd := []string{
+		"evmosd",
+		"tx", "gov", "submit-proposal",
+		"software-upgrade", targetVersion,
+		"--title=\"TEST\"",
+		"--description=\"Test upgrade proposal\"",
+		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
+		"--upgrade-info=\"\"",
+		"--chain-id=evmos_9000-1",
+		"--from=mykey", "-b=block",
+		"--yes", "--keyring-backend=test",
+		"--log_format=json", "--fees=20aevmos",
+		"--gas=auto",
+	}
 	m.proposalCounter++
-	return exec.ID, err
+	return m.CreateExec(cmd, m.ContainerID())
 }
 
-func (m *Manager) CreateDepositProposalExec(ctx context.Context) (string, error) {
-	exec, err := m.pool.Client.CreateExec(docker.CreateExecOptions{
-		Context:      ctx,
-		AttachStdout: true,
-		AttachStderr: true,
-		Container:    m.ContainerID(),
-		User:         "root",
-		Cmd: []string{
-			"evmosd",
-			"tx",
-			"gov",
-			"deposit",
-			fmt.Sprint(m.proposalCounter),
-			"10000000aevmos",
-			"--from=mykey",
-			"--chain-id=evmos_9000-1",
-			"-b=block",
-			"--yes",
-			"--keyring-backend=test",
-			"--fees=20aevmos",
-			"--gas=auto",
-		},
-	})
-	return exec.ID, err
+func (m *Manager) CreateDepositProposalExec() (string, error) {
+	cmd := []string{
+		"evmosd",
+		"tx",
+		"gov",
+		"deposit",
+		fmt.Sprint(m.proposalCounter),
+		"10000000aevmos",
+		"--from=mykey",
+		"--chain-id=evmos_9000-1",
+		"-b=block",
+		"--yes",
+		"--keyring-backend=test",
+		"--fees=20aevmos",
+		"--gas=auto",
+	}
+
+	return m.CreateExec(cmd, m.ContainerID())
 }
 
-func (m *Manager) CreateVoteProposalExec(ctx context.Context) (string, error) {
-	exec, err := m.pool.Client.CreateExec(docker.CreateExecOptions{
-		Context:      ctx,
-		AttachStdout: true,
-		AttachStderr: true,
-		Container:    m.ContainerID(),
-		User:         "root",
-		Cmd: []string{
-			"evmosd",
-			"tx",
-			"gov",
-			"vote",
-			fmt.Sprint(m.proposalCounter),
-			"yes",
-			"--from=mykey",
-			"--chain-id=evmos_9000-1",
-			"-b=block",
-			"--yes",
-			"--keyring-backend=test",
-			"--fees=20aevmos",
-			"--gas=auto",
-		},
-	})
-	return exec.ID, err
+func (m *Manager) CreateVoteProposalExec() (string, error) {
+	cmd := []string{
+		"evmosd",
+		"tx",
+		"gov",
+		"vote",
+		fmt.Sprint(m.proposalCounter),
+		"yes",
+		"--from=mykey",
+		"--chain-id=evmos_9000-1",
+		"-b=block",
+		"--yes",
+		"--keyring-backend=test",
+		"--fees=20aevmos",
+		"--gas=auto",
+	}
+	return m.CreateExec(cmd, m.ContainerID())
 }

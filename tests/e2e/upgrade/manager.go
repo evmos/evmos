@@ -105,22 +105,11 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 }
 
 func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
-	exec, err := m.pool.Client.CreateExec(docker.CreateExecOptions{
-		Context:      ctx,
-		AttachStdout: true,
-		AttachStderr: true,
-		Container:    m.ContainerID(),
-		User:         "root",
-		Cmd: []string{
-			"evmosd",
-			"q",
-			"block",
-		},
-	})
+	exec, err := m.CreateExec([]string{"evmosd", "q", "block"}, m.ContainerID())
 	if err != nil {
 		return 0, fmt.Errorf("create exec error: %w", err)
 	}
-	outBuff, errBuff, err := m.RunExec(ctx, exec.ID)
+	outBuff, errBuff, err := m.RunExec(ctx, exec)
 	if err != nil {
 		return 0, fmt.Errorf("run exec error: %w", err)
 	}
