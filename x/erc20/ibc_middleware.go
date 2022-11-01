@@ -46,6 +46,32 @@ func (im IBCMiddleware) OnRecvPacket(
 	return im.keeper.OnRecvPacket(ctx, packet, ack)
 }
 
+// OnAcknowledgementPacket implements the IBCModule interface.
+// It calls the underlying app's OnAcknowledgementPacket callback.
+func (im IBCMiddleware) OnAcknowledgementPacket(
+	ctx sdk.Context,
+	packet channeltypes.Packet,
+	acknowledgement []byte,
+	relayer sdk.AccAddress,
+) error {
+	// TODO: if the transfer fails and the transfer denom is an ERC20
+	// we need to convert back the IBC token to ERC20
+	return im.Module.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
+}
+
+// OnTimeoutPacket implements the Module interface.
+// It calls the underlying app's OnTimeoutPacket callback.
+func (im IBCMiddleware) OnTimeoutPacket(
+	ctx sdk.Context,
+	packet channeltypes.Packet,
+	relayer sdk.AccAddress,
+) error {
+	// TODO: if the packet timeouts and the transfer denom is an ERC20
+	// we need to convert back the IBC token to ERC20
+
+	return im.Module.OnTimeoutPacket(ctx, packet, relayer)
+}
+
 // SendPacket implements the ICS4 Wrapper interface
 func (im IBCMiddleware) SendPacket(
 	ctx sdk.Context,
