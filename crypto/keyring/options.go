@@ -3,14 +3,14 @@ package keyring
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	"github.com/evmos/ethermint/crypto/hd"
+	"github.com/evoblockchain/ethermint/crypto/hd"
 )
 
 var (
-	// SupportedAlgorithms defines the list of signing algorithms used on Evmos:
+	// SupportedAlgorithms defines the list of signing algorithms used on Evoblock:
 	//  - eth_secp256k1 (Ethereum)
 	SupportedAlgorithms = keyring.SigningAlgoList{hd.EthSecp256k1}
-	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Evmos for the Ledger device:
+	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Evoblock for the Ledger device:
 	//  - eth_secp256k1 (Ethereum)
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{hd.EthSecp256k1}
 )

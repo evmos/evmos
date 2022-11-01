@@ -14,12 +14,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
-	"github.com/evmos/evmos/v8/app"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
+	"github.com/evoblockchain/ethermint/encoding"
+	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	claimstypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -33,7 +33,7 @@ type AnteTestSuite struct {
 	suite.Suite
 
 	ctx   sdk.Context
-	app   *app.Evmos
+	app   *app.Evoblock
 	denom string
 }
 

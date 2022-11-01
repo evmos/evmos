@@ -4,7 +4,7 @@ order: 3
 
 # Resources
 
-Learn about Evmos with the list of official resources. {synopsis}
+Learn about Evoblock with the list of official resources. {synopsis}
 
 ::: tip
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
@@ -14,11 +14,11 @@ This documentation page is currently under work in progress.
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 :::
 
-- Documentation (this site): [https://evmos.dev/](https://evmos.dev/)
-- Open Source Codebase: [https://github.com/evmos/evmos](https://github.com/evmos/evmos)
-- Website: [https://evmos.org/](https://evmos.org/)
-- Blog: [https://evmos.blog/](https://evmos.blog/)
-- Ethermint: [https://github.com/evmos/ethermint](https://github.com/evmos/ethermint)
+- Documentation (this site): [https://evoblock.dev/](https://evoblock.dev/)
+- Open Source Codebase: [https://github.com/evoblockchain/evoblock](https://github.com/evoblockchain/evoblock)
+- Website: [https://evoblock.org/](https://evoblock.org/)
+- Blog: [https://evoblock.blog/](https://evoblock.blog/)
+- Ethermint: [https://github.com/evoblockchain/ethermint](https://github.com/evoblockchain/ethermint)
 
 ## Workshops and Videos
 
@@ -53,4 +53,4 @@ Note: most of these articles are outdated as they refer to the previous Ethermin
 
 ## Next {hide}
 
-Learn how to run an Evmos [node](./../../validators/quickstart/run_node.md) {hide}
+Learn how to run an Evoblock [node](./../../validators/quickstart/run_node.md) {hide}

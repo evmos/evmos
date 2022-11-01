@@ -56,8 +56,8 @@ You can find other configuration examples [here](https://github.com/iqlusioninc/
   chain_ids = ["evmos_9001-1"]
   ```
 
-- Edit `addr` to point to your `evmosd` instance.
-- Adjust `chain-id` to match your `.evmosd/config/config.toml` settings.
+- Edit `addr` to point to your `evoblockd` instance.
+- Adjust `chain-id` to match your `.evoblockd/config/config.toml` settings.
 - `provider.ledger` has not additional parameters at the moment, however, it is important that you keep that header to enable the feature.
 
 *Plug your Ledger device and open the Tendermint validator app.*
@@ -72,7 +72,7 @@ tmkms keygen ~/.tmkms/secret_connection.key
 
 ### Retrieve validator key
 
-The last step is to retrieve the validator key that you will use in `evmosd`.
+The last step is to retrieve the validator key that you will use in `evoblockd`.
 
 Start the KMS:
 
@@ -88,13 +88,13 @@ The output should look similar to:
 07:28:24 [INFO] KMS node ID: 1BC12314E2E1C29015B66017A397F170C6ECDE4A
 ```
 
-The KMS may complain that it cannot connect to `evmosd`. That is fine, we will fix it in the next section.
+The KMS may complain that it cannot connect to `evoblockd`. That is fine, we will fix it in the next section.
 This output indicates the validator key linked to this particular device is: `evmosvalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f`
 Take note of the validator pubkey that appears in your screen. *We will use it in the next section.*
 
-## Evmos configuration
+## Evoblock configuration
 
-You need to enable KMS access by editing `.evmosd/config/config.toml`. In this file, modify `priv_validator_laddr` to create a listening address/port or a unix socket in `evmosd`.
+You need to enable KMS access by editing `.evoblockd/config/config.toml`. In this file, modify `priv_validator_laddr` to create a listening address/port or a unix socket in `evoblockd`.
 
 For example:
 
@@ -106,13 +106,13 @@ priv_validator_laddr = "tcp://127.0.0.1:26658"
 ...
 ```
 
-Let's assume that you have set up your validator account and called it `kmsval`. You can tell evmosd the key that we've got in the previous section.
+Let's assume that you have set up your validator account and called it `kmsval`. You can tell evoblockd the key that we've got in the previous section.
 
 ```bash
-evmosd gentx --name kmsval --pubkey <pub_key>
+evoblockd gentx --name kmsval --pubkey <pub_key>
 ```
 
-Now start `evmosd`. You should see that the KMS connects and receives a signature request.
+Now start `evoblockd`. You should see that the KMS connects and receives a signature request.
 
 Once the Ledger device receives the first message, it will ask for confirmation that the values are adequate.
 

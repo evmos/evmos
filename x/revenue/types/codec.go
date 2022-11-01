@@ -23,9 +23,9 @@ var (
 
 const (
 	// Amino names
-	cancelRevenueName   = "evmos/MsgCancelRevenue"
-	registerRevenueName = "evmos/MsgRegisterRevenue"
-	updateRevenueName   = "evmos/MsgUpdateRevenue"
+	cancelRevenueName   = "evoblock/MsgCancelRevenue"
+	registerRevenueName = "evoblock/MsgRegisterRevenue"
+	updateRevenueName   = "evoblock/MsgUpdateRevenue"
 )
 
 // NOTE: This is required for the GetSignBytes function

@@ -9,15 +9,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v8/app"
-	evmosd "github.com/evmos/evmos/v8/cmd/evmosd"
+	"github.com/evoblockchain/evoblock/v8/app"
+	evoblockd "github.com/evoblockchain/evoblock/v8/cmd/evoblockd"
 )
 
 func TestInitCmd(t *testing.T) {
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := evoblockd.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"init",       // Test the init cmd
-		"evmos-test", // Moniker
+		"evoblock-test", // Moniker
 		fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json, in case it already exists
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, "evmos_9000-1"),
 	})
@@ -27,7 +27,7 @@ func TestInitCmd(t *testing.T) {
 }
 
 func TestAddKeyLedgerCmd(t *testing.T) {
-	rootCmd, _ := evmosd.NewRootCmd()
+	rootCmd, _ := evoblockd.NewRootCmd()
 	rootCmd.SetArgs([]string{
 		"keys",
 		"add",

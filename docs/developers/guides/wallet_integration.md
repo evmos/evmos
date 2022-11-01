@@ -4,7 +4,7 @@ order: 1
 
 # Wallet Integration
 
-Learn how to properly integrate [Metamask](https://metamask.io/) or [Keplr](https://www.keplr.app/) with a dApp on Evmos. {synopsis}
+Learn how to properly integrate [Metamask](https://metamask.io/) or [Keplr](https://www.keplr.app/) with a dApp on Evoblock. {synopsis}
 
 :::tip
 **Note**: want to learn more about wallet integration beyond what's covered here? Check out both the [MetaMask Wallet documentation](https://docs.metamask.io/guide/) and [Keplr Wallet documentation](https://docs.keplr.app/).
@@ -45,7 +45,7 @@ After the user's wallet type has been determined, developers can proceed with cr
 #### Create the Transaction
 
 :::tip
-**Note**: The example below uses the Evmos Testnet `chainID`. For more info, check the Evmos Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
+**Note**: The example below uses the Evoblock Testnet `chainID`. For more info, check the Evoblock Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
 :::
 
 Developers can create `MsgSend` transactions using the [evmosjs](../libraries/evmosjs.md) library.
@@ -67,7 +67,7 @@ const sender = {
 
 const fee = {
     amount: '20',
-    denom: 'aevmos',
+    denom: 'aEVO',
     gas: '200000',
 }
 
@@ -76,7 +76,7 @@ const memo = ''
 const params = {
     destinationAddress: 'evmos1pmk2r32ssqwps42y3c9d4clqlca403yd9wymgr',
     amount: '1',
-    denom: 'aevmos',
+    denom: 'aEVO',
 }
 
 const msg = createMessageSend(chain, sender, fee, memo, params)
@@ -89,13 +89,13 @@ const msg = createMessageSend(chain, sender, fee, memo, params)
 #### Sign and Broadcast the Transaction
 
 :::tip
-**Note**: The example below uses an Evmos Testnet [RPC node](../connect.md#public-available-endpoints).
+**Note**: The example below uses an Evoblock Testnet [RPC node](../connect.md#public-available-endpoints).
 :::
 
 <!-- textlint-disable -->
 After creating the transaction, developers need to send the payload to the appropriate wallet to be signed ([`msg.signDirect`](https://docs.keplr.app/api/#sign-direct-protobuf) is the transaction in Keplr format, and `msg.eipToSign` is the [`EIP712`](https://eips.ethereum.org/EIPS/eip-712) data to sign with MetaMask).
 
-With the signature, we add a Web3Extension to the transaction and broadcast it to the Evmos node.
+With the signature, we add a Web3Extension to the transaction and broadcast it to the Evoblock node.
 
 <!-- textlint-enable -->
 ```js
@@ -129,7 +129,7 @@ const postOptions = {
 };
 
 let broadcastPost = await fetch(
-    `https://eth.bd.evmos.dev:8545${generateEndpointBroadcast()}`,
+    `https://eth.bd.evoblock.dev:8545${generateEndpointBroadcast()}`,
     postOptions
 );
 let response = await broadcastPost.json();
@@ -137,4 +137,4 @@ let response = await broadcastPost.json();
 
 ### Connections
 
-For Ethereum RPC, Evmos gRPC, and/or REST queries, dApp developers should implement providers client-side, and store RPC details in the environment variable as secrets.
+For Ethereum RPC, Evoblock gRPC, and/or REST queries, dApp developers should implement providers client-side, and store RPC details in the environment variable as secrets.

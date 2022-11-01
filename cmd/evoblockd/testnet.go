@@ -36,16 +36,16 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/ethermint/crypto/hd"
-	"github.com/evmos/ethermint/server/config"
-	srvflags "github.com/evmos/ethermint/server/flags"
+	"github.com/evoblockchain/ethermint/crypto/hd"
+	"github.com/evoblockchain/ethermint/server/config"
+	srvflags "github.com/evoblockchain/ethermint/server/flags"
 
-	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
+	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
 
-	cmdcfg "github.com/evmos/evmos/v8/cmd/config"
-	evmoskr "github.com/evmos/evmos/v8/crypto/keyring"
-	"github.com/evmos/evmos/v8/testutil/network"
+	cmdcfg "github.com/evoblockchain/evoblock/v8/cmd/config"
+	evmoskr "github.com/evoblockchain/evoblock/v8/crypto/keyring"
+	"github.com/evoblockchain/evoblock/v8/testutil/network"
 )
 
 var (
@@ -125,7 +125,7 @@ or a similar setup where each node has a manually configurable IP address.
 Note, strict routability for addresses is turned off in the config file.
 
 Example:
-	evmosd testnet init-files --v 4 --output-dir ./.testnets --starting-ip-address 192.168.10.2
+	evoblockd testnet init-files --v 4 --output-dir ./.testnets --starting-ip-address 192.168.10.2
 	`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -152,7 +152,7 @@ Example:
 
 	addTestnetFlagsToCmd(cmd)
 	cmd.Flags().String(flagNodeDirPrefix, "node", "Prefix the directory name for each node with (node results in node0, node1, ...)")
-	cmd.Flags().String(flagNodeDaemonHome, "evmosd", "Home directory of the node's daemon configuration")
+	cmd.Flags().String(flagNodeDaemonHome, "evoblockd", "Home directory of the node's daemon configuration")
 	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1", "Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
 
@@ -169,7 +169,7 @@ and generate "v" directories, populated with necessary validator configuration f
 (private validator, genesis, config, etc.).
 
 Example:
-	evmosd testnet --v 4 --output-dir ./.testnets
+	evoblockd testnet --v 4 --output-dir ./.testnets
 	`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			args := startArgs{}

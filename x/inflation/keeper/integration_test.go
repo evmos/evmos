@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	epochstypes "github.com/evmos/evmos/v8/x/epochs/types"
-	incentivestypes "github.com/evmos/evmos/v8/x/incentives/types"
+	epochstypes "github.com/evoblockchain/evoblock/v8/x/epochs/types"
+	incentivestypes "github.com/evoblockchain/evoblock/v8/x/incentives/types"
 )
 
 var (

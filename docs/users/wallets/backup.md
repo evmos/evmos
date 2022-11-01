@@ -11,7 +11,7 @@ Learn how to backup your wallet's mnemonic and private key. {synopsis}
 When you create a new key, you'll recieve a mnemonic phrase that can be used to restore that key. Backup the mnemonic phrase:
 
 ```bash
-evmosd keys add mykey
+evoblockd keys add mykey
 {
   "name": "mykey",
   "type": "local",
@@ -29,7 +29,7 @@ It is the only way to recover your account if you ever forget your password.
 To restore the key:
 
 ```bash
-$ evmosd keys add mykey-restored --recover
+$ evoblockd keys add mykey-restored --recover
 > Enter your bip39 mnemonic
 banner genuine height east ghost oak toward reflect asset marble else explain foster car nest make van divide twice culture announce shuffle net peanut
 {
@@ -47,7 +47,7 @@ banner genuine height east ghost oak toward reflect asset marble else explain fo
 To backup this type of key without the mnemonic phrase, do the following:
 
 ```bash
-evmosd keys export mykey
+evoblockd keys export mykey
 Enter passphrase to decrypt your key:
 Enter passphrase to encrypt the exported key:
 -----BEGIN TENDERMINT PRIVATE KEY-----
@@ -77,7 +77,7 @@ type: secp256k1
 To backup this type of key without the mnemonic phrase, do the following:
 
 ```bash
-evmosd keys unsafe-export-eth-key mykey > mykey.export
+evoblockd keys unsafe-export-eth-key mykey > mykey.export
 **WARNING** this is an unsafe way to export your unencrypted private key, are you sure? [y/N]: y
 Enter keyring passphrase:
 ```
@@ -87,14 +87,14 @@ Enter keyring passphrase:
 ### Tendermint-Formatted Private Keys
 
 ```bash
-$ evmosd keys import mykey-imported ./mykey.export
+$ evoblockd keys import mykey-imported ./mykey.export
 Enter passphrase to decrypt your key:
 ```
 
 ### Ethereum-Formatted Private Keys
 
 ```
-$ evmosd keys unsafe-import-eth-key mykey-imported ./mykey.export
+$ evoblockd keys unsafe-import-eth-key mykey-imported ./mykey.export
 Enter passphrase to encrypt your key:
 ```
 
@@ -103,7 +103,7 @@ Enter passphrase to encrypt your key:
 Verify that your key has been restored using the following command:
 
 ```bash
-$ evmosd keys list
+$ evoblockd keys list
 [
   {
     "name": "mykey-imported",

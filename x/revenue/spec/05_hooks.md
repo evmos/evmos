@@ -8,7 +8,7 @@ The fees module implements one transaction hook from the `x/evm` module in order
 
 ## EVM Hook
 
-A [`PostTxProcessing` EVM hook](https://evmos.dev/modules/evm/06_hooks.html) executes custom logic after each successful EVM transaction. All fees paid by a user for transaction execution are sent to the `FeeCollector` module account during the `AnteHandler` execution before being distributed to developers and validators.
+A [`PostTxProcessing` EVM hook](https://evoblock.dev/modules/evm/06_hooks.html) executes custom logic after each successful EVM transaction. All fees paid by a user for transaction execution are sent to the `FeeCollector` module account during the `AnteHandler` execution before being distributed to developers and validators.
 
 If the `x/revenue` module is disabled or the EVM transaction targets an unregistered contract, the EVM hook returns `nil`, without performing any actions. In this case, 100% of the transaction fees remain in the `FeeCollector` module, to be distributed to the block proposer.
 

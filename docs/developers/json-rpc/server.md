@@ -11,15 +11,15 @@ Learn about the JSON-RPC server to interact with the EVM. {synopsis}
 - [EthWiki JSON-RPC API](https://eth.wiki/json-rpc/API) {prereq}
 - [Geth JSON-RPC Server](https://geth.ethereum.org/docs/rpc/server) {prereq}
 
-The JSON-PRC Server provides an API that allows you to connect to the Evmos blockchain and interact with the EVM. This gives you direct access to reading Ethereum-formatted transactions or sending them to the network which otherwise wouldn't be possible on a Cosmos chain, such as Evmos.
+The JSON-PRC Server provides an API that allows you to connect to the Evoblock blockchain and interact with the EVM. This gives you direct access to reading Ethereum-formatted transactions or sending them to the network which otherwise wouldn't be possible on a Cosmos chain, such as Evoblock.
 
 [JSON-RPC](http://www.jsonrpc.org/specification) is a stateless, light-weight remote procedure call (RPC) protocol. It defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over HTTP, or in many various message passing environments. It uses JSON ([RFC 4627](https://www.ietf.org/rfc/rfc4627.txt)) as data format.
 
-JSON-RPC is provided on multiple transports. Evmos supports JSON-RPC over HTTP and WebSocket. Transports must be enabled through command-line flags or through the `app.toml` configuration file.
+JSON-RPC is provided on multiple transports. Evoblock supports JSON-RPC over HTTP and WebSocket. Transports must be enabled through command-line flags or through the `app.toml` configuration file.
 
 ## Web3 Support
 
-Evmos supports all standard web3 JSON-RPC APIs. You can find documentation for these APIs on the [`JSON-RPC Methods`](./endpoints.md) page.
+Evoblock supports all standard web3 JSON-RPC APIs. You can find documentation for these APIs on the [`JSON-RPC Methods`](./endpoints.md) page.
 
 Ethereum JSON-RPC APIs use a name-space system. RPC methods are grouped into several categories depending on their purpose. All method names are composed of the namespace, an underscore, and the actual method name within the namespace. For example, the eth_call method resides in the eth namespace.
 
@@ -60,7 +60,7 @@ The following methods have an extra default block parameter:
 - [`eth_getStorageAt`](./endpoints.md#eth-getstorageat)
 - [`eth_call`](./endpoints.md#eth-call)
 
-When requests are made that act on the state of Evmos, the last default block parameter determines the height of the block.
+When requests are made that act on the state of Evoblock, the last default block parameter determines the height of the block.
 
 The following options are possible for the `defaultBlock` parameter:
 

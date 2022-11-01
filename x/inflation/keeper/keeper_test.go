@@ -17,11 +17,11 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	evm "github.com/evmos/ethermint/x/evm/types"
+	evm "github.com/evoblockchain/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/app"
-	epochstypes "github.com/evmos/evmos/v8/x/epochs/types"
-	"github.com/evmos/evmos/v8/x/inflation/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	epochstypes "github.com/evoblockchain/evoblock/v8/x/epochs/types"
+	"github.com/evoblockchain/evoblock/v8/x/inflation/types"
 )
 
 var denomMint = types.DefaultInflationDenom
@@ -30,7 +30,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx            sdk.Context
-	app            *app.Evmos
+	app            *app.Evoblock
 	queryClientEvm evm.QueryClient
 	queryClient    types.QueryClient
 	consAddress    sdk.ConsAddress

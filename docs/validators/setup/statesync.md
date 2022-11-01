@@ -180,28 +180,28 @@ moniker="NODE_NAME"
 ## Use commands below for Testnet setup
 
 ```bash
-SNAP_RPC1="http://bd-evmos-testnet-state-sync-node-01.bdnodes.net:26657"
-SNAP_RPC="http://bd-evmos-testnet-state-sync-node-02.bdnodes.net:26657"
+SNAP_RPC1="http://bd-evoblock-testnet-state-sync-node-01.bdnodes.net:26657"
+SNAP_RPC="http://bd-evoblock-testnet-state-sync-node-02.bdnodes.net:26657"
 CHAIN_ID="evmos_9000-4"
-PEER="3a6b22e1569d9f85e9e97d1d204a1c457d860926@bd-evmos-testnet-seed-node-01.bdnodes.net:26656"
-wget -O $HOME/genesis.json https://archive.evmos.dev/evmos_9000-4/genesis.json 
+PEER="3a6b22e1569d9f85e9e97d1d204a1c457d860926@bd-evoblock-testnet-seed-node-01.bdnodes.net:26656"
+wget -O $HOME/genesis.json https://archive.evoblock.dev/evmos_9000-4/genesis.json 
 ```
 
 ## Use commands below for Mainnet setup
 
 ```bash
-SNAP_RPC1="http://bd-evmos-mainnet-state-sync-us-01.bdnodes.net:26657"
-SNAP_RPC="http://bd-evmos-mainnet-state-sync-eu-01.bdnodes.net:26657"
+SNAP_RPC1="http://bd-evoblock-mainnet-state-sync-us-01.bdnodes.net:26657"
+SNAP_RPC="http://bd-evoblock-mainnet-state-sync-eu-01.bdnodes.net:26657"
 CHAIN_ID="evmos_9001-2"
-PEER="96557e26aabf3b23e8ff5282d03196892a7776fc@bd-evmos-mainnet-state-sync-us-01.bdnodes.net,dec587d55ff38827ebc6312cedda6085c59683b6@bd-evmos-mainnet-state-sync-eu-01.bdnodes.net"
-wget -O $HOME/genesis.json https://archive.evmos.org/mainnet/genesis.json 
+PEER="96557e26aabf3b23e8ff5282d03196892a7776fc@bd-evoblock-mainnet-state-sync-us-01.bdnodes.net,dec587d55ff38827ebc6312cedda6085c59683b6@bd-evoblock-mainnet-state-sync-eu-01.bdnodes.net"
+wget -O $HOME/genesis.json https://archive.evoblock.org/mainnet/genesis.json 
 ```
 
-### Install evmosd
+### Install evoblockd
 
 ```bash
-git clone https://github.com/evmos/evmos.git && \ 
-cd evmos && \ 
+git clone https://github.com/evoblockchain/evoblock.git && \ 
+cd evoblock && \ 
 make install
 ```
 
@@ -210,27 +210,27 @@ make install
 Node init
 
 ```bash
-evmosd init $moniker --chain-id $CHAIN_ID
+evoblockd init $moniker --chain-id $CHAIN_ID
 ```
 
-Move genesis file to .evmosd/config folder
+Move genesis file to .evoblockd/config folder
 
 ```bash
-mv $HOME/genesis.json ~/.evmosd/config/
+mv $HOME/genesis.json ~/.evoblockd/config/
 ```
 
 Reset the node
 
 ```bash
-evmosd tendermint unsafe-reset-all --home $HOME/.evmosd
+evoblockd tendermint unsafe-reset-all --home $HOME/.evoblockd
 ```
 
 Change config files (set the node name, add persistent peers, set indexer = "null")
 
 ```bash
-sed -i -e "s%^moniker *=.*%moniker = \"$moniker\"%; " $HOME/.evmosd/config/config.toml
-sed -i -e "s%^indexer *=.*%indexer = \"null\"%; " $HOME/.evmosd/config/config.toml
-sed -i -e "s%^persistent_peers *=.*%persistent_peers = \"$PEER\"%; " $HOME/.evmosd/config/config.toml
+sed -i -e "s%^moniker *=.*%moniker = \"$moniker\"%; " $HOME/.evoblockd/config/config.toml
+sed -i -e "s%^indexer *=.*%indexer = \"null\"%; " $HOME/.evoblockd/config/config.toml
+sed -i -e "s%^persistent_peers *=.*%persistent_peers = \"$PEER\"%; " $HOME/.evoblockd/config/config.toml
 ```
 
 Set the variables for start from snapshot
@@ -264,41 +264,41 @@ s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
 
 s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
 
-s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" ~/.evmosd/config/config.toml
+s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" ~/.evoblockd/config/config.toml
 ```
 
-### Create evmosd service
+### Create evoblockd service
 
 ```bash
 echo "[Unit]
-Description=Evmosd Node
+Description=Evoblockd Node
 After=network.target
 #
 [Service]
 User=$USER
 Type=simple
-ExecStart=$(which evmosd) start
+ExecStart=$(which evoblockd) start
 Restart=on-failure
 LimitNOFILE=65535
 #
 [Install]
-WantedBy=multi-user.target" > $HOME/evmosd.service; sudo mv $HOME/evmosd.service /etc/systemd/system/
+WantedBy=multi-user.target" > $HOME/evoblockd.service; sudo mv $HOME/evoblockd.service /etc/systemd/system/
 ```
 
 ```bash
-sudo systemctl enable evmosd.service && sudo systemctl daemon-reload
+sudo systemctl enable evoblockd.service && sudo systemctl daemon-reload
 ```
 
-### Run evmosd
+### Run evoblockd
 
 ```bash
-sytemctl start evmosd
+sytemctl start evoblockd
 ```
 
 ### Check logs
 
 ```bash
-journalctl -u evmosd -f
+journalctl -u evoblockd -f
 ```
 
 When the node is started it will then attempt to find a state sync snapshot in the network, and restore it:
@@ -329,7 +329,7 @@ The node is now state synced, having joined the network in seconds
 ### Use this command to switch off your State Sync mode, after node fully synced to avoid problems in future node restarts!
 
 ```bash
-sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1false|" $HOME/.evmosd/config/config.toml
+sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1false|" $HOME/.evoblockd/config/config.toml
 ```
 
 :::tip

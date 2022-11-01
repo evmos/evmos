@@ -4,7 +4,7 @@ order: 5
 
 # Run an IBC Relayer
 
-Learn how to run an IBC Relayer for Evmos. {synopsis}
+Learn how to run an IBC Relayer for Evoblock. {synopsis}
 
 ## Minimum Requirements
 
@@ -16,21 +16,21 @@ If running many nodes on a single VM, [ensure your open files limit is increased
 
 ## Prerequisites
 <!-- textlint-disable -->
-Before beginning, ensure you have an Evmos node running in the background of the same machine that you intend to relay on. Follow [this guide](quickstart/run_node.md) to set up an Evmos node if you have not already.
+Before beginning, ensure you have an Evoblock node running in the background of the same machine that you intend to relay on. Follow [this guide](quickstart/run_node.md) to set up an Evoblock node if you have not already.
 <!-- textlint-enable -->
 
-In this guide, we will be relaying between [Evmos (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers). When setting up your Evmos and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
+In this guide, we will be relaying between [Evoblock (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evoblock/relayers). When setting up your Evoblock and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
 
 <!-- textlint-disable -->
-In this example, the default ports for Evmos will be used, and the ports of the Cosmos Hub node will be manually changed.
+In this example, the default ports for Evoblock will be used, and the ports of the Cosmos Hub node will be manually changed.
 <!-- textlint-enable -->
 
-## Evmos Daemon Settings
+## Evoblock Daemon Settings
 
-First, set `grpc server` on port `9090` in the `app.toml` file from the `$HOME/.evmosd/config` directory:
+First, set `grpc server` on port `9090` in the `app.toml` file from the `$HOME/.evoblockd/config` directory:
 
 ```bash
-vim $HOME/.evmosd/config/app.toml
+vim $HOME/.evoblockd/config/app.toml
 ```
 
 ```bash
@@ -43,10 +43,10 @@ enable = true
 address = "0.0.0.0:9090"
 ```
 
-Then, set the `pprof_laddr` to port `6060`, `rpc laddr` to port `26657`, and `prp laddr` to `26656` in the `config.toml` file from the `$HOME/.evmosd/config` directory:
+Then, set the `pprof_laddr` to port `6060`, `rpc laddr` to port `26657`, and `prp laddr` to `26656` in the `config.toml` file from the `$HOME/.evoblockd/config` directory:
 
 ```bash
-vim $HOME/.evmosd/config/config.toml
+vim $HOME/.evoblockd/config/config.toml
 ```
 
 ```bash
@@ -198,7 +198,7 @@ hermes keys restore cosmoshub-4 -m "24-word mnemonic seed"
 hermes keys restore evmos_9001-2 -m "24-word mnemonic seed"
 ```
 
-Ensure this wallet has funds in both EVMOS and ATOM in order to pay the fees required to relay.
+Ensure this wallet has funds in both EVO and ATOM in order to pay the fees required to relay.
 
 ## Final Checks
 

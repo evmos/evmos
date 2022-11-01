@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 )
 
 // CalculateEpochProvisions returns mint provision per epoch
@@ -39,9 +39,9 @@ func CalculateEpochMintProvision(
 	// epochProvision = periodProvision / epochsPerPeriod
 	epochProvision := periodProvision.Quo(sdk.NewDec(epochsPerPeriod))
 
-	// Multiply epochMintProvision with power reduction (10^18 for evmos) as the
-	// calculation is based on `evmos` and the issued tokens need to be given in
-	// `aevmos`
+	// Multiply epochMintProvision with power reduction (10^18 for evoblock) as the
+	// calculation is based on `evoblock` and the issued tokens need to be given in
+	// `aEVO`
 	epochProvision = epochProvision.Mul(ethermint.PowerReduction.ToDec())
 	return epochProvision
 }

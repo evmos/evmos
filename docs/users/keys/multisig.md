@@ -6,7 +6,7 @@ order: 3
 
 Learn how to generate, sign and broadcast a transaction using the keyring multisig {synopsis}
 
-A **multisig account** is an Evmos account with a special key that can require more than one signature to sign transactions. This can be useful for increasing the security of the account or for requiring the consent of multiple parties to make transactions. Multisig accounts can be created by specifying:
+A **multisig account** is an Evoblock account with a special key that can require more than one signature to sign transactions. This can be useful for increasing the security of the account or for requiring the consent of multiple parties to make transactions. Multisig accounts can be created by specifying:
 
 - threshold number of signatures required
 - the public keys involved in signing
@@ -16,7 +16,7 @@ To sign with a multisig account, the transaction must be signed individually by 
 ## Generate a Multisig key
 
 ```bash
-evmosd keys add --multisig=name1,name2,name3[...] --multisig-threshold=K new_key_name
+evoblockd keys add --multisig=name1,name2,name3[...] --multisig-threshold=K new_key_name
 ```
 
 `K` is the minimum number of private keys that must have signed the transactions that carry the public key's address as signer.
@@ -26,14 +26,14 @@ The `--multisig` flag must contain the name of public keys that will be combined
 Unless the flag `--nosort` is set, the order in which the keys are supplied on the command line does not matter, i.e. the following commands generate two identical keys:
 
 ```bash
-evmosd keys add --multisig=p1,p2,p3 --multisig-threshold=2 multisig_address
-evmosd keys add --multisig=p2,p3,p1 --multisig-threshold=2 multisig_address
+evoblockd keys add --multisig=p1,p2,p3 --multisig-threshold=2 multisig_address
+evoblockd keys add --multisig=p2,p3,p1 --multisig-threshold=2 multisig_address
 ```
 
 Multisig addresses can also be generated on-the-fly and printed through the which command:
 
 ```bash
-evmosd keys show --multisig-threshold=K name1 name2 name3 [...]
+evoblockd keys show --multisig-threshold=K name1 name2 name3 [...]
 ```
 
 ## Signing a transaction
@@ -45,7 +45,7 @@ Let's assume that you have `test1` and `test2` want to make a multisig account w
 First import the public keys of `test3` into your keyring.
 
 ```sh
-evmosd keys add \
+evoblockd keys add \
     test3 \
     --pubkey=evmospub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2
 ```
@@ -53,7 +53,7 @@ evmosd keys add \
 Generate the multisig key with 2/3 threshold.
 
 ```sh
-evmosd keys add \
+evoblockd keys add \
     multi \
     --multisig=test1,test2,test3 \
     --multisig-threshold=2
@@ -62,7 +62,7 @@ evmosd keys add \
 You can see its address and details:
 
 ```sh
-evmosd keys show multi
+evoblockd keys show multi
 
 - name: multi
   type: multi
@@ -73,10 +73,10 @@ evmosd keys show multi
   pubkeys: []
 ```
 
-Let's add 10 EVMOS to the multisig wallet:
+Let's add 10 EVO to the multisig wallet:
 
 ```bash
-evmosd tx bank send \
+evoblockd tx bank send \
     test1 \
     evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     10000000000000000000aevmos \
@@ -88,10 +88,10 @@ evmosd tx bank send \
 
 ### Step 2: Create the multisig transaction
 
-We want to send 5 EVMOS from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
+We want to send 5 EVO from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
 
 ```bash
-evmosd tx bank send \
+evoblockd tx bank send \
     evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
     evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
     5000000000000000000aevmos \
@@ -113,7 +113,7 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
         "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
         "amount": [
           {
-            "denom": "aevmos",
+            "denom": "aEVO",
             "amount": "5000000000000000000"
           }
         ]
@@ -129,7 +129,7 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
     "fee": {
       "amount": [
         {
-          "denom": "aevmos",
+          "denom": "aEVO",
           "amount": "1000000"
         }
       ],
@@ -147,7 +147,7 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
 Sign with `test1` and `test2` and create individual signatures.
 
 ```sh
-evmosd tx sign \
+evoblockd tx sign \
     unsignedTx.json \
     --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test1 \
@@ -156,7 +156,7 @@ evmosd tx sign \
 ```
 
 ```sh
-evmosd tx sign \
+evoblockd tx sign \
     unsignedTx.json \
     --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test2 \
@@ -169,7 +169,7 @@ evmosd tx sign \
 Combine signatures to sign transaction.
 
 ```sh
-evmosd tx multisign \
+evoblockd tx multisign \
     unsignedTx.json \
     multi \
     test1sig.json test2sig.json \
@@ -189,7 +189,7 @@ The TX is now signed:
         "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
         "amount": [
           {
-            "denom": "aevmos",
+            "denom": "aEVO",
             "amount": "5000000000000000000"
           }
         ]
@@ -247,7 +247,7 @@ The TX is now signed:
     "fee": {
       "amount": [
         {
-          "denom": "aevmos",
+          "denom": "aEVO",
           "amount": "1000000"
         }
       ],
@@ -265,7 +265,7 @@ The TX is now signed:
 ### Step 5: Broadcast transaction
 
 ```sh
-evmosd tx broadcast signedTx.json \
+evoblockd tx broadcast signedTx.json \
     --chain-id=evmos_9000-4 \
     --broadcast-mode=block
 ```

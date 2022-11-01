@@ -7,7 +7,7 @@ order: 3
 Customize the configuration settings to lower the disk requirements for your validator node {synopsis}
 
 Blockchain database tends to grow over time, depending e.g. on block
-speed and transaction amount. For Evmos, we are talking about close to
+speed and transaction amount. For Evoblock, we are talking about close to
 100GB of disk usage in first two weeks.
 
 There are few configurations that can be done to reduce the required
@@ -30,7 +30,7 @@ under the database directory with name `data/tx_index.db/`.
 
 ## State-sync snapshots
 
-I believe this was disabled by default on Evmos, but listing it in any
+I believe this was disabled by default on Evoblock, but listing it in any
 case here. On `app.toml` set
 
 ```toml
@@ -55,7 +55,7 @@ pruning-interval = "10"
 ```
 
 Configuring `pruning-keep-recent = "0"` might sound tempting, but this
-will risk database corruption if the `evmosd` is killed for any reason.
+will risk database corruption if the `evoblockd` is killed for any reason.
 Thus, it is recommended to keep the few latest states.
 
 ## Logging
@@ -74,7 +74,7 @@ Also ensure your log rotation is configured properly.
 
 ## Results
 
-Below is the disk usage after two weeks of Evmos Arsia Mons testnet. The default
+Below is the disk usage after two weeks of Evoblock Arsia Mons testnet. The default
 configuration results in disk usage of 90GB.
 
 ```bash

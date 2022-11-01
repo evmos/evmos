@@ -1,10 +1,10 @@
 syntax = "proto3";
-package evmos.erc20.v1;
+package evoblock.erc20.v1;
 
-import "evmos/erc20/v1/erc20.proto";
+import "evoblock/erc20/v1/erc20.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/erc20/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/erc20/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {

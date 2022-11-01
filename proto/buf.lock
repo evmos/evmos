@@ -2,6 +2,6 @@
 version: v1
 deps:
   - remote: buf.build
-    owner: evmos
-    repository: evmos
+    owner: evoblock
+    repository: evoblock
     commit: ed3b422c3b484804b054a02f82a39603

@@ -5,14 +5,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/ethermint/tests"
+	"github.com/evoblockchain/evoblock/v8/testutil"
+	"github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(1000)))
+	coins := sdk.NewCoins(sdk.NewCoin("aEVO", sdk.NewInt(1000)))
 
 	testCases := []struct {
 		name       string

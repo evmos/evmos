@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	ethante "github.com/evmos/ethermint/app/ante"
+	ethante "github.com/evoblockchain/ethermint/app/ante"
 )
 
 // NewAnteHandler returns an ante handler responsible for attempting to route an

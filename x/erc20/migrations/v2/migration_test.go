@@ -10,11 +10,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/evmos/ethermint/encoding"
+	"github.com/evoblockchain/ethermint/encoding"
 
-	"github.com/evmos/evmos/v8/app"
-	v2 "github.com/evmos/evmos/v8/x/erc20/migrations/v2"
-	erc20types "github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	v2 "github.com/evoblockchain/evoblock/v8/x/erc20/migrations/v2"
+	erc20types "github.com/evoblockchain/evoblock/v8/x/erc20/types"
 )
 
 func TestUpdateParams(t *testing.T) {

@@ -4,7 +4,7 @@ order: 3
 
 # Namespaces
 
-Check the JSON-RPC namespaces supported on Evmos. {synopsis}
+Check the JSON-RPC namespaces supported on Evoblock. {synopsis}
 
 ## Pre-requisite Readings
 
@@ -14,7 +14,7 @@ Check the JSON-RPC namespaces supported on Evmos. {synopsis}
 
 | Namespace                                     | Description                                                                                                                                                                                                                  | Supported | Enabled by Default |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------ |
-| [`eth`](./endpoints.md#eth-methods)           | Evmos provides several extensions to the standard `eth` JSON-RPC namespace.                                                                                                                                                  | ✔        | ✔                 |
+| [`eth`](./endpoints.md#eth-methods)           | Evoblock provides several extensions to the standard `eth` JSON-RPC namespace.                                                                                                                                                  | ✔        | ✔                 |
 | [`web3`](./endpoints.md#web3-methods)         | The `web3` API provides utility functions for the web3 client.                                                                                                                                                               | ✔        | ✔                 |
 | [`net`](./endpoints.md#net-methods)           | The `net` API provides access to network information of the node                                                                                                                                                             | ✔        | ✔                 |
 | `clique`                                      | The `clique` API provides access to the state of the clique consensus engine. You can use this API to manage signer votes and to check the health of a private network.                                                      | ❌        |                    |

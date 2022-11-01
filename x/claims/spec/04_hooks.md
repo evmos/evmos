@@ -8,7 +8,7 @@ The `x/claims` module implements transaction hooks for each of the four actions 
 
 ## Governance Hook - Vote Action
 
-The user votes on a Governance proposal using their Evmos account. Once the vote is successfully included, the claimable amount corresponding to the vote action is transferred to the user address:
+The user votes on a Governance proposal using their Evoblock account. Once the vote is successfully included, the claimable amount corresponding to the vote action is transferred to the user address:
 
 1. The user submits a `MsgVote`.
 2. Begin claiming process for the `ActionVote`.
@@ -24,7 +24,7 @@ The user votes on a Governance proposal using their Evmos account. Once the vote
 
 ## Staking Hook - Delegate Action
 
-The user delegates their EVMOS tokens to a validator. Once the tokens are staked, the claimable amount corresponding to the delegate action is transferred to the user address:
+The user delegates their EVO tokens to a validator. Once the tokens are staked, the claimable amount corresponding to the delegate action is transferred to the user address:
 
 1. The user submits a `MsgDelegate`.
 2. Begin claiming process for the `ActionDelegate`.
@@ -40,7 +40,7 @@ The user delegates their EVMOS tokens to a validator. Once the tokens are staked
 
 ## EVM Hook - EVM Action
 
-The user deploys or interacts with a smart contract using their Evmos account or send a transfer using their Web3 wallet. Once the EVM state transition is successfully processed, the claimable amount corresponding to the EVM action is transferred to the user address:
+The user deploys or interacts with a smart contract using their Evoblock account or send a transfer using their Web3 wallet. Once the EVM state transition is successfully processed, the claimable amount corresponding to the EVM action is transferred to the user address:
 
 1. The user submits a `MsgEthereumTx`.
 2. Begin claiming process for the `ActionEVM`.
@@ -86,11 +86,11 @@ The user receives an IBC transfer from a counterparty chain. If the transfer is 
 	address are the same. If a packet is sent from a non-EVM chain, the sender
 	addresss is not an ethereum key (i.e. `ethsecp256k1`). Thus, if
 	`sameAddress` is true, the recipient address must be a non-ethereum key as
-	well, which is not supported on Evmos. To prevent funds getting stuck,
+	well, which is not supported on Evoblock. To prevent funds getting stuck,
 	return an error, unless the destination channel from a connection to a chain
 	is EVM-compatible or supports ethereum keys (eg: Cronos, Injective).
 6. Check if destination channel is authorized to perform the IBC claim. Without this authorization the claiming process is vulerable to attacks.
-7. Handle one of four cases by comparing sender and recipient addresses with each other and checking if either addresses have a claims record (i.e allocation) for the airdrop. To compare both addresses, the sender address's bech32 human readable prefix (HRP) is replaced with `evmos`.
+7. Handle one of four cases by comparing sender and recipient addresses with each other and checking if either addresses have a claims record (i.e allocation) for the airdrop. To compare both addresses, the sender address's bech32 human readable prefix (HRP) is replaced with `evoblock`.
    1. both sender and recipient are distinct and have a claims record -> merge sender's record with the recipient's record and claim actions that have been completed by one or the other
    2. only the sender has a claims record -> migrate the sender record to the recipient address and claim IBC action
    3. only the recipient has a claims record -> only claim IBC transfer action and transfer the claimable amount from the escrow account to the user balance

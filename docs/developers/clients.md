@@ -2,26 +2,26 @@
 order: 3
 -->
 
-# Evmos Clients
+# Evoblock Clients
 
 Learn about all the available services for clients {synopsis}
 
-The Evmos supports different clients in order to support Cosmos and Ethereum transactions
+The Evoblock supports different clients in order to support Cosmos and Ethereum transactions
 and queries:
 
 |                                                        | Description                                                                          | Default Port |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------ |
-| **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |
-| **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`       |
+| **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evoblock transactions using gRPC                                          | `9090`       |
+| **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evoblock transactions using an HTTP RESTful API                           | `9091`       |
 | **Ethereum [JSON-RPC](#ethereum-json-rpc)**            | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`       |
 | **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`       |
 | **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `26657`      |
 | **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.            | `26657`      |
-| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.                     | N/A          |
+| **Command Line Interface ([CLI](#cli))**               | Query or send Evoblock transactions using your Terminal or Console.                     | N/A          |
 
 ## Cosmos gRPC
 
-Evmos exposes gRPC endpoints for all the integrated Cosmos SDK modules. This makes it easier for
+Evoblock exposes gRPC endpoints for all the integrated Cosmos SDK modules. This makes it easier for
 wallets and block explorers to interact with the Proof-of-Stake logic and native Cosmos transactions and queries.
 
 ### Cosmos gRPC-Gateway (HTTP REST)
@@ -30,13 +30,13 @@ wallets and block explorers to interact with the Proof-of-Stake logic and native
 generates a reverse-proxy server which translates RESTful JSON API into gRPC. With gRPC-Gateway,
 users can use REST to interact the Cosmos gRPC service.
 
-See the list of supported gRPC-Gateway API endpoints for the Evmos testnet [here](https://api.evmos.dev/).
+See the list of supported gRPC-Gateway API endpoints for the Evoblock testnet [here](https://api.evoblock.dev/).
 
 ## Ethereum JSON-RPC
 
 <!-- TODO: Link JSON-RPC docs -->
 
-Evmos supports most of the standard [JSON-RPC APIs](./json-rpc/server.md) to connect with existing Ethereum-compatible web3 tooling.
+Evoblock supports most of the standard [JSON-RPC APIs](./json-rpc/server.md) to connect with existing Ethereum-compatible web3 tooling.
 
 ::: tip
 Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints.md) and [namespaces](./json-rpc/namespaces.md).
@@ -87,7 +87,7 @@ The main events you can subscribe to are:
 ::: tip
 <!-- markdown-link-check-disable-next-line -->
 👉 The list of events types and values for each Cosmos SDK module can be found in the [Modules Specification](./../modules/README.md) section.
-Check the `Events` page to obtain the event list of each supported module on Evmos.
+Check the `Events` page to obtain the event list of each supported module on Evoblock.
 :::
 
 List of all Tendermint event keys:
@@ -159,7 +159,7 @@ Example response:
 
 ## CLI
 
-Users can use the `{{ $themeConfig.project.binary }}` binary to interact directly with an Evmos node
+Users can use the `{{ $themeConfig.project.binary }}` binary to interact directly with an Evoblock node
 though the CLI.
 
 ::: tip

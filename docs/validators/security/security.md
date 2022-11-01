@@ -28,7 +28,7 @@ See documentation [here](https://github.com/strangelove-ventures/horcrux/blob/ma
 
 It is mission critical that an attacker cannot steal a validator's key. If this is possible, it puts the entire stake delegated to the compromised validator at risk. Hardware security modules are an important strategy for mitigating this risk.
 
-HSM modules must support `ed25519` signatures for Evmos. The [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/) supports `ed25519` and can be used with this YubiKey [library](https://github.com/iqlusioninc/yubihsm.rs).
+HSM modules must support `ed25519` signatures for Evoblock. The [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/) supports `ed25519` and can be used with this YubiKey [library](https://github.com/iqlusioninc/yubihsm.rs).
 
 ::: danger
 🚨 **IMPORTANT**: The YubiHSM can protect a private key but **cannot ensure** in a secure setting that it won't sign the same block twice.
@@ -74,8 +74,8 @@ private_peer_ids = "node_ids_of_private_peers"
 
 By default, uppercase environment variables with the following prefixes will replace lowercase command-line flags:
 
-- `EVMOS` (for Evmos flags)
+- `EVO` (for Evoblock flags)
 - `TM` (for Tendermint flags)
 - `BC` (for democli or basecli flags)
 
-For example, the environment variable `EVMOS_CHAIN_ID` will map to the command line flag `--chain-id`. Note that while explicit command-line flags will take precedence over environment variables, environment variables will take precedence over any of your configuration files. For this reason, it's imperative that you lock down your environment such that any critical parameters are defined as flags on the binary or prevent modification of any environment variables.
+For example, the environment variable `EVO_CHAIN_ID` will map to the command line flag `--chain-id`. Note that while explicit command-line flags will take precedence over environment variables, environment variables will take precedence over any of your configuration files. For this reason, it's imperative that you lock down your environment such that any critical parameters are defined as flags on the binary or prevent modification of any environment variables.

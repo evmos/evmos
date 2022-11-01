@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v8
+module github.com/evoblockchain/evoblock/v8
 
 go 1.18
 
@@ -8,7 +8,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v3 v3.2.0
 	github.com/ethereum/go-ethereum v1.10.19
-	github.com/evmos/ethermint v0.19.3
+	github.com/evoblockchain/ethermint v0.19.3
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0

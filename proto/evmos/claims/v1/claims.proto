@@ -1,9 +1,9 @@
 syntax = "proto3";
-package evmos.claims.v1;
+package evoblock.claims.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/claims/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/claims/types";
 
 // Action defines the list of available actions to claim the airdrop tokens.
 enum Action {

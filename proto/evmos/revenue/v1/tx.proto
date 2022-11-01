@@ -1,25 +1,25 @@
 syntax = "proto3";
-package evmos.revenue.v1;
+package evoblock.revenue.v1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/revenue/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/revenue/types";
 
 // Msg defines the fees Msg service.
 service Msg {
   // RegisterRevenue registers a new contract for receiving transaction fees
   rpc RegisterRevenue(MsgRegisterRevenue) returns (MsgRegisterRevenueResponse) {
-    option (google.api.http).post = "/evmos/revenue/v1/tx/register_revenue";
+    option (google.api.http).post = "/evoblock/revenue/v1/tx/register_revenue";
   };
   // UpdateRevenue updates the withdrawer address of a revenue
   rpc UpdateRevenue(MsgUpdateRevenue) returns (MsgUpdateRevenueResponse) {
-    option (google.api.http).post = "/evmos/revenue/v1/tx/update_revenue";
+    option (google.api.http).post = "/evoblock/revenue/v1/tx/update_revenue";
   };
   // CancelRevenue cancels a contract's fee registration and further receival
   // of transaction fees
   rpc CancelRevenue(MsgCancelRevenue) returns (MsgCancelRevenueResponse) {
-    option (google.api.http).post = "/evmos/revenue/v1/tx/cancel_revenue";
+    option (google.api.http).post = "/evoblock/revenue/v1/tx/cancel_revenue";
   };
 }
 

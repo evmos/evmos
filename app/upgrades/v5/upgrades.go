@@ -18,18 +18,18 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	feemarketv010types "github.com/evmos/ethermint/x/feemarket/migrations/v010/types"
-	feemarketv011 "github.com/evmos/ethermint/x/feemarket/migrations/v011"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	feemarketv010types "github.com/evoblockchain/ethermint/x/feemarket/migrations/v010/types"
+	feemarketv011 "github.com/evoblockchain/ethermint/x/feemarket/migrations/v011"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/types"
-	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/types"
+	claimskeeper "github.com/evoblockchain/evoblock/v8/x/claims/keeper"
+	claimstypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
-// TestnetDenomMetadata defines the metadata for the tEVMOS denom on testnet
+// TestnetDenomMetadata defines the metadata for the tEVO denom on testnet
 var TestnetDenomMetadata = banktypes.Metadata{
-	Description: "The native EVM, governance and staking token of the Evmos testnet",
+	Description: "The native EVM, governance and staking token of the Evoblock testnet",
 	DenomUnits: []*banktypes.DenomUnit{
 		{
 			Denom:    "atevmos",
@@ -43,8 +43,8 @@ var TestnetDenomMetadata = banktypes.Metadata{
 	},
 	Base:    "atevmos",
 	Display: "tevmos",
-	Name:    "Testnet Evmos",
-	Symbol:  "tEVMOS",
+	Name:    "Testnet Evoblock",
+	Symbol:  "tEVO",
 }
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v5
@@ -186,7 +186,7 @@ func swapUnclaimedAction(cr claimstypes.ClaimsRecord, unclaimed, claimed claimst
 
 // MigrateContributorClaim migrates the claims record of a specific early
 // contributor (Blockchain at Berkeley) from one address to another.
-// See https://medium.com/evmos/the-evmos-rektdrop-abbe931ba823 for details about
+// See https://medium.com/evoblock/the-evoblock-rektdrop-abbe931ba823 for details about
 // Early Contributors.
 func MigrateContributorClaim(ctx sdk.Context, k *claimskeeper.Keeper) {
 	from := sdk.MustAccAddressFromBech32(ContributorAddrFrom)

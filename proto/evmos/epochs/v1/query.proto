@@ -1,23 +1,23 @@
 syntax = "proto3";
-package evmos.epochs.v1;
+package evoblock.epochs.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/epochs/v1/genesis.proto";
+import "evoblock/epochs/v1/genesis.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/epochs/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/epochs/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // EpochInfos provide running epochInfos
   rpc EpochInfos(QueryEpochsInfoRequest) returns (QueryEpochsInfoResponse) {
-    option (google.api.http).get = "/evmos/epochs/v1/epochs";
+    option (google.api.http).get = "/evoblock/epochs/v1/epochs";
   }
   // CurrentEpoch provide current epoch of specified identifier
   rpc CurrentEpoch(QueryCurrentEpochRequest)
       returns (QueryCurrentEpochResponse) {
-    option (google.api.http).get = "/evmos/epochs/v1/current_epoch";
+    option (google.api.http).get = "/evoblock/epochs/v1/current_epoch";
   }
 }
 

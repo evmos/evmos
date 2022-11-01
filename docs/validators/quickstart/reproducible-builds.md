@@ -4,7 +4,7 @@ order: 3
 
 # Deterministic Builds
 
-Build the `evmosd` binary deterministically using Docker. {synopsis}
+Build the `evoblockd` binary deterministically using Docker. {synopsis}
 
 ## Pre-requisites
 
@@ -20,16 +20,16 @@ All the following instructions have been tested on *Ubuntu 18.04.2 LTS* with *Do
 
 ## Build with Docker
 
-Clone `evmos`:
+Clone `evoblock`:
 
 ``` bash
-git clone git@github.com:tharsis/evmos.git
+git clone git@github.com:tharsis/evoblock.git
 ```
 
 Checkout the commit, branch, or release tag you want to build (eg `v0.4.0`):
 
 ```bash
-cd evmos/
+cd evoblock/
 git checkout v0.4.0
 ```
 
@@ -48,13 +48,13 @@ The `artifacts/build_report` file contains the list of the build artifacts and t
 build sanity. An example of its contents follows:
 
 ```
-App: evmosd
+App: evoblockd
 Version: 0.4.0
 Commit: b7e46982d1dc2d4c34fcd3b52f1edfd2e589d370
 Files:
- 7594279acff34ff18ea9d896d217a6db  evmosd-0.4.0-linux-amd64
- c083e812acbfa7d6e02583386b371b93  evmosd-0.4.0.tar.gz
+ 7594279acff34ff18ea9d896d217a6db  evoblockd-0.4.0-linux-amd64
+ c083e812acbfa7d6e02583386b371b93  evoblockd-0.4.0.tar.gz
 Checksums-Sha256:
- d087053050ce888c21d26e40869105163c5521cb5b291443710961ac0c892e81  evmosd-0.4.0-linux-amd64
- 6ca3e5e40240f5e433088fd9b7370440f3f94116803934c21257e1c78fb9653d  evmosd-0.4.0.tar.gz
+ d087053050ce888c21d26e40869105163c5521cb5b291443710961ac0c892e81  evoblockd-0.4.0-linux-amd64
+ 6ca3e5e40240f5e433088fd9b7370440f3f94116803934c21257e1c78fb9653d  evoblockd-0.4.0.tar.gz
 ```

@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
+	"github.com/evoblockchain/ethermint/tests"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -18,10 +18,10 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evm "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v8/app"
-	claimtypes "github.com/evmos/evmos/v8/x/claims/types"
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	evm "github.com/evoblockchain/ethermint/x/evm/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	claimtypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/x/revenue/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -36,7 +36,7 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app            *app.Evmos
+	app            *app.Evoblock
 	queryClient    types.QueryClient
 	queryClientEvm evm.QueryClient
 	address        common.Address

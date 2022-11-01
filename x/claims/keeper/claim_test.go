@@ -11,13 +11,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/tests"
-	ethermint "github.com/evmos/ethermint/types"
-	"github.com/evmos/evmos/v8/testutil"
-	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
+	"github.com/evoblockchain/ethermint/tests"
+	ethermint "github.com/evoblockchain/ethermint/types"
+	"github.com/evoblockchain/evoblock/v8/testutil"
+	inflationtypes "github.com/evoblockchain/evoblock/v8/x/inflation/types"
 
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {

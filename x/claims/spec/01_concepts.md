@@ -6,9 +6,9 @@ order: 1
 
 ## Rektdrop
 
-The Evmos [Rektdrop](https://evmos.blog/the-evmos-rektdrop-abbe931ba823) is the genesis airdrop for the EVMOS token to Cosmos Hub, Osmosis and Ethereum users.
+The Evoblock [Rektdrop](https://evoblock.blog/the-evoblock-rektdrop-abbe931ba823) is the genesis airdrop for the EVO token to Cosmos Hub, Osmosis and Ethereum users.
 
-> The end goal of Evmos is to bring together the Cosmos and Ethereum community and thus the Rektdrop has been designed to reward past participation in both networks under this theme of “getting rekt”.
+> The end goal of Evoblock is to bring together the Cosmos and Ethereum community and thus the Rektdrop has been designed to reward past participation in both networks under this theme of “getting rekt”.
 
 The Rektdrop is the first airdrop that:
 
@@ -48,7 +48,7 @@ After voting on a proposal, the corresponding proportion will be airdropped to t
 
 ### Staking (i.e Delegate) Action
 
-After staking Evmos tokens (i.e delegating), the corresponding proportion will be airdropped to the user's balance by performing a transfer from the claim escrow account (`ModuleAccount`) to the user.
+After staking Evoblock tokens (i.e delegating), the corresponding proportion will be airdropped to the user's balance by performing a transfer from the claim escrow account (`ModuleAccount`) to the user.
 
 ### EVM Action
 
@@ -64,24 +64,24 @@ A Claims Records is the metadata of claim data per address. It keeps track of al
 
 ## Claiming Process
 
-As described in the [Action](#action) section, a user must submit transactions to receive the allocated tokens from the airdrop. However, since Evmos only supports Ethereum keys and not de default Tendermint keys, this process differs for Ethereum and Cosmos eligible users.
+As described in the [Action](#action) section, a user must submit transactions to receive the allocated tokens from the airdrop. However, since Evoblock only supports Ethereum keys and not de default Tendermint keys, this process differs for Ethereum and Cosmos eligible users.
 
 ### Ethereum Users
 
-Evmos shares the coin type (`60`) and key derivation (Ethereum `secp256k1`) with Ethereum. This allows users (EOA accounts) that have been allocated EVMOS tokens to directly claim their tokens using their preferred web3 wallet.
+Evoblock shares the coin type (`60`) and key derivation (Ethereum `secp256k1`) with Ethereum. This allows users (EOA accounts) that have been allocated EVO tokens to directly claim their tokens using their preferred web3 wallet.
 
 ### Cosmos Hub and Osmosis Users
 
-Cosmos Hub and Osmosis users who use the default Tendermint `secp256k1` keys, need to perform a "cross-chain attestation" of their Evmos address.
+Cosmos Hub and Osmosis users who use the default Tendermint `secp256k1` keys, need to perform a "cross-chain attestation" of their Evoblock address.
 
 This can be done by submitting an IBC transfer from Cosmos Hub and Osmosis, which is signed by the addresses, that have been allocated the tokens.
 
-The recipient Evmos address of this IBC transfer is the address, that the tokens will be airdropped to.
+The recipient Evoblock address of this IBC transfer is the address, that the tokens will be airdropped to.
 
 ::: warning
 **IMPORTANT**
 
-Only submit an IBC transfer to an Evmos address that you own. Otherwise, you will lose your airdrop allocation.
+Only submit an IBC transfer to an Evoblock address that you own. Otherwise, you will lose your airdrop allocation.
 :::
 
 ## Decay Period

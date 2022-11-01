@@ -1,43 +1,43 @@
 syntax = "proto3";
-package evmos.revenue.v1;
+package evoblock.revenue.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/revenue/v1/genesis.proto";
-import "evmos/revenue/v1/revenue.proto";
+import "evoblock/revenue/v1/genesis.proto";
+import "evoblock/revenue/v1/revenue.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/revenue/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/revenue/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // Revenues retrieves all registered revenues
   rpc Revenues(QueryRevenuesRequest) returns (QueryRevenuesResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues";
+    option (google.api.http).get = "/evoblock/revenue/v1/revenues";
   }
 
   // Revenue retrieves a registered revenue for a given contract address
   rpc Revenue(QueryRevenueRequest) returns (QueryRevenueResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues/{contract_address}";
+    option (google.api.http).get = "/evoblock/revenue/v1/revenues/{contract_address}";
   }
 
   // Params retrieves the revenue module params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/params";
+    option (google.api.http).get = "/evoblock/revenue/v1/params";
   }
 
   // DeployerRevenues retrieves all revenues that a given deployer has
   // registered
   rpc DeployerRevenues(QueryDeployerRevenuesRequest)
       returns (QueryDeployerRevenuesResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues/{deployer_address}";
+    option (google.api.http).get = "/evoblock/revenue/v1/revenues/{deployer_address}";
   }
 
   // WithdrawerRevenues retrieves all revenues with a given withdrawer
   // address
   rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest)
       returns (QueryWithdrawerRevenuesResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues/{withdrawer_address}";
+    option (google.api.http).get = "/evoblock/revenue/v1/revenues/{withdrawer_address}";
   }
 }
 

@@ -3,11 +3,11 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 
-	evmos "github.com/evmos/evmos/v8/types"
-	incentivestypes "github.com/evmos/evmos/v8/x/incentives/types"
-	"github.com/evmos/evmos/v8/x/inflation/types"
+	evoblock "github.com/evoblockchain/evoblock/v8/types"
+	incentivestypes "github.com/evoblockchain/evoblock/v8/x/incentives/types"
+	"github.com/evoblockchain/evoblock/v8/x/inflation/types"
 )
 
 // 200M token at year 4 allocated to the team
@@ -117,7 +117,7 @@ func (k Keeper) GetProportions(
 func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
 
-	isMainnet := evmos.IsMainnet(ctx.ChainID())
+	isMainnet := evoblock.IsMainnet(ctx.ChainID())
 
 	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
 		return sdk.ZeroDec()
@@ -140,7 +140,7 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
 	teamAllocation := teamAlloc.ToDec()
 
 	// Consider team allocation only on mainnet chain id
-	if evmos.IsMainnet(ctx.ChainID()) {
+	if evoblock.IsMainnet(ctx.ChainID()) {
 		circulatingSupply = circulatingSupply.Sub(teamAllocation)
 	}
 

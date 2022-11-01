@@ -11,9 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evoblockchain/evoblock/v8/x/revenue/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -121,7 +121,7 @@ func (k Keeper) DeployerRevenues( // nolint: dupl
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for deployer %s, should be bech32 ('evmos...')", req.DeployerAddress,
+			"invalid format for deployer %s, should be bech32 ('evoblock...')", req.DeployerAddress,
 		)
 	}
 
@@ -167,7 +167,7 @@ func (k Keeper) WithdrawerRevenues( // nolint: dupl
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for withdraw addr %s, should be bech32 ('evmos...')", req.WithdrawerAddress,
+			"invalid format for withdraw addr %s, should be bech32 ('evoblock...')", req.WithdrawerAddress,
 		)
 	}
 

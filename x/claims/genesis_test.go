@@ -12,13 +12,13 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/tests"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/claims"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	"github.com/evoblockchain/evoblock/v8/testutil"
+	"github.com/evoblockchain/evoblock/v8/x/claims"
+	"github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
 type GenesisTestSuite struct {
@@ -26,7 +26,7 @@ type GenesisTestSuite struct {
 
 	ctx sdk.Context
 
-	app     *app.Evmos
+	app     *app.Evoblock
 	genesis types.GenesisState
 }
 
@@ -113,7 +113,7 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 				},
 			},
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(2_800)))
+				coins := sdk.NewCoins(sdk.NewCoin("aEVO", sdk.NewInt(2_800)))
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
@@ -137,7 +137,7 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 				},
 			},
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
+				coins := sdk.NewCoins(sdk.NewCoin("aEVO", sdk.NewInt(400)))
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
@@ -184,7 +184,7 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 		},
 	}
 
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
+	coins := sdk.NewCoins(sdk.NewCoin("aEVO", sdk.NewInt(400)))
 	err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 	suite.Require().NoError(err)
 

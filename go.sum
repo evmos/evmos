@@ -253,10 +253,10 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/ethereum/go-ethereum v1.9.25/go.mod h1:vMkFiYLHI4tgPw4k2j4MHKoovchFE8plZ0M9VMk4/oM=
 github.com/ethereum/go-ethereum v1.10.19 h1:EOR5JbL4MD5yeOqv8W2iC1s4NximrTjqFccUz8lyBRA=
 github.com/ethereum/go-ethereum v1.10.19/go.mod h1:IJBNMtzKcNHPtllYihy6BL2IgK1u+32JriaTbdt4v+w=
-github.com/evmos/ethermint v0.19.2 h1:9sPg+7my7jZqKYZcls1+r5pQRw9oZO77TsEqtDohp88=
-github.com/evmos/ethermint v0.19.2/go.mod h1:pgPk2Anaw0cTwF7mRf0O+Zs4IjHLwkPpHZr6bTQbcWo=
-github.com/evmos/ethermint v0.19.3 h1:Tc2tIiEK9b+rp1a0aWfzzggRDgecLa8gOHyXT3tH/1A=
-github.com/evmos/ethermint v0.19.3/go.mod h1:2A25AF6mes32UL6j+r0wT0FnbzN7tzGYp2URxy+ZNmY=
+github.com/evoblockchain/ethermint v0.19.2 h1:9sPg+7my7jZqKYZcls1+r5pQRw9oZO77TsEqtDohp88=
+github.com/evoblockchain/ethermint v0.19.2/go.mod h1:pgPk2Anaw0cTwF7mRf0O+Zs4IjHLwkPpHZr6bTQbcWo=
+github.com/evoblockchain/ethermint v0.19.3 h1:UhGgUSTv2YYdvwXTK5V6duCMD4cn4KuXc4sa7C1Oqr4=
+github.com/evoblockchain/ethermint v0.19.3/go.mod h1:2A25AF6mes32UL6j+r0wT0FnbzN7tzGYp2URxy+ZNmY=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 h1:7HZCaLC5+BZpmbhCOZJ293Lz68O7PYrF2EzeiFMwCLk=

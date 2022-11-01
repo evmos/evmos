@@ -3,10 +3,10 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/tests"
+	"github.com/evoblockchain/ethermint/tests"
 
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/testutil"
+	"github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestClaimsInvariant() {
@@ -29,7 +29,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.NewClaimsRecord(sdk.NewInt(40)))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
 
-				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
+				coins := sdk.Coins{sdk.NewCoin("aEVO", sdk.NewInt(100))}
 				// update the escrowed account balance to maintain the invariant
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -44,7 +44,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.NewClaimsRecord(sdk.OneInt()))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
 
-				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(2))}
+				coins := sdk.Coins{sdk.NewCoin("aEVO", sdk.NewInt(2))}
 				// update the escrowed account balance to maintain the invariant
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -63,7 +63,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
 
-				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
+				coins := sdk.Coins{sdk.NewCoin("aEVO", sdk.NewInt(100))}
 				// update the escrowed account balance to maintain the invariant
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -82,7 +82,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
 
-				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(100))}
+				coins := sdk.Coins{sdk.NewCoin("aEVO", sdk.NewInt(100))}
 				// update the escrowed account balance to maintain the invariant
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -109,7 +109,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr2))
 
-				coins := sdk.Coins{sdk.NewCoin("aevmos", sdk.NewInt(200))}
+				coins := sdk.Coins{sdk.NewCoin("aEVO", sdk.NewInt(200))}
 				// update the escrowed account balance to maintain the invariant
 				err := testutil.FundModuleAccount(suite.app.BankKeeper, suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)

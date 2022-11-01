@@ -1,6 +1,6 @@
 FROM golang:stretch AS build-env
 
-WORKDIR /go/src/github.com/evmos/evmos
+WORKDIR /go/src/github.com/evoblockchain/evoblock
 
 RUN apt-get update -y
 RUN apt-get install git -y
@@ -16,8 +16,8 @@ RUN apt-get install ca-certificates jq -y
 
 WORKDIR /root
 
-COPY --from=build-env /go/src/github.com/evmos/evmos/build/evmosd /usr/bin/evmosd
+COPY --from=build-env /go/src/github.com/evoblockchain/evoblock/build/evoblockd /usr/bin/evoblockd
 
 EXPOSE 26656 26657 1317 9090
 
-CMD ["evmosd"]
+CMD ["evoblockd"]

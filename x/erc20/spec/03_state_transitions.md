@@ -10,11 +10,11 @@ The erc20 modules allows for two types of registration state transitions. Depend
 
 ### 1. Register Coin
 
-A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approvald by governance), the ERC20 module uses a factory pattern to deploy an ERC20 token contract representation of the Cosmos Coin. Note that the native Evmos coin cannot be registered, as any coin including "evm" in its denomination cannot be registered. Instead the Evmos token can be converted by Nomand's wrapped Evmos (WEVMOS) contract.
+A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approvald by governance), the ERC20 module uses a factory pattern to deploy an ERC20 token contract representation of the Cosmos Coin. Note that the native Evoblock coin cannot be registered, as any coin including "evm" in its denomination cannot be registered. Instead the Evoblock token can be converted by Nomand's wrapped Evoblock (WEVO) contract.
 
 1. User submits a `RegisterCoinProposal`
-2. Validators of the Evmos Hub vote on the proposal using `MsgVote` and proposal passes
-3. If Cosmos coin or IBC voucher exist on the bank module supply, create the [ERC20 token contract](https://github.com/evmos/evmos/blob/main/contracts/ERC20MinterBurnerDecimals.sol) on the EVM based on the ERC20Mintable ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) interface
+2. Validators of the Evoblock Hub vote on the proposal using `MsgVote` and proposal passes
+3. If Cosmos coin or IBC voucher exist on the bank module supply, create the [ERC20 token contract](https://github.com/evoblockchain/evoblock/blob/main/contracts/ERC20MinterBurnerDecimals.sol) on the EVM based on the ERC20Mintable ([ERC20Mintable by openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)) interface
     - Initial supply: 0
     - Token details (Name, Symbol, Decimals, etc) are derived from the bank module `Metadata` field on the proposal content.
 
@@ -23,7 +23,7 @@ A user registers a native Cosmos Coin. Once the proposal passes (i.e is Approval
 A user registers a ERC20 token contract that is already deployed on the EVM module. Once the proposal passes (i.e is approved by governance), the ERC20 module creates a Cosmos coin representation of the ERC20 token.
 
 1. User submits a `RegisterERC20Proposal`
-2. Validators of the EVMOS chain vote on the proposal using `MsgVote` and proposal passes
+2. Validators of the EVO chain vote on the proposal using `MsgVote` and proposal passes
 3. If ERC-20 contract is deployed on the EVM module, create a bank coin `Metadata` from the ERC20 details.
 
 ## Token Pair Conversion
@@ -46,7 +46,7 @@ Conversion of a registered `TokenPair` can be done via:
   then convert them to the native Coin
 - The user and the `ModuleAccount` (owner) should be the only ones that have the
   Burn Role for a Cosmos Coin
-- There shouldn't exist any native Cosmos Coin ERC20 Contract (eg Evmos, Atom,
+- There shouldn't exist any native Cosmos Coin ERC20 Contract (eg Evoblock, Atom,
   Osmo ERC20 contracts) that is not owned by the governance
 - Token/Coin supply is maintained at all times:
     - Total Coin supply = Coins + Escrowed Coins

@@ -9,12 +9,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/ethermint/tests"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evoblockchain/ethermint/tests"
+	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/x/erc20/keeper"
-	"github.com/evmos/evmos/v8/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
+	"github.com/evoblockchain/evoblock/v8/x/erc20/keeper"
+	"github.com/evoblockchain/evoblock/v8/x/erc20/types"
+	inflationtypes "github.com/evoblockchain/evoblock/v8/x/inflation/types"
 )
 
 const (
@@ -199,18 +199,18 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 			false,
 		},
 		{
-			"evm denom registration - evmos",
+			"evm denom registration - evoblock",
 			func() {
-				metadata.Base = "evmos"
+				metadata.Base = "evoblock"
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
 				suite.Require().NoError(err)
 			},
 			false,
 		},
 		{
-			"evm denom registration - aevmos",
+			"evm denom registration - aEVO",
 			func() {
-				metadata.Base = "aevmos"
+				metadata.Base = "aEVO"
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(metadata.Base, 1)})
 				suite.Require().NoError(err)
 			},

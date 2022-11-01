@@ -1,5 +1,5 @@
 {
-  "name": "evmos",
+  "name": "evoblock",
   "version": "1.0.0",
   "description": "<!-- parent:   order: false -->",
   "main": "index.js",
@@ -15,12 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evmos/evmos.git"
+    "url": "git+https://github.com/evoblockchain/evoblock.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/evmos/evmos/issues"
+    "url": "https://github.com/evoblockchain/evoblock/issues"
   },
-  "homepage": "https://github.com/evmos/evmos#readme"
+  "homepage": "https://github.com/evoblockchain/evoblock#readme"
 }

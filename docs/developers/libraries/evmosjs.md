@@ -2,19 +2,19 @@
 order: 1
 -->
 
-# EvmosJS
+# EvoblockJS
 
-Learn about the EvmosJS Library for connecting clients to Evmos. {synopsis}
+Learn about the EvoblockJS Library for connecting clients to Evoblock. {synopsis}
 
-[`evmosjs`](https://github.com/evmos/evmosjs) is a JavaScript and TypeScript client library for [Evmos](https://github.com/evmos/evmos) and [Ethermint](https://github.com/evmos/ethermint) nodes.
+[`evmosjs`](https://github.com/evoblock/evmosjs) is a JavaScript and TypeScript client library for [Evoblock](https://github.com/evoblockchain/evoblock) and [Ethermint](https://github.com/evoblockchain/ethermint) nodes.
 
 ## Tools
 
-- **Address converter:** convert between `eth` and `evmos` addresses
-- **Basic transaction generator**: used to create Evmos transactions
-- **`EIP-712` transaction generator**: used to create `EIP-712` signed Evmos transactions
-- **Protobuf files**: used to create Cosmos Hub and Evmos transactions
-- **REST provider**: used to query the Evmos REST API and interact with Evmos nodes
+- **Address converter:** convert between `eth` and `evoblock` addresses
+- **Basic transaction generator**: used to create Evoblock transactions
+- **`EIP-712` transaction generator**: used to create `EIP-712` signed Evoblock transactions
+- **Protobuf files**: used to create Cosmos Hub and Evoblock transactions
+- **REST provider**: used to query the Evoblock REST API and interact with Evoblock nodes
 
 ## Package List
 

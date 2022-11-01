@@ -9,7 +9,7 @@ parent:
 
 ## Abstract
 
-This document specifies the internal `x/epochs` module of the Evmos Hub.
+This document specifies the internal `x/epochs` module of the Evoblock Hub.
 
 Often, when working with the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), we would like to run certain pieces of code every so often.
 

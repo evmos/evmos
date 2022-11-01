@@ -14,7 +14,7 @@ Validators will need to ensure their local node configurations in order to speed
 :::
 
 ```toml
-# In evmosd/config/config.toml
+# In evoblockd/config/config.toml
 
 #######################################################
 ###         Consensus Configuration Options         ###
@@ -31,7 +31,7 @@ timeout_commit = "1s"
 
 ## Peers
 
-In `evmosd/config/config.toml` you can set your peers.
+In `evoblockd/config/config.toml` you can set your peers.
 
 See the [Add persistent peers section](../testnet.md#add-persistent-peers) in our docs for an automated method, but field should look something like a comma separated string of peers (do not copy this, just an example):
 
@@ -44,7 +44,7 @@ persistent_peers = "5576b0160761fe81ccdf88e06031a01bc8643d51@195.201.108.97:2465
 You can see and share your peer with the `tendermint show-node-id` command
 
 ```bash
-evmosd tendermint show-node-id
+evoblockd tendermint show-node-id
 ac29d21d0a6885465048a4481d16c12f59b2e58b
 ```
 

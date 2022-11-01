@@ -4,7 +4,7 @@ order: 2
 
 # Tendermint KMS
 
-Set up a Key Management System for Evmos {synopsis}
+Set up a Key Management System for Evoblock {synopsis}
 
 [Tendermint KMS](https://github.com/iqlusioninc/tmkms) is a Key Management Service (KMS) that allows separating key management from Tendermint nodes. In addition it provides other advantages such as:
 

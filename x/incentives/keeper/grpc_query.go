@@ -12,9 +12,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/incentives/types"
+	"github.com/evoblockchain/evoblock/v8/x/incentives/types"
 )
 
 var _ types.QueryServer = Keeper{}

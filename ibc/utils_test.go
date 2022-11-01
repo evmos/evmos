@@ -3,7 +3,7 @@ package ibc
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/x/claims/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,7 +15,7 @@ import (
 
 func init() {
 	cfg := sdk.GetConfig()
-	cfg.SetBech32PrefixForAccount("evmos", "evmospub")
+	cfg.SetBech32PrefixForAccount("evoblock", "evmospub")
 }
 
 func TestGetTransferSenderRecipient(t *testing.T) {
@@ -79,7 +79,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			true,
 		},
 		{
-			"valid - cosmos sender, evmos recipient",
+			"valid - cosmos sender, evoblock recipient",
 			channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
@@ -94,7 +94,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			false,
 		},
 		{
-			"valid - evmos sender, cosmos recipient",
+			"valid - evoblock sender, cosmos recipient",
 			channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
@@ -109,7 +109,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			false,
 		},
 		{
-			"valid - osmosis sender, evmos recipient",
+			"valid - osmosis sender, evoblock recipient",
 			channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{

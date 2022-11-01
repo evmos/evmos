@@ -15,9 +15,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evoblockchain/evoblock/v8/x/erc20/types"
 )
 
 // NewTxCmd returns a root CLI command handler for erc20 transaction commands

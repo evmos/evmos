@@ -6,11 +6,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	v2 "github.com/evmos/evmos/v8/app/upgrades/v2"
-	v4 "github.com/evmos/evmos/v8/app/upgrades/v4"
-	v7 "github.com/evmos/evmos/v8/app/upgrades/v7"
-	v82 "github.com/evmos/evmos/v8/app/upgrades/v8_2"
-	"github.com/evmos/evmos/v8/types"
+	v2 "github.com/evoblockchain/evoblock/v8/app/upgrades/v2"
+	v4 "github.com/evoblockchain/evoblock/v8/app/upgrades/v4"
+	v7 "github.com/evoblockchain/evoblock/v8/app/upgrades/v7"
+	v82 "github.com/evoblockchain/evoblock/v8/app/upgrades/v8_2"
+	"github.com/evoblockchain/evoblock/v8/types"
 )
 
 // ScheduleForkUpgrade executes any necessary fork logic for based upon the current
@@ -21,7 +21,7 @@ import (
 //
 //  1. Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
 //  2. Release the software defined in the upgrade-info
-func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
+func (app *Evoblock) ScheduleForkUpgrade(ctx sdk.Context) {
 	// NOTE: there are no testnet forks for the existing versions
 	if !types.IsMainnet(ctx.ChainID()) {
 		return

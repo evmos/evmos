@@ -4,15 +4,15 @@ order: 1
 
 # Overview
 
-Learn about validating on Evmos {synopsis}
+Learn about validating on Evoblock {synopsis}
 
 ## Introduction
 
-Evmos is based on [Tendermint Core](https://github.com/tendermint/tendermint/blob/master/docs/introduction/what-is-tendermint.md), which relies on a set of validators that are responsible for committing new blocks in the blockchain. These validators participate in the consensus protocol by broadcasting votes which contain cryptographic signatures signed by each validator's private key.
+Evoblock is based on [Tendermint Core](https://github.com/tendermint/tendermint/blob/master/docs/introduction/what-is-tendermint.md), which relies on a set of validators that are responsible for committing new blocks in the blockchain. These validators participate in the consensus protocol by broadcasting votes which contain cryptographic signatures signed by each validator's private key.
 
-Validator candidates can bond their own staking tokens and have the tokens "delegated", or staked, to them by token holders. The **{{ $themeConfig.project.denom }}** is Evmos's native token. At its onset, Evmos will launch with 150 validators. The validators are determined by who has the most stake delegated to them - the top 150 validator candidates with the most stake will become Evmos validators.
+Validator candidates can bond their own staking tokens and have the tokens "delegated", or staked, to them by token holders. The **{{ $themeConfig.project.denom }}** is Evoblock's native token. At its onset, Evoblock will launch with 150 validators. The validators are determined by who has the most stake delegated to them - the top 150 validator candidates with the most stake will become Evoblock validators.
 
-Validators and their delegators will earn {{ $themeConfig.project.denom }} as block provisions and tokens as transaction fees through execution of the Tendermint consensus protocol. Initially, transaction fees will be paid in EVMOS but in the future, any token in the Cosmos ecosystem will be valid as fee tender if it is whitelisted by governance. Note that validators can set commission on the fees their delegators receive as additional incentive.
+Validators and their delegators will earn {{ $themeConfig.project.denom }} as block provisions and tokens as transaction fees through execution of the Tendermint consensus protocol. Initially, transaction fees will be paid in EVO but in the future, any token in the Cosmos ecosystem will be valid as fee tender if it is whitelisted by governance. Note that validators can set commission on the fees their delegators receive as additional incentive.
 
 If validators double sign, are frequently offline or do not participate in governance, their staked {{ $themeConfig.project.denom }} (including {{ $themeConfig.project.denom }} of users that delegated to them) can be slashed. The penalty depends on the severity of the violation.
 
@@ -51,8 +51,8 @@ As the usage of the blockchain grows, the server requirements may increase as we
 Seek legal advice if you intend to run a validator.
 :::
 
-Set up a dedicated validator's website, social profile (eg: Twitter) and signal your intention to become a validator on Discord. This is important since users will want to have information about the entity they are staking their EVMOS to.
+Set up a dedicated validator's website, social profile (eg: Twitter) and signal your intention to become a validator on Discord. This is important since users will want to have information about the entity they are staking their EVO to.
 
 ## Community
 
-Discuss the finer details of being a validator and seek advise from the rest of the validator community on our [Discord](https://discord.gg/evmos).
+Discuss the finer details of being a validator and seek advise from the rest of the validator community on our [Discord](https://discord.gg/evoblock).

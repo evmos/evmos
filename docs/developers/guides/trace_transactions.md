@@ -4,7 +4,7 @@ order: 5
 
 # Trace Transactions
 
-Learn how to trace transactions and blocks on Evmos. {synopsis}
+Learn how to trace transactions and blocks on Evoblock. {synopsis}
 
 This guide will cover the following topics:
 
@@ -14,7 +14,7 @@ This guide will cover the following topics:
 
 ## Basic EVM Tracing with JS
 
-Tracing a transaction means requesting an Evmos node to re-execute the desired transaction with varying degrees of data collection.
+Tracing a transaction means requesting an Evoblock node to re-execute the desired transaction with varying degrees of data collection.
 
 ### Tracing Prerequisites
 
@@ -82,7 +82,7 @@ An example log for a single opcode entry has the following format:
 
 Although raw opcode traces generated above are useful, having an individual log entry for every single opcode is too low level for most use cases, and will require developers to create additional tools to post-process the traces. Additionally, a single opcode trace can easily be hundreds of megabytes, making them very resource intensive to extract from the node and process extenally.
 
-To avoid these issues, [Geth](https://geth.ethereum.org/) supports running custom JavaScript traces *within* the Evmos (or any EVM-compatible) node, which have full access to the EVM stack, memory, and contract storage. This means developers only have to gather data that they actually need, and do any processing at the source.
+To avoid these issues, [Geth](https://geth.ethereum.org/) supports running custom JavaScript traces *within* the Evoblock (or any EVM-compatible) node, which have full access to the EVM stack, memory, and contract storage. This means developers only have to gather data that they actually need, and do any processing at the source.
 
 ## Filtered EVM Tracing with JS
 
@@ -252,7 +252,7 @@ This information is covered in [this reference](https://geth.ethereum.org/docs/r
 
 ## JSON-RPC `debug_trace*` Endpoints
 
-Evmos supports the following `debug_trace*` JSON-RPC Methods, which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/rpc/ns-debug).
+Evoblock supports the following `debug_trace*` JSON-RPC Methods, which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/rpc/ns-debug).
 
 ### `debug_traceTransaction`
 
@@ -264,7 +264,7 @@ The `traceTransaction` debugging method will attempt to run the transaction in t
 
 ```bash
 # Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceTransaction","params":[<transaction hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceTransaction","params":[<transaction hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evoblock.org:8545
 
 # Result
 {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
@@ -280,7 +280,7 @@ The `traceBlockByNumber` endpoint accepts a block number, and will replay the bl
 
 ```bash
 # Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block number>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block number>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evoblock.org:8545
 
 # Result
 {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
@@ -296,7 +296,7 @@ The `traceBlockByNumber` endpoint accepts a block hash, and will replay the bloc
 
 ```bash
 # Request
-curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evmos.org:8545
+curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","params":[<block hash>, {"tracer": "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}"}],"id":1}' -H "Content-Type: application/json" https://eth.bd.evoblock.org:8545
 
 # Result
 {"jsonrpc":"2.0","id":1,"result":[{"result":["68410", "51470"]}]}
@@ -306,6 +306,6 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","param
 
 See the sources below for details not covered above:
 
-- [JSON-RPC Methods on Evmos](../json-rpc/endpoints.md)
+- [JSON-RPC Methods on Evoblock](../json-rpc/endpoints.md)
 - [Basic EVM Tracing](https://geth.ethereum.org/docs/dapp/tracing)
 - [Filtered EVM Tracing](https://web.archive.org/web/20211215184312/https://geth.ethereum.org/docs/dapp/tracing-filtered)

@@ -11,12 +11,12 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
 )
 
 func init() {
 	cfg := sdk.GetConfig()
-	cfg.SetBech32PrefixForAccount("evmos", "evmospub")
+	cfg.SetBech32PrefixForAccount("evoblock", "evmospub")
 }
 
 func TestIsSupportedKeys(t *testing.T) {
@@ -72,7 +72,7 @@ func TestIsSupportedKeys(t *testing.T) {
 	}
 }
 
-func TestGetEvmosAddressFromBech32(t *testing.T) {
+func TestGetEvoblockAddressFromBech32(t *testing.T) {
 	testCases := []struct {
 		name       string
 		address    string
@@ -87,7 +87,7 @@ func TestGetEvmosAddressFromBech32(t *testing.T) {
 		},
 		{
 			"invalid bech32 address",
-			"evmos",
+			"evoblock",
 			"",
 			true,
 		},
@@ -98,7 +98,7 @@ func TestGetEvmosAddressFromBech32(t *testing.T) {
 			true,
 		},
 		{
-			"evmos address",
+			"evoblock address",
 			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
 			false,
@@ -118,7 +118,7 @@ func TestGetEvmosAddressFromBech32(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		addr, err := GetEvmosAddressFromBech32(tc.address)
+		addr, err := GetEvoblockAddressFromBech32(tc.address)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {

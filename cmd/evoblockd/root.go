@@ -33,23 +33,23 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	ethermintclient "github.com/evmos/ethermint/client"
-	"github.com/evmos/ethermint/client/debug"
-	"github.com/evmos/ethermint/encoding"
-	ethermintserver "github.com/evmos/ethermint/server"
-	servercfg "github.com/evmos/ethermint/server/config"
-	srvflags "github.com/evmos/ethermint/server/flags"
+	ethermintclient "github.com/evoblockchain/ethermint/client"
+	"github.com/evoblockchain/ethermint/client/debug"
+	"github.com/evoblockchain/ethermint/encoding"
+	ethermintserver "github.com/evoblockchain/ethermint/server"
+	servercfg "github.com/evoblockchain/ethermint/server/config"
+	srvflags "github.com/evoblockchain/ethermint/server/flags"
 
-	"github.com/evmos/evmos/v8/app"
-	cmdcfg "github.com/evmos/evmos/v8/cmd/config"
-	evmoskr "github.com/evmos/evmos/v8/crypto/keyring"
+	"github.com/evoblockchain/evoblock/v8/app"
+	cmdcfg "github.com/evoblockchain/evoblock/v8/cmd/config"
+	evmoskr "github.com/evoblockchain/evoblock/v8/crypto/keyring"
 )
 
 const (
-	EnvPrefix = "EVMOS"
+	EnvPrefix = "EVO"
 )
 
-// NewRootCmd creates a new root command for evmosd. It is called once in the
+// NewRootCmd creates a new root command for evoblockd. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -67,7 +67,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name,
-		Short: "Evmos Daemon",
+		Short: "Evoblock Daemon",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
@@ -252,7 +252,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		panic(err)
 	}
 
-	evmosApp := app.NewEvmos(
+	evmosApp := app.NewEvoblock(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(sdkserver.FlagInvCheckPeriod)),
@@ -282,20 +282,20 @@ func (a appCreator) appExport(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions,
 ) (servertypes.ExportedApp, error) {
-	var evmosApp *app.Evmos
+	var evmosApp *app.Evoblock
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
 
 	if height != -1 {
-		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
+		evmosApp = app.NewEvoblock(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
 
 		if err := evmosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
+		evmosApp = app.NewEvoblock(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), a.encCfg, appOpts)
 	}
 
 	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)

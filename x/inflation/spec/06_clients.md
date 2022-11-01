@@ -9,8 +9,8 @@ REST.
 
 ## CLI
 
-Find below a list of `evmosd` commands added with the `x/inflation` module. You
-can obtain the full list by using the `evmosd -h` command.
+Find below a list of `evoblockd` commands added with the `x/inflation` module. You
+can obtain the full list by using the `evoblockd -h` command.
 
 ### Queries
 
@@ -21,7 +21,7 @@ The `query` commands allow users to query `inflation` state.
 Allows users to query the current inflation period.
 
 ```go
-evmosd query inflation period [flags]
+evoblockd query inflation period [flags]
 ```
 
 **`epoch-mint-provision`**
@@ -29,7 +29,7 @@ evmosd query inflation period [flags]
 Allows users to query the current inflation epoch provisions value.
 
 ```go
-evmosd query inflation epoch-mint-provision [flags]
+evoblockd query inflation epoch-mint-provision [flags]
 ```
 
 **`skipped-epochs`**
@@ -37,7 +37,7 @@ evmosd query inflation epoch-mint-provision [flags]
 Allows users to query the current number of skipped epochs.
 
 ```go
-evmosd query inflation skipped-epochs [flags]
+evoblockd query inflation skipped-epochs [flags]
 ```
 
 **`total-supply`**
@@ -45,7 +45,7 @@ evmosd query inflation skipped-epochs [flags]
 Allows users to query the total supply of tokens in circulation.
 
 ```go
-evmosd query inflation total-supply [flags]
+evoblockd query inflation total-supply [flags]
 ```
 
 **`inflation-rate`**
@@ -53,7 +53,7 @@ evmosd query inflation total-supply [flags]
 Allows users to query the inflation rate of the current period.
 
 ```go
-evmosd query inflation inflation-rate [flags]
+evoblockd query inflation inflation-rate [flags]
 ```
 
 **`params`**
@@ -61,7 +61,7 @@ evmosd query inflation inflation-rate [flags]
 Allows users to query the current inflation parameters.
 
 ```go
-evmosd query inflation params [flags]
+evoblockd query inflation params [flags]
 ```
 
 ### Proposals
@@ -74,7 +74,7 @@ using the governance module CLI:
 Allows users to submit a `ParameterChangeProposal`.
 
 ```bash
-evmosd tx gov submit-proposal param-change [proposal-file] [flags]
+evoblockd tx gov submit-proposal param-change [proposal-file] [flags]
 ```
 
 ## gRPC
@@ -83,15 +83,15 @@ evmosd tx gov submit-proposal param-change [proposal-file] [flags]
 
 | Verb   | Method                                        | Description                                   |
 | ------ | --------------------------------------------- | --------------------------------------------- |
-| `gRPC` | `evmos.inflation.v1.Query/Period`             | Gets current inflation period                 |
-| `gRPC` | `evmos.inflation.v1.Query/EpochMintProvision` | Gets current inflation epoch provisions value |
-| `gRPC` | `evmos.inflation.v1.Query/Params`             | Gets current inflation parameters             |
-| `gRPC` | `evmos.inflation.v1.Query/SkippedEpochs`      | Gets current number of skipped epochs         |
-| `gRPC` | `evmos.inflation.v1.Query/TotalSupply`        | Gets current total supply                     |
-| `gRPC` | `evmos.inflation.v1.Query/InflationRate`      | Gets current inflation rate                   |
-| `GET`  | `/evmos/inflation/v1/period`                  | Gets current inflation period                 |
-| `GET`  | `/evmos/inflation/v1/epoch_mint_provision`    | Gets current inflation epoch provisions value |
-| `GET`  | `/evmos/inflation/v1/skipped_epochs`          | Gets current number of skipped epochs         |
-| `GET`  | `/evmos/inflation/v1/total_supply`          | Gets current total supply                     |
-| `GET`  | `/evmos/inflation/v1/inflation_rate`          | Gets current inflation rate                   |
-| `GET`  | `/evmos/inflation/v1/params`                  | Gets current inflation parameters             |
+| `gRPC` | `evoblock.inflation.v1.Query/Period`             | Gets current inflation period                 |
+| `gRPC` | `evoblock.inflation.v1.Query/EpochMintProvision` | Gets current inflation epoch provisions value |
+| `gRPC` | `evoblock.inflation.v1.Query/Params`             | Gets current inflation parameters             |
+| `gRPC` | `evoblock.inflation.v1.Query/SkippedEpochs`      | Gets current number of skipped epochs         |
+| `gRPC` | `evoblock.inflation.v1.Query/TotalSupply`        | Gets current total supply                     |
+| `gRPC` | `evoblock.inflation.v1.Query/InflationRate`      | Gets current inflation rate                   |
+| `GET`  | `/evoblock/inflation/v1/period`                  | Gets current inflation period                 |
+| `GET`  | `/evoblock/inflation/v1/epoch_mint_provision`    | Gets current inflation epoch provisions value |
+| `GET`  | `/evoblock/inflation/v1/skipped_epochs`          | Gets current number of skipped epochs         |
+| `GET`  | `/evoblock/inflation/v1/total_supply`          | Gets current total supply                     |
+| `GET`  | `/evoblock/inflation/v1/inflation_rate`          | Gets current inflation rate                   |
+| `GET`  | `/evoblock/inflation/v1/params`                  | Gets current inflation parameters             |

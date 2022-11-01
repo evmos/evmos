@@ -10,9 +10,9 @@ faucet:
   name: bob 
   coins: ["10aevmos"]
 build:
-  binary: "evmosd"
+  binary: "evoblockd"
 init:
-  home: "$HOME/.evmosd"
+  home: "$HOME/.evoblockd"
   app:
     evm-rpc:
       address: "0.0.0.0:8545"     # change the JSON-RPC address and port
@@ -22,18 +22,18 @@ genesis:
   app_state:
     staking:
       params:
-        bond_denom: "aevmos"
+        bond_denom: "aEVO"
     mint:
       params:
-        mint_denom: "aevmos"
+        mint_denom: "aEVO"
     crisis:
       constant_fee:
-        denom: "aevmos"
+        denom: "aEVO"
     gov:
       deposit_params:
         min_deposit:
           - amount: "10000000"
-            denom: "aevmos"
+            denom: "aEVO"
     evm:
       params:
-        evm_denom: "aevmos"
+        evm_denom: "aEVO"

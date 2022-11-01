@@ -13,7 +13,7 @@ The `x/claims` module contains the parameters described below. All parameters ca
 | Key                  | Type            | Default Value                                               |
 | -------------------- | --------------- | ----------------------------------------------------------- |
 | `EnableClaim`        | `bool`          | `true`                                                      |
-| `ClaimsDenom`        | `string`        | `"aevmos"`                                                  |
+| `ClaimsDenom`        | `string`        | `"aEVO"`                                                  |
 | `AirdropStartTime`   | `time.Time`     | `time.Time{}` // empty                                      |
 | `DurationUntilDecay` | `time.Duration` | `2629800000000000` (nanoseconds) // 1 month                 |
 | `DurationOfDecay`    | `time.Duration` | `5259600000000000` (nanoseconds) // 2 months                |
@@ -46,4 +46,4 @@ The `AuthorizedChannels` parameter describes the set of channels that users can 
 
 ## EVM Channels
 
-The `EVMChannels` parameter describes the list of Evmos channels that connected to EVM compatible chains and can be used during the ibc callback action.
+The `EVMChannels` parameter describes the list of Evoblock channels that connected to EVM compatible chains and can be used during the ibc callback action.

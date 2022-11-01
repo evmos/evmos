@@ -10,13 +10,13 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/evmos/ethermint/tests"
-	ethermint "github.com/evmos/ethermint/types"
-	evm "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evoblockchain/ethermint/tests"
+	ethermint "github.com/evoblockchain/ethermint/types"
+	evm "github.com/evoblockchain/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/testutil"
-	"github.com/evmos/evmos/v8/x/incentives/types"
-	vestingtypes "github.com/evmos/evmos/v8/x/vesting/types"
+	"github.com/evoblockchain/evoblock/v8/testutil"
+	"github.com/evoblockchain/evoblock/v8/x/incentives/types"
+	vestingtypes "github.com/evoblockchain/evoblock/v8/x/vesting/types"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the

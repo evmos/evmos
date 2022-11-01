@@ -8,7 +8,7 @@ A user can query the `x/claims` module using the CLI, gRPC or REST.
 
 ## CLI
 
-Find below a list of `evmosd` commands added with the `x/claims` module. You can obtain the full list by using the `evmosd -h` command.
+Find below a list of `evoblockd` commands added with the `x/claims` module. You can obtain the full list by using the `evoblockd -h` command.
 
 ### Queries
 
@@ -19,7 +19,7 @@ The `query` commands allow users to query `claims` state.
 Allows users to query total amount of unclaimed tokens from the airdrop.
 
 ```bash
-evmosd query claims total-unclaimed [flags]
+evoblockd query claims total-unclaimed [flags]
 ```
 
 **`records`**
@@ -27,7 +27,7 @@ evmosd query claims total-unclaimed [flags]
 Allows users to query all the claims records available.
 
 ```bash
-evmosd query claims records [flags]
+evoblockd query claims records [flags]
 ```
 
 **`record`**
@@ -35,7 +35,7 @@ evmosd query claims records [flags]
 Allows users to query a claims record for a given user.
 
 ```bash
-evmosd query claims record [address] [flags]
+evoblockd query claims record [address] [flags]
 ```
 
 **`params`**
@@ -43,7 +43,7 @@ evmosd query claims record [address] [flags]
 Allows users to query claims params.
 
 ```bash
-evmosd query claims params [flags]
+evoblockd query claims params [flags]
 ```
 
 ## gRPC
@@ -52,11 +52,11 @@ evmosd query claims params [flags]
 
 | Verb   | Method                                     | Description                                      |
 |--------|--------------------------------------------|--------------------------------------------------|
-| `gRPC` | `evmos.claims.v1.Query/TotalUnclaimed`     | Gets the total unclaimed tokens from the airdrop |
-| `gRPC` | `evmos.claims.v1.Query/ClaimsRecords`      | Gets all registered claims records               |
-| `gRPC` | `evmos.claims.v1.Query/ClaimsRecord`       | Get the claims record for a given user            |
-| `gRPC` | `evmos.claims.v1.Query/Params`             | Gets claims params                               |
-| `GET`  | `/evmos/claims/v1/total_unclaimed`         | Gets the total unclaimed tokens from the airdrop |
-| `GET`  | `/evmos/claims/v1/claims_records`          | Gets all registered claims records               |
-| `GET`  | `/evmos/claims/v1/claims_records/{address}` | Gets a claims record for a given user            |
-| `GET`  | `/evmos/claims/v1/params`                  | Gets claims params                               |
+| `gRPC` | `evoblock.claims.v1.Query/TotalUnclaimed`     | Gets the total unclaimed tokens from the airdrop |
+| `gRPC` | `evoblock.claims.v1.Query/ClaimsRecords`      | Gets all registered claims records               |
+| `gRPC` | `evoblock.claims.v1.Query/ClaimsRecord`       | Get the claims record for a given user            |
+| `gRPC` | `evoblock.claims.v1.Query/Params`             | Gets claims params                               |
+| `GET`  | `/evoblock/claims/v1/total_unclaimed`         | Gets the total unclaimed tokens from the airdrop |
+| `GET`  | `/evoblock/claims/v1/claims_records`          | Gets all registered claims records               |
+| `GET`  | `/evoblock/claims/v1/claims_records/{address}` | Gets a claims record for a given user            |
+| `GET`  | `/evoblock/claims/v1/params`                  | Gets claims params                               |

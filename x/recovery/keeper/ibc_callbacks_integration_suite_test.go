@@ -15,13 +15,13 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v3/testing"
 
-	ibctesting "github.com/evmos/evmos/v8/ibc/testing"
+	ibctesting "github.com/evoblockchain/evoblock/v8/ibc/testing"
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/evmos/evmos/v8/app"
-	claimtypes "github.com/evmos/evmos/v8/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v8/x/inflation/types"
-	"github.com/evmos/evmos/v8/x/recovery/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	claimtypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
+	inflationtypes "github.com/evoblockchain/evoblock/v8/x/inflation/types"
+	"github.com/evoblockchain/evoblock/v8/x/recovery/types"
 )
 
 type IBCTestingSuite struct {
@@ -29,12 +29,12 @@ type IBCTestingSuite struct {
 	coordinator *ibcgotesting.Coordinator
 
 	// testing chains used for convenience and readability
-	EvmosChain      *ibcgotesting.TestChain
+	EvoblockChain      *ibcgotesting.TestChain
 	IBCOsmosisChain *ibcgotesting.TestChain
 	IBCCosmosChain  *ibcgotesting.TestChain
 
-	pathOsmosisEvmos  *ibcgotesting.Path
-	pathCosmosEvmos   *ibcgotesting.Path
+	pathOsmosisEvoblock  *ibcgotesting.Path
+	pathCosmosEvoblock   *ibcgotesting.Path
 	pathOsmosisCosmos *ibcgotesting.Path
 }
 
@@ -52,22 +52,22 @@ func TestIBCTestingSuite(t *testing.T) {
 func (suite *IBCTestingSuite) SetupTest() {
 	// initializes 3 test chains
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 1, 2)
-	suite.EvmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
+	suite.EvoblockChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(1))
 	suite.IBCOsmosisChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(2))
 	suite.IBCCosmosChain = suite.coordinator.GetChain(ibcgotesting.GetChainID(3))
-	suite.coordinator.CommitNBlocks(suite.EvmosChain, 2)
+	suite.coordinator.CommitNBlocks(suite.EvoblockChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCOsmosisChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
 
-	// Mint coins locked on the evmos account generated with secp.
-	coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(10000))
-	coins := sdk.NewCoins(coinEvmos)
-	err := suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
+	// Mint coins locked on the evoblock account generated with secp.
+	coinEvoblock := sdk.NewCoin("aEVO", sdk.NewInt(10000))
+	coins := sdk.NewCoins(coinEvoblock)
+	err := suite.EvoblockChain.App.(*app.Evoblock).BankKeeper.MintCoins(suite.EvoblockChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
+	err = suite.EvoblockChain.App.(*app.Evoblock).BankKeeper.SendCoinsFromModuleToAccount(suite.EvoblockChain.GetContext(), inflationtypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	// Mint coins on the osmosis side which we'll use to unlock our aevmos
+	// Mint coins on the osmosis side which we'll use to unlock our aEVO
 	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
 	coins = sdk.NewCoins(coinOsmo)
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.MintCoins(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, coins)
@@ -75,7 +75,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	// Mint coins on the cosmos side which we'll use to unlock our aevmos
+	// Mint coins on the cosmos side which we'll use to unlock our aEVO
 	coinAtom := sdk.NewCoin("uatom", sdk.NewInt(10))
 	coins = sdk.NewCoins(coinAtom)
 	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.MintCoins(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, coins)
@@ -84,23 +84,23 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	claimparams := claimtypes.DefaultParams()
-	claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
+	claimparams.AirdropStartTime = suite.EvoblockChain.GetContext().BlockTime()
 	claimparams.EnableClaims = true
-	suite.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
+	suite.EvoblockChain.App.(*app.Evoblock).ClaimsKeeper.SetParams(suite.EvoblockChain.GetContext(), claimparams)
 
 	params := types.DefaultParams()
 	params.EnableRecovery = true
-	suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	suite.EvoblockChain.App.(*app.Evoblock).RecoveryKeeper.SetParams(suite.EvoblockChain.GetContext(), params)
 
-	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
-	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
+	suite.pathOsmosisEvoblock = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvoblockChain) // clientID, connectionID, channelID empty
+	suite.pathCosmosEvoblock = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvoblockChain)
 	suite.pathOsmosisCosmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.IBCOsmosisChain)
-	suite.coordinator.Setup(suite.pathOsmosisEvmos) // clientID, connectionID, channelID filled
-	suite.coordinator.Setup(suite.pathCosmosEvmos)
+	suite.coordinator.Setup(suite.pathOsmosisEvoblock) // clientID, connectionID, channelID filled
+	suite.coordinator.Setup(suite.pathCosmosEvoblock)
 	suite.coordinator.Setup(suite.pathOsmosisCosmos)
-	suite.Require().Equal("07-tendermint-0", suite.pathOsmosisEvmos.EndpointA.ClientID)
-	suite.Require().Equal("connection-0", suite.pathOsmosisEvmos.EndpointA.ConnectionID)
-	suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
+	suite.Require().Equal("07-tendermint-0", suite.pathOsmosisEvoblock.EndpointA.ClientID)
+	suite.Require().Equal("connection-0", suite.pathOsmosisEvoblock.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-0", suite.pathOsmosisEvoblock.EndpointA.ChannelID)
 }
 
 var (
@@ -121,7 +121,7 @@ var (
 
 	aevmosDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: "aevmos",
+		BaseDenom: "aEVO",
 	}
 	aevmosIbcdenom = aevmosDenomtrace.IBCDenom()
 

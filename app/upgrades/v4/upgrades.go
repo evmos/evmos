@@ -8,7 +8,7 @@ import (
 	ibcclientkeeper "github.com/cosmos/ibc-go/v3/modules/core/02-client/keeper"
 	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 
-	"github.com/evmos/evmos/v8/types"
+	"github.com/evoblockchain/evoblock/v8/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v4
@@ -39,14 +39,14 @@ func CreateUpgradeHandler(
 func UpdateIBCClients(ctx sdk.Context, k ibcclientkeeper.Keeper) error {
 	proposalOsmosis := &ibcclienttypes.ClientUpdateProposal{
 		Title:              "Update expired Osmosis IBC client",
-		Description:        "Update the existing expired Cosmos Hub IBC client on Evmos (07-tendermint-0) in order to resume packet transfers between both chains.",
+		Description:        "Update the existing expired Cosmos Hub IBC client on Evoblock (07-tendermint-0) in order to resume packet transfers between both chains.",
 		SubjectClientId:    ExpiredOsmosisClient, // Osmosis Expired client
 		SubstituteClientId: ActiveOsmosisClient,  // Osmosis Active client
 	}
 
 	proposalCosmosHub := &ibcclienttypes.ClientUpdateProposal{
 		Title:              "Update expired Cosmos Hub IBC client",
-		Description:        "Update the existing expired Cosmos Hub IBC client on Evmos (07-tendermint-3) in order to resume packet transfers between both chains.",
+		Description:        "Update the existing expired Cosmos Hub IBC client on Evoblock (07-tendermint-3) in order to resume packet transfers between both chains.",
 		SubjectClientId:    ExpiredCosmosHubClient, // Cosmos Hub Expired client
 		SubstituteClientId: ActiveCosmosHubClient,  // Cosmos Hub Active client
 	}

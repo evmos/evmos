@@ -6,7 +6,7 @@
 # Documentation
 docs/ @danburck
 
-# Evmos Modules
+# Evoblock Modules
 x/claims/ @ramacarlucho
 x/epochs/ @ramacarlucho
 x/erc20/ @ramacarlucho @hanchon

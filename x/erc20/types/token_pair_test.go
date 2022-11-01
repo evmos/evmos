@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
-	"github.com/evmos/ethermint/tests"
+	"github.com/evoblockchain/ethermint/tests"
 )
 
 type TokenPairTestSuite struct {

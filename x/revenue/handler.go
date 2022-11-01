@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evoblockchain/evoblock/v8/x/revenue/types"
 )
 
 // NewHandler defines the fees module handler instance

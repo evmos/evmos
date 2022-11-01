@@ -47,13 +47,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/ethermint/crypto/hd"
-	"github.com/evmos/evmos/v8/app"
+	"github.com/evoblockchain/ethermint/crypto/hd"
+	"github.com/evoblockchain/evoblock/v8/app"
 
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/server/config"
-	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evoblockchain/ethermint/encoding"
+	"github.com/evoblockchain/ethermint/server/config"
+	ethermint "github.com/evoblockchain/ethermint/types"
+	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
 )
 
 // package-wide network lock to only allow one test network at a time
@@ -122,10 +122,10 @@ func DefaultConfig() Config {
 	}
 }
 
-// NewAppConstructor returns a new Evmos AppConstructor
+// NewAppConstructor returns a new Evoblock AppConstructor
 func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
 	return func(val Validator) servertypes.Application {
-		return app.NewEvmos(
+		return app.NewEvoblock(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			encodingCfg,
 			simapp.EmptyAppOptions{},
@@ -330,7 +330,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		ctx.Logger = logger
 
 		nodeDirName := fmt.Sprintf("node%d", i)
-		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "evmosd")
+		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "evoblockd")
 		clientDir := filepath.Join(network.BaseDir, nodeDirName, "evmoscli")
 		gentxsDir := filepath.Join(network.BaseDir, "gentxs")
 

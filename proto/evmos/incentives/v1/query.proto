@@ -1,55 +1,55 @@
 syntax = "proto3";
-package evmos.incentives.v1;
+package evoblock.incentives.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "evmos/incentives/v1/genesis.proto";
-import "evmos/incentives/v1/incentives.proto";
+import "evoblock/incentives/v1/genesis.proto";
+import "evoblock/incentives/v1/incentives.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/incentives/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/incentives/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // Incentives retrieves registered incentives
   rpc Incentives(QueryIncentivesRequest) returns (QueryIncentivesResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/incentives";
+    option (google.api.http).get = "/evoblock/incentives/v1/incentives";
   }
 
   // Incentive retrieves a registered incentive
   rpc Incentive(QueryIncentiveRequest) returns (QueryIncentiveResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/incentives/{contract}";
+    option (google.api.http).get = "/evoblock/incentives/v1/incentives/{contract}";
   }
 
   // GasMeters retrieves active gas meters for a given contract
   rpc GasMeters(QueryGasMetersRequest) returns (QueryGasMetersResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/gas_meters/{contract}";
+    option (google.api.http).get = "/evoblock/incentives/v1/gas_meters/{contract}";
   }
 
   // GasMeter Retrieves a active gas meter
   rpc GasMeter(QueryGasMeterRequest) returns (QueryGasMeterResponse) {
     option (google.api.http).get =
-        "/evmos/incentives/v1/gas_meters/{contract}/{participant}";
+        "/evoblock/incentives/v1/gas_meters/{contract}/{participant}";
   }
 
   // AllocationMeters retrieves active allocation meters for a given
   // denomination
   rpc AllocationMeters(QueryAllocationMetersRequest)
       returns (QueryAllocationMetersResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/allocation_meters";
+    option (google.api.http).get = "/evoblock/incentives/v1/allocation_meters";
   }
 
   // AllocationMeter Retrieves a active gas meter
   rpc AllocationMeter(QueryAllocationMeterRequest)
       returns (QueryAllocationMeterResponse) {
     option (google.api.http).get =
-        "/evmos/incentives/v1/allocation_meters/{denom}";
+        "/evoblock/incentives/v1/allocation_meters/{denom}";
   }
 
   // Params retrieves the incentives module params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/evmos/incentives/v1/params";
+    option (google.api.http).get = "/evoblock/incentives/v1/params";
   }
 }
 

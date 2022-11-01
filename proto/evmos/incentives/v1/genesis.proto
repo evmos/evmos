@@ -1,10 +1,10 @@
 syntax = "proto3";
-package evmos.incentives.v1;
-import "evmos/incentives/v1/incentives.proto";
+package evoblock.incentives.v1;
+import "evoblock/incentives/v1/incentives.proto";
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/incentives/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/incentives/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {

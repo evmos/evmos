@@ -1,17 +1,17 @@
 syntax = "proto3";
-package evmos.vesting.v1;
+package evoblock.vesting.v1;
 
 import "cosmos/base/v1beta1/coin.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/vesting/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/vesting/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // Retrieves the unvested, vested and locked tokens for a vesting account
   rpc Balances(QueryBalancesRequest) returns (QueryBalancesResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/balances/{address}";
+    option (google.api.http).get = "/evoblock/vesting/v1/balances/{address}";
   }
 }
 

@@ -9,20 +9,20 @@ Learn how to manually upgrade your node. {synopsis}
 
 ## Pre-requisites
 
-- [Install Evmos](./../quickstart/installation.md) {prereq}
+- [Install Evoblock](./../quickstart/installation.md) {prereq}
 
-## 1. Upgrade the Evmos version
+## 1. Upgrade the Evoblock version
 
-Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/Cmd+C`.
+Before upgrading the Evoblock version. Stop your instance of `evoblockd` using `Ctrl/Cmd+C`.
 
-Next, upgrade the software to the desired release version. Check the Evmos [releases page](https://github.com/evmos/evmos/releases) for details on each release.
+Next, upgrade the software to the desired release version. Check the Evoblock [releases page](https://github.com/evoblockchain/evoblock/releases) for details on each release.
 
 ::: warning
 Ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).
 :::
 
 ```bash
-cd evmos
+cd evoblock
 git fetch --all && git checkout <new_version>
 make install
 ```
@@ -31,13 +31,13 @@ make install
 If you have issues at this step, please check that you have the latest stable version of [Golang](https://golang.org/dl/) installed.
 :::
 
-Verify that you've successfully installed Evmos on your system by using the `version` command:
+Verify that you've successfully installed Evoblock on your system by using the `version` command:
 
 ```bash
-$ evmosd version --long
+$ evoblockd version --long
 
-name: evmos
-server_name: evmosd
+name: evoblock
+server_name: evoblockd
 version: 3.0.0
 commit: fe9df43332800a74a163c014c69e62765d8206e3
 build_tags: netgo,ledger
@@ -46,7 +46,7 @@ go: go version go1.18 darwin/amd64
 ```
 
 ::: tip
-If the software version does not match, then please check your `$PATH` to ensure the correct `evmosd` is running.
+If the software version does not match, then please check your `$PATH` to ensure the correct `evoblockd` is running.
 :::
 
 ## 2. Replace Genesis file
@@ -61,7 +61,7 @@ You can find the latest `genesis.json` file for mainnet or testnet in the follow
 Save the new genesis as `new_genesis.json`. Then, replace the old `genesis.json` located in your `config/` directory with `new_genesis.json`:
 
 ```bash
-cd $HOME/.evmosd/config
+cd $HOME/.evoblockd/config
 cp -f genesis.json new_genesis.json
 mv new_genesis.json genesis.json
 ```
@@ -70,7 +70,7 @@ mv new_genesis.json genesis.json
 We recommend using `sha256sum` to check the hash of the downloaded genesis against the expected genesis.
 
 ```bash
-cd ~/.evmosd/config
+cd ~/.evoblockd/config
 echo "<expected_hash>  genesis.json" | sha256sum -c
 ```
 
@@ -85,8 +85,8 @@ Check [here](./upgrades.md) if the version you are upgrading require a data rese
 Remove the outdated files and reset the data:
 
 ```bash
-rm $HOME/.evmosd/config/addrbook.json
-evmosd tendermint unsafe-reset-all --home $HOME/.evmosd
+rm $HOME/.evoblockd/config/addrbook.json
+evoblockd tendermint unsafe-reset-all --home $HOME/.evoblockd
 ```
 
 Your node is now in a pristine state while keeping the original `priv_validator.json` and `config.toml`. If you had any sentry nodes or full nodes setup before,
@@ -104,5 +104,5 @@ Make sure that every node has a unique `priv_validator.json`. **DO NOT** copy th
 To restart your node once the new genesis has been updated, use the `start` command:
 
 ```bash
-evmosd start
+evoblockd start
 ```

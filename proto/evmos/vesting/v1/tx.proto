@@ -1,12 +1,12 @@
 syntax = "proto3";
-package evmos.vesting.v1;
+package evoblock.vesting.v1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/vesting/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/vesting/types";
 
 // Msg defines the vesting Msg service.
 service Msg {
@@ -15,11 +15,11 @@ service Msg {
   rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount)
       returns (MsgCreateClawbackVestingAccountResponse) {
     option (google.api.http).get =
-        "/evmos/vesting/v1/tx/create_clawback_vesting_account";
+        "/evoblock/vesting/v1/tx/create_clawback_vesting_account";
   };
   // Clawback removes the unvested tokens from a ClawbackVestingAccount.
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/tx/clawback";
+    option (google.api.http).get = "/evoblock/vesting/v1/tx/clawback";
   };
 }
 

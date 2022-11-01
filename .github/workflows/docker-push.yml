@@ -40,4 +40,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64, linux/386, linux/arm64
-          tags: tharsishq/evmos:latest, tharsishq/evmos:${{ steps.meta.outputs.tag }}
+          tags: tharsishq/evoblock:latest, tharsishq/evoblock:${{ steps.meta.outputs.tag }}

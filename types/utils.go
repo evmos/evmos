@@ -3,7 +3,7 @@ package types
 import (
 	"strings"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -13,18 +13,18 @@ import (
 )
 
 const (
-	// MainnetChainID defines the Evmos EIP155 chain ID for mainnet
+	// MainnetChainID defines the Evoblock EIP155 chain ID for mainnet
 	MainnetChainID = "evmos_9001"
-	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
+	// TestnetChainID defines the Evoblock EIP155 chain ID for testnet
 	TestnetChainID = "evmos_9000"
 )
 
-// IsMainnet returns true if the chain-id has the Evmos mainnet EIP155 chain prefix.
+// IsMainnet returns true if the chain-id has the Evoblock mainnet EIP155 chain prefix.
 func IsMainnet(chainID string) bool {
 	return strings.HasPrefix(chainID, MainnetChainID)
 }
 
-// IsTestnet returns true if the chain-id has the Evmos testnet EIP155 chain prefix.
+// IsTestnet returns true if the chain-id has the Evoblock testnet EIP155 chain prefix.
 func IsTestnet(chainID string) bool {
 	return strings.HasPrefix(chainID, TestnetChainID)
 }
@@ -57,11 +57,11 @@ func IsSupportedKey(pubkey cryptotypes.PubKey) bool {
 	}
 }
 
-// GetEvmosAddressFromBech32 returns the sdk.Account address of given address,
+// GetEvoblockAddressFromBech32 returns the sdk.Account address of given address,
 // while also changing bech32 human readable prefix (HRP) to the value set on
-// the global sdk.Config (eg: `evmos`).
+// the global sdk.Config (eg: `evoblock`).
 // The function fails if the provided bech32 address is invalid.
-func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
+func GetEvoblockAddressFromBech32(address string) (sdk.AccAddress, error) {
 	bech32Prefix := strings.SplitN(address, "1", 2)[0]
 	if bech32Prefix == address {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid bech32 address: %s", address)

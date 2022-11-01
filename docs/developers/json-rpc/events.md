@@ -38,7 +38,7 @@ This is done by calling the `subscribe` RPC method via Websocket:
 These events are triggered after a block is committed. You can get the full list of `event` categories and values [here](./../clients.md#list-of-tendermint-events).
 
 The `type` and `attribute` value of the `query` allow you to filter the specific `event` you are
-looking for. For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
+looking for. For example, a an Ethereum transaction on Evoblock (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
 has `sender` and `recipient` as `attributes`. Subscribing to this `event` would be done like so:
 
 ```json
@@ -56,7 +56,7 @@ where `hexAddress` is an Ethereum hex address (eg: `0x11223344556677889900112233
 
 ### Ethereum Events
 
-Evmos also supports the Ethereum [JSON-RPC](./server.md) filters calls to
+Evoblock also supports the Ethereum [JSON-RPC](./server.md) filters calls to
 subscribe to [state logs](https://eth.wiki/json-rpc/API#eth_newfilter),
 [blocks](https://eth.wiki/json-rpc/API#eth_newblockfilter) or [pending transactions](https://eth.wiki/json-rpc/API#eth_newpendingtransactionfilter) changes.
 
@@ -85,7 +85,7 @@ To start a connection with the Tendermint websocket you need to define the addre
 flag when starting the node (default `tcp://127.0.0.1:26657`):
 
 ```bash
-evmosd start --rpc.laddr="tcp://127.0.0.1:26657"
+evoblockd start --rpc.laddr="tcp://127.0.0.1:26657"
 ```
 
 Then, start a websocket subscription with [ws](https://github.com/hashrocket/ws)
@@ -100,16 +100,16 @@ ws ws://localhost:8080/websocket
 
 ### Ethereum Websocket
 
-Since Evmos runs uses Tendermint Core as it's consensus Engine and it's built with the Cosmos
+Since Evoblock runs uses Tendermint Core as it's consensus Engine and it's built with the Cosmos
 SDK framework, it inherits the event format from them. However, in order to support the native Web3
-compatibility for websockets of the [Ethereum's PubSubAPI](https://geth.ethereum.org/docs/rpc/pubsub), Evmos needs to cast the Tendermint
+compatibility for websockets of the [Ethereum's PubSubAPI](https://geth.ethereum.org/docs/rpc/pubsub), Evoblock needs to cast the Tendermint
 responses retrieved into the Ethereum types.
 
 You can start a connection with the Ethereum websocket using the `--json-rpc.ws-address` flag when starting
 the node (default `"0.0.0.0:8546"`):
 
 ```bash
-evmosd start  --json-rpc.address"0.0.0.0:8545" --json-rpc.ws-address="0.0.0.0:8546" --evm.rpc.api="eth,web3,net,txpool,debug" --json-rpc.enable
+evoblockd start  --json-rpc.address"0.0.0.0:8545" --json-rpc.ws-address="0.0.0.0:8546" --evm.rpc.api="eth,web3,net,txpool,debug" --json-rpc.enable
 ```
 
 Then, start a websocket subscription with [`ws`](https://github.com/hashrocket/ws)

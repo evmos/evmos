@@ -4,9 +4,9 @@ order: 1
 
 # Concepts
 
-## Evmos dApp Store
+## Evoblock dApp Store
 
-The Evmos dApp store is a revenue-per-transaction model, which allows developers to get payed for deploying their decentralized application (dApps) on Evmos. Developers generate revenue, every time a user interacts with their dApp in the dApp store, gaining them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the `x/revenue` module.
+The Evoblock dApp store is a revenue-per-transaction model, which allows developers to get payed for deploying their decentralized application (dApps) on Evoblock. Developers generate revenue, every time a user interacts with their dApp in the dApp store, gaining them a steady income. Users can discover new applications in the dApp store and pay for the transaction fees that finance the dApp's revenue. This value-reward exchange of dApp services for transaction fees is implemented by the `x/revenue` module.
 
 ## Registration
 
@@ -20,7 +20,7 @@ Developers register their application in the dApp store by registering their app
 
 As described above, developers will earn a portion of the transaction fee after registering their contracts. To understand how transaction fees are distributed, we look at the following two things in detail:
 
-* The transactions eligible are only [EVM transactions](https://docs.evmos.org/modules/evm/) (`MsgEthereumTx`). Cosmos SDK transactions are not eligible at this time.
+* The transactions eligible are only [EVM transactions](https://docs.evoblock.org/modules/evm/) (`MsgEthereumTx`). Cosmos SDK transactions are not eligible at this time.
 * The registration of factory contracts (smart contracts that have been deployed by other contracts) requires the identification original contract's deployer. This is done through address derivation.
 
 ### EVM Transaction Fees

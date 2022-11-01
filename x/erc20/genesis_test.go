@@ -13,18 +13,18 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/tests"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/app"
-	"github.com/evmos/evmos/v8/x/erc20"
-	"github.com/evmos/evmos/v8/x/erc20/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	"github.com/evoblockchain/evoblock/v8/x/erc20"
+	"github.com/evoblockchain/evoblock/v8/x/erc20/types"
 )
 
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *app.Evmos
+	app     *app.Evoblock
 	genesis types.GenesisState
 }
 

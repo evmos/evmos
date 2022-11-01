@@ -7,10 +7,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v8/app"
-	v2 "github.com/evmos/evmos/v8/x/claims/migrations/v2"
-	claims "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/ethermint/encoding"
+	"github.com/evoblockchain/evoblock/v8/app"
+	v2 "github.com/evoblockchain/evoblock/v8/x/claims/migrations/v2"
+	claims "github.com/evoblockchain/evoblock/v8/x/claims/types"
 	"github.com/stretchr/testify/require"
 )
 

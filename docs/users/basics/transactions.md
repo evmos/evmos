@@ -4,7 +4,7 @@ order: 1
 
 # Transactions
 
-Learn more about transactions on Evmos {synopsis}
+Learn more about transactions on Evoblock {synopsis}
 
 ::: tip
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
@@ -15,7 +15,7 @@ This documentation page is currently under work in progress.
 :::
 
 <!-- 
-TODO: explain what transactions are on Evmos and blockchains. 
+TODO: explain what transactions are on Evoblock and blockchains. 
 Explain that transactions can be identified by hashes and that they can 
 contain multiple messages. Why can transactions fail? 
 
@@ -28,7 +28,7 @@ Explain that transactions can interoperate with other blockchains.
 
 ## Transaction Types
 
-<!-- TODO: explain which transactions types does Evmos support (i.e modules and changes) and provide a few examples. -->
+<!-- TODO: explain which transactions types does Evoblock support (i.e modules and changes) and provide a few examples. -->
 
 <!-- TODO: why are Ethereum transactions different than Cosmos -->
 
@@ -48,7 +48,7 @@ There are several categories of Ethereum transactions:
 
 For more information on Ethereum transactions and the transaction lifecycle, [go here](https://ethereum.org/en/developers/docs/transactions/).
 
-Evmos supports the following Ethereum transactions.
+Evoblock supports the following Ethereum transactions.
 
 :::tip
 **Note**: Unprotected legacy transactions are not supported by default.

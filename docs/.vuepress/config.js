@@ -1,6 +1,6 @@
 module.exports = {
   theme: "cosmos",
-  title: "Evmos Documentation",
+  title: "Evoblock Documentation",
   locales: {
     "/": {
       lang: "en-US",
@@ -64,39 +64,39 @@ module.exports = {
     // ['link', { rel: "apple-touch-icon-precomposed", href: "/apple-touch-icon-precomposed.png" }],
   ],
   themeConfig: {
-    repo: "tharsis/evmos",
-    docsRepo: "tharsis/evmos",
+    repo: "tharsis/evoblock",
+    docsRepo: "tharsis/evoblock",
     docsBranch: "main",
     docsDir: "docs",
     editLinks: true,
     custom: true,
     project: {
-      name: "Evmos",
-      denom: "Evmos",
-      ticker: "EVMOS",
-      binary: "evmosd",
-      testnet_denom: "tEvmos",
-      testnet_ticker: "tEVMOS",
-      rpc_url: "https://eth.bd.evmos.org:8545",
-      rpc_url_testnet: "https://eth.bd.evmos.dev:8545",
+      name: "Evoblock",
+      denom: "Evoblock",
+      ticker: "EVO",
+      binary: "evoblockd",
+      testnet_denom: "tEvoblock",
+      testnet_ticker: "tEVO",
+      rpc_url: "https://eth.bd.evoblock.org:8545",
+      rpc_url_testnet: "https://eth.bd.evoblock.dev:8545",
       rpc_url_local: "http://localhost:8545/",
       chain_id: "9001",
       testnet_chain_id: "9000",
       latest_version: "v7.0.0",
       version_number: "2",
       testnet_version_number: "4",
-      testnet_evm_explorer_url: "https://evm.evmos.dev",
-      evm_explorer_url: "https://evm.evmos.org",
-      testnet_cosmos_explorer_url: "https://explorer.evmos.dev/",
-      cosmos_explorer_url: "https://www.mintscan.io/evmos",
+      testnet_evm_explorer_url: "https://evm.evoblock.dev",
+      evm_explorer_url: "https://evm.evoblock.org",
+      testnet_cosmos_explorer_url: "https://explorer.evoblock.dev/",
+      cosmos_explorer_url: "https://www.mintscan.io/evoblock",
     },
     logo: {
-      src: "/evmos-black.svg",
+      src: "/evoblock-black.svg",
     },
     algolia: {
       id: "K3VQTEW3G5",
       key: "bf836a3c934b1d4df091d5c5b69c65d7",
-      index: "evmos",
+      index: "evoblock",
     },
     topbar: {
       banner: false,
@@ -105,7 +105,7 @@ module.exports = {
       auto: false,
       nav: [
         {
-          title: "About Evmos",
+          title: "About Evoblock",
           children: [
             {
               title: "Introduction",
@@ -113,11 +113,11 @@ module.exports = {
               path: "/about/intro",
             },
             {
-              title: "Evmos Ecosystem",
-              path: "https://evmos.space/",
+              title: "Evoblock Ecosystem",
+              path: "https://evoblock.space/",
             },
             {
-              title: "Awesome Evmos",
+              title: "Awesome Evoblock",
               path: "https://github.com/tharsis/awesome",
             },
           ],
@@ -141,7 +141,7 @@ module.exports = {
               path: "/users/keys",
             },
             {
-              title: "Evmos Governance",
+              title: "Evoblock Governance",
               directory: true,
               path: "/users/governance",
             },
@@ -202,7 +202,7 @@ module.exports = {
             },
             {
               title: "Cosmos gRPC & REST",
-              path: "https://api.evmos.dev/",
+              path: "https://api.evoblock.dev/",
             },
             {
               title: "Tendermint RPC",
@@ -229,15 +229,15 @@ module.exports = {
               path: "/protocol/ibc",
             },
             {
-              title: "Evmos Go API",
-              path: "https://pkg.go.dev/github.com/evmos/evmos",
+              title: "Evoblock Go API",
+              path: "https://pkg.go.dev/github.com/evoblockchain/evoblock",
             },
             {
               title: "Ethermint Library Go API",
-              path: "https://pkg.go.dev/github.com/evmos/ethermint",
+              path: "https://pkg.go.dev/github.com/evoblockchain/ethermint",
             },
             {
-              title: "Evmos Protobuf",
+              title: "Evoblock Protobuf",
               directory: false,
               path: "/protocol/proto-docs",
             },
@@ -307,11 +307,11 @@ module.exports = {
             },
             {
               title: "Blockscout (EVM)",
-              path: "https://evm.evmos.org",
+              path: "https://evm.evoblock.org",
             },
             {
               title: "Mintscan (Cosmos)",
-              path: "https://www.mintscan.io/evmos/",
+              path: "https://www.mintscan.io/evoblock/",
             },
           ],
         },
@@ -321,14 +321,14 @@ module.exports = {
       title: "Help & Support",
       chat: {
         title: "Discord Channel",
-        text: "Chat with Evmos users and team on Discord.",
-        url: "https://discord.gg/evmos",
+        text: "Chat with Evoblock users and team on Discord.",
+        url: "https://discord.gg/evoblock",
         bg: "linear-gradient(103.75deg, #1B1E36 0%, #22253F 100%)",
       },
       forum: {
         title: "Commonwealth Forum",
-        text: "Join the Evmos Commonwealth forum",
-        url: "https://commonwealth.im/evmos",
+        text: "Join the Evoblock Commonwealth forum",
+        url: "https://commonwealth.im/evoblock",
         bg: "linear-gradient(221.79deg, #3D6B99 -1.08%, #336699 95.88%)",
       },
       github: {
@@ -338,23 +338,23 @@ module.exports = {
       },
     },
     footer: {
-      logo: "/evmos-black.svg",
+      logo: "/evoblock-black.svg",
       textLink: {
-        text: "evmos.org",
-        url: "https://evmos.org",
+        text: "evoblock.org",
+        url: "https://evoblock.org",
       },
       services: [
         {
           service: "github",
-          url: "https://github.com/evmos/evmos",
+          url: "https://github.com/evoblockchain/evoblock",
         },
         {
           service: "twitter",
-          url: "https://twitter.com/EvmosOrg",
+          url: "https://twitter.com/EvoblockOrg",
         },
         {
           service: "telegram",
-          url: "https://t.me/EvmosOrg",
+          url: "https://t.me/EvoblockOrg",
         },
         {
           service: "linkedin",
@@ -362,7 +362,7 @@ module.exports = {
         },
         {
           service: "medium",
-          url: "https://evmos.blog/",
+          url: "https://evoblock.blog/",
         },
       ],
       smallprint: "This website is maintained by Tharsis Labs Ltd.",
@@ -388,20 +388,20 @@ module.exports = {
           title: "Community",
           children: [
             {
-              title: "Evmos Discord Community",
-              url: "https://discord.gg/evmos",
+              title: "Evoblock Discord Community",
+              url: "https://discord.gg/evoblock",
             },
             {
-              title: "Evmos Commonwealth Forum",
-              url: "https://commonwealth.im/evmos",
+              title: "Evoblock Commonwealth Forum",
+              url: "https://commonwealth.im/evoblock",
             },
           ],
         },
         {
-          title: "Evmos",
+          title: "Evoblock",
           children: [
             {
-              title: "Jobs at Evmos",
+              title: "Jobs at Evoblock",
               url: "https://tharsis.notion.site/",
             },
           ],

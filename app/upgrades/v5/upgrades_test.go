@@ -15,24 +15,24 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
+	"github.com/evoblockchain/ethermint/tests"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	"github.com/evmos/evmos/v8/app"
-	v5 "github.com/evmos/evmos/v8/app/upgrades/v5"
-	evmostypes "github.com/evmos/evmos/v8/types"
-	claimskeeper "github.com/evmos/evmos/v8/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	v5 "github.com/evoblockchain/evoblock/v8/app/upgrades/v5"
+	evmostypes "github.com/evoblockchain/evoblock/v8/types"
+	claimskeeper "github.com/evoblockchain/evoblock/v8/x/claims/keeper"
+	claimstypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
 type UpgradeTestSuite struct {
 	suite.Suite
 
 	ctx         sdk.Context
-	app         *app.Evmos
+	app         *app.Evoblock
 	consAddress sdk.ConsAddress
 }
 
@@ -262,7 +262,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 			"native IBC tokens",
 			ibctransfertypes.Traces{
 				{
-					BaseDenom: "aevmos",
+					BaseDenom: "aEVO",
 					Path:      "",
 				},
 				{
@@ -284,7 +284,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 			},
 			ibctransfertypes.Traces{
 				{
-					BaseDenom: "aevmos",
+					BaseDenom: "aEVO",
 					Path:      "",
 				},
 				{
@@ -309,7 +309,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 			"with invalid tokens",
 			ibctransfertypes.Traces{
 				{
-					BaseDenom: "aevmos",
+					BaseDenom: "aEVO",
 					Path:      "",
 				},
 				{
@@ -331,7 +331,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 			},
 			ibctransfertypes.Traces{
 				{
-					BaseDenom: "aevmos",
+					BaseDenom: "aEVO",
 					Path:      "",
 				},
 				{

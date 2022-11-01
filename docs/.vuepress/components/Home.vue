@@ -9,7 +9,7 @@
     .intro
       .p {{$frontmatter.description}}
     .h2 Getting Started
-    .p__alt Read all about Evmos or dive straight into the code with guides.
+    .p__alt Read all about Evoblock or dive straight into the code with guides.
     .features
       router-link(to="/validators/overview").features__item.features__item__light
         .features__item__image
@@ -17,17 +17,17 @@
         .features__item__text
           .features__item__text__h2 read
           .features__item__text__h1 Validators
-          .features__item__text__p Everything you need to know as an Evmos validator.
+          .features__item__text__p Everything you need to know as an Evoblock validator.
       router-link(to="/developers/overview").features__item.features__item__dark
         .features__item__image
           icon-code.features__item__image__img
         .features__item__text
           .features__item__text__h2 read
           .features__item__text__h1 Developers
-          .features__item__text__p Find key information about developing on Evmos.
+          .features__item__text__p Find key information about developing on Evoblock.
     .sections__wrapper
-      .h2 Explore Evmos
-      .p__alt Get familiar with Evmos and explore its main concepts.
+      .h2 Explore Evoblock
+      .p__alt Get familiar with Evoblock and explore its main concepts.
       .sections
         router-link.sections__item(tag="a" :to="section.url" v-for="section in $frontmatter.sections")
           component(:is="`tm-icon-${section.icon}`").sections__item__icon
@@ -35,7 +35,7 @@
             .sections__item__title {{section.title}}
             .sections__item__desc {{section.desc}}
     .h2 Explore the stack
-    .p__alt Check out the docs for the various parts of the Evmos stack.
+    .p__alt Check out the docs for the various parts of the Evoblock stack.
     .stack
       a.stack__item(:href="item.url" v-for="item in $frontmatter.stack" :style="{'--accent': item.color, '--opacity': '5%'}")
         .stack__item__wrapper

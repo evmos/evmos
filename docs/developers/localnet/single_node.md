@@ -22,14 +22,14 @@ LOGLEVEL="info"
 
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
+evoblockd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
 
 # Sign genesis transaction
-evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
+evoblockd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
 ```
 
 The default configuration will generate a single validator localnet with the chain-id
-`evmosd-1` and one predefined account (`mykey`) with some allocated funds at the genesis.
+`evoblockd-1` and one predefined account (`mykey`) with some allocated funds at the genesis.
 
 You can start the local chain using:
 
@@ -51,14 +51,14 @@ $KEY=mykey
 $CHAINID="evmos_9000-4"
 
 # The argument $MONIKER is the custom username of your node, it should be human-readable.
-evmosd init $MONIKER --chain-id=$CHAINID
+evoblockd init $MONIKER --chain-id=$CHAINID
 ```
 
 ::: tip
 You can [edit](./../../validators/quickstart/binary.md#configuring-the-node) this `moniker` later by updating the `config.toml` file.
 :::
 
-The command above creates all the configuration files needed for your node and validator to run, as well as a default genesis file, which defines the initial state of the network. All these [configuration files](./../../validators/quickstart/binary.md#configuring-the-node) are in `~/.evmosd` by default, but you can overwrite the location of this folder by passing the `--home` flag.
+The command above creates all the configuration files needed for your node and validator to run, as well as a default genesis file, which defines the initial state of the network. All these [configuration files](./../../validators/quickstart/binary.md#configuring-the-node) are in `~/.evoblockd` by default, but you can overwrite the location of this folder by passing the `--home` flag.
 
 ### Genesis Procedure
 
@@ -67,13 +67,13 @@ The command above creates all the configuration files needed for your node and v
 Before starting the chain, you need to populate the state with at least one account using the [keyring](./../../users/keys/keyring.md#add-keys):
 
 ```bash
-evmosd keys add my_validator
+evoblockd keys add my_validator
 ```
 
-Once you have created a local account, go ahead and grant it some `aevmos` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence:
+Once you have created a local account, go ahead and grant it some `aEVO` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence:
 
 ```bash
-evmosd add-genesis-account my_validator 10000000000aevmos
+evoblockd add-genesis-account my_validator 10000000000aevmos
 ```
 
 Now that your account has some tokens, you need to add a validator to your chain.
@@ -84,19 +84,19 @@ Now that your account has some tokens, you need to add a validator to your chain
 # Create a gentx
 # NOTE: this command lets you set the number of coins. 
 # Make sure this account has some coins with the genesis.app_state.staking.params.bond_denom denom
-evmosd add-genesis-account my_validator 1000000000stake,10000000000aevmos
+evoblockd add-genesis-account my_validator 1000000000stake,10000000000aevmos
 ```
 
 A `gentx` does three things:
 
 1. Registers the `validator` account you created as a validator operator account (i.e. the account that controls the validator).
 2. Self-delegates the provided `amount` of staking tokens.
-3. Link the operator account with a Tendermint node pubkey that will be used for signing blocks. If no `--pubkey` flag is provided, it defaults to the local node pubkey created via the `evmosd init` command above.
+3. Link the operator account with a Tendermint node pubkey that will be used for signing blocks. If no `--pubkey` flag is provided, it defaults to the local node pubkey created via the `evoblockd init` command above.
 
 For more information on `gentx`, use the following command:
 
 ```bash
-evmosd gentx --help
+evoblockd gentx --help
 ```
 
 ### Collecting `gentx`
@@ -110,23 +110,23 @@ A `gentx` can be added manually to the genesis file, or via the following comman
 
 ```bash
 # Add the gentx to the genesis file
-evmosd collect-gentxs
+evoblockd collect-gentxs
 ```
 
-This command will add all the `gentxs` stored in `~/.evmosd/config/gentx` to the genesis file.
+This command will add all the `gentxs` stored in `~/.evoblockd/config/gentx` to the genesis file.
 
 ### Run Testnet
 
 Finally, check the correctness of the `genesis.json` file:
 
 ```bash
-evmosd validate-genesis
+evoblockd validate-genesis
 ```
 
 Now that everything is set up, you can finally start your node:
 
 ```bash
-evmosd start
+evoblockd start
 ```
 
 :::tip

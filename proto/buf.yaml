@@ -1,7 +1,7 @@
 version: v1
-name: buf.build/evmos/evmos
+name: buf.build/evoblockchain/evoblock
 deps:
-    - buf.build/evmos/evmos
+    - buf.build/evoblockchain/evoblock
 lint:
   use:
     - DEFAULT

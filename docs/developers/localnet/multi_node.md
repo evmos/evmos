@@ -68,55 +68,55 @@ make localnet-stop
 ### Configuration
 
 The `make localnet-start` creates files for a 4-node testnet in `./build` by
-calling the `evmosd testnet` command. This outputs a handful of files in the
+calling the `evoblockd testnet` command. This outputs a handful of files in the
 `./build` directory:
 
 ```bash
 tree -L 3 build/
 
 build/
-├── evmosd
-├── evmosd
+├── evoblockd
+├── evoblockd
 ├── gentxs
 │   ├── node0.json
 │   ├── node1.json
 │   ├── node2.json
 │   └── node3.json
 ├── node0
-│   ├── evmosd
+│   ├── evoblockd
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── evmosd
+│   └── evoblockd
 │       ├── config
 │       ├── data
-│       └── evmosd.log
+│       └── evoblockd.log
 ├── node1
-│   ├── evmosd
+│   ├── evoblockd
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── evmosd
+│   └── evoblockd
 │       ├── config
 │       ├── data
-│       └── evmosd.log
+│       └── evoblockd.log
 ├── node2
-│   ├── evmosd
+│   ├── evoblockd
 │   │   ├── key_seed.json
 │   │   └── keyring-test-cosmos
-│   └── evmosd
+│   └── evoblockd
 │       ├── config
 │       ├── data
-│       └── evmosd.log
+│       └── evoblockd.log
 └── node3
-    ├── evmosd
+    ├── evoblockd
     │   ├── key_seed.json
     │   └── keyring-test-cosmos
-    └── evmosd
+    └── evoblockd
         ├── config
         ├── data
-        └── evmosd.log
+        └── evoblockd.log
 ```
 
-Each `./build/nodeN` directory is mounted to the `/evmosd` directory in each container.
+Each `./build/nodeN` directory is mounted to the `/evoblockd` directory in each container.
 
 ### Logging
 
@@ -124,10 +124,10 @@ In order to see the logs of a particular node you can use the following command:
 
 ```bash
 # node 0: daemon logs
-docker exec evmosdnode0 tail evmosd.log
+docker exec evmosdnode0 tail evoblockd.log
 
 # node 0: REST & RPC logs
-docker exec evmosdnode0 tail evmosd.log
+docker exec evmosdnode0 tail evoblockd.log
 ```
 
 The logs for the daemon will look like:
@@ -192,18 +192,18 @@ Additional instructions on how to interact with the WebSocket can be found on th
 
 ### Keys & Accounts
 
-To interact with `evmosd` and start querying state or creating txs, you use the
-`evmosd` directory of any given node as your `home`, for example:
+To interact with `evoblockd` and start querying state or creating txs, you use the
+`evoblockd` directory of any given node as your `home`, for example:
 
 ```bash
-evmosd keys list --home ./build/node0/evmosd
+evoblockd keys list --home ./build/node0/evoblockd
 ```
 
 Now that accounts exists, you may create new accounts and send those accounts
 funds!
 
 ::: tip
-**Note**: Each node's seed is located at `./build/nodeN/evmosd/key_seed.json` and can be restored to the CLI using the `evmosd keys add --restore` command
+**Note**: Each node's seed is located at `./build/nodeN/evoblockd/key_seed.json` and can be restored to the CLI using the `evoblockd keys add --restore` command
 :::
 
 ### Special Binaries
@@ -212,5 +212,5 @@ If you have multiple binaries with different names, you can specify which one to
 
 ```bash
 # Run with custom binary
-BINARY=evmos make localnet-start
+BINARY=evoblock make localnet-start
 ```

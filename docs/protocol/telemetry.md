@@ -4,7 +4,7 @@ order: 3
 
 # Telemetry
 
-Gather relevant insights about the Evmos application and modules with custom metrics and telemetry. {synopsis}
+Gather relevant insights about the Evoblock application and modules with custom metrics and telemetry. {synopsis}
 
 To understand how to use the metrics below, please refer to the [Cosmos SDK telemetry documentation](https://docs.cosmos.network/master/core/telemetry.html).
 

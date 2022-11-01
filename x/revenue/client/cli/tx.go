@@ -11,9 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 
-	"github.com/evmos/evmos/v8/x/revenue/types"
+	"github.com/evoblockchain/evoblock/v8/x/revenue/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/revenue

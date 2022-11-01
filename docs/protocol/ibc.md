@@ -4,15 +4,15 @@ order: 5
 
 # IBC Channels
 
-Check the IBC channels between Evmos and other Cosmos ecosystem chains {synopsis}
+Check the IBC channels between Evoblock and other Cosmos ecosystem chains {synopsis}
 
 IBC channels are added based on community consensus.
 
 ::: tip
-You can also view a full list of IBC Relayers and Channels on [Mintscan](https://www.mintscan.io/evmos/relayers)
+You can also view a full list of IBC Relayers and Channels on [Mintscan](https://www.mintscan.io/evoblock/relayers)
 :::
 
-| Chain Name     | Chain ID           | Token          | Channel ID (Evmos) | Channel ID (Counterparty) |
+| Chain Name     | Chain ID           | Token          | Channel ID (Evoblock) | Channel ID (Counterparty) |
 | -------------- | ------------------ | -------------- | ------------------ | ------------------------- |
 | Cosmos Hub     | `cosmoshub-4`      | `ATOM`         | `channel-3`        | `channel-292`             |
 | Osmosis        | `osmosis-1`        | `OSMO`, `ION`  | `channel-0`        | `channel-204`             |

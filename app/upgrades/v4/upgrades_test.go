@@ -16,18 +16,18 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	tmclient "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/app"
-	v4 "github.com/evmos/evmos/v8/app/upgrades/v4"
+	"github.com/evoblockchain/evoblock/v8/app"
+	v4 "github.com/evoblockchain/evoblock/v8/app/upgrades/v4"
 )
 
 type UpgradeTestSuite struct {
 	suite.Suite
 
 	ctx                    sdk.Context
-	app                    *app.Evmos
+	app                    *app.Evoblock
 	consAddress            sdk.ConsAddress
 	expiredOsmoClient      *tmclient.ClientState
 	activeOsmoClient       *tmclient.ClientState

@@ -14,19 +14,19 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/crypto/ethsecp256k1"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v8/app"
-	v6 "github.com/evmos/evmos/v8/app/upgrades/v6"
-	evmostypes "github.com/evmos/evmos/v8/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	v6 "github.com/evoblockchain/evoblock/v8/app/upgrades/v6"
+	evmostypes "github.com/evoblockchain/evoblock/v8/types"
 )
 
 type UpgradeTestSuite struct {
 	suite.Suite
 
 	ctx         sdk.Context
-	app         *app.Evmos
+	app         *app.Evoblock
 	consAddress sdk.ConsAddress
 }
 

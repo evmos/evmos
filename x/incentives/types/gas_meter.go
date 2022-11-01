@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evoblockchain/ethermint/types"
 )
 
 // NewGasMeter returns an instance of GasMeter

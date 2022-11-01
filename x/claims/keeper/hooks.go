@@ -11,9 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
 var (
@@ -67,7 +67,7 @@ func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, 
 }
 
 // AfterDelegationModified is called after a delegation is modified. Once a user
-// delegates their EVMOS tokens to a validator, the claimable amount for the
+// delegates their EVO tokens to a validator, the claimable amount for the
 // user's claims record delegation action is claimed and transferred to the user
 // address.
 func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {

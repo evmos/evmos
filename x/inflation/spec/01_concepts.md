@@ -20,14 +20,14 @@ becomes *stable*, because assets are locked up instead of causing price changes
 through trading. And it becomes *decentralized,* because the power to vote for
 governance proposals is distributed amongst more people.
 
-## Evmos Token Model
+## Evoblock Token Model
 
-The Evmos Token Model outlines how the Evmos network is secured through a
+The Evoblock Token Model outlines how the Evoblock network is secured through a
 balanced incentivized interest from users, developers and validators. In this
 model, inflation plays a major role in sustaining this balance. With an initial
 supply of 200 million and over 300 million tokens being issued through inflation
 during the first year, the model suggests a exponential decline in inflation to
-issue 1 billion Evmos tokens within the first 4 years.
+issue 1 billion Evoblock tokens within the first 4 years.
 
 We implement two different inflation mechanisms to support the token model:
 
@@ -52,7 +52,7 @@ The inflation distribution for staking, usage incentives and community pool is
 implemented through an exponential formula, a.k.a. the Half Life.
 
 Inflation is minted in daily epochs. During a period of 365 epochs (one year), a
-daily provision of Evmos tokens is minted and allocated to staking rewards,
+daily provision of Evoblock tokens is minted and allocated to staking rewards,
 usage incentives and the community pool (`epochProvison`). The epoch provision
 doesn’t change within a period and its cummulated amount per period is equal
 total inflation per period (`epochProvision * epochsPerPeriod =

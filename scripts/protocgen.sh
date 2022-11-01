@@ -41,7 +41,7 @@ for dir in $proto_dirs; do
 done
 
 # move resulting files to the right places
-cp -r github.com/evmos/evmos/v*/x/* x/
+cp -r github.com/evoblockchain/evoblock/v*/x/* x/
 rm -rf github.com
 
 # combine swagger files

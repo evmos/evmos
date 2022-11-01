@@ -1,29 +1,29 @@
 syntax = "proto3";
-package evmos.erc20.v1;
+package evoblock.erc20.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/erc20/v1/genesis.proto";
-import "evmos/erc20/v1/erc20.proto";
+import "evoblock/erc20/v1/genesis.proto";
+import "evoblock/erc20/v1/erc20.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/erc20/types";
+option go_package = "github.com/evoblockchain/evoblock/v8/x/erc20/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // TokenPairs retrieves registered token pairs
   rpc TokenPairs(QueryTokenPairsRequest) returns (QueryTokenPairsResponse) {
-    option (google.api.http).get = "/evmos/erc20/v1/token_pairs";
+    option (google.api.http).get = "/evoblock/erc20/v1/token_pairs";
   }
 
   // TokenPair retrieves a registered token pair
   rpc TokenPair(QueryTokenPairRequest) returns (QueryTokenPairResponse) {
-    option (google.api.http).get = "/evmos/erc20/v1/token_pairs/{token}";
+    option (google.api.http).get = "/evoblock/erc20/v1/token_pairs/{token}";
   }
 
   // Params retrieves the erc20 module params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/evmos/erc20/v1/params";
+    option (google.api.http).get = "/evoblock/erc20/v1/params";
   }
 }
 

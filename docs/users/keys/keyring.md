@@ -13,20 +13,20 @@ The keyring holds the private/public keypairs used to interact with the node. Fo
 You can use the following commands for help with the `keys` command and for more information about a particular subcommand, respectively:
 
 ```bash
-evmosd keys
+evoblockd keys
 ```
 
 ```bash
-evmosd keys [command] --help
+evoblockd keys [command] --help
 ```
 
 To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. You will have to provide a password for the newly generated key. This key will be used in the next section.
 
 ```bash
-evmosd keys add mykey
+evoblockd keys add mykey
 
 # Put the generated address in a variable for later use.
-MY_VALIDATOR_ADDRESS=$(evmosd keys show mykey -a)
+MY_VALIDATOR_ADDRESS=$(evoblockd keys show mykey -a)
 ```
 
 This command generates a new 24-word mnemonic phrase, persists it to the relevant backend, and outputs information about the keypair. If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!
@@ -38,7 +38,7 @@ By default, the keyring generates a `eth_secp256k1` key. The keyring also suppor
 :::
 
 ::: warning
-**NOTE**: Cosmos `secp256k1` keys are not supported on Evmos due to compatibility issues with Ethereum transactions.
+**NOTE**: Cosmos `secp256k1` keys are not supported on Evoblock due to compatibility issues with Ethereum transactions.
 :::
 
 ## Keyring Backends
@@ -80,10 +80,10 @@ for multiple prompts:
 
 ```bash
 # assuming that KEYPASSWD is set in the environment
-yes $KEYPASSWD | evmosd keys add me
-yes $KEYPASSWD | evmosd keys show me
-# start evmosd with keyring-backend flag
-evmosd --keyring-backend=file start
+yes $KEYPASSWD | evoblockd keys add me
+yes $KEYPASSWD | evoblockd keys show me
+# start evoblockd with keyring-backend flag
+evoblockd --keyring-backend=file start
 ```
 
 ::: tip

@@ -11,15 +11,15 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evoblockchain/ethermint/tests"
+	feemarkettypes "github.com/evoblockchain/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v8/app"
-	claimstypes "github.com/evmos/evmos/v8/x/claims/types"
-	"github.com/evmos/evmos/v8/x/recovery/types"
+	"github.com/evoblockchain/evoblock/v8/app"
+	claimstypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
+	"github.com/evoblockchain/evoblock/v8/x/recovery/types"
 )
 
 var (
@@ -33,7 +33,7 @@ type KeeperTestSuite struct {
 
 	ctx sdk.Context
 
-	app         *app.Evmos
+	app         *app.Evoblock
 	queryClient types.QueryClient
 }
 

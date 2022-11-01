@@ -9,7 +9,7 @@ can be modified via governance.
 
 | Key                      | Type                   | Default Value                                                                 |
 | ------------------------ | ---------------------- | ----------------------------------------------------------------------------- |
-| `MintDenom`              | string                 | `evm.DefaultEVMDenom` // “aevmos”                                             |
+| `MintDenom`              | string                 | `evm.DefaultEVMDenom` // “aEVO”                                             |
 | `ExponentialCalculation` | ExponentialCalculation | `A: sdk.NewDec(int64(300_000_000))`                                           |
 |                          |                        | `R: sdk.NewDecWithPrec(50, 2)`                                                |
 |                          |                        | `C: sdk.NewDec(int64(9_375_000))`                                             |
@@ -40,9 +40,9 @@ The `IinflationDistribution` parameter defines the distribution in which
 inflation is allocated through minting on each epoch (`stakingRewards`,
 `usageIncentives`,  `CommunityPool`). The `x/inflation` excludes the team
 vesting distribution, as team vesting is minted once at genesis. To reflect this
-the distribution from the Evmos Token Model is recalculated into a distribution
+the distribution from the Evoblock Token Model is recalculated into a distribution
 that excludes team vesting. Note, that this does not change the inflation
-proposed in the Evmos Token Model. Each `InflationDistribution` can be
+proposed in the Evoblock Token Model. Each `InflationDistribution` can be
 calculated like this:
 
 ```markdown
