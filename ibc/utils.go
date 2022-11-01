@@ -108,3 +108,15 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 		Amount: amount,
 	}
 }
+
+// GetSentCoin returns the sent coin from an ICS20 FungibleTokenPacketData.
+func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
+	// NOTE: Denom and amount are already validated
+	amount, _ := sdk.NewIntFromString(rawAmt)
+	trace := transfertypes.ParseDenomTrace(rawDenom)
+
+	return sdk.Coin{
+		Denom:  trace.IBCDenom(),
+		Amount: amount,
+	}
+}

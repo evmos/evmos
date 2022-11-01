@@ -87,3 +87,58 @@ func (k Keeper) OnRecvPacket(
 
 	return ack
 }
+
+// OnAcknowledgementPacket responds to the the success or failure of a packet
+// acknowledgement written on the receiving chain. If the acknowledgement
+// was a success then nothing occurs. If the acknowledgement failed, then
+// the sender is refunded and then the IBC Coins are converted to ERC20.
+func (k Keeper) OnAcknowledgementPacket(
+	ctx sdk.Context, _ channeltypes.Packet,
+	data transfertypes.FungibleTokenPacketData,
+	ack channeltypes.Acknowledgement,
+) error {
+	switch ack.Response.(type) {
+	case *channeltypes.Acknowledgement_Error:
+		// convert the token from IBC in
+		return k.ConvertERC20AckPacket(ctx, data)
+	default:
+		// the acknowledgement succeeded on the receiving chain so nothing
+		// needs to be executed and no error needs to be returned
+		return nil
+	}
+}
+
+// OnTimeoutPacket converts the IBC coin to ERC20 after refunding the sender
+// since the original packet sent was never received and has been timed out.
+func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
+	return k.ConvertERC20AckPacket(ctx, data)
+}
+
+func (k Keeper) ConvertERC20AckPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
+	coin := ibc.GetSentCoin(data.Denom, data.Amount)
+
+	sender, err := sdk.AccAddressFromBech32(data.Sender)
+	if err != nil {
+		return err
+	}
+
+	// check if the coin is a native staking token
+	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	if coin.Denom == bondDenom {
+		// no-op, received coin is the staking denomination
+		return nil
+	}
+
+	params := k.GetParams(ctx)
+	if !params.EnableErc20 || !k.IsDenomRegistered(ctx, coin.Denom) {
+		return nil
+	}
+
+	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
+
+	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+		return err
+	}
+
+	return nil
+}
