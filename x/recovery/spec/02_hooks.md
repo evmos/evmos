@@ -10,7 +10,7 @@ The `x/recovery` module allows for state transitions that return IBC tokens that
 
 A user performs an IBC transfer to return the tokens that they previously transferred to their Cosmos `secp256k1` address instead of the Ethereum `ethsecp256k1` address. The behavior is implemented using an IBC`OnRecvPacket` callback.
 
-1. A user performs an IBC transfer to their own account by sending tokens from their address on an authorized chain (e.g. `cosmos1...`) to their evoblock `secp2561` address (i.e. `evmos1`)  which holds the stuck tokens.  This is done using a [`FungibleTokenPacket`](https://github.com/cosmos/ibc/blob/master/spec/app/ics-020-fungible-token-transfer/README.md) IBC packet.
+1. A user performs an IBC transfer to their own account by sending tokens from their address on an authorized chain (e.g. `cosmos1...`) to their evoblock `secp2561` address (i.e. `evo1`)  which holds the stuck tokens.  This is done using a [`FungibleTokenPacket`](https://github.com/cosmos/ibc/blob/master/spec/app/ics-020-fungible-token-transfer/README.md) IBC packet.
 2. Check that the withdrawal conditions are met and skip to the next middleware if any condition is not satisfied:
     1. recovery is enabled globally
     2. channel is authorized

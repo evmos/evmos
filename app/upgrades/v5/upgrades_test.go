@@ -23,7 +23,7 @@ import (
 
 	"github.com/evoblockchain/evoblock/v8/app"
 	v5 "github.com/evoblockchain/evoblock/v8/app/upgrades/v5"
-	evmostypes "github.com/evoblockchain/evoblock/v8/types"
+	evoblocktypes "github.com/evoblockchain/evoblock/v8/types"
 	claimskeeper "github.com/evoblockchain/evoblock/v8/x/claims/keeper"
 	claimstypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
@@ -121,7 +121,7 @@ func (suite *UpgradeTestSuite) TestResolveAirdrop() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+			suite.SetupTest(evoblocktypes.TestnetChainID + "-2") // reset
 
 			addr := addClaimRecord(suite.ctx, suite.app.ClaimsKeeper, tc.original)
 
@@ -169,7 +169,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+			suite.SetupTest(evoblocktypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -230,7 +230,7 @@ func (suite *UpgradeTestSuite) TestUpdateConsensusParams() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+			suite.SetupTest(evoblocktypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 
@@ -356,7 +356,7 @@ func (suite *UpgradeTestSuite) TestUpdateIBCDenomTraces() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+			suite.SetupTest(evoblocktypes.TestnetChainID + "-2") // reset
 
 			for _, dt := range tc.originalTraces {
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, dt)

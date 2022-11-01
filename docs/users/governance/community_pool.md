@@ -29,7 +29,7 @@ Funded projects that fail to deliver may return funding to Community Pool and en
 
 ### What is the balance of the Community Pool?
 
-- **Community Pool Account**: [`evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh`](https://www.mintscan.io/evoblock/account/evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh)
+- **Community Pool Account**: [`evo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh`](https://www.mintscan.io/evoblock/account/evo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh)
 
 ### How can funds from the Community Pool be spent?
 

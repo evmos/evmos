@@ -9,7 +9,7 @@ rem 3. add path C:\msys64\mingw64\bin
 rem             C:\msys64\usr\bin
 
 set KEY="mykey"
-set CHAINID="evmos_9000-1"
+set CHAINID="evoblock_9000-1"
 set MONIKER="localtestnet"
 set KEYRING="test"
 set KEYALGO="eth_secp256k1"
@@ -54,10 +54,10 @@ rem setup
 sed -i "s/create_empty_blocks = true/create_empty_blocks = false/g" %ETHCONFIG%
 
 rem Allocate genesis accounts (cosmos formatted addresses)
-evoblockd add-genesis-account %KEY% 100000000000000000000000000aevmos --keyring-backend %KEYRING%
+evoblockd add-genesis-account %KEY% 100000000000000000000000000aEVO --keyring-backend %KEYRING%
 
 rem Sign genesis transaction
-evoblockd gentx %KEY% 1000000000000000000000aevmos --keyring-backend %KEYRING% --chain-id %CHAINID%
+evoblockd gentx %KEY% 1000000000000000000000aEVO --keyring-backend %KEYRING% --chain-id %CHAINID%
 
 rem Collect genesis tx
 evoblockd collect-gentxs
@@ -68,4 +68,4 @@ evoblockd validate-genesis
 
 
 rem Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evoblockd start --pruning=nothing %TRACE% --log_level %LOGLEVEL% --minimum-gas-prices=0.0001aevmos
+evoblockd start --pruning=nothing %TRACE% --log_level %LOGLEVEL% --minimum-gas-prices=0.0001aEVO

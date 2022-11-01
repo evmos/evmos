@@ -37,7 +37,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9000-1",
+		ChainID:         "evoblock_9000-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: consAddress.Bytes(),
 
@@ -78,8 +78,8 @@ func TestGenesisTestSuite(t *testing.T) {
 
 var (
 	now  = time.Now().UTC()
-	acc1 = sdk.MustAccAddressFromBech32("evmos1qxx0fdsmruzuar2fay88lfw6sce6emamyu2s8h4d")
-	acc2 = sdk.MustAccAddressFromBech32("evmos1nsrs4t7dngkdltehkm3p6n8dp22sz3mct9uhc8")
+	acc1 = sdk.MustAccAddressFromBech32("evo1qxx0fdsmruzuar2fay88lfw6sce6emamyu2s8h4d")
+	acc2 = sdk.MustAccAddressFromBech32("evo1nsrs4t7dngkdltehkm3p6n8dp22sz3mct9uhc8")
 )
 
 func (suite *GenesisTestSuite) TestClaimInitGenesis() {

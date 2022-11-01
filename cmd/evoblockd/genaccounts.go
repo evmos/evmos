@@ -23,7 +23,7 @@ import (
 	ethermint "github.com/evoblockchain/ethermint/types"
 	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
 
-	evmoskr "github.com/evoblockchain/evoblock/v8/crypto/keyring"
+	evoblockkr "github.com/evoblockchain/evoblock/v8/crypto/keyring"
 
 	vestingcli "github.com/evoblockchain/evoblock/v8/x/vesting/client/cli"
 	vestingtypes "github.com/evoblockchain/evoblock/v8/x/vesting/types"
@@ -65,7 +65,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 						keyringBackend,
 						clientCtx.HomeDir,
 						inBuf,
-						evmoskr.Option(),
+						evoblockkr.Option(),
 					)
 					if err != nil {
 						return err

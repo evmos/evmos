@@ -148,8 +148,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						// Check that the aEVO were recovered
 						nativeEvoblock := s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), senderAcc, "aEVO")
 						Expect(nativeEvoblock.IsZero()).To(BeTrue())
-						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aevmosIbcdenom, coinEvoblock.Amount)))
+						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aEVOIbcdenom)
+						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aEVOIbcdenom, coinEvoblock.Amount)))
 
 						// Check that the uosmo were recovered
 						ibcOsmo = s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), receiverAcc, uosmoIbcdenom)
@@ -193,8 +193,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						// Check that the aEVO were recovered
 						nativeEvoblock := s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), senderAcc, "aEVO")
 						Expect(nativeEvoblock.IsZero()).To(BeTrue())
-						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aevmosIbcdenom, coinEvoblock.Amount)))
+						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aEVOIbcdenom)
+						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aEVOIbcdenom, coinEvoblock.Amount)))
 
 						// Check that the uosmo were recovered
 						ibcOsmo = s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), receiverAcc, uosmoIbcdenom)
@@ -228,11 +228,11 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						err = s.pathOsmosisEvoblock.RelayPacket(CreatePacket("10", "transfer/channel-0/uosmo", sender, receiver, "transfer", "channel-0", "transfer", "channel-0", 2, timeout))
 						s.Require().NoError(err)
 
-						// Aevmos was recovered from user address
+						// Aevoblock was recovered from user address
 						nativeEvoblock := s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), senderAcc, "aEVO")
 						Expect(nativeEvoblock.IsZero()).To(BeTrue())
-						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aevmosIbcdenom, coinEvoblock.Amount)))
+						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aEVOIbcdenom)
+						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aEVOIbcdenom, coinEvoblock.Amount)))
 
 						// Check that the uosmo were retrieved
 						ibcOsmo := s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), receiverAcc, uosmoIbcdenom)
@@ -254,8 +254,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						// No further tokens recovered
 						nativeEvoblock = s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), senderAcc, "aEVO")
 						Expect(nativeEvoblock.IsZero()).To(BeTrue())
-						ibcEvoblock = s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aevmosIbcdenom, coinEvoblock.Amount)))
+						ibcEvoblock = s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aEVOIbcdenom)
+						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aEVOIbcdenom, coinEvoblock.Amount)))
 
 						ibcOsmo = s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), receiverAcc, uosmoIbcdenom)
 						Expect(ibcOsmo.IsZero()).To(BeTrue())
@@ -305,11 +305,11 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						err = s.pathOsmosisEvoblock.RelayPacket(CreatePacket("10", "transfer/channel-0/uosmo", sender, receiver, "transfer", "channel-0", "transfer", "channel-0", 3, timeout))
 						s.Require().NoError(err)
 
-						// Aevmos was recovered from user address
+						// Aevoblock was recovered from user address
 						nativeEvoblock := s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), senderAcc, "aEVO")
 						Expect(nativeEvoblock.IsZero()).To(BeTrue())
-						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aevmosIbcdenom)
-						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aevmosIbcdenom, coinEvoblock.Amount)))
+						ibcEvoblock := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, aEVOIbcdenom)
+						Expect(ibcEvoblock).To(Equal(sdk.NewCoin(aEVOIbcdenom, coinEvoblock.Amount)))
 
 						// Check that the uosmo were recovered
 						ibcOsmo := s.EvoblockChain.App.(*app.Evoblock).BankKeeper.GetBalance(s.EvoblockChain.GetContext(), receiverAcc, uosmoIbcdenom)

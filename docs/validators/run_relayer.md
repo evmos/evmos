@@ -163,7 +163,7 @@ vim $HOME/.hermes/config/config.toml
 ```
 
 ```bash
-# In this example, we will set channel-292 on the cosmoshub-4 chain settings and channel-3 on the evmos_9001-2 chain settings:
+# In this example, we will set channel-292 on the cosmoshub-4 chain settings and channel-3 on the evoblock_9001-2 chain settings:
 [[chains]]
 id = 'cosmoshub-4'
 rpc_addr = 'http://127.0.0.1:26757'
@@ -173,11 +173,11 @@ websocket_addr = 'ws://127.0.0.1:26757/websocket'
 [chains.packet_filter]
 policy = 'allow'
 list = [
-   ['transfer', 'channel-292'], # evmos_9001-2
+   ['transfer', 'channel-292'], # evoblock_9001-2
 ]
 
 [[chains]]
-id = 'evmos_9001-2'
+id = 'evoblock_9001-2'
 rpc_addr = 'http://127.0.0.1:26657'
 grpc_addr = 'http://127.0.0.1:9090'
 websocket_addr = 'ws://127.0.0.1:26657/websocket'
@@ -195,7 +195,7 @@ The best practice is to use the same mnemonic over all networks. Do not use your
 
 ```bash
 hermes keys restore cosmoshub-4 -m "24-word mnemonic seed"
-hermes keys restore evmos_9001-2 -m "24-word mnemonic seed"
+hermes keys restore evoblock_9001-2 -m "24-word mnemonic seed"
 ```
 
 Ensure this wallet has funds in both EVO and ATOM in order to pay the fees required to relay.
@@ -218,7 +218,7 @@ INFO ThreadId(01) using default configuration from '/home/relay/.hermes/config.t
 INFO ThreadId(01) telemetry service running, exposing metrics at http://0.0.0.0:3001/metrics
 INFO ThreadId(01) starting REST API server listening at http://127.0.0.1:3000
 INFO ThreadId(01) [cosmoshub-4] chain is healthy
-INFO ThreadId(01) [evmos_9001-2] chain is healthy
+INFO ThreadId(01) [evoblock_9001-2] chain is healthy
 ```
 
 When your nodes are fully synced, you can start the hermes daemon:
@@ -239,29 +239,29 @@ hermes query packet unreceived-acks cosmoshub-4 transfer channel-292
 ```
 
 ```bash
-hermes query packet unreceived-packets evmos_9001-2 transfer channel-3
-hermes query packet unreceived-acks evmos_9001-2 transfer channel-3
+hermes query packet unreceived-packets evoblock_9001-2 transfer channel-3
+hermes query packet unreceived-acks evoblock_9001-2 transfer channel-3
 ```
 
 Query hermes for packet commitments with the following:
 
 ```bash
 hermes query packet commitments cosmoshub-4 transfer channel-292
-hermes query packet commitments evmos_9001-2 transfer channel-3
+hermes query packet commitments evoblock_9001-2 transfer channel-3
 ```
 
 Clear the channel (only works on hermes `v0.12.0` and higher) with the following:
 
 ```bash
 hermes clear packets cosmoshub-4 transfer channel-292
-hermes clear packets evmos_9001-2 transfer channel-3
+hermes clear packets evoblock_9001-2 transfer channel-3
 ```
 
 Clear unrecieved packets manually (experimental, will need to stop hermes daemon to prevent confusion with account sequences) with the following:
 
 ```bash
-hermes tx raw packet-recv evmos_9001-2 cosmoshub-4 transfer channel-292
-hermes tx raw packet-ack evmos_9001-2 cosmoshub-4 transfer channel-292
-hermes tx raw packet-recv cosmoshub-4 evmos_9001-2 transfer channel-3
-hermes tx raw packet-ack cosmoshub-4 evmos_9001-2 transfer channel-3
+hermes tx raw packet-recv evoblock_9001-2 cosmoshub-4 transfer channel-292
+hermes tx raw packet-ack evoblock_9001-2 cosmoshub-4 transfer channel-292
+hermes tx raw packet-recv cosmoshub-4 evoblock_9001-2 transfer channel-3
+hermes tx raw packet-ack cosmoshub-4 evoblock_9001-2 transfer channel-3
 ```

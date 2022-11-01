@@ -14,7 +14,7 @@ import (
 	"github.com/evoblockchain/ethermint/server/config"
 	"github.com/evoblockchain/ethermint/testutil/network"
 
-	evmosnetwork "github.com/evoblockchain/evoblock/v8/testutil/network"
+	evoblocknetwork "github.com/evoblockchain/evoblock/v8/testutil/network"
 )
 
 type IntegrationTestSuite struct {
@@ -27,7 +27,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	var err error
-	cfg := evmosnetwork.DefaultConfig()
+	cfg := evoblocknetwork.DefaultConfig()
 	cfg.JSONRPCAddress = config.DefaultJSONRPCAddress
 	cfg.NumValidators = 1
 

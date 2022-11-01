@@ -13,7 +13,7 @@ This guide will cover the following query methods:
 - [gRPC](#grpc)
 
 :::warning
-**Note**: In this document, the command line is used to interact with endpoints. For dApp developers, using libraries such as [cosmjs](https://github.com/cosmos/cosmjs) and [evmosjs](../libraries/evmosjs.md) is recommended instead.
+**Note**: In this document, the command line is used to interact with endpoints. For dApp developers, using libraries such as [cosmjs](https://github.com/cosmos/cosmjs) and [evoblockjs](../libraries/evoblockjs.md) is recommended instead.
 :::
 
 ## `evoblockd` & Tendermint RPC
@@ -34,7 +34,7 @@ pagination:
 
 where:
 
-- `$EVOADDRESS` is the Evoblock address with balances of interest (eg. `evmos1...`).
+- `$EVOADDRESS` is the Evoblock address with balances of interest (eg. `evo1...`).
 - (optional) `$COUNTTOTAL` counts the total number of records in all balances to query for.
 - (optional) `$HEIGHT` is the specific height to query state at (can error if node is pruning state).
 - (optional) `$OUTPUT` is the output format (eg. `text`).
@@ -68,7 +68,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getBalance","params":[`$ETHA
 where:
 
 - `$ETHADDRESS` is the Etherum hex-address the balance is to be queried from.
-    Note that Evoblock addresses (those beginning with `evmos1...`) can be converte.d to Ethereum addresses using libraries such as [evmosjs](../libraries/evmosjs.md).
+    Note that Evoblock addresses (those beginning with `evo1...`) can be converte.d to Ethereum addresses using libraries such as [evoblockjs](../libraries/evoblockjs.md).
 - `$BLOCK` is the block number or block hash (eg. `"0x0"`).
     The reasoning for this parameter is due to [EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md).
 - (optional if running local node) `$NODE` is the JSON-RPC node information is requested from (eg. `https://eth.bd.evoblock.org:8545`).
@@ -117,7 +117,7 @@ grpcurl $OUTPUT -d '{"address":`$EVOADDRESS`}' $NODE cosmos.bank.v1beta1.Query/A
 
 where:
 
-- `$EVOADDRESS` is the Evoblock address with balances of interest (eg. `"evmos1..."`).
+- `$EVOADDRESS` is the Evoblock address with balances of interest (eg. `"evo1..."`).
 - `$NODE` is the Cosmos gRPC node information is requested from (eg. `https://grpc.bd.evoblock.org:9090`).
 - (optional) `$OUTPUT` is the output format (eg. `plaintext`).
 
@@ -135,7 +135,7 @@ import (
 )
 
 func queryState() error {
-    myAddress, err := GetEvoblockAddressFromBech32("evmos1...") // evoblock address with balances of interest.
+    myAddress, err := GetEvoblockAddressFromBech32("evo1...") // evoblock address with balances of interest.
     if err != nil {
         return err
     }
@@ -162,7 +162,7 @@ func queryState() error {
     return nil
 }
 
-// evmosjs address converter.
+// evoblockjs address converter.
 func GetEvoblockAddressFromBech32(address string) (string, error) {...}
 ```
 

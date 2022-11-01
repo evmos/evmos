@@ -19,7 +19,7 @@ import (
 
 	"github.com/evoblockchain/evoblock/v8/app"
 	v6 "github.com/evoblockchain/evoblock/v8/app/upgrades/v6"
-	evmostypes "github.com/evoblockchain/evoblock/v8/types"
+	evoblocktypes "github.com/evoblockchain/evoblock/v8/types"
 )
 
 type UpgradeTestSuite struct {
@@ -83,7 +83,7 @@ func (suite *UpgradeTestSuite) TestUpdateSlashingParams() {
 	}{
 		{
 			"success",
-			evmostypes.MainnetChainID + "-2",
+			evoblocktypes.MainnetChainID + "-2",
 			func() {
 				params := suite.app.SlashingKeeper.GetParams(suite.ctx)
 				params.SignedBlocksWindow = 30000

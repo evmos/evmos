@@ -8,15 +8,15 @@ const (
 	// TODO: TestnetUpgradeHeight defines the Evoblock testnet block height on which the upgrade will take place
 	TestnetUpgradeHeight = 2_176_500
 	// UpgradeInfo defines the binaries that will be used for the upgrade
-	UpgradeInfo = `'{"binaries":{"darwin/arm64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evmos_7.0.0_Darwin_arm64.tar.gz","darwin/x86_64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evmos_7.0.0_Darwin_x86_64.tar.gz","linux/arm64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evmos_7.0.0_Linux_arm64.tar.gz","linux/x86_64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evmos_7.0.0_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evmos_7.0.0_Windows_x86_64.zip"}}'`
+	UpgradeInfo = `'{"binaries":{"darwin/arm64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evoblock_7.0.0_Darwin_arm64.tar.gz","darwin/x86_64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evoblock_7.0.0_Darwin_x86_64.tar.gz","linux/arm64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evoblock_7.0.0_Linux_arm64.tar.gz","linux/x86_64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evoblock_7.0.0_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evoblockchain/evoblock/releases/download/v7.0.0/evoblock_7.0.0_Windows_x86_64.zip"}}'`
 
 	// FaucetAddressFrom is the inaccessible secp address of the Testnet Faucet
-	FaucetAddressFrom = "evmos1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze"
+	FaucetAddressFrom = "evo1z4ya98ga2xnffn2mhjym7tzlsm49ec23890sze"
 	// FaucetAddressTo is the new eth_secp address of the Testnet Faucet
-	FaucetAddressTo = "evmos1ujm4z5v9zkdqm70xnptr027gqu90f7lxjr0fch"
+	FaucetAddressTo = "evo1ujm4z5v9zkdqm70xnptr027gqu90f7lxjr0fch"
 
 	// ContributorAddrFrom is the lost address of an early contributor
-	ContributorAddrFrom = "evmos1659xwt0hnu5humgek7scefhnpcm2w6hyvy4fsq"
+	ContributorAddrFrom = "evo1659xwt0hnu5humgek7scefhnpcm2w6hyvy4fsq"
 	// ContributorAddrTo is the new address of an early contributor
-	ContributorAddrTo = "evmos1pktlmqrz448cuazl98tqmsj4kjwpqpmaa0cjcf"
+	ContributorAddrTo = "evo1pktlmqrz448cuazl98tqmsj4kjwpqpmaa0cjcf"
 )

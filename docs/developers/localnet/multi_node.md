@@ -30,15 +30,15 @@ To build start a 4 node testnet run:
 make localnet-start
 ```
 
-This command creates a 4-node network using the `evmosdnode` Docker image.
+This command creates a 4-node network using the `evoblockdnode` Docker image.
 The ports for each node are found in this table:
 
 | Node ID          | P2P Port | Tendermint RPC Port | REST/ Ethereum JSON-RPC Port | WebSocket Port |
 |------------------|----------|---------------------|------------------------------|----------------|
-| `evmosnode0` | `26656`  | `26657`             | `8545`                       | `8546`         |
-| `evmosnode1` | `26659`  | `26660`             | `8547`                       | `8548`         |
-| `evmosnode2` | `26661`  | `26662`             | `8549`                       | `8550`         |
-| `evmosnode3` | `26663`  | `26664`             | `8551`                       | `8552`         |
+| `evoblocknode0` | `26656`  | `26657`             | `8545`                       | `8546`         |
+| `evoblocknode1` | `26659`  | `26660`             | `8547`                       | `8548`         |
+| `evoblocknode2` | `26661`  | `26662`             | `8549`                       | `8550`         |
+| `evoblocknode3` | `26663`  | `26664`             | `8551`                       | `8552`         |
 
 To update the binary, just rebuild it and restart the nodes
 
@@ -50,11 +50,11 @@ The command above  command will run containers in the background using Docker co
 
 ```bash
 ...
-Creating network "evmos_localnet" with driver "bridge"
-Creating evmosdnode0 ... done
-Creating evmosdnode2 ... done
-Creating evmosdnode1 ... done
-Creating evmosdnode3 ... done
+Creating network "evoblock_localnet" with driver "bridge"
+Creating evoblockdnode0 ... done
+Creating evoblockdnode2 ... done
+Creating evoblockdnode1 ... done
+Creating evoblockdnode3 ... done
 ```
 
 ### Stop Localnet
@@ -124,10 +124,10 @@ In order to see the logs of a particular node you can use the following command:
 
 ```bash
 # node 0: daemon logs
-docker exec evmosdnode0 tail evoblockd.log
+docker exec evoblockdnode0 tail evoblockd.log
 
 # node 0: REST & RPC logs
-docker exec evmosdnode0 tail evoblockd.log
+docker exec evoblockdnode0 tail evoblockd.log
 ```
 
 The logs for the daemon will look like:
@@ -165,7 +165,7 @@ You can also watch logs as they are produced via Docker with the `--follow` (`-f
 example:
 
 ```bash
-docker logs -f evmosdnode0
+docker logs -f evoblockdnode0
 ```
 
 ### Interact with the Localnet

@@ -182,9 +182,9 @@ moniker="NODE_NAME"
 ```bash
 SNAP_RPC1="http://bd-evoblock-testnet-state-sync-node-01.bdnodes.net:26657"
 SNAP_RPC="http://bd-evoblock-testnet-state-sync-node-02.bdnodes.net:26657"
-CHAIN_ID="evmos_9000-4"
+CHAIN_ID="evoblock_9000-4"
 PEER="3a6b22e1569d9f85e9e97d1d204a1c457d860926@bd-evoblock-testnet-seed-node-01.bdnodes.net:26656"
-wget -O $HOME/genesis.json https://archive.evoblock.dev/evmos_9000-4/genesis.json 
+wget -O $HOME/genesis.json https://archive.evoblock.dev/evoblock_9000-4/genesis.json 
 ```
 
 ## Use commands below for Mainnet setup
@@ -192,7 +192,7 @@ wget -O $HOME/genesis.json https://archive.evoblock.dev/evmos_9000-4/genesis.jso
 ```bash
 SNAP_RPC1="http://bd-evoblock-mainnet-state-sync-us-01.bdnodes.net:26657"
 SNAP_RPC="http://bd-evoblock-mainnet-state-sync-eu-01.bdnodes.net:26657"
-CHAIN_ID="evmos_9001-2"
+CHAIN_ID="evoblock_9001-2"
 PEER="96557e26aabf3b23e8ff5282d03196892a7776fc@bd-evoblock-mainnet-state-sync-us-01.bdnodes.net,dec587d55ff38827ebc6312cedda6085c59683b6@bd-evoblock-mainnet-state-sync-eu-01.bdnodes.net"
 wget -O $HOME/genesis.json https://archive.evoblock.org/mainnet/genesis.json 
 ```

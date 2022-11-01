@@ -17,17 +17,17 @@ Learn about the Evoblock chain-id format {synopsis}
 
 | Name                                            | Chain ID                                      | Identifier | EIP155 Number                         | Version Number                              |
 | ----------------------------------------------- | --------------------------------------------- | ---------- | ------------------------------------- | ------------------------------------------- |
-| Evoblock {{ $themeConfig.project.version_number }} | `evmos_{{ $themeConfig.project.chain_id }}-2` | `evoblock`    | `{{ $themeConfig.project.chain_id }}` | `{{ $themeConfig.project.version_number }}` |
-| Evoblock 1                                         | `evmos_{{ $themeConfig.project.chain_id }}-1` | `evoblock`    | `{{ $themeConfig.project.chain_id }}` | `1`                                         |
+| Evoblock {{ $themeConfig.project.version_number }} | `evoblock_{{ $themeConfig.project.chain_id }}-2` | `evoblock`    | `{{ $themeConfig.project.chain_id }}` | `{{ $themeConfig.project.version_number }}` |
+| Evoblock 1                                         | `evoblock_{{ $themeConfig.project.chain_id }}-1` | `evoblock`    | `{{ $themeConfig.project.chain_id }}` | `1`                                         |
 :::
 ::: tab Testnets
 
 | Name                              | Chain ID                                              | Identifier | EIP155 Number                                 | Version Number                                      |
 | --------------------------------- | ----------------------------------------------------- | ---------- | --------------------------------------------- | --------------------------------------------------- |
-| Evoblock Public Testnet              | `evmos_{{ $themeConfig.project.testnet_chain_id }}-4` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `{{ $themeConfig.project.testnet_version_number }}` |
-| Evoblock Public Testnet              | `evmos_{{ $themeConfig.project.testnet_chain_id }}-3` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `3`                                                 |
-| Olympus Mons Incentivized Testnet | `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `2`                                                 |
-| Arsia Mons Testnet                | `evmos_{{ $themeConfig.project.testnet_chain_id }}-1` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `1`                                                 |
+| Evoblock Public Testnet              | `evoblock_{{ $themeConfig.project.testnet_chain_id }}-4` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `{{ $themeConfig.project.testnet_version_number }}` |
+| Evoblock Public Testnet              | `evoblock_{{ $themeConfig.project.testnet_chain_id }}-3` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `3`                                                 |
+| Olympus Mons Incentivized Testnet | `evoblock_{{ $themeConfig.project.testnet_chain_id }}-2` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `2`                                                 |
+| Arsia Mons Testnet                | `evoblock_{{ $themeConfig.project.testnet_chain_id }}-1` | `evoblock`    | `{{ $themeConfig.project.testnet_chain_id }}` | `1`                                                 |
 
 :::
 ::::
@@ -64,7 +64,7 @@ The following table provides an example where the second row corresponds to an u
 
 | ChainID        | Identifier | EIP155 Number | Version Number |
 | -------------- | ---------- | ------------- | -------------- |
-| `evmos_9000-1` | evoblock      | 9000          | 1              |
-| `evmos_9000-2` | evoblock      | 9000          | 2              |
+| `evoblock_9000-1` | evoblock      | 9000          | 1              |
+| `evoblock_9000-2` | evoblock      | 9000          | 2              |
 | `...`          | ...        | ...           | ...            |
-| `evmos_9000-N` | evoblock      | 9000          | N              |
+| `evoblock_9000-N` | evoblock      | 9000          | N              |

@@ -15,7 +15,7 @@ Follow the [Metamask](../../users/wallets/metamask.md), [Keplr](../../users/wall
 ## Request Testnet tokens
 
 <!-- markdown-link-check-disable-next-line -->
-Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evoblock.dev/) to request tokens for the testnet. Click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (`evmos_{{ $themeConfig.project.testnet_chain_id }}-{{ $themeConfig.project.testnet_version_number }}`) to Keplr and approve the connection.
+Once you are signed in to the Keplr extension, visit the [Faucet](https://faucet.evoblock.dev/) to request tokens for the testnet. Click the `Request Funds with Keplr` button. Then approve the both following pop ups `Chain Add Request` and `Request Connection` to add the {{ $themeConfig.project.name }} testnet chain (`evoblock_{{ $themeConfig.project.testnet_chain_id }}-{{ $themeConfig.project.testnet_version_number }}`) to Keplr and approve the connection.
 
 ![chain add request](../../img/keplr_approve_chain.png)
 
@@ -27,10 +27,10 @@ After approval, you can see a transaction confirmation informing you that {{ $th
 
 ![chain add request](../../img/keplr_transaction.png)
 
-Alternatively you can also fill in your address on the input field in Bech32 (`evmos1...`) or Hex (`0x...`) format.
+Alternatively you can also fill in your address on the input field in Bech32 (`evo1...`) or Hex (`0x...`) format.
 
 ::: warning
-If you use your Bech32 address, make sure you input the [account address](../../users/technical_concepts/accounts.md#addresses-and-public-keys) (`evmos1...`) and **NOT** the validator operator address (`evmosvaloper1...`)
+If you use your Bech32 address, make sure you input the [account address](../../users/technical_concepts/accounts.md#addresses-and-public-keys) (`evo1...`) and **NOT** the validator operator address (`evovaloper1...`)
 :::
 
 ![faucet site](../../img/faucet_web_page.png)
@@ -58,4 +58,4 @@ For each request, the faucet transfers 1 {{ $themeConfig.project.testnet_denom }
 The public faucet addresses for the testnet are:
 
 - **Hex**: [`0xBaE9A7A2210F94511F5050348251d0d7113E2cE3`](https://evm.evoblock.dev/address/0xBaE9A7A2210F94511F5050348251d0d7113E2cE3/transactions)
-- **Bech32**: [`evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth`](https://testnet.mintscan.io/evoblock/account/evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth)
+- **Bech32**: [`evo1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth`](https://testnet.mintscan.io/evoblock/account/evo1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth)

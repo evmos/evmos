@@ -102,7 +102,7 @@ func TestEqualMetadata(t *testing.T) {
 				Base: "aEVO",
 			},
 			banktypes.Metadata{
-				Base: "taevmos",
+				Base: "taEVO",
 			},
 			true,
 		},
@@ -157,7 +157,7 @@ func TestEqualMetadata(t *testing.T) {
 						Aliases:  []string{"atto evoblock"},
 					},
 					{
-						Denom:    "uevmos",
+						Denom:    "uevoblock",
 						Exponent: 12,
 						Aliases:  []string{"micro evoblock"},
 					},
@@ -180,7 +180,7 @@ func TestEqualMetadata(t *testing.T) {
 						Aliases:  []string{"atto evoblock"},
 					},
 					{
-						Denom:    "Uevmos",
+						Denom:    "Uevoblock",
 						Exponent: 12,
 						Aliases:  []string{"micro evoblock"},
 					},
@@ -225,7 +225,7 @@ func TestEqualAliases(t *testing.T) {
 		},
 		{
 			"different values",
-			[]string{"attoevmos"},
+			[]string{"attoevoblock"},
 			[]string{"atto evoblock"},
 			false,
 		},

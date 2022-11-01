@@ -17,7 +17,7 @@ RPC_PORT="854"
 IP_ADDR="0.0.0.0"
 
 KEY="mykey"
-CHAINID="evmos_9000-1"
+CHAINID="evoblock_9000-1"
 MONIKER="mymoniker"
 
 ## default port prefixes for evoblockd
@@ -70,7 +70,7 @@ init_func() {
     "$PWD"/build/evoblockd keys add $KEY"$i" --keyring-backend test --home "$DATA_DIR$i" --no-backup --algo "eth_secp256k1"
     "$PWD"/build/evoblockd init $MONIKER --chain-id $CHAINID --home "$DATA_DIR$i"
     "$PWD"/build/evoblockd add-genesis-account \
-    "$("$PWD"/build/evoblockd keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aevmos,1000000000000000000stake \
+    "$("$PWD"/build/evoblockd keys show "$KEY$i" --keyring-backend test -a --home "$DATA_DIR$i")" 1000000000000000000aEVO,1000000000000000000stake \
     --keyring-backend test --home "$DATA_DIR$i"
     "$PWD"/build/evoblockd gentx "$KEY$i" 1000000000000000000stake --chain-id $CHAINID --keyring-backend test --home "$DATA_DIR$i"
     "$PWD"/build/evoblockd collect-gentxs --home "$DATA_DIR$i"

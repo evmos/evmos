@@ -1,7 +1,7 @@
 #!/bin/bash
 
 KEY="mykey"
-CHAINID="evmos_9000-1"
+CHAINID="evoblock_9000-1"
 MONIKER="mymoniker"
 DATA_DIR=$(mktemp -d -t evoblock-datadir.XXXXX)
 
@@ -11,7 +11,7 @@ echo "init Evoblock with moniker=$MONIKER and chain-id=$CHAINID"
 ./evoblockd init $MONIKER --chain-id $CHAINID --home $DATA_DIR
 echo "prepare genesis: Allocate genesis accounts"
 ./evoblockd add-genesis-account \
-"$(./evoblockd keys show $KEY -a --home $DATA_DIR --keyring-backend test)" 1000000000000000000aevmos,1000000000000000000stake \
+"$(./evoblockd keys show $KEY -a --home $DATA_DIR --keyring-backend test)" 1000000000000000000aEVO,1000000000000000000stake \
 --home $DATA_DIR --keyring-backend test
 echo "prepare genesis: Sign genesis transaction"
 ./evoblockd gentx $KEY 1000000000000000000stake --keyring-backend test --home $DATA_DIR --keyring-backend test --chain-id $CHAINID

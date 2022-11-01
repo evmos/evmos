@@ -54,8 +54,8 @@ cat $HOME/.evoblockd/config/genesis.json | jq '.app_state["claims"]["params"]["d
 cat $HOME/.evoblockd/config/genesis.json | jq '.app_state["claims"]["params"]["duration_until_decay"]="100000s"' > $HOME/.evoblockd/config/tmp_genesis.json && mv $HOME/.evoblockd/config/tmp_genesis.json $HOME/.evoblockd/config/genesis.json
 
 # Claim module account:
-# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
-cat $HOME/.evoblockd/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aEVO", "amount":$amount_to_claim}]}]' > $HOME/.evoblockd/config/tmp_genesis.json && mv $HOME/.evoblockd/config/tmp_genesis.json $HOME/.evoblockd/config/genesis.json
+# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evo15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
+cat $HOME/.evoblockd/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evo15cvq3ljql6utxseh0zau9m8ve2j8erz8e49q8x","coins":[{"denom":"aEVO", "amount":$amount_to_claim}]}]' > $HOME/.evoblockd/config/tmp_genesis.json && mv $HOME/.evoblockd/config/tmp_genesis.json $HOME/.evoblockd/config/genesis.json
 
 # disable produce empty block
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -89,7 +89,7 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evoblockd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
+evoblockd add-genesis-account $KEY 100000000000000000000000000aEVO --keyring-backend $KEYRING
 
 # Update total supply with claim values
 validators_supply=$(cat $HOME/.evoblockd/config/genesis.json | jq -r '.app_state["bank"]["supply"][0]["amount"]')
@@ -99,7 +99,7 @@ total_supply=100000000000000000000010000
 cat $HOME/.evoblockd/config/genesis.json | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' > $HOME/.evoblockd/config/tmp_genesis.json && mv $HOME/.evoblockd/config/tmp_genesis.json $HOME/.evoblockd/config/genesis.json
 
 # Sign genesis transaction
-evoblockd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
+evoblockd gentx $KEY 1000000000000000000000aEVO --keyring-backend $KEYRING --chain-id $CHAINID
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `evoblockd keys add` step, init more keys
 ## 2. Back to `evoblockd add-genesis-account` step, add balance for those
@@ -118,4 +118,4 @@ if [[ $1 == "pending" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evoblockd start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3
+evoblockd start --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aEVO --json-rpc.api eth,txpool,personal,net,debug,web3

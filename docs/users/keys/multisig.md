@@ -47,7 +47,7 @@ First import the public keys of `test3` into your keyring.
 ```sh
 evoblockd keys add \
     test3 \
-    --pubkey=evmospub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2
+    --pubkey=evopub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2
 ```
 
 Generate the multisig key with 2/3 threshold.
@@ -66,8 +66,8 @@ evoblockd keys show multi
 
 - name: multi
   type: multi
-  address: evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m
-  pubkey: evmospub1ytql0csgqgfzd666axrjzq3mxw59ys6yqcd3ydjvhgs0uzs6kdk5fp4t73gmkl8t6y02yfq7tvfzd666axrjzq3sd69kp5usk492x6nehqjal67ynv0nfqapzrzy3gmdk27la0kjfqfzd666axrjzq6utqt639ka2j3xkncgk65dup06t297ccljmxhvhu3rmk92u3afjuyz9dg9
+  address: evo1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m
+  pubkey: evopub1ytql0csgqgfzd666axrjzq3mxw59ys6yqcd3ydjvhgs0uzs6kdk5fp4t73gmkl8t6y02yfq7tvfzd666axrjzq3sd69kp5usk492x6nehqjal67ynv0nfqapzrzy3gmdk27la0kjfqfzd666axrjzq6utqt639ka2j3xkncgk65dup06t297ccljmxhvhu3rmk92u3afjuyz9dg9
   mnemonic: ""
   threshold: 0
   pubkeys: []
@@ -78,26 +78,26 @@ Let's add 10 EVO to the multisig wallet:
 ```bash
 evoblockd tx bank send \
     test1 \
-    evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
-    10000000000000000000aevmos \
-    --chain-id=evmos_9000-4 \
+    evo1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
+    10000000000000000000aEVO \
+    --chain-id=evoblock_9000-4 \
     --gas=auto \
-    --fees=1000000aevmos \
+    --fees=1000000aEVO \
     --broadcast-mode=block
 ```
 
 ### Step 2: Create the multisig transaction
 
-We want to send 5 EVO from our multisig account to `evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
+We want to send 5 EVO from our multisig account to `evo1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft`.
 
 ```bash
 evoblockd tx bank send \
-    evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
-    evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
-    5000000000000000000aevmos \
+    evo1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft \
+    evo157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq \
+    5000000000000000000aEVO \
     --gas=200000 \
-    --fees=1000000aevmos \
-    --chain-id=evmos_9000-4 \
+    --fees=1000000aEVO \
+    --chain-id=evoblock_9000-4 \
     --generate-only > unsignedTx.json
 ```
 
@@ -109,8 +109,8 @@ The file `unsignedTx.json` contains the unsigned transaction encoded in JSON.
     "messages": [
       {
         "@type": "/cosmos.bank.v1beta1.MsgSend",
-        "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
-        "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
+        "from_address": "evo1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
+        "to_address": "evo157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
         "amount": [
           {
             "denom": "aEVO",
@@ -149,19 +149,19 @@ Sign with `test1` and `test2` and create individual signatures.
 ```sh
 evoblockd tx sign \
     unsignedTx.json \
-    --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
+    --multisig=evo1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test1 \
     --output-document=test1sig.json \
-    --chain-id=evmos_9000-4
+    --chain-id=evoblock_9000-4
 ```
 
 ```sh
 evoblockd tx sign \
     unsignedTx.json \
-    --multisig=evmos1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
+    --multisig=evo1e0fx0q9meawrcq7fmma9x60gk35lpr4xk3884m \
     --from=test2 \
     --output-document=test2sig.json \
-    --chain-id=evmos_9000-4
+    --chain-id=evoblock_9000-4
 ```
 
 ### Step 4: Create multisignature
@@ -174,7 +174,7 @@ evoblockd tx multisign \
     multi \
     test1sig.json test2sig.json \
     --output-document=signedTx.json \
-    --chain-id=evmos_9000-4
+    --chain-id=evoblock_9000-4
 ```
 
 The TX is now signed:
@@ -185,8 +185,8 @@ The TX is now signed:
     "messages": [
       {
         "@type": "/cosmos.bank.v1beta1.MsgSend",
-        "from_address": "evmos1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
-        "to_address": "evmos157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
+        "from_address": "evo1rgjxswhuxhcrhmyxlval0qa70vxwvqn2e0srft",
+        "to_address": "evo157g6rn6t6k5rl0dl57zha2wx72t633axqyvvwq",
         "amount": [
           {
             "denom": "aEVO",
@@ -266,6 +266,6 @@ The TX is now signed:
 
 ```sh
 evoblockd tx broadcast signedTx.json \
-    --chain-id=evmos_9000-4 \
+    --chain-id=evoblock_9000-4 \
     --broadcast-mode=block
 ```

@@ -74,15 +74,15 @@ For community pool spend proposals, there are five components:
 
 In this simple example (below), a network explorer will list the governance proposal as a `CommunityPoolSpendProposal`. When an observer selects the proposal, they'll see the description. Not all explorers will show the recipient and amount, so ensure that you verify that the description aligns with the what the governance proposal is programmed to enact. If the description says that a certain address will receive a certain number of EVO, it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
 
-The `amount` is `1000000000000000000aevmos`. This is equal to 1 EVO, so `recipient` address `evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp` will receive 1 EVO if this proposal is passed.
+The `amount` is `1000000000000000000aEVO`. This is equal to 1 EVO, so `recipient` address `evo1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp` will receive 1 EVO if this proposal is passed.
 
-The `deposit` of `64000000000000000000aevmos` results in 64 EVO being used from the proposal submitter's account. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 5-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if quorum isn't met in the vote or if the proposal is vetoed.
+The `deposit` of `64000000000000000000aEVO` results in 64 EVO being used from the proposal submitter's account. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 5-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if quorum isn't met in the vote or if the proposal is vetoed.
 
 ```json
 {
   "title": "Community Pool Spend",
   "description": "This is the summary of the key information about this proposal. Include the URL to a PDF version of your full proposal.",
-  "recipient": "evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp",
+  "recipient": "evo1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp",
   "amount": [
     {
       "denom": "aEVO",
@@ -113,7 +113,7 @@ Users can query the proposal details with the `evoblockd` command-line interface
 {
   "title": "Grant proposal for Flux Protocol an oracle solution live on Evoblock",
   "description": "proposal: https://gateway.pinata.cloud/ipfs/QmfZknL4KRHvJ6XUDwtyRKANVs44FFmjGuM8YbArqqfWwF discussion: https://commonwealth.im/evoblock/discussion/4915-evoblock-grant-flux-oracle-solution"
-  "recipient": "evmos15dxa2e3lc8zvmryv62x3stt86yhplu2vs9kxct",
+  "recipient": "evo15dxa2e3lc8zvmryv62x3stt86yhplu2vs9kxct",
   "amount": [
     {
       "amount": "12900000000000000000000",
@@ -193,7 +193,7 @@ evoblockd tx gov submit-proposal \
   --title=<title> \
   --description=<description> \
   --type="Text" \
-  --deposit="1000000aevmos" \
+  --deposit="1000000aEVO" \
   --from=<mykey> \
   --chain-id=<chain_id>
   --node <address>
@@ -211,8 +211,8 @@ Use the `evoblock tx gov --help` flag to get more info about the governance comm
    - if this number isn't high enough and there isn't enough gas to process your transaction, the transaction will fail
    - the transaction will only use the amount of gas needed to process the transaction
 5. `--gas-prices` is the flat-rate per unit of gas value for a validator to process your transaction
-6. `--chain-id evmos_90001-2` is Evoblock Mainnet. For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
-   - the testnet chain ID is [evmos_9000-4](https://testnet.mintscan.io/evoblock). For current and past testnet information, please look at the [testnet repository](https://github.com/evoblock/testnets)
+6. `--chain-id evoblock_90001-2` is Evoblock Mainnet. For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
+   - the testnet chain ID is [evoblock_9000-4](https://testnet.mintscan.io/evoblock). For current and past testnet information, please look at the [testnet repository](https://github.com/evoblock/testnets)
 7. `--node` is using a full node to send the transaction to the Evoblock Mainnet
 
 ### Verifying your transaction
@@ -230,7 +230,7 @@ evoblockd q gov proposals
 If there are a lot of proposals on the chain already, you can also filter by your own address. For the proposal above, that would be:
 
 ```bash
-evoblockd q gov proposals --depositor evmos1hxv7mpztvln45eghez6evw2ypcw4vjmsmr8cdx
+evoblockd q gov proposals --depositor evo1hxv7mpztvln45eghez6evw2ypcw4vjmsmr8cdx
 ```
 
 Once you have the proposal ID, this is the command to deposit extra tokens:
@@ -240,7 +240,7 @@ evoblockd tx gov deposit <proposal-id> <deposit> --from <name>
 ```
 
 In our case above, the `<proposal-id>` would be 59 as queried earlier.
-The `<deposit>` is written as `500000aevmos`, just like the example above.
+The `<deposit>` is written as `500000aEVO`, just like the example above.
 
 ### Submit your proposal to the testnet
 
@@ -255,4 +255,4 @@ Submitting your proposal to the testnet increases the likelihood that you will d
 
 - you'll need testnet tokens for your proposal (ask around for a [faucet](./../../developers/testnet/faucet.md))
 - the parameters for testnet proposals are different (eg. voting period timing, deposit amount, deposit denomination)
-- the deposit denomination is in `'atevmos'` instead of `'aEVO'`
+- the deposit denomination is in `'atEVO'` instead of `'aEVO'`

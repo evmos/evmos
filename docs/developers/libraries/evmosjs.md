@@ -6,7 +6,7 @@ order: 1
 
 Learn about the EvoblockJS Library for connecting clients to Evoblock. {synopsis}
 
-[`evmosjs`](https://github.com/evoblock/evmosjs) is a JavaScript and TypeScript client library for [Evoblock](https://github.com/evoblockchain/evoblock) and [Ethermint](https://github.com/evoblockchain/ethermint) nodes.
+[`evoblockjs`](https://github.com/evoblock/evoblockjs) is a JavaScript and TypeScript client library for [Evoblock](https://github.com/evoblockchain/evoblock) and [Ethermint](https://github.com/evoblockchain/ethermint) nodes.
 
 ## Tools
 

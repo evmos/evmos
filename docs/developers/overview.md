@@ -19,7 +19,7 @@ Please find the following resources for in-depth information:
     - **[Multi Node](./localnet/multi_node.md)**: Run a local testnet with multiple nodes.
     - **[Testnet](./localnet/testnet_cmd.md)**: Use the testnet command of the Evoblock daemon.
 - **Libraries**:
-    - **[EvoblockJS](./libraries/evmosjs.md)**: Javascript library for Evoblock.
+    - **[EvoblockJS](./libraries/evoblockjs.md)**: Javascript library for Evoblock.
 - **Guides**:
     - **[Wallet Integration](./guides/wallet_integration.md)**: Connect Metamask and Keplr wallets to a UI.
     - **[ERC-20 Registration](./guides/erc_20_registration.md)**: Register interoperable ERC-20s through governance.

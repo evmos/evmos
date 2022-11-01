@@ -43,7 +43,7 @@ After the initial Evoblock launch (`v1.1.2`), tokens got stuck from accounts wit
 
     **Recovery procedure**
 
-    - The receiver can send an IBC transfer from their Osmosis / Cosmos Hub  account (i.e `osmo1...` or `cosmos1...`) to its same Evoblock account (`evmos1...`) to recover the tokens by forwarding them to the corresponding sending chain (Osmosis or Cosmos Hub)
+    - The receiver can send an IBC transfer from their Osmosis / Cosmos Hub  account (i.e `osmo1...` or `cosmos1...`) to its same Evoblock account (`evo1...`) to recover the tokens by forwarding them to the corresponding sending chain (Osmosis or Cosmos Hub)
 2. Osmosis/Cosmos Hub account with claims record sent IBC transfer to Evoblock `secp256k1` receiver address
 
     **Consequences**
@@ -54,7 +54,7 @@ After the initial Evoblock launch (`v1.1.2`), tokens got stuck from accounts wit
 
     **Recovery procedure**
 
-    - The receiver can send an IBC transfer from their Osmosis / Cosmos Hub  account (i.e `osmo1...` or `cosmos1...`) to its same Evoblock account (`evmos1...`)  to recover the tokens by forwarding them to the corresponding sending chain (Osmosis or Cosmos Hub)
+    - The receiver can send an IBC transfer from their Osmosis / Cosmos Hub  account (i.e `osmo1...` or `cosmos1...`) to its same Evoblock account (`evo1...`)  to recover the tokens by forwarding them to the corresponding sending chain (Osmosis or Cosmos Hub)
     - Migrate once again the claims record to a valid account so that the remaining 3 actions can be claimed
     - Chain is restarted with restored Claims records
 
@@ -78,13 +78,13 @@ This means that the IBC transfer will be executed first, then the claim will be 
 
 **Example execution order**
 
-1. User attempts to recover `1000aevmos` that are stuck on the Evoblock chain.
+1. User attempts to recover `1000aEVO` that are stuck on the Evoblock chain.
 2. User sends `100uosmo` from Osmosis to Evoblock through an IBC transaction.
 3. Evoblock receives the transaction, and goes through the IBC stack:
     1. **IBC transfer**: the `100uosmo` IBC vouchers are added to the user balance on evoblock.
     2. **Claims Middleware**: since `sender=receiver` -> perform no-op
-    3. **Recovery Middleware**: since `sender=receiver` -> recover user balance (`1000aevmos` and `100uosmo`) by sending an IBC transfer from `receiver` to the `sender` on the Osmosis chain.
-4. User receives `100uosmo` and `1000aevmos` (IBC voucher) on Osmosis.
+    3. **Recovery Middleware**: since `sender=receiver` -> recover user balance (`1000aEVO` and `100uosmo`) by sending an IBC transfer from `receiver` to the `sender` on the Osmosis chain.
+4. User receives `100uosmo` and `1000aEVO` (IBC voucher) on Osmosis.
 
 ### Execution errors
 

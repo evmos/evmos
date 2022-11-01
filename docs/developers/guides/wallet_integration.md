@@ -25,7 +25,7 @@ The integration implementation checklist for dApp developers consists of three c
 
 ### Frontend
 
-Make sure to create a wallet-connection button for Metamask and/or Keplr on the frontend of the application. For instance, consider the "Connect to a wallet" button on the interface of [Diffusion Finance](https://app.diffusion.fi/) or the analagous button on the interface of [EvmoSwap](https://app.evmoswap.org/).
+Make sure to create a wallet-connection button for Metamask and/or Keplr on the frontend of the application. For instance, consider the "Connect to a wallet" button on the interface of [Diffusion Finance](https://app.diffusion.fi/) or the analagous button on the interface of [EvmoSwap](https://app.evoblockwap.org/).
 
 ### Transactions
 
@@ -48,18 +48,18 @@ After the user's wallet type has been determined, developers can proceed with cr
 **Note**: The example below uses the Evoblock Testnet `chainID`. For more info, check the Evoblock Chain IDs reference document [here](../../users/technical_concepts/chain_id.md).
 :::
 
-Developers can create `MsgSend` transactions using the [evmosjs](../libraries/evmosjs.md) library.
+Developers can create `MsgSend` transactions using the [evoblockjs](../libraries/evoblockjs.md) library.
 
 ```js
 import { createMessageSend } from @tharsis/transactions
 
 const chain = {
     chainId: 9000,
-    cosmosChainId: 'evmos_9000-4',
+    cosmosChainId: 'evoblock_9000-4',
 }
 
 const sender = {
-    accountAddress: 'evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp',
+    accountAddress: 'evo1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp',
     sequence: 1,
     accountNumber: 9,
     pubkey: 'AgTw+4v0daIrxsNSW4FcQ+IoingPseFwHO1DnssyoOqZ',
@@ -74,7 +74,7 @@ const fee = {
 const memo = ''
 
 const params = {
-    destinationAddress: 'evmos1pmk2r32ssqwps42y3c9d4clqlca403yd9wymgr',
+    destinationAddress: 'evo1pmk2r32ssqwps42y3c9d4clqlca403yd9wymgr',
     amount: '1',
     denom: 'aEVO',
 }
@@ -99,10 +99,10 @@ With the signature, we add a Web3Extension to the transaction and broadcast it t
 
 <!-- textlint-enable -->
 ```js
-// Note that this example is for MetaMask, using evmosjs
+// Note that this example is for MetaMask, using evoblockjs
 
 // Follow the previous code block to generate the msg object
-import { evmosToEth } from '@tharsis/address-converter'
+import { evoblockToEth } from '@tharsis/address-converter'
 import { generateEndpointBroadcast, generatePostBodyBroadcast } from '@tharsis/provider'
 import { createTxRawEIP712, signatureToWeb3Extension } from '@tharsis/transactions'
 
@@ -112,7 +112,7 @@ await window.ethereum.enable();
 // Request the signature
 let signature = await window.ethereum.request({
     method: 'eth_signTypedData_v4',
-    params: [evmosToEth(sender.accountAddress), JSON.stringify(msg.eipToSign)],
+    params: [evoblockToEth(sender.accountAddress), JSON.stringify(msg.eipToSign)],
 });
 
 // The chain and sender objects are the same as the previous example

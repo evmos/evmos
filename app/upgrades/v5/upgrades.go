@@ -32,17 +32,17 @@ var TestnetDenomMetadata = banktypes.Metadata{
 	Description: "The native EVM, governance and staking token of the Evoblock testnet",
 	DenomUnits: []*banktypes.DenomUnit{
 		{
-			Denom:    "atevmos",
+			Denom:    "atEVO",
 			Exponent: 0,
-			Aliases:  []string{"attotevmos"},
+			Aliases:  []string{"attotEVO"},
 		},
 		{
-			Denom:    "tevmos",
+			Denom:    "tEVO",
 			Exponent: 18,
 		},
 	},
-	Base:    "atevmos",
-	Display: "tevmos",
+	Base:    "atEVO",
+	Display: "tEVO",
 	Name:    "Testnet Evoblock",
 	Symbol:  "tEVO",
 }

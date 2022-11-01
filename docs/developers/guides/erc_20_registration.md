@@ -77,7 +77,7 @@ evoblockd tx gov submit-proposal \
   --title=<title> \
   --description=<description> \
   --type="Text" \
-  --deposit="1000000aevmos" \
+  --deposit="1000000aEVO" \
   --from=<mykey> \
   --chain-id=<testnet_chain_id>
   --node <address>

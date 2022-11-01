@@ -15,17 +15,17 @@ You can customize the local testnet script by changing values for convenience fo
 ```bash
 # customize the name of your key, the chain-id, moniker of the node, keyring backend, and log level
 KEY="mykey"
-CHAINID="evmos_9000-4"
+CHAINID="evoblock_9000-4"
 MONIKER="localtestnet"
 KEYRING="test"
 LOGLEVEL="info"
 
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evoblockd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
+evoblockd add-genesis-account $KEY 100000000000000000000000000aEVO --keyring-backend $KEYRING
 
 # Sign genesis transaction
-evoblockd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID
+evoblockd gentx $KEY 1000000000000000000000aEVO --keyring-backend $KEYRING --chain-id $CHAINID
 ```
 
 The default configuration will generate a single validator localnet with the chain-id
@@ -48,7 +48,7 @@ Before actually running the node, we need to initialize the chain, and most impo
 ```bash
 $MONIKER=testing
 $KEY=mykey
-$CHAINID="evmos_9000-4"
+$CHAINID="evoblock_9000-4"
 
 # The argument $MONIKER is the custom username of your node, it should be human-readable.
 evoblockd init $MONIKER --chain-id=$CHAINID
@@ -73,7 +73,7 @@ evoblockd keys add my_validator
 Once you have created a local account, go ahead and grant it some `aEVO` tokens in your chain's genesis file. Doing so will also make sure your chain is aware of this account's existence:
 
 ```bash
-evoblockd add-genesis-account my_validator 10000000000aevmos
+evoblockd add-genesis-account my_validator 10000000000aEVO
 ```
 
 Now that your account has some tokens, you need to add a validator to your chain.
@@ -84,7 +84,7 @@ Now that your account has some tokens, you need to add a validator to your chain
 # Create a gentx
 # NOTE: this command lets you set the number of coins. 
 # Make sure this account has some coins with the genesis.app_state.staking.params.bond_denom denom
-evoblockd add-genesis-account my_validator 1000000000stake,10000000000aevmos
+evoblockd add-genesis-account my_validator 1000000000stake,10000000000aEVO
 ```
 
 A `gentx` does three things:

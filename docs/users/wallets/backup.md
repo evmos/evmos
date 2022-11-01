@@ -15,7 +15,7 @@ evoblockd keys add mykey
 {
   "name": "mykey",
   "type": "local",
-  "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
+  "address": "evo1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
   "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}',
   "mnemonic": ""
 }
@@ -35,7 +35,7 @@ banner genuine height east ghost oak toward reflect asset marble else explain fo
 {
   "name": "mykey-restored",
   "type": "local",
-  "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
+  "address": "evo1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
   "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
 }
 ```
@@ -108,19 +108,19 @@ $ evoblockd keys list
   {
     "name": "mykey-imported",
     "type": "local",
-    "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
+    "address": "evo1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
     "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
   },
   {
     "name": "mykey-restored",
     "type": "local",
-    "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
+    "address": "evo1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
     "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
   },
   {
     "name": "mykey",
     "type": "local",
-    "address": "evmos1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
+    "address": "evo1n253dl2tgyhxjm592p580c38r4dn8023ctv28d",
     "pubkey": '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"ArJhve4v5HkLm+F7ViASU/rAGx7YrwU4+XKV2MNJt+Cq"}'
   }
 ]

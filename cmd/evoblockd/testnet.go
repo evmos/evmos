@@ -44,7 +44,7 @@ import (
 	evmtypes "github.com/evoblockchain/ethermint/x/evm/types"
 
 	cmdcfg "github.com/evoblockchain/evoblock/v8/cmd/config"
-	evmoskr "github.com/evoblockchain/evoblock/v8/crypto/keyring"
+	evoblockkr "github.com/evoblockchain/evoblock/v8/crypto/keyring"
 	"github.com/evoblockchain/evoblock/v8/testutil/network"
 )
 
@@ -211,7 +211,7 @@ func initTestnetFiles(
 	args initArgs,
 ) error {
 	if args.chainID == "" {
-		args.chainID = fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1)
+		args.chainID = fmt.Sprintf("evoblock_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
 
 	nodeIDs := make([]string, args.numValidators)
@@ -263,7 +263,7 @@ func initTestnetFiles(
 		memo := fmt.Sprintf("%s@%s:26656", nodeIDs[i], ip)
 		genFiles = append(genFiles, nodeConfig.GenesisFile())
 
-		kb, err := keyring.New(sdk.KeyringServiceName(), args.keyringBackend, nodeDir, inBuf, evmoskr.Option())
+		kb, err := keyring.New(sdk.KeyringServiceName(), args.keyringBackend, nodeDir, inBuf, evoblockkr.Option())
 		if err != nil {
 			return err
 		}

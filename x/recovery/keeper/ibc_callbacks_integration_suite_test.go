@@ -119,11 +119,11 @@ var (
 	}
 	uatomIbcdenom = uatomDenomtrace.IBCDenom()
 
-	aevmosDenomtrace = transfertypes.DenomTrace{
+	aEVODenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
 		BaseDenom: "aEVO",
 	}
-	aevmosIbcdenom = aevmosDenomtrace.IBCDenom()
+	aEVOIbcdenom = aEVODenomtrace.IBCDenom()
 
 	uatomOsmoDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0/transfer/channel-1",

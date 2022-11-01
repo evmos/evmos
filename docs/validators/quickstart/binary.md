@@ -70,7 +70,7 @@ If it's empty, make sure to edit the field with some value, for example `10token
  # The minimum gas prices a validator is willing to accept for processing a
  # transaction. A transaction's fees must meet the minimum of any denomination
  # specified in this config (e.g. 0.25token1;0.0001token2).
- minimum-gas-prices = "0aevmos"
+ minimum-gas-prices = "0aEVO"
 ```
 
 ### Pruning of State
@@ -109,13 +109,13 @@ evoblockd config
 
 We can make changes to the default settings upon our choices, so it allows users to set the configuration beforehand all at once, so it would be ready with the same config afterward.
 
-For example, the chain identifier can be changed to `evmos_9000-4` from a blank name by using:
+For example, the chain identifier can be changed to `evoblock_9000-4` from a blank name by using:
 
 ```bash
-evoblockd config "chain-id" evmos_9000-4
+evoblockd config "chain-id" evoblock_9000-4
 evoblockd config
 {
- "chain-id": "evmos_9000-4",
+ "chain-id": "evoblock_9000-4",
  "keyring-backend": "os",
  "output": "text",
  "node": "tcp://localhost:26657",
@@ -135,7 +135,7 @@ Alternatively, we can directly make the changes to the config values in one plac
 
 # The network chain ID
 
-chain-id = "evmos_9000-4"
+chain-id = "evoblock_9000-4"
 
 # The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
 
@@ -154,12 +154,12 @@ node = "tcp://localhost:26657"
 broadcast-mode = "sync"
 ```
 
-After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` to `evmostest_9000-1`, and output to number, it would change instantly as shown below.
+After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `evoblock_{{ $themeConfig.project.testnet_chain_id }}-2` to `evoblocktest_9000-1`, and output to number, it would change instantly as shown below.
 
 ```bash
 evoblockd config
 {
- "chain-id": "evmostest_9000-1",
+ "chain-id": "evoblocktest_9000-1",
  "keyring-backend": "os",
  "output": "number",
  "node": "tcp://localhost:26657",

@@ -27,13 +27,13 @@ You can register a contract by signing a transaction with the address that origi
 
 - `$NONCE` is the nonce of transaction that deployed the contract (e.g. `0`),
 - `$CONTRACT` is the hex address of the deployed contract (e.g `0x5f6659B6F712c729c46786bA9562eC50907c67CF`) and
-- (optional) `$WITHDRAWER` is the bech32 address of the address to receive the transaction fees (e.g. `evmos1keyy3teyq7t7kuxgeek3v65n0j27k20v2ugysf`):
+- (optional) `$WITHDRAWER` is the bech32 address of the address to receive the transaction fees (e.g. `evo1keyy3teyq7t7kuxgeek3v65n0j27k20v2ugysf`):
 
 ```bash
 # Register a revenue for your contract
 evoblockd tx revenue register $CONTRACT $NONCE $WITHDRAWER \
 --from=mykey \ # contract deployer key
---gas=700000 --gas-prices=10000aevmos \ # can vary depending on the network
+--gas=700000 --gas-prices=10000aEVO \ # can vary depending on the network
 ```
 
 After your transaction is submitted successfully, you can query your `revenue` with :
@@ -58,7 +58,7 @@ Registered contracts can also be updated. To update the withdrawer address of yo
 ```bash
 # Update withdrawer for your contract
 evoblockd tx revenue update $CONTRACT $WITHDRAWER \
---gas=700000 --gas-prices=10000aevmos \
+--gas=700000 --gas-prices=10000aEVO \
 --from=mm
 ```
 
@@ -71,6 +71,6 @@ Revenues can also be canceled. In order to stop receiving transaction fees for i
 ```bash
 # Cancel revenue for your contract
 evoblockd tx revenue cancel $CONTRACT \
---gas=700000 --gas-prices=10000aevmos \
+--gas=700000 --gas-prices=10000aEVO \
 --from=mm
 ```

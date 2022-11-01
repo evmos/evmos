@@ -12,10 +12,10 @@ You specify the network you want to join by setting the **genesis file** and **s
 
 | Testnet Chain ID | Description                       | Site                                                                       | Version                                                                                  | Status  |
 | ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------- |
-| `evmos_9000-4`   | Evoblock_9000-4 Testnet              | [Evoblock 9000-4](https://github.com/tharsis/testnets/tree/main/evmos_9000-4) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evoblockchain/evoblock/releases) | `Live`  |
-| `evmos_9000-3`   | Evoblock_9000-3 Testnet              | [Evoblock 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/evoblockchain/evoblock/releases/tag/v1.0.0-beta1)             | `Stale` |
-| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/evoblockchain/evoblock/releases)                                    | `Stale` |
-| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/evoblockchain/evoblock/releases)                                    | `Stale` |
+| `evoblock_9000-4`   | Evoblock_9000-4 Testnet              | [Evoblock 9000-4](https://github.com/tharsis/testnets/tree/main/evoblock_9000-4) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evoblockchain/evoblock/releases) | `Live`  |
+| `evoblock_9000-3`   | Evoblock_9000-3 Testnet              | [Evoblock 9000-3](https://github.com/tharsis/testnets/tree/main/evoblock_9000-3) | [`v1.0.0-beta1`](https://github.com/evoblockchain/evoblock/releases/tag/v1.0.0-beta1)             | `Stale` |
+| `evoblock_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/evoblockchain/evoblock/releases)                                    | `Stale` |
+| `evoblock_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/evoblockchain/evoblock/releases)                                    | `Stale` |
 
 ## Install `evoblockd`
 
@@ -34,7 +34,7 @@ See the Official [Chain IDs](./../users/technical_concepts/chain_id.md#official-
 :::
 
 ```bash
-evoblockd config chain-id evmos_9000-4
+evoblockd config chain-id evoblock_9000-4
 ```
 
 ## Initialize Node
@@ -42,7 +42,7 @@ evoblockd config chain-id evmos_9000-4
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-evoblockd init <your_custom_moniker> --chain-id evmos_9000-4
+evoblockd init <your_custom_moniker> --chain-id evoblock_9000-4
 ```
 
 ::: danger
@@ -56,11 +56,11 @@ In the `config` directory, the most important files for configuration are `app.t
 
 ### Copy the Genesis File
 
-Check the `genesis.json` file from the [`archive`](https://archive.evoblock.dev/evmos_9000-4/genesis.json) and copy it over to the `config` directory: `~/.evoblockd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
+Check the `genesis.json` file from the [`archive`](https://archive.evoblock.dev/evoblock_9000-4/genesis.json) and copy it over to the `config` directory: `~/.evoblockd/config/genesis.json`. This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
 sudo apt install -y unzip wget
-wget -P ~/.evoblockd/config https://archive.evoblock.dev/evmos_9000-4/genesis.json
+wget -P ~/.evoblockd/config https://archive.evoblock.dev/evoblock_9000-4/genesis.json
 ```
 
 Then verify the correctness of the genesis configuration file:
@@ -90,7 +90,7 @@ seeds = "<node-id>@<ip>:<p2p port>"
 You can use the following code to get seeds from the repo and add it to your config:
 
 ```bash
-SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evmos_9000-4/seeds.txt | awk '{print $1}' | paste -s -d, -`
+SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evoblock_9000-4/seeds.txt | awk '{print $1}' | paste -s -d, -`
 sed -i.bak -e "s/^seeds =.*/seeds = \"$SEEDS\"/" ~/.evoblockd/config/config.toml
 ```
 
@@ -106,7 +106,7 @@ available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
 A list of available persistent peers is also available in the `#find-peers` channel in the [Evoblock Discord](https://discord.gg/evoblock). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
-PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evmos_9000-4/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
+PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/testnets/main/evoblock_9000-4/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
 ```
 
 Use `sed` to include them into the configuration. You can also add them manually:
@@ -125,7 +125,7 @@ For more details on how to run your validator, follow [these](./setup/run_valida
 
 ```bash
 evoblockd tx staking create-validator \
-  --amount=1000000000000atevmos \
+  --amount=1000000000000atEVO \
   --pubkey=$(evoblockd tendermint show-validator) \
   --moniker="EvoblockWhale" \
   --chain-id=<chain_id> \
@@ -134,7 +134,7 @@ evoblockd tx staking create-validator \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
-  --gas-prices="0.025atevmos" \
+  --gas-prices="0.025atEVO" \
   --from=<key_name>
 ```
 

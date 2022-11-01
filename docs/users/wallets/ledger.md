@@ -115,7 +115,7 @@ You can see the complete message to be signed
 - `fee`: amount to be paid to send the transaction.
 - `gas`: max gas that can be spent by this transaction (aka gas limit).
 - `memo`: transaction note or comment.
-- `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds. Also, we can verify that we are actually sending *10000aevmos* to that wallet.
+- `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds. Also, we can verify that we are actually sending *10000aEVO* to that wallet.
 
 ### Ledger signing
 

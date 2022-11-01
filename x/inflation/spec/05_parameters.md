@@ -46,7 +46,7 @@ proposed in the Evoblock Token Model. Each `InflationDistribution` can be
 calculated like this:
 
 ```markdown
-stakingRewards = evmosTokenModelDistribution / (1 - teamVestingDistribution)
+stakingRewards = evoblockTokenModelDistribution / (1 - teamVestingDistribution)
 0.5333333      = 40%                         / (1 - 25%)
 ```
 

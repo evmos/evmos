@@ -20,7 +20,7 @@ import (
 	"github.com/evoblockchain/evoblock/v8/app"
 	v7 "github.com/evoblockchain/evoblock/v8/app/upgrades/v7"
 	"github.com/evoblockchain/evoblock/v8/testutil"
-	evmostypes "github.com/evoblockchain/evoblock/v8/types"
+	evoblocktypes "github.com/evoblockchain/evoblock/v8/types"
 	claimstypes "github.com/evoblockchain/evoblock/v8/x/claims/types"
 )
 
@@ -87,7 +87,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 	}{
 		{
 			"Testnet - sucess",
-			evmostypes.TestnetChainID + "-4",
+			evoblocktypes.TestnetChainID + "-4",
 			true,
 		},
 	}
@@ -128,7 +128,7 @@ func (suite *UpgradeTestSuite) TestMigrateSkippedEpochs() {
 	}{
 		{
 			"success",
-			evmostypes.MainnetChainID + "-2",
+			evoblocktypes.MainnetChainID + "-2",
 			func() {
 				suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, uint64(94))
 			},
@@ -180,7 +180,7 @@ func (suite *UpgradeTestSuite) TestMigrateClaim() {
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.TestnetChainID + "-2") // reset
+			suite.SetupTest(evoblocktypes.TestnetChainID + "-2") // reset
 
 			tc.malleate()
 

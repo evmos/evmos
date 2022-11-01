@@ -28,7 +28,7 @@ Vesting and lockup schedules specify the amount and time at which tokens are ves
 Vesting or lockup schedules can be easily created with Agoric’s [`vestcalc`](https://github.com/agoric-labs/cosmos-sdk/tree/Agoric/x/auth/vesting/cmd/vestcalc) tool. E.g. to calculate a four-year vesting schedule with a one year cliff, starting in January 2022, you can run vestcalc with:
 
 ```bash
-vestcalc --write --start=2022-01-01 --coins=200000000000000000000000aevmos --months=48 --cliffs=2023-01-01
+vestcalc --write --start=2022-01-01 --coins=200000000000000000000000aEVO --months=48 --cliffs=2023-01-01
 ```
 
 ## Clawback

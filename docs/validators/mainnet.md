@@ -16,8 +16,8 @@ You need to set the **genesis file** and **seeds**. If you need more information
 
 | Chain ID       | Description     | Site                                                               | Version                                                      | Status  |
 | -------------- | --------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------- |
-| `evmos_9001-2` | Evoblock Mainnet 2 | [Evoblock](https://github.com/tharsis/mainnet/tree/main/evmos_9001-2) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evoblockchain/evoblock/releases) | `Live`  |
-| `evmos_9001-1` | Evoblock Mainnet 1 | [Evoblock](https://github.com/tharsis/mainnet/tree/main/evmos_9001-1) | [`v2.0.1`](https://github.com/evoblockchain/evoblock/releases/v2.0.1) | `Stale` |
+| `evoblock_9001-2` | Evoblock Mainnet 2 | [Evoblock](https://github.com/tharsis/mainnet/tree/main/evoblock_9001-2) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evoblockchain/evoblock/releases) | `Live`  |
+| `evoblock_9001-1` | Evoblock Mainnet 1 | [Evoblock](https://github.com/tharsis/mainnet/tree/main/evoblock_9001-1) | [`v2.0.1`](https://github.com/evoblockchain/evoblock/releases/v2.0.1) | `Stale` |
 
 ::: warning
 **IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security/security.md) recommendations!
@@ -40,7 +40,7 @@ See the Official [Chain IDs](./../users/technical_concepts/chain_id.md#official-
 :::
 
 ```bash
-evoblockd config chain-id evmos_9001-2
+evoblockd config chain-id evoblock_9001-2
 ```
 
 ## Initialize Node
@@ -48,7 +48,7 @@ evoblockd config chain-id evmos_9001-2
 We need to initialize the node to create all the necessary validator and node configuration files:
 
 ```bash
-evoblockd init <your_custom_moniker> --chain-id evmos_9001-2
+evoblockd init <your_custom_moniker> --chain-id evoblock_9001-2
 ```
 
 ::: danger
@@ -96,7 +96,7 @@ seeds = "<node-id>@<ip>:<p2p port>"
 You can use the following code to get seeds from the repo and add it to your config:
 
 ```bash
-SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/mainnet/main/evmos_9001-2/seeds.txt | awk '{print $1}' | paste -s -d, -`
+SEEDS=`curl -sL https://raw.githubusercontent.com/tharsis/mainnet/main/evoblock_9001-2/seeds.txt | awk '{print $1}' | paste -s -d, -`
 sed -i.bak -e "s/^seeds =.*/seeds = \"$SEEDS\"/" ~/.evoblockd/config/config.toml
 ```
 
@@ -112,7 +112,7 @@ available peers on the [`mainnet`](https://github.com/tharsis/mainnet) repo.
 A list of available persistent peers is also available in the `#find-peers` channel in the [Evoblock Discord](https://discord.gg/evoblock). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
 ```bash
-PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/mainnet/main/evmos_9001-2/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
+PEERS=`curl -sL https://raw.githubusercontent.com/tharsis/mainnet/main/evoblock_9001-2/peers.txt | sort -R | head -n 10 | awk '{print $1}' | paste -s -d, -`
 ```
 
 Use `sed` to include them into the configuration. You can also add them manually:
@@ -129,7 +129,7 @@ For more details on how to run your validator, follow the validator [these](./se
 
 ```bash
 evoblockd tx staking create-validator \
-  --amount=1000000000000aevmos \
+  --amount=1000000000000aEVO \
   --pubkey=$(evoblockd tendermint show-validator) \
   --moniker="EvoblockWhale" \
   --chain-id=<chain_id> \
@@ -138,7 +138,7 @@ evoblockd tx staking create-validator \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1000000" \
   --gas="auto" \
-  --gas-prices="0.025aevmos" \
+  --gas-prices="0.025aEVO" \
   --from=<key_name>
 ```
 

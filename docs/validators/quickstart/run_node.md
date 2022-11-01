@@ -92,7 +92,7 @@ For more information about the Keyring and its backend options, click [here](./.
 - `$TRACESTORE` is the output file which contains KVStore tracing (eg. `store.txt`)
 
 ```bash
-evoblockd start --evm.tracer $TRACER --tracestore $TRACESTORE --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3
+evoblockd start --evm.tracer $TRACER --tracestore $TRACESTORE --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aEVO --json-rpc.api eth,txpool,personal,net,debug,web3
 ```
 
 ## Clearing data from chain
@@ -161,7 +161,7 @@ prometheus --config.file=prom_config.yaml
 and then visit the Prometheus dashboard at http://localhost:9090/ then navigate to the expression area and enter the following expression
 
 ```shell
-rate(evmosd_transactions_processed[1m])
+rate(evoblockd_transactions_processed[1m])
 ```
 
 which will show the rate of transactions processed.

@@ -48,12 +48,12 @@ You can find other configuration examples [here](https://github.com/iqlusioninc/
   # Example KMS configuration file
   [[validator]]
   addr = "tcp://localhost:26658"                  # or "unix:///path/to/socket"
-  chain_id = "evmos_9001-1"
+  chain_id = "evoblock_9001-1"
   reconnect = true                                # true is the default
   secret_key = "~/.tmkms/secret_connection.key"
 
   [[providers.ledger]]
-  chain_ids = ["evmos_9001-1"]
+  chain_ids = ["evoblock_9001-1"]
   ```
 
 - Edit `addr` to point to your `evoblockd` instance.
@@ -84,12 +84,12 @@ The output should look similar to:
 
 ```text
 07:28:24 [INFO] tmkms 0.11.0 starting up...
-07:28:24 [INFO] [keyring:ledger:ledger] added validator key evmosvalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f
+07:28:24 [INFO] [keyring:ledger:ledger] added validator key evovalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f
 07:28:24 [INFO] KMS node ID: 1BC12314E2E1C29015B66017A397F170C6ECDE4A
 ```
 
 The KMS may complain that it cannot connect to `evoblockd`. That is fine, we will fix it in the next section.
-This output indicates the validator key linked to this particular device is: `evmosvalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f`
+This output indicates the validator key linked to this particular device is: `evovalconspub1zcjduepqy53m39prgp9dz3nz96kaav3el5e0th8ltwcf8cpavqdvpxgr5slsd6wz6f`
 Take note of the validator pubkey that appears in your screen. *We will use it in the next section.*
 
 ## Evoblock configuration

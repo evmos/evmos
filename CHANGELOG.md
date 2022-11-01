@@ -187,7 +187,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (gitpod) [\#564](https://github.com/evoblockchain/evoblock/pull/564) Add one-click development environment
 - (erc20) [\#556](https://github.com/evoblockchain/evoblock/pull/556) Remove deprecated migrations.
 - (incentives) [\#551](https://github.com/evoblockchain/evoblock/pull/551) Add additional check to only distribute incentives to EOAs.
-- (cmd) [\#543](https://github.com/evoblockchain/evoblock/pull/543) Update mainnet default `min-gas-price` to `0.0025aevmos`.
+- (cmd) [\#543](https://github.com/evoblockchain/evoblock/pull/543) Update mainnet default `min-gas-price` to `0.0025aEVO`.
 - (epochs) [\#539](https://github.com/evoblockchain/evoblock/pull/539) Use constants for epoch identifiers.
 
 ### Bug Fixes
