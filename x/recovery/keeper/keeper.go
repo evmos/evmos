@@ -13,7 +13,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v9/x/recovery/types"
+	"github.com/evmos/evmos/v10/x/recovery/types"
 )
 
 var _ transfertypes.ICS4Wrapper = Keeper{}

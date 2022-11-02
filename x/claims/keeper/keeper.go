@@ -12,7 +12,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 
-	"github.com/evmos/evmos/v9/x/claims/types"
+	"github.com/evmos/evmos/v10/x/claims/types"
 )
 
 // Keeper struct

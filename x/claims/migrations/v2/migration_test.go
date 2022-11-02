@@ -8,9 +8,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v9/app"
-	v2 "github.com/evmos/evmos/v9/x/claims/migrations/v2"
-	claims "github.com/evmos/evmos/v9/x/claims/types"
+	"github.com/evmos/evmos/v10/app"
+	v2 "github.com/evmos/evmos/v10/x/claims/migrations/v2"
+	claims "github.com/evmos/evmos/v10/x/claims/types"
 	"github.com/stretchr/testify/require"
 )
 

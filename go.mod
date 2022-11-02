@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v9
+module github.com/evmos/evmos/v10
 
 go 1.18
 
@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0-beta.3
 	github.com/armon/go-metrics v0.4.1
-	github.com/cosmos/cosmos-sdk v0.46.3
+	github.com/cosmos/cosmos-sdk v0.46.4
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.0.1
 	github.com/ethereum/go-ethereum v1.10.19
