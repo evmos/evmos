@@ -42,7 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`
 
 ### Improvements
-- (style) [\#1024](https://github.com/evmos/evmos/pull/1024) make the sdk v46 version of evmos v10 for smoother imports
+- (chore) [\#1024](https://github.com/evmos/evmos/pull/1024) Bump `go.mod` evmos version to v10
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
