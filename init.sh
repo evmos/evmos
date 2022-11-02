@@ -1,8 +1,7 @@
 #!/bin/bash
 KEYS[0]="mykey"
-KEYS[1]="dev1"
-KEYS[2]="dev2"
-KEYS[3]="dev3"
+KEYS[1]="mykey1"
+KEYS[2]="mykey2"
 CHAINID="evmos_9000-1"
 MONIKER="localtestnet"
 KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
