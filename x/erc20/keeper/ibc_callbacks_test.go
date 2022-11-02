@@ -68,7 +68,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 		receiver      sdk.AccAddress
 		expErc20s     *big.Int
 		expCoins      sdk.Coins
-		ibcConv        bool
+		ibcConv       bool
 	}{
 		{
 			"error - non ics-20 packet",

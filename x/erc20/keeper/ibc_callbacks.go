@@ -30,7 +30,8 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	denomTrace := transfertypes.ParseDenomTrace(data.Denom)
-	denom := denomTrace.GetBaseDenom()
+	denomTrace.Path = packet.DestinationPort + "/" + packet.DestinationChannel
+	denom := denomTrace.IBCDenom()
 
 	// Return acknowledgement and continue with the next layer of the IBC middleware
 	// stack if if:
