@@ -41,10 +41,10 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/contracts"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/contracts"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 type KeeperTestSuite struct {

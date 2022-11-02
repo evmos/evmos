@@ -40,5 +40,5 @@ At this point, you might want to run a script to update the exported genesis int
 You can use the `migrate` command to migrate from a given version to the next one (eg: `v0.X.X` to `v1.X.X`):
 
 ```bash
-evmosd migrate [target-version] [/path/to/genesis.json] --chain-id=<new_chain_id> --genesis-time=<yyyy-mm-ddThh:mm:ssZ>
+evmosd migrate TARGET_VERSION GENESIS_FILE --chain-id=<new_chain_id> --genesis-time=<yyyy-mm-ddThh:mm:ssZ>
 ```

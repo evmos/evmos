@@ -42,11 +42,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`
 
 ### Improvements
+
+- (deps) [\#1033](https://github.com/evmos/evmos/pull/1033) Bump Cosmos SDK to [`v0.46.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
 - (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to cosmos-sdk docs.
 - (cmd) [\#974](https://github.com/evmos/evmos/pull/974) Add `prune` command.
+- (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
 
 ## [v9.1.0] - 2022-10-25
 
