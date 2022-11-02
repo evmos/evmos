@@ -2,7 +2,10 @@ package erc20
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
@@ -54,8 +57,20 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
-	// TODO: if the transfer fails and the transfer denom is an ERC20
-	// we need to convert back the IBC token to ERC20
+	var ack channeltypes.Acknowledgement
+	if err := transfertypes.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
+	}
+
+	var data transfertypes.FungibleTokenPacketData
+	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
+	}
+
+	if err := im.keeper.OnAcknowledgementPacket(ctx, packet, data, ack); err != nil {
+		return err
+	}
+
 	return im.Module.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
 }
 
@@ -66,8 +81,14 @@ func (im IBCMiddleware) OnTimeoutPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
-	// TODO: if the packet timeouts and the transfer denom is an ERC20
-	// we need to convert back the IBC token to ERC20
+	var data transfertypes.FungibleTokenPacketData
+	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
+	}
+
+	if err := im.keeper.OnTimeoutPacket(ctx, packet, data); err != nil {
+		return err
+	}
 
 	return im.Module.OnTimeoutPacket(ctx, packet, relayer)
 }
