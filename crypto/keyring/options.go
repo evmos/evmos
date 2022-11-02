@@ -10,7 +10,7 @@ import (
 	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
 	ledger "github.com/evmos/evmos-ledger-go"
-	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v10/app"
 )
 
 // AppName defines the Ledger app used for signing. Evmos uses the Ethereum app
