@@ -4,23 +4,21 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/ory/dockertest/v3/docker"
 )
 
-func (m *Manager) RunExec(ctx context.Context, execID string) (bytes.Buffer, bytes.Buffer, error) {
-	var outBuf, errBuf bytes.Buffer
-	err := m.pool.Client.StartExec(execID, docker.StartExecOptions{
+func (m *Manager) RunExec(ctx context.Context, exec string) (outBuf bytes.Buffer, errBuf bytes.Buffer, err error) {
+	err = m.pool.Client.StartExec(exec, docker.StartExecOptions{
 		Context:      ctx,
 		Detach:       false,
 		OutputStream: &outBuf,
 		ErrorStream:  &errBuf,
 	})
-	log.Println(outBuf.String(), errBuf.String(), err)
-	return outBuf, errBuf, err
+	return
 }
 
+// CreateExec creates docker exec command for specified container
 func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -38,7 +36,8 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 	return exec.ID, nil
 }
 
-func (m *Manager) CreateSubmitProposalExec(ctx context.Context, targetVersion string, upgradeHeight uint) (string, error) {
+// Creates evmos gov tx to submit upgrade proposal to the chain
+func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx", "gov", "submit-proposal",
@@ -47,17 +46,19 @@ func (m *Manager) CreateSubmitProposalExec(ctx context.Context, targetVersion st
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
 		"--upgrade-info=\"\"",
-		"--chain-id=evmos_9000-1",
+		fmt.Sprintf("--chain-id=%s", chainID),
 		"--from=mykey", "-b=block",
 		"--yes", "--keyring-backend=test",
 		"--log_format=json", "--fees=20aevmos",
 		"--gas=auto",
 	}
+	// increment proposal counter to use proposal number for deposit && voting
 	m.proposalCounter++
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-func (m *Manager) CreateDepositProposalExec() (string, error) {
+// Creates evmos gov tx to deposit for current upgrade proposal
+func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
@@ -66,7 +67,7 @@ func (m *Manager) CreateDepositProposalExec() (string, error) {
 		fmt.Sprint(m.proposalCounter),
 		"10000000aevmos",
 		"--from=mykey",
-		"--chain-id=evmos_9000-1",
+		fmt.Sprintf("--chain-id=%s", chainID),
 		"-b=block",
 		"--yes",
 		"--keyring-backend=test",
@@ -77,7 +78,8 @@ func (m *Manager) CreateDepositProposalExec() (string, error) {
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-func (m *Manager) CreateVoteProposalExec() (string, error) {
+// Creates evmos gov tx to vote 'yes' current upgrade proposal
+func (m *Manager) CreateVoteProposalExec(chainID string) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
@@ -86,7 +88,7 @@ func (m *Manager) CreateVoteProposalExec() (string, error) {
 		fmt.Sprint(m.proposalCounter),
 		"yes",
 		"--from=mykey",
-		"--chain-id=evmos_9000-1",
+		fmt.Sprintf("--chain-id=%s", chainID),
 		"-b=block",
 		"--yes",
 		"--keyring-backend=test",

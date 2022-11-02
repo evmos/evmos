@@ -17,6 +17,10 @@ const (
 	localRepository = "evmos"
 	localVersionTag = "local"
 
+	defaultChainID = "evmos_9000-1"
+
+	defaultManagerNetwork = "evmos-local"
+
 	firstUpgradeHeight = 50
 )
 
@@ -61,7 +65,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	s.loadUpgradeParams()
 
-	s.upgradeManager, err = upgrade.NewManager()
+	s.upgradeManager, err = upgrade.NewManager(defaultManagerNetwork)
 	s.NoError(err, "upgrade manager creation error")
 
 }
@@ -81,12 +85,12 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 
 	migrateGenFlag := os.Getenv("MIGRATE_GENESIS")
 	migrateGenesis, err := strconv.ParseBool(migrateGenFlag)
-	s.Require().NoError(err, "invalid migrate genesis flag")
+	s.NoError(err, "invalid migrate genesis flag")
 	s.upgradeParams.MigrateGenesis = migrateGenesis
 
 	skipFlag := os.Getenv("E2E_SKIP_CLEANUP")
 	skipCleanup, err := strconv.ParseBool(skipFlag)
-	s.Require().NoError(err, "invalid skip cleanup flag")
+	s.NoError(err, "invalid skip cleanup flag")
 	s.upgradeParams.SkipCleanup = skipCleanup
 
 	mountPath := os.Getenv("MOUNT_PATH")
@@ -103,11 +107,11 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 	}
 	s.T().Log("tearing down e2e integration test suite...")
 
-	s.Require().NoError(s.upgradeManager.KillCurrentNode())
+	s.NoError(s.upgradeManager.KillCurrentNode())
 
-	s.Require().NoError(s.upgradeManager.RemoveNetwork())
+	s.NoError(s.upgradeManager.RemoveNetwork())
 
-	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
+	s.NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
@@ -127,18 +131,18 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
-		ctx,
 		s.upgradeParams.TargetVersion,
+		defaultChainID,
 		firstUpgradeHeight,
 	)
 	s.NoError(err, "can't create submit proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-	s.Require().NoErrorf(
+	s.NoErrorf(
 		err,
 		"failed to submit upgrade proposal; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
 	)
 
-	s.Require().Truef(
+	s.Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
 		"tx returned non code 0"+outBuf.String(),
 	)
@@ -149,7 +153,7 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 func (s *IntegrationTestSuite) depositToProposal() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateDepositProposalExec()
+	exec, err := s.upgradeManager.CreateDepositProposalExec(defaultChainID)
 	s.NoError(err, "can't create deposit to proposal tx exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -157,7 +161,7 @@ func (s *IntegrationTestSuite) depositToProposal() {
 		"failed to submit deposit to proposal tx; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
 	)
 
-	s.Require().Truef(
+	s.Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
 		"tx returned non code 0"+outBuf.String(),
 	)
@@ -168,15 +172,15 @@ func (s *IntegrationTestSuite) depositToProposal() {
 func (s *IntegrationTestSuite) voteForProposal() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec()
+	exec, err := s.upgradeManager.CreateVoteProposalExec(defaultChainID)
 	s.NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-	s.Require().NoErrorf(
+	s.NoErrorf(
 		err,
 		"failed to vote for proposal tx; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
 	)
 
-	s.Require().Truef(
+	s.Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
 		"tx returned non code 0"+outBuf.String(),
 	)
@@ -199,10 +203,10 @@ func (s *IntegrationTestSuite) upgrade() {
 
 	node := upgrade.NewNode(localRepository, localVersionTag).Mount(s.upgradeParams.MountPath)
 	err = s.upgradeManager.RunNode(node)
-	s.Require().NoError(err, "can't mount and run upgraded node container")
+	s.NoError(err, "can't mount and run upgraded node container")
 
 	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)
-	s.Require().NoError(err, "node not produce blocks")
+	s.NoError(err, "node not produce blocks")
 
 	s.T().Logf("successfully started node version: %s", s.upgradeParams.TargetVersion)
 }

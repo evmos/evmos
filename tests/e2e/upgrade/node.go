@@ -4,6 +4,8 @@ import "github.com/ory/dockertest/v3"
 
 var baseCmd = []string{"evmosd", "start"}
 
+// Node defines evmos node params for running container
+// of specific version with custom docker run arguments
 type Node struct {
 	repository string
 	version    string
@@ -24,18 +26,23 @@ func NewNode(repository, version string) *Node {
 	}
 }
 
+// Mount sets container mount point, used as value for 'docker run --volume'
+// https://docs.docker.com/engine/reference/builder/#volume
 func (n *Node) Mount(mountPath string) *Node {
 	n.runOptions.Mounts = []string{mountPath}
 	n.UseRunOptions()
 	return n
 }
 
-func (n *Node) Cmd(cmd []string) *Node {
+// SetCmd sets container entry command, overriding image CMD instruction
+// https://docs.docker.com/engine/reference/builder/#cmd
+func (n *Node) SetCmd(cmd []string) *Node {
 	n.runOptions.Cmd = cmd
 	n.UseRunOptions()
 	return n
 }
 
+// UseRunOptions flags Manager to run container with additional run options
 func (n *Node) UseRunOptions() {
 	n.withRunOptions = true
 }

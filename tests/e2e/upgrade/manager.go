@@ -12,6 +12,8 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 )
 
+// Manager defines docker pool instance, used to run and interact with evmos
+// node containers: run, query, execute cli commands and purge
 type Manager struct {
 	pool    *dockertest.Pool
 	network *dockertest.Network
@@ -20,13 +22,13 @@ type Manager struct {
 	proposalCounter uint
 }
 
-func NewManager() (*Manager, error) {
+func NewManager(networkName string) (*Manager, error) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		return nil, fmt.Errorf("docker pool creation error: %w", err)
 	}
 
-	network, err := pool.CreateNetwork("evmos-local")
+	network, err := pool.CreateNetwork(networkName)
 	if err != nil {
 		return nil, fmt.Errorf("docker network creation error: %w", err)
 	}
@@ -60,18 +62,20 @@ func (m *Manager) RemoveNetwork() error {
 }
 
 func (m *Manager) KillCurrentNode() error {
-	time.Sleep(5 * time.Second)
-	return m.pool.Purge(m.CurrentNode)
+	return m.pool.Client.StopContainer(m.ContainerID(), 5)
 }
 
 func (m *Manager) ContainerID() string {
 	return m.CurrentNode.Container.ID
 }
 
+// Docker client
 func (m *Manager) Client() *docker.Client {
 	return m.pool.Client
 }
 
+// WaitForHeight query evmos node every second until node will reach specified height
+// for 5 minutes, after time exceed returns error
 func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	var currentHeight int
 	var err error
@@ -101,6 +105,7 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 	}
 	outStr := outBuff.String()
 	var h int
+	// parse current height number from block info
 	if outStr != "<nil>" && outStr != "" {
 		index := strings.Index(outBuff.String(), "\"height\":")
 		qq := outStr[index+10 : index+12]
@@ -112,6 +117,9 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 	return h, nil
 }
 
+// ExportState execute 'docker cp' command to copy container .evmosd dir
+// to specified local dir
+// https://docs.docker.com/engine/reference/commandline/cp/
 func (m *Manager) ExportState(targetDir string) error {
 	cmd := exec.Command(
 		"docker",
