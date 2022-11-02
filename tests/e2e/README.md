@@ -81,6 +81,12 @@ docker ps -a
 docker logs <cointainer_id>
 ```
 
+For interaction with upgraded node container/cli, set `SKIP_CLEANUP=true` on make command agruments and enter the container after upgrade finished:
+
+```
+docker exec -it <container-id> bash
+```
+
 To rerun the tests, make sure to remove all docker containers first with(if you skiped cleanup or tests failed):
 
 ```
