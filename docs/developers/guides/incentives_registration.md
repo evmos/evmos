@@ -65,7 +65,7 @@ evmosd tx gov submit-proposal \
   --title=<title> \
   --description=<description> \
   --deposit="1000000aevmos" \
-  --from=<mykey> \
+  --from=<dev0> \
   --chain-id=<testnet_chain_id> \
   --node <address>
 ```

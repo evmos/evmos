@@ -14,7 +14,7 @@ You can customize the local testnet script by changing values for convenience fo
 
 ```bash
 # customize the name of your key, the chain-id, moniker of the node, keyring backend, and log level
-KEY="mykey"
+KEY="dev0"
 CHAINID="evmos_9000-4"
 MONIKER="localtestnet"
 KEYRING="test"
@@ -29,7 +29,7 @@ evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chai
 ```
 
 The default configuration will generate a single validator localnet with the chain-id
-`evmosd-1` and one predefined account (`mykey`) with some allocated funds at the genesis.
+`evmosd-1` and one predefined account (`dev0`) with some allocated funds at the genesis.
 
 You can start the local chain using:
 
@@ -47,7 +47,7 @@ Before actually running the node, we need to initialize the chain, and most impo
 
 ```bash
 $MONIKER=testing
-$KEY=mykey
+$KEY=dev0
 $CHAINID="evmos_9000-4"
 
 # The argument $MONIKER is the custom username of your node, it should be human-readable.
