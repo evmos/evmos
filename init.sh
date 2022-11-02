@@ -10,6 +10,8 @@ LOGLEVEL="info"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
+# To remove previous installation folders (-> ~/.evmosd*)
+REMOVE_FOLDERS=true
 
 # validate dependencies are installed
 command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
@@ -18,7 +20,15 @@ command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https
 set -e
 
 # Clear everything of previous installation
-rm -rf ~/.evmosd*
+if [ "$REMOVE_FOLDERS" = true ]; then
+  rm -rf ~/.evmosd*
+else
+  if [ -d ~/.evmosd ]; then
+    echo "Folder ~/.evmosd exists already and REMOVE_FOLDERS is set to false in the init.sh script."
+    echo "Please either set REMOVE_FOLDERS=true or clean up your installation by manually deleting or moving the folder."
+    exit 1
+  fi
+fi
 
 # Reinstall daemon
 make install
