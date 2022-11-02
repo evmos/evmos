@@ -121,6 +121,7 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 // to specified local dir
 // https://docs.docker.com/engine/reference/commandline/cp/
 func (m *Manager) ExportState(targetDir string) error {
+	/* #nosec G204 */
 	cmd := exec.Command(
 		"docker",
 		"cp",

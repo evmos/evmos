@@ -22,7 +22,7 @@ The `e2e` package defines an upgrade `Manager` abstraction. Suite will utilize `
 
 ## Chain Upgrades
 
-e2e testing logic utilizes four parameters:
+e2e testing logic utilizes three parameters:
 
 ```shell
 # INITIAL_VERSION is the tag of evmos node which will be used to build initial validators containers
@@ -35,16 +35,12 @@ TARGET_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --
 # flag to skip containers cleanup after upgrade
 # should be set true with make test-e2e command if you need access to the node after upgrade
 E2E_SKIP_CLEANUP := false
-
-# flag for genasis migration
-# should be set true manually if its necessary to migrate genesis
-MIGRATE_GENESIS := false
 ```
 
 every flag can be set manually with make command:
 
 ```shell
-make test-e2e MIGRATE_GENESIS=true E2E_SKIP_CLEANUP=true PRE_UPGRADE_VERSION=v8.2.0
+make test-e2e E2E_SKIP_CLEANUP=true INITIAL_VERSION=v8.2.0
 ```
 
 Testing a chain upgrade is a three step process:
@@ -63,23 +59,50 @@ After block `50` is reached, the test suite exports `/.evmosd` folder from docke
 
 Suite will mount `TARGET_VERSION` node to local `build/` dir and start the node. Node will get upgrade information from `upgrade-info.json` and will execute the upgrade.
 
+### Version retireve
+
+`INITIAL_VERSION` and `TARGET_VERSION` retieved from git tags by default with folowing commands:
+
 ```shell
-make test-e2e
+# INITIAL_VERSION
+git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`
+
+# TARGET_VERSION
+git describe --abbrev=0 --tags `git rev-list --tags --max-count=1`
 ```
+If `Makefile` command cannot get the tags by some reason(i.e. you have no tag for local branch and want to upgrade from specific version to local node etc), versions should be specified manually:
+
+```shell
+make test-e2e INITIAL_VERSION=<version> TARGET_VERSION=<version>
+```
+
+`TARGET_VERSION` used as a software upgrade version in proposal and must match the version in `upgrades` package.
 
 ### Testing Results
 
 Running the e2e test make script, will output the test results for each testing file. In case of an sucessfull upgrade the script will output like `ok  	github.com/evmos/evmos/v9/tests/e2e	174.137s`.
 
-In case of test failure, the container wont be deleted. To analyze the error, run
+To get containers logs run:
 
 ```shell
-# check containter id
+# check containters
 docker ps -a
-
-# get logs
-docker logs <cointainer_id>
 ```
+
+Container names will be listed as follows:
+
+```log
+CONTAINER ID   IMAGE
+9307f5485323   evmos:local    <-- upgraded node
+f41c97d6ca21   evmos:v9.0.0   <-- initial node
+```
+
+To get containers logs, run:
+
+```shell
+docker logs <container-id>
+```
+
 
 For interaction with upgraded node container/cli, set `SKIP_CLEANUP=true` on make command agruments and enter the container after upgrade finished:
 
