@@ -25,3 +25,5 @@ The `staking` permission means this account has permission to stake tokens on be
 | `not_bonded_tokens_pool`| [evmos1tygms3xhhs3yv487phx3dw4a95jn7t7lr6ys4t](https://www.mintscan.io/evmos/account/evmos1tygms3xhhs3yv487phx3dw4a95jn7t7lr6ys4t)   | `burner` `staking` |
 | `gov`                   | [evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm](https://www.mintscan.io/evmos/account/evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm)   | `burner`           |
 | `distribution`          | [evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh](https://www.mintscan.io/evmos/account/evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh)   | `none`             |
+| `evm`                   | [evmos1vqu8rska6swzdmnhf90zuv0xmelej4lq0n56wq](https://www.mintscan.io/evmos/account/evmos1vqu8rska6swzdmnhf90zuv0xmelej4lq0n56wq)   | `minter` `burner`  |
+| `ibc`                   | [evmos1a53udazy8ayufvy0s434pfwjcedzqv345dnt3x](https://www.mintscan.io/evmos/account/evmos1a53udazy8ayufvy0s434pfwjcedzqv345dnt3x)   | `minter` `burner`  |
