@@ -113,7 +113,7 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 func (s *IntegrationTestSuite) runInitialNode() {
 	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
 	err := s.upgradeManager.RunNode(node)
-	s.NoError(err, "can't run initial node")
+	s.Require().NoError(err, "can't run initial node")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
