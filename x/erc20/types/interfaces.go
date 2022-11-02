@@ -34,6 +34,11 @@ type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 }
 
+// StakingKeeper defines the expected interface needed to retrieve the staking denom.
+type StakingKeeper interface {
+	BondDenom(ctx sdk.Context) string
+}
+
 // EVMKeeper defines the expected EVM keeper interface used on erc20
 type EVMKeeper interface {
 	GetParams(ctx sdk.Context) evmtypes.Params

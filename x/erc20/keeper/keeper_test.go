@@ -273,6 +273,14 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
+	// we need some coins in the bankkeeper to be able to register the coins later
+	coins = sdk.NewCoins(sdk.NewCoin(uosmoIbcdenom, sdk.NewInt(100)))
+	err = s.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(s.EvmosChain.GetContext(), types.ModuleName, coins)
+	s.Require().NoError(err)
+	coins = sdk.NewCoins(sdk.NewCoin(uatomIbcdenom, sdk.NewInt(100)))
+	err = s.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(s.EvmosChain.GetContext(), types.ModuleName, coins)
+	s.Require().NoError(err)
+
 	// Mint coins on the osmosis side which we'll use to unlock our aevmos
 	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
 	coins = sdk.NewCoins(coinOsmo)
