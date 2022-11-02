@@ -332,8 +332,8 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/ethereum/go-ethereum v1.10.17/go.mod h1:Lt5WzjM07XlXc95YzrhosmR4J9Ahd6X2wyEV2SvGhk0=
 github.com/ethereum/go-ethereum v1.10.19 h1:EOR5JbL4MD5yeOqv8W2iC1s4NximrTjqFccUz8lyBRA=
 github.com/ethereum/go-ethereum v1.10.19/go.mod h1:IJBNMtzKcNHPtllYihy6BL2IgK1u+32JriaTbdt4v+w=
-github.com/evmos/ethermint v0.6.1-0.20220919141022-34226aa7b1fa h1:bpvKBR28IiB5XccRBih6zHK6p83YAddhVuovuVbtfJg=
-github.com/evmos/ethermint v0.6.1-0.20220919141022-34226aa7b1fa/go.mod h1:BMNkMffNTcrpv/kG52aZtHBnQpeiVyX5+Gr3tlt3Faw=
+github.com/evmos/ethermint v0.20.0-rc2 h1:SGFfqR1nQOkJAlpYYKMvAscKLmXzu4QShSw/K9lWZ90=
+github.com/evmos/ethermint v0.20.0-rc2/go.mod h1:0mjSWj39t42VnsMYh0G6ahjrnxdtwt9v6EayTL//6nw=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 h1:7HZCaLC5+BZpmbhCOZJ293Lz68O7PYrF2EzeiFMwCLk=
