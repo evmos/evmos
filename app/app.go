@@ -143,6 +143,7 @@ import (
 	"github.com/evmos/evmos/v9/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v9/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
+	evmostypes "github.com/evmos/evmos/v9/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v9/x/ibc/transfer"
@@ -804,6 +805,9 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
+
+	// Include the possibility to use an ERC-20 contract address as coin Denom
+	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)

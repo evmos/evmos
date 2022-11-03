@@ -213,8 +213,7 @@ var (
 )
 
 func (suite *KeeperTestSuite) sendAndReceiveMessage(path *ibcgotesting.Path, originEndpoint *ibcgotesting.Endpoint, destEndpoint *ibcgotesting.Endpoint, originChain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
-	// Send coin from A to B
-	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
+	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin,sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
 	_, err := originChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
 	// Recreate the packet that was sent
@@ -235,9 +234,8 @@ func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, ori
 	suite.sendAndReceiveMessage(path, path.EndpointA, path.EndpointB, origin, coin, amount, sender, receiver, seq, "")
 }
 
-// Send back (from path endpoint B to A) IBC coins. Need to provide ibcCoinMetadata (<port>/<channel>/<denom>, e.g.: "transfer/channel-0/aevmos") as input parameter.
-func (suite *KeeperTestSuite) SendBackIBCCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
-	suite.Require().NotEqual("", ibcCoinMetadata, "Need to provide ibc coin metadata, e.g.: 'transfer/channel-0/aevmos'")
+// Send back coins (from path endpoint B to A). In case of IBC coins need to provide ibcCoinMetadata (<port>/<channel>/<denom>, e.g.: "transfer/channel-0/aevmos") as input parameter.
+func (suite *KeeperTestSuite) SendBackCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
 	// Send coin from B to A
 	suite.sendAndReceiveMessage(path, path.EndpointB, path.EndpointA, origin, coin, amount, sender, receiver, seq, ibcCoinMetadata)
 }
