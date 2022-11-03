@@ -12,11 +12,14 @@ import (
 	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 )
 
+// BankKeeper defines the expected interface needed to check balances and send coins.
 type BankKeeper interface {
 	transfertypes.BankKeeper
 	HasBalance(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coin) bool
 }
 
+// ERC20Keeper defines the expected ERC20 keeper interface for supporting
+// ERC20 token transfers via IBC.
 type ERC20Keeper interface {
 	GetParams(ctx sdk.Context) erc20types.Params
 	IsERC20Registered(ctx sdk.Context, contractAddr common.Address) bool

@@ -84,6 +84,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
+	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
@@ -197,7 +198,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		transfer.AppModuleBasic{},
+		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},

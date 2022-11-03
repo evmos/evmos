@@ -19,7 +19,7 @@ var (
 	_ porttypes.IBCModule   = IBCModule{}
 )
 
-// AppModuleBasic is the IBC Transfer AppModuleBasic
+// AppModuleBasic embeds the IBC Transfer AppModuleBasic
 type AppModuleBasic struct {
 	*ibctransfer.AppModuleBasic
 }
