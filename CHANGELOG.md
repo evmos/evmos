@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
+- (deps) [\#1037](https://github.com/evmos/evmos/pull/1037) Bump Ethermint version to [`v0.20.0-rc2`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc2)
+
 ### API Breaking
 
 - (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`

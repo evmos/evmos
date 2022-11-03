@@ -25,7 +25,7 @@ type HandlerOptions struct {
 	BankKeeper             evmtypes.BankKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
 	IBCKeeper              *ibckeeper.Keeper
-	FeeMarketKeeper        evmtypes.FeeMarketKeeper
+	FeeMarketKeeper        ethante.FeeMarketKeeper
 	StakingKeeper          vestingtypes.StakingKeeper
 	EvmKeeper              ethante.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
