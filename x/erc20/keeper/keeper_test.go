@@ -222,6 +222,7 @@ func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, ori
 	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 	// Receive message on the counterparty side, and send ack
 	err = path.RelayPacket(packet)
+	suite.Require().NoError(err)
 }
 
 func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {
@@ -259,9 +260,11 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	// Set block propooser once, so its carried over on the ibc-go-testing suite
 	validators := suite.EvmosChain.App.(*app.Evmos).StakingKeeper.GetValidators(suite.EvmosChain.GetContext(), 2)
 	cons, err := validators[0].GetConsAddr()
+	suite.Require().NoError(err)
 	suite.EvmosChain.CurrentHeader.ProposerAddress = cons.Bytes()
 
 	err = suite.EvmosChain.App.(*app.Evmos).StakingKeeper.SetValidatorByConsAddr(suite.EvmosChain.GetContext(), validators[0])
+	suite.Require().NoError(err)
 
 	_, err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetCoinbaseAddress(suite.EvmosChain.GetContext())
 	suite.Require().NoError(err)
@@ -571,6 +574,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 	}
 
 	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
+	suite.Require().NoError(err)
 	if len(unpacked) == 0 {
 		return nil
 	}
