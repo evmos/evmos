@@ -19,7 +19,7 @@ var (
 	_ porttypes.IBCModule   = IBCModule{}
 )
 
-// AppModuleBasic is the IBC Transfer AppModuleBasic
+// AppModuleBasic embeds the IBC Transfer AppModuleBasic
 type AppModuleBasic struct {
 	*ibctransfer.AppModuleBasic
 }
@@ -28,6 +28,15 @@ type AppModuleBasic struct {
 type AppModule struct {
 	*ibctransfer.AppModule
 	keeper keeper.Keeper
+}
+
+// NewAppModule creates a new 20-transfer module
+func NewAppModule(k keeper.Keeper) AppModule {
+	am := ibctransfer.NewAppModule(*k.Keeper)
+	return AppModule{
+		AppModule: &am,
+		keeper:    k,
+	}
 }
 
 // RegisterServices registers module services.

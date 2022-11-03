@@ -99,7 +99,7 @@ func (k Keeper) OnAcknowledgementPacket(
 ) error {
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
-		// convert the token from IBC in
+		// convert the token from Cosmos Coin to its ERC20 representation
 		return k.ConvertERC20AckPacket(ctx, data)
 	default:
 		// the acknowledgement succeeded on the receiving chain so nothing
@@ -114,7 +114,9 @@ func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data tra
 	return k.ConvertERC20AckPacket(ctx, data)
 }
 
+// ConvertERC20AckPacket converts the IBC coin to ERC20 after refunding the sender
 func (k Keeper) ConvertERC20AckPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
+	// obtain the sent coin from the packet data
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
 
 	sender, err := sdk.AccAddressFromBech32(data.Sender)
@@ -131,11 +133,16 @@ func (k Keeper) ConvertERC20AckPacket(ctx sdk.Context, data transfertypes.Fungib
 
 	params := k.GetParams(ctx)
 	if !params.EnableErc20 || !k.IsDenomRegistered(ctx, coin.Denom) {
+		// no-op, ERC20s are disabled or the denom is not registered
 		return nil
 	}
 
 	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
 
+	// NOTE: we don't use ValidateBasic the msg since we've already validated the
+	// fields from the packet data
+
+	// convert Coin to ERC20
 	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return err
 	}

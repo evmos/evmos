@@ -32,6 +32,9 @@ func NewIBCMiddleware(k keeper.Keeper, app porttypes.IBCModule) IBCMiddleware {
 }
 
 // OnRecvPacket implements the IBCModule interface.
+// It receives the tokens through the default ICS20 OnRecvPacket callback logic
+// and then automatically converts the Cosmos Coin to their ERC20 token
+// representation.
 // If the acknowledgement fails, this callback will default to the ibc-core
 // packet callback.
 func (im IBCMiddleware) OnRecvPacket(
@@ -50,7 +53,8 @@ func (im IBCMiddleware) OnRecvPacket(
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface.
-// It calls the underlying app's OnAcknowledgementPacket callback.
+// It refunds the token transferred and then automatically converts the
+// Cosmos Coin to their ERC20 token representation.
 func (im IBCMiddleware) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -74,8 +78,9 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 	return im.Module.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
 }
 
-// OnTimeoutPacket implements the Module interface.
-// It calls the underlying app's OnTimeoutPacket callback.
+// OnTimeoutPacket implements the IBCModule interface.
+// It refunds the token transferred and then automatically converts the
+// Cosmos Coin to their ERC20 token representation.
 func (im IBCMiddleware) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -93,7 +98,8 @@ func (im IBCMiddleware) OnTimeoutPacket(
 	return im.Module.OnTimeoutPacket(ctx, packet, relayer)
 }
 
-// SendPacket implements the ICS4 Wrapper interface
+// SendPacket implements the ICS4 Wrapper interface by calling the underlying
+// wrapper logic from ICS20.
 func (im IBCMiddleware) SendPacket(
 	ctx sdk.Context,
 	chanCap *capabilitytypes.Capability,
@@ -102,7 +108,8 @@ func (im IBCMiddleware) SendPacket(
 	return im.keeper.SendPacket(ctx, chanCap, packet)
 }
 
-// WriteAcknowledgement implements the ICS4 Wrapper interface
+// WriteAcknowledgement implements the ICS4 Wrapper interface by calling the
+// underlying wrapper logic from ICS20.
 func (im IBCMiddleware) WriteAcknowledgement(
 	ctx sdk.Context,
 	chanCap *capabilitytypes.Capability,
@@ -112,7 +119,8 @@ func (im IBCMiddleware) WriteAcknowledgement(
 	return im.keeper.WriteAcknowledgement(ctx, chanCap, packet, ack)
 }
 
-// GetAppVersion implements the ICS4 Wrapper interface
+// GetAppVersion implements the ICS4 Wrapper interface by calling the
+// underlying wrapper logic from ICS20.
 func (im IBCMiddleware) GetAppVersion(
 	ctx sdk.Context,
 	portID,

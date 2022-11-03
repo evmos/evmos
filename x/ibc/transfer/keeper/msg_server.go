@@ -79,5 +79,8 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return nil, err
 	}
 
+	// replace the contract address with the Cosmos denom, now that the ERC20 token
+	// has been converted
+	msg.Token.Denom = tokenPair.Denom
 	return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 }
