@@ -47,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
 - (deps) [\#1033](https://github.com/evmos/evmos/pull/1033) Bump Cosmos SDK to [`v0.46.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
