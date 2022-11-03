@@ -8,7 +8,6 @@ import (
 )
 
 func TestParseMetadata(t *testing.T) {
-
 	testCases := []struct {
 		name         string
 		metadataFile string

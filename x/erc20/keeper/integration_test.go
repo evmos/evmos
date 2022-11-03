@@ -161,7 +161,6 @@ var _ = Describe("ERC20:", Ordered, func() {
 					s.CommitAndBeginBlockAfter(duration)
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
 					s.Commit()
-
 				})
 				It("should create a token pairs owned by the erc20 module", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
