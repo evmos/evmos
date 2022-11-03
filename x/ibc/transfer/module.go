@@ -30,6 +30,15 @@ type AppModule struct {
 	keeper keeper.Keeper
 }
 
+// NewAppModule creates a new 20-transfer module
+func NewAppModule(k keeper.Keeper) AppModule {
+	am := ibctransfer.NewAppModule(*k.Keeper)
+	return AppModule{
+		AppModule: &am,
+		keeper:    k,
+	}
+}
+
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// Override Transfer Msg Server

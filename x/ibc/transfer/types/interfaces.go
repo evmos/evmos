@@ -7,10 +7,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+
 	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 )
 
 type BankKeeper interface {
+	transfertypes.BankKeeper
 	HasBalance(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coin) bool
 }
 
