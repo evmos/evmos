@@ -10,7 +10,7 @@ import (
 	"github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v9/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v10/tests/e2e/upgrade"
 )
 
 const (
