@@ -31,7 +31,7 @@ func TestAddKeyLedgerCmd(t *testing.T) {
 	rootCmd.SetArgs([]string{
 		"keys",
 		"add",
-		"mykey",
+		"dev0",
 		fmt.Sprintf("--%s", flags.FlagUseLedger),
 	})
 
