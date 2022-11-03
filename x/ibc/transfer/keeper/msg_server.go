@@ -78,6 +78,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
 		return nil, err
 	}
-
+        msg.Token.Denom = tokenPair.Denom
 	return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 }
