@@ -130,26 +130,13 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			s.Require().Equal(amount, ibcAtomBalanceAfter.Amount.Int64())
 		})
 		It("should transfer and not convert aevmos", func() {
-			// check balance after transfer
 			aevmosInitialBalance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, "aevmos")
-			s.Require().Greater(aevmosInitialBalance.Amount.Int64(), (int64(0)))
-
-			s.EvmosChain.Coordinator.CommitBlock()
-
-			// 1. Send aevmos from Evmos to Osmosis
-			// send aevmos to Osmosis
-			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, "aevmos", amount, receiver, sender, 1)
-
-			// check balance after transfer to Osmosis Chain
-			aevmosBalanceAfter := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, "aevmos")
-			s.Require().Equal(aevmosInitialBalance.Amount.Int64()-amount, aevmosBalanceAfter.Amount.Int64())
 
 			// check ibc aevmos coins balance on Osmosis
-			aevmosIBCBalanceAfter := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, aevmosIbcdenom)
-			s.Require().Equal(amount, aevmosIBCBalanceAfter.Amount.Int64())
+			aevmosIBCBalanceBefore := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, aevmosIbcdenom)
+			s.Require().Equal(int64(100), aevmosIBCBalanceBefore.Amount.Int64())
 
-			// 2. Send aevmos IBC coins from Osmosis to Evmos
-			// receive aevmos from osmosis
+			// Send aevmos IBC coins from Osmosis to Evmos
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, aevmosIbcdenom, amount, sender, receiver, 1)
 
 			// check ibc aevmos coins balance on Osmosis - should be zero
@@ -159,14 +146,13 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			// TODO: where did the coins go?? BondDenom is stake.. maybe that's the issue
 			// check balance after transfer
 			aevmosFinalBalance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, "aevmos")
-			s.Require().Equal(aevmosInitialBalance.Amount.Int64()-amount, aevmosFinalBalance.Amount.Int64())
+			s.Require().Equal(aevmosInitialBalance.Amount.Int64()+amount, aevmosFinalBalance.Amount.Int64())
 
 			// aevmosIBCReceiverFinalBalance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, aevmosIbcdenom)
 			// s.Require().Equal(amount, aevmosIBCReceiverFinalBalance.Amount.Int64())
 
 		})
 		It("should transfer and convert original erc20", func() {
-			// TODO: figure out how override the IBC Transfer method with the custom one
 			// uosmoInitialBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, "uosmo")
 
 			// // Send coins
@@ -175,7 +161,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			// // transfer back the erc20 to original coin
 			// uosmoERC20 := pair.GetERC20Contract().String()
 			// s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, uosmoERC20, amount, receiver, sender, 1)
-			
+
 			// balanceTokenAfter :=
 			// 	s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
 			// s.Require().Equal(int64(0), balanceTokenAfter.Int64())
