@@ -28,18 +28,16 @@ func NewNode(repository, version string) *Node {
 
 // Mount sets container mount point, used as value for 'docker run --volume'
 // https://docs.docker.com/engine/reference/builder/#volume
-func (n *Node) Mount(mountPath string) *Node {
+func (n *Node) Mount(mountPath string) {
 	n.runOptions.Mounts = []string{mountPath}
 	n.UseRunOptions()
-	return n
 }
 
 // SetCmd sets container entry command, overriding image CMD instruction
 // https://docs.docker.com/engine/reference/builder/#cmd
-func (n *Node) SetCmd(cmd []string) *Node {
+func (n *Node) SetCmd(cmd []string) {
 	n.runOptions.Cmd = cmd
 	n.UseRunOptions()
-	return n
 }
 
 // UseRunOptions flags Manager to run container with additional run options
