@@ -580,8 +580,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 		return nil
 	}
 
-	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
-	suite.Require().NoError(err)
+	unpacked, _ := erc20.Unpack("balanceOf", res.Ret)
 	if len(unpacked) == 0 {
 		return nil
 	}
