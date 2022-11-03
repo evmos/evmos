@@ -84,8 +84,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
-	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
+	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
@@ -144,6 +143,10 @@ import (
 	"github.com/evmos/evmos/v9/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v9/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
+
+	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
+	"github.com/evmos/evmos/v9/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v9/x/ibc/transfer/keeper"
 )
 
 func init() {
@@ -195,7 +198,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		transfer.AppModuleBasic{},
+		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -269,7 +272,7 @@ type Evmos struct {
 	AuthzKeeper      authzkeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	EvidenceKeeper   evidencekeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
+	TransferKeeper   transferkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -516,11 +519,12 @@ func NewEvmos(
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
 	// channel.RecvPacket -> erc2.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
+	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
@@ -539,6 +543,7 @@ func NewEvmos(
 	app.RecoveryKeeper.SetICS4Wrapper(app.Erc20Keeper)
 	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
 
+	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
 	// transfer stack contains (from bottom to top):
