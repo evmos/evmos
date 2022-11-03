@@ -82,6 +82,7 @@ type KeeperTestSuite struct {
 	IBCCosmosChain  *ibcgotesting.TestChain
 
 	pathOsmosisEvmos  *ibcgotesting.Path
+	pathEvmosOsmosis  *ibcgotesting.Path
 	pathCosmosEvmos   *ibcgotesting.Path
 	pathOsmosisCosmos *ibcgotesting.Path
 
@@ -214,12 +215,12 @@ var (
 
 func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
 	// Send coin from A to B
-	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
+	transferMsg := transfertypes.NewMsgTransfer(path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
 	_, err := origin.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
 	// Recreate the packet that was sent
-	transfer := transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver)
-	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+	transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-0/aevmos", strconv.Itoa(int(amount)), sender, receiver)
+	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, timeoutHeight, 0)
 	// Receive message on the counterparty side, and send ack
 	err = path.RelayPacket(packet)
 	suite.Require().NoError(err)
@@ -292,12 +293,15 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	// Mint aevmos IBC coins on the osmosis side which we'll use to unlock our aevmos
+	// Mint aevmos IBC coins on the osmosis side which we'll send back to Evmos chain
 	coins = sdk.NewCoins(sdk.NewCoin(aevmosIbcdenom, sdk.NewInt(100)))
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.MintCoins(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
-	suite.Require().NoError(err)	
+	suite.Require().NoError(err)
+
+	// Register the aevmos IBC coin in the transfer keeper
+	suite.IBCOsmosisChain.GetSimApp().TransferKeeper.SetDenomTrace(suite.IBCOsmosisChain.GetContext(), aevmosDenomtrace)
 
 	// Mint coins on the cosmos side which we'll use to unlock our aevmos
 	coinAtom := sdk.NewCoin("uatom", sdk.NewInt(10))
@@ -317,14 +321,19 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.EvmosChain.App.(*app.Evmos).Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
+	suite.pathEvmosOsmosis = ibctesting.NewTransferPath(suite.EvmosChain, suite.IBCOsmosisChain) // clientID, connectionID, channelID empty
 	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
 	suite.pathOsmosisCosmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.IBCOsmosisChain)
 	suite.coordinator.Setup(suite.pathOsmosisEvmos) // clientID, connectionID, channelID filled
 	suite.coordinator.Setup(suite.pathCosmosEvmos)
 	suite.coordinator.Setup(suite.pathOsmosisCosmos)
+	suite.coordinator.Setup(suite.pathEvmosOsmosis)
 	suite.Require().Equal("07-tendermint-0", suite.pathOsmosisEvmos.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathOsmosisEvmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
+	suite.Require().Equal("07-tendermint-2", suite.pathEvmosOsmosis.EndpointA.ClientID)
+	suite.Require().Equal("connection-2", suite.pathEvmosOsmosis.EndpointA.ConnectionID)
+	suite.Require().Equal("channel-2", suite.pathEvmosOsmosis.EndpointA.ChannelID)	
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
