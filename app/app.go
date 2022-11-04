@@ -117,6 +117,7 @@ import (
 	v82 "github.com/evmos/evmos/v9/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v9/app/upgrades/v9_1"
+	evmostypes "github.com/evmos/evmos/v9/types"
 	"github.com/evmos/evmos/v9/x/claims"
 	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -143,7 +144,6 @@ import (
 	"github.com/evmos/evmos/v9/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v9/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
-	evmostypes "github.com/evmos/evmos/v9/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v9/x/ibc/transfer"
