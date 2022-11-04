@@ -70,6 +70,7 @@ git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`
 # TARGET_VERSION
 git describe --abbrev=0 --tags `git rev-list --tags --max-count=1`
 ```
+
 If `Makefile` command cannot get the tags by some reason(i.e. you have no tag for local branch and want to upgrade from specific version to local node etc), versions should be specified manually:
 
 ```shell
@@ -103,16 +104,15 @@ To get containers logs, run:
 docker logs <container-id>
 ```
 
-
 For interaction with upgraded node container/cli, set `SKIP_CLEANUP=true` on make command agruments and enter the container after upgrade finished:
 
-```
+```shell
 docker exec -it <container-id> bash
 ```
 
 To rerun the tests, make sure to remove all docker containers first with(if you skiped cleanup or tests failed):
 
-```
+```shell
 docker kill $(docker ps -aq)
 docker rm $(docker ps -aq)
 ```
