@@ -112,7 +112,7 @@ import (
 	_ "github.com/evmos/evmos/v10/client/docs/statik"
 
 	"github.com/evmos/evmos/v10/app/ante"
-	v7 "github.com/evmos/evmos/v10/app/upgrades/v7"
+	v10 "github.com/evmos/evmos/v10/app/upgrades/v10"
 	v8 "github.com/evmos/evmos/v10/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v10/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
@@ -1062,17 +1062,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v7 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v7.UpgradeName,
-		v7.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.BankKeeper,
-			app.InflationKeeper,
-			app.ClaimsKeeper,
-		),
-	)
-
 	// v8 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v8.UpgradeName,
@@ -1115,6 +1104,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v10 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v10.UpgradeName,
+		v10.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1130,8 +1127,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v7.UpgradeName:
-		// no store upgrades in v7
 	case v8.UpgradeName:
 		// add revenue module for testnet (v7 -> v8)
 		storeUpgrades = &storetypes.StoreUpgrades{
@@ -1147,10 +1142,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Added:   []string{revenuetypes.ModuleName},
 			Deleted: []string{"feesplit"},
 		}
-	case v9.UpgradeName:
-		// no store upgrade in v9
-	case v91.UpgradeName:
-		// no store upgrade in v9
+	case v9.UpgradeName, v91.UpgradeName:
+		// no store upgrade in v9 or v9.1
+	case v10.UpgradeName:
+		// no store upgrades in v10
 	}
 
 	if storeUpgrades != nil {
