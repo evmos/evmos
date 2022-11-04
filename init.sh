@@ -28,8 +28,8 @@ set -e
 make install
 
 # Set client config
-evmosd config keyring-backend $KEYRING
-evmosd config chain-id $CHAINID
+evmosd config keyring-backend $KEYRING --home $HOMEDIR
+evmosd config chain-id $CHAINID --home $HOMEDIR
 
 # If keys exist they should be deleted
 for KEY in "${KEYS[@]}"
