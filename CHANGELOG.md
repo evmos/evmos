@@ -47,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
 - (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to cosmos-sdk docs.
 - (cmd) [\#974](https://github.com/evmos/evmos/pull/974) Add `prune` command.
+- (cmd) [\#1046](https://github.com/evmos/evmos/pull/1046) Add integration tests for automatic coin conversion (ERC-20 ibc middleware).
 
 ## [v9.1.0] - 2022-10-25
 
