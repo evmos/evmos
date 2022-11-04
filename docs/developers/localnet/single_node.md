@@ -34,7 +34,7 @@ The default configuration will generate a single validator localnet with the cha
 You can start the local chain using:
 
 ```bash
-init.sh
+local_node.sh
 ```
 
 ## Manual Localnet
