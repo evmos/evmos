@@ -1143,7 +1143,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Deleted: []string{"feesplit"},
 		}
 	case v9.UpgradeName, v91.UpgradeName:
-		// no store upgrade in v9 and v9.1
+		// no store upgrade in v9 or v9.1
 	case v10.UpgradeName:
 		// no store upgrades in v10
 	}
