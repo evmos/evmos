@@ -6,4 +6,5 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 	s.depositToProposal()
 	s.voteForProposal()
 	s.upgrade()
+	s.T().Logf("SUCCESS")
 }

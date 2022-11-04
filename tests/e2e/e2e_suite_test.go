@@ -100,19 +100,6 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	s.T().Log("upgrade params: ", s.upgradeParams)
 }
 
-func (s *IntegrationTestSuite) TearDownSuite() {
-	if s.upgradeParams.SkipCleanup {
-		return
-	}
-	s.T().Log("tearing down e2e integration test suite...")
-
-	s.Require().NoError(s.upgradeManager.KillCurrentNode())
-
-	s.Require().NoError(s.upgradeManager.RemoveNetwork())
-
-	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
-}
-
 func (s *IntegrationTestSuite) runInitialNode() {
 	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
 	err := s.upgradeManager.RunNode(node)
@@ -124,7 +111,7 @@ func (s *IntegrationTestSuite) runInitialNode() {
 	err = s.upgradeManager.WaitForHeight(ctx, 5)
 	s.Require().NoError(err)
 
-	s.T().Logf("successfully started initial node version: %s", s.upgradeParams.InitialVersion)
+	s.T().Logf("successfully started initial node version: [%s]", s.upgradeParams.InitialVersion)
 }
 
 func (s *IntegrationTestSuite) proposeUpgrade() {
@@ -147,7 +134,11 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 		"tx returned non code 0"+outBuf.String(),
 	)
 
-	s.T().Logf("successfully submitted upgrade proposal")
+	s.T().Logf(
+		"successfully submitted upgrade proposal: upgrade height: [%d] upgrade version: [%s]",
+		firstUpgradeHeight,
+		s.upgradeParams.TargetVersion,
+	)
 }
 
 func (s *IntegrationTestSuite) depositToProposal() {
@@ -192,26 +183,47 @@ func (s *IntegrationTestSuite) upgrade() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	s.T().Log("wait for node to reach upgrade height...")
 	// wait for proposed upgrade height
 	err := s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight)
 	s.Require().NoError(err, "can't reach upgrade height")
 	buildDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
 
+	s.T().Log("exporting state to local...")
 	// export node .evmosd to local build/
 	err = s.upgradeManager.ExportState(buildDir)
 	s.Require().NoError(err, "can't export node container state to local")
 
+	s.T().Log("killing initial node...")
 	err = s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")
+
+	s.T().Logf(
+		"starting upgraded node: version: [%s] mount point: [%s]",
+		s.upgradeParams.TargetVersion,
+		s.upgradeParams.MountPath,
+	)
 
 	node := upgrade.NewNode(localRepository, localVersionTag)
 	node.Mount(s.upgradeParams.MountPath)
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
+	s.T().Log("node started! waiting for node to produce 25 blocks")
 	// make sure node produce blocks after upgrade
 	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)
 	s.Require().NoError(err, "node not produce blocks")
+}
 
-	s.T().Logf("successfully started node version: %s", s.upgradeParams.TargetVersion)
+func (s *IntegrationTestSuite) TearDownSuite() {
+	if s.upgradeParams.SkipCleanup {
+		return
+	}
+	s.T().Log("tearing down e2e integration test suite...")
+
+	s.Require().NoError(s.upgradeManager.KillCurrentNode())
+
+	s.Require().NoError(s.upgradeManager.RemoveNetwork())
+
+	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
 }
