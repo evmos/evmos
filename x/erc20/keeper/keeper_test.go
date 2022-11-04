@@ -47,7 +47,6 @@ import (
 	"github.com/evmos/evmos/v9/app"
 	"github.com/evmos/evmos/v9/contracts"
 	ibctesting "github.com/evmos/evmos/v9/ibc/testing"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 	claimtypes "github.com/evmos/evmos/v9/x/claims/types"
 	"github.com/evmos/evmos/v9/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v9/x/inflation/types"
@@ -153,7 +152,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	// bond denom
-	params := claimstypes.DefaultParams()
+	params := claimtypes.DefaultParams()
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
@@ -213,7 +212,7 @@ var (
 )
 
 func (suite *KeeperTestSuite) sendAndReceiveMessage(path *ibcgotesting.Path, originEndpoint *ibcgotesting.Endpoint, destEndpoint *ibcgotesting.Endpoint, originChain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
-	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin,sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
+	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
 	_, err := originChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
 	// Recreate the packet that was sent
@@ -300,7 +299,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	s.Require().NoError(err)
 
 	// Mint coins on the osmosis side which we'll use to unlock our aevmos
-	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
+	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10000000))
 	coins = sdk.NewCoins(coinOsmo)
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.MintCoins(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
