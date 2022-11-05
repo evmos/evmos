@@ -211,7 +211,18 @@ var (
 	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
-func (suite *KeeperTestSuite) sendAndReceiveMessage(path *ibcgotesting.Path, originEndpoint *ibcgotesting.Endpoint, destEndpoint *ibcgotesting.Endpoint, originChain *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
+func (suite *KeeperTestSuite) sendAndReceiveMessage(
+	path *ibcgotesting.Path,
+	originEndpoint *ibcgotesting.Endpoint,
+	destEndpoint *ibcgotesting.Endpoint,
+	originChain *ibcgotesting.TestChain,
+	coin string,
+	amount int64,
+	sender string,
+	receiver string,
+	seq uint64,
+	ibcCoinMetadata string,
+) {
 	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
 	_, err := originChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
@@ -234,6 +245,7 @@ func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, ori
 }
 
 // Send back coins (from path endpoint B to A). In case of IBC coins need to provide ibcCoinMetadata (<port>/<channel>/<denom>, e.g.: "transfer/channel-0/aevmos") as input parameter.
+// We need this to instanciate properly a FungibleTokenPacketData https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
 func (suite *KeeperTestSuite) SendBackCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
 	// Send coin from B to A
 	suite.sendAndReceiveMessage(path, path.EndpointB, path.EndpointA, origin, coin, amount, sender, receiver, seq, ibcCoinMetadata)

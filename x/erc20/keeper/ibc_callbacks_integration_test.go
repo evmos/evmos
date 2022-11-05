@@ -186,6 +186,11 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			// 1. Send 'uosmo' from Osmosis to Evmos
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1)
 
+            // validate 'uosmo' was transfered successfully and converted to ERC20
+            balanceERC20Token :=
+				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
+			s.Require().Equal(amount, balanceERC20Token.Int64())
+
 			// 2. Transfer back the erc20 from Evmos to Osmosis
 			ibcCoinMeta := fmt.Sprintf("%s/%s", uosmoDenomtrace.Path, uosmoDenomtrace.BaseDenom)
 			uosmoERC20 := pair.GetERC20Contract().String()
