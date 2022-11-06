@@ -47,7 +47,6 @@ import (
 	"github.com/evmos/evmos/v9/app"
 	"github.com/evmos/evmos/v9/contracts"
 	ibctesting "github.com/evmos/evmos/v9/ibc/testing"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
 	claimtypes "github.com/evmos/evmos/v9/x/claims/types"
 	"github.com/evmos/evmos/v9/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v9/x/inflation/types"
@@ -153,7 +152,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	// bond denom
-	params := claimstypes.DefaultParams()
+	params := claimtypes.DefaultParams()
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
@@ -212,16 +211,44 @@ var (
 	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
-func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
-	// Send coin from A to B
-	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
-	_, err := origin.SendMsgs(transferMsg)
+func (suite *KeeperTestSuite) sendAndReceiveMessage(
+	path *ibcgotesting.Path,
+	originEndpoint *ibcgotesting.Endpoint,
+	destEndpoint *ibcgotesting.Endpoint,
+	originChain *ibcgotesting.TestChain,
+	coin string,
+	amount int64,
+	sender string,
+	receiver string,
+	seq uint64,
+	ibcCoinMetadata string,
+) {
+	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
+	_, err := originChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
 	// Recreate the packet that was sent
-	transfer := transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver)
-	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
+	var transfer transfertypes.FungibleTokenPacketData
+	if ibcCoinMetadata == "" {
+		transfer = transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver)
+	} else {
+		transfer = transfertypes.NewFungibleTokenPacketData(ibcCoinMetadata, strconv.Itoa(int(amount)), sender, receiver)
+	}
+	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, destEndpoint.ChannelConfig.PortID, destEndpoint.ChannelID, timeoutHeight, 0)
 	// Receive message on the counterparty side, and send ack
 	err = path.RelayPacket(packet)
+	suite.Require().NoError(err)
+}
+
+func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
+	// Send coin from A to B
+	suite.sendAndReceiveMessage(path, path.EndpointA, path.EndpointB, origin, coin, amount, sender, receiver, seq, "")
+}
+
+// Send back coins (from path endpoint B to A). In case of IBC coins need to provide ibcCoinMetadata (<port>/<channel>/<denom>, e.g.: "transfer/channel-0/aevmos") as input parameter.
+// We need this to instanciate properly a FungibleTokenPacketData https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
+func (suite *KeeperTestSuite) SendBackCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
+	// Send coin from B to A
+	suite.sendAndReceiveMessage(path, path.EndpointB, path.EndpointA, origin, coin, amount, sender, receiver, seq, ibcCoinMetadata)
 }
 
 func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {
@@ -259,9 +286,11 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	// Set block propooser once, so its carried over on the ibc-go-testing suite
 	validators := suite.EvmosChain.App.(*app.Evmos).StakingKeeper.GetValidators(suite.EvmosChain.GetContext(), 2)
 	cons, err := validators[0].GetConsAddr()
+	suite.Require().NoError(err)
 	suite.EvmosChain.CurrentHeader.ProposerAddress = cons.Bytes()
 
 	err = suite.EvmosChain.App.(*app.Evmos).StakingKeeper.SetValidatorByConsAddr(suite.EvmosChain.GetContext(), validators[0])
+	suite.Require().NoError(err)
 
 	_, err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetCoinbaseAddress(suite.EvmosChain.GetContext())
 	suite.Require().NoError(err)
@@ -270,7 +299,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	coins := sdk.NewCoins(coinEvmos)
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
+	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
 	// we need some coins in the bankkeeper to be able to register the coins later
@@ -282,7 +311,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	s.Require().NoError(err)
 
 	// Mint coins on the osmosis side which we'll use to unlock our aevmos
-	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
+	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10000000))
 	coins = sdk.NewCoins(coinOsmo)
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.MintCoins(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -570,7 +599,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 		return nil
 	}
 
-	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
+	unpacked, _ := erc20.Unpack("balanceOf", res.Ret)
 	if len(unpacked) == 0 {
 		return nil
 	}

@@ -17,7 +17,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 	ibcmock "github.com/cosmos/ibc-go/v5/testing/mock"
-	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
 
 	"github.com/evmos/evmos/v9/contracts"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -43,7 +42,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	ethsecpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, ethsecpAddr)
 
 	// Setup Cosmos <=> Evmos IBC relayer
-	denom := "uatom"
 	sourceChannel := "channel-292"
 	evmosChannel := claimstypes.DefaultAuthorizedChannels[1]
 	path := fmt.Sprintf("%s/%s", transfertypes.PortID, evmosChannel)
@@ -55,216 +53,204 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	expAck := ibcmock.MockAcknowledgement
 
 	coins := sdk.NewCoins(
-		sdk.NewCoin("aevmos", sdk.NewInt(1000)),
-		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),      // some ERC20 token
-		sdk.NewCoin(cosmosTokenBase, sdk.NewInt(1000)), // some coin with a registered token pair
+		sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)), // some ERC20 token
+		sdk.NewCoin(ibcBase, sdk.NewInt(1000)),    // some IBC coin with a registered token pair
 	)
 
 	testCases := []struct {
 		name          string
 		malleate      func()
 		ackSuccess    bool
-		expConversion bool
 		receiver      sdk.AccAddress
 		expErc20s     *big.Int
 		expCoins      sdk.Coins
-		ibcConv       bool
+		checkBalances bool
+		disableERC20  bool
 	}{
 		{
-			"error - non ics-20 packet",
-			func() {
+			name: "error - non ics-20 packet",
+			malleate: func() {
 				packet = mockPacket
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    false,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - invalid sender (no '1')",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", "evmos", ethsecpAddrCosmos)
+			name: "error - invalid sender (no '1')",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", "evmos", ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    false,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - invalid sender (bad address)",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", ethsecpAddrCosmos)
+			name: "error - invalid sender (bad address)",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", "badba1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms", ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    false,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - invalid recipient (bad address)",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", ethsecpAddrEvmos, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
+			name: "error - invalid recipient (bad address)",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", ethsecpAddrEvmos, "badbadhf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    false,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - blocked sender",
-			func() {
+			name: "error - blocked sender",
+			malleate: func() {
 				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
-				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, blockedAddr.String())
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", secpAddrCosmos, blockedAddr.String())
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    false,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - blocked recipient",
-			func() {
+			name: "error - blocked recipient",
+			malleate: func() {
 				blockedAddr := authtypes.NewModuleAddress(transfertypes.ModuleName)
-				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", blockedAddr.String(), ethsecpAddrCosmos)
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", blockedAddr.String(), ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    false,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - params disabled", // we disable params while running test
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
+			name: "error - params disabled", // we disable params while running test
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(claimstypes.DefaultClaimsDenom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			true,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
+			disableERC20:  true,
 		},
 		{
-			"no-op - destination channel not authorized",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
+			name: "no-op - destination channel not authorized",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, "channel-100", timeoutHeight, 0)
 			},
-			true,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"no-op - base denomination",
-			func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
+			name: "no-op - base denomination",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(claimstypes.DefaultClaimsDenom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			true,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"no-op - erc20 denomination",
-			func() {
+			name: "no-op - erc20 denomination",
+			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(erc20Denom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			true,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: false,
 		},
 		{
-			"error - invalid denomination",
-			func() {
+			name: "error - invalid denomination", // should fall as unregistered and not transfer any coins, but ack is Success
+			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("b/d//s/ss/", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			false,
-			false,
-			secpAddr,
-			big.NewInt(0),
-			coins,
-			false,
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: true,
 		},
 		{
-			"ibc conversion - sender == receiver",
-			func() {
+			name: "ibc conversion - sender == receiver", //getting failed to escrow coins - need to escrow coins
+			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			true,
-			true,
-			secpAddr,
-			big.NewInt(100),
-			sdk.NewCoins(
-				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+			ackSuccess: true,
+			receiver:   secpAddr,
+			expErc20s:  big.NewInt(100),
+			expCoins: sdk.NewCoins(
+				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
-				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(900)),
+				sdk.NewCoin(ibcBase, sdk.NewInt(900)),
 			),
-			false,
+			checkBalances: true,
 		},
 		{
-			"ibc conversion - sender != receiver",
-			func() {
+			name: "ibc conversion - sender != receiver",
+			malleate: func() {
 				pk1 := secp256k1.GenPrivKey()
 				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "500", otherSecpAddrEvmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			true,
-			true,
-			secpAddr,
-			big.NewInt(500),
-			sdk.NewCoins(
-				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+			ackSuccess: true,
+			receiver:   secpAddr,
+			expErc20s:  big.NewInt(500),
+			expCoins: sdk.NewCoins(
+				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
-				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(500)),
+				sdk.NewCoin(ibcBase, sdk.NewInt(500)),
 			),
-			false,
+			checkBalances: true,
 		},
 		{
-			"conversion - receiver is a vesting account (eth address)",
-			func() {
+			name: "conversion - receiver is a vesting account (eth address)",
+			malleate: func() {
 				// Set vesting account
 				bacc := authtypes.NewBaseAccount(ethsecpAddr, nil, 0, 0)
 				acc := vestingtypes.NewClawbackVestingAccount(bacc, ethsecpAddr, nil, suite.ctx.BlockTime(), nil, nil)
@@ -280,16 +266,15 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			true,
-			true,
-			ethsecpAddr,
-			big.NewInt(1000),
-			sdk.NewCoins(
-				sdk.NewCoin("acoin", sdk.NewInt(1000)),
-				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
+			ackSuccess: true,
+			receiver:   ethsecpAddr,
+			expErc20s:  big.NewInt(1000),
+			expCoins: sdk.NewCoins(
+				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
+				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 			),
-			false,
+			checkBalances: true,
 		},
 	}
 	for _, tc := range testCases {
@@ -302,7 +287,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Set Denom Trace
 			denomTrace := transfertypes.DenomTrace{
 				Path:      path,
-				BaseDenom: denom,
+				BaseDenom: cosmosTokenBase,
 			}
 			suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
 
@@ -320,7 +305,15 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
-			suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey(erc20types.StoreKey), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.EvmKeeper)
+			suite.app.Erc20Keeper = keeper.NewKeeper(
+				suite.app.GetKey(types.StoreKey),
+				suite.app.AppCodec(),
+				sp,
+				suite.app.AccountKeeper,
+				suite.app.BankKeeper,
+				suite.app.EvmKeeper,
+				suite.app.StakingKeeper,
+			)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			// We do this since we are interested in the conversion portion w/ OnRecvPacket
@@ -333,11 +326,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 
 			// Register Token Pair for testing
-			metadata, pair := suite.setupRegisterCoin()
-			suite.Require().NotNil(metadata)
+			pair := suite.setupRegisterCoin(metadataIbc)
+			suite.Require().NotNil(pair)
 
 			// For specific test, disable ERC20
-			if tc.name == "error - params disabled" {
+			if tc.disableERC20 {
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
@@ -355,10 +348,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			}
 
 			// Check conversions
-			if tc.ibcConv {
+			if tc.checkBalances {
 				// Check ERC20 balances
 				balanceTokenAfter := suite.app.Erc20Keeper.BalanceOf(suite.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(tc.receiver.Bytes()))
-				suite.Require().Equal(tc.expErc20s, balanceTokenAfter)
+				suite.Require().Equal(tc.expErc20s.Int64(), balanceTokenAfter.Int64())
 				// Check Cosmos Coin Balances
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
 				suite.Require().Equal(tc.expCoins, balances)

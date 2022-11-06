@@ -117,6 +117,7 @@ import (
 	v82 "github.com/evmos/evmos/v9/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v9/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v9/app/upgrades/v9_1"
+	evmostypes "github.com/evmos/evmos/v9/types"
 	"github.com/evmos/evmos/v9/x/claims"
 	claimskeeper "github.com/evmos/evmos/v9/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
@@ -804,6 +805,9 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
+
+	// Include the possibility to use an ERC-20 contract address as coin Denom
+	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
