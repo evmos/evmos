@@ -1111,6 +1111,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v10.UpgradeName,
 		v10.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.StakingKeeper,
 		),
 	)
 
