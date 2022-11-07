@@ -5,6 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -12,18 +14,22 @@ import (
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v10
+// CreateUpgradeHandler creates an SDK upgrade handler for v11
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
+	ak authkeeper.AccountKeeper,
 	bk bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		if err := ConvertRegisteredCoins(ctx, bk, erc20Keeper); err != nil {
-			return nil, err
+		cacheCtx, writeFn := ctx.CacheContext()
+		if err := ConvertRegisteredCoins(cacheCtx, ak, bk, erc20Keeper); err != nil {
+			logger.Error("failed to convert registered coins", "error", err.Error())
+		} else {
+			writeFn()
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
@@ -33,9 +39,12 @@ func CreateUpgradeHandler(
 }
 
 // ConvertRegisteredCoins converts all the registered coins to their corresponding ERC20 tokens.
-func ConvertRegisteredCoins(ctx sdk.Context, bk bankkeeper.Keeper, erc20Keeper erc20keeper.Keeper) (err error) {
-	params := erc20Keeper.GetParams(ctx)
-	if !params.EnableErc20 {
+func ConvertRegisteredCoins(ctx sdk.Context,
+	ak authkeeper.AccountKeeper,
+	bk bankkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
+) (err error) {
+	if !erc20Keeper.IsERC20Enabled(ctx) {
 		return nil
 	}
 
@@ -54,6 +63,13 @@ func ConvertRegisteredCoins(ctx sdk.Context, bk bankkeeper.Keeper, erc20Keeper e
 	// iterate over balances and convert the IBC voucher coins to ERC20s
 	bk.IterateAllBalances(ctx, func(address sdk.AccAddress, coin sdk.Coin) (stop bool) {
 		if !registeredIBCVouchers[coin.Denom] {
+			return false
+		}
+
+		acc := ak.GetAccount(ctx, address)
+
+		// don't convert balances from module accounts
+		if _, isModuleAccount := acc.(authtypes.ModuleAccountI); acc == nil || isModuleAccount {
 			return false
 		}
 
