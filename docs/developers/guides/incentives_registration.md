@@ -38,7 +38,7 @@ The following topics must be addressed when drafting a Contract Incentives Propo
 
     Give a breakdown of the proposal's payload, and explain in layman's terms what the proposal will do if it passes. For the smart contract in question, provide general information on its purpose, along with an argument for why it requires incentives. Mention risks involved in the proposal, depending on the traction of the smart contract involved and the timetable for the proposed incentives. Finally, detail precautions taken during proposal formulation, if applicable (including consultations made prior to proposal creation, and any third-party reviews).
 
-Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-testnet).
 
 ## Submitting the Contract Incentives Proposal
 
@@ -65,7 +65,7 @@ evmosd tx gov submit-proposal \
   --title=<title> \
   --description=<description> \
   --deposit="1000000aevmos" \
-  --from=<mykey> \
+  --from=<dev0> \
   --chain-id=<testnet_chain_id> \
   --node <address>
 ```
@@ -137,7 +137,7 @@ Evmos supports the following metrics related to the `x/incentives` module, which
 | `incentives_distribute_participant_total`      | Total number of participants who received rewards                                   | participant | counter |
 | `incentives_distribute_reward_total`           | Total amount of rewards that are distributed to all incentives' participants        | token       | counter |
 
-To calculate specific values, such as paid out incentives to a given smart contract user, custom metrics will have to be made following the [above section](#emitting--collecting-metrics).
+To calculate specific values, such as paid out incentives to a given smart contract user, custom metrics will have to be made following the [above section](#telemetry-basics--setup).
 
 In addition, gRPC queries related to the `x/incentives` module found [here](../../../x/incentives/spec/08_clients.md#clients) can produce useful analysis.
 
@@ -145,5 +145,5 @@ In addition, gRPC queries related to the `x/incentives` module found [here](../.
 
 See the telemetry sources below for details not covered above:
 
-- [Cosmos SDK Telemetry Documentation](https://docs.cosmos.network/master/core/telemetry.html)
+- [Cosmos SDK Telemetry Documentation](https://docs.cosmos.network/main/core/telemetry.html)
 - [Evmos Supported Telemetry Metrics](https://docs.evmos.org/protocol/telemetry.html)

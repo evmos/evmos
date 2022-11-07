@@ -37,16 +37,25 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
+- (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ics23 dragonberry replace in go.mod as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
+- (deps) [\#1037](https://github.com/evmos/evmos/pull/1037) Bump Ethermint version to [`v0.20.0-rc2`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc2)
+
 ### API Breaking
 
 - (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`
 
 ### Improvements
+
+- (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
+- (deps) [\#1033](https://github.com/evmos/evmos/pull/1033) Bump Cosmos SDK to [`v0.46.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
 - (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to cosmos-sdk docs.
 - (cmd) [\#974](https://github.com/evmos/evmos/pull/974) Add `prune` command.
+- (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
 
 ## [v9.1.0] - 2022-10-25
 

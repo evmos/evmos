@@ -40,7 +40,7 @@ server_name: evmosd
 version: 3.0.0
 commit: fe9df43332800a74a163c014c69e62765d8206e3
 build_tags: netgo,ledger
-go: go version go1.18 darwin/amd64
+go: go version go1.19 darwin/amd64
 ...
 ```
 
