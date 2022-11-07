@@ -7,26 +7,17 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v10/tests/e2e/upgrade"
 )
 
 const (
-	localRepository = "evmos"
-	localVersionTag = "local"
-
-	defaultChainID = "evmos_9000-1"
-
+	localRepository       = "evmos"
+	localVersionTag       = "local"
+	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
-
-	firstUpgradeHeight = 50
-)
-
-var (
-	// common
-	maxRetries = 10 // max retries for json unmarshalling
+	firstUpgradeHeight    = 50
 )
 
 type upgradeParams struct {
@@ -41,18 +32,8 @@ type upgradeParams struct {
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	tmpDirs        []string
 	upgradeManager *upgrade.Manager
-	hermesResource *dockertest.Resource
 	upgradeParams  upgradeParams
-}
-
-type status struct {
-	LatestHeight string `json:"latest_block_height"`
-}
-
-type syncInfo struct {
-	SyncInfo status `json:"SyncInfo"`
 }
 
 func TestIntegrationTestSuite(t *testing.T) {
@@ -107,6 +88,7 @@ func (s *IntegrationTestSuite) runInitialNode() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	// wait untill node starts and produce some blocks
 	err = s.upgradeManager.WaitForHeight(ctx, 5)
 	s.Require().NoError(err)
@@ -117,6 +99,7 @@ func (s *IntegrationTestSuite) runInitialNode() {
 func (s *IntegrationTestSuite) proposeUpgrade() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
 		s.upgradeParams.TargetVersion,
 		defaultChainID,

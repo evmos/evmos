@@ -18,21 +18,21 @@ The `e2e` package defines an upgrade `Manager` abstraction. Suite will utilize `
 
 * `manager.go`: defines core manager logic for running containers, export state and create networks.
 
-* `govexec.go`: defines `gov-specific` exec commands to submit/delegate/vote thru nodes `gov` module.
+* `govexec.go`: defines `gov-specific` exec commands to submit/delegate/vote through nodes `gov` module.
 
 ## Chain Upgrades
 
 e2e testing logic utilizes three parameters:
 
 ```shell
-# INITIAL_VERSION is the tag of evmos node which will be used to build initial validators containers
-# by default it gets previous git tag from current, e.g. if current tag is v9.1.0 it will get v9.0.0 from git
+# INITIAL_VERSION is the tag of the evmos node which will be used to build the initial validators container.
+# By default the previous git tag is retrieved from `current`, e.g. if the current tag is `v9.1.0` it will get `v9.0.0` from git
 INITIAL_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
 
-# current latest tag
+# TARGET_VERSION  is the tag to upgrade to. By default, this is the  current latest tag
 TARGET_VERSION := $(shell git describe --abbrev=0 --tags `git rev-list --tags --max-count=1`)
 
-# flag to skip containers cleanup after upgrade
+# E2E_SKIP_CLEANUP is a flag to skip the container cleanup after an upgrade. It should be set to `true` if you need access to the node after the upgrade.
 # should be set true with make test-e2e command if you need access to the node after upgrade
 E2E_SKIP_CLEANUP := false
 ```
@@ -59,9 +59,9 @@ After block `50` is reached, the test suite exports `/.evmosd` folder from docke
 
 Suite will mount `TARGET_VERSION` node to local `build/` dir and start the node. Node will get upgrade information from `upgrade-info.json` and will execute the upgrade.
 
-### Version retireve
+### Version retrieve
 
-`INITIAL_VERSION` and `TARGET_VERSION` retieved from git tags by default with folowing commands:
+`INITIAL_VERSION` and `TARGET_VERSION` are retrieved from git tags by default with the following commands:
 
 ```shell
 # INITIAL_VERSION
@@ -71,7 +71,7 @@ git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`
 git describe --abbrev=0 --tags `git rev-list --tags --max-count=1`
 ```
 
-If `Makefile` command cannot get the tags by some reason(i.e. you have no tag for local branch and want to upgrade from specific version to local node etc), versions should be specified manually:
+If `Makefile` command cannot get the tags for some reason (i.e. you have no tag for the local branch and want to upgrade from a specific version to a local node etc), versions should be specified manually:
 
 ```shell
 make test-e2e INITIAL_VERSION=<version> TARGET_VERSION=<version>
@@ -81,7 +81,11 @@ make test-e2e INITIAL_VERSION=<version> TARGET_VERSION=<version>
 
 ### Testing Results
 
-Running the e2e test make script, will output the test results for each testing file. In case of an sucessfull upgrade the script will output like `ok  	github.com/evmos/evmos/v9/tests/e2e	174.137s`.
+The `make test-upgrade` script will output the test results for each testing file. In case of a successful upgrade, the script will print the following output (example):
+
+```log
+ok  	github.com/evmos/evmos/v9/tests/e2e	174.137s.
+```
 
 To get containers logs run:
 

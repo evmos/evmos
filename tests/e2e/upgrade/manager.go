@@ -12,8 +12,8 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 )
 
-// Manager defines docker pool instance, used to run and interact with evmos
-// node containers: run, query, execute cli commands and purge
+// Manager defines a docker pool instance, used to run and interact with evmos
+// node containers. It enables run, query, execute cli commands and purge.
 type Manager struct {
 	pool    *dockertest.Pool
 	network *dockertest.Network

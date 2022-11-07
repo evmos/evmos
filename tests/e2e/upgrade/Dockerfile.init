@@ -1,5 +1,4 @@
 ARG INITIAL_VERSION
-
 FROM tharsishq/evmos:$INITIAL_VERSION
 
 RUN apt-get update -y
@@ -8,6 +7,7 @@ RUN apt-get install ca-certificates jq -y
 WORKDIR /go/src/github.com/evmos/evmos
 
 COPY ./tests/e2e/upgrade/upgrade-init.sh .
+
 RUN chmod +x upgrade-init.sh
 
 EXPOSE 26656 26657 1317 9090 8545 8546

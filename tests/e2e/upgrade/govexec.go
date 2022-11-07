@@ -36,7 +36,7 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 	return exec.ID, nil
 }
 
-// Creates evmos gov tx to submit upgrade proposal to the chain
+// Creates an evmos gov tx to submit an upgrade proposal to the chain
 func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
 	cmd := []string{
 		"evmosd",
