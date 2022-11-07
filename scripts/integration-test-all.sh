@@ -16,7 +16,7 @@ REMOVE_DATA_DIR=false
 RPC_PORT="854"
 IP_ADDR="0.0.0.0"
 
-KEY="mykey"
+KEY="dev0"
 CHAINID="evmos_9000-1"
 MONIKER="mymoniker"
 

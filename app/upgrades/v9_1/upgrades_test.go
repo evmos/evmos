@@ -77,7 +77,6 @@ func TestUpgradeTestSuite(t *testing.T) {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
-
 	firstAccountAmount := v9.Accounts[0][1]
 	thousandAccountAmount := v9.Accounts[1000][1]
 
