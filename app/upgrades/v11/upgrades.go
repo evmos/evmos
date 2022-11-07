@@ -22,7 +22,9 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		ConvertRegisteredCoins(ctx, bk, erc20Keeper)
+		if err := ConvertRegisteredCoins(ctx, bk, erc20Keeper); err != nil {
+			return nil, err
+		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
