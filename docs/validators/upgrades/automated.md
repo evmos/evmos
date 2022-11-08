@@ -45,7 +45,7 @@ cp $GOPATH/bin/evmosd ~/.evmosd/cosmovisor/genesis/bin
 To check that you did this correctly, ensure your versions of `cosmovisor` and `evmosd` are the same:
 
 ```bash
-cosmovisor version
+cosmovisor run version
 evmosd version
 ```
 
@@ -106,7 +106,7 @@ echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=true" >> ~/.profile
 Now that everything is setup and ready to go, you can start your node.
 
 ```bash
-cosmovisor start
+cosmovisor run start
 ```
 
 You will need some way to keep the process always running. If you're on linux, you can do this by creating a service.
