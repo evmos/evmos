@@ -339,6 +339,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 				BaseDenom: pair.Denom,
 			}
 
+			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
 		})
 		It("should convert erc20 ibc voucher to original erc20", func() {
 			// Mint tokens and send to receiver
@@ -373,9 +374,6 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().Equal(amount, erc20CoinsBalance.Amount.Int64())
 
 			s.EvmosChain.Coordinator.CommitBlock()
-
-			// TODO: find what is causing this error.
-			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
 
 			// Attempt to send erc20 into ibc, should send without conversion
 			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, pair.Denom)
@@ -520,6 +518,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				BaseDenom: pair.Denom,
 			}
 
+			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
 		})
 		It("should transfer available balance", func() {
 			// Mint tokens and send to receiver
@@ -555,9 +554,6 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			s.EvmosChain.Coordinator.CommitBlock()
 
-			// TODO: find what is causing this error.
-			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
-
 			// Attempt to send erc20 into ibc, should send without conversion
 			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, pair.Denom)
 			s.IBCOsmosisChain.Coordinator.CommitBlock()
@@ -579,9 +575,6 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			balanceToken :=
 				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount, balanceToken.Int64())
-
-			// TODO: check what is causing this error
-			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
 
 			// Attempt to send erc20 into ibc, should automatically convert
 			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, pair.Denom)
@@ -608,8 +601,6 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.Require().Equal(amount, balanceToken.Int64())
 
 			// Attempt to send that will fail because balance is not enough
-			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
-
 			path := s.pathOsmosisEvmos
 			originEndpoint := path.EndpointB
 			originChain := s.EvmosChain
