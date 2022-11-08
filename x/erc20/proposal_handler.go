@@ -15,8 +15,7 @@ import (
 func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		// Check if the conversion is globally enabled
-		params := k.GetParams(ctx)
-		if !params.EnableErc20 {
+		if !k.IsERC20Enabled(ctx) {
 			return sdkerrors.Wrap(
 				types.ErrERC20Disabled, "registration is currently disabled by governance",
 			)
