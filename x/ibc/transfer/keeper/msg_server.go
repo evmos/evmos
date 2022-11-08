@@ -39,8 +39,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	// stack if if:
 	// - ERC20s are disabled
 	// - The ERC20 contract is not registered as Cosmos coin
-	erc20Params := k.erc20Keeper.GetParams(ctx)
-	if !erc20Params.EnableErc20 {
+	if !k.erc20Keeper.IsERC20Enabled(ctx) {
 		// no-op: continue with regular transfer
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}

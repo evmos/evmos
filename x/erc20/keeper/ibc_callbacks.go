@@ -40,8 +40,7 @@ func (k Keeper) OnRecvPacket(
 	// - ERC20s are disabled
 	// - Denomination is native staking token
 	// - The base denomination is not registered as ERC20
-	erc20Params := k.GetParams(ctx)
-	if !erc20Params.EnableErc20 {
+	if !k.IsERC20Enabled(ctx) {
 		return ack
 	}
 
