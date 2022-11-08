@@ -44,12 +44,12 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/contracts"
-	ibctesting "github.com/evmos/evmos/v9/ibc/testing"
-	claimtypes "github.com/evmos/evmos/v9/x/claims/types"
-	"github.com/evmos/evmos/v9/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v9/x/inflation/types"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/contracts"
+	ibctesting "github.com/evmos/evmos/v10/ibc/testing"
+	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
@@ -287,7 +287,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	// Increase max gas
 	ibcgotestinghelpers.DefaultGenTxGas = uint64(1000000000)
 
-	// Set block propooser once, so its carried over on the ibc-go-testing suite
+	// Set block proposer once, so its carried over on the ibc-go-testing suite
 	validators := suite.EvmosChain.App.(*app.Evmos).StakingKeeper.GetValidators(suite.EvmosChain.GetContext(), 2)
 	cons, err := validators[0].GetConsAddr()
 	suite.Require().NoError(err)
@@ -296,7 +296,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	err = suite.EvmosChain.App.(*app.Evmos).StakingKeeper.SetValidatorByConsAddr(suite.EvmosChain.GetContext(), validators[0])
 	suite.Require().NoError(err)
 
-	_, err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetCoinbaseAddress(suite.EvmosChain.GetContext())
+	_, err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetCoinbaseAddress(suite.EvmosChain.GetContext(), sdk.ConsAddress(suite.EvmosChain.CurrentHeader.ProposerAddress))
 	suite.Require().NoError(err)
 	// Mint coins locked on the evmos account generated with secp.
 	coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(10000))

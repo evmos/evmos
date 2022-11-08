@@ -10,9 +10,9 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v9/ibc"
-	evmos "github.com/evmos/evmos/v9/types"
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/ibc"
+	evmos "github.com/evmos/evmos/v10/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
@@ -40,8 +40,7 @@ func (k Keeper) OnRecvPacket(
 	// - ERC20s are disabled
 	// - Denomination is native staking token
 	// - The base denomination is not registered as ERC20
-	erc20Params := k.GetParams(ctx)
-	if !erc20Params.EnableErc20 {
+	if !k.IsERC20Enabled(ctx) {
 		return ack
 	}
 

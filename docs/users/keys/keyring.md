@@ -23,10 +23,10 @@ evmosd keys [command] --help
 To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. You will have to provide a password for the newly generated key. This key will be used in the next section.
 
 ```bash
-evmosd keys add mykey
+evmosd keys add dev0
 
 # Put the generated address in a variable for later use.
-MY_VALIDATOR_ADDRESS=$(evmosd keys show mykey -a)
+MY_VALIDATOR_ADDRESS=$(evmosd keys show dev0 -a)
 ```
 
 This command generates a new 24-word mnemonic phrase, persists it to the relevant backend, and outputs information about the keypair. If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!

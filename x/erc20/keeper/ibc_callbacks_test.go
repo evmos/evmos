@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v9/testutil"
+	"github.com/evmos/evmos/v10/testutil"
 
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
@@ -18,11 +18,11 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 	ibcmock "github.com/cosmos/ibc-go/v5/testing/mock"
 
-	"github.com/evmos/evmos/v9/contracts"
-	claimstypes "github.com/evmos/evmos/v9/x/claims/types"
-	"github.com/evmos/evmos/v9/x/erc20/keeper"
-	"github.com/evmos/evmos/v9/x/erc20/types"
-	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
+	"github.com/evmos/evmos/v10/contracts"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v10/x/erc20/keeper"
+	"github.com/evmos/evmos/v10/x/erc20/types"
+	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
 )
 
 var erc20Denom = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"
@@ -213,7 +213,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			checkBalances: true,
 		},
 		{
-			name: "ibc conversion - sender == receiver", //getting failed to escrow coins - need to escrow coins
+			name: "ibc conversion - sender == receiver", // getting failed to escrow coins - need to escrow coins
 			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)

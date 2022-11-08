@@ -23,10 +23,10 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	evmoskr "github.com/evmos/evmos/v9/crypto/keyring"
+	evmoskr "github.com/evmos/evmos/v10/crypto/keyring"
 
-	vestingcli "github.com/evmos/evmos/v9/x/vesting/client/cli"
-	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
+	vestingcli "github.com/evmos/evmos/v10/x/vesting/client/cli"
+	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
 )
 
 const (
@@ -36,7 +36,7 @@ const (
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
 func AddGenesisAccountCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-account [address_or_key_name] [coin][,[coin]]",
+		Use:   "add-genesis-account ADDRESS_OR_KEY_NAME COIN...",
 		Short: "Add a genesis account to genesis.json",
 		Long: `Add a genesis account to genesis.json. The provided account must specify
 the account address or key name and a list of initial coins. If a key name is given,

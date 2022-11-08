@@ -18,9 +18,9 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v9/app"
-	"github.com/evmos/evmos/v9/testutil"
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/app"
+	"github.com/evmos/evmos/v10/testutil"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
@@ -161,7 +161,6 @@ var _ = Describe("ERC20:", Ordered, func() {
 					s.CommitAndBeginBlockAfter(duration)
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
 					s.Commit()
-
 				})
 				It("should create a token pairs owned by the erc20 module", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)

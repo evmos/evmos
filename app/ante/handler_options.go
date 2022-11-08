@@ -15,7 +15,7 @@ import (
 	ethante "github.com/evmos/ethermint/app/ante"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
@@ -25,7 +25,7 @@ type HandlerOptions struct {
 	BankKeeper             evmtypes.BankKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
 	IBCKeeper              *ibckeeper.Keeper
-	FeeMarketKeeper        evmtypes.FeeMarketKeeper
+	FeeMarketKeeper        ethante.FeeMarketKeeper
 	StakingKeeper          vestingtypes.StakingKeeper
 	EvmKeeper              ethante.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
@@ -90,7 +90,6 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
-		NewValidatorCommissionDecorator(options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -114,7 +113,6 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
-		NewValidatorCommissionDecorator(options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

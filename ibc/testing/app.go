@@ -20,8 +20,8 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 
 	ethermint "github.com/evmos/ethermint/types"
-	evmosapp "github.com/evmos/evmos/v9/app"
-	claimtypes "github.com/evmos/evmos/v9/x/claims/types"
+	evmosapp "github.com/evmos/evmos/v10/app"
+	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
 )
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
