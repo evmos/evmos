@@ -280,6 +280,10 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.coordinator.CommitNBlocks(suite.IBCOsmosisChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
 
+	evmParams := s.EvmosChain.App.(*app.Evmos).EvmKeeper.GetParams(s.EvmosChain.GetContext())
+	evmParams.EvmDenom = "aevmos"
+	s.EvmosChain.App.(*app.Evmos).EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
+
 	// Increase max gas
 	ibcgotestinghelpers.DefaultGenTxGas = uint64(1000000000)
 
@@ -344,6 +348,13 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.Require().Equal("07-tendermint-0", suite.pathOsmosisEvmos.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathOsmosisEvmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
+
+	coinEvmos = sdk.NewCoin("aevmos", sdk.NewInt(1000000000000000000))
+	coins = sdk.NewCoins(coinEvmos)
+	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), types.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.EvmosChain.GetContext(), types.ModuleName, authtypes.FeeCollectorName, coins)
+	suite.Require().NoError(err)
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
@@ -715,4 +726,46 @@ func (b *MockBankKeeper) HasSupply(ctx sdk.Context, denom string) bool {
 func (b *MockBankKeeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Get(0).(sdk.Coin)
+}
+
+// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
+func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimals uint8) (common.Address, error) {
+	ctx := sdk.WrapSDKContext(s.EvmosChain.GetContext())
+	from := common.BytesToAddress(suite.EvmosChain.SenderAccount.GetAddress().Bytes())
+	chainID := s.EvmosChain.App.(*app.Evmos).EvmKeeper.ChainID()
+
+	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+
+	nonce := s.EvmosChain.App.(*app.Evmos).EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
+	erc20DeployTx := evm.NewTxContract(
+		chainID,
+		nonce,
+		nil,                  // amount
+		uint64(100000000000), // gasLimit
+		nil,                  // gasPrice
+		s.EvmosChain.App.(*app.Evmos).FeeMarketKeeper.GetBaseFee(s.EvmosChain.GetContext()),
+		big.NewInt(1),
+		data,                   // input
+		&ethtypes.AccessList{}, // accesses
+	)
+
+	signer := tests.NewSigner(suite.EvmosChain.SenderPrivKey)
+	erc20DeployTx.From = from.Hex()
+	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), signer)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	rsp, err := s.EvmosChain.App.(*app.Evmos).EvmKeeper.EthereumTx(ctx, erc20DeployTx)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	suite.Require().Empty(rsp.VmError)
+	return crypto.CreateAddress(from, nonce), nil
 }
