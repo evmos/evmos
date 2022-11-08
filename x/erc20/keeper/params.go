@@ -16,10 +16,3 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramstore.SetParamSet(ctx, &params)
 }
-
-// IsERC20Enabled returns true if the module logic is enabled
-func (k Keeper) IsERC20Enabled(ctx sdk.Context) bool {
-	var enabled bool
-	k.paramstore.GetIfExists(ctx, types.ParamStoreKeyEnableErc20, &enabled)
-	return enabled
-}

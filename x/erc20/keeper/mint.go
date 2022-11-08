@@ -19,7 +19,8 @@ func (k Keeper) MintingEnabled(
 	sender, receiver sdk.AccAddress,
 	token string,
 ) (types.TokenPair, error) {
-	if !k.IsERC20Enabled(ctx) {
+	params := k.GetParams(ctx)
+	if !params.EnableErc20 {
 		return types.TokenPair{}, sdkerrors.Wrap(
 			types.ErrERC20Disabled, "module is currently disabled by governance",
 		)
