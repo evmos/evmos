@@ -14,6 +14,7 @@ type Node struct {
 	withRunOptions bool
 }
 
+// NewNode creates new instance of the node and setups default dockertest RunOptions
 func NewNode(repository, version string) *Node {
 	return &Node{
 		repository: repository,

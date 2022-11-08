@@ -8,6 +8,7 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 )
 
+// Runs provided docker exec call
 func (m *Manager) RunExec(ctx context.Context, exec string) (outBuf bytes.Buffer, errBuf bytes.Buffer, err error) {
 	err = m.pool.Client.StartExec(exec, docker.StartExecOptions{
 		Context:      ctx,

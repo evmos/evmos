@@ -8,26 +8,32 @@ import (
 func (s *IntegrationTestSuite) loadUpgradeParams() {
 	var err error
 
-	preV := os.Getenv("INITIAL_VERSION")
-	if preV == "" {
+	initialV := os.Getenv("INITIAL_VERSION")
+	if initialV == "" {
 		s.Fail("no initial version specified")
 	}
-	s.upgradeParams.InitialVersion = preV
+	s.upgradeParams.InitialVersion = initialV
 
-	postV := os.Getenv("TARGET_VERSION")
-	if postV == "" {
-		s.upgradeParams.InitialVersion, err = s.upgradeManager.RetrieveUpgradeVersion()
+	targetV := os.Getenv("TARGET_VERSION")
+	if targetV == "" {
+		s.upgradeParams.TargetVersion, err = s.upgradeManager.RetrieveUpgradeVersion()
+		s.upgradeParams.TargetRepo = localRepository
 		s.Require().NoError(err)
+	} else {
+		s.upgradeParams.TargetVersion = targetV
+		s.upgradeParams.TargetRepo = localRepository
 	}
-	s.upgradeParams.TargetVersion = postV
-
+	chainID := os.Getenv("CHAIN_ID")
+	if chainID == "" {
+		s.upgradeParams.ChainID = defaultChainID
+	}
 	skipFlag := os.Getenv("E2E_SKIP_CLEANUP")
 	skipCleanup, err := strconv.ParseBool(skipFlag)
 	s.Require().NoError(err, "invalid skip cleanup flag")
 	s.upgradeParams.SkipCleanup = skipCleanup
 
 	mountPath := os.Getenv("MOUNT_PATH")
-	if postV == "" {
+	if mountPath == "" {
 		s.Fail("no mount path specified")
 	}
 	s.upgradeParams.MountPath = mountPath

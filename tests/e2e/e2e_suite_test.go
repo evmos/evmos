@@ -16,6 +16,7 @@ const (
 	localVersionTag       = "local"
 	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
+	tharsisRepo           = "tharsishq/evmos"
 	firstUpgradeHeight    = 50
 )
 
@@ -24,6 +25,8 @@ type upgradeParams struct {
 	TargetVersion  string
 	MountPath      string
 
+	ChainID     string
+	TargetRepo  string
 	SkipCleanup bool
 }
 

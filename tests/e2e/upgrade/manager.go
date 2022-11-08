@@ -21,6 +21,8 @@ type Manager struct {
 	proposalCounter uint
 }
 
+// NewManager creates new docker pool and network
+// returns Manager instance
 func NewManager(networkName string) (*Manager, error) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
@@ -37,6 +39,7 @@ func NewManager(networkName string) (*Manager, error) {
 	}, nil
 }
 
+// RunNode create docker container from provided node instance and run it
 func (m *Manager) RunNode(node *Node) error {
 	// sleep to let container start to prevent querying panics
 	defer time.Sleep(5 * time.Second)
@@ -64,6 +67,7 @@ func (m *Manager) KillCurrentNode() error {
 	return m.pool.Client.StopContainer(m.ContainerID(), 5)
 }
 
+// ContainerID returns current running container ID
 func (m *Manager) ContainerID() string {
 	return m.CurrentNode.Container.ID
 }
@@ -93,6 +97,7 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	}
 }
 
+// Makes system call to current node container environment with evmosd cli command to get current block height
 func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 	exec, err := m.CreateExec([]string{"evmosd", "q", "block"}, m.ContainerID())
 	if err != nil {
