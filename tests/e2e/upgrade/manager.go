@@ -3,7 +3,6 @@ package upgrade
 import (
 	"context"
 	"fmt"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -115,18 +114,4 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
 	}
 	return h, nil
-}
-
-// ExportState execute 'docker cp' command to copy container .evmosd dir
-// to specified local dir
-// https://docs.docker.com/engine/reference/commandline/cp/
-func (m *Manager) ExportState(targetDir string) error {
-	/* #nosec G204 */
-	cmd := exec.Command(
-		"docker",
-		"cp",
-		fmt.Sprintf("%s:/root/.evmosd", m.ContainerID()),
-		targetDir,
-	)
-	return cmd.Run()
 }

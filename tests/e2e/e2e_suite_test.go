@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 	"os"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -25,8 +24,7 @@ type upgradeParams struct {
 	TargetVersion  string
 	MountPath      string
 
-	MigrateGenesis bool
-	SkipCleanup    bool
+	SkipCleanup bool
 }
 
 type IntegrationTestSuite struct {
@@ -48,37 +46,6 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	s.upgradeManager, err = upgrade.NewManager(defaultManagerNetwork)
 	s.Require().NoError(err, "upgrade manager creation error")
-}
-
-func (s *IntegrationTestSuite) loadUpgradeParams() {
-	preV := os.Getenv("INITIAL_VERSION")
-	if preV == "" {
-		s.Fail("no pre-upgrade version specified")
-	}
-	s.upgradeParams.InitialVersion = preV
-
-	postV := os.Getenv("TARGET_VERSION")
-	if postV == "" {
-		s.Fail("no post-upgrade version specified")
-	}
-	s.upgradeParams.TargetVersion = postV
-
-	migrateGenFlag := os.Getenv("MIGRATE_GENESIS")
-	migrateGenesis, err := strconv.ParseBool(migrateGenFlag)
-	s.Require().NoError(err, "invalid migrate genesis flag")
-	s.upgradeParams.MigrateGenesis = migrateGenesis
-
-	skipFlag := os.Getenv("E2E_SKIP_CLEANUP")
-	skipCleanup, err := strconv.ParseBool(skipFlag)
-	s.Require().NoError(err, "invalid skip cleanup flag")
-	s.upgradeParams.SkipCleanup = skipCleanup
-
-	mountPath := os.Getenv("MOUNT_PATH")
-	if postV == "" {
-		s.Fail("no mount path specified")
-	}
-	s.upgradeParams.MountPath = mountPath
-	s.T().Log("upgrade params: ", s.upgradeParams)
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
