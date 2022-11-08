@@ -445,13 +445,14 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 		It("should transfer available balance", func() {
 			// Mint tokens and send to receiver
-			_, err := s.EvmosChain.App.(*app.Evmos).Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.EvmosChain.App.(*app.Evmos).Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount*2))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken :=
 				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
-			s.Require().Equal(amount, balanceToken.Int64())
+			s.Require().Equal(amount*2, balanceToken.Int64())
 
+			// Convert half of the available tokens
 			msgConvertERC20 := types.NewMsgConvertERC20(
 				sdk.NewInt(amount),
 				senderAcc,
@@ -464,10 +465,11 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
 			_, err = s.EvmosChain.App.(*app.Evmos).Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
 			s.Require().NoError(err)
+
 			// Check Balance
 			balanceToken =
 				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
-			s.Require().Equal(int64(0), balanceToken.Int64())
+			s.Require().Equal(amount, balanceToken.Int64())
 
 			// IBC coin balance should be amount
 			erc20CoinsBalance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, pair.Denom)
@@ -478,13 +480,17 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			// TODO: find what is causing this error.
 			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
 
-			// Attempt to send
+			// Attempt to send erc20 into ibc, should send without conversion
 			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, pair.Denom)
 			s.IBCOsmosisChain.Coordinator.CommitBlock()
 
 			// Check balance on the Osmosis chain
 			erc20IBCBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, erc20Denomtrace.IBCDenom())
 			s.Require().Equal(amount, erc20IBCBalance.Amount.Int64())
+			// Check Balance
+			balanceToken =
+				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			s.Require().Equal(amount, balanceToken.Int64())
 		})
 		It("should convert and transfer if no ibc balance", func() {
 			// Mint tokens and send to receiver
@@ -496,8 +502,10 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount, balanceToken.Int64())
 
+			// TODO: check what is causing this error
 			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
-			// Attempt to send
+
+			// Attempt to send erc20 into ibc, should automatically convert
 			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, pair.Denom)
 
 			s.EvmosChain.Coordinator.CommitBlock()
@@ -506,7 +514,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(int64(0), balanceToken.Int64())
 
-			// Check balance on the Osmosis chain
+			// Check balance received on the Osmosis chain
 			ibcOsmosBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, erc20Denomtrace.IBCDenom())
 			s.Require().Equal(amount, ibcOsmosBalance.Amount.Int64())
 
@@ -521,15 +529,13 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount, balanceToken.Int64())
 
-			// Attempt to send
+			// Attempt to send that will fail because balance is not enough
 			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
 
 			path := s.pathOsmosisEvmos
 			originEndpoint := path.EndpointB
-			destEndpoint := path.EndpointA
 			originChain := s.EvmosChain
 			coin := pair.Erc20Address
-			transfer := transfertypes.NewFungibleTokenPacketData(pair.Denom, strconv.Itoa(int(amount*2)), sender, receiver)
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0)
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
@@ -545,19 +551,12 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				[]uint64{originChain.SenderAccount.GetSequence()},
 				true, false, originChain.SenderPrivKey,
 			)
+
+			// Require a failing transfer
 			s.Require().Error(err)
 			// NextBlock calls app.Commit()
 			originChain.NextBlock()
-
-			// increment sequence for successful transaction execution
-			err = originChain.SenderAccount.SetSequence(originChain.SenderAccount.GetSequence() + 1)
-			s.Require().NoError(err)
 			originChain.Coordinator.IncrementTime()
-
-			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, destEndpoint.ChannelConfig.PortID, destEndpoint.ChannelID, timeoutHeight, 0)
-			// Receive message on the counterparty side, and send ack
-			err = path.RelayPacket(packet)
-			s.Require().Error(err)
 
 			// Check Balance didnt change
 			ibcOsmosBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, erc20Denomtrace.IBCDenom())
@@ -575,8 +574,6 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			receiver = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			sender = s.EvmosChain.SenderAccount.GetAddress().String()
-			print(sender)
-			print(receiver)
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
 			senderAcc = sdk.MustAccAddressFromBech32(sender)
 
@@ -588,6 +585,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		It("should transfer available balance", func() {
 			uosmoInitialBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 
+			// Send from osmosis to Evmos
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, receiver, sender, 1)
 			s.EvmosChain.Coordinator.CommitBlock(s.EvmosChain)
 
@@ -601,6 +599,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			balance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, uosmoIbcdenom)
 			s.Require().Equal(amount, balance.Amount.Int64())
 
+			// Convert ibc vouchers to erc20 tokens
 			msgConvertCoin := types.NewMsgConvertCoin(
 				sdk.NewCoin(pair.Denom, sdk.NewInt(amount)),
 				common.BytesToAddress(senderAcc.Bytes()),
@@ -614,7 +613,8 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()
-			// Attempt to send
+
+			// Attempt to send erc20 tokens to osmosis and convert automatically
 			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, uosmoDenomtrace.GetFullDenomPath())
 			s.IBCOsmosisChain.Coordinator.CommitBlock()
 			// Check balance on the Osmosis chain
