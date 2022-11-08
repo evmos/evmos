@@ -12,6 +12,16 @@ import (
 func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 	tokenPairs := []types.TokenPair{}
 
+	k.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) (stop bool) {
+		tokenPairs = append(tokenPairs, tokenPair)
+		return false
+	})
+
+	return tokenPairs
+}
+
+// IterateTokenPairs iterates over all the stored token pairs
+func (k Keeper) IterateTokenPairs(ctx sdk.Context, cb func(tokenPair types.TokenPair) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixTokenPair)
 	defer iterator.Close()
@@ -20,10 +30,10 @@ func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 		var tokenPair types.TokenPair
 		k.cdc.MustUnmarshal(iterator.Value(), &tokenPair)
 
-		tokenPairs = append(tokenPairs, tokenPair)
+		if cb(tokenPair) {
+			break
+		}
 	}
-
-	return tokenPairs
 }
 
 // GetTokenPairID returns the pair id from either of the registered tokens.
