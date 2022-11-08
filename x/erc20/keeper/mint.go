@@ -6,7 +6,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 // MintingEnabled checks that:
@@ -19,8 +19,7 @@ func (k Keeper) MintingEnabled(
 	sender, receiver sdk.AccAddress,
 	token string,
 ) (types.TokenPair, error) {
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 {
+	if !k.IsERC20Enabled(ctx) {
 		return types.TokenPair{}, sdkerrors.Wrap(
 			types.ErrERC20Disabled, "module is currently disabled by governance",
 		)

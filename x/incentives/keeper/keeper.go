@@ -9,7 +9,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v9/x/incentives/types"
+	"github.com/evmos/evmos/v10/x/incentives/types"
 )
 
 // Keeper of this module maintains collections of incentives.

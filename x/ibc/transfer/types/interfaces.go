@@ -9,7 +9,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
-	erc20types "github.com/evmos/evmos/v9/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 // BankKeeper defines the expected interface needed to check balances and send coins.

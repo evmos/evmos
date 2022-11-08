@@ -7,16 +7,15 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v9/x/erc20/keeper"
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/x/erc20/keeper"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 // NewErc20ProposalHandler creates a governance handler to manage new proposal types.
 func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		// Check if the conversion is globally enabled
-		params := k.GetParams(ctx)
-		if !params.EnableErc20 {
+		if !k.IsERC20Enabled(ctx) {
 			return sdkerrors.Wrap(
 				types.ErrERC20Disabled, "registration is currently disabled by governance",
 			)

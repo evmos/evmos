@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 
-	"github.com/evmos/evmos/v9/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
 )
 
 var (

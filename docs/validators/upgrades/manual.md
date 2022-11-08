@@ -1,6 +1,5 @@
-
 <!--
-order: 3
+order: 4
 -->
 
 # Manual Upgrades
@@ -17,7 +16,7 @@ Before upgrading the Evmos version. Stop your instance of `evmosd` using `Ctrl/C
 
 Next, upgrade the software to the desired release version. Check the Evmos [releases page](https://github.com/evmos/evmos/releases) for details on each release.
 
-::: warning
+::: danger
 Ensure that the version installed matches the one needed for the network you are running (mainnet or testnet).
 :::
 
@@ -41,7 +40,7 @@ server_name: evmosd
 version: 3.0.0
 commit: fe9df43332800a74a163c014c69e62765d8206e3
 build_tags: netgo,ledger
-go: go version go1.18 darwin/amd64
+go: go version go1.19 darwin/amd64
 ...
 ```
 

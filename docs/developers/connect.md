@@ -21,6 +21,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 
 | Address                                       | Category               | Maintainer                              |
 | --------------------------------------------- | ---------------------- | --------------------------------------- |
+| `https://evmos-rpc.gateway.pokt.network`      | `Ethereum` `JSON-RPC`  | [PocketNetwork(https://www.pokt.network/)  |
 | `https://grpc.bd.evmos.org:9090`              | `Cosmos` `gRPC`        | [Blockdaemon](https://blockdaemon.com/) |
 | `https://rest.bd.evmos.org:1317`              | `Cosmos` `REST`        | [Blockdaemon](https://blockdaemon.com/) |
 | `https://tendermint.bd.evmos.org:26657`       | `Tendermint` `RPC`     | [Blockdaemon](https://blockdaemon.com/) |
@@ -48,6 +49,8 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://evmos-evm.publicnode.com`            | `Ethereum` `JSON-RPC`  | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
 | `https://evmos-rpc.publicnode.com`            | `Tendermint` `RPC`     | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
 | `https://evmos-rest.publicnode.com`           | `Cosmos` `REST`        | [PublicNode (by Allnodes)](https://evmos.publicnode.com/) |
+| `https://evmos-api.validatrium.club`           | `Tendermint` `API`        | [Validatrium](https://validatrium.com/) |
+| `https://evmos-rpc.validatrium.club`           | `Tendermint` `RPC`        | [Validatrium](https://validatrium.com/) |
 
 :::
 ::: tab Testnet

@@ -10,8 +10,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
-	"github.com/evmos/evmos/v9/ibc"
-	"github.com/evmos/evmos/v9/x/erc20/keeper"
+	"github.com/evmos/evmos/v10/ibc"
+	"github.com/evmos/evmos/v10/x/erc20/keeper"
 )
 
 var _ porttypes.Middleware = &IBCMiddleware{}
