@@ -54,7 +54,6 @@ cat $HOME/.evoblockd/config/genesis.json | jq '.app_state["claims"]["params"]["d
 cat $HOME/.evoblockd/config/genesis.json | jq '.app_state["claims"]["params"]["duration_until_decay"]="100000s"' > $HOME/.evoblockd/config/tmp_genesis.json && mv $HOME/.evoblockd/config/tmp_genesis.json $HOME/.evoblockd/config/genesis.json
 
 # Claim module account:
-# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evo15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
 cat $HOME/.evoblockd/config/genesis.json | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evo15cvq3ljql6utxseh0zau9m8ve2j8erz8e49q8x","coins":[{"denom":"aEVO", "amount":$amount_to_claim}]}]' > $HOME/.evoblockd/config/tmp_genesis.json && mv $HOME/.evoblockd/config/tmp_genesis.json $HOME/.evoblockd/config/genesis.json
 
 # disable produce empty block
