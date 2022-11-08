@@ -8,7 +8,7 @@ KEYRING="test" # remember to change to other types of keyring like 'file' in-cas
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the evmosd instance
-HOMEDIR=~/.temp-evmosd
+HOMEDIR=~/.tmp-evmosd
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -28,8 +28,8 @@ set -e
 make install
 
 # Set client config
-evmosd config keyring-backend $KEYRING
-evmosd config chain-id $CHAINID
+evmosd config keyring-backend $KEYRING --home $HOMEDIR
+evmosd config chain-id $CHAINID --home $HOMEDIR
 
 # If keys exist they should be deleted
 for KEY in "${KEYS[@]}"
