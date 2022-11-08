@@ -21,6 +21,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 
 | Address                                       | Category               | Maintainer                              |
 | --------------------------------------------- | ---------------------- | --------------------------------------- |
+| `https://evmos-rpc.gateway.pokt.network`      | `Ethereum` `JSON-RPC`  | [PocketNetwork(https://www.pokt.network/)  |
 | `https://grpc.bd.evmos.org:9090`              | `Cosmos` `gRPC`        | [Blockdaemon](https://blockdaemon.com/) |
 | `https://rest.bd.evmos.org:1317`              | `Cosmos` `REST`        | [Blockdaemon](https://blockdaemon.com/) |
 | `https://tendermint.bd.evmos.org:26657`       | `Tendermint` `RPC`     | [Blockdaemon](https://blockdaemon.com/) |
