@@ -356,8 +356,7 @@ test-upgrade: docker-build-e2e-init docker-build-local
 	mkdir -p ./build
 	rm -rf build/.evmosd
 	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
-	MIGRATE_GENESIS=$(MIGRATE_GENESIS) E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) \
-	MOUNT_PATH=$(MOUNT_PATH) CHAIN_ID=$(CHAIN_ID) \
+	E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) MOUNT_PATH=$(MOUNT_PATH) CHAIN_ID=$(CHAIN_ID) \
 	go test -v ./tests/e2e/...
 
 run-tests:
