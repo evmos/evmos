@@ -22,6 +22,7 @@ import (
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 	"github.com/evmos/evmos/v10/x/erc20/keeper"
 	"github.com/evmos/evmos/v10/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
 	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
 )
 
@@ -356,6 +357,98 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				balances := suite.app.BankKeeper.GetAllBalances(suite.ctx, secpAddr)
 				suite.Require().Equal(tc.expCoins, balances)
 			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestConvertERC20AckPacket() {
+
+	testCases := []struct {
+		name     string
+		malleate func() transfertypes.FungibleTokenPacketData
+		transfer transfertypes.FungibleTokenPacketData
+		expPass  bool
+	}{
+		{
+			name: "error - invalid sender",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", "", "")
+			},
+			expPass: false,
+		},
+		{
+			name: "pass - is base denom",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+			},
+			expPass: true,
+		},
+		{
+			name: "pass - erc20 is disabled",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				pair := suite.setupRegisterCoin(metadataIbc)
+				suite.Require().NotNil(pair)
+
+				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+				params.EnableErc20 = false
+				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+			},
+			expPass: true,
+		},
+		{
+			name: "pass - denom is not registered",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				return transfertypes.NewFungibleTokenPacketData(metadataIbc.Base, "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+			},
+			expPass: true,
+		},
+		{
+			name: "pass - denom is registered and has available balance",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				pair := suite.setupRegisterCoin(metadataIbc)
+				suite.Require().NotNil(pair)
+
+				addr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
+				sender := sdk.MustAccAddressFromBech32(addr)
+
+				// Mint coins on account to simulate receiving ibc transfer
+				coinEvmos := sdk.NewCoin(pair.Denom, sdk.NewInt(10))
+				coins := sdk.NewCoins(coinEvmos)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, sender, coins)
+				suite.Require().NoError(err)
+
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", addr, "")
+			},
+			expPass: true,
+		},
+		{
+			name: "error - denom is registered but has no available balance",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				pair := suite.setupRegisterCoin(metadataIbc)
+				suite.Require().NotNil(pair)
+
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+			},
+			expPass: false,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.mintFeeCollector = true
+			suite.SetupTest() // reset
+
+			transfer := tc.malleate()
+
+			err := suite.app.Erc20Keeper.ConvertERC20AckPacket(suite.ctx, transfer)
+			if tc.expPass {
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().Error(err)
+			}
+
 		})
 	}
 }
