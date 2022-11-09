@@ -9,11 +9,10 @@ import (
 	"strings"
 )
 
-const upgradesPath = "./app/upgrades"
+var upgradesPath = "../../app/upgrades"
 
 // RetrieveUpgradeVersion parses the latest upgrade version from the app/upgrades folder
 func (m *Manager) RetrieveUpgradeVersion() (string, error) {
-	// get all directories in the app/upgrades/
 	dirs, err := os.ReadDir(upgradesPath)
 	if err != nil {
 		return "", err
@@ -43,7 +42,7 @@ func (m *Manager) RetrieveUpgradeVersion() (string, error) {
 
 		if highest < number {
 			highest = number
-			version = v
+			version = v[1 : len(v)-1]
 		}
 	}
 	return version, nil

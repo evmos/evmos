@@ -2,8 +2,6 @@ package upgrade
 
 import "github.com/ory/dockertest/v3"
 
-var baseCmd = []string{"evmosd", "start"}
-
 // Node defines evmos node params for running container
 // of specific version with custom docker run arguments
 type Node struct {
@@ -22,9 +20,15 @@ func NewNode(repository, version string) *Node {
 		runOptions: &dockertest.RunOptions{
 			Repository: repository,
 			Tag:        version,
-			Cmd:        baseCmd,
 		},
 	}
+}
+
+// SetEnvVars allows to set addition container environment variables in format
+// []string{ "VAR_NAME=valaue" }
+func (n *Node) SetEnvVars(vars []string) {
+	n.runOptions.Env = vars
+	n.UseRunOptions()
 }
 
 // Mount sets container mount point, used as value for 'docker run --volume'

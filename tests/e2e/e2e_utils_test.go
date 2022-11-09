@@ -14,19 +14,27 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	}
 	s.upgradeParams.InitialVersion = initialV
 
+	// Target version loading, if not specified manager gets the last one from app/upgrades folder
+	// and sets target repository to local, otherwise tharsishq repo will be used
 	targetV := os.Getenv("TARGET_VERSION")
 	if targetV == "" {
-		s.upgradeParams.TargetVersion, err = s.upgradeManager.RetrieveUpgradeVersion()
-		s.upgradeParams.TargetRepo = localRepository
+		s.upgradeParams.SoftwareUpgradeVersion, err = s.upgradeManager.RetrieveUpgradeVersion()
 		s.Require().NoError(err)
+		s.upgradeParams.TargetVersion = localVersionTag
+		s.upgradeParams.TargetRepo = localRepository
 	} else {
 		s.upgradeParams.TargetVersion = targetV
-		s.upgradeParams.TargetRepo = localRepository
+		s.upgradeParams.SoftwareUpgradeVersion = targetV
+		s.upgradeParams.TargetRepo = tharsisRepo
 	}
-	chainID := os.Getenv("CHAIN_ID")
-	if chainID == "" {
-		s.upgradeParams.ChainID = defaultChainID
+
+	// If chain ID is not specified, 'evmos_9000-1' will be used in upgrade-init.sh
+	chID := os.Getenv("CHAIN_ID")
+	if chID == "" {
+		chID = defaultChainID
 	}
+	s.upgradeParams.ChainID = chID
+
 	skipFlag := os.Getenv("E2E_SKIP_CLEANUP")
 	skipCleanup, err := strconv.ParseBool(skipFlag)
 	s.Require().NoError(err, "invalid skip cleanup flag")

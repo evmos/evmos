@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -21,9 +22,10 @@ const (
 )
 
 type upgradeParams struct {
-	InitialVersion string
-	TargetVersion  string
-	MountPath      string
+	InitialVersion         string
+	TargetVersion          string
+	SoftwareUpgradeVersion string
+	MountPath              string
 
 	ChainID     string
 	TargetRepo  string
@@ -53,6 +55,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 func (s *IntegrationTestSuite) runInitialNode() {
 	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
+	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
 	err := s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't run initial node")
 
@@ -71,8 +74,8 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 	defer cancel()
 
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
-		s.upgradeParams.TargetVersion,
-		defaultChainID,
+		s.upgradeParams.SoftwareUpgradeVersion,
+		s.upgradeParams.ChainID,
 		firstUpgradeHeight,
 	)
 	s.Require().NoError(err, "can't create submit proposal exec")
@@ -90,14 +93,14 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 	s.T().Logf(
 		"successfully submitted upgrade proposal: upgrade height: [%d] upgrade version: [%s]",
 		firstUpgradeHeight,
-		s.upgradeParams.TargetVersion,
+		s.upgradeParams.SoftwareUpgradeVersion,
 	)
 }
 
 func (s *IntegrationTestSuite) depositToProposal() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateDepositProposalExec(defaultChainID)
+	exec, err := s.upgradeManager.CreateDepositProposalExec(s.upgradeParams.ChainID)
 	s.Require().NoError(err, "can't create deposit to proposal tx exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -116,7 +119,7 @@ func (s *IntegrationTestSuite) depositToProposal() {
 func (s *IntegrationTestSuite) voteForProposal() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec(defaultChainID)
+	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID)
 	s.Require().NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -157,8 +160,9 @@ func (s *IntegrationTestSuite) upgrade() {
 		s.upgradeParams.MountPath,
 	)
 
-	node := upgrade.NewNode(localRepository, localVersionTag)
+	node := upgrade.NewNode(s.upgradeParams.TargetRepo, s.upgradeParams.TargetVersion)
 	node.Mount(s.upgradeParams.MountPath)
+	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
