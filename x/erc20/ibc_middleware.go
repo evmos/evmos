@@ -71,11 +71,11 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
 	}
 
-	if err := im.keeper.OnAcknowledgementPacket(ctx, packet, data, ack); err != nil {
+	if err := im.Module.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer); err != nil {
 		return err
 	}
 
-	return im.Module.OnAcknowledgementPacket(ctx, packet, acknowledgement, relayer)
+	return im.keeper.OnAcknowledgementPacket(ctx, packet, data, ack)
 }
 
 // OnTimeoutPacket implements the IBCModule interface.
