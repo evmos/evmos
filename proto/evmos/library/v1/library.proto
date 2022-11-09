@@ -1,0 +1,22 @@
+syntax = "proto3";
+package evmos.library.v1;
+
+import "gogoproto/gogo.proto";
+
+// Book ...
+message Book {
+    // bech32 address of the account that registered the Book 
+    string register_address = 1;
+    // author is the author of the book
+    string author = 2;
+    // title is the title of the book
+    string title = 3;
+    // isbn is the ISBN identifier for the given book
+    string isbn = 4;
+    // votes counts the amount of approved recommendations
+    // that users have submitted
+    uint32 votes = 5;
+    // voters is a slice of addresses that have voted on
+    // this book 
+    repeated string voters = 6;
+}

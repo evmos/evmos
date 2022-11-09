@@ -1,0 +1,28 @@
+syntax = "proto3";
+package evmos.library.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+service Msg {
+  // RegisterBook registers a new book
+  rpc RegisterBook(MsgRegisterBook) returns (MsgRegisterBookResponse) {
+    option (google.api.http).post = "/evmos/library/v1/register_book";
+  };
+}
+
+// MsgRegisterBook defines a message that
+// registers a book
+message MsgRegisterBook {
+  option (gogoproto.equal) = false;
+  // author is the author of the book
+  string author = 1;
+  // title is the title of the book
+  string title = 2;
+  // isbn is the ISBN identifier for the given book
+  string isbn = 3;
+}
+
+// MsgRegisterBookResponse defines the 
+// MsgRegisterBook response type
+message MsgRegisterBookResponse {}

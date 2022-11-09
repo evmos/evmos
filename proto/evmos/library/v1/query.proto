@@ -1,0 +1,27 @@
+syntax = "proto3";
+package evmos.library.v1;
+
+import "evmos/library/v1/library.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+// Query defines the gRPC querier service
+service Query {
+  // Book retrieves book by its ISBN
+  rpc Book(QueryBookRequest) returns (QueryBookResponse) {
+    option (google.api.http).get = "/evmos/library/v1/book";
+  }
+}
+
+// QueryBookRequest is the request type for the Query/Book RPC
+// method.
+message QueryBookRequest {
+  // The ISBN of the book to be queried.
+  string isbn = 1;
+}
+
+// QueryBookResponse is the response type for the Query/Book RPC
+// method.
+message QueryBookResponse {
+  Book book = 1 [ (gogoproto.nullable) = false ];
+}
