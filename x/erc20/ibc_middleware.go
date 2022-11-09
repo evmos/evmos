@@ -91,11 +91,11 @@ func (im IBCMiddleware) OnTimeoutPacket(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
 	}
 
-	if err := im.keeper.OnTimeoutPacket(ctx, packet, data); err != nil {
+	if err := im.Module.OnTimeoutPacket(ctx, packet, relayer); err != nil {
 		return err
 	}
 
-	return im.Module.OnTimeoutPacket(ctx, packet, relayer)
+	return im.keeper.OnTimeoutPacket(ctx, packet, data)
 }
 
 // SendPacket implements the ICS4 Wrapper interface by calling the underlying

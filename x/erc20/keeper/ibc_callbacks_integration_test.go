@@ -685,5 +685,82 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			uosmoBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 			s.Require().Equal(uosmoInitialBalance.Amount.Int64()+amount, uosmoBalance.Amount.Int64())
 		})
+		It("should timeout and reconvert coins", func() {
+
+			balance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, uosmoIbcdenom)
+			s.Require().Equal(amount, balance.Amount.Int64())
+
+			// Convert ibc vouchers to erc20 tokens
+			msgConvertCoin := types.NewMsgConvertCoin(
+				sdk.NewCoin(pair.Denom, sdk.NewInt(amount)),
+				common.BytesToAddress(senderAcc.Bytes()),
+				senderAcc,
+			)
+			err := msgConvertCoin.ValidateBasic()
+			s.Require().NoError(err)
+
+			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
+			_, err = s.EvmosChain.App.(*app.Evmos).Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			s.Require().NoError(err)
+
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			// Send message that will timeout
+			path := s.pathOsmosisEvmos
+			originEndpoint := path.EndpointB
+			destEndpoint := path.EndpointA
+			originChain := s.EvmosChain
+			coin := pair.Erc20Address
+			currentTime := s.EvmosChain.Coordinator.CurrentTime
+			timeout := uint64(currentTime.Unix() * 1000000000)
+			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID,
+				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout)
+
+			originChain.Coordinator.UpdateTimeForChain(originChain)
+			_, _, err = simapp.SignAndDeliver(
+				originChain.T,
+				originChain.TxConfig,
+				originChain.App.GetBaseApp(),
+				originChain.GetContext().BlockHeader(),
+				[]sdk.Msg{transferMsg},
+				originChain.ChainID,
+				[]uint64{originChain.SenderAccount.GetAccountNumber()},
+				[]uint64{originChain.SenderAccount.GetSequence()},
+				true, true, originChain.SenderPrivKey,
+			)
+
+			// check ERC20 balance was converted to ibc and sent
+			balanceERC20TokenAfter := s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			s.Require().Equal(int64(0), balanceERC20TokenAfter.Int64())
+
+			// NextBlock calls app.Commit()
+			originChain.NextBlock()
+
+			// increment sequence for successful transaction execution
+			err = originChain.SenderAccount.SetSequence(originChain.SenderAccount.GetSequence() + 1)
+
+			// Increment time so packet will timeout
+			originChain.Coordinator.IncrementTime()
+			s.IBCOsmosisChain.Coordinator.CommitBlock(s.IBCOsmosisChain)
+
+			// Recreate the packet that was sent
+			transfer := transfertypes.NewFungibleTokenPacketData(uosmoDenomtrace.GetFullDenomPath(), strconv.Itoa(int(amount)), sender, receiver)
+			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, destEndpoint.ChannelConfig.PortID, destEndpoint.ChannelID, timeoutHeight, timeout)
+
+			// need to update evmos chain to prove missing ack
+			err = path.EndpointB.UpdateClient()
+			s.Require().NoError(err)
+			// Receive timeout
+			err = path.EndpointB.TimeoutPacket(packet)
+			s.Require().NoError(err)
+			originChain.NextBlock()
+
+			// Check that balance was reconverted
+			balance = s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, uosmoIbcdenom)
+			s.Require().Equal(int64(0), balance.Amount.Int64())
+
+			balanceERC20TokenAfter = s.EvmosChain.App.(*app.Evmos).Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			s.Require().Equal(amount, balanceERC20TokenAfter.Int64())
+		})
 	})
 })
