@@ -43,7 +43,7 @@ func (msg MsgCallEVM) ValidateBasic() error {
 
 	// TODO: Should not be negative but can it be zero ?
 	if amount.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "Invalid AccAddress")
+		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "Invalid amount")
 	}
 
 	return nil
