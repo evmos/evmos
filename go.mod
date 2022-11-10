@@ -29,7 +29,11 @@ require (
 	google.golang.org/protobuf v1.28.1
 )
 
-require cosmossdk.io/errors v1.0.0-beta.7
+require (
+	cosmossdk.io/api v0.2.4
+	cosmossdk.io/errors v1.0.0-beta.7
+	github.com/cosmos/ibc-go/v6 v6.0.0-beta1
+)
 
 require (
 	cloud.google.com/go v0.105.0 // indirect
@@ -60,7 +64,8 @@ require (
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.7.0 // indirect
 	github.com/cosmos/btcutil v1.0.4 // indirect
-	github.com/cosmos/cosmos-proto v1.0.0-alpha7 // indirect
+	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
+	github.com/cosmos/gogoproto v1.4.2 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.3 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
