@@ -8,49 +8,58 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v9/x/ibc/evm/types"
 
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	ibcgokeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	"github.com/evmos/evmos/v9/x/ibc/evm/types"
 )
 
-// Keeper defines the IBC fungible transfer keeper
+// Keeper of the IBC-EVM module, which contains Bank Keeper,
+// IBC Transfer Keeper, and EVM Keeper
 type Keeper struct {
 	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
 	paramSpace paramtypes.Subspace
 
+	bankKeeper        bankkeeper.Keeper
+	ibcTransferKeeper ibcgokeeper.Keeper
+	evmKeeper         evmkeeper.Keeper
+
 	ics4Wrapper   porttypes.ICS4Wrapper
 	channelKeeper types.ChannelKeeper
 	portKeeper    types.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
-	evmkeeper     evmkeeper.Keeper
 }
 
-// NewKeeper creates a new IBC transfer Keeper instance
+// NewKeeper creates a new instance of the IBC-EVM-tx module's keeper
 func NewKeeper(
-	cdc codec.BinaryCodec,
 	key storetypes.StoreKey,
+	cdc codec.BinaryCodec,
 	paramSpace paramtypes.Subspace,
+	bankKeeper bankkeeper.Keeper,
+	ibcTransferKeeper ibcgokeeper.Keeper,
+	evmKeeper evmkeeper.Keeper,
 	ics4Wrapper porttypes.ICS4Wrapper,
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
-	evmkeeper evmkeeper.Keeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
-
 ) Keeper {
-	// TODO add corresponding logic
-
 	return Keeper{
-		cdc:           cdc,
-		storeKey:      key,
-		paramSpace:    paramSpace,
-		ics4Wrapper:   ics4Wrapper,
-		channelKeeper: channelKeeper,
-		portKeeper:    portKeeper,
-		scopedKeeper:  scopedKeeper,
+		storeKey:          key,
+		cdc:               cdc,
+		paramSpace:        paramSpace,
+		bankKeeper:        bankKeeper,
+		ibcTransferKeeper: ibcTransferKeeper,
+		evmKeeper:         evmKeeper,
+		ics4Wrapper:       ics4Wrapper,
+		channelKeeper:     channelKeeper,
+		portKeeper:        portKeeper,
+		scopedKeeper:      scopedKeeper,
 	}
 }
 
@@ -94,3 +103,5 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
 }
+
+// TODO: functionality to check whether or not chain has EVM?
