@@ -48,9 +48,10 @@ func (m *Manager) RetrieveUpgradeVersion() (string, error) {
 	return version, nil
 }
 
-// ExportState execute 'docker cp' command to copy container .evmosd dir
-// to specified local dir
-// https://docs.docker.com/engine/reference/commandline/cp/
+// ExportState executes the  'docker cp' command to copy container .evmosd dir
+// to the specified target dir (local)
+// 
+// See https://docs.docker.com/engine/reference/commandline/cp/
 func (m *Manager) ExportState(targetDir string) error {
 	/* #nosec G204 */
 	cmd := exec.Command(

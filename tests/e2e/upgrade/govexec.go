@@ -8,7 +8,7 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 )
 
-// Runs provided docker exec call
+// RunExec runs the provided docker exec call
 func (m *Manager) RunExec(ctx context.Context, exec string) (outBuf bytes.Buffer, errBuf bytes.Buffer, err error) {
 	err = m.pool.Client.StartExec(exec, docker.StartExecOptions{
 		Context:      ctx,
@@ -37,7 +37,7 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 	return exec.ID, nil
 }
 
-// Creates an evmos gov tx to submit an upgrade proposal to the chain
+// CreateSubmitProposalExec creates a gov tx to submit an upgrade proposal to the chain
 func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
 	cmd := []string{
 		"evmosd",
@@ -58,7 +58,7 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-// Creates evmos gov tx to deposit for current upgrade proposal
+// CreateDepositProposalExec creates a gov tx to deposit for the current upgrade proposal
 func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
 	cmd := []string{
 		"evmosd",
@@ -79,7 +79,7 @@ func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-// Creates evmos gov tx to vote 'yes' current upgrade proposal
+// CreateVoteProposalExec creates gov tx to vote 'yes' on the current upgrade proposal
 func (m *Manager) CreateVoteProposalExec(chainID string) (string, error) {
 	cmd := []string{
 		"evmosd",
