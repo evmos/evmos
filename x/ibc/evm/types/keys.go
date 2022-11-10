@@ -20,3 +20,8 @@ const (
 	// QuerierRoute is the querier route for IBC transfer
 	QuerierRoute = ModuleName
 )
+
+var (
+	// PortKey defines the key to store the port ID in store
+	PortKey = []byte{0x01}
+)
