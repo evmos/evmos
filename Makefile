@@ -24,7 +24,6 @@ DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
 MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
-MIGRATE_GENESIS := false
 
 export GO111MODULE = on
 
