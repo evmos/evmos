@@ -78,7 +78,7 @@ echo "<expected_hash>  genesis.json" | sha256sum -c
 ## 3. Data Reset
 
 ::: danger
-Check [here](./upgrades.md) if the version you are upgrading require a data reset (hard fork). If this is not the case, you can skip to [Restart](#restart-node).
+Check [here](./upgrades.md) if the version you are upgrading require a data reset (hard fork). If this is not the case, you can skip to [Restart](https://docs.evmos.org/validators/upgrades/manual.html#_4-restart-node).
 :::
 
 Remove the outdated files and reset the data:
