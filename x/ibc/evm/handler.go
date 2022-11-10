@@ -1,7 +1,9 @@
 package evm
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/evmos/evmos/v9/x/ibc/evm/types"
 )
