@@ -10,7 +10,7 @@ message GenesisState {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// Params defines the erc20 module params
+// Params defines the ibc evm transaction module params
 message Params {
   // parameter to enable sending an evm transaction to another EVM chain.
   bool send_evm_tx_enabled = 1;
