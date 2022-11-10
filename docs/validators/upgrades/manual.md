@@ -53,8 +53,8 @@ If the software version does not match, then please check your `$PATH` to ensure
 ::: tip
 You can find the latest `genesis.json` file for mainnet or testnet in the following repositories:
 
-- **Mainnet**: [github.com/tharsis/mainnet](https://github.com/tharsis/mainnet)
-- **Testnet**: [github.com/tharsis/testnets](https://github.com/tharsis/testnets)
+- **Mainnet**: [github.com/evmos/mainnet](https://github.com/evmos/mainnet)
+- **Testnet**: [github.com/evmos/testnets](https://github.com/evmos/testnets)
 :::
 
 Save the new genesis as `new_genesis.json`. Then, replace the old `genesis.json` located in your `config/` directory with `new_genesis.json`:
