@@ -16,7 +16,7 @@ func (k Keeper) sendEvmTx(
 	ctx sdk.Context,
 	sourcePort,
 	sourceChannel string,
-	token sdk.Coin,
+	coin sdk.Coin,
 	sender sdk.AccAddress,
 	receiver string,
 	timeoutHeight clienttypes.Height,
