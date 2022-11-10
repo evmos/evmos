@@ -10,9 +10,9 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/evmos/evmos/v9/x/ibc/evm/types"
 
-	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v5/modules/core/exported"
+	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 )
 
@@ -25,7 +25,7 @@ type Keeper struct {
 	ics4Wrapper   porttypes.ICS4Wrapper
 	channelKeeper types.ChannelKeeper
 	portKeeper    types.PortKeeper
-	scopedKeeper  exported.ScopedKeeper
+	scopedKeeper  capabilitykeeper.ScopedKeeper
 	evmkeeper     evmkeeper.Keeper
 }
 
@@ -38,7 +38,7 @@ func NewKeeper(
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
 	evmkeeper evmkeeper.Keeper,
-	scopedKeeper exported.ScopedKeeper,
+	scopedKeeper capabilitykeeper.ScopedKeeper,
 
 ) Keeper {
 	// TODO add corresponding logic
