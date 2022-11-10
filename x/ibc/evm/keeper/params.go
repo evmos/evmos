@@ -7,15 +7,13 @@ import (
 )
 
 // GetSendEnabled retrieves the send enabled boolean from the paramstore
-func (k Keeper) GetSendEvmTxEnabled(ctx sdk.Context) bool {
-	var res bool
+func (k Keeper) GetSendEvmTxEnabled(ctx sdk.Context) (res bool) {
 	k.paramSpace.Get(ctx, types.KeySendEvmTxEnabled, &res)
 	return res
 }
 
 // GetReceiveEnabled retrieves the receive enabled boolean from the paramstore
-func (k Keeper) GetReceiveEvmTxEnabled(ctx sdk.Context) bool {
-	var res bool
+func (k Keeper) GetReceiveEvmTxEnabled(ctx sdk.Context) (res bool) {
 	k.paramSpace.Get(ctx, types.KeyReceiveEvmTxEnabled, &res)
 	return res
 }
