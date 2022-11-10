@@ -1,0 +1,19 @@
+syntax = "proto3";
+package evmos.ibc.evm.v1;
+
+import "gogoproto/gogo.proto";
+option go_package = "github.com/evmos/evmos/v9/x/ibc/evm/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+  // module parameters
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// Params defines the erc20 module params
+message Params {
+  // parameter to enable sending an evm transaction to another EVM chain.
+  bool send_evm_tx_enabled = 1;
+  // parameter to enable the reception of evm transactions coming from other chains 
+  bool receive_evm_tx_enabled = 2;
+}
