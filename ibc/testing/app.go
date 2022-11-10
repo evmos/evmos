@@ -26,6 +26,8 @@ import (
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
 
+const BaseDenom = "aevmos"
+
 // SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
@@ -66,7 +68,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = claimtypes.DefaultClaimsDenom
+	stakingParams.BondDenom = BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 

@@ -165,6 +165,9 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
+
+	// Include the possibility to use an ERC-20 contract address as coin Denom
+	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 }
 
 // Name defines the application binary name
@@ -542,8 +545,8 @@ func NewEvmos(
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 
 	// Set the ICS4 wrappers for custom module middlewares
-	app.Erc20Keeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
-	app.RecoveryKeeper.SetICS4Wrapper(app.Erc20Keeper)
+	// app.Erc20Keeper.SetICS4Wrapper()
+	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
 	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
 
 	// Override the ICS20 app module
@@ -807,9 +810,6 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-
-	// Include the possibility to use an ERC-20 contract address as coin Denom
-	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)

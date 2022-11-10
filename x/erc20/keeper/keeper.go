@@ -58,15 +58,15 @@ func NewKeeper(
 	}
 }
 
-// SetICS4Wrapper sets the ICS4 wrapper to the keeper.
-// It panics if already set
-func (k *Keeper) SetICS4Wrapper(ics4Wrapper porttypes.ICS4Wrapper) {
-	if k.ics4Wrapper != nil {
-		panic("ICS4 wrapper already set")
-	}
+// // SetICS4Wrapper sets the ICS4 wrapper to the keeper.
+// // It panics if already set
+// func (k *Keeper) SetICS4Wrapper(ics4Wrapper porttypes.ICS4Wrapper) {
+// 	if k.ics4Wrapper != nil {
+// 		panic("ICS4 wrapper already set")
+// 	}
 
-	k.ics4Wrapper = ics4Wrapper
-}
+// 	k.ics4Wrapper = ics4Wrapper
+// }
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
