@@ -69,7 +69,7 @@ func (m *GenesisState) GetParams() Params {
 	return Params{}
 }
 
-// Params defines the erc20 module params
+// Params defines the ibc evm transaction module params
 type Params struct {
 	// parameter to enable sending an evm transaction to another EVM chain.
 	SendEvmTxEnabled bool `protobuf:"varint,1,opt,name=send_evm_tx_enabled,json=sendEvmTxEnabled,proto3" json:"send_evm_tx_enabled,omitempty"`
