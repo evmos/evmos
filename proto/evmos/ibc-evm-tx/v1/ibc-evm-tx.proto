@@ -1,8 +1,8 @@
 syntax = "proto3";
 package evmos.ibc_evm_tx.v1;
 
-import "github.com/MalteHerrmann/evmos";
-option go_package = "github.com/MalteHerrmann/evmos/v9/evm/types";
+import "evmos/ibc-evm-tx/v1/packet.proto";
+option go_package = "github.com/evmos/evmos/v9/x/ibc/evm/types";
 
 message MsgIBCEVM {
   // Bech32 address of the transaction sender
