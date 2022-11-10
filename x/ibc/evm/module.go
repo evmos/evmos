@@ -1,21 +1,21 @@
 package evm
 
 import (
-	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/evmos/evmos/v9/x/ibc/evm/types"
+	"github.com/evmos/evmos/v10/x/ibc/evm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-	"github.com/evmos/evmos/v9/x/erc20/client/cli"
-	"github.com/evmos/evmos/v9/x/ibc/evm/keeper"
+	"github.com/evmos/evmos/v10/x/erc20/client/cli"
+	"github.com/evmos/evmos/v10/x/ibc/evm/keeper"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 )
@@ -52,12 +52,10 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 
 // ValidateGenesis performs genesis state validation for the ibc transfer module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	// var gs types.GenesisState
-	// if err := cdc.UnmarshalJSON(bz, &gs); err != nil {
-	// 	return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	// }
-
-	// return gs.Validate()
+	var genesisState types.GenesisState
+	if err := cdc.UnmarshalJSON(bz, &genesisState); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
 	return nil
 }
 

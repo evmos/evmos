@@ -1013,7 +1013,7 @@ GenesisState defines the module's genesis state.
 <a name="evmos.ibc.evm.v1.Params"></a>
 
 ### Params
-Params defines the erc20 module params
+Params defines the ibc evm transaction module params
 
 
 | Field | Type | Label | Description |

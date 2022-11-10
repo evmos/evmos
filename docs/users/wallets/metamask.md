@@ -71,10 +71,10 @@ Close the `Settings`, go to `My Accounts` (top right circle) and select `Import 
 
 ![metamask manual import account page](./../../img/metamask_import.png)
 
-Now you can export your private key from the terminal using the following command. Again, make sure to replace `mykey` with the name of the key that you want to export and use the correct `keyring-backend`:
+Now you can export your private key from the terminal using the following command. Again, make sure to replace `dev0` with the name of the key that you want to export and use the correct `keyring-backend`:
 
 ```bash
-evmosd keys unsafe-export-eth-key mykey
+evmosd keys unsafe-export-eth-key dev0
 ```
 
 Go back to the browser and select the `Private Key` option. Then paste the private key exported from the `unsafe-export-eth-key` command.

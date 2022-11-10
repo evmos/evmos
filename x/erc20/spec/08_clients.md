@@ -79,7 +79,7 @@ evmosd tx gov submit-proposal register-erc20 ERC20_ADDRESS... [flags]
 Allows users to submit a `ToggleTokenConversionProposal`.
 
 ```bash
-evmosd tx gov submit-proposal toggle-token-conversion [token] [flags]
+evmosd tx gov submit-proposal toggle-token-conversion TOKEN [flags]
 ```
 
 **`param-change`**
@@ -87,7 +87,7 @@ evmosd tx gov submit-proposal toggle-token-conversion [token] [flags]
 Allows users to submit a `ParameterChangeProposal``.
 
 ```bash
-evmosd tx gov submit-proposal param-change [proposal-file] [flags]
+evmosd tx gov submit-proposal param-change PROPOSAL_FILE [flags]
 ```
 
 ## gRPC
