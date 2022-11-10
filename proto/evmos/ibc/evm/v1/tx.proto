@@ -19,8 +19,7 @@ service Msg {
 // MsgCallEVM defines a Msg to execute an Etherum Tx from an ibc evm enabled
 // source chain on an ibc evm enabled destination chain
 message MsgCallEVM {
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal) = false;
 
   // Amount to be sent with the Tx
   string amount = 1;
