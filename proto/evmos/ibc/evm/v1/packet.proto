@@ -2,7 +2,7 @@ syntax = "proto3";
 package evmos.ibc.evm.v1;
 
 import "google/protobuf/any.proto";
-option go_package = "github.com/evmos/evmos/v9/x/ibc/evm/types";
+option go_package = "github.com/evmos/evmos/v10/x/ibc/evm/types";
 
 // IBCEVMPacketData defines a struct for the packet payload
 // See IBCEVMPacketData spec:

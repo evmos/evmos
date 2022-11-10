@@ -12,8 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	"github.com/evmos/evmos/v9/x/ibc/evm/keeper"
-	"github.com/evmos/evmos/v9/x/ibc/evm/types"
+	"github.com/evmos/evmos/v10/x/ibc/evm/keeper"
+	"github.com/evmos/evmos/v10/x/ibc/evm/types"
 )
 
 // IBCModule implements the ICS26 interface for transfer given the transfer keeper.

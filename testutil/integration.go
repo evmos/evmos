@@ -17,7 +17,7 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 
-	"github.com/evmos/evmos/v9/app"
+	"github.com/evmos/evmos/v10/app"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.

@@ -93,8 +93,8 @@ obtain the addresses and keys as mentioned above,
 ::: tab Account
 
 ```bash
-evmosd keys show mykey --bech acc
-- name: mykey
+evmosd keys show dev0 --bech acc
+- name: dev0
   type: local
   address: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2"}'
@@ -105,8 +105,8 @@ evmosd keys show mykey --bech acc
 ::: tab Validator
 
 ```bash
-evmosd keys show mykey --bech val
-- name: mykey
+evmosd keys show dev0 --bech val
+- name: dev0
   type: local
   address: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2"}'
@@ -117,8 +117,8 @@ evmosd keys show mykey --bech val
 ::: tab Consensus
 
 ```bash
-evmosd keys show mykey --bech cons
-- name: mykey
+evmosd keys show dev0 --bech cons
+- name: dev0
   type: local
   address: evmosvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n
   pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A/fVLgIqiLykFQxum96JkSOoTemrXD0tFaFQ1B0cpB2c"}'
@@ -136,7 +136,7 @@ You can query an account address using the CLI, gRPC or
 
 ```bash
 # NOTE: the --output (-o) flag will define the output format in JSON or YAML (text)
-evmosd q auth account $(evmosd keys show mykey -a) -o text
+evmosd q auth account $(evmosd keys show dev0 -a) -o text
 |
   '@type': /ethermint.types.v1.EthAccount
   base_account:

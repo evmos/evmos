@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v9/x/ibc/evm/types"
+	"github.com/evmos/evmos/v10/x/ibc/evm/types"
 )
 
 // InitGenesis import module genesis

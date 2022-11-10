@@ -32,7 +32,7 @@ You can register a contract by signing a transaction with the address that origi
 ```bash
 # Register a revenue for your contract
 evmosd tx revenue register $CONTRACT $NONCE $WITHDRAWER \
---from=mykey \ # contract deployer key
+--from=dev0 \ # contract deployer key
 --gas=700000 --gas-prices=10000aevmos \ # can vary depending on the network
 ```
 
