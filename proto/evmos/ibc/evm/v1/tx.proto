@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "evmos/ibc/evm/v1/packet.proto";
 
-option go_package = "github.com/evmos/evmos/v9/x/ibc/evm/types";
+option go_package = "github.com/evmos/evmos/v10/x/ibc/evm/types";
 
 // Msg defines the ibc evm Msg service.
 service Msg {

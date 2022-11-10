@@ -3,12 +3,11 @@ package cli
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v9/x/erc20/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestParseMetadata(t *testing.T) {
-
 	testCases := []struct {
 		name         string
 		metadataFile string

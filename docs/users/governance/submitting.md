@@ -174,7 +174,7 @@ evmosd tx gov submit-proposal \
   --description=<description> \
   --type="Text" \
   --deposit="1000000aevmos" \
-  --from=<mykey> \
+  --from=<dev0> \
   --chain-id=<chain_id>
   --node <address>
 ```
@@ -185,7 +185,7 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
 
 1. `evmosd` is the command-line interface client that is used to send transactions and query Evmos
 2. `tx gov submit-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
-3. `--from mykey` is the account key that pays the transaction fee and deposit amount
+3. `--from dev0` is the account key that pays the transaction fee and deposit amount
 4. `--gas 500000` is the maximum amount of gas permitted to be used to process the transaction
    - the more content there is in the description of your proposal, the more gas your transaction will consume
    - if this number isn't high enough and there isn't enough gas to process your transaction, the transaction will fail

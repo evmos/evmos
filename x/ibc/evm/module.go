@@ -7,15 +7,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/evmos/evmos/v9/x/ibc/evm/types"
+	"github.com/evmos/evmos/v10/x/ibc/evm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-	"github.com/evmos/evmos/v9/x/erc20/client/cli"
-	"github.com/evmos/evmos/v9/x/ibc/evm/keeper"
+	"github.com/evmos/evmos/v10/x/erc20/client/cli"
+	"github.com/evmos/evmos/v10/x/ibc/evm/keeper"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 )
