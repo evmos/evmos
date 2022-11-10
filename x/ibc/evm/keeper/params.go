@@ -21,8 +21,9 @@ func (k Keeper) GetReceiveEvmTxEnabled(ctx sdk.Context) bool {
 }
 
 // GetParams returns the total set of ibc-transfer parameters.
-func (k Keeper) GetParams(ctx sdk.Context) types.Params {
-	return types.NewParams(k.GetSendEvmTxEnabled(ctx), k.GetReceiveEvmTxEnabled(ctx))
+func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+	k.paramSpace.GetParamSetIfExists(ctx, &params)
+	return params
 }
 
 // SetParams sets the total set of ibc-transfer parameters.

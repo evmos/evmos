@@ -1,8 +1,8 @@
 package evm
 
 import (
-	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -52,12 +52,10 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 
 // ValidateGenesis performs genesis state validation for the ibc transfer module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	// var gs types.GenesisState
-	// if err := cdc.UnmarshalJSON(bz, &gs); err != nil {
-	// 	return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	// }
-
-	// return gs.Validate()
+	var genesisState types.GenesisState
+	if err := cdc.UnmarshalJSON(bz, &genesisState); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
 	return nil
 }
 
