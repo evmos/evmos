@@ -20,7 +20,6 @@ service Msg {
 // source chain on an ibc evm enabled destination chain
 message MsgCallEVM {
   option (gogoproto.equal) = false;
-
   // Amount to be sent with the Tx
   string amount = 1;
   // Coin denomination for the EVM chain
