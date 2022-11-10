@@ -70,6 +70,12 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
+- [evmos/ibc-evm-tx/v1/packet.proto](#evmos/ibc-evm-tx/v1/packet.proto)
+    - [IBCEVMPacketData](#evmos.ibc_evm_tx.v1.IBCEVMPacketData)
+  
+- [evmos/ibc-evm-tx/v1/ibc-evm-tx.proto](#evmos/ibc-evm-tx/v1/ibc-evm-tx.proto)
+    - [MsgIBCEVM](#evmos.ibc_evm_tx.v1.MsgIBCEVM)
+  
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
     - [GasMeter](#evmos.incentives.v1.GasMeter)
@@ -970,6 +976,73 @@ Msg defines the erc20 Msg service.
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `ConvertCoin` | [MsgConvertCoin](#evmos.erc20.v1.MsgConvertCoin) | [MsgConvertCoinResponse](#evmos.erc20.v1.MsgConvertCoinResponse) | ConvertCoin mints a ERC20 representation of the native Cosmos coin denom that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_coin|
 | `ConvertERC20` | [MsgConvertERC20](#evmos.erc20.v1.MsgConvertERC20) | [MsgConvertERC20Response](#evmos.erc20.v1.MsgConvertERC20Response) | ConvertERC20 mints a native Cosmos coin representation of the ERC20 token contract that is registered on the token mapping. | GET|/evmos/erc20/v1/tx/convert_erc20|
+
+ <!-- end services -->
+
+
+
+<a name="evmos/ibc-evm-tx/v1/packet.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/ibc-evm-tx/v1/packet.proto
+
+
+
+<a name="evmos.ibc_evm_tx.v1.IBCEVMPacketData"></a>
+
+### IBCEVMPacketData
+IBCEVMPacketData defines a struct for the packet payload
+See IBCEVMPacketData spec:
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | Data for the EVM transaction |
+| `sender` | [string](#string) |  | the sender address |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="evmos/ibc-evm-tx/v1/ibc-evm-tx.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/ibc-evm-tx/v1/ibc-evm-tx.proto
+
+
+
+<a name="evmos.ibc_evm_tx.v1.MsgIBCEVM"></a>
+
+### MsgIBCEVM
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `sender_address` | [string](#string) |  | Bech32 address of the transaction sender |
+| `amount` | [string](#string) |  | Amount to be sent with the Tx |
+| `denom` | [string](#string) |  | Coin denomination for the EVM chain |
+| `packet` | [IBCEVMPacketData](#evmos.ibc_evm_tx.v1.IBCEVMPacketData) |  | Packet contains the IBC EVM packet information |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
 
  <!-- end services -->
 

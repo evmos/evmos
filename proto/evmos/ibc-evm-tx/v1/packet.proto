@@ -1,9 +1,8 @@
 syntax = "proto3";
+package evmos.ibc_evm_tx.v1;
 
-package ibc.applications.transfer.v2;
-
-import "github.com/evmos/ethermint/proto/ethermint/evm/v1/tx";
-option go_package = "github.com/MalteHerrmann/evmos/v9/evm/types";
+import "google/protobuf/any.proto";
+option go_package = "github.com/evmos/evmos/v9/x/ibc/evm/types";
 
 // IBCEVMPacketData defines a struct for the packet payload
 // See IBCEVMPacketData spec:
