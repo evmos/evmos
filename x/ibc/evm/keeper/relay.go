@@ -24,6 +24,7 @@ func (k Keeper) sendEvmTx(
 	metadata []byte,
 ) (uint64, error) {
 	channel, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
+	_ = channel
 	if !found {
 		return 0, sdkerrors.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", sourcePort, sourceChannel)
 	}

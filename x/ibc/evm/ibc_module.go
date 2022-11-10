@@ -1,14 +1,13 @@
 package evm
 
 import (
-	"fmt"
 	"math"
 	"strings"
 
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
-	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
-	ibcexported "github.com/cosmos/ibc-go/v6/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
+	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -168,37 +167,7 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
 	ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
-
-	// only attempt the application logic if the packet data
-	// was successfully decoded
-	if ack.Success() {
-		err := im.keeper.OnRecvPacket(ctx, packet, data)
-		if err != nil {
-			ack = channeltypes.NewErrorAcknowledgement(err)
-			ackErr = err
-		}
-	}
-
-	eventAttributes := []sdk.Attribute{
-		sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-		sdk.NewAttribute(sdk.AttributeKeySender, data.Sender),
-		sdk.NewAttribute(types.AttributeKeyReceiver, data.Receiver),
-		sdk.NewAttribute(types.AttributeKeyDenom, data.Denom),
-		sdk.NewAttribute(types.AttributeKeyAmount, data.Amount),
-		sdk.NewAttribute(types.AttributeKeyMemo, data.Memo),
-		sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%t", ack.Success())),
-	}
-
-	if ackErr != nil {
-		eventAttributes = append(eventAttributes, sdk.NewAttribute(types.AttributeKeyAckError, ackErr.Error()))
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypePacket,
-			eventAttributes...,
-		),
-	)
+	// TODO add logic
 
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.
 	return ack
@@ -211,43 +180,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
-	var ack channeltypes.Acknowledgement
-	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
-	}
-	var data types.FungibleTokenPacketData
-	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-	}
-
-	if err := im.keeper.OnAcknowledgementPacket(ctx, packet, data, ack); err != nil {
-		return err
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypePacket,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(types.AttributeKeyAck, ack.String()),
-		),
-	)
-
-	switch resp := ack.Response.(type) {
-	case *channeltypes.Acknowledgement_Result:
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypePacket,
-				sdk.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
-			),
-		)
-	case *channeltypes.Acknowledgement_Error:
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypePacket,
-				sdk.NewAttribute(types.AttributeKeyAckError, resp.Error),
-			),
-		)
-	}
+	// TODO add logic
 
 	return nil
 }
@@ -258,22 +191,7 @@ func (im IBCModule) OnTimeoutPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
-	var data types.FungibleTokenPacketData
-	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
-	}
-	// refund tokens
-	if err := im.keeper.OnTimeoutPacket(ctx, packet, data); err != nil {
-		return err
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeTimeout,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(types.AttributeKeyMemo, data.Memo),
-		),
-	)
+	// TODO add logic
 
 	return nil
 }
