@@ -70,11 +70,13 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
-- [evmos/ibc-evm-tx/v1/packet.proto](#evmos/ibc-evm-tx/v1/packet.proto)
-    - [IBCEVMPacketData](#evmos.ibc_evm_tx.v1.IBCEVMPacketData)
+- [evmos/ibc/evm/v1/packet.proto](#evmos/ibc/evm/v1/packet.proto)
+    - [IBCEVMPacketData](#evmos.ibc.evm.v1.IBCEVMPacketData)
   
-- [evmos/ibc-evm-tx/v1/ibc-evm-tx.proto](#evmos/ibc-evm-tx/v1/ibc-evm-tx.proto)
-    - [MsgIBCEVM](#evmos.ibc_evm_tx.v1.MsgIBCEVM)
+- [evmos/ibc/evm/v1/tx.proto](#evmos/ibc/evm/v1/tx.proto)
+    - [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM)
+  
+    - [Msg](#evmos.ibc.evm.v1.Msg)
   
 - [evmos/incentives/v1/incentives.proto](#evmos/incentives/v1/incentives.proto)
     - [CancelIncentiveProposal](#evmos.incentives.v1.CancelIncentiveProposal)
@@ -981,14 +983,14 @@ Msg defines the erc20 Msg service.
 
 
 
-<a name="evmos/ibc-evm-tx/v1/packet.proto"></a>
+<a name="evmos/ibc/evm/v1/packet.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/ibc-evm-tx/v1/packet.proto
+## evmos/ibc/evm/v1/packet.proto
 
 
 
-<a name="evmos.ibc_evm_tx.v1.IBCEVMPacketData"></a>
+<a name="evmos.ibc.evm.v1.IBCEVMPacketData"></a>
 
 ### IBCEVMPacketData
 IBCEVMPacketData defines a struct for the packet payload
@@ -1014,25 +1016,25 @@ See IBCEVMPacketData spec:
 
 
 
-<a name="evmos/ibc-evm-tx/v1/ibc-evm-tx.proto"></a>
+<a name="evmos/ibc/evm/v1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## evmos/ibc-evm-tx/v1/ibc-evm-tx.proto
+## evmos/ibc/evm/v1/tx.proto
 
 
 
-<a name="evmos.ibc_evm_tx.v1.MsgIBCEVM"></a>
+<a name="evmos.ibc.evm.v1.MsgCallEVM"></a>
 
-### MsgIBCEVM
-
+### MsgCallEVM
+MsgCallEVM defines a Msg to execute an Etherum Tx from an ibc evm enabled
+source chain on an ibc evm enabled destination chain
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `sender_address` | [string](#string) |  | Bech32 address of the transaction sender |
 | `amount` | [string](#string) |  | Amount to be sent with the Tx |
 | `denom` | [string](#string) |  | Coin denomination for the EVM chain |
-| `packet` | [IBCEVMPacketData](#evmos.ibc_evm_tx.v1.IBCEVMPacketData) |  | Packet contains the IBC EVM packet information |
+| `packet` | [IBCEVMPacketData](#evmos.ibc.evm.v1.IBCEVMPacketData) |  | Packet contains the IBC EVM packet information |
 
 
 
@@ -1043,6 +1045,16 @@ See IBCEVMPacketData spec:
  <!-- end enums -->
 
  <!-- end HasExtensions -->
+
+
+<a name="evmos.ibc.evm.v1.Msg"></a>
+
+### Msg
+Msg defines the ibc evm Msg service.
+
+| Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
+| ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `CallEVM` | [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM) | [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM) | CallEVM is called on an ibc source chain to execute an evm tx on the source chain | GET|/evmos/ibc/evm/v1/tx/call_evm|
 
  <!-- end services -->
 

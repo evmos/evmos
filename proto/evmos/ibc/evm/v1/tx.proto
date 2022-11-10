@@ -1,0 +1,30 @@
+syntax = "proto3";
+package evmos.ibc.evm.v1;
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "evmos/ibc/evm/v1/packet.proto";
+
+option go_package = "github.com/evmos/evmos/v9/x/ibc/evm/types";
+
+// Msg defines the ibc evm Msg service.
+service Msg {
+  // CallEVM is called on an ibc source chain to execute an evm tx on the source
+  // chain
+  rpc CallEVM(MsgCallEVM) returns (MsgCallEVM) {
+    option (google.api.http).get = "/evmos/ibc/evm/v1/tx/call_evm";
+  };
+}
+
+// MsgCallEVM defines a Msg to execute an Etherum Tx from an ibc evm enabled
+// source chain on an ibc evm enabled destination chain
+message MsgCallEVM {
+  option (gogoproto.equal) = false;
+
+  // Amount to be sent with the Tx
+  string amount = 1;
+  // Coin denomination for the EVM chain
+  string denom = 2;
+  // Packet contains the IBC EVM packet information
+  IBCEVMPacketData packet = 3;
+}
