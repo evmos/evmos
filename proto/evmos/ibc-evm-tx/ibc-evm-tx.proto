@@ -1,0 +1,16 @@
+syntax = "proto3";
+package evmos.ibc_evm_tx.v1;
+
+import "github.com/MalteHerrmann/evmos";
+option go_package = "github.com/MalteHerrmann/evmos/v9/evm/types";
+
+message MsgIBCEVM {
+  // Bech32 address of the transaction sender
+  string sender_address = 1;
+  // Amount to be sent with the Tx
+  string amount = 2;
+  // Coin denomination for the EVM chain
+  string denom = 3;
+  // Packet contains the IBC EVM packet information
+  IBCEVMPacketData packet = 4;
+}
