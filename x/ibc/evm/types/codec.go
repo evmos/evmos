@@ -28,7 +28,7 @@ func init() {
 // RegisterLegacyAminoCodec registers the necessary x/ibc transfer interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgCallEVM{}, "cosmos-sdk/MsgCallEVM", nil)
+	cdc.RegisterConcrete(&MsgCallEVM{}, callEVMName, nil)
 }
 
 // RegisterInterfaces register the ibc transfer module interfaces to protobuf
