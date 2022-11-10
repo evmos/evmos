@@ -12,12 +12,12 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 ## Mainnet
 
-You need to set the **genesis file** and **seeds**. If you need more information about past networks, check our [mainnet repo](https://github.com/tharsis/mainnet). The table below gives an overview of all Mainnet Chain IDs. Note that, the displayed version might differ when an active Software Upgrade proposal exists on chain.
+You need to set the **genesis file** and **seeds**. If you need more information about past networks, check our [mainnet repo](https://github.com/evmos/mainnet). The table below gives an overview of all Mainnet Chain IDs. Note that, the displayed version might differ when an active Software Upgrade proposal exists on chain.
 
 | Chain ID       | Description     | Site                                                               | Version                                                      | Status  |
 | -------------- | --------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------- |
-| `evmos_9001-2` | Evmos Mainnet 2 | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-2) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
-| `evmos_9001-1` | Evmos Mainnet 1 | [Evmos](https://github.com/tharsis/mainnet/tree/main/evmos_9001-1) | [`v2.0.1`](https://github.com/evmos/evmos/releases/v2.0.1) | `Stale` |
+| `evmos_9001-2` | Evmos Mainnet 2 | [Evmos](https://github.com/evmos/mainnet/tree/main/evmos_9001-2) | [`{{ $themeConfig.project.mainnet_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
+| `evmos_9001-1` | Evmos Mainnet 1 | [Evmos](https://github.com/evmos/mainnet/tree/main/evmos_9001-1) | [`v2.0.1`](https://github.com/evmos/evmos/releases/v2.0.1) | `Stale` |
 
 ::: warning
 **IMPORTANT:** If you join mainnet as a validator make sure you follow all the [security](./security/security.md) recommendations!
@@ -77,7 +77,7 @@ evmosd validate-genesis
 
 ### Add Seed Nodes
 
-Your node needs to know how to find [peers](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#seed) to `$HOME/.evmosd/config/config.toml`. The [`mainnet`](https://github.com/tharsis/mainnet) repo contains links to some seed nodes.
+Your node needs to know how to find [peers](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#seed) to `$HOME/.evmosd/config/config.toml`. The [`mainnet`](https://github.com/evmos/mainnet) repo contains links to some seed nodes.
 
 Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the following:
 
@@ -106,8 +106,8 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 
 ### Add Persistent Peers
 
-We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
-available peers on the [`mainnet`](https://github.com/tharsis/mainnet) repo.
+We can set the [`persistent_peers`](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
+available peers on the [`mainnet`](https://github.com/evmos/mainnet) repo.
 
 A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 
