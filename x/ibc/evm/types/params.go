@@ -33,7 +33,7 @@ func DefaultParams() Params {
 	return NewParams(DefaultSendEvmTxEnabled, DefaultReceiveEvmTxEnabled)
 }
 
-func validateBool(i interface{}) error {
+func validateEnabledType(i interface{}) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -50,4 +50,10 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	}
 }
 
-func (p Params) Validate() error { return nil }
+func (p Params) Validate() error {
+	if err := validateEnabledType(p.SendEvmTxEnabled); err != nil {
+		return err
+	}
+
+	return validateEnabledType(p.ReceiveEvmTxEnabled)
+}
