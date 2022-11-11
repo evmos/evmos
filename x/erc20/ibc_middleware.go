@@ -3,7 +3,6 @@ package erc20
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
@@ -14,7 +13,7 @@ import (
 	"github.com/evmos/evmos/v10/x/erc20/keeper"
 )
 
-var _ porttypes.Middleware = &IBCMiddleware{}
+var _ porttypes.IBCModule = &IBCMiddleware{}
 
 // IBCMiddleware implements the ICS26 callbacks for the transfer middleware given
 // the erc20 keeper and the underlying application.
@@ -96,35 +95,4 @@ func (im IBCMiddleware) OnTimeoutPacket(
 	}
 
 	return im.keeper.OnTimeoutPacket(ctx, packet, data)
-}
-
-// SendPacket implements the ICS4 Wrapper interface by calling the underlying
-// wrapper logic from ICS20.
-func (im IBCMiddleware) SendPacket(
-	ctx sdk.Context,
-	chanCap *capabilitytypes.Capability,
-	packet exported.PacketI,
-) error {
-	return im.keeper.SendPacket(ctx, chanCap, packet)
-}
-
-// WriteAcknowledgement implements the ICS4 Wrapper interface by calling the
-// underlying wrapper logic from ICS20.
-func (im IBCMiddleware) WriteAcknowledgement(
-	ctx sdk.Context,
-	chanCap *capabilitytypes.Capability,
-	packet exported.PacketI,
-	ack exported.Acknowledgement,
-) error {
-	return im.keeper.WriteAcknowledgement(ctx, chanCap, packet, ack)
-}
-
-// GetAppVersion implements the ICS4 Wrapper interface by calling the
-// underlying wrapper logic from ICS20.
-func (im IBCMiddleware) GetAppVersion(
-	ctx sdk.Context,
-	portID,
-	channelID string,
-) (string, bool) {
-	return im.keeper.GetAppVersion(ctx, portID, channelID)
 }
