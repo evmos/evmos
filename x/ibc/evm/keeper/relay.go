@@ -19,6 +19,7 @@ func (k Keeper) sendEvmTx(
 	sender sdk.AccAddress,
 	timeoutHeight uint64,
 	timeoutTimestamp uint64,
+	ethTxData,
 	metadata []byte,
 ) (uint64, error) {
 	channel, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)

@@ -35,7 +35,7 @@ func (k Keeper) CallEVM(goCtx context.Context, msg *types.MsgCallEVM) (*types.Ms
 		return nil, fmt.Errorf("not enough amount for gas - %s", coinBalance.Amount)
 	}
 
-	k.sendEvmTx(ctx, msg.SourcePort, msg.SourceChannel, coin, accAddress, msg.TimeoutHeight, msg.TimeoutTimestamp, nil)
+	k.sendEvmTx(ctx, msg.SourcePort, msg.SourceChannel, coin, accAddress, msg.TimeoutHeight, msg.TimeoutTimestamp, msg.Packet.Data.Value, nil)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
