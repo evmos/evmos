@@ -18,13 +18,11 @@ Additionally, validators can choose how to manage the upgrade according to their
 
 - **Automatic or Manual Upgrades**: Validator can run the `cosmovisor` process to automatically perform the upgrade or do it manually.
 
-## Planned and Forks Upgrades
-
-### Planned Upgrades
+## Planned Upgrades
 
 Planned upgrades are coordinated scheduled upgrades that use the [upgrade module](https://docs.evmos.org/modules/upgrade/) logic. This facilitates smoothly upgrading Evmos to a new (breaking) software version as it automatically handles the state migration for the new release.
 
-#### Governance Proposal
+### Governance Proposal
 
 Governance Proposals are a mechanism for coordinating an upgrade at a given height or time using an [`SoftwareProposal`](https://docs.evmos.org/modules/upgrade/01_concepts.html#proposal).
 
@@ -34,9 +32,9 @@ All governance proposals, including software upgrades, need to wait for the voti
 
 If the proposal passes, the upgrade `Plan`, which targets a specific upgrade logic to migrate the state, is persisted to the blockchain state and scheduled at the given upgrade height. The upgrade can be delayed or expedited by updating the `Plan.Height` in a new proposal.
 
-#### Hard Forks
+### Hard Forks
 
-A special type of planned upgrades are hard forks. Hard Forks, as opposed to [Governance Proposal}(#governance-proposal), don't require waiting for the full voting
+A special type of planned upgrades are [hard forks](./hard_fork.md). Hard Forks, as opposed to Governance Proposal, don't require waiting for the full voting
 period. This makes them ideal for coordinating security vulnerabilities and patches.
 
 The upgrade (fork) block height is set in the `BeginBlock` of the application (i.e before the transactions are processed for the block). Once the blockchain reaches that height, it automatically schedules an upgrade `Plan` for the same height and then triggers the upgrade process. After upgrading, the block operations (`BeginBlock`, transaction processing and state `Commit`) continue normally.
@@ -45,7 +43,7 @@ The upgrade (fork) block height is set in the `BeginBlock` of the application (i
 In order to execute an upgrade hard fork, a [patch version](#patch-versions) needs to first be released with the `BeginBlock` upgrade scheduling logic. After a +2/3 of the validators upgrade to the new patch version, their nodes will automatically halt and upgrade the binary.
 :::
 
-### Unplanned Upgrades
+## Unplanned Upgrades
 
 Unplanned upgrades are upgrades where all the validators need to gracefully halt and shut down their nodes at exactly the same point in the process. This can be done by setting the `--halt-height` flag when running the `evmosd start` command.
 
@@ -55,7 +53,7 @@ If there are breaking changes during an unplanned upgrade (see below), validator
 The main consideration with unplanned upgrades is that the genesis state needs to be exported and the blockchain data needs to be [reset](#data-reset-upgrades). This mainly affects infrastructure providers, tools and clients like block explorers and clients, which have to use archival nodes to serve queries for the pre-upgrade heights.
 :::
 
-### Breaking and Non-Breaking Upgrades
+## Breaking and Non-Breaking Upgrades
 
 Upgrades can be categorized as breaking or non-breaking according to the Semantic versioning ([Semver](https://semver.org/)) of the corresponding software [release version](https://github.com/evmos/evmos/releases) (*i.e* `vX.Y.Z`):
 
@@ -63,7 +61,7 @@ Upgrades can be categorized as breaking or non-breaking according to the Semanti
 - **Minor version (`Y`)**: new backward compatible features. These can be also be state machine breaking.
 - **Patch version (`Z`)**: backwards compatible bug fixes, small refactors and improvements.
 
-#### Major Versions
+### Major Versions
 
 If the new version you are upgrading to has breaking changes, you will have to:
 
@@ -75,14 +73,14 @@ This needs to be done to prevent [double signing or halting the chain during con
 
 To upgrade the genesis file, you can either fetch it from a trusted source or export it locally using the `evmosd export` command.
 
-#### Minor Versions
+### Minor Versions
 
 If the new version you are upgrading to has breaking changes, you will have to:
 
 1. Migrate the state (if applicable)
 2. Restart node
 
-#### Patch Versions
+### Patch Versions
 
 In order to update a patch:
 
@@ -90,12 +88,12 @@ In order to update a patch:
 2. Download new release binary manually
 3. Restart node
 
-### Data Reset Upgrades
+## Data Reset Upgrades
 
 Data Reset upgrades require node operators to fully reset the blockchain state and restart their nodes from a clean
 state, but using the same validator keys.
 
-### Automatic or Manual Upgrades
+## Automatic or Manual Upgrades
 
 With every new software release, we strongly recommend full nodes and validator operators to perform a software upgrade.
 

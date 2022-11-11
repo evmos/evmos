@@ -1,5 +1,11 @@
 package types
 
+import (
+	fmt "fmt"
+
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+)
+
 const (
 	// DefaultSendEnabled enabled
 	DefaultSendEvmTxEnabled = true
@@ -14,12 +20,34 @@ var (
 	KeyReceiveEvmTxEnabled = []byte("ReceiveEvmTxEnabled")
 )
 
-// TODO: this should be in proto file
-type Params struct {
-	// send_enabled enables or disables all cross-chain token transfers from this
-	// chain.
-	SendEvmTxEnabled bool `protobuf:"varint,1,opt,name=send_evm_tx_enabled,json=sendEvmTxEnabled,proto3" json:"send_evm_tx_enabled,omitempty" yaml:"send_evm_tx_enabled"`
-	// receive_enabled enables or disables all cross-chain token transfers to this
-	// chain.
-	ReceiveEvmTxEnabled bool `protobuf:"varint,2,opt,name=receive_evm_tx_enabled,json=receiveEvmTxEnabled,proto3" json:"receive_evm_tx_enabled,omitempty" yaml:"receive_enabled"`
+// NewParams creates a new parameter configuration for the ibc transfer module
+func NewParams(enableSendEvmTxEnabled, enableReceiveEvmTxEnabled bool) Params {
+	return Params{
+		SendEvmTxEnabled:    enableSendEvmTxEnabled,
+		ReceiveEvmTxEnabled: enableReceiveEvmTxEnabled,
+	}
 }
+
+// DefaultParams is the default parameter configuration for the ibc-transfer module
+func DefaultParams() Params {
+	return NewParams(DefaultSendEvmTxEnabled, DefaultReceiveEvmTxEnabled)
+}
+
+func validateBool(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
+// ParamSetPairs returns the parameter set pairs.
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(KeySendEvmTxEnabled, &p.SendEvmTxEnabled, validateBool),
+		paramtypes.NewParamSetPair(KeyReceiveEvmTxEnabled, &p.ReceiveEvmTxEnabled, validateBool),
+	}
+}
+
+func (p Params) Validate() error { return nil }

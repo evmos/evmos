@@ -70,11 +70,16 @@
   
     - [Msg](#evmos.erc20.v1.Msg)
   
+- [evmos/ibc/evm/v1/genesis.proto](#evmos/ibc/evm/v1/genesis.proto)
+    - [GenesisState](#evmos.ibc.evm.v1.GenesisState)
+    - [Params](#evmos.ibc.evm.v1.Params)
+  
 - [evmos/ibc/evm/v1/packet.proto](#evmos/ibc/evm/v1/packet.proto)
     - [IBCEVMPacketData](#evmos.ibc.evm.v1.IBCEVMPacketData)
   
 - [evmos/ibc/evm/v1/tx.proto](#evmos/ibc/evm/v1/tx.proto)
     - [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM)
+    - [MsgCallEVMResponse](#evmos.ibc.evm.v1.MsgCallEVMResponse)
   
     - [Msg](#evmos.ibc.evm.v1.Msg)
   
@@ -983,6 +988,53 @@ Msg defines the erc20 Msg service.
 
 
 
+<a name="evmos/ibc/evm/v1/genesis.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## evmos/ibc/evm/v1/genesis.proto
+
+
+
+<a name="evmos.ibc.evm.v1.GenesisState"></a>
+
+### GenesisState
+GenesisState defines the module's genesis state.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#evmos.ibc.evm.v1.Params) |  | module parameters |
+
+
+
+
+
+
+<a name="evmos.ibc.evm.v1.Params"></a>
+
+### Params
+Params defines the ibc evm transaction module params
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `send_evm_tx_enabled` | [bool](#bool) |  | parameter to enable sending an evm transaction to another EVM chain. |
+| `receive_evm_tx_enabled` | [bool](#bool) |  | parameter to enable the reception of evm transactions coming from other chains |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
 <a name="evmos/ibc/evm/v1/packet.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -1032,9 +1084,19 @@ source chain on an ibc evm enabled destination chain
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `amount` | [string](#string) |  | Amount to be sent with the Tx |
+| `amount` | [string](#string) |  | Amount of the given coin denomination to be sent with the Tx |
 | `denom` | [string](#string) |  | Coin denomination for the EVM chain |
 | `packet` | [IBCEVMPacketData](#evmos.ibc.evm.v1.IBCEVMPacketData) |  | Packet contains the IBC EVM packet information |
+
+
+
+
+
+
+<a name="evmos.ibc.evm.v1.MsgCallEVMResponse"></a>
+
+### MsgCallEVMResponse
+MsgCallEVMResponse returns no fields
 
 
 
@@ -1054,7 +1116,7 @@ Msg defines the ibc evm Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `CallEVM` | [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM) | [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM) | CallEVM is called on an ibc source chain to execute an evm tx on the source chain | GET|/evmos/ibc/evm/v1/tx/call_evm|
+| `CallEVM` | [MsgCallEVM](#evmos.ibc.evm.v1.MsgCallEVM) | [MsgCallEVMResponse](#evmos.ibc.evm.v1.MsgCallEVMResponse) | CallEVM is called on an ibc source chain to execute an evm tx on the source chain | GET|/evmos/ibc/evm/v1/tx/call_evm|
 
  <!-- end services -->
 

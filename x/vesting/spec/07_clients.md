@@ -22,7 +22,7 @@ If both files are given, they must describe schedules for the same total amount.
 If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount. The described amount of coins will be transferred from the --from address to the vesting account. Unvested coins may be "clawed back" by the funder with the clawback command. Coins may not be transferred out of the account if they are locked or unvested. Only vested coins may be staked. For an example of how to set this see [this link](https://github.com/evmos/evmos/pull/303).
 
 ```go
-evmosd add-genesis-account [address_or_key_name] [coin][,[coin]] [flags]
+evmosd add-genesis-account ADDRESS_OR_KEY_NAME COIN... [flags]
 ```
 
 ### Queries
@@ -34,7 +34,7 @@ The `query` commands allow users to query `vesting` account state.
 Allows users to query the locked, unvested and vested tokens for a given vesting account
 
 ```go
-evmosd query vesting balances [address] [flags]
+evmosd query vesting balances ADDRESS [flags]
 ```
 
 ### Transactions
@@ -49,7 +49,7 @@ If both files are given, they must describe schedules for the same total amount.
 If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount. The described amount of coins will be transferred from the --from address to the vesting account. Unvested coins may be "clawed back" by the funder with the clawback command. Coins may not be transferred out of the account if they are locked or unvested. Only vested coins may be staked. For an example of how to set this see [this link](https://github.com/evmos/evmos/pull/303).
 
 ```go
-evmosd tx vesting create-clawback-vesting-account [to_address] [flags]
+evmosd tx vesting create-clawback-vesting-account TO_ADDRESS [flags]
 ```
 
 **`clawback`**
@@ -57,7 +57,7 @@ evmosd tx vesting create-clawback-vesting-account [to_address] [flags]
 Allows users to create a transfer unvested amount out of a ClawbackVestingAccount. Must be requested by the original funder address (--from) and may provide a destination address (--dest), otherwise the coins return to the funder. Delegated or undelegating staking tokens will be transferred in the delegated (undelegating) state. The recipient is vulnerable to slashing, and must act to unbond the tokens if desired.
 
 ```go
-evmosd tx vesting clawback [address] [flags]
+evmosd tx vesting clawback ADDRESS [flags]
 ```
 
 ## gRPC

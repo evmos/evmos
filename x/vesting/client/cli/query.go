@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v9/x/vesting/types"
+	"github.com/evmos/evmos/v10/x/vesting/types"
 )
 
 // GetQueryCmd returns the parent command for all vesting CLI query commands.
@@ -30,7 +30,7 @@ func GetQueryCmd() *cobra.Command {
 // GetBalancesCmd queries the unvested tokens for a given vesting account
 func GetBalancesCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "balances [address]",
+		Use:   "balances ADDRESS",
 		Short: "Gets locked, unvested and vested tokens for a vesting account",
 		Long:  "Gets locked, unvested and vested tokens for a vesting account",
 		Args:  cobra.ExactArgs(1),
