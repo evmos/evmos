@@ -214,7 +214,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			checkBalances: true,
 		},
 		{
-			name: "ibc conversion - sender == receiver", // getting failed to escrow coins - need to escrow coins
+			name: "ibc conversion - sender == receiver and not from evm chain", // getting failed to escrow coins - need to escrow coins
 			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -222,13 +222,13 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			},
 			ackSuccess: true,
 			receiver:   secpAddr,
-			expErc20s:  big.NewInt(100),
+			expErc20s:  big.NewInt(0),
 			expCoins: sdk.NewCoins(
 				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
 				sdk.NewCoin(ibcBase, sdk.NewInt(900)),
 			),
-			checkBalances: true,
+			checkBalances: false,
 		},
 		{
 			name: "ibc conversion - sender != receiver",
@@ -263,7 +263,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, ethsecpAddr, coins)
 				suite.Require().NoError(err)
 
-				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "1000", ethsecpAddrCosmos, ethsecpAddrEvmos)
+				transfer := transfertypes.NewFungibleTokenPacketData(cosmosTokenBase, "1000", secpAddrCosmos, ethsecpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
@@ -314,6 +314,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.app.BankKeeper,
 				suite.app.EvmKeeper,
 				suite.app.StakingKeeper,
+				suite.app.ClaimsKeeper,
 			)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers

@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"github.com/armon/go-metrics"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -11,7 +13,6 @@ import (
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
 
 	"github.com/evmos/evmos/v10/ibc"
-	evmos "github.com/evmos/evmos/v10/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
@@ -44,6 +45,20 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
+	// Get addresses in `evmos1` and the original bech32 format
+	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err)
+	}
+
+	claimsParams := k.claimsKeeper.GetParams(ctx)
+
+	// if sender == recipient, and is not from an EVM Channel recovery was executed
+	if sender.Equals(recipient) && !claimsParams.IsEVMChannel(packet.DestinationChannel) {
+		// Continue to the next IBC middleware by returning the original ACK.
+		return ack
+	}
+
 	// parse the transferred denom
 	coin := ibc.GetReceivedCoin(
 		packet.SourcePort, packet.SourceChannel,
@@ -64,14 +79,14 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	recipient, err := evmos.GetEvmosAddressFromBech32(data.Receiver)
-	if err != nil {
-		// NOTE: shouldn't happen as the receiving address has already
-		// been validated on ICS20 transfer logic
-		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrap(err, "invalid recipient"),
-		)
-	}
+	// recipient, err := evmos.GetEvmosAddressFromBech32(data.Receiver)
+	// if err != nil {
+	// 	// NOTE: shouldn't happen as the receiving address has already
+	// 	// been validated on ICS20 transfer logic
+	// 	return channeltypes.NewErrorAcknowledgement(
+	// 		sdkerrors.Wrap(err, "invalid recipient"),
+	// 	)
+	// }
 
 	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
 	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(recipient.Bytes()), recipient)
@@ -83,6 +98,18 @@ func (k Keeper) OnRecvPacket(
 	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
+
+	defer func() {
+		telemetry.IncrCounterWithLabels(
+			[]string{types.ModuleName, "ibc", "on_recv", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("denom", coin.Denom),
+				telemetry.NewLabel("source_channel", packet.SourceChannel),
+				telemetry.NewLabel("source_port", packet.SourcePort),
+			},
+		)
+	}()
 
 	return ack
 }
@@ -145,6 +172,10 @@ func (k Keeper) ConvertERC20AckPacket(ctx sdk.Context, data transfertypes.Fungib
 	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return err
 	}
+
+	defer func() {
+		telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
+	}()
 
 	return nil
 }

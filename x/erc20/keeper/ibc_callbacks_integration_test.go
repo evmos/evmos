@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -233,7 +234,11 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			// Send 'uosmo' to Osmosis address in Evmos Chain (locked funds)
 			// sender_addr == receiver_addr
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
+			timeout := uint64(s.EvmosChain.GetContext().BlockTime().Add(time.Hour * 4).Add(time.Second * -20).UnixNano())
+			err := s.pathOsmosisEvmos.RelayPacket(CreatePacket("10", "transfer/channel-0/uosmo", sender, receiver, "transfer", "channel-0", "transfer", "channel-0", 1, timeout))
+			s.Require().NoError(err)
 
+			s.IBCOsmosisChain.Coordinator.CommitNBlocks(s.IBCOsmosisChain, 10)
 			// recovery should trigger and send back the funds to origin account
 			// in the Osmosis Chain
 

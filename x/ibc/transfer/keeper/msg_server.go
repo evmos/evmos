@@ -3,8 +3,10 @@ package keeper
 import (
 	"context"
 
+	"github.com/armon/go-metrics"
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -55,6 +57,17 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
 	if k.bankKeeper.HasBalance(ctx, sender, sdk.Coin{Denom: tokenPair.Denom, Amount: msg.Token.Amount}) {
+
+		defer func() {
+			telemetry.IncrCounterWithLabels(
+				[]string{"erc20", "ibc", "transfer", "total"},
+				1,
+				[]metrics.Label{
+					telemetry.NewLabel("denom", tokenPair.Denom),
+				},
+			)
+		}()
+
 		// update the denom and proceed with regular transfer
 		msg.Token.Denom = tokenPair.Denom
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
@@ -77,6 +90,17 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		telemetry.IncrCounterWithLabels(
+			[]string{"erc20", "ibc", "transfer", "total"},
+			1,
+			[]metrics.Label{
+				telemetry.NewLabel("denom", tokenPair.Denom),
+				telemetry.NewLabel("conversion", msg.Token.Amount.String()),
+			},
+		)
+	}()
 
 	// replace the contract address with the Cosmos denom, now that the ERC20 token
 	// has been converted
