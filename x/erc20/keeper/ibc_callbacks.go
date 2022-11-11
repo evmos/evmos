@@ -79,15 +79,6 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// recipient, err := evmos.GetEvmosAddressFromBech32(data.Receiver)
-	// if err != nil {
-	// 	// NOTE: shouldn't happen as the receiving address has already
-	// 	// been validated on ICS20 transfer logic
-	// 	return channeltypes.NewErrorAcknowledgement(
-	// 		sdkerrors.Wrap(err, "invalid recipient"),
-	// 	)
-	// }
-
 	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
 	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(recipient.Bytes()), recipient)
 
