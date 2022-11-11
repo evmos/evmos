@@ -12,6 +12,7 @@ import (
 )
 
 // 在此v9.1.2分支上开始集成 wasm
+
 func main() {
 	setupConfig()
 	cmdcfg.RegisterDenoms()
