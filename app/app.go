@@ -1,5 +1,6 @@
 package app
 
+// 在此v9.1.2分支上开始集成 wasm
 import (
 	"context"
 	"encoding/json"
