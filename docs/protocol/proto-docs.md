@@ -1087,6 +1087,10 @@ source chain on an ibc evm enabled destination chain
 | `amount` | [string](#string) |  | Amount of the given coin denomination to be sent with the Tx |
 | `denom` | [string](#string) |  | Coin denomination for the EVM chain |
 | `packet` | [IBCEVMPacketData](#evmos.ibc.evm.v1.IBCEVMPacketData) |  | Packet contains the IBC EVM packet information |
+| `timeout_height` | [uint64](#uint64) |  | block height after which the packet times out |
+| `timeout_timestamp` | [uint64](#uint64) |  | Timeout timestamp in absolute nanoseconds since unix epoch. The timeout is disabled when set to 0. |
+| `source_port` | [string](#string) |  | the port on which the packet will be sent |
+| `source_channel` | [string](#string) |  | the channel by which the packet will be sent |
 
 
 

@@ -5,6 +5,7 @@ import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "evmos/ibc/evm/v1/packet.proto";
 
+
 option go_package = "github.com/evmos/evmos/v10/x/ibc/evm/types";
 
 // Msg defines the ibc evm Msg service.
@@ -23,7 +24,7 @@ message MsgCallEVM {
 
   // Amount of the given coin denomination to be sent 
   // with the Tx
-  uint32 amount = 1;
+  string amount = 1;
   // Coin denomination for the EVM chain
   string denom = 2;
   // Packet contains the IBC EVM packet information
@@ -33,6 +34,10 @@ message MsgCallEVM {
   // Timeout timestamp in absolute nanoseconds since unix epoch.
   // The timeout is disabled when set to 0.
   uint64 timeout_timestamp = 5;
+  // the port on which the packet will be sent
+  string source_port = 6 [ (gogoproto.moretags) = "yaml:\"source_port\"" ];
+  // the channel by which the packet will be sent
+  string source_channel = 7[ (gogoproto.moretags) = "yaml:\"source_channel\"" ];
 }
 
 // MsgCallEVMResponse returns no fields

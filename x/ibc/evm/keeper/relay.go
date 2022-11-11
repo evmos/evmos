@@ -5,7 +5,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 )
 
@@ -18,8 +17,7 @@ func (k Keeper) sendEvmTx(
 	sourceChannel string,
 	coin sdk.Coin,
 	sender sdk.AccAddress,
-	receiver string,
-	timeoutHeight clienttypes.Height,
+	timeoutHeight uint64,
 	timeoutTimestamp uint64,
 	metadata []byte,
 ) (uint64, error) {
