@@ -23,11 +23,16 @@ message MsgCallEVM {
 
   // Amount of the given coin denomination to be sent 
   // with the Tx
-  string amount = 1;
+  uint32 amount = 1;
   // Coin denomination for the EVM chain
   string denom = 2;
   // Packet contains the IBC EVM packet information
   IBCEVMPacketData packet = 3;
+  // block height after which the packet times out
+  uint64 timeout_height = 4;
+  // Timeout timestamp in absolute nanoseconds since unix epoch.
+  // The timeout is disabled when set to 0.
+  uint64 timeout_timestamp = 5;
 }
 
 // MsgCallEVMResponse returns no fields

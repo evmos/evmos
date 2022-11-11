@@ -2,8 +2,9 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v9/x/ibc/evm/types"
+	"github.com/evmos/evmos/v10/x/ibc/evm/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -15,10 +16,16 @@ func (k Keeper) CallEVM(goCtx context.Context, msg *types.MsgCallEVM) (*types.Ms
 		return nil, types.ErrReceiveDisabled
 	}
 
-	coin := sdk.Coin{Denom: msg.Denom, Amount: msg.Amount}
+	amount, ok := sdk.NewIntFromString(msg.Amount)
+	if !ok {
+		return nil, fmt.Errorf("invalid amount %s", msg.Amount)
+	}
+
+	coin := sdk.Coin{Denom: msg.Denom, Amount: amount}
 	// Check if the account has the amount to process this transaction
 
-	k.sendEvmTx(ctx)
+	k.
+		k.sendEvmTx(ctx)
 
 	res := &types.MsgCallEVMResponse{}
 	return res, nil
