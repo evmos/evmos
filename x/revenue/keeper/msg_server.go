@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -30,7 +30,7 @@ func (k Keeper) RegisterRevenue(
 	contract := common.HexToAddress(msg.ContractAddress)
 
 	if k.IsRevenueRegistered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrRevenueAlreadyRegistered,
 			"contract is already registered %s", contract,
 		)
@@ -39,14 +39,14 @@ func (k Keeper) RegisterRevenue(
 	deployer := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
 	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
 	if deployerAccount == nil {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			errortypes.ErrNotFound,
 			"deployer account not found %s", msg.DeployerAddress,
 		)
 	}
 
 	if deployerAccount.IsContract() {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrRevenueDeployerIsNotEOA,
 			"deployer cannot be a contract %s", msg.DeployerAddress,
 		)
@@ -56,7 +56,7 @@ func (k Keeper) RegisterRevenue(
 	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
 
 	if contractAccount == nil || !contractAccount.IsContract() {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrRevenueNoContractDeployed,
 			"no contract code found at address %s", msg.ContractAddress,
 		)
@@ -85,7 +85,7 @@ func (k Keeper) RegisterRevenue(
 	}
 
 	if contract != derivedContract {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			errortypes.ErrorInvalidSigner,
 			"not contract deployer or wrong nonce: expected %s instead of %s",
 			derivedContract, msg.ContractAddress,
@@ -145,7 +145,7 @@ func (k Keeper) UpdateRevenue(
 	contract := common.HexToAddress(msg.ContractAddress)
 	revenue, found := k.GetRevenue(ctx, contract)
 	if !found {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrRevenueContractNotRegistered,
 			"contract %s is not registered", msg.ContractAddress,
 		)
@@ -153,7 +153,7 @@ func (k Keeper) UpdateRevenue(
 
 	// error if the msg deployer address is not the same as the fee's deployer
 	if msg.DeployerAddress != revenue.DeployerAddress {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			errortypes.ErrUnauthorized,
 			"%s is not the contract deployer", msg.DeployerAddress,
 		)
@@ -166,7 +166,7 @@ func (k Keeper) UpdateRevenue(
 
 	// revenue with the given withdraw address is already registered
 	if msg.WithdrawerAddress == revenue.WithdrawerAddress {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrRevenueAlreadyRegistered,
 			"revenue with withdraw address %s", msg.WithdrawerAddress,
 		)
@@ -219,14 +219,14 @@ func (k Keeper) CancelRevenue(
 
 	fee, found := k.GetRevenue(ctx, contract)
 	if !found {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrRevenueContractNotRegistered,
 			"contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
 	if msg.DeployerAddress != fee.DeployerAddress {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			errortypes.ErrUnauthorized,
 			"%s is not the contract deployer", msg.DeployerAddress,
 		)

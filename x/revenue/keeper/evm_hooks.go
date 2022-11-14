@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -76,7 +76,7 @@ func (k Keeper) PostTxProcessing(
 		fees,
 	)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return errorsmod.Wrapf(
 			err,
 			"fee collector account failed to distribute developer fees (%s) to withdraw address %s. contract %s",
 			fees, withdrawer, contract,
