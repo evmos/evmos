@@ -44,7 +44,7 @@ make test-e2e E2E_SKIP_CLEANUP=true INITIAL_VERSION=<tag> TARGET_VERSION=<tag>
 Testing a chain upgrade is a multi-step process:
 
 1. Build an initial node version docker container (e.g. `INITIAL_VERSION = v9.0.0`)
-2. Build a docker image for the evmos target version(local repo by default) (e.g. `v9.1.0`)
+2. Build a docker image for the evmos target version (local repo by default) (e.g. `v9.1.0`)
 3. Run tests
 4. The e2e test will first run an `INITIAL_VERSION` node container.
 5. The node will submit, deposit and vote for an upgrade proposal for upgrading to the `TARGET_VERSION`.
