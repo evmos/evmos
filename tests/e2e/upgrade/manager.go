@@ -3,6 +3,7 @@ package upgrade
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -41,40 +42,31 @@ func NewManager(networkName string) (*Manager, error) {
 
 // RunNode create docker container from provided node instance and run it
 func (m *Manager) RunNode(node *Node) error {
-	// sleep to let container start to prevent querying panics
-	defer time.Sleep(5 * time.Second)
+	var resource *dockertest.Resource
+	var err error
+
 	if node.withRunOptions {
-		resource, err := m.pool.RunWithOptions(node.runOptions)
-		if err != nil {
-			return err
-		}
-		m.CurrentNode = resource
-		return nil
+		resource, err = m.pool.RunWithOptions(node.runOptions)
+	} else {
+		resource, err = m.pool.Run(node.repository, node.version, []string{})
 	}
-	resource, err := m.pool.Run(node.repository, node.version, []string{})
+
 	if err != nil {
 		return err
 	}
+	// trying to get JSON-RPC server, to make sure node started properly
+	err = m.pool.Retry(
+		func() error {
+			_, err := http.Get(fmt.Sprintf("http://localhost:%s", resource.GetPort("8545/tcp")))
+			return err
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("could not connect to JSON-RPC server: %s", err)
+	}
+
 	m.CurrentNode = resource
 	return nil
-}
-
-func (m *Manager) RemoveNetwork() error {
-	return m.pool.RemoveNetwork(m.network)
-}
-
-func (m *Manager) KillCurrentNode() error {
-	return m.pool.Client.StopContainer(m.ContainerID(), 5)
-}
-
-// ContainerID returns current running container ID
-func (m *Manager) ContainerID() string {
-	return m.CurrentNode.Container.ID
-}
-
-// Docker client
-func (m *Manager) Client() *docker.Client {
-	return m.pool.Client
 }
 
 // WaitForHeight query evmos node every second until node will reach specified height
@@ -119,4 +111,22 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
 	}
 	return h, nil
+}
+
+// ContainerID returns current running container ID
+func (m *Manager) ContainerID() string {
+	return m.CurrentNode.Container.ID
+}
+
+// Docker client
+func (m *Manager) Client() *docker.Client {
+	return m.pool.Client
+}
+
+func (m *Manager) RemoveNetwork() error {
+	return m.pool.RemoveNetwork(m.network)
+}
+
+func (m *Manager) KillCurrentNode() error {
+	return m.pool.Client.StopContainer(m.ContainerID(), 5)
 }

@@ -173,7 +173,7 @@ all: build
 
 build-all: tools build lint test
 
-docker-build-e2e-init:
+docker-build-upgrade-init:
 	@docker build \
 	-t evmos:$(INITIAL_VERSION) \
 	--build-arg INITIAL_VERSION=$(INITIAL_VERSION) \
@@ -351,7 +351,10 @@ $(TEST_TARGETS): run-tests
 test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
-test-upgrade: docker-build-e2e-init docker-build-local
+test-upgrade: docker-build-upgrade-init
+ifdef $(TARGET_VERSION)
+	docker-build-local
+endif
 	mkdir -p ./build
 	rm -rf build/.evmosd
 	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
