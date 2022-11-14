@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"strconv"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -152,7 +152,7 @@ func (k Keeper) rewardAllocations(
 
 	// checks if module account has sufficient balance for allocation
 	if rewards.IsAnyGT(escrow) {
-		return nil, nil, sdkerrors.Wrapf(
+		return nil, nil, errorsmod.Wrapf(
 			errortypes.ErrInsufficientFunds,
 			"escrowed balance < total coins allocated (%s < %s)",
 			escrow, rewards,

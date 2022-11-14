@@ -3,7 +3,7 @@ package keeper
 import (
 	"strings"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -60,7 +60,7 @@ func (k Keeper) OnRecvPacket(
 	// return error ACK if the address is on the deny list
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
 		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(
+			errorsmod.Wrapf(
 				types.ErrBlockedAddress,
 				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
 				senderBech32, recipientBech32,
@@ -163,7 +163,7 @@ func (k Keeper) OnRecvPacket(
 		)
 
 		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(
+			errorsmod.Wrapf(
 				err,
 				"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", senderBech32,
 			),
@@ -232,12 +232,12 @@ func (k Keeper) OnRecvPacket(
 func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender string) (destinationPort, destinationChannel string, err error) {
 	ibcDenom := strings.SplitN(denom, "/", 2)
 	if len(ibcDenom) < 2 {
-		return "", "", sdkerrors.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
+		return "", "", errorsmod.Wrap(transfertypes.ErrInvalidDenomForTransfer, denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(ibcDenom[1])
 	if err != nil {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", errorsmod.Wrapf(
 			err,
 			"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
@@ -245,7 +245,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 
 	denomTrace, found := k.transferKeeper.GetDenomTrace(ctx, hash)
 	if !found {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", errorsmod.Wrapf(
 			transfertypes.ErrTraceNotFound,
 			"failed to recover IBC vouchers back to sender '%s' in the corresponding IBC chain", sender,
 		)
@@ -254,7 +254,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	path := strings.Split(denomTrace.Path, "/")
 	if len(path)%2 != 0 {
 		// safety check: shouldn't occur
-		return "", "", sdkerrors.Wrapf(
+		return "", "", errorsmod.Wrapf(
 			transfertypes.ErrInvalidDenomForTransfer,
 			"invalid denom (%s) trace path %s", denomTrace.BaseDenom, denomTrace.Path,
 		)
@@ -265,7 +265,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 
 	_, found = k.channelKeeper.GetChannel(ctx, destinationPort, destinationChannel)
 	if !found {
-		return "", "", sdkerrors.Wrapf(
+		return "", "", errorsmod.Wrapf(
 			channeltypes.ErrChannelNotFound,
 			"port ID %s, channel ID %s", destinationPort, destinationChannel,
 		)
@@ -275,7 +275,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 	// Safety check: verify that the destination port and channel are valid
 	if err := host.PortIdentifierValidator(destinationPort); err != nil {
 		// shouldn't occur
-		return "", "", sdkerrors.Wrapf(
+		return "", "", errorsmod.Wrapf(
 			host.ErrInvalidID,
 			"invalid port ID '%s': %s", destinationPort, err.Error(),
 		)
@@ -283,7 +283,7 @@ func (k Keeper) GetIBCDenomDestinationIdentifiers(ctx sdk.Context, denom, sender
 
 	if err := host.ChannelIdentifierValidator(destinationChannel); err != nil {
 		// shouldn't occur
-		return "", "", sdkerrors.Wrapf(
+		return "", "", errorsmod.Wrapf(
 			channeltypes.ErrInvalidChannelIdentifier,
 			"channel ID '%s': %s", destinationChannel, err.Error(),
 		)

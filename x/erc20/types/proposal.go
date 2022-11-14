@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -71,7 +71,7 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
 
 		// Prohibit denominations that contain the evm denom
 		if strings.Contains(metadata.Base, "evm") {
-			return sdkerrors.Wrapf(
+			return errorsmod.Wrapf(
 				ErrEVMDenom, "cannot register the EVM denomination %s", metadata.Base,
 			)
 		}
@@ -140,7 +140,7 @@ func (*RegisterERC20Proposal) ProposalType() string {
 func (rtbp *RegisterERC20Proposal) ValidateBasic() error {
 	for _, address := range rtbp.Erc20Addresses {
 		if err := ethermint.ValidateAddress(address); err != nil {
-			return sdkerrors.Wrap(err, "ERC20 address")
+			return errorsmod.Wrap(err, "ERC20 address")
 		}
 	}
 

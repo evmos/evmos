@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -19,7 +19,7 @@ func (k Keeper) RegisterIncentive(
 	// Check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
-		return nil, sdkerrors.Wrap(
+		return nil, errorsmod.Wrap(
 			types.ErrInternalIncentive,
 			"incentives are currently disabled by governance",
 		)
@@ -28,7 +28,7 @@ func (k Keeper) RegisterIncentive(
 	// Check if contract exists
 	acc := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
 	if acc == nil || !acc.IsContract() {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrInternalIncentive,
 			"contract doesn't exist: %s", contract,
 		)
@@ -36,7 +36,7 @@ func (k Keeper) RegisterIncentive(
 
 	// Check if the incentive is already registered
 	if k.IsIncentiveRegistered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrInternalIncentive,
 			"incentive already registered: %s", contract,
 		)
@@ -47,7 +47,7 @@ func (k Keeper) RegisterIncentive(
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	for _, al := range allocations {
 		if al.Denom != mintDenom && k.bankKeeper.GetBalance(ctx, moduleAddr, al.Denom).IsZero() {
-			return nil, sdkerrors.Wrapf(
+			return nil, errorsmod.Wrapf(
 				errortypes.ErrInvalidCoins,
 				"base denomination '%s' cannot have a supply of 0", al.Denom,
 			)
@@ -55,7 +55,7 @@ func (k Keeper) RegisterIncentive(
 
 		// Check if each allocation is below the allocation limit
 		if al.Amount.GT(params.AllocationLimit) {
-			return nil, sdkerrors.Wrapf(
+			return nil, errorsmod.Wrapf(
 				types.ErrInternalIncentive,
 				"allocation for denom '%s' (%s) cannot be above allocation limit (%s)", al.Denom, al.Amount, params.AllocationLimit,
 			)
@@ -69,7 +69,7 @@ func (k Keeper) RegisterIncentive(
 		// Check if the sum of all allocations (current + proposed) exceeds 100%
 		allocationSum := allocationMeter.Amount.Add(al.Amount)
 		if allocationSum.GT(sdk.OneDec()) {
-			return nil, sdkerrors.Wrapf(
+			return nil, errorsmod.Wrapf(
 				types.ErrInternalIncentive,
 				"allocation for denom %s is larger than 100 percent: %v",
 				al.Denom, allocationSum,
@@ -105,7 +105,7 @@ func (k Keeper) CancelIncentive(
 	// Check if the Incentives are globally enabled
 	params := k.GetParams(ctx)
 	if !params.EnableIncentives {
-		return sdkerrors.Wrap(
+		return errorsmod.Wrap(
 			types.ErrInternalIncentive,
 			"incentives are currently disabled by governance",
 		)
@@ -113,7 +113,7 @@ func (k Keeper) CancelIncentive(
 
 	incentive, found := k.GetIncentive(ctx, contract)
 	if !found {
-		return sdkerrors.Wrapf(
+		return errorsmod.Wrapf(
 			errortypes.ErrInvalidAddress,
 			"unmatching contract '%s' ", contract,
 		)
