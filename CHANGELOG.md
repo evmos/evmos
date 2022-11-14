@@ -39,9 +39,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-* (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
+- (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ics23 dragonberry replace in go.mod as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (deps) [\#1037](https://github.com/evmos/evmos/pull/1037) Bump Ethermint version to [`v0.20.0-rc2`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc2)
+- (feat) [\#1070](https://github.com/evmos/evmos/pull/1070) Add amino support to the vesting module, it enables signing the module messages using EIP-712.
 
 ### API Breaking
 
