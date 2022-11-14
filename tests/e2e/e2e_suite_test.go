@@ -87,7 +87,7 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 
 	s.Require().Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0"+outBuf.String(),
+		"tx returned non code 0: %s", outBuf,
 	)
 
 	s.T().Logf(
