@@ -1,3 +1,5 @@
+#!/bin/bash
+
 KEY="mykey"
 CHAINID="${CHAIN_ID:-evmos_9000-1}"
 MONIKER="localtestnet"
