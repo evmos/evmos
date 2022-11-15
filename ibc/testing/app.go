@@ -21,9 +21,13 @@ import (
 
 	ethermint "github.com/evmos/ethermint/types"
 	evmosapp "github.com/evmos/evmos/v10/app"
+	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
 )
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
+
+// BaseDenom defines the Evmos mainnet denomination
+const BaseDenom = "aevmos"
 
 // SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
@@ -63,19 +67,22 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	}
 
 	// set validators and delegations
-	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
+	stakingParams := stakingtypes.DefaultParams()
+	// set bond demon to be aevmos
+	stakingParams.BondDenom = BaseDenom
+	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(claimtypes.DefaultClaimsDenom, bondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(claimtypes.DefaultClaimsDenom, bondAmt)},
 	})
 
 	// update total supply
