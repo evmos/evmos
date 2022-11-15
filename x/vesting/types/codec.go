@@ -12,7 +12,7 @@ import (
 
 var (
 	amino = codec.NewLegacyAmino()
-	// ModuleCdc references the global vesting  module codec. Note, the codec should
+	// ModuleCdc references the global vesting module codec. Note, the codec should
 	// ONLY be used in certain instances of tests and for JSON encoding.
 	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 	// AminoCdc is a amino codec created to support amino JSON compatible msgs.
@@ -63,7 +63,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
-// RegisterLegacyAminoCodec registers the necessary x/erc20 interfaces and
+// RegisterLegacyAminoCodec registers the necessary x/vesting interfaces and
 // concrete types on the provided LegacyAmino codec. These types are used for
 // Amino JSON serialization and EIP-712 compatibility.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
