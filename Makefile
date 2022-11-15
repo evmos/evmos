@@ -247,7 +247,7 @@ else
 endif
 
 tools: tools-stamp
-tools-stamp: contract-tools docs-tools proto-tools statik runsim
+tools-stamp: contract-tools docs-tools statik runsim
 	# Create dummy file to satisfy dependency and avoid
 	# rebuilding when this Makefile target is hit twice
 	# in a row.
@@ -263,7 +263,7 @@ docs-tools-stamp: docs-tools
 	# in a row.
 	touch $@
 
-.PHONY: runsim statik tools contract-tools docs-tools proto-tools  tools-stamp tools-clean docs-tools-stamp
+.PHONY: runsim statik tools contract-tools docs-tools tools-stamp tools-clean docs-tools-stamp
 
 go.sum: go.mod
 	echo "Ensure dependencies have not been modified ..." >&2
@@ -504,7 +504,7 @@ proto-update-deps:
 
 
 
-.PHONY: proto-all proto-gen proto-gen-any proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-deps
 
 ###############################################################################
 ###                                Localnet                                 ###
