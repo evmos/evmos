@@ -266,7 +266,7 @@ func TestGetReceivedCoin(t *testing.T) {
 		expCoin    sdk.Coin
 	}{
 		{
-			"is not source",
+			"transfer unwrapped coin to destination which is not its source",
 			"transfer",
 			"channel-0",
 			"transfer",
@@ -276,7 +276,7 @@ func TestGetReceivedCoin(t *testing.T) {
 			sdk.Coin{Denom: uosmoIbcdenom, Amount: sdk.NewInt(10)},
 		},
 		{
-			"is source",
+			"transfer ibc wrapped coin to destination which is its source",
 			"transfer",
 			"channel-0",
 			"transfer",
@@ -286,7 +286,7 @@ func TestGetReceivedCoin(t *testing.T) {
 			sdk.Coin{Denom: "aevmos", Amount: sdk.NewInt(10)},
 		},
 		{
-			"is source multiple ibc",
+			"transfer 2x ibc wrapped coin to destination which is its source",
 			"transfer",
 			"channel-0",
 			"transfer",
@@ -321,31 +321,31 @@ func TestGetSentCoin(t *testing.T) {
 		expCoin   sdk.Coin
 	}{
 		{
-			"aevmos",
+			"get unwrapped aevmos coin",
 			"aevmos",
 			"10",
 			sdk.Coin{Denom: "aevmos", Amount: sdk.NewInt(10)},
 		},
 		{
-			"aevmos",
+			"get ibc wrapped aevmos coin",
 			"transfer/channel-0/aevmos",
 			"10",
 			sdk.Coin{Denom: aevmosIbcdenom, Amount: sdk.NewInt(10)},
 		},
 		{
-			"uosmo",
+			"get ibc wrapped uosmo coin",
 			"transfer/channel-0/uosmo",
 			"10",
 			sdk.Coin{Denom: uosmoIbcdenom, Amount: sdk.NewInt(10)},
 		},
 		{
-			"uatom",
+			"get ibc wrapped uatom coin",
 			"transfer/channel-1/uatom",
 			"10",
 			sdk.Coin{Denom: uatomIbcdenom, Amount: sdk.NewInt(10)},
 		},
 		{
-			"IBC uatom",
+			"get 2x ibc wrapped uatom coin",
 			"transfer/channel-0/transfer/channel-1/uatom",
 			"10",
 			sdk.Coin{Denom: uatomOsmoIbcdenom, Amount: sdk.NewInt(10)},
