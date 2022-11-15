@@ -21,7 +21,6 @@ import (
 
 	ethermint "github.com/evmos/ethermint/types"
 	evmosapp "github.com/evmos/evmos/v10/app"
-	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
 )
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
@@ -76,13 +75,13 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(claimtypes.DefaultClaimsDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(BaseDenom, bondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(claimtypes.DefaultClaimsDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(BaseDenom, bondAmt)},
 	})
 
 	// update total supply
