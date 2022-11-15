@@ -173,9 +173,6 @@ all: build
 
 build-all: tools build lint test
 
-docker-build-local:
-	@docker build -t evmos:local -f Dockerfile .
-
 .PHONY: distclean clean build-all
 
 ###############################################################################
