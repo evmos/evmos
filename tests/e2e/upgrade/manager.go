@@ -41,18 +41,20 @@ func NewManager(networkName string) (*Manager, error) {
 	}, nil
 }
 
-// BuildInitial building initial node version image from local dockerfile
-// with provided <name>:<version>
-func (m *Manager) BuildInitial(name string, version string) error {
+// BuildImage build docker image by provided path with <name>:<version> as name target
+func (m *Manager) BuildImage(name, version, dockerFile string, args map[string]string) error {
+	buildArgs := []docker.BuildArg{}
+	for k, v := range args {
+		bArg := docker.BuildArg{
+			Name:  k,
+			Value: v,
+		}
+		buildArgs = append(buildArgs, bArg)
+	}
 	opts := docker.BuildImageOptions{
-		Dockerfile: "./upgrade/Dockerfile.init",
-		// set INITIAL_VERSION argument that will be used to pull proper version from docker hub
-		BuildArgs: []docker.BuildArg{
-			{
-				Name:  "INITIAL_VERSION",
-				Value: version,
-			},
-		},
+		// local Dockerfile path
+		Dockerfile: dockerFile,
+		BuildArgs:  buildArgs,
 		// name with tag, e.g. evmos:v9.0.0
 		Name:         fmt.Sprintf("%s:%s", name, version),
 		OutputStream: io.Discard,

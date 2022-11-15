@@ -54,7 +54,12 @@ func (s *IntegrationTestSuite) SetupSuite() {
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
-	err := s.upgradeManager.BuildInitial(localRepository, s.upgradeParams.InitialVersion)
+	err := s.upgradeManager.BuildImage(
+		localRepository,
+		s.upgradeParams.InitialVersion,
+		"./upgrade/Dockerfile.init",
+		map[string]string{"INITIAL_VERSION": s.upgradeParams.InitialVersion},
+	)
 	s.Require().NoError(err, "can't build initial container")
 
 	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
@@ -163,7 +168,15 @@ func (s *IntegrationTestSuite) upgrade() {
 		s.upgradeParams.TargetVersion,
 		s.upgradeParams.MountPath,
 	)
-
+	if s.upgradeParams.TargetVersion == "local" {
+		err := s.upgradeManager.BuildImage(
+			s.upgradeParams.TargetRepo,
+			s.upgradeParams.TargetVersion,
+			"../../Dockerfile",
+			map[string]string{},
+		)
+		s.Require().NoError(err, "can't build local version target node")
+	}
 	node := upgrade.NewNode(s.upgradeParams.TargetRepo, s.upgradeParams.TargetVersion)
 	node.Mount(s.upgradeParams.MountPath)
 	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
