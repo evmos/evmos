@@ -456,6 +456,10 @@ proto-gen:
 	@echo "Generating Protobuf files"
 	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace tendermintdev/sdk-proto-gen sh ./scripts/protocgen.sh
 
+proto-swagger-gen:
+	@echo "Generating Protobuf Swagger"
+	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace tendermintdev/sdk-proto-gen sh ./scripts/protoc-swagger-gen.sh
+
 proto-format:
 	@echo "Formatting Protobuf files"
 	find ./ -not -path "./third_party/*" -name *.proto -exec clang-format -i {} \;
