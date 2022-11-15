@@ -43,7 +43,9 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 
 	skipFlag := os.Getenv("E2E_SKIP_CLEANUP")
 	skipCleanup, err := strconv.ParseBool(skipFlag)
-	s.Require().NoError(err, "invalid skip cleanup flag")
+	if err != nil {
+		skipCleanup = false
+	}
 	s.upgradeParams.SkipCleanup = skipCleanup
 
 	mountPath := os.Getenv("MOUNT_PATH")
