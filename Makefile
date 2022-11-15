@@ -173,12 +173,6 @@ all: build
 
 build-all: tools build lint test
 
-docker-build-upgrade-init:
-	@docker build \
-	-t evmos:$(INITIAL_VERSION) \
-	--build-arg INITIAL_VERSION=$(INITIAL_VERSION) \
-	-f tests/e2e/upgrade/Dockerfile.init .
-
 docker-build-local:
 	@docker build -t evmos:local -f Dockerfile .
 
