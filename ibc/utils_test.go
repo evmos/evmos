@@ -296,7 +296,7 @@ func TestGetReceivedCoin(t *testing.T) {
 			sdk.Coin{Denom: uatomIbcdenom, Amount: sdk.NewInt(10)},
 		},
 		{
-			"is not source and is ibc",
+			"transfer ibc wrapped coin to destination which is not its source",
 			"transfer",
 			"channel-0",
 			"transfer",
