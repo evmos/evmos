@@ -42,7 +42,7 @@ func NewManager(networkName string) (*Manager, error) {
 }
 
 // BuildImage build docker image by provided path with <name>:<version> as name target
-func (m *Manager) BuildImage(name, version, dockerFile string, args map[string]string) error {
+func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args map[string]string) error {
 	buildArgs := []docker.BuildArg{}
 	for k, v := range args {
 		bArg := docker.BuildArg{
@@ -58,7 +58,7 @@ func (m *Manager) BuildImage(name, version, dockerFile string, args map[string]s
 		// name with tag, e.g. evmos:v9.0.0
 		Name:         fmt.Sprintf("%s:%s", name, version),
 		OutputStream: io.Discard,
-		ContextDir:   ".",
+		ContextDir:   contextDir,
 	}
 	return m.Client().BuildImage(opts)
 }

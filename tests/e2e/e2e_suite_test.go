@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -18,7 +19,10 @@ const (
 	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
 	tharsisRepo           = "tharsishq/evmos"
-	firstUpgradeHeight    = 50
+
+	firstUpgradeHeight = 50
+
+	relatedBuildPath = "../../build/"
 )
 
 type upgradeParams struct {
@@ -51,6 +55,10 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	s.upgradeManager, err = upgrade.NewManager(defaultManagerNetwork)
 	s.Require().NoError(err, "upgrade manager creation error")
+	if _, err := os.Stat(relatedBuildPath); errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(relatedBuildPath, os.ModePerm)
+		s.Require().NoError(err, "can't create build tmp dir")
+	}
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
@@ -58,6 +66,7 @@ func (s *IntegrationTestSuite) runInitialNode() {
 		localRepository,
 		s.upgradeParams.InitialVersion,
 		"./upgrade/Dockerfile.init",
+		".",
 		map[string]string{"INITIAL_VERSION": s.upgradeParams.InitialVersion},
 	)
 	s.Require().NoError(err, "can't build initial container")
@@ -168,11 +177,12 @@ func (s *IntegrationTestSuite) upgrade() {
 		s.upgradeParams.TargetVersion,
 		s.upgradeParams.MountPath,
 	)
-	if s.upgradeParams.TargetVersion == "local" {
+	if s.upgradeParams.TargetVersion == localVersionTag {
 		err := s.upgradeManager.BuildImage(
 			s.upgradeParams.TargetRepo,
 			s.upgradeParams.TargetVersion,
-			"../../Dockerfile",
+			"./Dockerfile",
+			"../../",
 			map[string]string{},
 		)
 		s.Require().NoError(err, "can't build local version target node")

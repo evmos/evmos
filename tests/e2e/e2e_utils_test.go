@@ -3,6 +3,7 @@ package e2e
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 func (s *IntegrationTestSuite) loadUpgradeParams() {
@@ -52,7 +53,9 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	if mountPath == "" {
 		wd, err := os.Getwd()
 		s.Require().NoError(err)
-		mountPath = wd + "/build/:/root/"
+		wdRoot := strings.TrimSuffix(wd, "/tests/e2e")
+		s.T().Logf(wdRoot)
+		mountPath = wdRoot + "/build/:/root/"
 	}
 	s.upgradeParams.MountPath = mountPath
 	s.T().Logf("upgrade params: %+v\n", s.upgradeParams)
