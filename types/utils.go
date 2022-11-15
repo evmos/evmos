@@ -18,6 +18,8 @@ const (
 	MainnetChainID = "evmos_9001"
 	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
 	TestnetChainID = "evmos_9000"
+	// BaseDenom defines the Evmos mainnet denomination
+	BaseDenom = "aevmos"
 )
 
 // IsMainnet returns true if the chain-id has the Evmos mainnet EIP155 chain prefix.
@@ -79,4 +81,10 @@ func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
 	}
 
 	return sdk.AccAddress(addressBz), nil
+}
+
+// Include the possibility to use an ERC-20 contract address as coin Denom
+// Otherwise Coin Denom validation will fail in some cases (e.g.: transfer ERC-20 tokens through IBC)
+func EvmosCoinDenomRegex() string {
+	return `^0x[a-fA-F0-9]{40}$|^[a-zA-Z][a-zA-Z0-9/:._-]{2,127}`
 }
