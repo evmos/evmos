@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/erc20/types";
+option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {
