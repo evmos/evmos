@@ -50,7 +50,9 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 
 	mountPath := os.Getenv("MOUNT_PATH")
 	if mountPath == "" {
-		s.Fail("no mount path specified")
+		wd, err := os.Getwd()
+		s.Require().NoError(err)
+		mountPath = wd + "/build/:/root/"
 	}
 	s.upgradeParams.MountPath = mountPath
 	s.T().Logf("upgrade params: %+v\n", s.upgradeParams)
