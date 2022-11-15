@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
@@ -167,7 +166,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			_, err := suite.app.ScopedTransferKeeper.NewCapability(suite.ctx, host.ChannelCapabilityPath("transfer", "channel-0"))
 			suite.Require().NoError(err)
 			suite.app.TransferKeeper = keeper.NewKeeper(
-				suite.app.AppCodec(), suite.app.GetKey(ibctransfertypes.StoreKey), suite.app.GetSubspace(ibctransfertypes.ModuleName),
+				suite.app.AppCodec(), suite.app.GetKey(types.StoreKey), suite.app.GetSubspace(types.ModuleName),
 				&MockICS4Wrapper{}, // ICS4 Wrapper: claims IBC middleware
 				mockChannelKeeper, &suite.app.IBCKeeper.PortKeeper,
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.ScopedTransferKeeper,

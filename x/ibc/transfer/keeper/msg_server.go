@@ -93,7 +93,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 			1,
 			[]metrics.Label{
 				telemetry.NewLabel("denom", tokenPair.Denom),
-				telemetry.NewLabel("conversion", msg.Token.Amount.String()),
 			},
 		)
 	}()
