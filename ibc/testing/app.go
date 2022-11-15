@@ -26,6 +26,7 @@ import (
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
 
+// BaseDenom defines the Evmos mainnet denomination
 const BaseDenom = "aevmos"
 
 // SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts

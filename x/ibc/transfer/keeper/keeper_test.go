@@ -241,11 +241,6 @@ func (b *MockChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channel
 	return 1, true
 }
 
-// var _ capabilitykeeper.ScopedKeeper = &MockScopedKeeper{}
-
-// type MockScopedKeeper struct {
-// 	mock.Mock
-// }
 
 var _ transfertypes.ICS4Wrapper = &MockICS4Wrapper{}
 
