@@ -82,10 +82,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		common.BytesToAddress(sender.Bytes()),
 	)
 
-	if err := msgConvertERC20.ValidateBasic(); err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to validate MsgConvertERC20")
-	}
-
 	// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
 	if _, err := k.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msgConvertERC20); err != nil {
 		return nil, err
