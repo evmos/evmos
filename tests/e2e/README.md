@@ -7,7 +7,7 @@ The End-to-End (E2E) testing suite provides an environment for running end-to-en
 To run a chain upgrade test, execute:
 
 ```shell
-make test-upgrade INITIAL_VERSION=<tag>
+make test-upgrade
 ```
 
 This logic utilizes parameters that can be set manually(if necessary):
@@ -43,13 +43,13 @@ make test-e2e E2E_SKIP_CLEANUP=true INITIAL_VERSION=<tag> TARGET_VERSION=<tag>
 
 Testing a chain upgrade is a multi-step process:
 
-1. Build an initial node version docker container (e.g. `INITIAL_VERSION = v9.0.0`)
-2. Build a docker image for the evmos target version (local repo by default) (e.g. `v9.1.0`)
-3. Run tests
-4. The e2e test will first run an `INITIAL_VERSION` node container.
-5. The node will submit, deposit and vote for an upgrade proposal for upgrading to the `TARGET_VERSION`.
-6. After block `50` is reached, the test suite exports `/.evmosd` folder from docker container to local `build/` and than purge the container.
-7. Suite will mount `TARGET_VERSION` node to local `build/` dir and start the node. Node will get upgrade information from `upgrade-info.json` and will execute the upgrade.
+
+1. Build a docker image for the evmos target version (local repo by default, if no explicit `TARGET_VERSION` provided as argument) (e.g. `v9.1.0`)
+2. Run tests
+3. The e2e test will first run an `INITIAL_VERSION` node container.
+4. The node will submit, deposit and vote for an upgrade proposal for upgrading to the `TARGET_VERSION`.
+5. After block `50` is reached, the test suite exports `/.evmosd` folder from docker container to local `build/` and than purge the container.
+6. Suite will mount `TARGET_VERSION` node to local `build/` dir and start the node. Node will get upgrade information from `upgrade-info.json` and will execute the upgrade.
 
 ## Structure
 
@@ -76,10 +76,10 @@ The `e2e` package defines an upgrade `Manager` abstraction. Suite will utilize `
 
 ### Version retrieve
 
-`INITIAL_VERSION` should be specified by user following `make test-upgrade` command.
-
 `TARGET_VERSION` by default retieved latest upgrade version from local codebase `evmos/app/upgrades` folder according to sevmver scheme.
 If explicit `TARGET_VERSION` provided as argument, corresponding node container will be pulled from [dockerhub](https://hub.docker.com/r/tharsishq/evmos/tags).
+
+`INITIAL_VERSION` retrieved as one version before the latest upgrade in `evmos/app/upgrades` correspondingly.
 
 ### Testing Results
 
