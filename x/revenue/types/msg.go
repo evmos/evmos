@@ -1,7 +1,7 @@
 package types
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -49,25 +49,25 @@ func (msg MsgRegisterRevenue) Type() string { return TypeMsgRegisterRevenue }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgRegisterRevenue) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return errorsmod.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if err := ethermint.ValidateNonZeroAddress(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
+		return errorsmod.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	if msg.WithdrawerAddress != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
-			return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
+			return errorsmod.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
 		}
 	}
 
 	if len(msg.Nonces) < 1 {
-		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid nonces - empty array")
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid nonces - empty array")
 	}
 
 	if len(msg.Nonces) > 20 {
-		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid nonces - array length must be less than 20")
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid nonces - array length must be less than 20")
 	}
 
 	return nil
@@ -104,11 +104,11 @@ func (msg MsgCancelRevenue) Type() string { return TypeMsgCancelRevenue }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCancelRevenue) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return errorsmod.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if err := ethermint.ValidateNonZeroAddress(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
+		return errorsmod.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	return nil
@@ -147,15 +147,15 @@ func (msg MsgUpdateRevenue) Type() string { return TypeMsgUpdateRevenue }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateRevenue) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return errorsmod.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if err := ethermint.ValidateNonZeroAddress(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
+		return errorsmod.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
+		return errorsmod.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
 	}
 
 	return nil

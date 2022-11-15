@@ -3,7 +3,7 @@ package keeper
 import (
 	"strconv"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	ethermint "github.com/evmos/ethermint/types"
@@ -68,7 +68,7 @@ func (k Keeper) ClawbackEscrowedTokens(ctx sdk.Context) error {
 	}
 
 	if err := k.distrKeeper.FundCommunityPool(ctx, balances, moduleAccAddr); err != nil {
-		return sdkerrors.Wrap(err, "failed to transfer escrowed airdrop tokens")
+		return errorsmod.Wrap(err, "failed to transfer escrowed airdrop tokens")
 	}
 
 	logger.Info(

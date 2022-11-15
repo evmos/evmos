@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -46,17 +46,17 @@ func (msg MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateC
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid from address")
+		return errorsmod.Wrapf(err, "invalid from address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid to address")
+		return errorsmod.Wrapf(err, "invalid to address")
 	}
 
 	lockupCoins := sdk.NewCoins()
 	for i, period := range msg.LockupPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
@@ -64,7 +64,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	vestingCoins := sdk.NewCoins()
 	for i, period := range msg.VestingPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
@@ -73,7 +73,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
 		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
-		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
 	}
 
 	return nil
@@ -113,16 +113,16 @@ func (msg MsgClawback) Type() string { return TypeMsgClawback }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgClawback) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.GetFunderAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid funder address")
+		return errorsmod.Wrapf(err, "invalid funder address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid account address")
+		return errorsmod.Wrapf(err, "invalid account address")
 	}
 
 	if msg.GetDestAddress() != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.GetDestAddress()); err != nil {
-			return sdkerrors.Wrapf(err, "invalid dest address")
+			return errorsmod.Wrapf(err, "invalid dest address")
 		}
 	}
 

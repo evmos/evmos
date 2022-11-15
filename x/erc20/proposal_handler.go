@@ -1,7 +1,7 @@
 package erc20
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -16,7 +16,7 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		// Check if the conversion is globally enabled
 		if !k.IsERC20Enabled(ctx) {
-			return sdkerrors.Wrap(
+			return errorsmod.Wrap(
 				types.ErrERC20Disabled, "registration is currently disabled by governance",
 			)
 		}
@@ -30,7 +30,7 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			return handleToggleConversionProposal(ctx, k, c)
 
 		default:
-			return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
+			return errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
 		}
 	}
 }
