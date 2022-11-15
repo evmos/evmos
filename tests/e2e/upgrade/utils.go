@@ -2,50 +2,65 @@ package upgrade
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
-	"strings"
+	"sort"
+
+	"github.com/hashicorp/go-version"
 )
 
 var upgradesPath = "../../app/upgrades"
 
-// RetrieveUpgradeVersion parses the latest upgrade version from the app/upgrades folder
-func (m *Manager) RetrieveUpgradeVersion() (string, error) {
+// Custom comparator for sorting semver version strings
+type byVersion []string
+
+func (s byVersion) Len() int { return len(s) }
+
+func (s byVersion) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
+// Compare semver versions strings properly
+func (s byVersion) Less(i, j int) bool {
+	v1, err := version.NewVersion(s[i])
+	if err != nil {
+		log.Fatal(err)
+	}
+	v2, err := version.NewVersion(s[j])
+	if err != nil {
+		log.Fatal(err)
+	}
+	return v1.LessThan(v2)
+}
+
+// RetrieveUpgradeVersion parses app/upgrades folder and returns slice of semver upgrade versions
+// ascending order, e.g ["v1.0.0", "v1.0.1", "v1.1.0", ... , "v10.0.0"]
+func (m *Manager) RetrieveUpgradesList() ([]string, error) {
 	dirs, err := os.ReadDir(upgradesPath)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	var highest int
-	var version string
+
+	versions := []string{}
 
 	// pattern to find quoted string(upgrade version) in a file e.g. "v10.0.0"
 	pattern := regexp.MustCompile(`"(.*?)"`)
+
 	for _, d := range dirs {
+		// creating path to upgrade dir file with constant upgrade version
 		constantsPath := fmt.Sprintf("%s/%s/constants.go", upgradesPath, d.Name())
 		f, err := os.ReadFile(constantsPath)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-
 		v := pattern.FindString(string(f))
-
-		// [2:len(v)-1] index to remove quotes and 'v' prefix e.g. "v10.0.0" --> 10.0.0
-		// than removing dots '.'
-		numeric := strings.ReplaceAll(v[2:len(v)-1], ".", "")
-		// string: 10000 --> int: 10000
-		number, err := strconv.Atoi(numeric)
-		if err != nil {
-			return "", err
-		}
-
-		if highest < number {
-			highest = number
-			version = v[1 : len(v)-1]
-		}
+		// v[1:len(v)-1] subslice used to remove quotes from version string
+		versions = append(versions, v[1:len(v)-1])
 	}
-	return version, nil
+
+	sort.Sort(byVersion(versions))
+
+	return versions, nil
 }
 
 // ExportState executes the  'docker cp' command to copy container .evmosd dir

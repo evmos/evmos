@@ -3,6 +3,7 @@ package upgrade
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -40,13 +41,34 @@ func NewManager(networkName string) (*Manager, error) {
 	}, nil
 }
 
-// RunNode create docker container from provided node instance and run it
+// BuildInitial building initial node version image from local dockerfile
+// with provided <name>:<version>
+func (m *Manager) BuildInitial(name string, version string) error {
+	opts := docker.BuildImageOptions{
+		Dockerfile: "./upgrade/Dockerfile.init",
+		// set INITIAL_VERSION argument that will be used to pull proper version from docker hub
+		BuildArgs: []docker.BuildArg{
+			{
+				Name:  "INITIAL_VERSION",
+				Value: version,
+			},
+		},
+		// name with tag, e.g. evmos:v9.0.0
+		Name:         fmt.Sprintf("%s:%s", name, version),
+		OutputStream: io.Discard,
+		ContextDir:   ".",
+	}
+	return m.Client().BuildImage(opts)
+}
+
+// RunNode create docker container from provided node instance and run it.
+// Retry to get node JRPC server for 60 seconds to make sure node started properly.
 func (m *Manager) RunNode(node *Node) error {
 	var resource *dockertest.Resource
 	var err error
 
 	if node.withRunOptions {
-		resource, err = m.pool.RunWithOptions(node.runOptions)
+		resource, err = m.pool.RunWithOptions(node.RunOptions)
 	} else {
 		resource, err = m.pool.Run(node.repository, node.version, []string{})
 	}
@@ -54,17 +76,24 @@ func (m *Manager) RunNode(node *Node) error {
 	if err != nil {
 		return err
 	}
+
+	m.pool.MaxWait = time.Minute
 	// trying to get JSON-RPC server, to make sure node started properly
 	err = m.pool.Retry(
 		func() error {
-			_, err := http.Get(fmt.Sprintf("http://localhost:%s", resource.GetPort("8545/tcp")))
-			return err
+			// get host:port for current container in local network
+			addr := resource.GetHostPort(jrpcPort + "/tcp")
+			r, err := http.Get("http://" + addr)
+			if err != nil {
+				return fmt.Errorf("can't get node json-rpc server: %s", err)
+			}
+			defer r.Body.Close()
+			return nil
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("could not connect to JSON-RPC server: %s", err)
+		return err
 	}
-
 	m.CurrentNode = resource
 	return nil
 }

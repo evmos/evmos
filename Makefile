@@ -351,9 +351,9 @@ $(TEST_TARGETS): run-tests
 test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
-test-upgrade: docker-build-upgrade-init
-ifdef $(TARGET_VERSION)
-	docker-build-local
+test-upgrade:
+ifeq (, $(TARGET_VERSION))
+	@$(MAKE) docker-build-local
 endif
 	mkdir -p ./build
 	rm -rf build/.evmosd

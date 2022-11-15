@@ -10,16 +10,22 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 
 	initialV := os.Getenv("INITIAL_VERSION")
 	if initialV == "" {
-		s.Fail("no initial version specified")
+		upgradesList, err := s.upgradeManager.RetrieveUpgradesList()
+		s.Require().NoError(err)
+		// set the pre-last upgrade is upgrade list
+		s.upgradeParams.InitialVersion = upgradesList[len(upgradesList)-2]
+	} else {
+		s.upgradeParams.InitialVersion = initialV
 	}
-	s.upgradeParams.InitialVersion = initialV
 
 	// Target version loading, if not specified manager gets the last one from app/upgrades folder
 	// and sets target repository to local, otherwise tharsishq repo will be used
 	targetV := os.Getenv("TARGET_VERSION")
 	if targetV == "" {
-		s.upgradeParams.SoftwareUpgradeVersion, err = s.upgradeManager.RetrieveUpgradeVersion()
+		upgradesList, err := s.upgradeManager.RetrieveUpgradesList()
 		s.Require().NoError(err)
+		// set the last upgrade is upgrade list
+		s.upgradeParams.SoftwareUpgradeVersion = upgradesList[len(upgradesList)-1]
 		s.upgradeParams.TargetVersion = localVersionTag
 		s.upgradeParams.TargetRepo = localRepository
 	} else {
@@ -45,5 +51,5 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 		s.Fail("no mount path specified")
 	}
 	s.upgradeParams.MountPath = mountPath
-	s.T().Log("upgrade params: ", s.upgradeParams)
+	s.T().Logf("upgrade params: %+v\n", s.upgradeParams)
 }

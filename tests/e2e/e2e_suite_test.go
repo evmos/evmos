@@ -54,9 +54,13 @@ func (s *IntegrationTestSuite) SetupSuite() {
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
+	err := s.upgradeManager.BuildInitial(localRepository, s.upgradeParams.InitialVersion)
+	s.Require().NoError(err, "can't build initial container")
+
 	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
-	err := s.upgradeManager.RunNode(node)
+
+	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't run initial node")
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -82,7 +86,7 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
 		err,
-		"failed to submit upgrade proposal; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+		"failed to submit upgrade proposal; stdout: %s, stderr: %s", outBuf, errBuf,
 	)
 
 	s.Require().Truef(
@@ -105,7 +109,7 @@ func (s *IntegrationTestSuite) depositToProposal() {
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
 		err,
-		"failed to submit deposit to proposal tx; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+		"failed to submit deposit to proposal tx; stdout: %s, stderr: %s", outBuf, errBuf,
 	)
 
 	s.Require().Truef(
@@ -124,7 +128,7 @@ func (s *IntegrationTestSuite) voteForProposal() {
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
 		err,
-		"failed to vote for proposal tx; stdout: %s, stderr: %s", outBuf.String(), errBuf.String(),
+		"failed to vote for proposal tx; stdout: %s, stderr: %s", outBuf, errBuf,
 	)
 
 	s.Require().Truef(
