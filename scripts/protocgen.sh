@@ -12,6 +12,7 @@ echo "Generating gogo proto code"
 proto_dirs=$(find ./proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
   for file in $(find "${dir}" -maxdepth 1 -name '*.proto'); do
+    # TODO: Adjust this command for Evmos
     # this regex checks if a proto file has its go_package set to cosmossdk.io/api/...
     # gogo proto files SHOULD ONLY be generated if this is false
     # we don't want gogo proto to run for proto files which are natively built for google.golang.org/protobuf
