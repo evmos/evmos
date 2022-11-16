@@ -62,7 +62,7 @@ evmosd tx vesting clawback ADDRESS [flags]
 
 **`update-vesting-funder`**
 
-Allows users to update the funder of an existent ClawbackVestingAccount. Must be requested by the original funder address (--from). To perform this action, the user needs to provide two arguments:
+Allows users to update the funder of an existent `ClawbackVestingAccount`. Must be requested by the original funder address (`--from`). To perform this action, the user needs to provide two arguments:
 
 1. the new funder address
 2. the vesting account address
