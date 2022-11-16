@@ -300,6 +300,12 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
+	var (
+		funder = sdk.AccAddress(tests.GenerateAddress().Bytes())
+		newFunder = sdk.AccAddress(tests.GenerateAddress().Bytes())
+		vestingAcc = sdk.AccAddress(tests.GenerateAddress().Bytes())
+	)
+
 	testCases := []struct {
 		name       string
 		msg        *MsgUpdateVestingFunder
@@ -308,9 +314,9 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		{
 			name: "msg update vesting funder - valid addresses",
 			msg: NewMsgUpdateVestingFunder(
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				funder,
+				vestingAcc,
+				newFunder,
 			),
 			expectPass: true,
 		},
@@ -318,25 +324,25 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 			name: "msg update vesting funder - invalid funder address",
 			msg: &MsgUpdateVestingFunder{
 				"invalid_address",
-				tests.GenerateAddress().String(),
-				tests.GenerateAddress().String(),
+				vestingAcc.String(),
+				newFunder.String(),
 			},
 			expectPass: false,
 		},
 		{
 			name: "msg update vesting funder - invalid new funder address",
 			msg: &MsgUpdateVestingFunder{
-				tests.GenerateAddress().String(),
+				funder.String(),
 				"invalid_address",
-				tests.GenerateAddress().String(),
+				newFunder.String(),
 			},
 			expectPass: false,
 		},
 		{
 			name: "msg update vesting funder - invalid vesting address",
 			msg: &MsgUpdateVestingFunder{
-				tests.GenerateAddress().String(),
-				tests.GenerateAddress().String(),
+				funder.String(),
+				vestingAcc.String(),
 				"invalid_address",
 			},
 			expectPass: false,
@@ -344,9 +350,18 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		{
 			name: "msg update vesting funder - empty address",
 			msg: &MsgUpdateVestingFunder{
-				tests.GenerateAddress().String(),
-				tests.GenerateAddress().String(),
+				funder.String(),
+				vestingAcc.String(),
 				"",
+			},
+			expectPass: false,
+		},
+		{
+			name: "msg update vesting funder - new funder address is equal to current funder address",
+			msg: &MsgUpdateVestingFunder{
+				funder.String(),
+				tests.GenerateAddress().String(),
+				funder.String(),
 			},
 			expectPass: false,
 		},

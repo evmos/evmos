@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -164,6 +165,11 @@ func (msg MsgUpdateVestingFunder) ValidateBasic() error {
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetNewFunderAddress()); err != nil {
 		return errorsmod.Wrapf(err, "invalid new funder address")
+	}
+
+	// New funder address can not be equal to current funder address
+	if msg.FunderAddress == msg.NewFunderAddress {
+		return errors.New("new funder address is equal to current funder address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetVestingAddress()); err != nil {
