@@ -61,6 +61,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
 - (ibc) [\#1081](https://github.com/evmos/evmos/pull/1081) Added utils functions for ibc denoms.
 - (ibc/erc20) [\#1085](https://github.com/evmos/evmos/pull/1085) Added wrapper for ibc transfer to automatically convert erc20 tokens to cosmos coins.
+- (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
 
 ## [v9.1.0] - 2022-10-25
 
