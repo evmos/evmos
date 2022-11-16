@@ -344,7 +344,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 		expectedPass bool
 	}{
 		{
-			"inexistent vesting account",
+			"non-existent vesting account",
 			func() {},
 			addr,
 			sdk.AccAddress(tests.GenerateAddress().Bytes()),
