@@ -90,7 +90,8 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 		mockEVMKeeper = &MockEVMKeeper{}
 		sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 		suite.Require().True(found)
-		suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper)
+		suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper,
+			mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 		tc.malleate()
 
@@ -277,7 +278,8 @@ func (suite *KeeperTestSuite) TestForceFail() {
 			mockEVMKeeper = &MockEVMKeeper{}
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
-			suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper)
+			suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper,
+				suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 			tc.malleate()
 
@@ -365,7 +367,8 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 		mockEVMKeeper = &MockEVMKeeper{}
 		sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 		suite.Require().True(found)
-		suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper)
+		suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper,
+			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 		tc.malleate()
 
