@@ -178,7 +178,7 @@ func NewMsgClawbackCmd() *cobra.Command {
 // the funder of a ClawbackVestingAccount.
 func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-funder NEW_FUNDER_ADDRESS VESTING_ACCOUNT_ADDRESS",
+		Use:   "update-vesting-funder NEW_FUNDER_ADDRESS VESTING_ACCOUNT_ADDRESS",
 		Short: "Update the funder account of an existing ClawbackVestingAccount.",
 		Long: `Must be requested by the original funder address (--from).
 		Need to provide the NEW_FUNDER_ADDRESS and the target VESTING_ACCOUNT_ADDRESS to update.`,
