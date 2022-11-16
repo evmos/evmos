@@ -172,18 +172,6 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")
 
-	// if s.upgradeParams.TargetVersion == localVersionTag {
-	// 	s.T().Log("building target version image...")
-	// 	err := s.upgradeManager.BuildImage(
-	// 		s.upgradeParams.TargetRepo,
-	// 		s.upgradeParams.TargetVersion,
-	// 		"./Dockerfile",
-	// 		"../../",
-	// 		map[string]string{},
-	// 	)
-	// 	s.Require().NoError(err, "can't build local version target node")
-	// }
-
 	s.T().Logf(
 		"starting upgraded node: version: [%s] mount point: [%s]",
 		s.upgradeParams.TargetVersion,

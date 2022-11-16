@@ -344,9 +344,9 @@ test-unit-cover: build-docker
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-upgrade:
-# ifeq (, $(TARGET_VERSION))
-# build-docker
-# endif
+ifeq (, $(TARGET_VERSION))
+	@make build-docker
+endif
 	mkdir -p ./build
 	rm -rf build/.evmosd
 	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \

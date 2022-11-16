@@ -105,7 +105,7 @@ func (m *Manager) RunNode(node *Node) error {
 					Stderr:       true,
 				})
 				return fmt.Errorf(
-					"can't start evmos node, container exit code: %d\n error stream: %s\n output stream: %s",
+					"can't start evmos node, container exit code: %d\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
 					c.State.ExitCode,
 					errBuf.String(),
 					outBuf.String(),
