@@ -178,10 +178,10 @@ func NewMsgClawbackCmd() *cobra.Command {
 // the funder of a ClawbackVestingAccount.
 func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-vesting-funder NEW_FUNDER_ADDRESS VESTING_ACCOUNT_ADDRESS",
+		Use:   "update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRESS",
 		Short: "Update the funder account of an existing ClawbackVestingAccount.",
 		Long: `Must be requested by the original funder address (--from).
-		Need to provide the NEW_FUNDER_ADDRESS and the target VESTING_ACCOUNT_ADDRESS to update.`,
+		Need to provide the target VESTING_ACCOUNT_ADDRESS to update and the NEW_FUNDER_ADDRESS.`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -189,12 +189,12 @@ func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 				return err
 			}
 
-			newFunder, err := sdk.AccAddressFromBech32(args[0])
+			vestingAcc, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
 
-			vestingAcc, err := sdk.AccAddressFromBech32(args[1])
+			newFunder, err := sdk.AccAddressFromBech32(args[1])
 			if err != nil {
 				return err
 			}

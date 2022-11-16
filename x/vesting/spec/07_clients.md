@@ -68,7 +68,7 @@ Allows users to update the funder of an existent `ClawbackVestingAccount`. Must 
 2. the vesting account address
 
 ```go
-evmosd tx vesting update-vesting-funder NEW_FUNDER_ADDRESS VESTING_ACCOUNT_ADDRESS [flags]
+evmosd tx vesting update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRESS --from=FUNDER_ADDRESS [flags]
 ```
 
 ## gRPC
