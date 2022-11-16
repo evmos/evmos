@@ -49,13 +49,14 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	}
 	s.upgradeParams.SkipCleanup = skipCleanup
 
+	wd, err := os.Getwd()
+	s.Require().NoError(err)
+	s.upgradeParams.WDRoot = strings.TrimSuffix(wd, "/tests/e2e")
+
 	mountPath := os.Getenv("MOUNT_PATH")
 	if mountPath == "" {
-		wd, err := os.Getwd()
-		s.Require().NoError(err)
-		wdRoot := strings.TrimSuffix(wd, "/tests/e2e")
-		s.T().Logf(wdRoot)
-		mountPath = wdRoot + "/build/:/root/"
+
+		mountPath = s.upgradeParams.WDRoot + "/build/:/root/"
 	}
 	s.upgradeParams.MountPath = mountPath
 	s.T().Logf("upgrade params: %+v\n", s.upgradeParams)

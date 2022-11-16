@@ -34,6 +34,7 @@ type upgradeParams struct {
 	ChainID     string
 	TargetRepo  string
 	SkipCleanup bool
+	WDRoot      string
 }
 
 type IntegrationTestSuite struct {
@@ -59,6 +60,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		err := os.Mkdir(relatedBuildPath, os.ModePerm)
 		s.Require().NoError(err, "can't create build tmp dir")
 	}
+
+	// s.BuildTarget()
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
@@ -211,3 +214,21 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 
 	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
 }
+
+// func (s *IntegrationTestSuite) BuildTarget() {
+// 	if s.upgradeParams.TargetVersion == localVersionTag {
+// 		err := s.upgradeManager.BuildImage(
+// 			s.upgradeParams.TargetRepo,
+// 			s.upgradeParams.TargetVersion,
+// 			"./Dockerfile",
+// 			"../../",
+// 			map[string]string{},
+// 		)
+// 		s.Require().NoError(err, "can't build local version target node")
+// 	}
+// 	node := upgrade.NewNode(s.upgradeParams.TargetRepo, s.upgradeParams.TargetVersion)
+// 	node.Mount(s.upgradeParams.MountPath)
+// 	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
+// 	err := s.upgradeManager.RunNode(node)
+// 	s.Require().NoError(err, "can't mount and run upgraded node container")
+// }

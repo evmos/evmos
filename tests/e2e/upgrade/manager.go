@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -58,6 +59,7 @@ func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args 
 		// name with tag, e.g. evmos:v9.0.0
 		Name:         fmt.Sprintf("%s:%s", name, version),
 		OutputStream: io.Discard,
+		ErrorStream:  os.Stdout,
 		ContextDir:   contextDir,
 	}
 	return m.Client().BuildImage(opts)
@@ -79,7 +81,7 @@ func (m *Manager) RunNode(node *Node) error {
 		return err
 	}
 
-	m.pool.MaxWait = time.Minute
+	m.pool.MaxWait = time.Minute * 5
 	// trying to get JSON-RPC server, to make sure node started properly
 	err = m.pool.Retry(
 		func() error {
