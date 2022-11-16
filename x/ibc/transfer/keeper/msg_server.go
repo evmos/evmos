@@ -24,12 +24,6 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// check if IBC transfer denom is a valid Ethereum contract address
-	if !common.IsHexAddress(msg.Token.Denom) {
-		// no-op: continue with regular transfer
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
-	}
-
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		// NOTE: shouldn't happen as the receiving address has already
@@ -73,7 +67,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
-	contractAddr := common.HexToAddress(msg.Token.Denom)
+	contractAddr := common.HexToAddress(tokenPair.Erc20Address)
 
 	msgConvertERC20 := erc20types.NewMsgConvertERC20(
 		msg.Token.Amount,

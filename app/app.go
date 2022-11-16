@@ -117,7 +117,6 @@ import (
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v10/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v10/app/upgrades/v9_1"
-	evmostypes "github.com/evmos/evmos/v10/types"
 	"github.com/evmos/evmos/v10/x/claims"
 	claimskeeper "github.com/evmos/evmos/v10/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
@@ -165,9 +164,6 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
-
-	// Include the possibility to use an ERC-20 contract address as coin Denom
-	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 }
 
 // Name defines the application binary name
