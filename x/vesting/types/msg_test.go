@@ -285,3 +285,79 @@ func (suite *MsgsTestSuite) TestMsgClawback() {
 		}
 	}
 }
+
+func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
+	msgInvalid := MsgUpdateVestingFunder{}
+	msg := NewMsgUpdateVestingFunder(
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+	)
+	suite.Require().Equal(RouterKey, msg.Route())
+	suite.Require().Equal(TypeMsgUpdateVestingFunder, msg.Type())
+	suite.Require().NotNil(msgInvalid.GetSignBytes())
+	suite.Require().NotNil(msg.GetSigners())
+}
+
+func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
+	testCases := []struct {
+		name       string
+		msg        *MsgUpdateVestingFunder
+		expectPass bool
+	}{
+		{
+			name: "msg update vesting funder - valid addresses",
+			msg: NewMsgUpdateVestingFunder(
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			),
+			expectPass: true,
+		},
+		{
+			name: "msg update vesting funder - invalid funder address",
+			msg: &MsgUpdateVestingFunder{
+				"invalid_address",
+				tests.GenerateAddress().String(),
+				tests.GenerateAddress().String(),
+			},
+			expectPass: false,
+		},
+		{
+			name: "msg update vesting funder - invalid new funder address",
+			msg: &MsgUpdateVestingFunder{
+				tests.GenerateAddress().String(),
+				"invalid_address",
+				tests.GenerateAddress().String(),
+			},
+			expectPass: false,
+		},
+		{
+			name: "msg update vesting funder - invalid vesting address",
+			msg: &MsgUpdateVestingFunder{
+				tests.GenerateAddress().String(),
+				tests.GenerateAddress().String(),
+				"invalid_address",
+			},
+			expectPass: false,
+		},
+		{
+			name: "msg update vesting funder - empty address",
+			msg: &MsgUpdateVestingFunder{
+				tests.GenerateAddress().String(),
+				tests.GenerateAddress().String(),
+				"",
+			},
+			expectPass: false,
+		},
+	}
+
+	for i, tc := range testCases {
+		err := tc.msg.ValidateBasic()
+		if tc.expectPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.name)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.name)
+		}
+	}
+}
