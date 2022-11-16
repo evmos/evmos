@@ -91,7 +91,7 @@ func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// NewMsgClawback creates new instance of MsgClawback. The dest_address may be
+// NewMsgClawback creates new instance of MsgClawback. The dest address may be
 // nil - defaulting to the funder.
 func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 	destString := ""
