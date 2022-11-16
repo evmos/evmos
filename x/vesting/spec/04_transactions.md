@@ -73,4 +73,3 @@ type MsgUpdateVestingFunder struct {
 The msg content stateless validation fails if:
 
 - `FunderAddress`, `NewFunderAddress` and `VestingAddress` are invalid
-
