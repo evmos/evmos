@@ -83,8 +83,8 @@ func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
 	return sdk.AccAddress(addressBz), nil
 }
 
-// Include the possibility to use an ERC-20 contract address as coin Denom
+// Include the possibility to use an ERC-20 contract address as coin Denom (allow to start with 0x)
 // Otherwise Coin Denom validation will fail in some cases (e.g.: transfer ERC-20 tokens through IBC)
 func EvmosCoinDenomRegex() string {
-	return `^0x[a-fA-F0-9]{40}$|^[a-zA-Z][a-zA-Z0-9/:._-]{2,127}`
+	return `[a-zA-Z0][a-zA-Z0-9/:._-]{2,127}`
 }

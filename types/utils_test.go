@@ -162,23 +162,13 @@ func TestEvmosCoinDenom(t *testing.T) {
 			true,
 		},
 		{
-			"invalid denom - starts with 0 but not followed by 'x'",
-			"0a52908400098527886E0F7030069857D2E4169EE7",
+			"invalid denom - starts with a number that's not zero",
+			"10000000000aevmos",
 			true,
 		},
 		{
-			"invalid denom - hex address but 19 bytes long",
-			"0x52908400098527886E0F7030069857D2E4169E",
-			true,
-		},
-		{
-			"invalid denom - hex address but 21 bytes long",
-			"0x52908400098527886e0f7030069857D2E4169EE738",
-			true,
-		},
-		{
-			"invalid denom - invalid hex, has a 'g'",
-			"0x52908400098527886e0f7030069857D2E4169gE7",
+			"invalid denom - starts with invalid character",
+			"-aevmos",
 			true,
 		},
 	}
