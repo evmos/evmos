@@ -28,7 +28,7 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 		// set the last upgrade is upgrade list
 		s.upgradeParams.SoftwareUpgradeVersion = upgradesList[len(upgradesList)-1]
 		s.upgradeParams.TargetVersion = localVersionTag
-		s.upgradeParams.TargetRepo = localRepository
+		s.upgradeParams.TargetRepo = tharsisRepo
 	} else {
 		s.upgradeParams.TargetVersion = targetV
 		s.upgradeParams.SoftwareUpgradeVersion = targetV

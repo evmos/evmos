@@ -1,6 +1,7 @@
 package upgrade
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -67,6 +68,7 @@ func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args 
 
 // RunNode create docker container from provided node instance and run it.
 // Retry to get node JRPC server for 60 seconds to make sure node started properly.
+// On node start error returns container logs.
 func (m *Manager) RunNode(node *Node) error {
 	var resource *dockertest.Resource
 	var err error
@@ -81,10 +83,34 @@ func (m *Manager) RunNode(node *Node) error {
 		return err
 	}
 
-	m.pool.MaxWait = time.Minute * 5
 	// trying to get JSON-RPC server, to make sure node started properly
+	// the last returned error before deadline exceeded will be returned from .Retry()
 	err = m.pool.Retry(
 		func() error {
+			// recreating container instance because resource.Container.State
+			// does not updateing properly by default
+			c, err := m.Client().InspectContainer(resource.Container.ID)
+			if err != nil {
+				return err
+			}
+			// if node failed to start, i.e. ExitCode != 0, return container logs
+			if c.State.ExitCode != 0 {
+				var outBuf, errBuf bytes.Buffer
+				// no error check becuse success logs retieving returns error anyways
+				_ = m.Client().Logs(docker.LogsOptions{
+					Container:    resource.Container.ID,
+					OutputStream: &outBuf,
+					ErrorStream:  &errBuf,
+					Stdout:       true,
+					Stderr:       true,
+				})
+				return fmt.Errorf(
+					"can't start evmos node, container exit code: %d\n error stream: %s\n output stream: %s",
+					c.State.ExitCode,
+					errBuf.String(),
+					outBuf.String(),
+				)
+			}
 			// get host:port for current container in local network
 			addr := resource.GetHostPort(jrpcPort + "/tcp")
 			r, err := http.Get("http://" + addr)
@@ -95,6 +121,7 @@ func (m *Manager) RunNode(node *Node) error {
 			return nil
 		},
 	)
+
 	if err != nil {
 		return err
 	}

@@ -339,10 +339,14 @@ test-race: ARGS=-race
 test-race: TEST_PACKAGES=$(PACKAGES_NOSIMULATION)
 $(TEST_TARGETS): run-tests
 
-test-unit-cover: ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=atomic
+test-unit-cover: build-docker
+	ARGS=-timeout=10m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-upgrade:
+# ifeq (, $(TARGET_VERSION))
+# build-docker
+# endif
 	mkdir -p ./build
 	rm -rf build/.evmosd
 	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \

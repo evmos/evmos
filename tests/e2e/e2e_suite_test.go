@@ -15,12 +15,11 @@ import (
 
 const (
 	localRepository       = "evmos"
-	localVersionTag       = "local"
+	localVersionTag       = "latest"
 	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
 	tharsisRepo           = "tharsishq/evmos"
-
-	firstUpgradeHeight = 50
+	firstUpgradeHeight    = 50
 
 	relatedBuildPath = "../../build/"
 )
@@ -60,8 +59,6 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		err := os.Mkdir(relatedBuildPath, os.ModePerm)
 		s.Require().NoError(err, "can't create build tmp dir")
 	}
-
-	// s.BuildTarget()
 }
 
 func (s *IntegrationTestSuite) runInitialNode() {
@@ -175,21 +172,24 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")
 
+	// if s.upgradeParams.TargetVersion == localVersionTag {
+	// 	s.T().Log("building target version image...")
+	// 	err := s.upgradeManager.BuildImage(
+	// 		s.upgradeParams.TargetRepo,
+	// 		s.upgradeParams.TargetVersion,
+	// 		"./Dockerfile",
+	// 		"../../",
+	// 		map[string]string{},
+	// 	)
+	// 	s.Require().NoError(err, "can't build local version target node")
+	// }
+
 	s.T().Logf(
 		"starting upgraded node: version: [%s] mount point: [%s]",
 		s.upgradeParams.TargetVersion,
 		s.upgradeParams.MountPath,
 	)
-	if s.upgradeParams.TargetVersion == localVersionTag {
-		err := s.upgradeManager.BuildImage(
-			s.upgradeParams.TargetRepo,
-			s.upgradeParams.TargetVersion,
-			"./Dockerfile",
-			"../../",
-			map[string]string{},
-		)
-		s.Require().NoError(err, "can't build local version target node")
-	}
+
 	node := upgrade.NewNode(s.upgradeParams.TargetRepo, s.upgradeParams.TargetVersion)
 	node.Mount(s.upgradeParams.MountPath)
 	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
@@ -214,21 +214,3 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 
 	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
 }
-
-// func (s *IntegrationTestSuite) BuildTarget() {
-// 	if s.upgradeParams.TargetVersion == localVersionTag {
-// 		err := s.upgradeManager.BuildImage(
-// 			s.upgradeParams.TargetRepo,
-// 			s.upgradeParams.TargetVersion,
-// 			"./Dockerfile",
-// 			"../../",
-// 			map[string]string{},
-// 		)
-// 		s.Require().NoError(err, "can't build local version target node")
-// 	}
-// 	node := upgrade.NewNode(s.upgradeParams.TargetRepo, s.upgradeParams.TargetVersion)
-// 	node.Mount(s.upgradeParams.MountPath)
-// 	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
-// 	err := s.upgradeManager.RunNode(node)
-// 	s.Require().NoError(err, "can't mount and run upgraded node container")
-// }
