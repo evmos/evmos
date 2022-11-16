@@ -372,6 +372,14 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			false,
 		},
 		{
+			"new funder is blocked",
+			func() {},
+			addr,
+			addr2,
+			authtypes.NewModuleAddress("transfer"),
+			false,
+		},
+		{
 			"update funder successfully",
 			func() {
 			},
