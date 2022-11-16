@@ -37,7 +37,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// Return acknowledgement and continue with the next layer of the IBC middleware
-	// stack if if:
+	// stack if:
 	// - ERC20s are disabled
 	// - Denomination is native staking token
 	// - The base denomination is not registered as ERC20
@@ -117,7 +117,7 @@ func (k Keeper) OnAcknowledgementPacket(
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 		// convert the token from Cosmos Coin to its ERC20 representation
-		return k.ConvertERC20AckPacket(ctx, data)
+		return k.ConvertCoinToERC20FromPacket(ctx, data)
 	default:
 		// the acknowledgement succeeded on the receiving chain so nothing
 		// needs to be executed and no error needs to be returned
@@ -128,11 +128,11 @@ func (k Keeper) OnAcknowledgementPacket(
 // OnTimeoutPacket converts the IBC coin to ERC20 after refunding the sender
 // since the original packet sent was never received and has been timed out.
 func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
-	return k.ConvertERC20AckPacket(ctx, data)
+	return k.ConvertCoinToERC20FromPacket(ctx, data)
 }
 
-// ConvertERC20AckPacket converts the IBC coin to ERC20 after refunding the sender
-func (k Keeper) ConvertERC20AckPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
+// ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
+func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
 	// obtain the sent coin from the packet data
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
 

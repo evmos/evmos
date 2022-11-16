@@ -362,7 +362,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestConvertERC20AckPacket() {
+func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 
 	testCases := []struct {
 		name     string
@@ -443,7 +443,7 @@ func (suite *KeeperTestSuite) TestConvertERC20AckPacket() {
 
 			transfer := tc.malleate()
 
-			err := suite.app.Erc20Keeper.ConvertERC20AckPacket(suite.ctx, transfer)
+			err := suite.app.Erc20Keeper.ConvertCoinToERC20FromPacket(suite.ctx, transfer)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {

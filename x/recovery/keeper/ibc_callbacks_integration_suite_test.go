@@ -19,7 +19,7 @@ import (
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/evmos/evmos/v10/app"
-	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
 	"github.com/evmos/evmos/v10/x/recovery/types"
 )
@@ -83,7 +83,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, suite.IBCCosmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	claimparams := claimtypes.DefaultParams()
+	claimparams := claimstypes.DefaultParams()
 	claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
 	claimparams.EnableClaims = true
 	suite.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
@@ -105,31 +105,6 @@ func (suite *IBCTestingSuite) SetupTest() {
 
 var (
 	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-
-	uosmoDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0",
-		BaseDenom: "uosmo",
-	}
-
-	uosmoIbcdenom = uosmoDenomtrace.IBCDenom()
-
-	uatomDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-1",
-		BaseDenom: "uatom",
-	}
-	uatomIbcdenom = uatomDenomtrace.IBCDenom()
-
-	aevmosDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0",
-		BaseDenom: "aevmos",
-	}
-	aevmosIbcdenom = aevmosDenomtrace.IBCDenom()
-
-	uatomOsmoDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0/transfer/channel-1",
-		BaseDenom: "uatom",
-	}
-	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
 func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {

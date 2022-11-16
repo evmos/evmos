@@ -38,7 +38,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	}
 
 	// Return acknowledgement and continue with the next layer of the IBC middleware
-	// stack if if:
+	// stack if:
 	// - ERC20s are disabled
 	// - The ERC20 contract is not registered as Cosmos coin
 	if !k.erc20Keeper.IsERC20Enabled(ctx) {

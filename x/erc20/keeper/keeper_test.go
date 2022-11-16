@@ -47,7 +47,7 @@ import (
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/contracts"
 	ibctesting "github.com/evmos/evmos/v10/ibc/testing"
-	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
 
@@ -56,6 +56,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 	ibcgotestinghelpers "github.com/cosmos/ibc-go/v5/testing/simapp/helpers"
+	teststypes "github.com/evmos/evmos/v10/types/tests"
 )
 
 type KeeperTestSuite struct {
@@ -152,7 +153,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	// bond denom
-	params := claimtypes.DefaultParams()
+	params := claimstypes.DefaultParams()
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
@@ -184,31 +185,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 var (
 	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-
-	uosmoDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0",
-		BaseDenom: "uosmo",
-	}
-
-	uosmoIbcdenom = uosmoDenomtrace.IBCDenom()
-
-	uatomDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-1",
-		BaseDenom: "uatom",
-	}
-	uatomIbcdenom = uatomDenomtrace.IBCDenom()
-
-	aevmosDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0",
-		BaseDenom: "aevmos",
-	}
-	aevmosIbcdenom = aevmosDenomtrace.IBCDenom()
-
-	uatomOsmoDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0/transfer/channel-1",
-		BaseDenom: "uatom",
-	}
-	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
 func (suite *KeeperTestSuite) sendAndReceiveMessage(
@@ -218,8 +194,7 @@ func (suite *KeeperTestSuite) sendAndReceiveMessage(
 	originChain *ibcgotesting.TestChain,
 	coin string,
 	amount int64,
-	sender string,
-	receiver string,
+	sender, receiver string,
 	seq uint64,
 	ibcCoinMetadata string,
 ) {
@@ -239,14 +214,14 @@ func (suite *KeeperTestSuite) sendAndReceiveMessage(
 	suite.Require().NoError(err)
 }
 
-func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
+func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender, receiver string, seq uint64, ibcCoinMetadata string) {
 	// Send coin from A to B
 	suite.sendAndReceiveMessage(path, path.EndpointA, path.EndpointB, origin, coin, amount, sender, receiver, seq, ibcCoinMetadata)
 }
 
 // Send back coins (from path endpoint B to A). In case of IBC coins need to provide ibcCoinMetadata (<port>/<channel>/<denom>, e.g.: "transfer/channel-0/aevmos") as input parameter.
 // We need this to instanciate properly a FungibleTokenPacketData https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
-func (suite *KeeperTestSuite) SendBackCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64, ibcCoinMetadata string) {
+func (suite *KeeperTestSuite) SendBackCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender, receiver string, seq uint64, ibcCoinMetadata string) {
 	// Send coin from B to A
 	suite.sendAndReceiveMessage(path, path.EndpointB, path.EndpointA, origin, coin, amount, sender, receiver, seq, ibcCoinMetadata)
 }
@@ -280,38 +255,39 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.coordinator.CommitNBlocks(suite.IBCOsmosisChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
 
-	evmParams := s.EvmosChain.App.(*app.Evmos).EvmKeeper.GetParams(s.EvmosChain.GetContext())
+	s.app = suite.EvmosChain.App.(*app.Evmos)
+	evmParams := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
 	evmParams.EvmDenom = "aevmos"
-	s.EvmosChain.App.(*app.Evmos).EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
+	s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
 
 	// Increase max gas
 	ibcgotestinghelpers.DefaultGenTxGas = uint64(1000000000)
 
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
-	validators := suite.EvmosChain.App.(*app.Evmos).StakingKeeper.GetValidators(suite.EvmosChain.GetContext(), 2)
+	validators := s.app.StakingKeeper.GetValidators(suite.EvmosChain.GetContext(), 2)
 	cons, err := validators[0].GetConsAddr()
 	suite.Require().NoError(err)
 	suite.EvmosChain.CurrentHeader.ProposerAddress = cons.Bytes()
 
-	err = suite.EvmosChain.App.(*app.Evmos).StakingKeeper.SetValidatorByConsAddr(suite.EvmosChain.GetContext(), validators[0])
+	err = s.app.StakingKeeper.SetValidatorByConsAddr(suite.EvmosChain.GetContext(), validators[0])
 	suite.Require().NoError(err)
 
-	_, err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetCoinbaseAddress(suite.EvmosChain.GetContext(), sdk.ConsAddress(suite.EvmosChain.CurrentHeader.ProposerAddress))
+	_, err = s.app.EvmKeeper.GetCoinbaseAddress(suite.EvmosChain.GetContext(), sdk.ConsAddress(suite.EvmosChain.CurrentHeader.ProposerAddress))
 	suite.Require().NoError(err)
 	// Mint coins locked on the evmos account generated with secp.
 	coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(10000))
 	coins := sdk.NewCoins(coinEvmos)
-	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
+	err = s.app.BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
+	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
 	// we need some coins in the bankkeeper to be able to register the coins later
-	coins = sdk.NewCoins(sdk.NewCoin(uosmoIbcdenom, sdk.NewInt(100)))
-	err = s.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(s.EvmosChain.GetContext(), types.ModuleName, coins)
+	coins = sdk.NewCoins(sdk.NewCoin(teststypes.UosmoIbcdenom, sdk.NewInt(100)))
+	err = s.app.BankKeeper.MintCoins(s.EvmosChain.GetContext(), types.ModuleName, coins)
 	s.Require().NoError(err)
-	coins = sdk.NewCoins(sdk.NewCoin(uatomIbcdenom, sdk.NewInt(100)))
-	err = s.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(s.EvmosChain.GetContext(), types.ModuleName, coins)
+	coins = sdk.NewCoins(sdk.NewCoin(teststypes.UatomIbcdenom, sdk.NewInt(100)))
+	err = s.app.BankKeeper.MintCoins(s.EvmosChain.GetContext(), types.ModuleName, coins)
 	s.Require().NoError(err)
 
 	// Mint coins on the osmosis side which we'll use to unlock our aevmos
@@ -330,14 +306,14 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, suite.IBCCosmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	claimparams := claimtypes.DefaultParams()
+	claimparams := claimstypes.DefaultParams()
 	claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
 	claimparams.EnableClaims = true
-	suite.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
+	s.app.ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
 
 	params := types.DefaultParams()
 	params.EnableErc20 = true
-	suite.EvmosChain.App.(*app.Evmos).Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
+	s.app.Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
 
 	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
 	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
@@ -351,9 +327,9 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 
 	coinEvmos = sdk.NewCoin("aevmos", sdk.NewInt(1000000000000000000))
 	coins = sdk.NewCoins(coinEvmos)
-	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), types.ModuleName, coins)
+	err = s.app.BankKeeper.MintCoins(suite.EvmosChain.GetContext(), types.ModuleName, coins)
 	suite.Require().NoError(err)
-	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToModule(suite.EvmosChain.GetContext(), types.ModuleName, authtypes.FeeCollectorName, coins)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(suite.EvmosChain.GetContext(), types.ModuleName, authtypes.FeeCollectorName, coins)
 	suite.Require().NoError(err)
 }
 
@@ -610,7 +586,7 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 		return nil
 	}
 
-	unpacked, _ := erc20.Unpack("balanceOf", res.Ret)
+	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
 	if len(unpacked) == 0 {
 		return nil
 	}
@@ -732,7 +708,7 @@ func (b *MockBankKeeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom 
 func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimals uint8) (common.Address, error) {
 	ctx := sdk.WrapSDKContext(s.EvmosChain.GetContext())
 	from := common.BytesToAddress(suite.EvmosChain.SenderAccount.GetAddress().Bytes())
-	chainID := s.EvmosChain.App.(*app.Evmos).EvmKeeper.ChainID()
+	chainID := s.app.EvmKeeper.ChainID()
 
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
 	if err != nil {
@@ -741,14 +717,14 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 
 	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
 
-	nonce := s.EvmosChain.App.(*app.Evmos).EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
+	nonce := s.app.EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
 	erc20DeployTx := evm.NewTxContract(
 		chainID,
 		nonce,
 		nil,                  // amount
 		uint64(100000000000), // gasLimit
 		nil,                  // gasPrice
-		s.EvmosChain.App.(*app.Evmos).FeeMarketKeeper.GetBaseFee(s.EvmosChain.GetContext()),
+		s.app.FeeMarketKeeper.GetBaseFee(s.EvmosChain.GetContext()),
 		big.NewInt(1),
 		data,                   // input
 		&ethtypes.AccessList{}, // accesses
@@ -761,7 +737,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		return common.Address{}, err
 	}
 
-	rsp, err := s.EvmosChain.App.(*app.Evmos).EvmKeeper.EthereumTx(ctx, erc20DeployTx)
+	rsp, err := s.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
 	if err != nil {
 		return common.Address{}, err
 	}
