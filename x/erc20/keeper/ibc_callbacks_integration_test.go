@@ -279,7 +279,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			}
 			s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetParams(s.EvmosChain.GetContext(), params)
 		})
-		It("claim - sender ≠ recipient, recipient claims record found, where ibc is last action", func() {
+		It("it should perform the claim and convert the received tokens", func() {
 			// Register claims record
 			initialClaimAmount := sdk.NewInt(100)
 			claimableAmount := sdk.NewInt(25)
@@ -662,7 +662,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			pair, err = s.EvmosChain.App.(*app.Evmos).Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
 			s.Require().NoError(err)
 		})
-		It("should transfer available balance", func() {
+		It("should convert erc20 to ibc vouched and transfer", func() {
 			uosmoInitialBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 
 			balance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, uosmoIbcdenom)
@@ -690,6 +690,20 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			uosmoBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
 			s.Require().Equal(uosmoInitialBalance.Amount.Int64()+amount, uosmoBalance.Amount.Int64())
 		})
+		It("should transfer available balance", func() {
+			uosmoInitialBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
+
+			balance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, uosmoIbcdenom)
+			s.Require().Equal(amount, balance.Amount.Int64())
+
+			// Attempt to send erc20 tokens to osmosis and convert automatically
+			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.Erc20Address, amount, sender, receiver, 1, uosmoDenomtrace.GetFullDenomPath())
+			s.IBCOsmosisChain.Coordinator.CommitBlock()
+			// Check balance on the Osmosis chain
+			uosmoBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, "uosmo")
+			s.Require().Equal(uosmoInitialBalance.Amount.Int64()+amount, uosmoBalance.Amount.Int64())
+		})
+
 		It("should timeout and reconvert coins", func() {
 
 			balance := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, uosmoIbcdenom)
