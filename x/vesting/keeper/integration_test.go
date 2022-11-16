@@ -470,7 +470,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		// Perform clawback before cliff - funds should go to new funder (no dest address defined)
 		msg := types.NewMsgClawback(newFunder, grantee, sdk.AccAddress([]byte{}))
 		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-		Expect(err).To(BeNil())
+		s.Require().NoError(err)
 
 		// All initial vesting amount goes to funder
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
