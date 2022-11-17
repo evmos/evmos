@@ -15,7 +15,6 @@ BUILDDIR ?= $(CURDIR)/build
 SIMAPP = ./app
 HTTPS_GIT := https://github.com/evmos/evmos.git
 DOCKER := $(shell which docker)
-DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
 NAMESPACE := tharsishq
 PROJECT := evmos
 DOCKER_IMAGE := $(NAMESPACE)/$(PROJECT)
@@ -444,31 +443,39 @@ format:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-containerProtoVer=v0.7
-containerProtoImage=tendermintdev/sdk-proto-gen:$(containerProtoVer)
-containerProtoGen=cosmos-sdk-proto-gen-$(containerProtoVer)
-containerProtoGenSwagger=cosmos-sdk-proto-gen-swagger-$(containerProtoVer)
-containerProtoFmt=cosmos-sdk-proto-fmt-$(containerProtoVer)
+# ------
+# NOTE: Link to the tendermintdev/sdk-proto-gen docker images: 
+#       https://hub.docker.com/r/tendermintdev/sdk-proto-gen/tags
+#
+protoVer=v0.7
+protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
+# ------
+# NOTE: If you are experiencing problems running these commands, try deleting 
+#       the docker images and execute the desired command again.
+#
 proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
-	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace tendermintdev/sdk-proto-gen sh ./scripts/protocgen.sh
+	$(protoImage) sh ./scripts/protocgen.sh
 
 proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
-	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace tendermintdev/sdk-proto-gen sh ./scripts/protoc-swagger-gen.sh
+	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
 
 proto-format:
 	@echo "Formatting Protobuf files"
-	find ./ -not -path "./third_party/*" -name *.proto -exec clang-format -i {} \;
+	$(protoImage) find ./ -not -path "./third_party/*" -name *.proto -exec clang-format -i {} \;
 
 proto-lint:
-	@$(DOCKER_BUF) lint --error-format=json
+	@echo "Linting Protobuf files"
+	$(protoImage) buf lint --error-format=json
 
 proto-check-breaking:
-	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)#branch=main
+	@echo "Checking Protobuf files for breaking changes"
+	$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
 
 TM_URL              = https://raw.githubusercontent.com/tendermint/tendermint/v0.34.20/proto/tendermint
@@ -506,6 +513,7 @@ proto-update-deps:
 	@curl -sSL $(TM_URL)/crypto/proof.proto > $(TM_CRYPTO_TYPES)/proof.proto
 	@curl -sSL $(TM_URL)/crypto/keys.proto > $(TM_CRYPTO_TYPES)/keys.proto
 
+# TODO: Execute buf mod update? as in cosmos sdk?
 
 
 .PHONY: proto-all proto-gen proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps
