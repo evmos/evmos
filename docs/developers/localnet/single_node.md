@@ -41,7 +41,7 @@ You can start the local chain using:
 To avoid overwriting any data for a real node used in production, it was decided to store the automatically generated testing configuration at `~/.tmp-evmosd` instead of the default `~/.evmosd`. 
 :::
 
-When working with the `local_node.sh` script, it is necessary to extend all `evmosd` commands, that target the local test node with the `--home ~/.tmp-evmosd` flag. For ease of use, it might be sensible to export this directory path as an environment variable:
+When working with the `local_node.sh` script, it is necessary to extend all `evmosd` commands, that target the local test node, with the `--home ~/.tmp-evmosd` flag. This is mandatory, because the `home` directory cannot be stored in the `evmosd` configuration, which can be seen in the output below. For ease of use, it might be sensible to export this directory path as an environment variable:
 
 ```
  $ export TMP=$HOME/.tmp-evmosd`
