@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
@@ -34,7 +34,7 @@ func (k Keeper) OnAcknowledgementPacket(
 
 	var ack channeltypes.Acknowledgement
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
-		return sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
+		return errorsmod.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet acknowledgement: %v", err)
 	}
 
 	// no-op if the acknowledgement is an error ACK
@@ -94,7 +94,7 @@ func (k Keeper) OnRecvPacket(
 	// return error ACK for blocked sender and recipient addresses
 	if k.bankKeeper.BlockedAddr(sender) || k.bankKeeper.BlockedAddr(recipient) {
 		return channeltypes.NewErrorAcknowledgement(
-			sdkerrors.Wrapf(
+			errorsmod.Wrapf(
 				errortypes.ErrUnauthorized,
 				"sender (%s) or recipient (%s) address are in the deny list for sending and receiving transfers",
 				senderBech32, recipientBech32,
@@ -124,7 +124,7 @@ func (k Keeper) OnRecvPacket(
 			// secp256k1 key from sender/recipient has no claimed actions
 			// -> return error acknowledgement to prevent funds from getting stuck
 			return channeltypes.NewErrorAcknowledgement(
-				sdkerrors.Wrapf(
+				errorsmod.Wrapf(
 					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
 				),
 			)

@@ -84,8 +84,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
-	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
+	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
@@ -118,6 +117,7 @@ import (
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v10/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v10/app/upgrades/v9_1"
+	evmostypes "github.com/evmos/evmos/v10/types"
 	"github.com/evmos/evmos/v10/x/claims"
 	claimskeeper "github.com/evmos/evmos/v10/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
@@ -144,6 +144,10 @@ import (
 	"github.com/evmos/evmos/v10/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v10/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
+
+	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
+	"github.com/evmos/evmos/v10/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
 )
 
 func init() {
@@ -161,6 +165,9 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
+
+	// Include the possibility to use an ERC-20 contract address as coin Denom
+	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 }
 
 // Name defines the application binary name
@@ -197,7 +204,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		transfer.AppModuleBasic{},
+		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -271,7 +278,7 @@ type Evmos struct {
 	AuthzKeeper      authzkeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	EvidenceKeeper   evidencekeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
+	TransferKeeper   transferkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -518,11 +525,12 @@ func NewEvmos(
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
 	// channel.RecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
+	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
@@ -534,19 +542,21 @@ func NewEvmos(
 		app.ClaimsKeeper,
 	)
 
-	// Set the ICS4 wrappers for claims and recovery middlewares
+	// NOTE: app.Erc20Keeper is already initialized elsewhere
+
+	// Set the ICS4 wrappers for custom module middlewares
 	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
 	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
-	// NOTE: ICS4 wrapper for Transfer Keeper already set
 
+	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
-	// transfer stack contains (from top to bottom):
+	// transfer stack contains (from bottom to top):
 	// - Recovery Middleware
 	// - Airdrop Claims Middleware
-	// - Transfer
+	// - IBC Transfer
 
-	// create IBC module from bottom to top of stack
+	// create IBC module from top to bottom of stack
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)

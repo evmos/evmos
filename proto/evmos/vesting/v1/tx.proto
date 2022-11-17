@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/vesting/types";
+option go_package = "github.com/evmos/evmos/v10/x/vesting/types";
 
 // Msg defines the vesting Msg service.
 service Msg {
@@ -20,6 +20,10 @@ service Msg {
   // Clawback removes the unvested tokens from a ClawbackVestingAccount.
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/tx/clawback";
+  };
+  // UpdateVestingFunder updates the funder address of an existing ClawbackVestingAccount.
+  rpc UpdateVestingFunder(MsgUpdateVestingFunder) returns (MsgUpdateVestingFunderResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/tx/update_vesting_funder";
   };
 }
 
@@ -76,3 +80,17 @@ message MsgClawback {
 
 // MsgClawbackResponse defines the MsgClawback response type.
 message MsgClawbackResponse {}
+
+// MsgUpdateVestingFunder defines a message that updates the funder account of a
+// ClawbackVestingAccount.
+message MsgUpdateVestingFunder {
+  // funder_address is the current funder address of the ClawbackVestingAccount
+  string funder_address = 1;
+  // funder_address is the new address to replace the existing funder_address
+  string new_funder_address = 2;
+  // vesting_address is the address of the ClawbackVestingAccount being updated
+  string vesting_address = 3;
+}
+
+// MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response type.
+message MsgUpdateVestingFunderResponse {}

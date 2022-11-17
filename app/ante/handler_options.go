@@ -1,7 +1,7 @@
 package ante
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -39,22 +39,22 @@ type HandlerOptions struct {
 // Validate checks if the keepers are defined
 func (options HandlerOptions) Validate() error {
 	if options.AccountKeeper == nil {
-		return sdkerrors.Wrap(errortypes.ErrLogic, "account keeper is required for AnteHandler")
+		return errorsmod.Wrap(errortypes.ErrLogic, "account keeper is required for AnteHandler")
 	}
 	if options.BankKeeper == nil {
-		return sdkerrors.Wrap(errortypes.ErrLogic, "bank keeper is required for AnteHandler")
+		return errorsmod.Wrap(errortypes.ErrLogic, "bank keeper is required for AnteHandler")
 	}
 	if options.StakingKeeper == nil {
-		return sdkerrors.Wrap(errortypes.ErrLogic, "staking keeper is required for AnteHandler")
+		return errorsmod.Wrap(errortypes.ErrLogic, "staking keeper is required for AnteHandler")
 	}
 	if options.SignModeHandler == nil {
-		return sdkerrors.Wrap(errortypes.ErrLogic, "sign mode handler is required for ante builder")
+		return errorsmod.Wrap(errortypes.ErrLogic, "sign mode handler is required for ante builder")
 	}
 	if options.FeeMarketKeeper == nil {
-		return sdkerrors.Wrap(errortypes.ErrLogic, "fee market keeper is required for AnteHandler")
+		return errorsmod.Wrap(errortypes.ErrLogic, "fee market keeper is required for AnteHandler")
 	}
 	if options.EvmKeeper == nil {
-		return sdkerrors.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
+		return errorsmod.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
 	}
 	return nil
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
@@ -18,6 +18,8 @@ const (
 	MainnetChainID = "evmos_9001"
 	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
 	TestnetChainID = "evmos_9000"
+	// BaseDenom defines the Evmos mainnet denomination
+	BaseDenom = "aevmos"
 )
 
 // IsMainnet returns true if the chain-id has the Evmos mainnet EIP155 chain prefix.
@@ -65,12 +67,12 @@ func IsSupportedKey(pubkey cryptotypes.PubKey) bool {
 func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
 	bech32Prefix := strings.SplitN(address, "1", 2)[0]
 	if bech32Prefix == address {
-		return nil, sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid bech32 address: %s", address)
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid bech32 address: %s", address)
 	}
 
 	addressBz, err := sdk.GetFromBech32(address, bech32Prefix)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid address %s, %s", address, err.Error())
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid address %s, %s", address, err.Error())
 	}
 
 	// safety check: shouldn't happen
@@ -79,4 +81,10 @@ func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
 	}
 
 	return sdk.AccAddress(addressBz), nil
+}
+
+// Include the possibility to use an ERC-20 contract address as coin Denom
+// Otherwise Coin Denom validation will fail in some cases (e.g.: transfer ERC-20 tokens through IBC)
+func EvmosCoinDenomRegex() string {
+	return `^0x[a-fA-F0-9]{40}$|^[a-zA-Z][a-zA-Z0-9/:._-]{2,127}`
 }

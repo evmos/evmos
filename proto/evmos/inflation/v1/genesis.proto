@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 
 import "evmos/inflation/v1/inflation.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/inflation/types";
+option go_package = "github.com/evmos/evmos/v10/x/inflation/types";
 
 // GenesisState defines the inflation module's genesis state.
 message GenesisState {

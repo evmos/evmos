@@ -8,7 +8,7 @@ KEYRING="test" # remember to change to other types of keyring like 'file' in-cas
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the evmosd instance
-HOMEDIR=~/.tmp-evmosd
+HOMEDIR="$HOME/.tmp-evmosd"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
