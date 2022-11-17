@@ -23,6 +23,11 @@ import (
 // is excluded from the conversion.
 //
 // CONTRACT: This middleware MUST be executed transfer after the ICS20 OnRecvPacket
+// Return acknowledgement and continue with the next layer of the IBC middleware
+// stack if:
+// - ERC20s are disabled
+// - Denomination is native staking token
+// - The base denomination is not registered as ERC20
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -36,11 +41,6 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
-	// Return acknowledgement and continue with the next layer of the IBC middleware
-	// stack if:
-	// - ERC20s are disabled
-	// - Denomination is native staking token
-	// - The base denomination is not registered as ERC20
 	if !k.IsERC20Enabled(ctx) {
 		return ack
 	}
