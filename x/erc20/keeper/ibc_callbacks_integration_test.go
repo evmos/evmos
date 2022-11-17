@@ -63,6 +63,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 	BeforeEach(func() {
 		s.suiteIBCTesting = true
 		s.SetupTest()
+		s.suiteIBCTesting = false
 	})
 
 	Describe("disabled params", func() {
@@ -425,6 +426,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 	BeforeEach(func() {
 		s.suiteIBCTesting = true
 		s.SetupTest()
+		s.suiteIBCTesting = false
 	})
 
 	Describe("disabled params", func() {
