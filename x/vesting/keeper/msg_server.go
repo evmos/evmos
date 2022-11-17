@@ -201,7 +201,7 @@ func (k Keeper) Clawback(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeCreateClawbackVestingAccount,
+				types.EventTypeClawback,
 				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
 				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
 				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
@@ -210,6 +210,63 @@ func (k Keeper) Clawback(
 	)
 
 	return &types.MsgClawbackResponse{}, nil
+}
+
+// UpdateVestingFunder updates the funder account of a ClawbackVestingAccount.
+func (k Keeper) UpdateVestingFunder(
+	goCtx context.Context,
+	msg *types.MsgUpdateVestingFunder,
+) (*types.MsgUpdateVestingFunderResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	ak := k.accountKeeper
+	bk := k.bankKeeper
+
+	// NOTE: errors checked during msg validation
+	newFunder := sdk.MustAccAddressFromBech32(msg.NewFunderAddress)
+	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+
+	// Need to check if new funder can receive funds because in
+	// Clawback function, destination defaults to funder address
+	if bk.BlockedAddr(newFunder) {
+		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+			"%s is not allowed to receive funds", msg.NewFunderAddress,
+		)
+	}
+
+	// Check if vesting account exists
+	vestingAcc := ak.GetAccount(ctx, vesting)
+	if vestingAcc == nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
+	}
+
+	// Check if account is a clawback vesting account
+	va, ok := vestingAcc.(*types.ClawbackVestingAccount)
+	if !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.VestingAddress)
+	}
+
+	// Check if account current funder is same as in msg
+	if va.FunderAddress != msg.FunderAddress {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+	}
+
+	// Perform clawback account update
+	va.FunderAddress = msg.NewFunderAddress
+	// set the account with the updated funder
+	ak.SetAccount(ctx, va)
+
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeUpdateVestingFunder,
+				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.VestingAddress),
+				sdk.NewAttribute(types.AttributeKeyNewFunder, msg.NewFunderAddress),
+			),
+		},
+	)
+
+	return &types.MsgUpdateVestingFunderResponse{}, nil
 }
 
 // addGrant merges a new clawback vesting grant into an existing

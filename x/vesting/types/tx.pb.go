@@ -277,11 +277,115 @@ func (m *MsgClawbackResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgClawbackResponse proto.InternalMessageInfo
 
+// MsgUpdateVestingFunder defines a message that updates the funder account of a
+// ClawbackVestingAccount.
+type MsgUpdateVestingFunder struct {
+	// funder_address is the current funder address of the ClawbackVestingAccount
+	FunderAddress string `protobuf:"bytes,1,opt,name=funder_address,json=funderAddress,proto3" json:"funder_address,omitempty"`
+	// funder_address is the new address to replace the existing funder_address
+	NewFunderAddress string `protobuf:"bytes,2,opt,name=new_funder_address,json=newFunderAddress,proto3" json:"new_funder_address,omitempty"`
+	// vesting_address is the address of the ClawbackVestingAccount being updated
+	VestingAddress string `protobuf:"bytes,3,opt,name=vesting_address,json=vestingAddress,proto3" json:"vesting_address,omitempty"`
+}
+
+func (m *MsgUpdateVestingFunder) Reset()         { *m = MsgUpdateVestingFunder{} }
+func (m *MsgUpdateVestingFunder) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateVestingFunder) ProtoMessage()    {}
+func (*MsgUpdateVestingFunder) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5db113bc0c7240c, []int{4}
+}
+func (m *MsgUpdateVestingFunder) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdateVestingFunder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdateVestingFunder.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdateVestingFunder) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateVestingFunder.Merge(m, src)
+}
+func (m *MsgUpdateVestingFunder) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdateVestingFunder) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateVestingFunder.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdateVestingFunder proto.InternalMessageInfo
+
+func (m *MsgUpdateVestingFunder) GetFunderAddress() string {
+	if m != nil {
+		return m.FunderAddress
+	}
+	return ""
+}
+
+func (m *MsgUpdateVestingFunder) GetNewFunderAddress() string {
+	if m != nil {
+		return m.NewFunderAddress
+	}
+	return ""
+}
+
+func (m *MsgUpdateVestingFunder) GetVestingAddress() string {
+	if m != nil {
+		return m.VestingAddress
+	}
+	return ""
+}
+
+// MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response type.
+type MsgUpdateVestingFunderResponse struct {
+}
+
+func (m *MsgUpdateVestingFunderResponse) Reset()         { *m = MsgUpdateVestingFunderResponse{} }
+func (m *MsgUpdateVestingFunderResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateVestingFunderResponse) ProtoMessage()    {}
+func (*MsgUpdateVestingFunderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5db113bc0c7240c, []int{5}
+}
+func (m *MsgUpdateVestingFunderResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdateVestingFunderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdateVestingFunderResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdateVestingFunderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateVestingFunderResponse.Merge(m, src)
+}
+func (m *MsgUpdateVestingFunderResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdateVestingFunderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateVestingFunderResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdateVestingFunderResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgCreateClawbackVestingAccount)(nil), "evmos.vesting.v1.MsgCreateClawbackVestingAccount")
 	proto.RegisterType((*MsgCreateClawbackVestingAccountResponse)(nil), "evmos.vesting.v1.MsgCreateClawbackVestingAccountResponse")
 	proto.RegisterType((*MsgClawback)(nil), "evmos.vesting.v1.MsgClawback")
 	proto.RegisterType((*MsgClawbackResponse)(nil), "evmos.vesting.v1.MsgClawbackResponse")
+	proto.RegisterType((*MsgUpdateVestingFunder)(nil), "evmos.vesting.v1.MsgUpdateVestingFunder")
+	proto.RegisterType((*MsgUpdateVestingFunderResponse)(nil), "evmos.vesting.v1.MsgUpdateVestingFunderResponse")
 }
 
 func init() { proto.RegisterFile("evmos/vesting/v1/tx.proto", fileDescriptor_d5db113bc0c7240c) }
@@ -344,6 +448,8 @@ type MsgClient interface {
 	CreateClawbackVestingAccount(ctx context.Context, in *MsgCreateClawbackVestingAccount, opts ...grpc.CallOption) (*MsgCreateClawbackVestingAccountResponse, error)
 	// Clawback removes the unvested tokens from a ClawbackVestingAccount.
 	Clawback(ctx context.Context, in *MsgClawback, opts ...grpc.CallOption) (*MsgClawbackResponse, error)
+	// UpdateVestingFunder updates the funder address of an existing ClawbackVestingAccount.
+	UpdateVestingFunder(ctx context.Context, in *MsgUpdateVestingFunder, opts ...grpc.CallOption) (*MsgUpdateVestingFunderResponse, error)
 }
 
 type msgClient struct {
@@ -372,6 +478,15 @@ func (c *msgClient) Clawback(ctx context.Context, in *MsgClawback, opts ...grpc.
 	return out, nil
 }
 
+func (c *msgClient) UpdateVestingFunder(ctx context.Context, in *MsgUpdateVestingFunder, opts ...grpc.CallOption) (*MsgUpdateVestingFunderResponse, error) {
+	out := new(MsgUpdateVestingFunderResponse)
+	err := c.cc.Invoke(ctx, "/evmos.vesting.v1.Msg/UpdateVestingFunder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// CreateClawbackVestingAccount creats a vesting account that is subject to
@@ -379,6 +494,8 @@ type MsgServer interface {
 	CreateClawbackVestingAccount(context.Context, *MsgCreateClawbackVestingAccount) (*MsgCreateClawbackVestingAccountResponse, error)
 	// Clawback removes the unvested tokens from a ClawbackVestingAccount.
 	Clawback(context.Context, *MsgClawback) (*MsgClawbackResponse, error)
+	// UpdateVestingFunder updates the funder address of an existing ClawbackVestingAccount.
+	UpdateVestingFunder(context.Context, *MsgUpdateVestingFunder) (*MsgUpdateVestingFunderResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -390,6 +507,9 @@ func (*UnimplementedMsgServer) CreateClawbackVestingAccount(ctx context.Context,
 }
 func (*UnimplementedMsgServer) Clawback(ctx context.Context, req *MsgClawback) (*MsgClawbackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clawback not implemented")
+}
+func (*UnimplementedMsgServer) UpdateVestingFunder(ctx context.Context, req *MsgUpdateVestingFunder) (*MsgUpdateVestingFunderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateVestingFunder not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -432,6 +552,24 @@ func _Msg_Clawback_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_UpdateVestingFunder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateVestingFunder)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).UpdateVestingFunder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/evmos.vesting.v1.Msg/UpdateVestingFunder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).UpdateVestingFunder(ctx, req.(*MsgUpdateVestingFunder))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "evmos.vesting.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -443,6 +581,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Clawback",
 			Handler:    _Msg_Clawback_Handler,
+		},
+		{
+			MethodName: "UpdateVestingFunder",
+			Handler:    _Msg_UpdateVestingFunder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -622,6 +764,73 @@ func (m *MsgClawbackResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgUpdateVestingFunder) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdateVestingFunder) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdateVestingFunder) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.VestingAddress) > 0 {
+		i -= len(m.VestingAddress)
+		copy(dAtA[i:], m.VestingAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.VestingAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.NewFunderAddress) > 0 {
+		i -= len(m.NewFunderAddress)
+		copy(dAtA[i:], m.NewFunderAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.NewFunderAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.FunderAddress) > 0 {
+		i -= len(m.FunderAddress)
+		copy(dAtA[i:], m.FunderAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FunderAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUpdateVestingFunderResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdateVestingFunderResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdateVestingFunderResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -698,6 +907,36 @@ func (m *MsgClawback) Size() (n int) {
 }
 
 func (m *MsgClawbackResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgUpdateVestingFunder) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FunderAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.NewFunderAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.VestingAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgUpdateVestingFunderResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1170,6 +1409,202 @@ func (m *MsgClawbackResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgClawbackResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdateVestingFunder) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdateVestingFunder: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdateVestingFunder: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FunderAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FunderAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewFunderAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NewFunderAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VestingAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.VestingAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdateVestingFunderResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdateVestingFunderResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdateVestingFunderResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

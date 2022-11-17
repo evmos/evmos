@@ -40,6 +40,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		NewMsgCreateClawbackVestingAccountCmd(),
 		NewMsgClawbackCmd(),
+		NewMsgUpdateVestingFunderCmd(),
 	)
 
 	return txCmd
@@ -169,6 +170,43 @@ func NewMsgClawbackCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String(FlagDest, "", "address of destination (defaults to funder)")
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewMsgUpdateVestingFunderCmd returns a CLI command handler for updating
+// the funder of a ClawbackVestingAccount.
+func NewMsgUpdateVestingFunderCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRESS",
+		Short: "Update the funder account of an existing ClawbackVestingAccount.",
+		Long: `Must be requested by the original funder address (--from).
+		Need to provide the target VESTING_ACCOUNT_ADDRESS to update and the NEW_FUNDER_ADDRESS.`,
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			vestingAcc, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			newFunder, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgUpdateVestingFunder(clientCtx.GetFromAddress(), newFunder, vestingAcc)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
