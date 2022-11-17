@@ -34,7 +34,26 @@ The default configuration will generate a single validator localnet with the cha
 You can start the local chain using:
 
 ```bash
-local_node.sh
+ $ local_node.sh
+...
+```
+
+:::tip
+To avoid overwriting any data for a real node used in production, it was decided to store the automatically generated testing configuration at `~/.tmp-evmosd` instead of the default `~/.evmosd`.
+:::
+
+When working with the `local_node.sh` script, it is necessary to extend all `evmosd` commands, that target the local test node, with the `--home ~/.tmp-evmosd` flag. This is mandatory, because the `home` directory cannot be stored in the `evmosd` configuration, which can be seen in the output below. For ease of use, it might be sensible to export this directory path as an environment variable:
+
+```
+ $ export TMP=$HOME/.tmp-evmosd`
+ $ evmosd config --home $TMP
+{
+	"chain-id": "evmos_9000-1",
+	"keyring-backend": "test",
+	"output": "text",
+	"node": "tcp://localhost:26657",
+	"broadcast-mode": "sync"
+}
 ```
 
 ## Manual Localnet
