@@ -6,7 +6,6 @@ plugins:
     out: .
     opt:
       - plugins=grpc
-      # - plugins=interfacetype+grpc
 
   - name: grpc-gateway
     out: .
