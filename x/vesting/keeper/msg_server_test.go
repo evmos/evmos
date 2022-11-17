@@ -334,6 +334,106 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
+	testCases := []struct {
+		name         string
+		malleate     func()
+		funder       sdk.AccAddress
+		vestingAcc   sdk.AccAddress
+		newFunder    sdk.AccAddress
+		expectedPass bool
+	}{
+		{
+			"non-existent vesting account",
+			func() {},
+			addr,
+			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			addr3,
+			false,
+		},
+		{
+			"wrong account type",
+			func() {
+				baseAccount := authtypes.NewBaseAccountWithAddress(addr4)
+				acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+				s.app.AccountKeeper.SetAccount(suite.ctx, acc)
+			},
+			addr,
+			addr4,
+			addr3,
+			false,
+		},
+		{
+			"wrong funder",
+			func() {},
+			addr3,
+			addr2,
+			addr3,
+			false,
+		},
+		{
+			"new funder is blocked",
+			func() {},
+			addr,
+			addr2,
+			authtypes.NewModuleAddress("transfer"),
+			false,
+		},
+		{
+			"update funder successfully",
+			func() {
+			},
+			addr,
+			addr2,
+			addr3,
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			startTime := suite.ctx.BlockTime()
+
+			// Set funder
+			funder := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, tc.funder)
+			suite.app.AccountKeeper.SetAccount(suite.ctx, funder)
+			testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, balances)
+
+			// Create Clawback Vesting Account
+			createMsg := types.NewMsgCreateClawbackVestingAccount(addr, addr2, startTime, lockupPeriods, vestingPeriods, false)
+			createRes, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, createMsg)
+			suite.Require().NoError(err)
+			suite.Require().NotNil(createRes)
+
+			balanceDest := suite.app.BankKeeper.GetBalance(suite.ctx, addr2, "test")
+			suite.Require().Equal(balanceDest, sdk.NewInt64Coin("test", 1000))
+
+			tc.malleate()
+
+			// Perform Vesting account update
+			msg := types.NewMsgUpdateVestingFunder(tc.funder, tc.newFunder, tc.vestingAcc)
+			res, err := suite.app.VestingKeeper.UpdateVestingFunder(ctx, msg)
+
+			expRes := &types.MsgUpdateVestingFunderResponse{}
+
+			if tc.expectedPass {
+				// get the updated vesting account
+				vestingAcc := suite.app.AccountKeeper.GetAccount(suite.ctx, tc.vestingAcc)
+				va, ok := vestingAcc.(*types.ClawbackVestingAccount)
+				suite.Require().True(ok, "vesting account could not be casted to ClawbackVestingAccount")
+
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes, res)
+				suite.Require().Equal(va.FunderAddress, tc.newFunder.String())
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(res)
+			}
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
 	suite.SetupTest()
 
