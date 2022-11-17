@@ -453,6 +453,64 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceGrantee, bG)
 		s.Require().Equal(balanceDest, bD)
 	})
+
+	It("should update vesting funder and claw back unvested amount before cliff", func() {
+		ctx := sdk.WrapSDKContext(s.ctx)
+		newFunder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
+		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+		balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
+		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+
+		// Update clawback vesting account funder
+		updateFunderMsg := types.NewMsgUpdateVestingFunder(funder, newFunder, grantee)
+		_, err := s.app.VestingKeeper.UpdateVestingFunder(ctx, updateFunderMsg)
+		s.Require().NoError(err)
+
+		// Perform clawback before cliff - funds should go to new funder (no dest address defined)
+		msg := types.NewMsgClawback(newFunder, grantee, sdk.AccAddress([]byte{}))
+		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+		s.Require().NoError(err)
+
+		// All initial vesting amount goes to funder
+		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+		bNewF := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
+		bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+
+		// Original funder balance should not change
+		s.Require().Equal(bF, balanceFunder)
+		// New funder should get the vested tokens
+		s.Require().Equal(balanceNewFunder.Add(vestingAmtTotal[0]).Amount.Uint64(), bNewF.Amount.Uint64())
+		s.Require().Equal(balanceGrantee.Sub(vestingAmtTotal[0]).Amount.Uint64(), bG.Amount.Uint64())
+	})
+
+	It("should update vesting funder and first funder cannot claw back unvested before cliff", func() {
+		ctx := sdk.WrapSDKContext(s.ctx)
+		newFunder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
+		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+		balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
+		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+
+		// Update clawback vesting account funder
+		updateFunderMsg := types.NewMsgUpdateVestingFunder(funder, newFunder, grantee)
+		_, err := s.app.VestingKeeper.UpdateVestingFunder(ctx, updateFunderMsg)
+		s.Require().NoError(err)
+
+		// Original funder tries to perform clawback before cliff - is not the current funder
+		msg := types.NewMsgClawback(funder, grantee, sdk.AccAddress([]byte{}))
+		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+		s.Require().Error(err)
+
+		// All balances should remain the same
+		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+		bNewF := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
+		bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+
+		s.Require().Equal(bF, balanceFunder)
+		s.Require().Equal(balanceNewFunder, bNewF)
+		s.Require().Equal(balanceGrantee, bG)
+	})
 })
 
 func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {

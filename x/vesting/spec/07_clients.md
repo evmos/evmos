@@ -60,6 +60,17 @@ Allows users to create a transfer unvested amount out of a ClawbackVestingAccoun
 evmosd tx vesting clawback ADDRESS [flags]
 ```
 
+**`update-vesting-funder`**
+
+Allows users to update the funder of an existent `ClawbackVestingAccount`. Must be requested by the original funder address (`--from`). To perform this action, the user needs to provide two arguments:
+
+1. the new funder address
+2. the vesting account address
+
+```go
+evmosd tx vesting update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRESS --from=FUNDER_ADDRESS [flags]
+```
+
 ## gRPC
 
 ### Queries
@@ -75,5 +86,7 @@ evmosd tx vesting clawback ADDRESS [flags]
 | ------ | ------------------------------------------------------ | -------------------------------- |
 | `gRPC` | `evmos.vesting.v1.Msg/CreateClawbackVestingAccount`    | Creates clawback vesting account |
 | `gRPC` | `/evmos.vesting.v1.Msg/Clawback`                       | Performs clawback                |
+| `gRPC` | `/evmos.vesting.v1.Msg/UpdateVestingFunder`            | Updates vesting account funder   |
 | `GET`  | `/evmos/vesting/v1/tx/create_clawback_vesting_account` | Creates clawback vesting account |
 | `GET`  | `/evmos/vesting/v1/tx/clawback`                        | Performs clawback                |
+| `GET`  | `/evmos/vesting/v1/tx/update_vesting_funder`           | Updates vesting account funder   |
