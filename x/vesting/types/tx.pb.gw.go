@@ -324,7 +324,7 @@ var (
 	pattern_Msg_CreateClawbackVestingAccount_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"evmos", "vesting", "v1", "tx", "create_clawback_vesting_account"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Msg_Clawback_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"evmos", "vesting", "v1", "tx", "clawback"}, "", runtime.AssumeColonVerbOpt(false)))
-  
+
 	pattern_Msg_UpdateVestingFunder_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"evmos", "vesting", "v1", "tx", "update_vesting_funder"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
