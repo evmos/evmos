@@ -523,10 +523,8 @@ proto-update-deps:
 	@curl -sSL $(TM_URL)/crypto/proof.proto > $(TM_CRYPTO_TYPES)/proof.proto
 	@curl -sSL $(TM_URL)/crypto/keys.proto > $(TM_CRYPTO_TYPES)/keys.proto
 
-# TODO: Execute buf mod update? as in cosmos sdk?
 
-
-.PHONY: proto-all proto-gen proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-deps
 
 ###############################################################################
 ###                                Localnet                                 ###
