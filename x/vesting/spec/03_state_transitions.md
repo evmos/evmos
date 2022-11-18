@@ -30,3 +30,14 @@ The funding address is the only address that can perform the clawback.
    3. the account exists and is a clawback vesting account
    4. account funder is same as in msg
 3. Transfer unvested tokens from the clawback vesting account to the destination address, update the lockup schedule and remove future vesting events.
+
+## Update Clawback Vesting Account Funder
+
+The funding address of an existing clawback vesting account can be updated only by the current funder.
+
+1. Funder submits a `MsgUpdateVestingFunder` through one of the clients.
+2. Check if
+   1. the new funder address is not blocked
+   2. the vesting account exists and is a clawback vesting account
+   3. account funder is same as in msg
+3. Update the vesting account funder with the new funder address.
