@@ -18,7 +18,8 @@ service Query {
 
   // Revenue retrieves a registered revenue for a given contract address
   rpc Revenue(QueryRevenueRequest) returns (QueryRevenueResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues/{contract_address}";
+    option (google.api.http).get =
+        "/evmos/revenue/v1/revenues/{contract_address}";
   }
 
   // Params retrieves the revenue module params
@@ -30,14 +31,16 @@ service Query {
   // registered
   rpc DeployerRevenues(QueryDeployerRevenuesRequest)
       returns (QueryDeployerRevenuesResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues/{deployer_address}";
+    option (google.api.http).get =
+        "/evmos/revenue/v1/revenues/{deployer_address}";
   }
 
   // WithdrawerRevenues retrieves all revenues with a given withdrawer
   // address
   rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest)
       returns (QueryWithdrawerRevenuesResponse) {
-    option (google.api.http).get = "/evmos/revenue/v1/revenues/{withdrawer_address}";
+    option (google.api.http).get =
+        "/evmos/revenue/v1/revenues/{withdrawer_address}";
   }
 }
 
@@ -89,7 +92,6 @@ message QueryDeployerRevenuesResponse {
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
-
 
 // QueryWithdrawerRevenuesRequest is the request type for the
 // Query/WithdrawerRevenues RPC method.

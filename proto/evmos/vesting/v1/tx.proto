@@ -21,8 +21,10 @@ service Msg {
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/tx/clawback";
   };
-  // UpdateVestingFunder updates the funder address of an existing ClawbackVestingAccount.
-  rpc UpdateVestingFunder(MsgUpdateVestingFunder) returns (MsgUpdateVestingFunderResponse) {
+  // UpdateVestingFunder updates the funder address of an existing
+  // ClawbackVestingAccount.
+  rpc UpdateVestingFunder(MsgUpdateVestingFunder)
+      returns (MsgUpdateVestingFunderResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/tx/update_vesting_funder";
   };
 }
@@ -92,5 +94,6 @@ message MsgUpdateVestingFunder {
   string vesting_address = 3;
 }
 
-// MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response type.
+// MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response
+// type.
 message MsgUpdateVestingFunderResponse {}
