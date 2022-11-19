@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -125,5 +126,71 @@ func TestGetEvmosAddressFromBech32(t *testing.T) {
 			require.NoError(t, err, tc.name)
 			require.Equal(t, tc.expAddress, addr.String(), tc.name)
 		}
+	}
+}
+
+func TestEvmosCoinDenom(t *testing.T) {
+	sdk.SetCoinDenomRegex(EvmosCoinDenomRegex)
+	testCases := []struct {
+		name     string
+		denom    string
+		expError bool
+	}{
+		{
+			"valid denom - native coin",
+			"aevmos",
+			false,
+		},
+		{
+			"valid denom - ibc coin",
+			"ibc/7B2A4F6E798182988D77B6B884919AF617A73503FDAC27C916CD7A69A69013CF",
+			false,
+		},
+		{
+			"valid denom - ethereum address (ERC-20 contract)",
+			"0x52908400098527886e0f7030069857D2E4169EE7",
+			false,
+		},
+		{
+			"invalid denom - only one character",
+			"a",
+			true,
+		},
+		{
+			"invalid denom - too large (> 127 chars)",
+			"ibc/7B2A4F6E798182988D77B6B884919AF617A73503FDAC27C916CD7A69A69013CF7B2A4F6E798182988D77B6B884919AF617A73503FDAC27C916CD7A69A69013CF",
+			true,
+		},
+		{
+			"invalid denom - starts with 0 but not followed by 'x'",
+			"0a52908400098527886E0F7030069857D2E4169EE7",
+			true,
+		},
+		{
+			"invalid denom - hex address but 19 bytes long",
+			"0x52908400098527886E0F7030069857D2E4169E",
+			true,
+		},
+		{
+			"invalid denom - hex address but 21 bytes long",
+			"0x52908400098527886e0f7030069857D2E4169EE738",
+			true,
+		},
+		{
+			"invalid denom - invalid hex, has a 'g'",
+			"0x52908400098527886e0f7030069857D2E4169gE7",
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			err := sdk.ValidateDenom(tc.denom)
+			if tc.expError {
+				require.Error(t, err, tc.name)
+			} else {
+				require.NoError(t, err, tc.name)
+			}
+		})
 	}
 }
