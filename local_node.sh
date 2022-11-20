@@ -103,7 +103,7 @@ fi
 for KEY in "${KEYS[@]}"
 do
   evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING --home $HOMEDIR
-done 
+done
 
 # Update total supply with claim values
 validators_supply=$(cat $GENESIS | jq -r '.app_state["bank"]["supply"][0]["amount"]')

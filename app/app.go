@@ -84,6 +84,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
+	ibcfee "github.com/cosmos/ibc-go/v5/modules/apps/29-fee"
+	ibcfeetypes "github.com/cosmos/ibc-go/v5/modules/apps/29-fee/types"
 	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
@@ -110,6 +112,7 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v10/client/docs/statik"
 
+	ibcfeekeeper "github.com/cosmos/ibc-go/v5/modules/apps/29-fee/keeper"
 	"github.com/evmos/evmos/v10/app/ante"
 	v10 "github.com/evmos/evmos/v10/app/upgrades/v10"
 	v8 "github.com/evmos/evmos/v10/app/upgrades/v8"
@@ -117,7 +120,6 @@ import (
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v10/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v10/app/upgrades/v9_1"
-	evmostypes "github.com/evmos/evmos/v10/types"
 	"github.com/evmos/evmos/v10/x/claims"
 	claimskeeper "github.com/evmos/evmos/v10/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
@@ -167,7 +169,8 @@ func init() {
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
 
 	// Include the possibility to use an ERC-20 contract address as coin Denom
-	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
+	// TODO: uncomment
+	// sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 }
 
 // Name defines the application binary name
@@ -205,6 +208,7 @@ var (
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
+		ibcfee.AppModuleBasic{}, // TODO:
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -225,6 +229,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		ibcfeetypes.ModuleName:         nil,                                  // TODO:
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
@@ -279,6 +284,7 @@ type Evmos struct {
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	EvidenceKeeper   evidencekeeper.Keeper
 	TransferKeeper   transferkeeper.Keeper
+	IBCFeeKeeper     ibcfeekeeper.Keeper // TODO:
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -347,7 +353,7 @@ func NewEvmos(
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
 		feegrant.StoreKey, authzkeeper.StoreKey,
 		// ibc keys
-		ibchost.StoreKey, ibctransfertypes.StoreKey,
+		ibchost.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey, // TODO:
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
@@ -355,7 +361,6 @@ func NewEvmos(
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 		revenuetypes.StoreKey,
 	)
-
 	// Add the EVM transient store key
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -533,6 +538,15 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
+	// TODO:
+	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		appCodec, keys[ibcfeetypes.StoreKey], app.GetSubspace(ibcfeetypes.ModuleName),
+		app.ClaimsKeeper,
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, // ICS4 Wrapper: claims IBC middleware
+
+	)
+
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
 		app.GetSubspace(recoverytypes.ModuleName),
 		app.AccountKeeper,
@@ -551,7 +565,15 @@ func NewEvmos(
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
+	// Create Transfer Stack
+	// SendPacket, since it is originating from the application to core IBC:
+	// transferKeeper.SendPacket -> claims.SendPacket -> recovery.SendPacket -> fee.SendPacket -> channel.SendPacket
+
+	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
+	// channel.RecvPacket -> fee.OnRecvPacket -> recovery.OnRecvPacket -> claims.OnRecvPacket -> transfer.OnRecvPacket
+
 	// transfer stack contains (from bottom to top):
+	// - ICS-29 fee Middleware
 	// - Recovery Middleware
 	// - Airdrop Claims Middleware
 	// - IBC Transfer
@@ -562,6 +584,7 @@ func NewEvmos(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
+	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper) // TODO: order?
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -606,6 +629,7 @@ func NewEvmos(
 		// ibc modules
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
+		ibcfee.NewAppModule(app.IBCFeeKeeper), // TODO:
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
@@ -640,6 +664,7 @@ func NewEvmos(
 		ibchost.ModuleName,
 		// no-op modules
 		ibctransfertypes.ModuleName,
+		ibcfeetypes.ModuleName, // TODO: order?
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
@@ -670,6 +695,7 @@ func NewEvmos(
 		// no-op modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
+		ibcfeetypes.ModuleName, // TODO: order?
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
@@ -728,6 +754,7 @@ func NewEvmos(
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
+		ibcfeetypes.ModuleName, // TODO: order?
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 	)
@@ -759,6 +786,7 @@ func NewEvmos(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
+		// TODO: ICS-29?
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
