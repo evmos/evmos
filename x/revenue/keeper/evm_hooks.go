@@ -2,8 +2,6 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"github.com/armon/go-metrics"
-	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -82,20 +80,6 @@ func (k Keeper) PostTxProcessing(
 			fees, withdrawer, contract,
 		)
 	}
-
-	defer func() {
-		if developerFee.IsInt64() {
-			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "distribute", "total"},
-				float32(developerFee.Int64()),
-				[]metrics.Label{
-					telemetry.NewLabel("sender", msg.From().String()),
-					telemetry.NewLabel("withdraw_address", withdrawer.String()),
-					telemetry.NewLabel("contract", revenue.ContractAddress),
-				},
-			)
-		}
-	}()
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
