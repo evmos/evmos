@@ -21,14 +21,10 @@ var _ types.MsgServer = Keeper{}
 // This implementation overrides the default ICS20 transfer's by converting
 // the ERC20 tokens to their Cosmos representation if the token pair has been
 // registered through governance.
+// If user doesnt have enough balance of coin, it will attempt to convert
+// erc20 tokens to the coin denomination, and continue with a regular transfer.
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// check if IBC transfer denom is a valid Ethereum contract address
-	if !common.IsHexAddress(msg.Token.Denom) {
-		// no-op: continue with regular transfer
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
-	}
 
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
@@ -37,10 +33,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return nil, sdkerrors.Wrap(err, "invalid sender")
 	}
 
-	// Return acknowledgement and continue with the next layer of the IBC middleware
-	// stack if if:
-	// - ERC20s are disabled
-	// - The ERC20 contract is not registered as Cosmos coin
 	if !k.erc20Keeper.IsERC20Enabled(ctx) {
 		// no-op: continue with regular transfer
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
@@ -68,12 +60,10 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 			)
 		}()
 
-		// update the denom and proceed with regular transfer
-		msg.Token.Denom = tokenPair.Denom
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
-	contractAddr := common.HexToAddress(msg.Token.Denom)
+	contractAddr := common.HexToAddress(tokenPair.Erc20Address)
 
 	msgConvertERC20 := erc20types.NewMsgConvertERC20(
 		msg.Token.Amount,
@@ -97,8 +87,5 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		)
 	}()
 
-	// replace the contract address with the Cosmos denom, now that the ERC20 token
-	// has been converted
-	msg.Token.Denom = tokenPair.Denom
 	return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 }

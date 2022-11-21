@@ -117,7 +117,6 @@ import (
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v10/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v10/app/upgrades/v9_1"
-	evmostypes "github.com/evmos/evmos/v10/types"
 	"github.com/evmos/evmos/v10/x/claims"
 	claimskeeper "github.com/evmos/evmos/v10/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
@@ -165,9 +164,6 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
-
-	// Include the possibility to use an ERC-20 contract address as coin Denom
-	sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 }
 
 // Name defines the application binary name
@@ -479,7 +475,7 @@ func NewEvmos(
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, app.ClaimsKeeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
@@ -523,7 +519,7 @@ func NewEvmos(
 	// transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> channel.SendPacket
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
-	// channel.RecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+	// channel.RecvPacket -> erc20.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
@@ -552,6 +548,7 @@ func NewEvmos(
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
 	// transfer stack contains (from bottom to top):
+	// - ERC-20 Middleware
 	// - Recovery Middleware
 	// - Airdrop Claims Middleware
 	// - IBC Transfer
@@ -562,6 +559,7 @@ func NewEvmos(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
+	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

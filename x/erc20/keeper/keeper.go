@@ -21,6 +21,8 @@ type Keeper struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	evmKeeper     types.EVMKeeper
+	stakingKeeper types.StakingKeeper
+	claimsKeeper  types.ClaimsKeeper
 }
 
 // NewKeeper creates new instances of the erc20 Keeper
@@ -31,6 +33,8 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
+	sk types.StakingKeeper,
+	ck types.ClaimsKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -44,6 +48,8 @@ func NewKeeper(
 		accountKeeper: ak,
 		bankKeeper:    bk,
 		evmKeeper:     evmKeeper,
+		stakingKeeper: sk,
+		claimsKeeper:  ck,
 	}
 }
 
