@@ -167,10 +167,6 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
-
-	// Include the possibility to use an ERC-20 contract address as coin Denom
-	// TODO: uncomment
-	// sdk.SetCoinDenomRegex(evmostypes.EvmosCoinDenomRegex)
 }
 
 // Name defines the application binary name
@@ -484,7 +480,7 @@ func NewEvmos(
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, app.ClaimsKeeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
@@ -528,7 +524,7 @@ func NewEvmos(
 	// transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> channel.SendPacket
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
-	// channel.RecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+	// channel.RecvPacket -> erc20.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
@@ -573,6 +569,7 @@ func NewEvmos(
 	// channel.RecvPacket -> fee.OnRecvPacket -> recovery.OnRecvPacket -> claims.OnRecvPacket -> transfer.OnRecvPacket
 
 	// transfer stack contains (from bottom to top):
+	// - ERC-20 Middleware
 	// - ICS-29 fee Middleware
 	// - Recovery Middleware
 	// - Airdrop Claims Middleware
@@ -584,6 +581,7 @@ func NewEvmos(
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
+	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, app.IBCFeeKeeper) // TODO: order?
 
 	// Create static IBC router, add transfer route, then set and seal it

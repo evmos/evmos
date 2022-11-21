@@ -38,7 +38,7 @@ import (
 
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/contracts"
-	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -129,7 +129,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	// bond denom
-	params := claimtypes.DefaultParams()
+	params := claimstypes.DefaultParams()
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
@@ -158,31 +158,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 var (
 	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-
-	uosmoDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0",
-		BaseDenom: "uosmo",
-	}
-
-	uosmoIbcdenom = uosmoDenomtrace.IBCDenom()
-
-	uatomDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-1",
-		BaseDenom: "uatom",
-	}
-	uatomIbcdenom = uatomDenomtrace.IBCDenom()
-
-	aevmosDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0",
-		BaseDenom: "aevmos",
-	}
-	aevmosIbcdenom = aevmosDenomtrace.IBCDenom()
-
-	uatomOsmoDenomtrace = transfertypes.DenomTrace{
-		Path:      "transfer/channel-0/transfer/channel-1",
-		BaseDenom: "uatom",
-	}
-	uatomOsmoIbcdenom = uatomOsmoDenomtrace.IBCDenom()
 )
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
@@ -240,7 +215,6 @@ func (b *MockChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channel
 	_ = b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return 1, true
 }
-
 
 var _ transfertypes.ICS4Wrapper = &MockICS4Wrapper{}
 

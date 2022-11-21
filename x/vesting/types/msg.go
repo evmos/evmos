@@ -17,6 +17,7 @@ var (
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	TypeMsgClawback                     = "clawback"
+	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
 )
 
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
@@ -90,7 +91,7 @@ func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
+// NewMsgClawback creates new instance of MsgClawback. The dest address may be
 // nil - defaulting to the funder.
 func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 	destString := ""
@@ -136,6 +137,54 @@ func (msg *MsgClawback) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgClawback) GetSigners() []sdk.AccAddress {
+	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
+	return []sdk.AccAddress{funder}
+}
+
+// NewMsgUpdateVestingFunder creates new instance of MsgUpdateVestingFunder
+func NewMsgUpdateVestingFunder(funder, newFunder, vesting sdk.AccAddress) *MsgUpdateVestingFunder {
+	return &MsgUpdateVestingFunder{
+		FunderAddress:    funder.String(),
+		NewFunderAddress: newFunder.String(),
+		VestingAddress:   vesting.String(),
+	}
+}
+
+// Route returns the message route for a MsgUpdateVestingFunder.
+func (msg MsgUpdateVestingFunder) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgUpdateVestingFunder.
+func (msg MsgUpdateVestingFunder) Type() string { return TypeMsgUpdateVestingFunder }
+
+// ValidateBasic runs stateless checks on the MsgUpdateVestingFunder message
+func (msg MsgUpdateVestingFunder) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.GetFunderAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid funder address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.GetNewFunderAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid new funder address")
+	}
+
+	// New funder address can not be equal to current funder address
+	if msg.FunderAddress == msg.NewFunderAddress {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "new funder address is equal to current funder address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.GetVestingAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid vesting account address")
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgUpdateVestingFunder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgUpdateVestingFunder) GetSigners() []sdk.AccAddress {
 	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	return []sdk.AccAddress{funder}
 }
