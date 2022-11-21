@@ -4,8 +4,8 @@ package evmos.revenue.v1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/revenue/v1/genesis.proto";
 import "evmos/revenue/v1/revenue.proto";
-import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/revenue/types";
 
