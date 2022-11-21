@@ -29,6 +29,7 @@ jobs:
           YAML_CONFIG_FILE: .yamllint
           VALIDATE_ALL_CODEBASE: false
           MARKDOWN_CONFIG_FILE: .markdownlint.yml
+          PROTOBUF_CONFIG_FILE: .protolint.yml
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_OPENAPI: false
           VALIDATE_JSCPD: false
