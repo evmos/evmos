@@ -339,8 +339,7 @@ test-race: ARGS=-race
 test-race: TEST_PACKAGES=$(PACKAGES_NOSIMULATION)
 $(TEST_TARGETS): run-tests
 
-test-unit-cover: build-docker
-	ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=atomic
+test-unit-cover: ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-upgrade:
@@ -353,7 +352,7 @@ endif
 	E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) MOUNT_PATH=$(MOUNT_PATH) CHAIN_ID=$(CHAIN_ID) \
 	go test -v ./tests/e2e/...
 
-run-tests:
+run-tests: build-docker
 ifneq (,$(shell which tparse 2>/dev/null))
 	go test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
 else

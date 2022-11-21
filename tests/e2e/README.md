@@ -88,7 +88,49 @@ The `make test-upgrade` script will output the test results for each testing fil
 ok  	github.com/evmos/evmos/v9/tests/e2e	174.137s.
 ```
 
-To get containers logs run:
+if target node version failed to start, caintainers `[error stream]` and `[output stream]` will be printed from container to local terminal:
+
+```log
+            	Error:      	Received unexpected error:
+            	            	can't start evmos node, container exit code: 2
+
+            	            	[error stream]:
+
+            	            	7:03AM INF Unlocking keyring
+            	            	7:03AM INF starting ABCI with Tendermint
+            	            	panic: invalid minimum gas prices: invalid decimal coin expression: 0aevmos
+
+            	            	goroutine 1 [running]:
+            	            	github.com/cosmos/cosmos-sdk/baseapp.SetMinGasPrices({0xc0013563e7?, 0xc00163a3c0?})
+            	            		github.com/cosmos/cosmos-sdk@v0.46.5/baseapp/options.go:29 +0xd9
+            	            	main.appCreator.newApp({{{0x3399b40, 0xc000ec1db8}, {0x33ac0f8, 0xc0011314e0}, {0x33a2920, 0xc000ed2b80}, 0xc0000155f0}}, {0x3394520, 0xc001633bc0}, {0x33a5cc0, ...}, ...)
+            	            		github.com/evmos/evmos/v10/cmd/evmosd/root.go:243 +0x2ca
+            	            	github.com/evmos/ethermint/server.startInProcess(_, {{0x0, 0x0, 0x0}, {0x33b7490, 0xc001784c30}, 0x0, {0x7fff50b37f3d, 0xc}, {0x33ac0f8, ...}, ...}, ...)
+            	            		github.com/evmos/ethermint@v0.20.0-rc2/server/start.go:304 +0x9c5
+            	            	github.com/evmos/ethermint/server.StartCmd.func2(0xc001620600?, {0xc001745bd0?, 0x0?, 0x1?})
+            	            		github.com/evmos/ethermint@v0.20.0-rc2/server/start.go:123 +0x1ec
+            	            	github.com/spf13/cobra.(*Command).execute(0xc001620600, {0xc001745bb0, 0x1, 0x1})
+            	            		github.com/spf13/cobra@v1.6.1/command.go:916 +0x862
+            	            	github.com/spf13/cobra.(*Command).ExecuteC(0xc00160e000)
+            	            		github.com/spf13/cobra@v1.6.1/command.go:1044 +0x3bd
+            	            	github.com/spf13/cobra.(*Command).Execute(...)
+            	            		github.com/spf13/cobra@v1.6.1/command.go:968
+            	            	github.com/spf13/cobra.(*Command).ExecuteContext(...)
+            	            		github.com/spf13/cobra@v1.6.1/command.go:961
+            	            	github.com/cosmos/cosmos-sdk/server/cmd.Execute(0x2170d50?, {0x26d961f, 0x6}, {0xc00112c490, 0xd})
+            	            		github.com/cosmos/cosmos-sdk@v0.46.5/server/cmd/execute.go:36 +0x20f
+            	            	main.main()
+            	            		github.com/evmos/evmos/v10/cmd/evmosd/main.go:20 +0x45
+
+
+            	            	[output stream]:
+
+            	Test:       	TestIntegrationTestSuite/TestUpgrade
+            	Messages:   	can't mount and run upgraded node container
+```
+
+
+To get all containers run:
 
 ```shell
 # check containters
@@ -103,7 +145,7 @@ CONTAINER ID   IMAGE
 f41c97d6ca21   evmos:v9.0.0   <-- initial node
 ```
 
-To get containers logs, run:
+To access containers logs directly, run:
 
 ```shell
 docker logs <container-id>
