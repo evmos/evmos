@@ -64,6 +64,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (vesting) [\#1087](https://github.com/evmos/evmos/pull/1087) Add new `MsgUpdateVestingFunder` that updates the `Funder` field of a given clawback vesting account
 - (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
 
+### Bug Fixes
+
+* (analytics) [#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
+
 
 ## [v9.1.0] - 2022-10-25
 
