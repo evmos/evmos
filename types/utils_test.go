@@ -130,7 +130,6 @@ func TestGetEvmosAddressFromBech32(t *testing.T) {
 }
 
 func TestEvmosCoinDenom(t *testing.T) {
-	sdk.SetCoinDenomRegex(EvmosCoinDenomRegex)
 	testCases := []struct {
 		name     string
 		denom    string
@@ -148,7 +147,7 @@ func TestEvmosCoinDenom(t *testing.T) {
 		},
 		{
 			"valid denom - ethereum address (ERC-20 contract)",
-			"0x52908400098527886e0f7030069857D2E4169EE7",
+			"erc20/0x52908400098527886e0f7030069857D2E4169EE7",
 			false,
 		},
 		{
@@ -169,16 +168,6 @@ func TestEvmosCoinDenom(t *testing.T) {
 		{
 			"invalid denom - hex address but 19 bytes long",
 			"0x52908400098527886E0F7030069857D2E4169E",
-			true,
-		},
-		{
-			"invalid denom - hex address but 21 bytes long",
-			"0x52908400098527886e0f7030069857D2E4169EE738",
-			true,
-		},
-		{
-			"invalid denom - invalid hex, has a 'g'",
-			"0x52908400098527886e0f7030069857D2E4169gE7",
 			true,
 		},
 	}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/evmos/ethermint/x/evm/statedb"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
@@ -34,10 +35,20 @@ type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 }
 
+// StakingKeeper defines the expected interface needed to retrieve the staking denom.
+type StakingKeeper interface {
+	BondDenom(ctx sdk.Context) string
+}
+
 // EVMKeeper defines the expected EVM keeper interface used on erc20
 type EVMKeeper interface {
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account
 	EstimateGas(c context.Context, req *evmtypes.EthCallRequest) (*evmtypes.EstimateGasResponse, error)
 	ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
+}
+
+// StakingKeeper defines the expected interface needed to retrieve the staking denom.
+type ClaimsKeeper interface {
+	GetParams(ctx sdk.Context) claimstypes.Params
 }
