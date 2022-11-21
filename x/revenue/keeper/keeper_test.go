@@ -20,7 +20,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v10/app"
-	claimtypes "github.com/evmos/evmos/v10/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
 	"github.com/evmos/evmos/v10/x/revenue/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -77,7 +77,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = tests.NewSigner(priv)
 
-	suite.denom = claimtypes.DefaultClaimsDenom
+	suite.denom = claimstypes.DefaultClaimsDenom
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
