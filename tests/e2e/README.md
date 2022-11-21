@@ -129,7 +129,6 @@ if target node version failed to start, caintainers `[error stream]` and `[outpu
             	Messages:   	can't mount and run upgraded node container
 ```
 
-
 To get all containers run:
 
 ```shell
