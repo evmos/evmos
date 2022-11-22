@@ -31,7 +31,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	}
 
 	k.IterateIncentives(ctx, func(incentive types.Incentive) (stop bool) {
-		rewards, participants := k.rewardParticipants(ctx, incentive, rewardAllocations)
+		_, _ = k.rewardParticipants(ctx, incentive, rewardAllocations)
 
 		incentive.Epochs--
 
@@ -47,18 +47,6 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 				"contract", incentive.Contract,
 			)
 		}
-
-		defer func() {
-			if !rewards.IsZero() {
-				telemetry.IncrCounterWithLabels(
-					[]string{types.ModuleName, "distribute", "participant", "total"},
-					float32(participants),
-					[]metrics.Label{
-						telemetry.NewLabel("contract", incentive.Contract),
-					},
-				)
-			}
-		}()
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
