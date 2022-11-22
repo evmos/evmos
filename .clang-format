@@ -1,0 +1,6 @@
+---
+Language: Proto
+BasedOnStyle: google
+ColumnLimit: 120
+IndentWidth: 2
+...

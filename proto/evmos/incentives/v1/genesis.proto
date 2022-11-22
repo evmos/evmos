@@ -8,28 +8,24 @@ option go_package = "github.com/evmos/evmos/v10/x/incentives/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {
-  // module parameters
-  Params params = 1 [ (gogoproto.nullable) = false ];
-  // active incentives
-  repeated Incentive incentives = 2 [ (gogoproto.nullable) = false ];
-  // active Gasmeters
-  repeated GasMeter gas_meters = 3 [ (gogoproto.nullable) = false ];
+  // params are the incentives module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+  // incentives is a slice of active incentives
+  repeated Incentive incentives = 2 [(gogoproto.nullable) = false];
+  // gas_meters is a slice of active Gasmeters
+  repeated GasMeter gas_meters = 3 [(gogoproto.nullable) = false];
 }
 
 // Params defines the incentives module params
 message Params {
-  // parameter to enable incentives
+  // enable_incentives is the parameter to enable incentives
   bool enable_incentives = 1;
-  // maximum percentage an incentive can allocate per denomination
-  string allocation_limit = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // identifier for the epochs module hooks
+  // allocation_limit is the maximum percentage an incentive can allocate per denomination
+  string allocation_limit = 2
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  // incentives_epoch_identifier for the epochs module hooks
   string incentives_epoch_identifier = 3;
-  // scaling factor for capping rewards
-  string reward_scaler = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
+  // reward_scaler is the scaling factor for capping rewards
+  string reward_scaler = 4
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
 }

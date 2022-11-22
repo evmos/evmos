@@ -1,8 +1,8 @@
 syntax = "proto3";
 package evmos.revenue.v1;
 
-import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/revenue/types";
 
@@ -26,14 +26,14 @@ service Msg {
 // MsgRegisterRevenue defines a message that registers a Revenue
 message MsgRegisterRevenue {
   option (gogoproto.equal) = false;
-  // contract hex address
+  // contract_address in hex format
   string contract_address = 1;
-  // bech32 address of message sender, must be the same as the origin EOA
+  // deployer_address is the bech32 address of message sender. It must be the same as the origin EOA
   // sending the transaction which deploys the contract
   string deployer_address = 2;
-  // bech32 address of account receiving the transaction fees
+  // withdrawer_address is the bech32 address of account receiving the transaction fees
   string withdrawer_address = 3;
-  // array of nonces from the address path, where the last nonce is the nonce
+  // nonces is an array of nonces from the address path, where the last nonce is the nonce
   // that determines the contract's address - it can be an EOA nonce or a
   // factory contract nonce
   repeated uint64 nonces = 4;
@@ -46,11 +46,12 @@ message MsgRegisterRevenueResponse {}
 // registered Revenue
 message MsgUpdateRevenue {
   option (gogoproto.equal) = false;
-  // contract hex address
+  // contract_address in hex format
   string contract_address = 1;
-  // deployer bech32 address
+  // deployer_address is the bech32 address of message sender. It must be the same as the origin EOA
+  // sending the transaction which deploys the contract
   string deployer_address = 2;
-  // new withdrawer bech32 address for receiving the transaction fees
+  // withdrawer_address is the bech32 address of account receiving the transaction fees
   string withdrawer_address = 3;
 }
 
@@ -60,9 +61,10 @@ message MsgUpdateRevenueResponse {}
 // MsgCancelRevenue defines a message that cancels a registered Revenue
 message MsgCancelRevenue {
   option (gogoproto.equal) = false;
-  // contract hex address
+  // contract_address in hex format
   string contract_address = 1;
-  // deployer bech32 address
+  // deployer_address is the bech32 address of message sender. It must be the same as the origin EOA
+  // sending the transaction which deploys the contract
   string deployer_address = 2;
 }
 
