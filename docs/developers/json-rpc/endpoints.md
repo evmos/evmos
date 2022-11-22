@@ -183,23 +183,29 @@ Get the web3 client version.
 
 #### Client Examples
 
-##### Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_clientVersion", "params": []}'
 ```
 
-##### Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "web3_clientVersion", "params": []}'
 ```
 
-##### Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 web3.clientVersion();
 ```
+
+</CodeGroupItem>
+</CodeGroup>
 
 ### `web3_sha3`
 
@@ -219,23 +225,29 @@ Returns Keccak-256 (not the standardized SHA3-256) of the given data.
 
 #### Client Examples
 
-##### Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_sha3", "params": [<input>]}'
 ```
 
-##### Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "web3_sha3", "params": [<input>]}'
 ```
 
-##### Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 web3.sha3(input);
 ```
+
+</CodeGroupItem>
+</CodeGroup>
 
 ## Net Methods
 
