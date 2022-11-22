@@ -17,6 +17,8 @@ type Keeper struct {
 	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
+	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
+	authority string
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
@@ -27,6 +29,7 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the erc20 Keeper
 func NewKeeper(
+	authority string,
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
 	ps paramtypes.Subspace,
@@ -42,6 +45,7 @@ func NewKeeper(
 	}
 
 	return Keeper{
+		authority:     authority,
 		storeKey:      storeKey,
 		cdc:           cdc,
 		paramstore:    ps,
