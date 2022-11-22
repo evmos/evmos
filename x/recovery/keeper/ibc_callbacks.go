@@ -198,8 +198,6 @@ func (k Keeper) OnRecvPacket(
 					float32(b.Amount.Int64()),
 					[]metrics.Label{
 						telemetry.NewLabel("denom", b.Denom),
-						telemetry.NewLabel("source_channel", packet.SourceChannel),
-						telemetry.NewLabel("source_port", packet.SourcePort),
 					},
 				)
 			}
