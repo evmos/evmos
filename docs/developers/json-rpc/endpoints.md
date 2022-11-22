@@ -12,6 +12,7 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 - [Geth JSON-RPC APIs](https://geth.ethereum.org/docs/rpc/server) {prereq}
 
 ## Endpoints
+<!-- markdown-link-check-disable -->
 
 | Method                                                                            | Namespace | Implemented | Public | Notes              |
 |-----------------------------------------------------------------------------------|-----------|-------------|--------|--------------------|
@@ -157,6 +158,8 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 | [`txpool_content`](#txpool-content)                                               | TxPool    | ✔           |        |                    |
 | [`txpool_inspect`](#txpool-inspect)                                               | TxPool    | ✔           |        |                    |
 | [`txpool_status`](#txpool-status)                                                 | TxPool    | ✔           |        |                    |
+
+<!-- markdown-link-check-enable -->
 
 :::tip
 Block Number can be entered as a Hex string, `"earliest"`, ``"latest"`` or `"pending"`.
