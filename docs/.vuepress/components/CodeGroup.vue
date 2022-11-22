@@ -90,10 +90,10 @@ export default {
   }
   .theme-code-group__nav {
     inset: 0;
-    background: var(--background-color-secondary);
+    background: #2e3148;
     margin-bottom: -50px;
-    border-radius: 20px 20px 0px 0px;
-    border-bottom: 1px solid var(--color-light-gray);
+    border-radius: 10px 10px 0px 0px;
+    border-bottom: 1px solid lightgray;
     overflow-wrap: anywhere;
   }
   .theme-code-group__ul {
@@ -109,16 +109,17 @@ export default {
   }
   .theme-code-group__nav-tab {
     border: 0;
-    padding: 20px;
+    padding: 10px;
     cursor: pointer;
     background-color: transparent;
     font-size: 0.85em;
     line-height: 1.4;
-    color: var(--color-text);
+    color: dimgray;
     font-weight: 600;
     height: 100%;
   }
   .theme-code-group__nav-tab-active {
-    border-bottom: var(--color-text) 1px solid;
+    border-bottom: white 1px solid;
+    color: white;
   }
 </style>

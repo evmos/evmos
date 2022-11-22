@@ -59,7 +59,7 @@ The `evmosd debug addr <address>` can be used to convert an address between hex 
 <CodeGroupItem title="Bech32">
 
 ```bash
-evmosd debug addr evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+ $ evmosd debug addr evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
   Address: [20 87 74 109 255 45 223 158 7 130 139 67 69 211 4 9 25 175 86 82]
   Address (hex): 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Bech32 Acc: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -70,7 +70,7 @@ evmosd debug addr evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
 <CodeGroupItem title="Hex">
 
 ```bash
-evmosd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
+ $ evmosd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Address: [20 87 74 109 255 45 223 158 7 130 139 67 69 211 4 9 25 175 86 82]
   Address (hex): 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Bech32 Acc: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -93,7 +93,7 @@ obtain the addresses and keys as mentioned above,
 <CodeGroupItem title="Accounts">
 
 ```bash
-evmosd keys show dev0 --bech acc
+ $ evmosd keys show dev0 --bech acc
 - name: dev0
   type: local
   address: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -105,7 +105,7 @@ evmosd keys show dev0 --bech acc
 <CodeGroupItem title="Validator">
 
 ```bash
-evmosd keys show dev0 --bech val
+ $ evmosd keys show dev0 --bech val
 - name: dev0
   type: local
   address: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
@@ -117,7 +117,7 @@ evmosd keys show dev0 --bech val
 <CodeGroupItem title="Consensus">
 
 ```bash
-evmosd keys show dev0 --bech cons
+ $ evmosd keys show dev0 --bech cons
 - name: dev0
   type: local
   address: evmosvalcons1rllqa5d97n6zyjhy6cnscc7zu30zjn3f7wyj2n
@@ -138,16 +138,16 @@ You can query an account address using the CLI, gRPC or
 ```bash
 # NOTE: the --output (-o) flag will define the output format in JSON or YAML (text)
 evmosd q auth account $(evmosd keys show dev0 -a) -o text
-|
-  '@type': /ethermint.types.v1.EthAccount
-  base_account:
-    account_number: "0"
-    address: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
-    pub_key:
-      '@type': /ethermint.crypto.v1.ethsecp256k1.PubKey
-      key: AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2
-    sequence: "1"
-  code_hash: 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
+
+'@type': /ethermint.types.v1.EthAccount
+base_account:
+account_number: "0"
+address: evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
+pub_key:
+  '@type': /ethermint.crypto.v1.ethsecp256k1.PubKey
+  key: AsV5oddeB+hkByIJo/4lZiVUgXTzNfBPKC73cZ4K1YD2
+sequence: "1"
+code_hash: 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
 ```
 
 ### Cosmos gRPC and REST
