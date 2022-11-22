@@ -185,7 +185,6 @@ Get the web3 client version.
 
 ##### Shell HTTP
 
-
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_clientVersion", "params": []}'
 ```
@@ -1347,7 +1346,6 @@ txpool.content();
 </CodeGroupItem>
 </CodeGroup>
 
-
 #### Result
 
 ```json
@@ -1386,7 +1384,6 @@ txpool.inspect();
 </CodeGroupItem>
 </CodeGroup>
 
-
 #### Result
 
 ```json
@@ -1424,7 +1421,6 @@ txpool.status();
 
 </CodeGroupItem>
 </CodeGroup>
-
 
 #### Result
 

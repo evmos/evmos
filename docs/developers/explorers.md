@@ -34,4 +34,3 @@ Below is a list of public block explorers that support Evmos Mainnet and Testnet
 | Blockscout | `evm`    | [evm.evmos.dev](https://evm.evmos.dev/)                                        |
 | Mintscan   | `cosmos` | [testnet.mintscan.io/evmos-testnet](https://testnet.mintscan.io/evmos-testnet) |
 | NGExplorer | `cosmos` | [testnet.evmos.explorers.guru](https://testnet.evmos.explorers.guru)           |
-

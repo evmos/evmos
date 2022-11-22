@@ -40,4 +40,3 @@ Check the details and requirements for each mainnet and testnet upgrade. {synops
 | [`v3.0.0`](https://github.com/evmos/evmos/releases/tag/v3.0.0)                       |    ✅    |    ✅     |     ❌      |          ❌          |                                                                       |
 | [`v3.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v3.0.0-beta1)           |    ❌    |    ✅     |     ✅      |          ✅          |                                                                       |
 | [`v1.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v1.0.0-beta1) (genesis) |  `N/A`  |  `N/A`   |   `N/A`    |          ❌          | [1](https://testnet.mintscan.io/evmos-testnet/blocks/1)               |
-

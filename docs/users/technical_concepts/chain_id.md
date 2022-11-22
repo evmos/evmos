@@ -12,7 +12,7 @@ Learn about the Evmos chain-id format {synopsis}
 **NOTE**: The latest Chain ID (i.e highest Version Number) is the latest version of the software and mainnet.
 :::
 
-### Mainnet 
+### Mainnet
 
 | Name                                            | Chain ID                                      | Identifier | EIP155 Number                         | Version Number                              |
 | ----------------------------------------------- | --------------------------------------------- | ---------- | ------------------------------------- | ------------------------------------------- |

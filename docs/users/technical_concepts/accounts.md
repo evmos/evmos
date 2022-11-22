@@ -128,7 +128,6 @@ obtain the addresses and keys as mentioned above,
 </CodeGroupItem>
 </CodeGroup>
 
-
 ## Querying an Account
 
 You can query an account address using the CLI, gRPC or
