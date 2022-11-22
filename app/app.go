@@ -99,6 +99,7 @@ import (
 	icahost "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
 
 	ethermintapp "github.com/evmos/ethermint/app"
 	"github.com/evmos/ethermint/encoding"
@@ -227,6 +228,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:            nil,
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
@@ -353,6 +355,8 @@ func NewEvmos(
 		feegrant.StoreKey, authzkeeper.StoreKey,
 		// ibc keys
 		ibchost.StoreKey, ibctransfertypes.StoreKey,
+		// ica keys
+		icahosttypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
@@ -386,6 +390,7 @@ func NewEvmos(
 
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+    scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
@@ -664,6 +669,7 @@ func NewEvmos(
 		ibchost.ModuleName,
 		// no-op modules
 		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
@@ -694,6 +700,7 @@ func NewEvmos(
 		// no-op modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
@@ -740,6 +747,7 @@ func NewEvmos(
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
@@ -831,7 +839,7 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedICAHostKeeper = app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	app.ScopedICAHostKeeper  = scopedICAHostKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
@@ -1085,6 +1093,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
+	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
