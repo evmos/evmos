@@ -31,7 +31,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	}
 
 	k.IterateIncentives(ctx, func(incentive types.Incentive) (stop bool) {
-		k.rewardParticipants(ctx, incentive, rewardAllocations)
+		_, _ = k.rewardParticipants(ctx, incentive, rewardAllocations)
 
 		incentive.Epochs--
 
