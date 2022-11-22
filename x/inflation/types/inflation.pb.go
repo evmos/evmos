@@ -82,15 +82,15 @@ var xxx_messageInfo_InflationDistribution proto.InternalMessageInfo
 // f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
 // (max_variance / bonding_target))
 type ExponentialCalculation struct {
-	// initial value
+	// a defines the initial value
 	A github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=a,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"a"`
-	// reduction factor
+	// r defines the reduction factor
 	R github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=r,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"r"`
-	// long term inflation
+	// c defines the parameter for long term inflation
 	C github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=c,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"c"`
-	// bonding target
+	// bonding_target
 	BondingTarget github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=bonding_target,json=bondingTarget,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bonding_target"`
-	// max variance
+	// max_variance
 	MaxVariance github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=max_variance,json=maxVariance,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"max_variance"`
 }
 

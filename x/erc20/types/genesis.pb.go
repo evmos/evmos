@@ -25,9 +25,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the module's genesis state.
 type GenesisState struct {
-	// module parameters
+	// params are the erc20 module parameters at genesis
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// registered token pairs
+	// token_pairs is a slice of the registered token pairs at genesis
 	TokenPairs []TokenPair `protobuf:"bytes,2,rep,name=token_pairs,json=tokenPairs,proto3" json:"token_pairs"`
 }
 
@@ -80,11 +80,10 @@ func (m *GenesisState) GetTokenPairs() []TokenPair {
 
 // Params defines the erc20 module params
 type Params struct {
-	// parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
+	// enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
 	EnableErc20 bool `protobuf:"varint,1,opt,name=enable_erc20,json=enableErc20,proto3" json:"enable_erc20,omitempty"`
-	// parameter to enable the EVM hook that converts an ERC20 token to a Cosmos
-	// Coin by transferring the Tokens through a MsgEthereumTx to the
-	// ModuleAddress Ethereum address.
+	// enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos
+	// Coin by transferring the Tokens through a MsgEthereumTx to the ModuleAddress Ethereum address.
 	EnableEVMHook bool `protobuf:"varint,2,opt,name=enable_evm_hook,json=enableEvmHook,proto3" json:"enable_evm_hook,omitempty"`
 }
 

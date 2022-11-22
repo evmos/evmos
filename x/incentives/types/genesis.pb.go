@@ -26,11 +26,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the module's genesis state.
 type GenesisState struct {
-	// module parameters
+	// params are the incentives module parameters
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// active incentives
+	// incentives is a slice of active incentives
 	Incentives []Incentive `protobuf:"bytes,2,rep,name=incentives,proto3" json:"incentives"`
-	// active Gasmeters
+	// gas_meters is a slice of active Gasmeters
 	GasMeters []GasMeter `protobuf:"bytes,3,rep,name=gas_meters,json=gasMeters,proto3" json:"gas_meters"`
 }
 
@@ -90,13 +90,13 @@ func (m *GenesisState) GetGasMeters() []GasMeter {
 
 // Params defines the incentives module params
 type Params struct {
-	// parameter to enable incentives
+	// enable_incentives is the parameter to enable incentives
 	EnableIncentives bool `protobuf:"varint,1,opt,name=enable_incentives,json=enableIncentives,proto3" json:"enable_incentives,omitempty"`
-	// maximum percentage an incentive can allocate per denomination
+	// allocation_limit is the maximum percentage an incentive can allocate per denomination
 	AllocationLimit github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=allocation_limit,json=allocationLimit,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"allocation_limit"`
-	// identifier for the epochs module hooks
+	// incentives_epoch_identifier for the epochs module hooks
 	IncentivesEpochIdentifier string `protobuf:"bytes,3,opt,name=incentives_epoch_identifier,json=incentivesEpochIdentifier,proto3" json:"incentives_epoch_identifier,omitempty"`
-	// scaling factor for capping rewards
+	// reward_scaler is the scaling factor for capping rewards
 	RewardScaler github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=reward_scaler,json=rewardScaler,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"reward_scaler"`
 }
 

@@ -25,11 +25,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // Revenue defines an instance that organizes fee distribution conditions for
 // the owner of a given smart contract
 type Revenue struct {
-	// hex address of registered contract
+	// contract_address is the hex address of a registered contract
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
-	// bech32 address of contract deployer
+	// deployer_address is the bech32 address of message sender. It must be the same as the origin EOA
+	// sending the transaction which deploys the contract
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
-	// bech32 address of account receiving the transaction fees it defaults to
+	// withdrawer_address is the bech32 address of account receiving the transaction fees it defaults to
 	// deployer_address
 	WithdrawerAddress string `protobuf:"bytes,3,opt,name=withdrawer_address,json=withdrawerAddress,proto3" json:"withdrawer_address,omitempty"`
 }

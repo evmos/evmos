@@ -25,15 +25,15 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the inflation module's genesis state.
 type GenesisState struct {
-	// params defines all the paramaters of the module.
+	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// amount of past periods, based on the epochs per period param
+	// period is the amount of past periods, based on the epochs per period param
 	Period uint64 `protobuf:"varint,2,opt,name=period,proto3" json:"period,omitempty"`
-	// inflation epoch identifier
+	// epoch_identifier for inflation
 	EpochIdentifier string `protobuf:"bytes,3,opt,name=epoch_identifier,json=epochIdentifier,proto3" json:"epoch_identifier,omitempty"`
-	// number of epochs after which inflation is recalculated
+	// epochs_per_period is the number of epochs after which inflation is recalculated
 	EpochsPerPeriod int64 `protobuf:"varint,4,opt,name=epochs_per_period,json=epochsPerPeriod,proto3" json:"epochs_per_period,omitempty"`
-	// number of epochs that have passed while inflation is disabled
+	// skipped_epochs is the number of epochs that have passed while inflation is disabled
 	SkippedEpochs uint64 `protobuf:"varint,5,opt,name=skipped_epochs,json=skippedEpochs,proto3" json:"skipped_epochs,omitempty"`
 }
 
@@ -107,13 +107,13 @@ func (m *GenesisState) GetSkippedEpochs() uint64 {
 
 // Params holds parameters for the inflation module.
 type Params struct {
-	// type of coin to mint
+	// mint_denom specifies the type of coin to mint
 	MintDenom string `protobuf:"bytes,1,opt,name=mint_denom,json=mintDenom,proto3" json:"mint_denom,omitempty"`
-	// variables to calculate exponential inflation
+	// exponential_calculation takes in the variables to calculate exponential inflation
 	ExponentialCalculation ExponentialCalculation `protobuf:"bytes,2,opt,name=exponential_calculation,json=exponentialCalculation,proto3" json:"exponential_calculation"`
-	// inflation distribution of the minted denom
+	// inflation_distribution of the minted denom
 	InflationDistribution InflationDistribution `protobuf:"bytes,3,opt,name=inflation_distribution,json=inflationDistribution,proto3" json:"inflation_distribution"`
-	// parameter to enable inflation and halt increasing the skipped_epochs
+	// enable_inflation is the parameter that enables inflation and halts increasing the skipped_epochs
 	EnableInflation bool `protobuf:"varint,4,opt,name=enable_inflation,json=enableInflation,proto3" json:"enable_inflation,omitempty"`
 }
 

@@ -28,15 +28,15 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Action int32
 
 const (
-	// UNSPECIFIED defines an invalid action.
+	// ACTION_UNSPECIFIED defines an invalid action.
 	ActionUnspecified Action = 0
-	// VOTE defines a proposal vote.
+	// ACTION_VOTE defines a proposal vote.
 	ActionVote Action = 1
-	// DELEGATE defines an staking delegation.
+	// ACTION_DELEGATE defines an staking delegation.
 	ActionDelegate Action = 2
-	// EVM defines an EVM transaction.
+	// ACTION_EVM defines an EVM transaction.
 	ActionEVM Action = 3
-	// IBC Transfer defines a fungible token transfer transaction via IBC.
+	// ACTION_IBC_TRANSFER defines a fungible token transfer transaction via IBC.
 	ActionIBCTransfer Action = 4
 )
 
@@ -69,9 +69,9 @@ func (Action) EnumDescriptor() ([]byte, []int) {
 type Claim struct {
 	// action enum
 	Action Action `protobuf:"varint,1,opt,name=action,proto3,enum=evmos.claims.v1.Action" json:"action,omitempty"`
-	// true if the action has been completed
+	// completed is true if the action has been completed
 	Completed bool `protobuf:"varint,2,opt,name=completed,proto3" json:"completed,omitempty"`
-	// claimable token amount for the action. Zero if completed
+	// claimable_amount of tokens for the action. Zero if completed
 	ClaimableAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=claimable_amount,json=claimableAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"claimable_amount"`
 }
 
@@ -125,11 +125,11 @@ func (m *Claim) GetCompleted() bool {
 // ClaimsRecordAddress is the claims metadata per address that is used at
 // Genesis.
 type ClaimsRecordAddress struct {
-	// bech32 or hex address of claim user
+	// address of claiming user in either bech32 or hex format
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// total initial claimable amount for the user
+	// initial_claimable_amount for the user
 	InitialClaimableAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=initial_claimable_amount,json=initialClaimableAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"initial_claimable_amount"`
-	// slice of the available actions completed
+	// actions_completed is a slice that describes which actions were completed
 	ActionsCompleted []bool `protobuf:"varint,3,rep,packed,name=actions_completed,json=actionsCompleted,proto3" json:"actions_completed,omitempty"`
 }
 
@@ -183,9 +183,9 @@ func (m *ClaimsRecordAddress) GetActionsCompleted() []bool {
 // ClaimsRecord defines the initial claimable airdrop amount and the list of
 // completed actions to claim the tokens.
 type ClaimsRecord struct {
-	// total initial claimable amount for the user
+	// initial_claimable_amount for the user
 	InitialClaimableAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,1,opt,name=initial_claimable_amount,json=initialClaimableAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"initial_claimable_amount"`
-	// slice of the available actions completed
+	// actions_completed is a slice that describes which actions were completed
 	ActionsCompleted []bool `protobuf:"varint,2,rep,packed,name=actions_completed,json=actionsCompleted,proto3" json:"actions_completed,omitempty"`
 }
 

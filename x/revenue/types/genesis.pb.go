@@ -26,9 +26,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the module's genesis state.
 type GenesisState struct {
-	// module parameters
+	// params are the revenue module parameters
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// active registered contracts for fee distribution
+	// revenues is a slice of active registered contracts for fee distribution
 	Revenues []Revenue `protobuf:"bytes,2,rep,name=revenues,proto3" json:"revenues"`
 }
 
