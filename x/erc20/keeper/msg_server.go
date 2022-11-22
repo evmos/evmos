@@ -155,7 +155,6 @@ func (k Keeper) convertCoinNativeCoin(
 			1,
 			[]metrics.Label{
 				telemetry.NewLabel("denom", pair.Denom),
-				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
 
@@ -165,7 +164,6 @@ func (k Keeper) convertCoinNativeCoin(
 				float32(msg.Coin.Amount.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", pair.Denom),
-					telemetry.NewLabel("erc20", pair.Erc20Address),
 				},
 			)
 		}
@@ -255,7 +253,6 @@ func (k Keeper) convertERC20NativeCoin(
 			1,
 			[]metrics.Label{
 				telemetry.NewLabel("denom", pair.Denom),
-				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
 
@@ -265,7 +262,6 @@ func (k Keeper) convertERC20NativeCoin(
 				float32(msg.Amount.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", pair.Denom),
-					telemetry.NewLabel("erc20", pair.Erc20Address),
 				},
 			)
 		}
@@ -383,7 +379,6 @@ func (k Keeper) convertERC20NativeToken(
 			1,
 			[]metrics.Label{
 				telemetry.NewLabel("coin", pair.Denom),
-				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
 
@@ -393,7 +388,6 @@ func (k Keeper) convertERC20NativeToken(
 				float32(msg.Amount.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", pair.Denom),
-					telemetry.NewLabel("erc20", pair.Erc20Address),
 				},
 			)
 		}
@@ -493,7 +487,6 @@ func (k Keeper) convertCoinNativeERC20(
 			1,
 			[]metrics.Label{
 				telemetry.NewLabel("denom", pair.Denom),
-				telemetry.NewLabel("erc20", pair.Erc20Address),
 			},
 		)
 
@@ -503,7 +496,6 @@ func (k Keeper) convertCoinNativeERC20(
 				float32(msg.Coin.Amount.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", pair.Denom),
-					telemetry.NewLabel("erc20", pair.Erc20Address),
 				},
 			)
 		}
