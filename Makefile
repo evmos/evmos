@@ -485,7 +485,7 @@ proto-gen:
 
 proto-format:
 	@echo "Formatting Protobuf files"
-	$(protoCosmosImage) find ./ -not -path "./third_party/*" -name *.proto -exec clang-format -i {} \;
+	$(protoCosmosImage) find ./ -name *.proto -exec clang-format -i {} \;
 
 # NOTE: The linter configuration lives in .protolint.yaml
 proto-lint:

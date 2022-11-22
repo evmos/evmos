@@ -1,5 +1,3 @@
 version: v1
 directories:
   - proto
-  # TODO: Remove if it works
-  # - third_party/proto
