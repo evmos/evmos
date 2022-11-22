@@ -551,15 +551,15 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Revenues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "revenue", "v1", "revenues"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Revenues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "revenue", "v1", "revenues"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Revenue_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "revenue", "v1", "revenues", "contract_address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Revenue_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "revenue", "v1", "revenues", "contract_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "revenue", "v1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "revenue", "v1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_DeployerRevenues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "revenue", "v1", "revenues", "deployer_address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_DeployerRevenues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "revenue", "v1", "revenues", "deployer_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_WithdrawerRevenues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "revenue", "v1", "revenues", "withdrawer_address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_WithdrawerRevenues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"evmos", "revenue", "v1", "revenues", "withdrawer_address"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
