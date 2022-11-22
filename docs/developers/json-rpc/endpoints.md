@@ -501,6 +501,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{
 ### `eth_sendRawTransaction`
 
 Creates new message call transaction or a contract creation for signed transactions.
+<!-- markdown-link-check-disable-next-line -->
 You can get signed transaction data using the [`personal_sign`](#personal-sign) method.
 
 #### Parameters
@@ -939,6 +940,7 @@ Decrypts the key with the given address from the key store.
 
 Both passphrase and unlock duration are optional when using the JavaScript console. The unencrypted key will be held in memory until the unlock duration expires. If the unlock duration defaults to 300 seconds. An explicit duration of zero seconds unlocks the key until geth exits.
 
+<!-- markdown-link-check-disable-next-line -->
 The account can be used with [`eth_sign`](#eth-sign) and [`eth_sendTransaction`](#eth-sendtransaction) while it is unlocked.
 
 #### Parameters
