@@ -9,28 +9,26 @@ option go_package = "github.com/evmos/evmos/v10/x/inflation/types";
 
 // GenesisState defines the inflation module's genesis state.
 message GenesisState {
-  // params defines all the paramaters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false ];
-  // amount of past periods, based on the epochs per period param
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // period is the amount of past periods, based on the epochs per period param
   uint64 period = 2;
-  // inflation epoch identifier
+  // epoch_identifier for inflation
   string epoch_identifier = 3;
-  // number of epochs after which inflation is recalculated
+  // epochs_per_period is the number of epochs after which inflation is recalculated
   int64 epochs_per_period = 4;
-  // number of epochs that have passed while inflation is disabled
+  // skipped_epochs is the number of epochs that have passed while inflation is disabled
   uint64 skipped_epochs = 5;
 }
 
 // Params holds parameters for the inflation module.
 message Params {
-  // type of coin to mint
+  // mint_denom specifies the type of coin to mint
   string mint_denom = 1;
-  // variables to calculate exponential inflation
-  ExponentialCalculation exponential_calculation = 2
-      [ (gogoproto.nullable) = false ];
-  // inflation distribution of the minted denom
-  InflationDistribution inflation_distribution = 3
-      [ (gogoproto.nullable) = false ];
-  // parameter to enable inflation and halt increasing the skipped_epochs
+  // exponential_calculation takes in the variables to calculate exponential inflation
+  ExponentialCalculation exponential_calculation = 2 [(gogoproto.nullable) = false];
+  // inflation_distribution of the minted denom
+  InflationDistribution inflation_distribution = 3 [(gogoproto.nullable) = false];
+  // enable_inflation is the parameter that enables inflation and halts increasing the skipped_epochs
   bool enable_inflation = 4;
 }
