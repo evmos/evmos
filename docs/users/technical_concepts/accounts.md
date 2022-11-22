@@ -55,8 +55,8 @@ Cosmos `sdk.AccAddress`.
 
 The `evmosd debug addr <address>` can be used to convert an address between hex and bech32 formats. For example:
 
-:::: tabs
-::: tab Bech32
+<CodeGroup>
+<CodeGroupItem title="Bech32">
 
 ```bash
 evmosd debug addr evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
@@ -66,8 +66,8 @@ evmosd debug addr evmos1z3t55m0l9h0eupuz3dp5t5cypyv674jj7mz2jw
   Bech32 Val: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
 ```
 
-:::
-::: tab Hex
+</CodeGroupItem>
+<CodeGroupItem title="Hex">
 
 ```bash
 evmosd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
@@ -77,8 +77,8 @@ evmosd debug addr 14574A6DFF2DDF9E07828B4345D3040919AF5652
   Bech32 Val: evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 ### Key output
 
@@ -89,8 +89,8 @@ The Cosmos SDK Keyring output (i.e `evmosd keys`) only supports addresses and pu
 We can use the `keys show` command of `evmosd` with the flag `--bech <type> (acc|val|cons)` to
 obtain the addresses and keys as mentioned above,
 
-:::: tabs
-::: tab Account
+<CodeGroup>
+<CodeGroupItem title="Accounts">
 
 ```bash
 evmosd keys show dev0 --bech acc
@@ -101,8 +101,8 @@ evmosd keys show dev0 --bech acc
   mnemonic: ""
 ```
 
-:::
-::: tab Validator
+</CodeGroupItem>
+<CodeGroupItem title="Validator">
 
 ```bash
 evmosd keys show dev0 --bech val
@@ -113,8 +113,8 @@ evmosd keys show dev0 --bech val
   mnemonic: ""
 ```
 
-:::
-::: tab Consensus
+</CodeGroupItem>
+<CodeGroupItem title="Consensus">
 
 ```bash
 evmosd keys show dev0 --bech cons
@@ -125,8 +125,9 @@ evmosd keys show dev0 --bech cons
   mnemonic: ""
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
+
 
 ## Querying an Account
 
