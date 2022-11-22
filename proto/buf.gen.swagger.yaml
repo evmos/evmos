@@ -5,7 +5,7 @@ plugins:
   - name: gocosmos
     out: .
     opt:
-      - plugins=interfacetype+grpc
+      - plugins=grpc
 
   - name: grpc-gateway
     out: .

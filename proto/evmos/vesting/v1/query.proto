@@ -2,14 +2,14 @@ syntax = "proto3";
 package evmos.vesting.v1;
 
 import "cosmos/base/v1beta1/coin.proto";
-import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/vesting/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Retrieves the unvested, vested and locked tokens for a vesting account
+  // Balances retrieves the unvested, vested and locked tokens for a vesting account
   rpc Balances(QueryBalancesRequest) returns (QueryBalancesResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/balances/{address}";
   }
@@ -24,19 +24,13 @@ message QueryBalancesRequest {
 // QueryBalancesResponse is the response type for the Query/Balances RPC
 // method.
 message QueryBalancesResponse {
-  // current amount of locked tokens
-  repeated cosmos.base.v1beta1.Coin locked = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-  // current amount of unvested tokens
-  repeated cosmos.base.v1beta1.Coin unvested = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-  // current amount of vested tokens
-  repeated cosmos.base.v1beta1.Coin vested = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  // locked defines the current amount of locked tokens
+  repeated cosmos.base.v1beta1.Coin locked = 1
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // unvested defines the current amount of unvested tokens
+  repeated cosmos.base.v1beta1.Coin unvested = 2
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // vested defines the current amount of vested tokens
+  repeated cosmos.base.v1beta1.Coin vested = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

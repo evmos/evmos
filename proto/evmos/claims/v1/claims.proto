@@ -9,18 +9,16 @@ option go_package = "github.com/evmos/evmos/v10/x/claims/types";
 enum Action {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // UNSPECIFIED defines an invalid action.
-  ACTION_UNSPECIFIED = 0
-      [ (gogoproto.enumvalue_customname) = "ActionUnspecified" ];
-  // VOTE defines a proposal vote.
-  ACTION_VOTE = 1 [ (gogoproto.enumvalue_customname) = "ActionVote" ];
-  // DELEGATE defines an staking delegation.
-  ACTION_DELEGATE = 2 [ (gogoproto.enumvalue_customname) = "ActionDelegate" ];
-  // EVM defines an EVM transaction.
-  ACTION_EVM = 3 [ (gogoproto.enumvalue_customname) = "ActionEVM" ];
-  // IBC Transfer defines a fungible token transfer transaction via IBC.
-  ACTION_IBC_TRANSFER = 4
-      [ (gogoproto.enumvalue_customname) = "ActionIBCTransfer" ];
+  // ACTION_UNSPECIFIED defines an invalid action.
+  ACTION_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ActionUnspecified"];
+  // ACTION_VOTE defines a proposal vote.
+  ACTION_VOTE = 1 [(gogoproto.enumvalue_customname) = "ActionVote"];
+  // ACTION_DELEGATE defines an staking delegation.
+  ACTION_DELEGATE = 2 [(gogoproto.enumvalue_customname) = "ActionDelegate"];
+  // ACTION_EVM defines an EVM transaction.
+  ACTION_EVM = 3 [(gogoproto.enumvalue_customname) = "ActionEVM"];
+  // ACTION_IBC_TRANSFER defines a fungible token transfer transaction via IBC.
+  ACTION_IBC_TRANSFER = 4 [(gogoproto.enumvalue_customname) = "ActionIBCTransfer"];
 }
 
 // Claim defines the action, completed flag and the remaining claimable amount
@@ -28,37 +26,31 @@ enum Action {
 message Claim {
   // action enum
   Action action = 1;
-  // true if the action has been completed
+  // completed is true if the action has been completed
   bool completed = 2;
-  // claimable token amount for the action. Zero if completed
-  string claimable_amount = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
+  // claimable_amount of tokens for the action. Zero if completed
+  string claimable_amount = 3
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
 }
 
 // ClaimsRecordAddress is the claims metadata per address that is used at
 // Genesis.
 message ClaimsRecordAddress {
-  // bech32 or hex address of claim user
+  // address of claiming user in either bech32 or hex format
   string address = 1;
-  // total initial claimable amount for the user
-  string initial_claimable_amount = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
-  // slice of the available actions completed
+  // initial_claimable_amount for the user
+  string initial_claimable_amount = 2
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  // actions_completed is a slice that describes which actions were completed
   repeated bool actions_completed = 3;
 }
 
 // ClaimsRecord defines the initial claimable airdrop amount and the list of
 // completed actions to claim the tokens.
 message ClaimsRecord {
-  // total initial claimable amount for the user
-  string initial_claimable_amount = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
-  // slice of the available actions completed
+  // initial_claimable_amount for the user
+  string initial_claimable_amount = 1
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  // actions_completed is a slice that describes which actions were completed
   repeated bool actions_completed = 2;
 }
