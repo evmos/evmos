@@ -967,6 +967,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_unlockAccount","params"
 
 Validate the given passphrase and submit transaction.
 
+<!-- markdown-link-check-disable-next-line -->
 The transaction is the same argument as for [`eth_sendTransaction`](#eth-sendtransaction) and contains the `from` address. If the passphrase can be used to decrypt the private key belonging to `tx.from` the transaction is verified, signed and send onto the network.
 
 :::warning
@@ -1023,12 +1024,14 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_sign","params":["0xdead
 **Private**: Requires authentication.
 :::
 
+<!-- markdown-link-check-disable-next-line -->
 `ecRecover` returns the address associated with the private key that was used to calculate the signature in [`personal_sign`](#personal-sign).
 
 #### Parameters
 
 - Message
 
+<!-- markdown-link-check-disable-next-line -->
 - Signature returned from [`personal_sign`](#personal-sign)
 
 ```json
