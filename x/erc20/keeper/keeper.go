@@ -14,9 +14,8 @@ import (
 
 // Keeper of this module maintains collections of erc20.
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
-	paramstore paramtypes.Subspace
+	storeKey storetypes.StoreKey
+	cdc      codec.BinaryCodec
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
 	authority string
 
@@ -48,7 +47,6 @@ func NewKeeper(
 		authority:     authority,
 		storeKey:      storeKey,
 		cdc:           cdc,
-		paramstore:    ps,
 		accountKeeper: ak,
 		bankKeeper:    bk,
 		evmKeeper:     evmKeeper,

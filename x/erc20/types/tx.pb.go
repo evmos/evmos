@@ -249,7 +249,6 @@ type MsgUpdateParams struct {
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 
-
 func (m *MsgUpdateParams) Reset()         { *m = MsgUpdateParams{} }
 func (m *MsgUpdateParams) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParams) ProtoMessage()    {}
@@ -406,7 +405,7 @@ type MsgClient interface {
 	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
 	// contract that is registered on the token mapping.
 	ConvertERC20(ctx context.Context, in *MsgConvertERC20, opts ...grpc.CallOption) (*MsgConvertERC20Response, error)
-	// UpdateParams defined a governance operation for updating the x/evm module parameters.
+	// UpdateParams defined a governance operation for updating the x/erc20 module parameters.
 	// The authority is hard-coded to the Cosmos SDK x/gov module account
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -454,7 +453,7 @@ type MsgServer interface {
 	// ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
 	// contract that is registered on the token mapping.
 	ConvertERC20(context.Context, *MsgConvertERC20) (*MsgConvertERC20Response, error)
-	// UpdateParams defined a governance operation for updating the x/evm module parameters.
+	// UpdateParams defined a governance operation for updating the x/erc20 module parameters.
 	// The authority is hard-coded to the Cosmos SDK x/gov module account
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }

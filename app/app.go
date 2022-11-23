@@ -610,7 +610,7 @@ func NewEvmos(
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper),
-		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v10/x/erc20/exported"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -44,7 +45,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 2
+	return 3
 }
 
 // RegisterInterfaces registers interfaces and implementations of the erc20 module.
@@ -91,17 +92,21 @@ type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
+	ss exported.Subspace,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
+		legacySubspace: ss,
 	}
 }
 
@@ -131,13 +136,13 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), &am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	migrator := keeper.NewMigrator(am.keeper)
+	migrator := keeper.NewMigrator(am.keeper, am.legacySubspace)
 
 	// NOTE: the migrations below will only run if the consensus version has changed
 	// since the last release
 
-	// register v1 -> v2 migration
-	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+	// register v2 -> v3 migration
+	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate2to3); err != nil {
 		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
 	}
 }
