@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/evmos/evmos/v10/x/erc20/types"
@@ -31,7 +30,6 @@ func NewKeeper(
 	authority string,
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	ps paramtypes.Subspace,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
@@ -39,9 +37,6 @@ func NewKeeper(
 	ck types.ClaimsKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
-	}
 
 	return Keeper{
 		authority:     authority,

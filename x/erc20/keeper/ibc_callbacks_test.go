@@ -305,13 +305,12 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Set Next Sequence Send
 			suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, evmosChannel, 1)
 
-			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			suite.Require().True(found)
+			//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+			//suite.Require().True(found)
 			suite.app.Erc20Keeper = keeper.NewKeeper(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				suite.app.GetKey(types.StoreKey),
 				suite.app.AppCodec(),
-				sp,
 				suite.app.AccountKeeper,
 				suite.app.BankKeeper,
 				suite.app.EvmKeeper,

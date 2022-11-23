@@ -90,10 +90,10 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 		mockEVMKeeper = &MockEVMKeeper{}
-		sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-		suite.Require().True(found)
+		//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+		//suite.Require().True(found)
 		suite.app.Erc20Keeper = keeper.NewKeeper(authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-			suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper,
+			suite.app.GetKey("erc20"), suite.app.AppCodec(), suite.app.AccountKeeper, suite.app.BankKeeper,
 			mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 		tc.malleate()
@@ -279,10 +279,10 @@ func (suite *KeeperTestSuite) TestForceFail() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 			mockEVMKeeper = &MockEVMKeeper{}
-			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			suite.Require().True(found)
+			//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+			//suite.Require().True(found)
 			suite.app.Erc20Keeper = keeper.NewKeeper(authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper,
+				suite.app.GetKey("erc20"), suite.app.AppCodec(), suite.app.AccountKeeper,
 				suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 			tc.malleate()
@@ -369,10 +369,10 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 		mockEVMKeeper = &MockEVMKeeper{}
-		sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-		suite.Require().True(found)
+		//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+		//suite.Require().True(found)
 		suite.app.Erc20Keeper = keeper.NewKeeper(authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-			suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper,
+			suite.app.GetKey("erc20"), suite.app.AppCodec(), suite.app.AccountKeeper,
 			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 		tc.malleate()

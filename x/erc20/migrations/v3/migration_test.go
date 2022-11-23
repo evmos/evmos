@@ -1,4 +1,4 @@
-package v2_test
+package v3_test
 
 import (
 	"github.com/evmos/evmos/v10/x/erc20/exported"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3 "github.com/evmos/evmos/v10/x/erc20/migrations/v3"
+	"github.com/evmos/evmos/v10/x/erc20/migrations/v3"
 	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
 
 	"github.com/evmos/ethermint/encoding"

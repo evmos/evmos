@@ -1,9 +1,9 @@
 package types
 
 import (
-	fmt "fmt"
-
+	"fmt"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 // Parameter store key
@@ -12,26 +12,26 @@ var (
 	ParamStoreKeyEnableEVMHook = []byte("EnableEVMHook")
 )
 
-var _ paramtypes.ParamSet = &Params{}
+var _ paramtypes.ParamSet = &types.Params{}
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+	return paramtypes.NewKeyTable().RegisterParamSet(&types.Params{})
 }
 
 // NewParams creates a new Params object
 func NewParams(
 	enableErc20 bool,
 	enableEVMHook bool,
-) Params {
-	return Params{
+) types.Params {
+	return types.Params{
 		EnableErc20:   enableErc20,
 		EnableEVMHook: enableEVMHook,
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() types.Params {
+	return types.Params{
 		EnableErc20:   true,
 		EnableEVMHook: true,
 	}
@@ -45,13 +45,3 @@ func validateBool(i interface{}) error {
 
 	return nil
 }
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableErc20, &p.EnableErc20, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableEVMHook, &p.EnableEVMHook, validateBool),
-	}
-}
-
-func (p Params) Validate() error { return nil }
