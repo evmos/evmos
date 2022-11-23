@@ -2,10 +2,10 @@ syntax = "proto3";
 package evmos.erc20.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "evmos/erc20/v1/genesis.proto";
 import "evmos/erc20/v1/erc20.proto";
-import "google/api/annotations.proto";
+import "evmos/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
 
@@ -37,7 +37,8 @@ message QueryTokenPairsRequest {
 // QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
 // method.
 message QueryTokenPairsResponse {
-  repeated TokenPair token_pairs = 1 [ (gogoproto.nullable) = false ];
+  // token_pairs is a slice of registered token pairs for the erc20 module
+  repeated TokenPair token_pairs = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -52,7 +53,8 @@ message QueryTokenPairRequest {
 // QueryTokenPairResponse is the response type for the Query/TokenPair RPC
 // method.
 message QueryTokenPairResponse {
-  TokenPair token_pair = 1 [ (gogoproto.nullable) = false ];
+  // token_pairs returns the info about a registered token pair for the erc20 module
+  TokenPair token_pair = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -61,5 +63,6 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC
 // method.
 message QueryParamsResponse {
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  // params are the erc20 module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
 }

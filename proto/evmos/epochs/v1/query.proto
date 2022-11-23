@@ -1,10 +1,10 @@
 syntax = "proto3";
 package evmos.epochs.v1;
 
-import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/epochs/v1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/epochs/types";
 
@@ -15,20 +15,37 @@ service Query {
     option (google.api.http).get = "/evmos/epochs/v1/epochs";
   }
   // CurrentEpoch provide current epoch of specified identifier
-  rpc CurrentEpoch(QueryCurrentEpochRequest)
-      returns (QueryCurrentEpochResponse) {
+  rpc CurrentEpoch(QueryCurrentEpochRequest) returns (QueryCurrentEpochResponse) {
     option (google.api.http).get = "/evmos/epochs/v1/current_epoch";
   }
 }
 
+// QueryEpochsInfoRequest is the request type for the Query/EpochInfos RPC
+// method.
 message QueryEpochsInfoRequest {
+  // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
+// QueryEpochsInfoResponse is the response type for the Query/EpochInfos RPC
+// method.
 message QueryEpochsInfoResponse {
-  repeated EpochInfo epochs = 1 [ (gogoproto.nullable) = false ];
+  // epochs is a slice of all EpochInfos
+  repeated EpochInfo epochs = 1 [(gogoproto.nullable) = false];
+  // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-message QueryCurrentEpochRequest { string identifier = 1; }
-message QueryCurrentEpochResponse { int64 current_epoch = 1; }
+// QueryCurrentEpochRequest is the request type for the Query/EpochInfos RPC
+// method.
+message QueryCurrentEpochRequest {
+  // identifier of the current epoch
+  string identifier = 1;
+}
+
+// QueryCurrentEpochResponse is the response type for the Query/EpochInfos RPC
+// method.
+message QueryCurrentEpochResponse {
+  // current_epoch is the number of the current epoch
+  int64 current_epoch = 1;
+}

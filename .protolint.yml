@@ -108,9 +108,9 @@ lint:
         - for
         - at
         - of
-      # # The specific keywords including prepositions to ignore. E.g. end_of_support is a term you would like to use, and skip checking.
-      # excludes:
-      #   - end_of_support
+      # The specific keywords including prepositions to ignore. E.g. end_of_support is a term you would like to use, and skip checking.
+      excludes:
+        - duration_of_decay
 
     # # REPEATED_FIELD_NAMES_PLURALIZED rule option.
     # ## The spec for each rules follows the implementation of https://github.com/gertd/go-pluralize.

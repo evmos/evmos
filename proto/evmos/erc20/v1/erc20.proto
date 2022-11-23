@@ -1,8 +1,8 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/bank/v1beta1/bank.proto";
+import "gogoproto/gogo.proto";
 option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
 
 // Owner enumerates the ownership of a ERC20 contract.
@@ -10,9 +10,9 @@ enum Owner {
   option (gogoproto.goproto_enum_prefix) = false;
   // OWNER_UNSPECIFIED defines an invalid/undefined owner.
   OWNER_UNSPECIFIED = 0;
-  // OWNER_MODULE erc20 is owned by the erc20 module account.
+  // OWNER_MODULE - erc20 is owned by the erc20 module account.
   OWNER_MODULE = 1;
-  // EXTERNAL erc20 is owned by an external account.
+  // OWNER_EXTERNAL - erc20 is owned by an external account.
   OWNER_EXTERNAL = 2;
 }
 
@@ -20,13 +20,13 @@ enum Owner {
 //  Cosmos Coin and an ERC20 token address.
 message TokenPair {
   option (gogoproto.equal) = true;
-  // address of ERC20 contract token
+  // erc20_address is the hex address of ERC20 contract token
   string erc20_address = 1;
-  // cosmos base denomination to be mapped to
+  // denom defines the cosmos base denomination to be mapped to
   string denom = 2;
-  // shows token mapping enable status
+  // enabled defines the token mapping enable status
   bool enabled = 3;
-  // ERC20 owner address ENUM (0 invalid, 1 ModuleAccount, 2 external address)
+  // contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)
   Owner contract_owner = 4;
 }
 
@@ -36,10 +36,10 @@ message RegisterCoinProposal {
   option (gogoproto.equal) = false;
   // title of the proposal
   string title = 1;
-  // proposal description
+  // description of the proposal
   string description = 2;
   // metadata slice of the native Cosmos coins
-  repeated cosmos.bank.v1beta1.Metadata metadata = 3 [ (gogoproto.nullable) = false ];
+  repeated cosmos.bank.v1beta1.Metadata metadata = 3 [(gogoproto.nullable) = false];
 }
 
 // RegisterERC20Proposal is a gov Content type to register a token pair for an
@@ -48,9 +48,9 @@ message RegisterERC20Proposal {
   option (gogoproto.equal) = false;
   // title of the proposal
   string title = 1;
-  // proposal description
+  // description of the proposal
   string description = 2;
-  // contract addresses of ERC20 tokens
+  // erc20addresses is a slice of  ERC20 token contract addresses
   repeated string erc20addresses = 3;
 }
 
@@ -60,7 +60,7 @@ message ToggleTokenConversionProposal {
   option (gogoproto.equal) = true;
   // title of the proposal
   string title = 1;
-  // proposal description
+  // description of the proposal
   string description = 2;
   // token identifier can be either the hex contract address of the ERC20 or the
   // Cosmos base denomination

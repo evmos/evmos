@@ -1,9 +1,9 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
-import "google/api/annotations.proto";
-import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
 
@@ -23,12 +23,12 @@ service Msg {
 
 // MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
 message MsgConvertCoin {
-  // Cosmos coin which denomination is registered in a token pair. The coin
+  // coin is a Cosmos coin whose denomination is registered in a token pair. The coin
   // amount defines the amount of coins to convert.
-  cosmos.base.v1beta1.Coin coin = 1 [ (gogoproto.nullable) = false ];
-  // recipient hex address to receive ERC20 token
+  cosmos.base.v1beta1.Coin coin = 1 [(gogoproto.nullable) = false];
+  // receiver is the hex address to receive ERC20 token
   string receiver = 2;
-  // cosmos bech32 address from the owner of the given Cosmos coins
+  // sender is the cosmos bech32 address from the owner of the given Cosmos coins
   string sender = 3;
 }
 
@@ -38,16 +38,13 @@ message MsgConvertCoinResponse {}
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
 // coin.
 message MsgConvertERC20 {
-  // ERC20 token contract address registered in a token pair
+  // contract_address of an ERC20 token contract, that is registered in a token pair
   string contract_address = 1;
   // amount of ERC20 tokens to convert
-  string amount = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
-  // bech32 address to receive native Cosmos coins
+  string amount = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  // receiver is the bech32 address to receive native Cosmos coins
   string receiver = 3;
-  // sender hex address from the owner of the given ERC20 tokens
+  // sender is the hex address from the owner of the given ERC20 tokens
   string sender = 4;
 }
 
