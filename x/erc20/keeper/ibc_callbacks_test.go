@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -307,6 +308,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
 			suite.Require().True(found)
 			suite.app.Erc20Keeper = keeper.NewKeeper(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				suite.app.GetKey(types.StoreKey),
 				suite.app.AppCodec(),
 				sp,
