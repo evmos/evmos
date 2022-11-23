@@ -12,8 +12,8 @@ Below is a list of publicly available snapshots that you can use to sync with th
 archived [9001-1 mainnet](https://github.com/evmos/mainnet/tree/main/evmos_9001-1):
 
 <!-- markdown-link-check-disable -->
-:::: tabs
-::: tab Snapshots
+
+### Snapshots
 
 | Name        | URL                                                                     |
 | -------------|------------------------------------------------------------------------ |
@@ -22,8 +22,7 @@ archived [9001-1 mainnet](https://github.com/evmos/mainnet/tree/main/evmos_9001-
 | `Nodes Guru` | [snapshots.nodes.guru/evmos_9001-2/](snapshots.nodes.guru/evmos_9001-2/)                   |
 | `Notional`   | [mainnet/pruned/evmos_9001-2(pebbledb)](https://snapshot.notional.ventures/evmos/) <br> [mainnet/archive/evmos_9001-2(pebbledb)](https://snapshot.notional.ventures/evmos-archive/) <br> [testnet/archive/evmos_9000-4(pebbledb)](https://snapshot.notional.ventures/evmos-testnet-archive/)                   |
 
-:::
-::: tab Archives
+### Archives
 <!-- markdown-link-check-disable -->
 
 | Name           | URL                                                                             |
@@ -31,8 +30,6 @@ archived [9001-1 mainnet](https://github.com/evmos/mainnet/tree/main/evmos_9001-
 | `Nodes Guru`   | [snapshots.nodes.guru/evmos_9001-1](https://snapshots.nodes.guru/evmos_9001-1/)                                    |
 | `Polkachu`     | [polkachu.com/tendermint_snapshots/evmos](https://www.polkachu.com/tendermint_snapshots/evmos)                           |
 | `Forbole`      | [bigdipper.live/evmos_9001-1](https://s3.bigdipper.live.eu-central-1.linodeobjects.com/evmos_9001-1.tar.lz4) |
-:::
-::::
 
 To access snapshots and archives, follow the process below (this code snippet is to access a snapshot of the current network, `evmos_9001-2`, from Nodes Guru):
 

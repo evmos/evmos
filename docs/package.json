@@ -23,7 +23,6 @@
   "author": "Tharsis",
   "license": "ISC",
   "dependencies": {
-    "@bidoubiwa/vuepress-plugin-element-tabs": "https://github.com/bidoubiwa/vuepress-plugin-element-tabs",
     "@cosmos-ui/vue": "https://github.com/evmos/docs-ui/#master",
     "entities": "^2.0.3",
     "markdown-it": "^12.3.2",
@@ -40,7 +39,6 @@
   "resolutions": {
     "@cosmos-ui/vue": "@evmos/docs-ui@*",
     "**/node-sass": "node-sass@*",
-    "serialize-javascript": "^4.0.0",
-    "vuepress-plugin-element-tabs": "npm:@bidoubiwa/vuepress-plugin-element-tabs@*"
+    "serialize-javascript": "^4.0.0"
   }
 }
