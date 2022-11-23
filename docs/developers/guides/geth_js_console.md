@@ -32,7 +32,7 @@ GOROOT=/usr/local/go
 
 ## 1️⃣ Install dependencies
 
-Make sure you have installed all the dependencies mentioned in the **[Requirements](https://www.notion.so/Geth-Console-Guide-ed61423efddb41beb6fc68b61794780c)** section.
+Make sure you have installed all the dependencies mentioned in the **[Requirements](#-requirements)** section.
 
 ## 2️⃣ Run Evmos local node
 
