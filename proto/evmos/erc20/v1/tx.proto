@@ -22,10 +22,10 @@ service Msg {
   rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
     option (google.api.http).get = "/evmos/erc20/v1/tx/convert_erc20";
   };
-  // UpdateParams defined a governance operation for updating the x/evm module parameters.
+  // UpdateParams defined a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse) {
-    option (google.api.http).post = "/ethermint/evm/v1/update_params";
+    option (google.api.http).post = "/evmos/erc20/v1/tx/update_params";
   };
 }
 
@@ -60,7 +60,7 @@ message MsgConvertERC20 {
 message MsgConvertERC20Response {}
 
 
-// MsgUpdateParams is the Msg/UpdateParams request type for EVM parameters.
+// MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";

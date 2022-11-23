@@ -325,7 +325,7 @@ var (
 
 	pattern_Msg_ConvertERC20_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"evmos", "erc20", "v1", "tx", "convert_erc20"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Msg_UpdateParams_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"ethermint", "evm", "v1", "update_params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Msg_UpdateParams_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"evmos", "erc20", "v1", "tx", "update_params"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
