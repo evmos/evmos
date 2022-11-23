@@ -390,7 +390,7 @@ func NewEvmos(
 
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-    scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
@@ -552,6 +552,15 @@ func NewEvmos(
 		app.ClaimsKeeper,
 	)
 
+	// NOTE: app.Erc20Keeper is already initialized elsewhere
+
+	// Set the ICS4 wrappers for custom module middlewares
+	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
+	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
+
+	// Override the ICS20 app module
+	transferModule := transfer.NewAppModule(app.TransferKeeper)
+
 	icaHostKeeper := icahostkeeper.NewKeeper(
 		appCodec, app.keys[icahosttypes.StoreKey],
 		app.GetSubspace(icahosttypes.SubModuleName),
@@ -564,16 +573,6 @@ func NewEvmos(
 	)
 
 	app.ICAHostKeeper = &icaHostKeeper
-
-	// NOTE: app.Erc20Keeper is already initialized elsewhere
-
-	// Set the ICS4 wrappers for custom module middlewares
-	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
-	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
-
-	// Override the ICS20 app module
-	transferModule := transfer.NewAppModule(app.TransferKeeper)
-
 	// transfer stack contains (from bottom to top):
 	// - ERC-20 Middleware
 	// - Recovery Middleware
@@ -839,7 +838,7 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedICAHostKeeper  = scopedICAHostKeeper
+	app.ScopedICAHostKeeper = scopedICAHostKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
