@@ -80,8 +80,12 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
+	// Instead of converting just the received coins. We convert the whole user balance
+	balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
+	// coin.Amount = coin.Amount.Add(balance.Amount)
+
 	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
-	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(recipient.Bytes()), recipient)
+	msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)
 
 	// NOTE: we don't use ValidateBasic the msg since we've already validated
 	// the ICS20 packet data
