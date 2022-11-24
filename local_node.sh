@@ -4,7 +4,10 @@ KEYS[1]="dev1"
 KEYS[2]="dev2"
 CHAINID="evmos_9000-1"
 MONIKER="localtestnet"
-KEYRING="test" # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
+# Remember to change to other types of keyring like 'file' in-case exposing to outside world,
+# otherwise your balance will be wiped quickly.
+# The keyring test does not require private key to steal tokens from you
+KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the evmosd instance
@@ -103,7 +106,7 @@ fi
 for KEY in "${KEYS[@]}"
 do
   evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING --home $HOMEDIR
-done 
+done
 
 # Update total supply with claim values
 validators_supply=$(cat $GENESIS | jq -r '.app_state["bank"]["supply"][0]["amount"]')

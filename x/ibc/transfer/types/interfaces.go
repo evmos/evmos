@@ -15,7 +15,7 @@ import (
 // BankKeeper defines the expected interface needed to check balances and send coins.
 type BankKeeper interface {
 	transfertypes.BankKeeper
-	HasBalance(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coin) bool
+	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 }
 
 // ERC20Keeper defines the expected ERC20 keeper interface for supporting
