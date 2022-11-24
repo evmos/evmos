@@ -12,6 +12,7 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 - [Geth JSON-RPC APIs](https://geth.ethereum.org/docs/rpc/server) {prereq}
 
 ## Endpoints
+<!-- markdown-link-check-disable -->
 
 | Method                                                                            | Namespace | Implemented | Public | Notes              |
 |-----------------------------------------------------------------------------------|-----------|-------------|--------|--------------------|
@@ -158,6 +159,8 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 | [`txpool_inspect`](#txpool-inspect)                                               | TxPool    | ✔           |        |                    |
 | [`txpool_status`](#txpool-status)                                                 | TxPool    | ✔           |        |                    |
 
+<!-- markdown-link-check-enable -->
+
 :::tip
 Block Number can be entered as a Hex string, `"earliest"`, ``"latest"`` or `"pending"`.
 :::
@@ -180,29 +183,29 @@ Get the web3 client version.
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_clientVersion", "params": []}'
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "web3_clientVersion", "params": []}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 web3.clientVersion();
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 ### `web3_sha3`
 
@@ -222,29 +225,29 @@ Returns Keccak-256 (not the standardized SHA3-256) of the given data.
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "web3_sha3", "params": [<input>]}'
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "web3_sha3", "params": [<input>]}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 web3.sha3(input);
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 ## Net Methods
 
@@ -509,6 +512,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{
 ### `eth_sendRawTransaction`
 
 Creates new message call transaction or a contract creation for signed transactions.
+<!-- markdown-link-check-disable-next-line -->
 You can get signed transaction data using the [`personal_sign`](#personal-sign) method.
 
 #### Parameters
@@ -947,6 +951,7 @@ Decrypts the key with the given address from the key store.
 
 Both passphrase and unlock duration are optional when using the JavaScript console. The unencrypted key will be held in memory until the unlock duration expires. If the unlock duration defaults to 300 seconds. An explicit duration of zero seconds unlocks the key until geth exits.
 
+<!-- markdown-link-check-disable-next-line -->
 The account can be used with [`eth_sign`](#eth-sign) and [`eth_sendTransaction`](#eth-sendtransaction) while it is unlocked.
 
 #### Parameters
@@ -973,6 +978,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_unlockAccount","params"
 
 Validate the given passphrase and submit transaction.
 
+<!-- markdown-link-check-disable-next-line -->
 The transaction is the same argument as for [`eth_sendTransaction`](#eth-sendtransaction) and contains the `from` address. If the passphrase can be used to decrypt the private key belonging to `tx.from` the transaction is verified, signed and send onto the network.
 
 :::warning
@@ -1029,12 +1035,14 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_sign","params":["0xdead
 **Private**: Requires authentication.
 :::
 
+<!-- markdown-link-check-disable-next-line -->
 `ecRecover` returns the address associated with the private key that was used to calculate the signature in [`personal_sign`](#personal-sign).
 
 #### Parameters
 
 - Message
 
+<!-- markdown-link-check-disable-next-line -->
 - Signature returned from [`personal_sign`](#personal-sign)
 
 ```json
@@ -1063,29 +1071,29 @@ Parameters must be given by position.
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "personal_initializeWallet", "params": [<url>]}'
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "personal_initializeWallet", "params": [<url>]}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 personal.initializeWallet(url);
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 ### `personal_unpair`
 
@@ -1103,29 +1111,29 @@ Unpair deletes a pairing between wallet and the node.
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "personal_unpair", "params": [<url>, <pin>]}'
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="WebSocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "personal_unpair", "params": [<url>, <pin>]}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 personal.unpair(url,pin);
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 ## Debug Methods
 
@@ -1326,29 +1334,29 @@ Returns a list of the exact details of all the transactions currently pending fo
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_content","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "txpool_content", "params": []}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 txpool.content();
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 #### Result
 
@@ -1364,29 +1372,29 @@ Returns a list on text format to summarize all the transactions currently pendin
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_inspect","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "txpool_inspect", "params": []}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 txpool.inspect();
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 #### Result
 
@@ -1402,29 +1410,29 @@ Returns the number of transactions currently pending for inclusion in the next b
 
 #### Client Examples
 
-:::: tabs
-::: tab Shell HTTP
+<CodeGroup>
+<CodeGroupItem title="Shell HTTP">
 
 ```shell
 curl -X POST --data '{"jsonrpc":"2.0","method":"txpool_status","params":[],"id":1}' -H "Content-Type: application/json" http://localhost:8545
 ```
 
-:::
-::: tab Shell WebSocket
+</CodeGroupItem>
+<CodeGroupItem title="Websocket">
 
 ```shell
 wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "txpool_status", "params": []}'
 ```
 
-:::
-::: tab Javascript Console
+</CodeGroupItem>
+<CodeGroupItem title="Javascript Console">
 
 ```javascript
 txpool.status();
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 #### Result
 
