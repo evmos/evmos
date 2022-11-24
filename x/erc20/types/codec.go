@@ -48,6 +48,10 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&ToggleTokenConversionProposal{},
 	)
 
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
+		&MsgUpdateParams{},
+	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
