@@ -1,6 +1,6 @@
 # Geth JavaScript Console Guide
 
-This is a comprehensive guide to setting up and using the Geth JS console with an Evmos node.
+Learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
 
 ## ✅ Requirements
 
