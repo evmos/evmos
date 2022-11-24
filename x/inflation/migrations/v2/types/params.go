@@ -3,15 +3,14 @@ package types
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
+	"strings"
 )
 
 var DefaultInflationDenom = evm.DefaultEVMDenom
 
-// Parameter store keys
 var (
 	ParamStoreKeyMintDenom              = []byte("MintDenom")
 	ParamStoreKeyExponentialCalculation = []byte("ExponentialCalculation")
@@ -33,7 +32,6 @@ func NewParams(
 	}
 }
 
-// default minting module parameters
 func DefaultParams() Params {
 	return Params{
 		MintDenom: DefaultInflationDenom,
@@ -50,6 +48,16 @@ func DefaultParams() Params {
 			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 		},
 		EnableInflation: true,
+	}
+}
+
+// Implements params.ParamSet
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(ParamStoreKeyMintDenom, &p.MintDenom, validateMintDenom),
+		paramtypes.NewParamSetPair(ParamStoreKeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
+		paramtypes.NewParamSetPair(ParamStoreKeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableInflation, &p.EnableInflation, validateBool),
 	}
 }
 
