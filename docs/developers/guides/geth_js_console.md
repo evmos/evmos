@@ -1,3 +1,7 @@
+<!--
+order: 8
+-->
+
 # Geth JavaScript Console Guide
 
 Learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
