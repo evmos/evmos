@@ -8,12 +8,12 @@ Learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
 
 ## Pre-requisite Readings
 
-- Geth
-- Evmos (local) node
+- [Go-ethereum JavaScript Console](https://geth.ethereum.org/docs/interface/javascript-console) {prereq}
+- [Evmos (local) node](https://docs.evmos.org/developers/localnet/single_node.html) {prereq}
 
-### Installing Geth
+### Installing Go-ethereum JavaScript Console
 
-Install geth following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+Install the Go-ethereum JavaScript Console (`geth`) following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 
 Check that the installation was successful by running the following command:
 
@@ -34,11 +34,11 @@ GOPATH=/home/tom/go
 GOROOT=/usr/local/go
 ```
 
-## 1️⃣ Install dependencies
+## Install dependencies
 
-Make sure you have installed all the dependencies mentioned in the **[Requirements](#-requirements)** section.
+Make sure you have installed all the dependencies mentioned in the **[Pre-requisite Readings](#pre-requisite-readings)** section.
 
-## 2️⃣ Run Evmos local node
+## Run Evmos local node
 
 - Clone the [evmos repository](https://github.com/evmos/evmos) (if you haven’t already)
 - Run the `local_node.sh` script to start a local node
@@ -49,7 +49,7 @@ cd evmos
 ./local_node.sh
 ```
 
-## 3️⃣ Attach geth JS console
+## Attach geth JS console
 
 Wait a few seconds for the node to start up the JSON-RPC server.
 
@@ -63,7 +63,7 @@ geth attach http://127.0.0.1:8545
 
 ![https://i.imgur.com/rfN0T2i.png](https://i.imgur.com/rfN0T2i.png)
 
-## 4️⃣ Use JSON-RPC methods
+## Use JSON-RPC methods
 
 Now we can use all the implemented JSON-RPC methods. Find an exhaustive list of the supported JSON-RPC methods on [Evmos docs](https://docs.evmos.org/developers/json-rpc/endpoints.html).
 
