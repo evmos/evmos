@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,6 +11,13 @@ import (
 )
 
 var DefaultInflationDenom = evm.DefaultEVMDenom
+
+var _ paramtypes.ParamSet = &Params{}
+
+func (m *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	//TODO implement me
+	panic("implement me")
+}
 
 // Parameter store keys
 var (

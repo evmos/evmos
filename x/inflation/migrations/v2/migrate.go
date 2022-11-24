@@ -20,9 +20,6 @@ func MigrateStore(
 	var params v2types.Params
 	legacySubspace.GetParamSet(ctx, &params)
 
-	//expected: types.Params(types.Params{MintDenom:"aphoton", ExponentialCalculation:types.ExponentialCalculation{A:300000000.000000000000000000, R:0.500000000000000000, C:9375000.000000000000000000, BondingTarget:0.660000000000000000, MaxVariance:0.000000000000000000}, InflationDistribution:types.InflationDistribution{StakingRewards:0.533333334000000000, UsageIncentives:0.333333333000000000, CommunityPool:0.133333333000000000}, EnableInflation:true})
-	//actual  : types.Params(types.Params{MintDenom:"aphoton", ExponentialCalculation:types.ExponentialCalculation{A:300000000.000000000000000000, R:0.500000000000000000, C:9375000.000000000000000000, BondingTarget:0.660000000000000000, MaxVariance:0.000000000000000000}, InflationDistribution:types.InflationDistribution{StakingRewards:0.533333334000000000, UsageIncentives:0.333333333000000000, CommunityPool:0.133333333000000000}, EnableInflation:true})
-	//Test:           TestMigrate
 	if err := params.Validate(); err != nil {
 		return err
 	}

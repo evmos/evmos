@@ -21,7 +21,10 @@ func InitGenesis(
 
 	// Set genesis state
 	params := data.Params
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	if err != nil {
+		panic(err)
+	}
 
 	period := data.Period
 	k.SetPeriod(ctx, period)
