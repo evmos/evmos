@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v10/x/inflation/exported"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -44,7 +45,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 1
+	return 2
 }
 
 // RegisterInterfaces registers interfaces and implementations of the incentives
@@ -96,6 +97,8 @@ type AppModule struct {
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
 	sk     stakingkeeper.Keeper
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule Object
@@ -103,12 +106,14 @@ func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
 	sk stakingkeeper.Keeper,
+	ss exported.Subspace,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
 		sk:             sk,
+		legacySubspace: ss,
 	}
 }
 
@@ -120,14 +125,9 @@ func (AppModule) Name() string {
 // RegisterInvariants registers the inflation module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
-// NewHandler returns nil inflation module doesn't expose tx gRPC endpoints
-func (am AppModule) NewHandler() sdk.Handler {
-	return nil
-}
-
 // Route returns the message routing key for the inflation module.
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, am.NewHandler())
+	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
 }
 
 // QuerierRoute returns the inflation module's querier route name.
@@ -143,9 +143,16 @@ func (am AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 // RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	_ = keeper.NewMigrator(am.keeper)
+	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
+
+	// Migrate to version 2 of store
+	err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate1to2)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // BeginBlock returns the begin blocker for the inflation module.
