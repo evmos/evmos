@@ -40,7 +40,7 @@ Make sure you have installed all the dependencies mentioned in the **[Requiremen
 
 ## 2️⃣ Run Evmos local node
 
-- Clone the evmos repository (if you haven’t already)
+- Clone the [evmos repository](https://github.com/evmos/evmos) (if you haven’t already)
 - Run the `local_node.sh` script to start a local node
 
 ```
