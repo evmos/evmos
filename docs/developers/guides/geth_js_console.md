@@ -8,8 +8,8 @@ Learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
 
 ## Pre-requisite Readings
 
--   [Go-ethereum JavaScript Console](https://geth.ethereum.org/docs/interface/javascript-console) {prereq}
--   [Evmos (local) node](https://docs.evmos.org/developers/localnet/single_node.html) {prereq}
+- [Go-ethereum JavaScript Console](https://geth.ethereum.org/docs/interface/javascript-console) {prereq}
+- [Evmos (local) node](https://docs.evmos.org/developers/localnet/single_node.html) {prereq}
 
 ### Installing Go-ethereum JavaScript Console
 
@@ -35,7 +35,9 @@ GOROOT=/usr/local/go
 ```
 
 ## Install dependencies
+
 <!-- markdown-link-check-disable-next-line -->
+
 Make sure you have installed all the dependencies mentioned in the **[Pre-requisite Readings](#pre-requisite-readings)** section.
 
 ## Run Evmos local node
