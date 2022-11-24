@@ -14,10 +14,10 @@ var DefaultInflationDenom = evm.DefaultEVMDenom
 
 // Parameter store keys
 var (
-	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
-	ParamStoreKeyExponentialCalculation = []byte("ParamStoreKeyExponentialCalculation")
-	ParamStoreKeyInflationDistribution  = []byte("ParamStoreKeyInflationDistribution")
-	ParamStoreKeyEnableInflation        = []byte("ParamStoreKeyEnableInflation")
+	ParamStoreKeyMintDenom              = []byte("MintDenom")
+	ParamStoreKeyExponentialCalculation = []byte("ExponentialCalculation")
+	ParamStoreKeyInflationDistribution  = []byte("InflationDistribution")
+	ParamStoreKeyEnableInflation        = []byte("EnableInflation")
 )
 
 // ParamTable for inflation module
