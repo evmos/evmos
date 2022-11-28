@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v10/x/erc20/exported"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -93,14 +92,14 @@ type AppModule struct {
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
 	// legacySubspace is used solely for migration of x/params managed parameters
-	legacySubspace exported.Subspace
+	legacySubspace types.Subspace
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
-	ss exported.Subspace,
+	ss types.Subspace,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},

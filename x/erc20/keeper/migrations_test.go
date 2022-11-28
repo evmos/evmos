@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/erc20/exported"
 	erc20keeper "github.com/evmos/evmos/v10/x/erc20/keeper"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
@@ -15,7 +14,7 @@ func newMockSubspace(ps types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
-func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps exported.Params) {
+func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
 	*ps.(*types.Params) = ms.ps
 }
 

@@ -1,7 +1,6 @@
 package v3_test
 
 import (
-	"github.com/evmos/evmos/v10/x/erc20/exported"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 	gogotypes "github.com/gogo/protobuf/types"
 	"testing"
@@ -26,7 +25,7 @@ func newMockSubspace(ps types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
-func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps exported.Params) {
+func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
 	*ps.(*types.Params) = ms.ps
 }
 

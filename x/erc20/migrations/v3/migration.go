@@ -3,7 +3,6 @@ package v3
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/erc20/exported"
 	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 	gogotypes "github.com/gogo/protobuf/types"
@@ -14,7 +13,7 @@ import (
 // and managed by the Cosmos SDK params module and stores them directly into the x/erc20 module state.
 func MigrateStore(ctx sdk.Context,
 	store sdk.KVStore,
-	legacySubspace exported.Subspace,
+	legacySubspace types.Subspace,
 	cdc codec.BinaryCodec) error {
 	var params types.Params
 	legacySubspace.GetParamSet(ctx, &params)
