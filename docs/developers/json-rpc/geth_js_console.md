@@ -93,6 +93,7 @@ eth.blockNumber
 ```
 
 The result is printed on the next line. In the example below, we can see that we are at block height 1004:
+
 ```
 > eth.blockNumber
 1003
@@ -124,6 +125,7 @@ net.version
 ```
 
 In the example below, we can assure that the chain id is 9000:
+
 ```
 > net.version
 "9000"
@@ -138,6 +140,7 @@ eth.getBalance(eth.accounts[0])
 ```
 
 Example:
+
 ```
 > eth.getBalance(eth.accounts[0])
 9.9999e+25
@@ -165,6 +168,7 @@ eth.sendTransaction({from:eth.accounts[0], to:"0xf6e443fd1c869c6a25d18a9866f3a6c
 ```
 
 Example:
+
 ```
 > eth.sendTransaction({from:eth.accounts[0], to: eth.accounts[1], value: web3.toWei(1, "ether")})
 "0x902dfba22a8b7aaa599aa3ea35c8d60991f497ba2fe6c519ad7a7e1e4a2f3e8f"
@@ -181,6 +185,7 @@ web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 ```
 
 The sender balance is reduced by 1 Evmos token and the fees paid for the transaction:
+
 ```
 > web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 99998998.999990548370552
@@ -193,10 +198,12 @@ web3.fromWei(eth.getBalance("0xf6e443fd1c869c6a25d18a9866f3a6c7f8dfb703"),"ether
 ```
 
 The receiver account balance initially was 100000000 Evmos tokens. After the transaction, the account balance has increased by 1 Evmos token.
+
 ```
 > web3.fromWei(eth.getBalance(eth.accounts[1]),"ether")
 100000001
 ```
+
 ## 🚪 Exit geth console
 
 To exit the geth console use:
