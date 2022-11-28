@@ -3,9 +3,7 @@ package v3
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
-	gogotypes "github.com/gogo/protobuf/types"
 )
 
 // MigrateStore migrates the x/erc20 module state from the consensus version 2 to
@@ -23,11 +21,18 @@ func MigrateStore(ctx sdk.Context,
 		return err
 	}
 
-	enableErc20Bz := cdc.MustMarshal(&gogotypes.BoolValue{Value: params.EnableErc20})
-	enableEvmHookBz := cdc.MustMarshal(&gogotypes.BoolValue{Value: params.EnableEVMHook})
+	enableErc20Bz := []byte("0x00")
+	if params.EnableErc20 {
+		enableErc20Bz = []byte("0x01")
+	}
 
-	store.Set(v3types.ParamStoreKeyEnableErc20, enableErc20Bz)
-	store.Set(v3types.ParamStoreKeyEnableEVMHook, enableEvmHookBz)
+	enableEvmHookBz := []byte("0x00")
+	if params.EnableEVMHook {
+		enableEvmHookBz = []byte("0x01")
+	}
+
+	store.Set(types.ParamStoreKeyEnableErc20, enableErc20Bz)
+	store.Set(types.ParamStoreKeyEnableEVMHook, enableEvmHookBz)
 
 	return nil
 }

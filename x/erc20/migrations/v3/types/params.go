@@ -5,12 +5,6 @@ import (
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
-// Parameter store key
-var (
-	ParamStoreKeyEnableErc20   = []byte("EnableErc20")
-	ParamStoreKeyEnableEVMHook = []byte("EnableEVMHook")
-)
-
 var _ paramtypes.ParamSet = &types.Params{}
 
 // ParamKeyTable returns the parameter key table.

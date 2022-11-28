@@ -1,19 +1,16 @@
 package v3_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/evmos/evmos/v10/x/erc20/types"
-	gogotypes "github.com/gogo/protobuf/types"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/erc20/migrations/v3"
-	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
-
 	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/evmos/v10/x/erc20/migrations/v3"
 
 	"github.com/evmos/evmos/v10/app"
 )
@@ -43,14 +40,18 @@ func TestMigrate(t *testing.T) {
 	require.NoError(t, v3.MigrateStore(ctx, store, legacySubspace, cdc))
 
 	// Get all the new parameters from the store
-	var enableEvmHook gogotypes.BoolValue
-	bz := store.Get(v3types.ParamStoreKeyEnableEVMHook)
-	cdc.MustUnmarshal(bz, &enableEvmHook)
+	var enableEvmHook bool
+	bz := store.Get(types.ParamStoreKeyEnableEVMHook)
+	if bytes.Equal(bz, []byte("0x01")) {
+		enableEvmHook = true
+	}
 
-	var enableErc20 gogotypes.BoolValue
-	bz = store.Get(v3types.ParamStoreKeyEnableErc20)
-	cdc.MustUnmarshal(bz, &enableErc20)
+	var enableErc20 bool
+	bz = store.Get(types.ParamStoreKeyEnableErc20)
+	if bytes.Equal(bz, []byte("0x01")) {
+		enableErc20 = true
+	}
 
-	params := types.NewParams(enableErc20.Value, enableEvmHook.Value)
+	params := types.NewParams(enableErc20, enableEvmHook)
 	require.Equal(t, legacySubspace.ps, params)
 }
