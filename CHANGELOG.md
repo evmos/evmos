@@ -71,7 +71,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-* (analytics) [#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
+- (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.
+- (analytics) [\#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
 
 
 ## [v9.1.0] - 2022-10-25
