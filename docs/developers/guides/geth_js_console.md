@@ -67,7 +67,7 @@ geth attach http://127.0.0.1:8545
 
 ## Use JSON-RPC methods
 
-Now we can use all the implemented JSON-RPC methods. Find an exhaustive list of the supported JSON-RPC methods on [Evmos docs](https://docs.evmos.org/developers/json-rpc/endpoints.html).
+Now we can use all implemented JSON-RPC methods. Find an exhaustive list of the supported JSON-RPC methods on [Evmos docs](https://docs.evmos.org/developers/json-rpc/endpoints.html).
 
 Below are some examples of how to use the console.
 
