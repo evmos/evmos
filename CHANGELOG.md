@@ -48,6 +48,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`
 
+### Features
+
+- (app) [\#1114](https://github.com/evmos/evmos/pull/1114) Set default File store listener for application from [ADR38](https://docs.cosmos.network/v0.47/architecture/adr-038-state-listening)
+
 ### Improvements
 
 - (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
