@@ -55,7 +55,7 @@ cd evmos
 
 Wait a few seconds for the node to start up the JSON-RPC server.
 
-The local node has the HTTP-RPC server enabled and listening at port 8545 by default. This is what we will connect to.
+The local node has the HTTP-RPC server enabled and is listening at port 8545 by default. This is what we will connect to.
 
 Attach geth console to your node with the following command:
 
