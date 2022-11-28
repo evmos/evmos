@@ -2,8 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"math/big"
+
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -305,8 +306,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Set Next Sequence Send
 			suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, evmosChannel, 1)
 
-			//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			//suite.Require().True(found)
+			// sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+			// suite.Require().True(found)
 			suite.app.Erc20Keeper = keeper.NewKeeper(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				suite.app.GetKey(types.StoreKey),
@@ -364,7 +365,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 }
 
 func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
-
 	testCases := []struct {
 		name     string
 		malleate func() transfertypes.FungibleTokenPacketData
@@ -450,7 +450,6 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			} else {
 				suite.Require().Error(err)
 			}
-
 		})
 	}
 }

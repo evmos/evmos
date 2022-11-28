@@ -14,7 +14,8 @@ import (
 func MigrateStore(ctx sdk.Context,
 	store sdk.KVStore,
 	legacySubspace types.Subspace,
-	cdc codec.BinaryCodec) error {
+	cdc codec.BinaryCodec,
+) error {
 	var params types.Params
 	legacySubspace.GetParamSet(ctx, &params)
 

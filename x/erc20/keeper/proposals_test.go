@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -197,8 +198,8 @@ func (suite KeeperTestSuite) TestRegisterCoin() {
 				suite.Require().NoError(err)
 
 				mockEVMKeeper := &MockEVMKeeper{}
-				//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-				//suite.Require().True(found)
+				// sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				// suite.Require().True(found)
 				suite.app.Erc20Keeper = keeper.NewKeeper(authtypes.NewModuleAddress(govtypes.ModuleName).String(), suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
@@ -285,8 +286,8 @@ func (suite KeeperTestSuite) TestRegisterERC20() {
 			"force fail evm",
 			func() {
 				mockEVMKeeper := &MockEVMKeeper{}
-				//sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-				//suite.Require().True(found)
+				// sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
+				// suite.Require().True(found)
 				suite.app.Erc20Keeper = keeper.NewKeeper(authtypes.NewModuleAddress(govtypes.ModuleName).String(), suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					suite.app.AccountKeeper, suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)

@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
@@ -35,13 +34,4 @@ func DefaultParams() types.Params {
 		EnableErc20:   true,
 		EnableEVMHook: true,
 	}
-}
-
-func validateBool(i interface{}) error {
-	_, ok := i.(bool)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	return nil
 }

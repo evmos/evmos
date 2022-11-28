@@ -1,9 +1,10 @@
 package v3_test
 
 import (
+	"testing"
+
 	"github.com/evmos/evmos/v10/x/erc20/types"
 	gogotypes "github.com/gogo/protobuf/types"
-	"testing"
 
 	"github.com/stretchr/testify/require"
 

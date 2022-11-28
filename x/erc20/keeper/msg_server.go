@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"context"
+	"math/big"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/pkg/errors"
-	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
