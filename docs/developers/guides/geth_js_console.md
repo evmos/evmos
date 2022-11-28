@@ -13,7 +13,7 @@ Learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
 
 ### Installing Go-ethereum JavaScript Console
 
-Install the Go-ethereum JavaScript Console (`geth`) following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+Install the Go-ethereum CLI (`geth`) following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 
 Check that the installation was successful by running the following command:
 
