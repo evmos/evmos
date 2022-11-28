@@ -491,10 +491,9 @@ proto-gen:
 	@echo "Generating Protobuf files"
 	$(protoImage) sh ./scripts/protocgen.sh
 
-# TODO: Rethink API docs generation
-# proto-swagger-gen:
-# 	@echo "Generating Protobuf Swagger"
-# 	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+proto-swagger-gen:
+	@echo "Generating Protobuf Swagger"
+	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
 
 proto-format:
 	@echo "Formatting Protobuf files"
@@ -546,7 +545,7 @@ proto-update-deps:
 	@curl -sSL $(TM_URL)/crypto/keys.proto > $(TM_CRYPTO_TYPES)/keys.proto
 
 
-.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-deps
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-deps proto-swagger-gen
 
 ###############################################################################
 ###                                Localnet                                 ###
