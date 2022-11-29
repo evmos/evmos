@@ -30,6 +30,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	"github.com/cosmos/cosmos-sdk/store/streaming"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -356,6 +357,12 @@ func NewEvmos(
 	// Add the EVM transient store key
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, keys); err != nil {
+		fmt.Printf("failed to load state streaming: %s", err)
+		os.Exit(1)
+	}
 
 	app := &Evmos{
 		BaseApp:           bApp,
@@ -965,6 +972,8 @@ func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConf
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	// Register new tendermint queries routes from grpc-gateway.
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	// Register node gRPC service for grpc-gateway.
+	node.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register legacy and grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -989,6 +998,8 @@ func (app *Evmos) RegisterTendermintService(clientCtx client.Context) {
 	)
 }
 
+// RegisterNodeService registers the node gRPC service on the provided
+// application gRPC query router.
 func (app *Evmos) RegisterNodeService(clientCtx client.Context) {
 	node.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
