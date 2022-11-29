@@ -43,7 +43,7 @@ fi
 
 if [ $overwrite == "Y" ]; then
 	# Remove the previous folder
-	rm -rf $HOMEDIR
+	rm -rf "$HOMEDIR"
 
 	# Set client config
 	evmosd config keyring-backend $KEYRING --home "$HOMEDIR"
