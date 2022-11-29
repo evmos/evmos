@@ -68,6 +68,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc/erc20) [\#1085](https://github.com/evmos/evmos/pull/1085) Added wrapper for ibc transfer to automatically convert erc20 tokens to cosmos coins.
 - (vesting) [\#1087](https://github.com/evmos/evmos/pull/1087) Add new `MsgUpdateVestingFunder` that updates the `Funder` field of a given clawback vesting account
 - (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
+- (cmd) [\#1121](https://github.com/evmos/evmos/pull/1121) Fix evmosd version to show either tag or last commit.
 
 ### Bug Fixes
 
