@@ -121,9 +121,7 @@ if [ $overwrite == "Y" ]; then
 		evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
 
-	# Update total supply with claim values
-	validators_supply=$(cat "$GENESIS" | jq -r '.app_state["bank"]["supply"][0]["amount"]')
-	# Bc is required to add these big numbers
+	# bc is required to add these big numbers
 	total_supply=$(echo "${#KEYS[@]} * 100000000000000000000000000 + $amount_to_claim" | bc)
 	jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
