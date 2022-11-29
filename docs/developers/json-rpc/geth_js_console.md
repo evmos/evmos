@@ -4,16 +4,18 @@ order: 6
 
 # Geth JavaScript Console Guide
 
-Go-ethereum responds to instructions encoded as JSON objects as defined in the [JSON-RPC-API](https://geth.ethereum.org/docs/rpc/server). To perform and test these instructions, developers can use tools like curl. However, this is a low level and rather error-prone way to interact with the node. Most developers prefer to use convenient libraries that abstract away some of the more tedious and awkward tasks such as converting values from hexadecimal strings into numbers, or converting between denominations of ether (Wei, Gwei, etc). One such library is Web3.js. The purpose of Geth’s Javascript console is to provide a built-in environment to use a subset of the Web3.js libraries to interact with a Geth node. You can use this powerful tool to interact with an Evmos node too! Use this guide to learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
+Use this guide to learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
+
+Go-ethereum responds to instructions encoded as JSON objects as defined in the [JSON-RPC-API](https://geth.ethereum.org/docs/rpc/server). To perform and test these instructions, developers can use tools like curl. However, this is a low level and rather error-prone way to interact with the node. Most developers prefer to use convenient libraries that abstract away some of the more tedious and awkward tasks such as converting values from hexadecimal strings into numbers, or converting between denominations of ether (Wei, Gwei, etc). One such library is Web3.js. The purpose of Geth’s Javascript console is to provide a built-in environment to use a subset of the Web3.js libraries to interact with a Geth node. You can use this powerful tool to interact with an Evmos node too!
 
 ## Pre-requisite Readings
 
 - [Go-ethereum CLI](https://geth.ethereum.org/docs/interface/javascript-console) {prereq}
 - [Evmos (local) node](https://docs.evmos.org/developers/localnet/single_node.html) {prereq}
 
-### Installing Go-ethereum JavaScript Console
+### Installing Go-Ethereum
 
-Install the Go-ethereum JavaScript Console (`geth`) following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+Install the Go-ethereum CLI (`geth`) following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth). This will include the Javascript console.
 
 Check that the installation was successful by running the following command:
 
@@ -53,19 +55,10 @@ cd evmos
 
 ## Attach geth JS console
 
-Wait a few seconds for the node to start up the JSON-RPC server.
-
-The local node has the HTTP-RPC server enabled and is listening at port 8545 by default. This is what we will connect to.
-
-Attach geth console to your node with the following command:
+Wait a few seconds for the node to start up the JSON-RPC server. The local node has the HTTP-RPC server enabled and is listening at port 8545 by default. Attach a `geth` console to your node with the following command:
 
 ```bash
-geth attach http://127.0.0.1:8545
-```
-
-If everything went alright, you should get a message similar to the one below.
-
-```bash
+ $ geth attach http://127.0.0.1:8545
 Welcome to the Geth JavaScript console!
 
 instance: Version dev ()
@@ -86,9 +79,9 @@ Below are some examples of how to use the console.
 
 ### Check current block height
 
-We can check the current block height of the chain.
+We can check the current block height of the chain:
 
-```bash
+```javascript
 eth.blockNumber
 ```
 
@@ -106,15 +99,8 @@ The result is printed on the next line. In the example below, we can see that we
 Get an array of the existing accounts in the keyring. To do so, use the following method:
 
 ```bash
-eth.accounts
-```
-
-Example:
-
-```bash
 > eth.accounts
 ["0xf0c3878dd8de6edc0702c06c2bb9a8e380397173", "0xfdd268dfeca95cff23ba385dec161defea031682", "0x35ab07f08f9af9166e9225b3407ad5e63756a084", "0x6a36c1efef7dd58981b3999217cdb3ae720cf330"]
-```
 
 ### Get chain id
 
@@ -209,10 +195,10 @@ The receiver account balance initially was 100000000 Evmos tokens. After the tra
 To exit the geth console use:
 
 ```bash
-exit
+ > exit
 ```
 
-Or typing `Ctrl + D`
+or type `Ctrl + D`.
 
 ## 🪄 Tips & tricks
 
