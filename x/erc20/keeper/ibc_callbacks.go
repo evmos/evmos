@@ -46,6 +46,25 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
+	pair, exists := k.GetTokenPair(
+		ctx,
+		k.GetTokenPairID(ctx, data.Denom),
+	)
+
+	if !exists {
+		// FIXME: ErrInvalidCoins instead ErrNotFound?
+		err := errorsmod.Wrapf(errortypes.ErrNotFound, "no such token pair")
+		return channeltypes.NewErrorAcknowledgement(err)
+	}
+
+	if !pair.Enabled {
+		// FIXME: error type/format
+		err := errorsmod.Wrapf(
+			types.ErrERC20TokenPairDisabled, "token pair '%s' is not enabled", pair.GetDenom(),
+		)
+		return channeltypes.NewErrorAcknowledgement(err)
+	}
+
 	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
