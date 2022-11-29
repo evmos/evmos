@@ -58,32 +58,32 @@ if [ $overwrite == "Y" ]; then
 	evmosd init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	# Change parameter token denominations to aevmos
-	cat "$GENESIS" | jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	cat "$GENESIS" | jq '.app_state["crisis"]["constant_fee"]["denom"]="aevmos"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	cat "$GENESIS" | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aevmos"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	cat "$GENESIS" | jq '.app_state["evm"]["params"]["evm_denom"]="aevmos"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	cat "$GENESIS" | jq '.app_state["inflation"]["params"]["mint_denom"]="aevmos"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["crisis"]["constant_fee"]["denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["evm"]["params"]["evm_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["inflation"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set gas limit in genesis
-	cat "$GENESIS" | jq '.consensus_params["block"]["max_gas"]="10000000"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set claims start time
 	current_date=$(date -u +"%Y-%m-%dT%TZ")
-	cat "$GENESIS" | jq -r --arg current_date "$current_date" '.app_state["claims"]["params"]["airdrop_start_time"]=$current_date' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq -r --arg current_date "$current_date" '.app_state["claims"]["params"]["airdrop_start_time"]=$current_date' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set claims records for validator account
 	amount_to_claim=10000
 	claims_key=${KEYS[0]}
 	node_address=$(evmosd keys show $claims_key --keyring-backend $KEYRING --home "$HOMEDIR" | grep "address" | cut -c12-)
-	cat "$GENESIS" | jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claims"]["claims_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state["claims"]["claims_records"]=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set claims decay
-	cat "$GENESIS" | jq '.app_state["claims"]["params"]["duration_of_decay"]="1000000s"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	cat "$GENESIS" | jq '.app_state["claims"]["params"]["duration_until_decay"]="100000s"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["claims"]["params"]["duration_of_decay"]="1000000s"' >"$TMP_GENESIS" "$GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["claims"]["params"]["duration_until_decay"]="100000s"' >"$TMP_GENESIS" "$GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Claim module account:
 	# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
-	cat "$GENESIS" | jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq -r --arg amount_to_claim "$amount_to_claim" '.app_state["bank"]["balances"] += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# disable produce empty block
 	if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -125,7 +125,7 @@ if [ $overwrite == "Y" ]; then
 	validators_supply=$(cat "$GENESIS" | jq -r '.app_state["bank"]["supply"][0]["amount"]')
 	# Bc is required to add these big numbers
 	total_supply=$(echo "${#KEYS[@]} * 100000000000000000000000000 + $amount_to_claim" | bc)
-	cat "$GENESIS" | jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Remove genesis transaction if it exists already
 	rm -rf "$HOMEDIR"/config/gentx
