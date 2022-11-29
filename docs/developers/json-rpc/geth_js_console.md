@@ -17,13 +17,13 @@ Install the Go-ethereum JavaScript Console (`geth`) following the procedure corr
 
 Check that the installation was successful by running the following command:
 
-```
+```bash
 geth version
 ```
 
 If everything went as expected, you should have an output similar to this:
 
-```
+```bash
 Geth
 Version: 1.10.26-stable
 Git Commit: e5eb32acee19cc9fca6a03b10283b7484246b15a
@@ -45,7 +45,7 @@ Make sure you have installed all the dependencies mentioned in the **[Pre-requis
 - Clone the [evmos repository](https://github.com/evmos/evmos) (if you haven’t already)
 - Run the `local_node.sh` script to start a local node
 
-```
+```bash
 git clone https://github.com/evmos/evmos.git
 cd evmos
 ./local_node.sh
@@ -59,13 +59,13 @@ The local node has the HTTP-RPC server enabled and is listening at port 8545 by 
 
 Attach geth console to your node with the following command:
 
-```
+```bash
 geth attach http://127.0.0.1:8545
 ```
 
 If everything went alright, you should get a message similar to the one below.
 
-```
+```bash
 Welcome to the Geth JavaScript console!
 
 instance: Version dev ()
@@ -88,13 +88,13 @@ Below are some examples of how to use the console.
 
 We can check the current block height of the chain.
 
-```
+```bash
 eth.blockNumber
 ```
 
 The result is printed on the next line. In the example below, we can see that we are at block height 1004:
 
-```
+```bash
 > eth.blockNumber
 1003
 > eth.blockNumber
@@ -105,13 +105,13 @@ The result is printed on the next line. In the example below, we can see that we
 
 Get an array of the existing accounts in the keyring. To do so, use the following method:
 
-```
+```bash
 eth.accounts
 ```
 
 Example:
 
-```
+```bash
 > eth.accounts
 ["0xf0c3878dd8de6edc0702c06c2bb9a8e380397173", "0xfdd268dfeca95cff23ba385dec161defea031682", "0x35ab07f08f9af9166e9225b3407ad5e63756a084", "0x6a36c1efef7dd58981b3999217cdb3ae720cf330"]
 ```
@@ -120,13 +120,13 @@ Example:
 
 We can get the chain id using:
 
-```
+```bash
 net.version
 ```
 
 In the example below, we can assure that the chain id is 9000:
 
-```
+```bash
 > net.version
 "9000"
 ```
@@ -135,26 +135,26 @@ In the example below, we can assure that the chain id is 9000:
 
 Check any account balance using the `eth.getBalance` method:
 
-```
+```bash
 eth.getBalance(eth.accounts[0])
 ```
 
 Example:
 
-```
+```bash
 > eth.getBalance(eth.accounts[0])
 9.9999e+25
 ```
 
 We get a big number because the result is denominated in `aevmos`. We can convert to Evmos (10 ^18 `aevmos`) using the `web3.fromWei` method:
 
-```
+```bash
 web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 ```
 
 In the example below, we can print the balance in a better format. We can see that the balance is about 99999000 Evmos tokens:
 
-```
+```bash
 > web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 99999000
 ```
@@ -163,13 +163,13 @@ In the example below, we can print the balance in a better format. We can see th
 
 We can perform token transfers using the corresponding method. For example, let's transfer 1 Evmos token from our account to another account:
 
-```
+```bash
 eth.sendTransaction({from:eth.accounts[0], to:"0xf6e443fd1c869c6a25d18a9866f3a6c7f8dfb703", value: web3.toWei(1, "ether")})
 ```
 
 Example:
 
-```
+```bash
 > eth.sendTransaction({from:eth.accounts[0], to: eth.accounts[1], value: web3.toWei(1, "ether")})
 "0x902dfba22a8b7aaa599aa3ea35c8d60991f497ba2fe6c519ad7a7e1e4a2f3e8f"
 ```
@@ -180,26 +180,26 @@ Now we can check the balance of the sender and receiver accounts.
 
 Sender account balance:
 
-```
+```bash
 web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 ```
 
 The sender balance is reduced by 1 Evmos token and the fees paid for the transaction:
 
-```
+```bash
 > web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 99998998.999990548370552
 ```
 
 Receiver account balance:
 
-```
+```bash
 web3.fromWei(eth.getBalance("0xf6e443fd1c869c6a25d18a9866f3a6c7f8dfb703"),"ether")
 ```
 
 The receiver account balance initially was 100000000 Evmos tokens. After the transaction, the account balance has increased by 1 Evmos token.
 
-```
+```bash
 > web3.fromWei(eth.getBalance(eth.accounts[1]),"ether")
 100000001
 ```
@@ -208,7 +208,7 @@ The receiver account balance initially was 100000000 Evmos tokens. After the tra
 
 To exit the geth console use:
 
-```
+```bash
 exit
 ```
 
@@ -220,7 +220,7 @@ Or typing `Ctrl + D`
 
 A small trick to see the list of initial commands. Type 2 spaces then hit TAB twice. You will get:
 
-```
+```bash
 >
 AggregateError        Function              Object                TypeError             _consoleWeb3Transport encodeURIComponent    loadScript            toLocaleString
 Array                 GoError               Promise               URIError              _setInterval          escape                message               toString
@@ -237,7 +237,7 @@ Float64Array          Number                SyntaxError           __proto__     
 
 The same applies to the different namespaces. For example, you can type `eth.` and hit TAB twice. You will get:
 
-```
+```bash
 > eth.
 eth._requestManager            eth.fillTransaction            eth.getGasPrice                eth.getTransaction             eth.protocolVersion
 eth.accounts                   eth.filter                     eth.getHashrate                eth.getTransactionCount        eth.resend
