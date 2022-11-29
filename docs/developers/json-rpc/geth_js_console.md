@@ -82,12 +82,6 @@ Below are some examples of how to use the console.
 We can check the current block height of the chain:
 
 ```javascript
-eth.blockNumber
-```
-
-The result is printed on the next line. In the example below, we can see that we are at block height 1004:
-
-```bash
 > eth.blockNumber
 1003
 > eth.blockNumber
@@ -98,21 +92,16 @@ The result is printed on the next line. In the example below, we can see that we
 
 Get an array of the existing accounts in the keyring. To do so, use the following method:
 
-```bash
+```javascript
 > eth.accounts
 ["0xf0c3878dd8de6edc0702c06c2bb9a8e380397173", "0xfdd268dfeca95cff23ba385dec161defea031682", "0x35ab07f08f9af9166e9225b3407ad5e63756a084", "0x6a36c1efef7dd58981b3999217cdb3ae720cf330"]
+```
 
 ### Get chain id
 
 We can get the chain id using:
 
-```bash
-net.version
-```
-
-In the example below, we can assure that the chain id is 9000:
-
-```bash
+```javascript
 > net.version
 "9000"
 ```
@@ -121,26 +110,14 @@ In the example below, we can assure that the chain id is 9000:
 
 Check any account balance using the `eth.getBalance` method:
 
-```bash
-eth.getBalance(eth.accounts[0])
-```
-
-Example:
-
-```bash
+```javascript
 > eth.getBalance(eth.accounts[0])
 9.9999e+25
 ```
 
 We get a big number because the result is denominated in `aevmos`. We can convert to Evmos (10 ^18 `aevmos`) using the `web3.fromWei` method:
 
-```bash
-web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
-```
-
-In the example below, we can print the balance in a better format. We can see that the balance is about 99999000 Evmos tokens:
-
-```bash
+```javascript
 > web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 99999000
 ```
@@ -149,13 +126,7 @@ In the example below, we can print the balance in a better format. We can see th
 
 We can perform token transfers using the corresponding method. For example, let's transfer 1 Evmos token from our account to another account:
 
-```bash
-eth.sendTransaction({from:eth.accounts[0], to:"0xf6e443fd1c869c6a25d18a9866f3a6c7f8dfb703", value: web3.toWei(1, "ether")})
-```
-
-Example:
-
-```bash
+```javascript
 > eth.sendTransaction({from:eth.accounts[0], to: eth.accounts[1], value: web3.toWei(1, "ether")})
 "0x902dfba22a8b7aaa599aa3ea35c8d60991f497ba2fe6c519ad7a7e1e4a2f3e8f"
 ```
@@ -164,28 +135,16 @@ As a response, we get back the transaction hash.
 
 Now we can check the balance of the sender and receiver accounts.
 
-Sender account balance:
-
-```bash
-web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
-```
-
 The sender balance is reduced by 1 Evmos token and the fees paid for the transaction:
 
-```bash
+```javascript
 > web3.fromWei(eth.getBalance(eth.accounts[0]),"ether")
 99998998.999990548370552
 ```
 
-Receiver account balance:
-
-```bash
-web3.fromWei(eth.getBalance("0xf6e443fd1c869c6a25d18a9866f3a6c7f8dfb703"),"ether")
-```
-
 The receiver account balance initially was 100000000 Evmos tokens. After the transaction, the account balance has increased by 1 Evmos token.
 
-```bash
+```javascript
 > web3.fromWei(eth.getBalance(eth.accounts[1]),"ether")
 100000001
 ```
