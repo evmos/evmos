@@ -26,32 +26,29 @@ You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EI
 
 Here is the list of fields that you can use to paste on Metamask:
 
-:::: tabs
-::: tab Mainnet
+- Mainnet
 
-- **Network Name:** `{{ $themeConfig.project.name }} Mainnet`
-- **New RPC URL:** `{{ $themeConfig.project.rpc_url }}`
-- **Chain ID:** `{{ $themeConfig.project.chain_id }}`
-- **Currency Symbol (optional):** `{{ $themeConfig.project.ticker }}`
-- **Block Explorer URL (optional):** `{{ $themeConfig.project.evm_explorer_url }}`
-  :::
-::: tab Testnet
+    - **Network Name:** `{{ $themeConfig.project.name }} Mainnet`
+    - **New RPC URL:** `{{ $themeConfig.project.rpc_url }}`
+    - **Chain ID:** `{{ $themeConfig.project.chain_id }}`
+    - **Currency Symbol (optional):** `{{ $themeConfig.project.ticker }}`
+    - **Block Explorer URL (optional):** `{{ $themeConfig.project.evm_explorer_url }}`
+  
+- Testnet
 
-- **Network Name:** `{{ $themeConfig.project.name }} Testnet`
-- **New RPC URL:** `{{ $themeConfig.project.rpc_url_testnet }}`
-- **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
-- **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
-- **Block Explorer URL (optional):** `{{ $themeConfig.project.testnet_evm_explorer_url }}`
-  :::
-  ::: tab Local Node
+    - **Network Name:** `{{ $themeConfig.project.name }} Testnet`
+    - **New RPC URL:** `{{ $themeConfig.project.rpc_url_testnet }}`
+    - **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
+    - **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
+    - **Block Explorer URL (optional):** `{{ $themeConfig.project.testnet_evm_explorer_url }}`
+  
+- Local Node
 
-- **Network Name:** `{{ $themeConfig.project.name }} Local`
-- **New RPC URL:** `{{ $themeConfig.project.rpc_url_local }}`
-- **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
-- **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
-- **Block Explorer URL (optional):** `n/a`
-  :::
-  ::::
+    - **Network Name:** `{{ $themeConfig.project.name }} Local`
+    - **New RPC URL:** `{{ $themeConfig.project.rpc_url_local }}`
+    - **Chain ID:** `{{ $themeConfig.project.testnet_chain_id }}`
+    - **Currency Symbol (optional):** `{{ $themeConfig.project.testnet_ticker }}`
+    - **Block Explorer URL (optional):** `n/a`
 
 ## Import Account to Metamask
 

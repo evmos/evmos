@@ -16,8 +16,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 :::
 
 <!-- markdown-link-check-disable -->
-:::: tabs
-::: tab Mainnet
+### Mainnet
 
 | Address                                       | Category               | Maintainer                              |
 | --------------------------------------------- | ---------------------- | --------------------------------------- |
@@ -52,8 +51,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://evmos-rpc.validatrium.club`           | `Tendermint` `RPC`        | [Validatrium](https://validatrium.com/) |
 | `https://evmos-rpc.gateway.pokt.network`      | `Ethereum` `JSON-RPC`  | [PocketNetwork](https://www.pokt.network/)  |
 
-:::
-::: tab Testnet
+### Testnet
 <!-- markdown-link-check-disable -->
 
 | Address                                      | Category               | Maintainer                              |
@@ -71,5 +69,3 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://evmos-testnet-rpc.qubelabs.io`      | `Tendermint` `RPC`     | [Qubelabs](https://qubelabs.io/)        |
 | `https://evmos-testnet-lcd.qubelabs.io`      | `Cosmos` `REST`        | [Qubelabs](https://qubelabs.io/)        |
 | `https://evmos-testnet-grpc.qubelabs.io`     | `Cosmos` `gRPC`        | [Qubelabs](https://qubelabs.io/)        |
-:::
-::::

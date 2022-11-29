@@ -12,15 +12,14 @@ Learn about the Evmos chain-id format {synopsis}
 **NOTE**: The latest Chain ID (i.e highest Version Number) is the latest version of the software and mainnet.
 :::
 
-:::: tabs
-::: tab Mainnet
+### Mainnet
 
 | Name                                            | Chain ID                                      | Identifier | EIP155 Number                         | Version Number                              |
 | ----------------------------------------------- | --------------------------------------------- | ---------- | ------------------------------------- | ------------------------------------------- |
 | Evmos {{ $themeConfig.project.version_number }} | `evmos_{{ $themeConfig.project.chain_id }}-2` | `evmos`    | `{{ $themeConfig.project.chain_id }}` | `{{ $themeConfig.project.version_number }}` |
 | Evmos 1                                         | `evmos_{{ $themeConfig.project.chain_id }}-1` | `evmos`    | `{{ $themeConfig.project.chain_id }}` | `1`                                         |
-:::
-::: tab Testnets
+
+### Testnet
 
 | Name                              | Chain ID                                              | Identifier | EIP155 Number                                 | Version Number                                      |
 | --------------------------------- | ----------------------------------------------------- | ---------- | --------------------------------------------- | --------------------------------------------------- |
@@ -28,9 +27,6 @@ Learn about the Evmos chain-id format {synopsis}
 | Evmos Public Testnet              | `evmos_{{ $themeConfig.project.testnet_chain_id }}-3` | `evmos`    | `{{ $themeConfig.project.testnet_chain_id }}` | `3`                                                 |
 | Olympus Mons Incentivized Testnet | `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` | `evmos`    | `{{ $themeConfig.project.testnet_chain_id }}` | `2`                                                 |
 | Arsia Mons Testnet                | `evmos_{{ $themeConfig.project.testnet_chain_id }}-1` | `evmos`    | `{{ $themeConfig.project.testnet_chain_id }}` | `1`                                                 |
-
-:::
-::::
 
 ::: tip
 You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) `Chain ID` by referring to [chainlist.org](https://chainlist.org/).
