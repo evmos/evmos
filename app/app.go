@@ -569,6 +569,9 @@ func NewEvmos(
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
+	// must be defined above the initialization of icaHostKeeper (or we can pass in scopedICAHostKeeper)
+	app.ScopedICAHostKeeper = scopedICAHostKeeper
+
 	icaHostKeeper := icahostkeeper.NewKeeper(
 		appCodec, app.keys[icahosttypes.StoreKey],
 		app.GetSubspace(icahosttypes.SubModuleName),
@@ -846,7 +849,6 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedICAHostKeeper = scopedICAHostKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
