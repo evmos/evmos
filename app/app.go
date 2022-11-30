@@ -1163,6 +1163,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v9.UpgradeName, v91.UpgradeName:
 		// no store upgrade in v9 or v9.1
 	case v10.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"params"},
+		}
 		// no store upgrades in v10
 	}
 
