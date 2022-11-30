@@ -35,13 +35,13 @@ set -e
 make install
 
 if [ -d "$HOMEDIR" ]; then
-	echo "An existing folder at '$HOMEDIR' was found. Enter Y to delete this folder and restart a new blockchain with new keys. Enter anything else to start the existing blockchain."
+	printf "\nAn existing folder at '%s' was found. Enter y or Y to delete this folder and restart a new blockchain with new keys. Enter anything else to start the existing blockchain.\n" "$HOMEDIR"
 	read -r overwrite
 else
 	overwrite="Y"
 fi
 
-if [ $overwrite == "Y" ]; then
+if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
 	rm -rf "$HOMEDIR"
 
