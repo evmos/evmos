@@ -36,7 +36,8 @@ make install
 
 # User prompt if an existing local node configuration is found.
 if [ -d "$HOMEDIR" ]; then
-	printf "\nAn existing folder at '%s' was found. Enter y or Y to delete this folder and restart a new blockchain with new keys. Enter anything else to start the existing blockchain.\n" "$HOMEDIR"
+	printf "\nAn existing folder at '%s' was found. You can choose to delete this folder and start a new local node with new keys from genesis. When declined, the existing local node is started. \n" "$HOMEDIR"
+	echo "Overwrite the existing configuration and start a new local node? [y/n]"
 	read -r overwrite
 else
 	overwrite="Y"
