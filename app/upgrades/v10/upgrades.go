@@ -18,7 +18,6 @@ func CreateUpgradeHandler(
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		setMinCommissionRate(ctx, stakingKeeper)
-		delete(vm, "params")
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
