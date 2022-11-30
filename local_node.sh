@@ -34,6 +34,7 @@ set -e
 # Reinstall daemon
 make install
 
+# User prompt if an existing local node configuration is found.
 if [ -d "$HOMEDIR" ]; then
 	printf "\nAn existing folder at '%s' was found. Enter y or Y to delete this folder and restart a new blockchain with new keys. Enter anything else to start the existing blockchain.\n" "$HOMEDIR"
 	read -r overwrite
@@ -41,6 +42,7 @@ else
 	overwrite="Y"
 fi
 
+# Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
 	rm -rf "$HOMEDIR"
