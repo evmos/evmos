@@ -6,6 +6,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 )
@@ -40,6 +42,26 @@ var (
 	ParamStoreKeyAuthorizedChannels = []byte("AuthorizedChannels")
 	ParamStoreKeyEVMChannels        = []byte("EVMChannels")
 )
+
+var _ paramtypes.ParamSet = &Params{}
+
+// ParamKeyTable returns the parameter key table.
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+}
+
+// ParamSetPairs returns the parameter set pairs.
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableClaims, &p.EnableClaims, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyAirdropStartTime, &p.AirdropStartTime, validateStartDate),
+		paramtypes.NewParamSetPair(ParamStoreKeyDurationUntilDecay, &p.DurationUntilDecay, validateDuration),
+		paramtypes.NewParamSetPair(ParamStoreKeyDurationOfDecay, &p.DurationOfDecay, validateDuration),
+		paramtypes.NewParamSetPair(ParamStoreKeyClaimsDenom, &p.ClaimsDenom, validateDenom),
+		paramtypes.NewParamSetPair(ParamStoreKeyAuthorizedChannels, &p.AuthorizedChannels, ValidateChannels),
+		paramtypes.NewParamSetPair(ParamStoreKeyEVMChannels, &p.EVMChannels, ValidateChannels),
+	}
+}
 
 // NewParams creates a new Params object
 func NewParams(
