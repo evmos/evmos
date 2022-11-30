@@ -125,9 +125,6 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	total_supply=$(echo "${#KEYS[@]} * 100000000000000000000000000 + $amount_to_claim" | bc)
 	jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-	# Remove genesis transaction if it exists already
-	rm -rf "$HOMEDIR"/config/gentx
-
 	# Sign genesis transaction
 	evmosd gentx ${KEYS[0]} 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
