@@ -1,7 +1,6 @@
 package v3
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
@@ -12,7 +11,6 @@ import (
 func MigrateStore(ctx sdk.Context,
 	store sdk.KVStore,
 	legacySubspace types.Subspace,
-	cdc codec.BinaryCodec,
 ) error {
 	var params types.Params
 	legacySubspace.GetParamSet(ctx, &params)
@@ -21,18 +19,13 @@ func MigrateStore(ctx sdk.Context,
 		return err
 	}
 
-	enableErc20Bz := []byte("0x00")
 	if params.EnableErc20 {
-		enableErc20Bz = []byte("0x01")
+		store.Set(types.ParamStoreKeyEnableErc20, []byte("0x01"))
 	}
 
-	enableEvmHookBz := []byte("0x00")
 	if params.EnableEVMHook {
-		enableEvmHookBz = []byte("0x01")
+		store.Set(types.ParamStoreKeyEnableEVMHook, []byte("0x01"))
 	}
-
-	store.Set(types.ParamStoreKeyEnableErc20, enableErc20Bz)
-	store.Set(types.ParamStoreKeyEnableEVMHook, enableEvmHookBz)
 
 	return nil
 }

@@ -12,13 +12,6 @@ var (
 	ParamStoreKeyEnableEVMHook = []byte("EnableEVMHook")
 )
 
-var _ paramtypes.ParamSet = &Params{}
-
-// ParamKeyTable returns the parameter key table.
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
-
 // NewParams creates a new Params object
 func NewParams(
 	enableErc20 bool,

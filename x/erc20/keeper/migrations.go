@@ -23,12 +23,6 @@ func NewMigrator(keeper Keeper, legacySubspace types.Subspace) Migrator {
 	}
 }
 
-// TODO: Possibly Delete
-// Migrate1to2 migrates from consensus version 1 to 2.
-// func (m Migrator) Migrate1to2(ctx sdk.Context) error {
-//	return v2.UpdateParams(ctx, &m.keeper.paramstore)
-// }
-
 func (m Migrator) Migrate2to3(ctx sdk.Context) error {
-	return v3.MigrateStore(ctx, ctx.KVStore(m.keeper.storeKey), m.legacySubspace, m.keeper.cdc)
+	return v3.MigrateStore(ctx, ctx.KVStore(m.keeper.storeKey), m.legacySubspace)
 }
