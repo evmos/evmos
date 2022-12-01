@@ -3,7 +3,7 @@ package claims
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -30,7 +30,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
-		panic(errors.Wrapf(err, "error setting params"))
+		panic(errorsmod.Wrapf(err, "error setting params"))
 	}
 
 	escrowedCoins := k.GetModuleAccountBalances(ctx)

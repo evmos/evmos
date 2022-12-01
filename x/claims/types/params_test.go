@@ -4,7 +4,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"testing"
-	time "time"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )

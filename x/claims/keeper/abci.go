@@ -53,7 +53,7 @@ func (k Keeper) EndAirdrop(ctx sdk.Context, params types.Params) error {
 	params.EnableClaims = false
 	err := k.SetParams(ctx, params)
 	if err != nil {
-		return errors.Wrap(err, "error setting params")
+		return errorsmod.Wrap(err, "error setting params")
 	}
 
 	logger.Info("end EndAirdrop logic")
