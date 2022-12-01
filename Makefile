@@ -2,9 +2,7 @@
 
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
-DIFF_TAG=$(shell git rev-list --tags="v*" --max-count=1 --not $(shell git rev-list --tags="v*" "HEAD..origin"))
-DEFAULT_TAG=$(shell git rev-list --tags="v*" --max-count=1)
-VERSION ?= $(shell echo $(shell git describe --tags $(or $(DIFF_TAG), $(DEFAULT_TAG))) | sed 's/^v//')
+VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
 TMVERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::')
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
@@ -457,7 +455,7 @@ format:
 ###############################################################################
 
 # ------
-# NOTE: Link to the tendermintdev/sdk-proto-gen docker images: 
+# NOTE: Link to the tendermintdev/sdk-proto-gen docker images:
 #       https://hub.docker.com/r/tendermintdev/sdk-proto-gen/tags
 #
 protoVer=v0.7
@@ -482,7 +480,7 @@ protolintImage=$(DOCKER) run --network host --rm -v $(CURDIR):/workspace --workd
 
 
 # ------
-# NOTE: If you are experiencing problems running these commands, try deleting 
+# NOTE: If you are experiencing problems running these commands, try deleting
 #       the docker images and execute the desired command again.
 #
 proto-all: proto-format proto-lint proto-gen

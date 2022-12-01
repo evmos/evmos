@@ -48,7 +48,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (erc20) [\#914](https://github.com/evmos/evmos/pull/914) Support registering multiple assets on `RegisterCoinProposal` and `RegisterERC20Proposal`
 
+### Features
+
+- (app) [\#1114](https://github.com/evmos/evmos/pull/1114) Set default File store listener for application from [ADR38](https://docs.cosmos.network/v0.47/architecture/adr-038-state-listening)
+
 ### Improvements
+
 - (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
 - (erc20) [\#1059](https://github.com/evmos/evmos/pull/1059) Add util functions (iterator and params) for ERC20 module.
 - (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
@@ -63,10 +68,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc/erc20) [\#1085](https://github.com/evmos/evmos/pull/1085) Added wrapper for ibc transfer to automatically convert erc20 tokens to cosmos coins.
 - (vesting) [\#1087](https://github.com/evmos/evmos/pull/1087) Add new `MsgUpdateVestingFunder` that updates the `Funder` field of a given clawback vesting account
 - (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
+- (cmd) [\#1121](https://github.com/evmos/evmos/pull/1121) Fix evmosd version to show either tag or last commit.
 
 ### Bug Fixes
 
-* (analytics) [#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
+- (cmd) [\#1120](https://github.com/evmos/evmos/pull/1120) Fix snapshot configuration
+- (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.
+- (analytics) [\#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
 
 
 ## [v9.1.0] - 2022-10-25

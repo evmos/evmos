@@ -26,6 +26,12 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	pairID := k.erc20Keeper.GetTokenPairID(ctx, msg.Token.Denom)
+	if len(pairID) == 0 {
+		// no-op: token is not registered so we can proceed with regular transfer
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	}
+
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		// NOTE: shouldn't happen as the receiving address has already
@@ -38,17 +44,12 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
-	pairID := k.erc20Keeper.GetTokenPairID(ctx, msg.Token.Denom)
-	if len(pairID) == 0 {
-		// no-op: token is not registered so we can proceed with regular transfer
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
-	}
-
 	// NOTE: no need to check if the token pair is found
 	tokenPair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
 
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
-	if k.bankKeeper.HasBalance(ctx, sender, sdk.Coin{Denom: tokenPair.Denom, Amount: msg.Token.Amount}) {
+	balance := k.bankKeeper.GetBalance(ctx, sender, tokenPair.Denom)
+	if balance.Amount.GTE(msg.Token.Amount) {
 
 		defer func() {
 			telemetry.IncrCounterWithLabels(
@@ -63,10 +64,13 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
+	// only convert the remaining difference
+	difference := msg.Token.Amount.Sub(balance.Amount)
+
 	contractAddr := common.HexToAddress(tokenPair.Erc20Address)
 
 	msgConvertERC20 := erc20types.NewMsgConvertERC20(
-		msg.Token.Amount,
+		difference,
 		sender,
 		contractAddr,
 		common.BytesToAddress(sender.Bytes()),
