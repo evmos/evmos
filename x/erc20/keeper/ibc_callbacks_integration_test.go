@@ -885,6 +885,5 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			balanceERC20TokenAfter := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount, balanceERC20TokenAfter.Int64())
 		})
-
 	})
 })
