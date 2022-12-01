@@ -1,6 +1,7 @@
 package types
 
 import (
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,3 +30,12 @@ type EVMKeeper interface {
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account
 }
+
+type (
+	LegacyParams = paramtypes.ParamSet
+	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
+	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
+	Subspace interface {
+		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
+	}
+)
