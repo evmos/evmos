@@ -1,6 +1,8 @@
 package v2_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/ethermint/encoding"
@@ -9,7 +11,6 @@ import (
 	v2types "github.com/evmos/evmos/v10/x/recovery/migrations/v2/types"
 	"github.com/evmos/evmos/v10/x/recovery/types"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 type mockSubspace struct {

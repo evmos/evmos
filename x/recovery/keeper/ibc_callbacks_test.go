@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -579,7 +580,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				suite.app.GetKey(types.StoreKey),
 				suite.app.AppCodec(),
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
-			
+
 			// Fund receiver account with EVMOS
 			coins := sdk.NewCoins(
 				sdk.NewCoin("aevmos", sdk.NewInt(1000)),

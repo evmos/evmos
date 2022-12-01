@@ -52,7 +52,6 @@ func (AppModuleBasic) ConsensusVersion() uint64 {
 // module.
 func (AppModuleBasic) RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(interfaceRegistry)
-
 }
 
 // DefaultGenesis returns default genesis state as raw bytes for the recovery

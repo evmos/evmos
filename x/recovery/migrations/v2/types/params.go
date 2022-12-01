@@ -2,8 +2,9 @@ package types
 
 import (
 	"fmt"
-	"github.com/evmos/evmos/v10/x/recovery/types"
 	"time"
+
+	"github.com/evmos/evmos/v10/x/recovery/types"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )

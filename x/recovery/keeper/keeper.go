@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -26,7 +27,6 @@ type Keeper struct {
 	authority string
 	// Store key required for the Fee Market Prefix KVStore.
 	storeKey       storetypes.StoreKey
-	transientKey   storetypes.StoreKey
 	accountKeeper  types.AccountKeeper
 	bankKeeper     types.BankKeeper
 	ics4Wrapper    porttypes.ICS4Wrapper
