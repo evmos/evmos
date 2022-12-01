@@ -46,7 +46,7 @@ func (k Keeper) GetTokenPairID(ctx sdk.Context, token string) []byte {
 	return k.GetDenomMap(ctx, token)
 }
 
-// GetTokenPair - get registered token pair from the identifier.
+// GetTokenPair gets a registered token pair from the identifier.
 // Returns 'true' if pair exists, otherwise 'false'.
 func (k Keeper) GetTokenPair(ctx sdk.Context, id []byte) (types.TokenPair, bool) {
 	if id == nil {
