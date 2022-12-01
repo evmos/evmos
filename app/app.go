@@ -461,7 +461,7 @@ func NewEvmos(
 	)
 
 	app.ClaimsKeeper = claimskeeper.NewKeeper(
-		appCodec, keys[claimstypes.StoreKey], app.GetSubspace(claimstypes.ModuleName),
+		appCodec, keys[claimstypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
 	)
 

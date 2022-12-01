@@ -163,7 +163,7 @@ func RegisterMsgHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 }
 
 var (
-	pattern_Msg_UpdateParams_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"ethermint", "evm", "v1", "update_params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Msg_UpdateParams_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"evmos", "claims", "v1", "tx", "update_params"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

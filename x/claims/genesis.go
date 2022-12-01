@@ -3,6 +3,8 @@ package claims
 import (
 	"fmt"
 
+	"cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v10/x/claims/keeper"
@@ -26,7 +28,10 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 		data.Params.AirdropStartTime = ctx.BlockTime()
 	}
 
-	k.SetParams(ctx, data.Params)
+	err := k.SetParams(ctx, data.Params)
+	if err != nil {
+		panic(errors.Wrapf(err, "error setting params"))
+	}
 
 	escrowedCoins := k.GetModuleAccountBalances(ctx)
 	if escrowedCoins != nil {

@@ -37,7 +37,6 @@ func NewKeeper(
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
 ) *Keeper {
-
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,

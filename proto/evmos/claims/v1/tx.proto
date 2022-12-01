@@ -10,22 +10,21 @@ import "google/protobuf/any.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/claims/types";
 
+// Msg defines the claims Msg service.
 service Msg {
-  // UpdateParams defined a governance operation for updating the x/evm module parameters.
+  // UpdateParams defined a governance operation for updating the x/claims module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse) {
-    option (google.api.http).post = "/ethermint/evm/v1/update_params";
+    option (google.api.http).post = "/evmos/claims/v1/tx/update_params";
   };
 }
 
-// MsgUpdateParams is the Msg/UpdateParams request type for EVM parameters.
+// MsgUpdateParams defines a Msg for updating the x/claims module parameters.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-
   // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // params defines the x/evm parameters to update.
+  // params defines the x/claims parameters to update.
   // NOTE: All parameters must be supplied.
   Params params = 2 [(gogoproto.nullable) = false];
 }

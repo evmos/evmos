@@ -4,6 +4,8 @@ import (
 	fmt "fmt"
 	"time"
 
+	"github.com/evmos/evmos/v10/x/claims/types"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -12,6 +14,8 @@ import (
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 )
 
+var _ types.LegacyParams = &Params{}
+
 var (
 	// DefaultClaimsDenom is aevmos
 	DefaultClaimsDenom = "aevmos"
@@ -19,7 +23,7 @@ var (
 	DefaultDurationUntilDecay = 2629800 * time.Second
 	// DefaultDurationOfDecay is 2 months
 	DefaultDurationOfDecay = 2 * DefaultDurationUntilDecay
-	// DefaultChannels defines the list of default IBC authorized channels that can perform
+	// DefaultAuthorizedChannels  defines the list of default IBC authorized channels that can perform
 	// IBC address attestations in order to migrate claimable amounts. By default
 	// only Osmosis and Cosmos Hub channels are authorized
 	DefaultAuthorizedChannels = []string{
@@ -29,11 +33,13 @@ var (
 	DefaultEVMChannels = []string{
 		"channel-2", // Injective
 	}
+	DefaultEnableClaims     = true
+	DefaultAirdropStartTime = time.Time{}
 )
 
 // Parameter store key
 var (
-	ParamsKey                       = []byte("ParamsKey")
+	ParamsKey                       = []byte("Params")
 	ParamStoreKeyEnableClaims       = []byte("EnableClaims")
 	ParamStoreKeyAirdropStartTime   = []byte("AirdropStartTime")
 	ParamStoreKeyDurationUntilDecay = []byte("DurationUntilDecay")
@@ -88,9 +94,9 @@ func NewParams(
 // for the claims module.
 func DefaultParams() Params {
 	return Params{
-		EnableClaims:       true,
+		EnableClaims:       DefaultEnableClaims,
 		ClaimsDenom:        DefaultClaimsDenom,
-		AirdropStartTime:   time.Time{},
+		AirdropStartTime:   DefaultAirdropStartTime,
 		DurationUntilDecay: DefaultDurationUntilDecay,
 		DurationOfDecay:    DefaultDurationOfDecay,
 		AuthorizedChannels: DefaultAuthorizedChannels,

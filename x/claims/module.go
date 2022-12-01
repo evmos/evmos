@@ -111,7 +111,7 @@ func (am AppModule) Name() string {
 
 // Route returns the claim module's message routing key.
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
+	return sdk.NewRoute(types.RouterKey, NewHandler(&am.keeper))
 }
 
 // QuerierRoute returns the claim module's query routing key.

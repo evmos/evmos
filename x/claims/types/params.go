@@ -17,7 +17,7 @@ var (
 	DefaultDurationUntilDecay = 2629800 * time.Second
 	// DefaultDurationOfDecay is 2 months
 	DefaultDurationOfDecay = 2 * DefaultDurationUntilDecay
-	// DefaultChannels defines the list of default IBC authorized channels that can perform
+	// DefaultAuthorizedChannels defines the list of default IBC authorized channels that can perform
 	// IBC address attestations in order to migrate claimable amounts. By default
 	// only Osmosis and Cosmos Hub channels are authorized
 	DefaultAuthorizedChannels = []string{
@@ -27,19 +27,12 @@ var (
 	DefaultEVMChannels = []string{
 		"channel-2", // Injective
 	}
+	DefaultEnableClaims     = true
+	DefaultAirdropStartTime = time.Time{}
 )
 
-// Parameter store key
-var (
-	ParamsKey                       = []byte("ParamsKey")
-	ParamStoreKeyEnableClaims       = []byte("EnableClaims")
-	ParamStoreKeyAirdropStartTime   = []byte("AirdropStartTime")
-	ParamStoreKeyDurationUntilDecay = []byte("DurationUntilDecay")
-	ParamStoreKeyDurationOfDecay    = []byte("DurationOfDecay")
-	ParamStoreKeyClaimsDenom        = []byte("ClaimsDenom")
-	ParamStoreKeyAuthorizedChannels = []byte("AuthorizedChannels")
-	ParamStoreKeyEVMChannels        = []byte("EVMChannels")
-)
+// ParamsKey store key for params
+var ParamsKey = []byte("Params")
 
 // NewParams creates a new Params object
 func NewParams(
@@ -66,53 +59,14 @@ func NewParams(
 // for the claims module.
 func DefaultParams() Params {
 	return Params{
-		EnableClaims:       true,
+		EnableClaims:       DefaultEnableClaims,
 		ClaimsDenom:        DefaultClaimsDenom,
-		AirdropStartTime:   time.Time{},
+		AirdropStartTime:   DefaultAirdropStartTime,
 		DurationUntilDecay: DefaultDurationUntilDecay,
 		DurationOfDecay:    DefaultDurationOfDecay,
 		AuthorizedChannels: DefaultAuthorizedChannels,
 		EVMChannels:        DefaultEVMChannels,
 	}
-}
-
-func validateBool(i interface{}) error {
-	_, ok := i.(bool)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	return nil
-}
-
-func validateStartDate(i interface{}) error {
-	_, ok := i.(time.Time)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
-}
-
-func validateDuration(i interface{}) error {
-	v, ok := i.(time.Duration)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v <= 0 {
-		return fmt.Errorf("duration must be positive: %s", v)
-	}
-
-	return nil
-}
-
-func validateDenom(i interface{}) error {
-	denom, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	return sdk.ValidateDenom(denom)
 }
 
 // ValidateChannels checks if channels ids are valid

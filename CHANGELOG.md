@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ics23 dragonberry replace in go.mod as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (deps) [\#1037](https://github.com/evmos/evmos/pull/1037) Bump Ethermint version to [`v0.20.0-rc2`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc2)
@@ -54,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
 - (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
 - (erc20) [\#1059](https://github.com/evmos/evmos/pull/1059) Add util functions (iterator and params) for ERC20 module.
 - (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19

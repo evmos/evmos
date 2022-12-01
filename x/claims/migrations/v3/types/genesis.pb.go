@@ -6,6 +6,7 @@ package types
 import (
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
+	"github.com/evmos/evmos/v10/x/claims/types"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
@@ -33,7 +34,7 @@ type GenesisState struct {
 	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// claims_records is a list of claim records with the corresponding airdrop recipient
-	ClaimsRecords []ClaimsRecordAddress `protobuf:"bytes,2,rep,name=claims_records,json=claimsRecords,proto3" json:"claims_records"`
+	ClaimsRecords []types.ClaimsRecordAddress `protobuf:"bytes,2,rep,name=claims_records,json=claimsRecords,proto3" json:"claims_records"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -76,7 +77,7 @@ func (m *GenesisState) GetParams() Params {
 	return Params{}
 }
 
-func (m *GenesisState) GetClaimsRecords() []ClaimsRecordAddress {
+func (m *GenesisState) GetClaimsRecords() []types.ClaimsRecordAddress {
 	if m != nil {
 		return m.ClaimsRecords
 	}
@@ -514,7 +515,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ClaimsRecords = append(m.ClaimsRecords, ClaimsRecordAddress{})
+			m.ClaimsRecords = append(m.ClaimsRecords, types.ClaimsRecordAddress{})
 			if err := m.ClaimsRecords[len(m.ClaimsRecords)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
