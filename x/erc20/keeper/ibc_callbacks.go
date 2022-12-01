@@ -45,29 +45,10 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	pairID := k.GetTokenPairID(ctx, data.Denom)
-	if len(pairID) == 0 {
-		// short-circuit: if the denom is not registered, conversion will fail
-		// so we can continue with the rest of the stack
-		return ack
-	}
-
-	pair, _ := k.GetTokenPair(ctx, pairID)
-
-	if !pair.Enabled {
-		// FIXME: should I return ack/error ?
-		// continue with the rest of the stack witohut conversion
-		return ack
-	}
-
 	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
-	}
-
-	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
-		return ack
 	}
 
 	claimsParams := k.claimsKeeper.GetParams(ctx)
@@ -75,6 +56,10 @@ func (k Keeper) OnRecvPacket(
 	// if sender == recipient, and is not from an EVM Channel recovery was executed
 	if sender.Equals(recipient) && !claimsParams.IsEVMChannel(packet.DestinationChannel) {
 		// Continue to the next IBC middleware by returning the original ACK.
+		return ack
+	}
+
+	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
 		return ack
 	}
 
@@ -89,6 +74,21 @@ func (k Keeper) OnRecvPacket(
 	bondDenom := k.stakingKeeper.BondDenom(ctx)
 	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
+		return ack
+	}
+
+	pairID := k.GetTokenPairID(ctx, coin.Denom)
+	if len(pairID) == 0 {
+		// short-circuit: if the denom is not registered, conversion will fail
+		// so we can continue with the rest of the stack
+		return ack
+	}
+
+	pair, _ := k.GetTokenPair(ctx, pairID)
+
+	if !pair.Enabled {
+		// FIXME: should I return ack/error ?
+		// continue with the rest of the stack witohut conversion
 		return ack
 	}
 
