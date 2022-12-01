@@ -6,7 +6,6 @@ import "cosmos_proto/cosmos.proto";
 import "evmos/inflation/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/any.proto";
 
 
 option go_package = "github.com/evmos/evmos/v10/x/inflation/types";

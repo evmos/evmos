@@ -3,7 +3,7 @@ package inflation
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
@@ -17,7 +17,7 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 			res, err := server.UpdateParams(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
-			err := errorsmod.Wrapf(errors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
+			err := errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, err
 		}
 	}
