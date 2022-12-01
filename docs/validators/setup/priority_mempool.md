@@ -17,7 +17,7 @@ This allows validators to choose transactions based on the associated fees or ot
 It is achieved by passing a `priority` field with each [`CheckTx` response](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/proto/tendermint/abci/types.proto#L234),
 which is run on any transaction trying to enter the mempool.
 The current Cosmos SDK implementation allows the application layer to define a function of type [`TxFeeChecker`](https://github.com/cosmos/cosmos-sdk/blob/37a9bc3bb67bd82d4493d2d86f8cd31c0e768880/x/auth/ante/fee.go#L13),
-which can be set as a [field](https://github.com/evmos/evmos/blob/main/app/ante/handler_options.go#L36) on the [`ante.HandlerOptions`](https://github.com/evmos/evmos/blob/main/app/app.go#L785-L798) in `app.go`. 
+which can be set as a [field](https://github.com/evmos/evmos/blob/main/app/ante/handler_options.go#L36) on the [`ante.HandlerOptions`](https://github.com/evmos/evmos/blob/main/app/app.go#L785-L798) in `app.go`.
 
 The highest-priority transactions will be chosen for the creation of the next block.
 When the mempool is full, the prioritized implementation allows to iterate over the stored transactions
@@ -28,6 +28,7 @@ To use the a prioritized mempool, adjust `version = "v1"` inside of the node con
 The default value `v0` indicates the traditional FIFO mempool.
 
 See the relevant excerpt from `config.toml` here:
+
 ```
 #######################################################
 ###          Mempool Configuration Option          ###
