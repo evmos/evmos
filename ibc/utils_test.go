@@ -11,6 +11,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v5/testing"
+	teststypes "github.com/evmos/evmos/v10/types/tests"
 )
 
 func init() {
@@ -224,5 +225,110 @@ func TestGetTransferAmount(t *testing.T) {
 			require.NoError(t, err, tc.name)
 			require.Equal(t, tc.expAmount, amt)
 		}
+	}
+}
+
+func TestGetReceivedCoin(t *testing.T) {
+
+	testCases := []struct {
+		name       string
+		srcPort    string
+		srcChannel string
+		dstPort    string
+		dstChannel string
+		rawDenom   string
+		rawAmount  string
+		expCoin    sdk.Coin
+	}{
+		{
+			"transfer unwrapped coin to destination which is not its source",
+			"transfer",
+			"channel-0",
+			"transfer",
+			"channel-0",
+			"uosmo",
+			"10",
+			sdk.Coin{Denom: teststypes.UosmoIbcdenom, Amount: sdk.NewInt(10)},
+		},
+		{
+			"transfer ibc wrapped coin to destination which is its source",
+			"transfer",
+			"channel-0",
+			"transfer",
+			"channel-0",
+			"transfer/channel-0/aevmos",
+			"10",
+			sdk.Coin{Denom: "aevmos", Amount: sdk.NewInt(10)},
+		},
+		{
+			"transfer 2x ibc wrapped coin to destination which is its source",
+			"transfer",
+			"channel-0",
+			"transfer",
+			"channel-2",
+			"transfer/channel-0/transfer/channel-1/uatom",
+			"10",
+			sdk.Coin{Denom: teststypes.UatomIbcdenom, Amount: sdk.NewInt(10)},
+		},
+		{
+			"transfer ibc wrapped coin to destination which is not its source",
+			"transfer",
+			"channel-0",
+			"transfer",
+			"channel-0",
+			"transfer/channel-1/uatom",
+			"10",
+			sdk.Coin{Denom: teststypes.UatomOsmoIbcdenom, Amount: sdk.NewInt(10)},
+		},
+	}
+
+	for _, tc := range testCases {
+		coin := GetReceivedCoin(tc.srcPort, tc.srcChannel, tc.dstPort, tc.dstChannel, tc.rawDenom, tc.rawAmount)
+		require.Equal(t, tc.expCoin, coin)
+	}
+}
+
+func TestGetSentCoin(t *testing.T) {
+	testCases := []struct {
+		name      string
+		rawDenom  string
+		rawAmount string
+		expCoin   sdk.Coin
+	}{
+		{
+			"get unwrapped aevmos coin",
+			"aevmos",
+			"10",
+			sdk.Coin{Denom: "aevmos", Amount: sdk.NewInt(10)},
+		},
+		{
+			"get ibc wrapped aevmos coin",
+			"transfer/channel-0/aevmos",
+			"10",
+			sdk.Coin{Denom: teststypes.AevmosIbcdenom, Amount: sdk.NewInt(10)},
+		},
+		{
+			"get ibc wrapped uosmo coin",
+			"transfer/channel-0/uosmo",
+			"10",
+			sdk.Coin{Denom: teststypes.UosmoIbcdenom, Amount: sdk.NewInt(10)},
+		},
+		{
+			"get ibc wrapped uatom coin",
+			"transfer/channel-1/uatom",
+			"10",
+			sdk.Coin{Denom: teststypes.UatomIbcdenom, Amount: sdk.NewInt(10)},
+		},
+		{
+			"get 2x ibc wrapped uatom coin",
+			"transfer/channel-0/transfer/channel-1/uatom",
+			"10",
+			sdk.Coin{Denom: teststypes.UatomOsmoIbcdenom, Amount: sdk.NewInt(10)},
+		},
+	}
+
+	for _, tc := range testCases {
+		coin := GetSentCoin(tc.rawDenom, tc.rawAmount)
+		require.Equal(t, tc.expCoin, coin)
 	}
 }

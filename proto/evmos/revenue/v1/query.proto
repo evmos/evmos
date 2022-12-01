@@ -4,8 +4,8 @@ package evmos.revenue.v1;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/revenue/v1/genesis.proto";
 import "evmos/revenue/v1/revenue.proto";
-import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/revenue/types";
 
@@ -28,15 +28,13 @@ service Query {
 
   // DeployerRevenues retrieves all revenues that a given deployer has
   // registered
-  rpc DeployerRevenues(QueryDeployerRevenuesRequest)
-      returns (QueryDeployerRevenuesResponse) {
+  rpc DeployerRevenues(QueryDeployerRevenuesRequest) returns (QueryDeployerRevenuesResponse) {
     option (google.api.http).get = "/evmos/revenue/v1/revenues/{deployer_address}";
   }
 
   // WithdrawerRevenues retrieves all revenues with a given withdrawer
   // address
-  rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest)
-      returns (QueryWithdrawerRevenuesResponse) {
+  rpc WithdrawerRevenues(QueryWithdrawerRevenuesRequest) returns (QueryWithdrawerRevenuesResponse) {
     option (google.api.http).get = "/evmos/revenue/v1/revenues/{withdrawer_address}";
   }
 }
@@ -49,20 +47,22 @@ message QueryRevenuesRequest {
 
 // QueryRevenuesResponse is the response type for the Query/Revenues RPC method.
 message QueryRevenuesResponse {
-  repeated Revenue revenues = 1 [ (gogoproto.nullable) = false ];
+  // revenues is a slice of all stored Reveneue
+  repeated Revenue revenues = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryRevenueRequest is the request type for the Query/Revenue RPC method.
 message QueryRevenueRequest {
-  // contract identifier is the hex contract address of a contract
+  // contract_address of a registered contract in hex format
   string contract_address = 1;
 }
 
 // QueryRevenueResponse is the response type for the Query/Revenue RPC method.
 message QueryRevenueResponse {
-  Revenue revenue = 1 [ (gogoproto.nullable) = false ];
+  // revenue is a stored Reveneue for the queried contract
+  Revenue revenue = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -70,13 +70,14 @@ message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  // params is the returned revenue parameter
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryDeployerRevenuesRequest is the request type for the
 // Query/DeployerRevenues RPC method.
 message QueryDeployerRevenuesRequest {
-  // deployer bech32 address
+  // deployer_address in bech32 format
   string deployer_address = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
@@ -85,16 +86,16 @@ message QueryDeployerRevenuesRequest {
 // QueryDeployerRevenuesResponse is the response type for the
 // Query/DeployerRevenues RPC method.
 message QueryDeployerRevenuesResponse {
+  // contract_addresses is the slice of registered contract addresses for a deployer
   repeated string contract_addresses = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-
 // QueryWithdrawerRevenuesRequest is the request type for the
 // Query/WithdrawerRevenues RPC method.
 message QueryWithdrawerRevenuesRequest {
-  // withdrawer bech32 address
+  // withdrawer_address in bech32 format
   string withdrawer_address = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
@@ -103,6 +104,7 @@ message QueryWithdrawerRevenuesRequest {
 // QueryWithdrawerRevenuesResponse is the response type for the
 // Query/WithdrawerRevenues RPC method.
 message QueryWithdrawerRevenuesResponse {
+  // contract_addresses is the slice of registered contract addresses for a withdrawer
   repeated string contract_addresses = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;

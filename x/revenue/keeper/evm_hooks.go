@@ -1,9 +1,7 @@
 package keeper
 
 import (
-	sdkerrors "cosmossdk.io/errors"
-	"github.com/armon/go-metrics"
-	"github.com/cosmos/cosmos-sdk/telemetry"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -76,26 +74,12 @@ func (k Keeper) PostTxProcessing(
 		fees,
 	)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return errorsmod.Wrapf(
 			err,
 			"fee collector account failed to distribute developer fees (%s) to withdraw address %s. contract %s",
 			fees, withdrawer, contract,
 		)
 	}
-
-	defer func() {
-		if developerFee.IsInt64() {
-			telemetry.IncrCounterWithLabels(
-				[]string{types.ModuleName, "distribute", "total"},
-				float32(developerFee.Int64()),
-				[]metrics.Label{
-					telemetry.NewLabel("sender", msg.From().String()),
-					telemetry.NewLabel("withdraw_address", withdrawer.String()),
-					telemetry.NewLabel("contract", revenue.ContractAddress),
-				},
-			)
-		}
-	}()
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{

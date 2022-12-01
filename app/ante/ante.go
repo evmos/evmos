@@ -1,7 +1,7 @@
 package ante
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -33,7 +33,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
 					anteHandler = newCosmosAnteHandlerEip712(options)
 				default:
-					return ctx, sdkerrors.Wrapf(
+					return ctx, errorsmod.Wrapf(
 						errortypes.ErrUnknownExtensionOptions,
 						"rejecting tx with unsupported extension option: %s", typeURL,
 					)
@@ -48,7 +48,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		case sdk.Tx:
 			anteHandler = newCosmosAnteHandler(options)
 		default:
-			return ctx, sdkerrors.Wrapf(errortypes.ErrUnknownRequest, "invalid transaction type: %T", tx)
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid transaction type: %T", tx)
 		}
 
 		return anteHandler(ctx, tx, sim)

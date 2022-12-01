@@ -21,6 +21,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -29,6 +30,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	"github.com/cosmos/cosmos-sdk/store/streaming"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -84,8 +86,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
-	"github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
+	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
@@ -112,7 +113,7 @@ import (
 	_ "github.com/evmos/evmos/v10/client/docs/statik"
 
 	"github.com/evmos/evmos/v10/app/ante"
-	v7 "github.com/evmos/evmos/v10/app/upgrades/v7"
+	v10 "github.com/evmos/evmos/v10/app/upgrades/v10"
 	v8 "github.com/evmos/evmos/v10/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v10/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
@@ -144,6 +145,10 @@ import (
 	"github.com/evmos/evmos/v10/x/vesting"
 	vestingkeeper "github.com/evmos/evmos/v10/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
+
+	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
+	"github.com/evmos/evmos/v10/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
 )
 
 func init() {
@@ -159,6 +164,8 @@ func init() {
 	// modify fee market parameter defaults through global
 	feemarkettypes.DefaultMinGasPrice = MainnetMinGasPrices
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
+	// modify default min commission to 5%
+	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
 }
 
 // Name defines the application binary name
@@ -195,7 +202,7 @@ var (
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		transfer.AppModuleBasic{},
+		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -269,7 +276,7 @@ type Evmos struct {
 	AuthzKeeper      authzkeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	EvidenceKeeper   evidencekeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
+	TransferKeeper   transferkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -350,6 +357,12 @@ func NewEvmos(
 	// Add the EVM transient store key
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, keys); err != nil {
+		fmt.Printf("failed to load state streaming: %s", err)
+		os.Exit(1)
+	}
 
 	app := &Evmos{
 		BaseApp:           bApp,
@@ -470,7 +483,7 @@ func NewEvmos(
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, app.GetSubspace(erc20types.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, app.ClaimsKeeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
@@ -514,13 +527,14 @@ func NewEvmos(
 	// transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> channel.SendPacket
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
-	// channel.RecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+	// channel.RecvPacket -> erc20.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
 
-	app.TransferKeeper = ibctransferkeeper.NewKeeper(
+	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
@@ -532,24 +546,28 @@ func NewEvmos(
 		app.ClaimsKeeper,
 	)
 
-	// Set the ICS4 wrappers for claims and recovery middlewares
+	// NOTE: app.Erc20Keeper is already initialized elsewhere
+
+	// Set the ICS4 wrappers for custom module middlewares
 	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
 	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
-	// NOTE: ICS4 wrapper for Transfer Keeper already set
 
+	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
-	// transfer stack contains (from top to bottom):
+	// transfer stack contains (from bottom to top):
+	// - ERC-20 Middleware
 	// - Recovery Middleware
 	// - Airdrop Claims Middleware
-	// - Transfer
+	// - IBC Transfer
 
-	// create IBC module from bottom to top of stack
+	// create IBC module from top to bottom of stack
 	var transferStack porttypes.IBCModule
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
+	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -954,6 +972,8 @@ func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConf
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	// Register new tendermint queries routes from grpc-gateway.
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	// Register node gRPC service for grpc-gateway.
+	node.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register legacy and grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -976,6 +996,12 @@ func (app *Evmos) RegisterTendermintService(clientCtx client.Context) {
 		app.interfaceRegistry,
 		app.Query,
 	)
+}
+
+// RegisterNodeService registers the node gRPC service on the provided
+// application gRPC query router.
+func (app *Evmos) RegisterNodeService(clientCtx client.Context) {
+	node.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
 // IBC Go TestingApp functions
@@ -1062,17 +1088,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v7 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v7.UpgradeName,
-		v7.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.BankKeeper,
-			app.InflationKeeper,
-			app.ClaimsKeeper,
-		),
-	)
-
 	// v8 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v8.UpgradeName,
@@ -1115,6 +1130,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v10 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v10.UpgradeName,
+		v10.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.StakingKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1130,8 +1154,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v7.UpgradeName:
-		// no store upgrades in v7
 	case v8.UpgradeName:
 		// add revenue module for testnet (v7 -> v8)
 		storeUpgrades = &storetypes.StoreUpgrades{
@@ -1147,10 +1169,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Added:   []string{revenuetypes.ModuleName},
 			Deleted: []string{"feesplit"},
 		}
-	case v9.UpgradeName:
-		// no store upgrade in v9
-	case v91.UpgradeName:
-		// no store upgrade in v9
+	case v9.UpgradeName, v91.UpgradeName:
+		// no store upgrade in v9 or v9.1
+	case v10.UpgradeName:
+		// no store upgrades in v10
 	}
 
 	if storeUpgrades != nil {

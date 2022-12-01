@@ -6,11 +6,12 @@ option go_package = "github.com/evmos/evmos/v10/x/revenue/types";
 // Revenue defines an instance that organizes fee distribution conditions for
 // the owner of a given smart contract
 message Revenue {
-  // hex address of registered contract
+  // contract_address is the hex address of a registered contract
   string contract_address = 1;
-  // bech32 address of contract deployer
+  // deployer_address is the bech32 address of message sender. It must be the same as the origin EOA
+  // sending the transaction which deploys the contract
   string deployer_address = 2;
-  // bech32 address of account receiving the transaction fees it defaults to
+  // withdrawer_address is the bech32 address of account receiving the transaction fees it defaults to
   // deployer_address
   string withdrawer_address = 3;
 }
