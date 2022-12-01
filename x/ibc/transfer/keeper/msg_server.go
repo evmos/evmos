@@ -10,8 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
 )
 
@@ -44,6 +45,12 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		// NOTE: shouldn't happen as the receiving address has already
 		// been validated on ICS20 transfer logic
 		return nil, sdkerrors.Wrap(err, "invalid sender")
+	}
+
+	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+
+	if _, isModuleAccount := senderAcc.(authtypes.ModuleAccountI); isModuleAccount {
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
 	if !k.erc20Keeper.IsERC20Enabled(ctx) {

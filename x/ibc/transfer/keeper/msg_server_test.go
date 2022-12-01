@@ -163,6 +163,27 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			true,
 		},
 		{
+			"no-op - sender is module account",
+			func() *types.MsgTransfer {
+				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				senderAcc := suite.app.ClaimsKeeper.GetModuleAccountAddress()
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
+
+				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				suite.Commit()
+
+				return transferMsg
+			},
+			true,
+		},
+		{
 			"pass - has enough balance in erc20 - need to convert",
 			func() *types.MsgTransfer {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))

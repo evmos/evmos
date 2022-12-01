@@ -59,7 +59,7 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
+	if types.IsModuleAccount(ctx, k.accountKeeper, recipient) {
 		return ack
 	}
 

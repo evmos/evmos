@@ -7,10 +7,18 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
 )
+
+// AccountKeeper defines the expected interface needed to retrieve account info.
+type AccountKeeper interface {
+	GetModuleAddress(name string) sdk.AccAddress
+	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
+	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
+}
 
 // BankKeeper defines the expected interface needed to check balances and send coins.
 type BankKeeper interface {
