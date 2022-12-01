@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 	"time"
 
 	"github.com/evmos/evmos/v10/x/claims/types"
