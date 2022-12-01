@@ -3,30 +3,30 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	erc20keeper "github.com/evmos/evmos/v10/x/erc20/keeper"
+	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 type mockSubspace struct {
-	ps types.Params
+	ps v3types.Params
 }
 
-func newMockSubspace(ps types.Params) mockSubspace {
+func newMockSubspace(ps v3types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
 func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
-	*ps.(*types.Params) = ms.ps
+	*ps.(*v3types.Params) = ms.ps
 }
 
 func (suite *KeeperTestSuite) TestMigrations() {
-	legacySubspace := newMockSubspace(types.DefaultParams())
+	legacySubspace := newMockSubspace(v3types.DefaultParams())
 	migrator := erc20keeper.NewMigrator(suite.app.Erc20Keeper, legacySubspace)
 
 	testCases := []struct {
 		name        string
 		migrateFunc func(ctx sdk.Context) error
 	}{
-		// TODO: Figure out if these will be deleted
 		{
 			"Run Migrate2to3",
 			migrator.Migrate2to3,

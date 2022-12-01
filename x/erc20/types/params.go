@@ -2,8 +2,6 @@ package types
 
 import (
 	fmt "fmt"
-
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // Parameter store key
@@ -39,12 +37,10 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableErc20, &p.EnableErc20, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableEVMHook, &p.EnableEVMHook, validateBool),
+func (p Params) Validate() error {
+	if err := validateBool(p.EnableEVMHook); err != nil {
+		return err
 	}
-}
 
-func (p Params) Validate() error { return nil }
+	return validateBool(p.EnableErc20)
+}

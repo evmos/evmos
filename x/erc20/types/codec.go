@@ -41,6 +41,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgConvertCoin{},
 		&MsgConvertERC20{},
+		&MsgUpdateParams{},
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),
@@ -49,10 +50,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&ToggleTokenConversionProposal{},
 	)
 
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
-		&MsgUpdateParams{},
-	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 

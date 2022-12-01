@@ -24,5 +24,5 @@ func NewMigrator(keeper Keeper, legacySubspace types.Subspace) Migrator {
 }
 
 func (m Migrator) Migrate2to3(ctx sdk.Context) error {
-	return v3.MigrateStore(ctx, ctx.KVStore(m.keeper.storeKey), m.legacySubspace)
+	return v3.MigrateStore(ctx, m.keeper.storeKey, m.legacySubspace)
 }

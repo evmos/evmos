@@ -3,6 +3,8 @@ package v3_test
 import (
 	"testing"
 
+	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
+
 	"github.com/evmos/evmos/v10/x/erc20/types"
 	"github.com/stretchr/testify/require"
 
@@ -12,15 +14,15 @@ import (
 )
 
 type mockSubspace struct {
-	ps types.Params
+	ps v3types.Params
 }
 
-func newMockSubspace(ps types.Params) mockSubspace {
+func newMockSubspace(ps v3types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
 func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
-	*ps.(*types.Params) = ms.ps
+	*ps.(*v3types.Params) = ms.ps
 }
 
 func TestMigrate(t *testing.T) {
@@ -29,13 +31,13 @@ func TestMigrate(t *testing.T) {
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
 
-	legacySubspace := newMockSubspace(types.DefaultParams())
-	require.NoError(t, v3.MigrateStore(ctx, store, legacySubspace))
+	legacySubspace := newMockSubspace(v3types.DefaultParams())
+	require.NoError(t, v3.MigrateStore(ctx, storeKey, legacySubspace))
 
 	// Get all the new parameters from the store
 	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
 	enableErc20 := store.Has(types.ParamStoreKeyEnableErc20)
 
-	params := types.NewParams(enableErc20, enableEvmHook)
+	params := v3types.NewParams(enableErc20, enableEvmHook)
 	require.Equal(t, legacySubspace.ps, params)
 }

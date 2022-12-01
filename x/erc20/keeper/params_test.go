@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	"github.com/evmos/evmos/v10/x/erc20/types"
 	"reflect"
+
+	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {
@@ -33,5 +34,4 @@ func (suite *KeeperTestSuite) TestParams() {
 			suite.Require().Equal(tc.expected, outcome)
 		})
 	}
-
 }
