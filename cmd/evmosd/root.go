@@ -67,8 +67,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithHomeDir(app.DefaultNodeHome).
 		WithKeyringOptions(evmoskr.Option()).
 		WithViper(EnvPrefix).
-		WithLedgerHasProtobuf(true).
-		WithPreprocessTxHook(eip712.PreprocessLedgerTx)
+		WithLedgerHasProtobuf(true)
+
+	eip712.SetEncodingConfig(encodingConfig)
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name,
