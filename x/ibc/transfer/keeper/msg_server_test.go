@@ -26,7 +26,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		expPass  bool
 	}{
 		{
-			"Pass Non contract",
+			"pass - non contract",
 			func() *types.MsgTransfer {
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin("aevmos", sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
@@ -57,7 +57,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			false,
 		},
 		{
-			"pass - disabled erc20 by params",
+			"no-op - disabled erc20 by params (sufficient sdk.Coins balance)",
 			func() *types.MsgTransfer {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
@@ -66,34 +66,101 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
-				senderAcc := sdk.AccAddress(suite.address.Bytes())
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
 
+				senderAcc := sdk.AccAddress(suite.address.Bytes())
 				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				suite.Commit()
+
+				coin := sdk.NewCoin(pair.Denom, sdk.NewInt(10))
+				coins := sdk.NewCoins(coin)
+
+				err = suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, coins)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, coins)
+				suite.Require().NoError(err)
+				suite.Commit()
 
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				suite.Commit()
+
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
+
 				return transferMsg
 			},
-			false,
+			true,
 		},
 		{
-			"pass - not registered pair",
+			"error - disabled erc20 by params (insufficient sdk.Coins balance)",
 			func() *types.MsgTransfer {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
 				suite.Commit()
 
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
+				suite.Commit()
+
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin("erc20/"+contractAddr.String(), sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
+				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				suite.Commit()
+
+				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
+				params.EnableErc20 = false
+				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				suite.Commit()
+
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
+
+				return transferMsg
+			},
+			false,
+		},
+		{
+			"no-op - not registered pair",
+			func() *types.MsgTransfer {
+				senderAcc := sdk.AccAddress(suite.address.Bytes())
+
+				coin := sdk.NewCoin("test", sdk.NewInt(10))
+				coins := sdk.NewCoins(coin)
+
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, coins)
+
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, coins)
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, senderAcc.String(), "", timeoutHeight, 0)
+
+				return transferMsg
+			},
+			true,
+		},
+		{
+			"no-op - disabled pair",
+			func() *types.MsgTransfer {
+				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair.Enabled = false
+				suite.Require().NoError(err)
+				suite.Commit()
+
+				senderAcc := sdk.AccAddress(suite.address.Bytes())
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
 
 				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
 				suite.Commit()
 
 				return transferMsg
 			},
-			false,
+			true,
 		},
 		{
 			"pass - has enough balance in erc20 - need to convert",

@@ -7,11 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v10/ibc"
 	"github.com/evmos/evmos/v10/x/erc20/types"
@@ -46,29 +45,29 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	pair, exists := k.GetTokenPair(
-		ctx,
-		k.GetTokenPairID(ctx, data.Denom),
-	)
-
-	if !exists {
-		// FIXME: ErrInvalidCoins instead ErrNotFound?
-		err := errorsmod.Wrapf(errortypes.ErrNotFound, "no such token pair")
-		return channeltypes.NewErrorAcknowledgement(err)
+	pairID := k.GetTokenPairID(ctx, data.Denom)
+	if len(pairID) == 0 {
+		// short-circuit: if the denom is not registered, conversion will fail
+		// so we can continue with the rest of the stack
+		return ack
 	}
 
+	pair, _ := k.GetTokenPair(ctx, pairID)
+
 	if !pair.Enabled {
-		// FIXME: error type/format
-		err := errorsmod.Wrapf(
-			types.ErrERC20TokenPairDisabled, "token pair '%s' is not enabled", pair.GetDenom(),
-		)
-		return channeltypes.NewErrorAcknowledgement(err)
+		// FIXME: should I return ack/error ?
+		// continue with the rest of the stack witohut conversion
+		return ack
 	}
 
 	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
+	}
+
+	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
+		return ack
 	}
 
 	claimsParams := k.claimsKeeper.GetParams(ctx)
@@ -90,12 +89,6 @@ func (k Keeper) OnRecvPacket(
 	bondDenom := k.stakingKeeper.BondDenom(ctx)
 	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
-		return ack
-	}
-
-	// short-circuit: if the denom is not registered, conversion will fail
-	// so we can continue with the rest of the stack
-	if !k.IsDenomRegistered(ctx, coin.Denom) {
 		return ack
 	}
 
@@ -140,6 +133,11 @@ func (k Keeper) OnAcknowledgementPacket(
 ) error {
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
+		// FIXME: should I check error here?
+		accAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
+		if types.IsModuleAccount(ctx, k.accountKeeper, accAddr) {
+			return nil
+		}
 		// convert the token from Cosmos Coin to its ERC20 representation
 		return k.ConvertCoinToERC20FromPacket(ctx, data)
 	default:
@@ -152,6 +150,11 @@ func (k Keeper) OnAcknowledgementPacket(
 // OnTimeoutPacket converts the IBC coin to ERC20 after refunding the sender
 // since the original packet sent was never received and has been timed out.
 func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
+	// FIXME: should I check error here?
+	accAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
+	if types.IsModuleAccount(ctx, k.accountKeeper, accAddr) {
+		return nil
+	}
 	return k.ConvertCoinToERC20FromPacket(ctx, data)
 }
 

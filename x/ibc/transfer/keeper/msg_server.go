@@ -32,6 +32,13 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
+	pair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
+
+	if !pair.Enabled {
+		// no-op: pair is not enabled so we can proceed with regular transfer
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	}
+
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		// NOTE: shouldn't happen as the receiving address has already
