@@ -2,13 +2,13 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
@@ -20,7 +20,13 @@ var _ transfertypes.ICS4Wrapper = Keeper{}
 
 // Keeper struct
 type Keeper struct {
-	paramstore     paramtypes.Subspace
+	// Protobuf codec
+	cdc codec.BinaryCodec
+	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
+	authority string
+	// Store key required for the Fee Market Prefix KVStore.
+	storeKey       storetypes.StoreKey
+	transientKey   storetypes.StoreKey
 	accountKeeper  types.AccountKeeper
 	bankKeeper     types.BankKeeper
 	ics4Wrapper    porttypes.ICS4Wrapper
@@ -31,20 +37,19 @@ type Keeper struct {
 
 // NewKeeper returns keeper
 func NewKeeper(
-	ps paramtypes.Subspace,
+	authority string,
+	storeKey storetypes.StoreKey,
+	cdc codec.BinaryCodec,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ck types.ChannelKeeper,
 	tk types.TransferKeeper,
 	claimsKeeper types.ClaimsKeeper,
 ) *Keeper {
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
-	}
-
 	return &Keeper{
-		paramstore:     ps,
+		storeKey:       storeKey,
+		cdc:            cdc,
+		authority:      authority,
 		accountKeeper:  ak,
 		bankKeeper:     bk,
 		channelKeeper:  ck,
