@@ -5,7 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v10/x/inflation/exported"
 	v2types "github.com/evmos/evmos/v10/x/inflation/migrations/v2/types"
-	gogotypes "github.com/gogo/protobuf/types"
 )
 
 // MigrateStore migrates the x/inflation module state from the consensus version 1 to
@@ -24,15 +23,12 @@ func MigrateStore(
 		return err
 	}
 
-	mintDenomBz := cdc.MustMarshal(&gogotypes.StringValue{Value: params.MintDenom})
-	enableInflationBz := cdc.MustMarshal(&gogotypes.BoolValue{Value: params.EnableInflation})
-	inflationDistribBz := cdc.MustMarshal(&params.InflationDistribution)
-	exponentialCalcBz := cdc.MustMarshal(&params.ExponentialCalculation)
+	bz, err := cdc.Marshal(&params)
+	if err != nil {
+		return err
+	}
 
-	store.Set(v2types.ParamStoreKeyMintDenom, mintDenomBz)
-	store.Set(v2types.ParamStoreKeyInflationDistribution, inflationDistribBz)
-	store.Set(v2types.ParamStoreKeyEnableInflation, enableInflationBz)
-	store.Set(v2types.ParamStoreKeyExponentialCalculation, exponentialCalcBz)
+	store.Set(v2types.ParamsKey, bz)
 
 	return nil
 }

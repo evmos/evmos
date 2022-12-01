@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"context"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/evmos/evmos/v10/x/inflation/types"
+	"github.com/pkg/errors"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -17,7 +19,7 @@ func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) 
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if err := k.SetParams(ctx, req.Params); err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "error setting params")
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil

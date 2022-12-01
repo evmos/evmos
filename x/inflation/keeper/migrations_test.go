@@ -4,23 +4,23 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v10/x/inflation/exported"
 	inflationkeeper "github.com/evmos/evmos/v10/x/inflation/keeper"
-	"github.com/evmos/evmos/v10/x/inflation/types"
+	v2types "github.com/evmos/evmos/v10/x/inflation/migrations/v2/types"
 )
 
 type mockSubspace struct {
-	ps types.Params
+	ps v2types.Params
 }
 
-func newMockSubspace(ps types.Params) mockSubspace {
+func newMockSubspace(ps v2types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
 func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps exported.Params) {
-	*ps.(*types.Params) = ms.ps
+	*ps.(*v2types.Params) = ms.ps
 }
 
 func (suite *KeeperTestSuite) TestMigrations() {
-	legacySubspace := newMockSubspace(types.DefaultParams())
+	legacySubspace := newMockSubspace(v2types.DefaultParams())
 	migrator := inflationkeeper.NewMigrator(suite.app.InflationKeeper, legacySubspace)
 
 	testCases := []struct {

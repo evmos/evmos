@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v10/x/inflation/exported"
 	"math/rand"
+
+	"github.com/evmos/evmos/v10/x/inflation/exported"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -149,7 +150,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
 
 	// Migrate to version 2 of store
-	err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate1to2)
+	err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2)
 	if err != nil {
 		panic(err)
 	}

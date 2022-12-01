@@ -10,7 +10,9 @@ func (suite *KeeperTestSuite) TestParams() {
 
 	suite.Require().Equal(expParams, params)
 
-	suite.app.InflationKeeper.SetParams(suite.ctx, params)
+	err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
+
 	newParams := suite.app.InflationKeeper.GetParams(suite.ctx)
 	suite.Require().Equal(newParams, params)
 }

@@ -1,11 +1,11 @@
 package v2_test
 
 import (
+	"testing"
+
 	"github.com/evmos/evmos/v10/x/inflation/exported"
 	v2 "github.com/evmos/evmos/v10/x/inflation/migrations/v2"
 	"github.com/evmos/evmos/v10/x/inflation/types"
-	gogotypes "github.com/gogo/protobuf/types"
-	"testing"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,23 +39,9 @@ func TestMigrate(t *testing.T) {
 	legacySubspace := newMockSubspace(v2types.DefaultParams())
 	require.NoError(t, v2.MigrateStore(ctx, store, legacySubspace, cdc))
 
-	// Get all the new parameters from the store
-	var mintDenom gogotypes.StringValue
-	bz := store.Get(v2types.ParamStoreKeyMintDenom)
-	cdc.MustUnmarshal(bz, &mintDenom)
+	var params v2types.Params
+	paramsBz := store.Get(v2types.ParamsKey)
+	cdc.MustUnmarshal(paramsBz, &params)
 
-	var enableInflation gogotypes.BoolValue
-	bz = store.Get(v2types.ParamStoreKeyEnableInflation)
-	cdc.MustUnmarshal(bz, &enableInflation)
-
-	var inflationDistribution v2types.InflationDistribution
-	bz = store.Get(v2types.ParamStoreKeyInflationDistribution)
-	cdc.MustUnmarshal(bz, &inflationDistribution)
-
-	var exponentialCalculation v2types.ExponentialCalculation
-	bz = store.Get(v2types.ParamStoreKeyExponentialCalculation)
-	cdc.MustUnmarshal(bz, &exponentialCalculation)
-
-	params := v2types.NewParams(mintDenom.Value, exponentialCalculation, inflationDistribution, enableInflation.Value)
-	require.Equal(t, legacySubspace.ps, params)
+	require.Equal(t, params, legacySubspace.ps)
 }
