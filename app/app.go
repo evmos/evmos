@@ -487,7 +487,7 @@ func NewEvmos(
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
-		keys[incentivestypes.StoreKey], appCodec, app.GetSubspace(incentivestypes.ModuleName),
+		keys[incentivestypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
 	)
 
@@ -618,7 +618,7 @@ func NewEvmos(
 		// Evmos app modules
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
-		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper),
+		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper, app.GetSubspace(incentivestypes.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
