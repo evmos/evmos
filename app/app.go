@@ -351,7 +351,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey,
+		revenuetypes.StoreKey, recoverytypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
