@@ -75,9 +75,9 @@ There are several ways to import an existing account:
    - Be sure you have both the Cosmos and Ethereum Ledger apps downloaded on your Ledger device
 2. To complete the connection with your Ledger Nano Hard Wallet, follow the steps described in the pop-up that appears (a detailed tutorial can be found [here](https://medium.com/chainapsis/how-to-use-ledger-nano-hardware-wallet-with-keplr-9ea7f07826c2))
 3. If you have not used Keplr before, set a password for the Keplr extension, and click **Confirm**
-4. Switch to the Ethereum app on the Ledger, then select “Evmos (Beta)” from the Keplr chain registry to connect the public key
+4. Switch to the Ethereum app on the Ledger, then select “Evmos” from the Keplr chain registry to connect the public key
    - All signing from Keplr will use the Ledger Ethereum app, with either [EIP-712 transactions](https://eips.ethereum.org/EIPS/eip-712) or standard [Ethereum transactions](https://ethereum.org/en/developers/docs/transactions/).
 
 ## Connect Keplr to Mainnet
 
-Once you are signed in to the Keplr extension, you can connect the wallet with the Evmos network. The Evmos mainnet network is already built into Keplr; look for the `Evmos (beta)` network.
+Once you are signed in to the Keplr extension, you can connect the wallet with the Evmos network. The Evmos mainnet network is already built into Keplr; look for the `Evmos` network.
