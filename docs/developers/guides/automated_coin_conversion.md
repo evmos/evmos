@@ -87,7 +87,7 @@ With the new automated coin conversion feature, you can send ERC-20 via IBC righ
 The conversion step is done automatically under the hood.
 To do this operation you only need to specify the corresponding denomination on the `MsgTransfer` struct.
 For example, if we want to send an ERC-20 token called `TestCoin` via IBC, use `Token.Denom = "erc20/<test-coin-contract-address>"`.
-Keep in mind that to perform this operation, you need to [register the token pair](https://docs.evmos.org/developers/guides/erc20_registration.html) previously. 
+Keep in mind that to perform this operation, you need to [register the token pair](https://docs.evmos.org/developers/guides/erc20_registration.html) previously.
 
 ### Can I send WEVMOS to other chains?
 
@@ -111,6 +111,6 @@ If you want to convert EVMOS tokens into its ERC-20 representation, you will nee
 ### Do I still need to use [the Assets page](https://app.evmos.org/assets)?
 
 Yes! If you want to convert EVMOS tokens into their ERC-20 representation, you will need to do it manually on [the Assets page](https://app.evmos.org/assets).
-EVMOS token automated conversion was excluded in this feature to avoid damaging user experience.
+EVMOS token automated conversion was excluded in this feature because it is used for staking, governance and paying for gas on the EVM.
 Additionally, you can still manually convert IBC coins to ERC-20 tokens.
 On top of that, the assets page allows you to see all your token balances.
