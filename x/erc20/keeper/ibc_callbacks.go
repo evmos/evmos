@@ -123,9 +123,9 @@ func (k Keeper) OnRecvPacket(
 }
 
 // OnAcknowledgementPacket responds to the the success or failure of a packet
-// acknowledgement written on the receiving chain. If the acknowledgement
-// was a success then nothing occurs. If the acknowledgement failed, then
-// the sender is refunded and then the IBC Coins are converted to ERC20.
+// acknowledgement written on the receiving chain. If the acknowledgement was a
+// success then nothing occurs. If the acknowledgement failed, then the sender
+// is refunded and then the IBC Coins are converted to ERC20.
 func (k Keeper) OnAcknowledgementPacket(
 	ctx sdk.Context, _ channeltypes.Packet,
 	data transfertypes.FungibleTokenPacketData,
@@ -133,17 +133,21 @@ func (k Keeper) OnAcknowledgementPacket(
 ) error {
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
-		// FIXME: should I check error here?
-		senderAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
-		// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
-		if types.IsModuleAccount(ctx, k.accountKeeper, senderAddr) {
+		sender, err := sdk.AccAddressFromBech32(data.GetSender())
+		if err != nil {
+			return err
+		}
+
+		// assume that all module accounts on Evmos need to have their tokens in the
+		// IBC representation as opposed to ERC20
+		if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
 			return nil
 		}
 		// convert the token from Cosmos Coin to its ERC20 representation
 		return k.ConvertCoinToERC20FromPacket(ctx, data)
 	default:
-		// the acknowledgement succeeded on the receiving chain so nothing
-		// needs to be executed and no error needs to be returned
+		// the acknowledgement succeeded on the receiving chain so nothing needs to
+		// be executed and no error needs to be returned
 		return nil
 	}
 }
@@ -151,10 +155,13 @@ func (k Keeper) OnAcknowledgementPacket(
 // OnTimeoutPacket converts the IBC coin to ERC20 after refunding the sender
 // since the original packet sent was never received and has been timed out.
 func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
-	// FIXME: should I check error here?
-	accAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
+	sender, err := sdk.AccAddressFromBech32(data.Sender)
+	if err != nil {
+		return err
+	}
+
 	// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
-	if types.IsModuleAccount(ctx, k.accountKeeper, accAddr) {
+	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
 		return nil
 	}
 	return k.ConvertCoinToERC20FromPacket(ctx, data)

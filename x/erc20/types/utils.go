@@ -84,7 +84,7 @@ func EqualStringSlice(aliasesA, aliasesB []string) bool {
 	return true
 }
 
-// IsModuleAccount ...
+// IsModuleAccount returns true if the given addr is a module account
 func IsModuleAccount(ctx sdk.Context, ak AccountKeeper, addr sdk.AccAddress) bool {
 	senderAcc := ak.GetAccount(ctx, addr)
 
