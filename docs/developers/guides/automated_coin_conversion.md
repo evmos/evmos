@@ -25,7 +25,10 @@ To do so, there is no need to make any changes on your IBC transfer logic.
 You only need to ensure that the corresponding denomination is passed as a parameter.
 For example, if you want to transfer the ERC-20 representation of the `uosmo` token on Evmos,
 specifying the corresponding denomination (`Token.Denom = "uosmo"`) on the `MsgTransfer` struct will suffice.
+Another example, if you want to transfer Wrapped Bitcoin on Axelar (axlWBTC), you could achieve this by using `Token.Denom = "ibc/C834CD421B4FD910BBC97E06E86B5E6F64EA2FE36D6AE0E4304C2E1FB1E7333C"`, as that is the denomination in the registered token pair.
 The same applies to any ERC-20 token that is not a representation of a Native Coin on other Cosmos chains.
+For example, if we want to send an ERC-20 token called `TestCoin` via IBC, use `Token.Denom = "erc20/<test-coin-contract-address>"`.
+Before transferring ERC-20 tokens via IBC, make sure you [register the ERC-20 token](https://docs.evmos.org/developers/guides/erc20_registration.html) for the conversion.
 Under the hood, the protocol will automatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
 
 :::tip
@@ -83,7 +86,8 @@ their **whole balance** will be converted to the ERC20 format (i.e the current b
 With the new automated coin conversion feature, you can send ERC-20 via IBC right away.
 The conversion step is done automatically under the hood.
 To do this operation you only need to specify the corresponding denomination on the `MsgTransfer` struct.
-For example, if we want to send an ERC-20 token called `TestCoin` via IBC, use `Token.Denom = "TestCoin"`.
+For example, if we want to send an ERC-20 token called `TestCoin` via IBC, use `Token.Denom = "erc20/<test-coin-contract-address>"`.
+Keep in mind that to perform this operation, you need to [register the token pair](https://docs.evmos.org/developers/guides/erc20_registration.html) previously. 
 
 ### Can I send WEVMOS to other chains?
 
