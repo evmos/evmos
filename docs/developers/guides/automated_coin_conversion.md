@@ -73,7 +73,7 @@ If the token pair is not registered, users will receive the corresponding IBC co
 
 :::tip
 **Note**: If your users have IBC coins on Evmos already, and they receive an IBC transfer in the denomination of an already registered token pair,
-their **whole balance** will be converted (the current balance plus the transfer amount).
+their **whole balance** will be converted to the ERC20 format (i.e the current balance plus the transfer amount).
 :::
 
 ## FAQ
@@ -89,7 +89,7 @@ For example, if we want to send an ERC-20 token called `TestCoin` via IBC, use `
 
 WEVMOS transfers are not supported at the moment.
 However, you can unwrap manually the WEVMOS tokens using the [Evmos dashboard](https://app.evmos.org/assets) or [Diffusion](https://app.diffusion.fi/).
-Then you can perform a regular IBC transfer using the Evmos tokens.
+Then you can perform a regular IBC transfer using the EVMOS tokens.
 
 ### Does automated coin conversion apply to all coins?
 
