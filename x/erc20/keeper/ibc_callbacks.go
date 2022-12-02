@@ -60,6 +60,8 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	if types.IsModuleAccount(ctx, k.accountKeeper, recipient) {
+		// no-op, assume that all module accounts on Evmos need to have their tokens
+		// in the IBC representation as opposed to ERC20
 		return ack
 	}
 
@@ -87,7 +89,7 @@ func (k Keeper) OnRecvPacket(
 	pair, _ := k.GetTokenPair(ctx, pairID)
 
 	if !pair.Enabled {
-		// continue with the rest of the stack witohut conversion
+		// no-op: continue with the rest of the stack without conversion
 		return ack
 	}
 
@@ -132,16 +134,6 @@ func (k Keeper) OnAcknowledgementPacket(
 ) error {
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
-		sender, err := sdk.AccAddressFromBech32(data.GetSender())
-		if err != nil {
-			return err
-		}
-
-		// assume that all module accounts on Evmos need to have their tokens in the
-		// IBC representation as opposed to ERC20
-		if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
-			return nil
-		}
 		// convert the token from Cosmos Coin to its ERC20 representation
 		return k.ConvertCoinToERC20FromPacket(ctx, data)
 	default:
@@ -154,27 +146,23 @@ func (k Keeper) OnAcknowledgementPacket(
 // OnTimeoutPacket converts the IBC coin to ERC20 after refunding the sender
 // since the original packet sent was never received and has been timed out.
 func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
-	if err != nil {
-		return err
-	}
-
-	// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
-	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
-		return nil
-	}
 	return k.ConvertCoinToERC20FromPacket(ctx, data)
 }
 
 // ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
 func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
-	// obtain the sent coin from the packet data
-	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-
 	sender, err := sdk.AccAddressFromBech32(data.Sender)
 	if err != nil {
 		return err
 	}
+
+	// assume that all module accounts on Evmos need to have their tokens in the
+	// IBC representation as opposed to ERC20
+	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
+		return nil
+	}
+
+	coin := ibc.GetSentCoin(data.Denom, data.Amount)
 
 	// check if the coin is a native staking token
 	bondDenom := k.stakingKeeper.BondDenom(ctx)
