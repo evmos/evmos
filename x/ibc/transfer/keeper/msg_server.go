@@ -11,7 +11,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
 )
 
@@ -31,12 +30,24 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		// no-op: token is not registered so we can proceed with regular transfer
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
+	pair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
+
+	if !pair.Enabled {
+		// no-op: pair is not enabled so we can proceed with regular transfer
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	}
 
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		// NOTE: shouldn't happen as the receiving address has already
 		// been validated on ICS20 transfer logic
 		return nil, sdkerrors.Wrap(err, "invalid sender")
+	}
+
+	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+
+	if erc20types.IsModuleAccount(senderAcc) {
+		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
 	if !k.erc20Keeper.IsERC20Enabled(ctx) {
