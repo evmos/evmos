@@ -332,8 +332,8 @@ github.com/evmos/ethereum-ledger-go v0.1.2 h1:FkCUvkJS8eMkj9v9imsv7i2AcyqqesCYPe
 github.com/evmos/ethereum-ledger-go v0.1.2/go.mod h1:azPpikO/CFtDlIfJB2lBcodgtRr6miidSCBI/u+mxzk=
 github.com/evmos/ethermint v0.20.0-rc3 h1:nrxnBxZQTILWInJEcBcd1Q5R/gHKcxYkPDsFwazl45w=
 github.com/evmos/ethermint v0.20.0-rc3/go.mod h1:bOZ7epy2AJlZEBqUCvP4T+fni+XOp4CaYe34pPQ8GfE=
-github.com/evmos/evmos-ledger-go v0.1.3 h1:3yo9zJO2Ujmjgtp9taEWE3EX87Kn7qnxQiUokaM4Gdc=
-github.com/evmos/evmos-ledger-go v0.1.3/go.mod h1:dLsIWqOvHeRmMUR4VNaFDfs9WFAiVJwKs29yXsuMXAA=
+github.com/evmos/evmos-ledger-go v0.1.4 h1:2+ykhSxKmktNmMCxM1rlyJtUGFtqrPIZFp0e9Q0xgoY=
+github.com/evmos/evmos-ledger-go v0.1.4/go.mod h1:IBErbKjbH0iE3UsKJ9mNzu1wdA6tRXbx4NM5U5BWiiM=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 h1:7HZCaLC5+BZpmbhCOZJ293Lz68O7PYrF2EzeiFMwCLk=

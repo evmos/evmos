@@ -8,9 +8,7 @@ import (
 	sdkhd "github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/crypto/hd"
-	"github.com/evmos/ethermint/encoding"
 	ledger "github.com/evmos/evmos-ledger-go"
-	"github.com/evmos/evmos/v10/app"
 )
 
 // AppName defines the Ledger app used for signing. Evmos uses the Ethereum app
@@ -25,7 +23,7 @@ var (
 	// The Ledger derivation function is responsible for all signing and address generation.
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{sdkhd.Secp256k1}
 	// LedgerDerivation defines the Evmos Ledger Go derivation (Ethereum app with EIP-712 signing)
-	LedgerDerivation = ledger.EvmosLedgerDerivation(encoding.MakeConfig(app.ModuleBasics))
+	LedgerDerivation = ledger.EvmosLedgerDerivation()
 	// CreatePubkey uses the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
 	CreatePubkey = func(key []byte) types.PubKey { return &ethsecp256k1.PubKey{Key: key} }
 	// SkipDERConversion represents whether the signed Ledger output should skip conversion from DER to BER.
