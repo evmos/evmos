@@ -50,7 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
-- (ci) [#1528](https://github.com/evmos/ethermint/pull/1528) Add Golang dependency vulnerability checker.
+- (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
 
 ### Improvements
 
