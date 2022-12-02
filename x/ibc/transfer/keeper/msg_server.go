@@ -32,7 +32,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		// no-op: token is not registered so we can proceed with regular transfer
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
-
 	pair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
 
 	if !pair.Enabled {

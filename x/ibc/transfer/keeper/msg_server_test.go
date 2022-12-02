@@ -58,7 +58,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			false,
 		},
 		{
-			"no-op - disabled erc20 by params (sufficient sdk.Coins balance)",
+			"no-op - disabled erc20 by params - sufficient sdk.Coins balance)",
 			func() *types.MsgTransfer {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
@@ -95,7 +95,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			true,
 		},
 		{
-			"error - disabled erc20 by params (insufficient sdk.Coins balance)",
+			"error - disabled erc20 by params - insufficient sdk.Coins balance)",
 			func() *types.MsgTransfer {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
@@ -121,7 +121,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			false,
 		},
 		{
-			"no-op - not registered pair",
+			"no-op - pair not registered",
 			func() *types.MsgTransfer {
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 
@@ -129,8 +129,8 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				coins := sdk.NewCoins(coin)
 
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, coins)
-
 				suite.Require().NoError(err)
+
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, coins)
 				suite.Require().NoError(err)
 				suite.Commit()
@@ -142,22 +142,31 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			true,
 		},
 		{
-			"no-op - disabled pair",
+			"no-op - pair is disabled",
 			func() *types.MsgTransfer {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
 				suite.Commit()
 
 				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				suite.Require().NoError(err)
 				pair.Enabled = false
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
+
+				coin := sdk.NewCoin(pair.Denom, sdk.NewInt(10))
+				senderAcc := sdk.AccAddress(suite.address.Bytes())
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, senderAcc.String(), "", timeoutHeight, 0)
+
+				// mint coins to perform the regular transfer without converison
+				err = suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, sdk.NewCoins(coin))
+				suite.Require().NoError(err)
+
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, sdk.NewCoins(coin))
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				senderAcc := sdk.AccAddress(suite.address.Bytes())
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
-
-				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
-				suite.Commit()
+				// suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
+				// suite.Commit()
 
 				return transferMsg
 			},
@@ -265,9 +274,9 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.ScopedTransferKeeper,
 				suite.app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 			)
-			transferMsg := tc.malleate()
+			msg := tc.malleate()
 
-			_, err = suite.app.TransferKeeper.Transfer(sdk.WrapSDKContext(suite.ctx), transferMsg)
+			_, err = suite.app.TransferKeeper.Transfer(sdk.WrapSDKContext(suite.ctx), msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {
