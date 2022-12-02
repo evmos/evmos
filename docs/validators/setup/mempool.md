@@ -2,13 +2,19 @@
 order: 5
 -->
 
-# Prioritized Mempool
+# Mempool
 
-Learn about using the prioritized Tendermint mempool.{synopsis}
+Learn about the available mempool options in Tendermint.{synopsis}
+
+## FIFO Mempool
 
 The mempool holds uncommitted transactions, which are not yet included in a block.
-The default mempool for Tendermint blockchains follows a first-in-first-out (FIFO) principle,
-which means the ordering of transactions depends solely on the order in which they arrived at the node.
+The default mempool implementation for Tendermint blockchains follows a first-in-first-out (FIFO) principle,
+which means the ordering of transactions depends solely on the order in which they arrive at the node.
+The first transaction to be received will be the first transaction to be processed.
+This is true for gossiping the received transactions to the rest of the peers as well as including them in a block.
+
+## Prioritized Mempool
 
 Starting with [Tendermint v0.35](https://github.com/tendermint/tendermint/blob/v0.35.0/CHANGELOG.md)
 (has also been backported to [v0.34.20](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/UPGRADING.md?plain=1#L54))
@@ -22,14 +28,20 @@ which can be set as a [field](https://github.com/evmos/evmos/blob/main/app/ante/
 The highest-priority transactions will be chosen for the creation of the next block.
 When the mempool is full, the prioritized implementation allows to iterate over the stored transactions
 and remove those with the lowest priority until enough disk space is available for
-an incoming, higher-priority transaction ([v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576)).
+an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576) implementation for more details).
+
+::: tip
+Even though the transaction processing can be ordered by priority, the gossiping of transactions will always be according to FIFO.
+:::
+
+## Configuration
 
 To use the a prioritized mempool, adjust `version = "v1"` inside of the node configuration at `~/.evmosd/config/config.toml`.
 The default value `v0` indicates the traditional FIFO mempool.
 
 See the relevant excerpt from `config.toml` here:
 
-```
+```toml
 #######################################################
 ###          Mempool Configuration Option          ###
 #######################################################
@@ -41,10 +53,11 @@ See the relevant excerpt from `config.toml` here:
 version = "v1"
 ```
 
-::: tip
-Even though the transaction processing can be ordered by priority, the gossiping of transactions will always be according to FIFO.
-:::
-
 ## Resources
 
-More detailed information can be found in [Tendermint ADR-067 - Mempool Refactor](https://github.com/tendermint/tendermint/blob/main/docs/architecture/adr-067-mempool-refactor.md).
+More detailed information can be found here:
+- [Tendermint ADR-067 - Mempool Refactor](https://github.com/tendermint/tendermint/blob/main/docs/architecture/adr-067-mempool-refactor.md).
+- [Tendermint v0.35 Announcement](https://medium.com/tendermint/tendermint-v0-35-introduces-prioritized-mempool-a-makeover-to-the-peer-to-peer-network-more-61eea6ec572d)
+- [EIP-1559: Fee market change for ETH 1.0 chain](https://eips.ethereum.org/EIPS/eip-1559)
+- [EIP-1559 FAQ](https://notes.ethereum.org/@vbuterin/eip-1559-faq)
+
