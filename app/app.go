@@ -517,14 +517,6 @@ func NewEvmos(
 		),
 	)
 
-	// Create Transfer Stack
-
-	// SendPacket, since it is originating from the application to core IBC:
-	// transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> channel.SendPacket
-
-	// RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
-	// channel.RecvPacket -> erc20.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
-
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
@@ -551,11 +543,21 @@ func NewEvmos(
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
-	// transfer stack contains (from bottom to top):
-	// - ERC-20 Middleware
-	// - Recovery Middleware
-	// - Airdrop Claims Middleware
-	// - IBC Transfer
+	/*
+		Create Transfer Stack
+
+		transfer stack contains (from bottom to top):
+			- ERC-20 Middleware
+		 	- Recovery Middleware
+		 	- Airdrop Claims Middleware
+			- IBC Transfer
+
+		SendPacket, since it is originating from the application to core IBC:
+		 	transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> erc20.SendPacket -> channel.SendPacket
+
+		RecvPacket, message that originates from core IBC and goes down to app, the flow is the otherway
+			channel.RecvPacket -> erc20.OnRecvPacket -> recovery.OnRecvPacket -> claim.OnRecvPacket -> transfer.OnRecvPacket
+	*/
 
 	// create IBC module from top to bottom of stack
 	var transferStack porttypes.IBCModule

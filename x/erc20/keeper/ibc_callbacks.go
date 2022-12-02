@@ -7,11 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v5/modules/core/exported"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v10/ibc"
 	"github.com/evmos/evmos/v10/x/erc20/types"
@@ -60,6 +59,13 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
+	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+
+	// return acknoledgement without conversion if sender is a module account
+	if types.IsModuleAccount(senderAcc) {
+		return ack
+	}
+
 	// parse the transferred denom
 	coin := ibc.GetReceivedCoin(
 		packet.SourcePort, packet.SourceChannel,
@@ -74,9 +80,16 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// short-circuit: if the denom is not registered, conversion will fail
-	// so we can continue with the rest of the stack
-	if !k.IsDenomRegistered(ctx, coin.Denom) {
+	pairID := k.GetTokenPairID(ctx, coin.Denom)
+	if len(pairID) == 0 {
+		// short-circuit: if the denom is not registered, conversion will fail
+		// so we can continue with the rest of the stack
+		return ack
+	}
+
+	pair, _ := k.GetTokenPair(ctx, pairID)
+	if !pair.Enabled {
+		// no-op: continue with the rest of the stack without conversion
 		return ack
 	}
 
@@ -111,9 +124,9 @@ func (k Keeper) OnRecvPacket(
 }
 
 // OnAcknowledgementPacket responds to the the success or failure of a packet
-// acknowledgement written on the receiving chain. If the acknowledgement
-// was a success then nothing occurs. If the acknowledgement failed, then
-// the sender is refunded and then the IBC Coins are converted to ERC20.
+// acknowledgement written on the receiving chain. If the acknowledgement was a
+// success then nothing occurs. If the acknowledgement failed, then the sender
+// is refunded and then the IBC Coins are converted to ERC20.
 func (k Keeper) OnAcknowledgementPacket(
 	ctx sdk.Context, _ channeltypes.Packet,
 	data transfertypes.FungibleTokenPacketData,
@@ -124,8 +137,8 @@ func (k Keeper) OnAcknowledgementPacket(
 		// convert the token from Cosmos Coin to its ERC20 representation
 		return k.ConvertCoinToERC20FromPacket(ctx, data)
 	default:
-		// the acknowledgement succeeded on the receiving chain so nothing
-		// needs to be executed and no error needs to be returned
+		// the acknowledgement succeeded on the receiving chain so nothing needs to
+		// be executed and no error needs to be returned
 		return nil
 	}
 }
@@ -138,13 +151,19 @@ func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data tra
 
 // ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
 func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
-	// obtain the sent coin from the packet data
-	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-
 	sender, err := sdk.AccAddressFromBech32(data.Sender)
 	if err != nil {
 		return err
 	}
+
+	// assume that all module accounts on Evmos need to have their tokens in the
+	// IBC representation as opposed to ERC20
+	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+	if types.IsModuleAccount(senderAcc) {
+		return nil
+	}
+
+	coin := ibc.GetSentCoin(data.Denom, data.Amount)
 
 	// check if the coin is a native staking token
 	bondDenom := k.stakingKeeper.BondDenom(ctx)
