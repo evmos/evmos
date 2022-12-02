@@ -29,10 +29,10 @@ Evmos supports [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559#simple-summary
 This transaction type uses a base fee and a selectable priority tip that add up to the total transaction fees.
 The prioritized mempool presents an option to automatically make use of this mechanism regarding block generation.
 
-When using the prioritized mempool,
-the highest-priority transactions (i.e. those with the highest fees) will be chosen for the creation of the next block.
-Should the mempool be full, the prioritized implementation allows to iterate over the stored transactions
-and remove those with the lowest priority until enough disk space is available for
+When using the prioritized mempool, transactions for the next produced block are chosen
+by order of their priority (i.e. their fees) from highest to lowest.
+Should the mempool be full, the prioritized implementation allows
+to remove the transactions with the lowest priority until enough disk space is available for
 an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576) implementation for more details).
 
 ::: tip
