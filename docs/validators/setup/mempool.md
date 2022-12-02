@@ -22,11 +22,15 @@ it is possible to use a prioritized mempool implementation.
 This allows validators to choose transactions based on the associated fees or other incentive mechanisms.
 It is achieved by passing a `priority` field with each [`CheckTx` response](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/proto/tendermint/abci/types.proto#L234),
 which is run on any transaction trying to enter the mempool.
-The current Cosmos SDK implementation allows the application layer to define a function of type [`TxFeeChecker`](https://github.com/cosmos/cosmos-sdk/blob/37a9bc3bb67bd82d4493d2d86f8cd31c0e768880/x/auth/ante/fee.go#L13),
-which can be set as a [field](https://github.com/evmos/evmos/blob/main/app/ante/handler_options.go#L36) on the [`ante.HandlerOptions`](https://github.com/evmos/evmos/blob/main/app/app.go#L785-L798) in `app.go`.
 
-The highest-priority transactions will be chosen for the creation of the next block.
-When the mempool is full, the prioritized implementation allows to iterate over the stored transactions
+Evmos supports [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559#simple-summary) EVM transactions through its
+[feemarket](../../modules/feemarkt/01_Concepts.md) module.
+This transaction type uses a base fee and a selectable priority tip that add up to the total transaction fees.
+The prioritized mempool presents an option to automatically make use of this mechanism regarding block generation.
+
+When using the prioritized mempool,
+the highest-priority transactions (i.e. those with the highest fees) will be chosen for the creation of the next block.
+Should the mempool be full, the prioritized implementation allows to iterate over the stored transactions
 and remove those with the lowest priority until enough disk space is available for
 an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576) implementation for more details).
 
@@ -36,8 +40,8 @@ Even though the transaction processing can be ordered by priority, the gossiping
 
 ## Configuration
 
-To use the a prioritized mempool, adjust `version = "v1"` inside of the node configuration at `~/.evmosd/config/config.toml`.
-The default value `v0` indicates the traditional FIFO mempool.
+To use the a prioritized mempool, adjust `version = "v1"` in the node configuration at `~/.evmosd/config/config.toml`.
+The default value `"v0"` indicates the traditional FIFO mempool.
 
 See the relevant excerpt from `config.toml` here:
 
@@ -57,7 +61,8 @@ version = "v1"
 
 More detailed information can be found here:
 - [Tendermint ADR-067 - Mempool Refactor](https://github.com/tendermint/tendermint/blob/main/docs/architecture/adr-067-mempool-refactor.md).
-- [Tendermint v0.35 Announcement](https://medium.com/tendermint/tendermint-v0-35-introduces-prioritized-mempool-a-makeover-to-the-peer-to-peer-network-more-61eea6ec572d)
+- [Blogpost: Tendermint v0.35 Announcement](https://medium.com/tendermint/tendermint-v0-35-introduces-prioritized-mempool-a-makeover-to-the-peer-to-peer-network-more-61eea6ec572d)
 - [EIP-1559: Fee market change for ETH 1.0 chain](https://eips.ethereum.org/EIPS/eip-1559)
 - [EIP-1559 FAQ](https://notes.ethereum.org/@vbuterin/eip-1559-faq)
+- [Blogpost: What is EIP-1559? How will it change Ethereum?](https://consensys.net/blog/quorum/what-is-eip-1559-how-will-it-change-ethereum/)
 
