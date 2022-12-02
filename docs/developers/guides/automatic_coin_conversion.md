@@ -14,27 +14,60 @@ Please read on for further understanding of this feature scope and functionality
 
 ## Outbound transactions
 
-As an Evmos user, you may want to move your ERC-20 tokens onto another Cosmos chains. You may want to do this to use your tokens on dApps on other Cosmos chains. The automated coin conversion feature makes this operation smooth. You can send ERC-20 tokens via an IBC transfer with a single step. You can perform this operation using the Evmos [IBC transfer page](https://app.evmos.org/transfer). Under the hood, the protocol will atomatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
+Your users may want to move their ERC-20 tokens from Evmos onto another Cosmos chains. The automated coin conversion feature makes this operation smooth. You can send ERC-20 tokens via an IBC transfer with a single step. To do so, there is no need to make any changes on your IBC transfer logic. You only need to corroborate that the corresponding denomination is passed as a parameter. For example, if you want to transfer the ERC-20 representation of the `uosmo` token on Evmos, specifying the corresponding denomination (`Token.Denom = "uosmo"`) on the `MsgTransfer` struct will suffice. The same applies to any ERC-20 token that is not a representation of a Native Coin on other Cosmos chains. Under the hood, the protocol will atomatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
+
+:::tip
+In case of Evmos not being the source chain of the IBC coin you want to send, you will have to specify the corresponding IBC denom (e.g. `ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`) 
+:::
+
+```go
+type MsgTransfer struct {
+	// the port on which the packet will be sent
+	SourcePort string `protobuf:"bytes,1,opt,name=source_port,json=sourcePort,proto3" json:"source_port,omitempty" yaml:"source_port"`
+	// the channel by which the packet will be sent
+	SourceChannel string `protobuf:"bytes,2,opt,name=source_channel,json=sourceChannel,proto3" json:"source_channel,omitempty" yaml:"source_channel"`
+	// the tokens to be transferred
+	Token types.Coin `protobuf:"bytes,3,opt,name=token,proto3" json:"token"`
+	// the sender address
+	Sender string `protobuf:"bytes,4,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the recipient address on the destination chain
+	Receiver string `protobuf:"bytes,5,opt,name=receiver,proto3" json:"receiver,omitempty"`
+	// Timeout height relative to the current block height.
+	// The timeout is disabled when set to 0.
+	TimeoutHeight types1.Height `protobuf:"bytes,6,opt,name=timeout_height,json=timeoutHeight,proto3" json:"timeout_height" yaml:"timeout_height"`
+	// Timeout timestamp in absolute nanoseconds since unix epoch.
+	// The timeout is disabled when set to 0.
+	TimeoutTimestamp uint64 `protobuf:"varint,7,opt,name=timeout_timestamp,json=timeoutTimestamp,proto3" json:"timeout_timestamp,omitempty" yaml:"timeout_timestamp"`
+	// optional memo
+	Memo string `protobuf:"bytes,8,opt,name=memo,proto3" json:"memo,omitempty"`
+}
+
+type Coin struct {
+	Denom  string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	Amount Int    `protobuf:"bytes,2,opt,name=amount,proto3,customtype=Int" json:"amount"`
+}
+```
+
 
 ## Inbound transactions
 
-As an Evmos user, you may want to move IBC Coins from other Cosmos chains onto Evmos. To use these IBC coins on dApps deployed on Evmos, you need an ERC-20 representation of these. The automated coin conversion feature automatically converts the incoming IBC coins into their ERC-20 representation. In this way, you don't need to manually convert your IBC coins into ERC-20 tokens. As a result, you can use the IBC coins as ERC-20 tokens as soon as they arrive to your Evmos wallet.
+Your users may want to move IBC Coins from other Cosmos chains onto Evmos. To use these IBC coins on dApps deployed on Evmos, they need an ERC-20 representation of these. The automated coin conversion feature automatically converts the incoming IBC coins into their ERC-20 representation. In this way, you don't need to manually convert the incoming IBC coins into ERC-20 tokens. As a result, your users can use the IBC coins as ERC-20 tokens as soon as they arrive to their wallets.
 
-The user should note that only the registered token pairs are converted. If the token pair is not registered, you will receive the corresponding IBC coin on your wallet without any further change.
+Should consider that only the registered token pairs are converted. If the token pair is not registered, users will receive the corresponding IBC coin on their wallet without any further change.
 
 :::tip
-**Note**: If you have some IBC coins on Evmos already, and the token pair is registered, when you receive an IBC transfer of this denomination, the **whole balance** will be converted (the current balance plus the transfer amount).
+**Note**: If your users have some IBC coins on Evmos already, and the token pair is registered, when they receive an IBC transfer of this denomination, their **whole balance** will be converted (the current balance plus the transfer amount).
 :::
 
 ## FAQ
 
 ### How do I send an ERC-20 via IBC?
 
-The [IBC transfer page](https://app.evmos.org/transfer) allows you to perform IBC transfers of either ERC-20, IBC coins or Evmos tokens. With the new automated coin conversion feature, you can send ERC-20 via IBC right away. The conversion step is done automatically under the hood. Users don't need to manually convert the ERC-20 tokens into IBC coins anymore to perform this operation.
+With the new automated coin conversion feature, you can send ERC-20 via IBC right away. The conversion step is done automatically under the hood. To do this operation you only need to specify the corresponding denomination on the `MsgTransfer` struct. For example, if we want to send an ERC-20 token called `TestCoin` via IBC, use `Token.Denom = "TestCoin"`.
 
 ### Can I send WEVMOS to other chains?
 
-Yes! The automated coin conversion feature allows you to send ERC-20 tokens via IBC to other chains. This includes WEVMOS tokens. You can perform this operation using the [IBC transfer page](https://app.evmos.org/transfer).
+WEVMOS transfers are not supported at the moment. However, you can unwrap manually the WEVMOS tokens using the [Evmos dashboard](https://app.evmos.org/assets) or [Diffusion](https://app.diffusion.fi/). Then you can perform a regular IBC transfer using the Evmos tokens.
 
 ### Does automated coin conversion apply to all coins?
 
