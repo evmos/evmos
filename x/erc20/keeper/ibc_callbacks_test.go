@@ -243,7 +243,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
 				prefixedDenom := sourcePrefix + registeredDenom
 
-				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20")
+				// any module account can be passed here
+				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "claims")
 
 				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "500", moduleAcc.GetAddress().String(), ethsecpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
