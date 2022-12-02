@@ -75,7 +75,7 @@ The automated coin conversion covers all IBC coins and ERC-20 tokens as long as 
 
 ### How do I convert the Evmos token to ERC-20?
 
-Evmos token conversion is not automated. If you want to convert Evmos tokens into its ERC-20 representation, you will need to use [the Assets page](https://app.evmos.org/assets).
+The conversion from EVMOS token to WEVMOS is not automated. If you want to convert EVMOS tokens into its ERC-20 representation, you will need to use [the Assets page](https://app.evmos.org/assets).
 
 ### Do I still need to use [the Assets page](https://app.evmos.org/assets)?
 
