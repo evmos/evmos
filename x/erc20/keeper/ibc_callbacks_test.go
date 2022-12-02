@@ -148,7 +148,20 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			expCoins:      coins,
 			checkBalances: true,
 		},
-
+		{
+			name: "no-op - reciever is module account",
+			malleate: func() {
+				secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
+				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String())
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: true,
+		},
 		{
 			name: "no-op - base denomination",
 			malleate: func() {
@@ -201,18 +214,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			disableTokenPair: true,
 		},
 		{
-			name: "error - invalid denomination", // should fall as unregistered and not transfer any coins, but ack is Success
-			malleate: func() {
-				transfer := transfertypes.NewFungibleTokenPacketData("b/d//s/ss/", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			ackSuccess: true,
-			receiver:   secpAddr,
-			expErc20s:  big.NewInt(0),
-			expCoins:   coins,
-		},
-		{
 			name: "no-op - sender == receiver and is not from evm chain", // getting failed to escrow coins - need to escrow coins
 			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddrEvmos)
@@ -226,41 +227,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			expCoins:      coins,
 		},
 		{
-			name: "no-op - sender is a module account",
-			malleate: func() {
-				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
-				prefixedDenom := sourcePrefix + registeredDenom
-
-				// any module account can be passed here
-				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "claims")
-
-				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "500", moduleAcc.GetAddress().String(), ethsecpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			receiver:      ethsecpAddr,
-			ackSuccess:    true,
-			checkBalances: false,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
-		},
-		{
-			name: "no-op - bond denomination",
-			malleate: func() {
-				// bond denom should be prefixed
-				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
-				prefixedDenom := sourcePrefix + s.app.StakingKeeper.BondDenom(suite.ctx)
-				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "100", secpAddrCosmos, ethsecpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			receiver:      ethsecpAddr,
-			ackSuccess:    true,
-			checkBalances: false,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
-		},
-		{
 			name: "error - invalid denomination", // should fall as unregistered and not transfer any coins, but ack is Success
 			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData("b/d//s/ss/", "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
@@ -272,55 +238,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			checkBalances: true,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
-		},
-		{
-			name: "no-op - no token pair registered for denom",
-			malleate: func() {
-				pk1 := secp256k1.GenPrivKey()
-				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
-				prefixedDenom := sourcePrefix + "unregistered"
-				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
-				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "500", otherSecpAddrEvmos, ethsecpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			receiver:      ethsecpAddr,
-			ackSuccess:    true,
-			checkBalances: false,
-			expErc20s:     big.NewInt(1000),
-			expCoins:      coins,
-		},
-		{
-			name: "no-op - token pair registered but disabled",
-			malleate: func() {
-				pk1 := secp256k1.GenPrivKey()
-				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
-				prefixedDenom := sourcePrefix + registeredDenom
-				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
-				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "500", otherSecpAddrEvmos, ethsecpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			receiver:         ethsecpAddr,
-			disableTokenPair: true,
-			ackSuccess:       true,
-			checkBalances:    false,
-			expErc20s:        big.NewInt(1000),
-			expCoins:         coins,
-		},
-		{
-			name: "no-op - reciever is module account",
-			malleate: func() {
-				secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
-				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String())
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			ackSuccess:    true,
-			receiver:      secpAddr,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
-			checkBalances: true,
 		},
 		{
 			name: "ibc conversion - sender == receiver and from evm chain",
