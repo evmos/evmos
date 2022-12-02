@@ -85,8 +85,8 @@ func (k Keeper) OnRecvPacket(
 		// so we can continue with the rest of the stack
 		return ack
 	}
-	pair, _ := k.GetTokenPair(ctx, pairID)
 
+	pair, _ := k.GetTokenPair(ctx, pairID)
 	if !pair.Enabled {
 		// no-op: continue with the rest of the stack without conversion
 		return ack
