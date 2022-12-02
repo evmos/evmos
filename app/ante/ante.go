@@ -29,6 +29,9 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = newEthAnteHandler(options)
+				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
+					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
+					anteHandler = newLegacyCosmosAnteHandlerEip712(options) // nolint: staticcheck
 				default:
 					return ctx, errorsmod.Wrapf(
 						errortypes.ErrUnknownExtensionOptions,
