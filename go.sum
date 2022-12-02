@@ -221,8 +221,8 @@ github.com/coreos/go-systemd/v22 v22.3.3-0.20220203105225-a9a7ef127534/go.mod h1
 github.com/coreos/pkg v0.0.0-20160727233714-3ac0863d7acf/go.mod h1:E3G3o1h8I7cfcXa63jLwjI0eiQQMgzzUDFVpN/nH/eA=
 github.com/cosmos/btcutil v1.0.4 h1:n7C2ngKXo7UC9gNyMNLbzqz7Asuf+7Qv4gnX/rOdQ44=
 github.com/cosmos/btcutil v1.0.4/go.mod h1:Ffqc8Hn6TJUdDgHBwIZLtrLQC1KdJ9jGJl/TvgUaxbU=
-github.com/cosmos/cosmos-proto v1.0.0-alpha8 h1:d3pCRuMYYvGA5bM0ZbbjKn+AoQD4A7dyNG2wzwWalUw=
-github.com/cosmos/cosmos-proto v1.0.0-alpha8/go.mod h1:6/p+Bc4O8JKeZqe0VqUGTX31eoYqemTT4C1hLCWsO7I=
+github.com/cosmos/cosmos-proto v1.0.0-beta.1 h1:iDL5qh++NoXxG8hSy93FdYJut4XfgbShIocllGaXx/0=
+github.com/cosmos/cosmos-proto v1.0.0-beta.1/go.mod h1:8k2GNZghi5sDRFw/scPL8gMSowT1vDA+5ouxL8GjaUE=
 github.com/cosmos/cosmos-sdk/ics23/go v0.8.0 h1:iKclrn3YEOwk4jQHT2ulgzuXyxmzmPczUalMwW4XH9k=
 github.com/cosmos/cosmos-sdk/ics23/go v0.8.0/go.mod h1:2a4dBq88TUoqoWAU5eu0lGvpFP3wWDPgdHPargtyw30=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
@@ -330,8 +330,8 @@ github.com/evmos/cosmos-sdk v0.46.6-ledger h1:b6PvRN2BOO2sud++gvC+MCJXJp7c2bcdL2
 github.com/evmos/cosmos-sdk v0.46.6-ledger/go.mod h1:JNklMfXo7MhDF1j/jxZCmDyOYyqhVoKB22e8p1ATEqA=
 github.com/evmos/ethereum-ledger-go v0.1.2 h1:FkCUvkJS8eMkj9v9imsv7i2AcyqqesCYPeIDCPwdNeE=
 github.com/evmos/ethereum-ledger-go v0.1.2/go.mod h1:azPpikO/CFtDlIfJB2lBcodgtRr6miidSCBI/u+mxzk=
-github.com/evmos/ethermint v0.20.0-rc2.0.20221130170744-ce337c32c53f h1:j4ksXXtONxeF8FfMqjOiM+/T4OqWHKd+mSN/aw4gE7I=
-github.com/evmos/ethermint v0.20.0-rc2.0.20221130170744-ce337c32c53f/go.mod h1:U330/qfS3xQ0VKPQ4rAAwGnFeGQeF9vN2FUxm7oxJZ4=
+github.com/evmos/ethermint v0.20.0-rc3 h1:nrxnBxZQTILWInJEcBcd1Q5R/gHKcxYkPDsFwazl45w=
+github.com/evmos/ethermint v0.20.0-rc3/go.mod h1:bOZ7epy2AJlZEBqUCvP4T+fni+XOp4CaYe34pPQ8GfE=
 github.com/evmos/evmos-ledger-go v0.1.2 h1:nHu+MVlNRqkRwvCoxWepMasOGkDMtoeb/Fkypn4kT0U=
 github.com/evmos/evmos-ledger-go v0.1.2/go.mod h1:u46iUvU2PNfqiZgSMpuGxWeAUNB/o+jVHobqpfarhtQ=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
