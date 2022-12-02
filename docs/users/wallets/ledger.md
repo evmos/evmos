@@ -83,13 +83,14 @@ Now you can import your Ledger account to MetaMask by using the following steps:
 
 To use your Ledger with the Evmos CLI, first connect your device to your computer, unlock it using your PIN, and open the Ethereum app.
 
-Then, connect your Ledger to the CLI with the following command:
+Then, connect your Ledger to the CLI with `keys add` command, and select a name for your device:
 
-`evmosd keys add myledger --ledger`
-
-Feel free to replace "myledger" with any name of your choosing.
+```
+evmosd keys add NAME --ledger
+```
 
 **Example:**
+
 ```
 evmosd keys add myledger --ledger
 
@@ -102,6 +103,7 @@ evmosd keys add myledger --ledger
 To sign any transaction, simply append `--from myledger` to the end of the command to indicate that the Ledger account should be used to authenticate the message:
 
 **Example:**
+
 ```
 evmosd tx bank send myledger evmos1hnmrdr0jc2ve3ycxft0gcjjtrdkncpmmkeamf9 100000aevmos --fees 2000aevmos --from myledger
 ```
@@ -191,7 +193,7 @@ Cosmos `secp256k1` keys are not supported on Evmos with Ledger. Only Ethereum ke
 
 2. **My Ledger has trouble connecting or signing on the CLI**
 
-The Ledger's connection to the CLI can fail for a number of reasons. Make sure to close any other apps using the Ledger (such as Ledger Live or Metamask), and unlock the Ledger and open the Ethereum app. If this does not work, simply disconnecting and reconnecting the device often solves the issue.
+The Ledger's connection to the CLI can fail for a number of reasons. Make sure to close any other apps using the Ledger (such as Ledger Live or Metamask), unlock the Ledger, and open the Ethereum app. If this does not work, simply disconnecting and reconnecting the device often solves the issue.
 
 3. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
 
