@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
@@ -84,10 +83,8 @@ func EqualStringSlice(aliasesA, aliasesB []string) bool {
 	return true
 }
 
-// IsModuleAccount returns true if the given addr is a module account
-func IsModuleAccount(ctx sdk.Context, ak AccountKeeper, addr sdk.AccAddress) bool {
-	senderAcc := ak.GetAccount(ctx, addr)
-
-	_, isModuleAccount := senderAcc.(authtypes.ModuleAccountI)
+// IsModuleAccount returns true if the given account is a module account
+func IsModuleAccount(acc authtypes.AccountI) bool {
+	_, isModuleAccount := acc.(authtypes.ModuleAccountI)
 	return isModuleAccount
 }

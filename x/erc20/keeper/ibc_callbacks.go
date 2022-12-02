@@ -59,9 +59,10 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	if types.IsModuleAccount(ctx, k.accountKeeper, recipient) {
-		// no-op, assume that all module accounts on Evmos need to have their tokens
-		// in the IBC representation as opposed to ERC20
+	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+
+	// return acknoledgement without conversion if sender is a module account
+	if types.IsModuleAccount(senderAcc) {
 		return ack
 	}
 
@@ -157,7 +158,8 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 
 	// assume that all module accounts on Evmos need to have their tokens in the
 	// IBC representation as opposed to ERC20
-	if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
+	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+	if types.IsModuleAccount(senderAcc) {
 		return nil
 	}
 

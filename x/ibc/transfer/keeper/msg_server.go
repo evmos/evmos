@@ -10,8 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
 )
@@ -48,9 +46,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 
-	// assume that all module accounts on Evmos need to have their tokens in the
-	// IBC representation as opposed to ERC20
-	if _, isModuleAccount := senderAcc.(authtypes.ModuleAccountI); isModuleAccount {
+	if erc20types.IsModuleAccount(senderAcc) {
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
