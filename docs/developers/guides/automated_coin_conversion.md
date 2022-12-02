@@ -93,20 +93,20 @@ Then you can perform a regular IBC transfer using the EVMOS tokens.
 
 ### Does automated coin conversion apply to all coins?
 
-The automated coin conversion covers all IBC coins and ERC-20 tokens as long as the appropriate token mapping was registered through governance.
+The automated coin conversion covers all IBC coins and ERC-20 tokens as long as the appropriate token mapping was registered through governance ([guide to register an ERC-20 token](https://docs.evmos.org/developers/guides/erc20_registration.html)).
 If the token pair is not registered, the IBC coin will be left as is.
-Additionally, Evmos token conversion is not automated.
-Considering that the Evmos token is used for staking and paying gas fees, the team decided to exclude the native token automated conversion.
+Additionally, EVMOS token conversion is not automated.
+Considering that the EVMOS token is used for staking and paying gas fees, the team decided to exclude the native token automated conversion.
 Thus, the user experience is not undermined by this feature.
 
-### How do I convert the Evmos token to ERC-20?
+### How do I convert the EVMOS token to ERC-20?
 
 The conversion from EVMOS token to WEVMOS is not automated.
 If you want to convert EVMOS tokens into its ERC-20 representation, you will need to use [the Assets page](https://app.evmos.org/assets).
 
 ### Do I still need to use [the Assets page](https://app.evmos.org/assets)?
 
-Yes! If you want to convert Evmos tokens into their ERC-20 representation, you will need to do it manually on [the Assets page](https://app.evmos.org/assets).
-Evmos token automated conversion was excluded in this feature to avoid damaging user experience.
+Yes! If you want to convert EVMOS tokens into their ERC-20 representation, you will need to do it manually on [the Assets page](https://app.evmos.org/assets).
+EVMOS token automated conversion was excluded in this feature to avoid damaging user experience.
 Additionally, you can still manually convert IBC coins to ERC-20 tokens.
 On top of that, the assets page allows you to see all your token balances.
