@@ -17,7 +17,7 @@ Please read on for further understanding of this feature scope and functionality
 Your users may want to move their ERC-20 tokens from Evmos onto another Cosmos chains. The automated coin conversion feature makes this operation smooth. You can send ERC-20 tokens via an IBC transfer with a single step. To do so, there is no need to make any changes on your IBC transfer logic. You only need to corroborate that the corresponding denomination is passed as a parameter. For example, if you want to transfer the ERC-20 representation of the `uosmo` token on Evmos, specifying the corresponding denomination (`Token.Denom = "uosmo"`) on the `MsgTransfer` struct will suffice. The same applies to any ERC-20 token that is not a representation of a Native Coin on other Cosmos chains. Under the hood, the protocol will atomatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
 
 :::tip
-In case of Evmos not being the source chain of the IBC coin you want to send, you will have to specify the corresponding IBC denom (e.g. `ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`)
+**Note**: In case of Evmos not being the source chain of the IBC coin you want to send, you will have to specify the corresponding IBC denom (e.g. `ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`)
 :::
 
 ```go
