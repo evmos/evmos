@@ -153,8 +153,8 @@ func (k Keeper) OnAcknowledgementPacket(
 func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
 	// FIXME: should I check error here?
 	accAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
-		// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
-		if types.IsModuleAccount(ctx, k.accountKeeper, accAddr) {
+	// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
+	if types.IsModuleAccount(ctx, k.accountKeeper, accAddr) {
 		return nil
 	}
 	return k.ConvertCoinToERC20FromPacket(ctx, data)
