@@ -87,7 +87,6 @@ func (k Keeper) OnRecvPacket(
 	pair, _ := k.GetTokenPair(ctx, pairID)
 
 	if !pair.Enabled {
-		// FIXME: should I return ack/error ?
 		// continue with the rest of the stack witohut conversion
 		return ack
 	}
@@ -133,6 +132,7 @@ func (k Keeper) OnAcknowledgementPacket(
 ) error {
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
+<<<<<<< HEAD
 		sender, err := sdk.AccAddressFromBech32(data.GetSender())
 		if err != nil {
 			return err
@@ -141,6 +141,14 @@ func (k Keeper) OnAcknowledgementPacket(
 		// assume that all module accounts on Evmos need to have their tokens in the
 		// IBC representation as opposed to ERC20
 		if types.IsModuleAccount(ctx, k.accountKeeper, sender) {
+=======
+		senderAddr, err := sdk.AccAddressFromBech32(data.GetSender())
+		if err != nil {
+			return err
+		}
+		// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
+		if types.IsModuleAccount(ctx, k.accountKeeper, senderAddr) {
+>>>>>>> 08d35e32 (cohre(erc20): apply post-review suggestion)
 			return nil
 		}
 		// convert the token from Cosmos Coin to its ERC20 representation
