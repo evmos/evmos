@@ -28,8 +28,8 @@ var (
 	LedgerDerivation = ledger.EvmosLedgerDerivation(encoding.MakeConfig(app.ModuleBasics))
 	// CreatePubkey uses the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
 	CreatePubkey = func(key []byte) types.PubKey { return &ethsecp256k1.PubKey{Key: key} }
-	// SkipDERConversion represents whether the signed Ledger output should skip conversion from DER to BER, true for
-	// signing performed by the Ledger Ethereum app.
+	// SkipDERConversion represents whether the signed Ledger output should skip conversion from DER to BER.
+	// This is set to true for signing performed by the Ledger Ethereum app.
 	SkipDERConversion = true
 )
 
@@ -42,6 +42,6 @@ func Option() keyring.Option {
 		options.LedgerDerivation = func() (cosmosLedger.SECP256K1, error) { return LedgerDerivation() }
 		options.LedgerCreateKey = CreatePubkey
 		options.LedgerAppName = AppName
-		options.LedgerSigSkipDERConv = true
+		options.LedgerSigSkipDERConv = SkipDERConversion
 	}
 }
