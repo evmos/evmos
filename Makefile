@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
-PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
 TMVERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::')
 COMMIT := $(shell git log -1 --format='%H')
@@ -10,7 +9,6 @@ BINDIR ?= $(GOPATH)/bin
 EVMOS_BINARY = evmosd
 EVMOS_DIR = evmos
 BUILDDIR ?= $(CURDIR)/build
-SIMAPP = ./app
 HTTPS_GIT := https://github.com/evmos/evmos.git
 DOCKER := $(shell which docker)
 NAMESPACE := tharsishq
