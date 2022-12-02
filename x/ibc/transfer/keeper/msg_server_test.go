@@ -27,7 +27,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		expPass  bool
 	}{
 		{
-			"pass - non contract",
+			"pass - no token pair",
 			func() *types.MsgTransfer {
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin("aevmos", sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
