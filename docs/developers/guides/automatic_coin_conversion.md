@@ -6,18 +6,17 @@ order: 8
 
 Learn how to the Automated Coin Conversion feature works. {synopsis}
 
-In their ERC-20 representation, assets can be used to interact with dApps using the EVM. This standard allows developers to build applications that are interoperable with other products and services. In their Native Coin representation, they can be transferred between accounts on Evmos and other Cosmos chains using IBC. They cannot, however, be used to interact with dApps on Evmos, as Native Coins are not supported by the EVM since they don’t implement the ERC-20 standard.
+In their [ERC-20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/) representations, assets can be used to interact with dApps using the EVM. This standard allows developers to build applications that are interoperable with other products and services. In their Native Coin representation, they can be transferred between accounts on Evmos and other Cosmos chains using IBC. They cannot, however, be used to interact with dApps on Evmos, as Native Coins are not supported by the EVM since they don’t implement the ERC-20 standard.
 
-In order to reduce end-user complexity, Evmos should only allow single-token representation use between IBC Coin and ERC-20s. Consequently, the Evmos team developed the Automated Coin Conversion feature to achieve this goal. It consists on converting incoming IBC vouchers to ERC-20s and modifying outgoing IBC transfers to convert ERC-20s to IBC Coins. This automated conversion occurs if, and only if, the appropriate token mapping was registered through governance. If the token pair is not registered, the IBC coin will be left as is.
+In order to reduce end-user complexity, Evmos should only allow single-token representation use between IBC Coin and ERC-20s. Consequently, the Evmos team developed the Automated Coin Conversion feature to achieve this goal. It converts incoming IBC vouchers to ERC-20s and modifies outgoing IBC transfers to convert ERC-20s to IBC Coins. This automated conversion occurs if, and *only* if, the appropriate token mapping was registered through governance. If the token pair is not registered, the IBC coin will be left as is.
 
-Please read on for further understanding of this feature scope and functionality.
 
 ## Outbound transactions
 
-Your users may want to move their ERC-20 tokens from Evmos onto another Cosmos chains. The automated coin conversion feature makes this operation smooth. You can send ERC-20 tokens via an IBC transfer with a single step. To do so, there is no need to make any changes on your IBC transfer logic. You only need to corroborate that the corresponding denomination is passed as a parameter. For example, if you want to transfer the ERC-20 representation of the `uosmo` token on Evmos, specifying the corresponding denomination (`Token.Denom = "uosmo"`) on the `MsgTransfer` struct will suffice. The same applies to any ERC-20 token that is not a representation of a Native Coin on other Cosmos chains. Under the hood, the protocol will atomatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
+Your users may want to move their ERC-20 tokens from Evmos onto other Cosmos chains. The automated coin conversion feature simplifies this operation, because it enables you to send ERC-20 tokens via an IBC transfer in a single step. To do so, there is no need to make any changes on your IBC transfer logic. You only need to ensure that the corresponding denomination is passed as a parameter. For example, if you want to transfer the ERC-20 representation of the `uosmo` token on Evmos, specifying the corresponding denomination (`Token.Denom = "uosmo"`) on the `MsgTransfer` struct will suffice. The same applies to any ERC-20 token that is not a representation of a Native Coin on other Cosmos chains. Under the hood, the protocol will automatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
 
 :::tip
-**Note**: In case of Evmos not being the source chain of the IBC coin you want to send, you will have to specify the corresponding IBC denom (e.g. `ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`)
+**Note**: In case Evmos is not the source chain of the sent IBC coin, you will have to specify the corresponding IBC denom (e.g. `ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`)
 :::
 
 ```go
@@ -52,10 +51,11 @@ type Coin struct {
 
 Your users may want to move IBC Coins from other Cosmos chains onto Evmos. To use these IBC coins on dApps deployed on Evmos, they need an ERC-20 representation of these. The automated coin conversion feature automatically converts the incoming IBC coins into their ERC-20 representation. In this way, you don't need to manually convert the incoming IBC coins into ERC-20 tokens. As a result, your users can use the IBC coins as ERC-20 tokens as soon as they arrive to their wallets.
 
-Should consider that only the registered token pairs are converted. If the token pair is not registered, users will receive the corresponding IBC coin on their wallet without any further change.
+It should be considered that only registered token pairs are converted.
+If the token pair is not registered, users will receive the corresponding IBC coin on their wallet without any further changes.
 
 :::tip
-**Note**: If your users have some IBC coins on Evmos already, and the token pair is registered, when they receive an IBC transfer of this denomination, their **whole balance** will be converted (the current balance plus the transfer amount).
+**Note**: If your users have IBC coins on Evmos already, and they receive an IBC transfer in the denomination of an already registered token pair, their **whole balance** will be converted (the current balance plus the transfer amount).
 :::
 
 ## FAQ
@@ -78,4 +78,4 @@ The conversion from EVMOS token to WEVMOS is not automated. If you want to conve
 
 ### Do I still need to use [the Assets page](https://app.evmos.org/assets)?
 
-Yes! If you want to convert Evmos tokens into their ERC-20 representation, you will need to do it manually on [the Assets page](https://app.evmos.org/assets). Evmos token automated conversion was excluded in this feature to avoid damaging user experience. Additionally, you can still convert manually IBC coins to ERC-20 tokens. On top of that, the assets page allows you to see all your token balances.
+Yes! If you want to convert Evmos tokens into their ERC-20 representation, you will need to do it manually on [the Assets page](https://app.evmos.org/assets). Evmos token automated conversion was excluded in this feature to avoid damaging user experience. Additionally, you can still manually convert IBC coins to ERC-20 tokens. On top of that, the assets page allows you to see all your token balances.
