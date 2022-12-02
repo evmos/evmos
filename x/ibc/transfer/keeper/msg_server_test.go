@@ -165,9 +165,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				// suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
-				// suite.Commit()
-
 				return transferMsg
 			},
 			true,
