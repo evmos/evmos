@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -20,6 +21,7 @@ import (
 
 	"github.com/evmos/evmos/v10/contracts"
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v10/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
 	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
 )
@@ -618,4 +620,110 @@ func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
+	var (
+		data transfertypes.FungibleTokenPacketData
+		ack  channeltypes.Acknowledgement
+		pair *types.TokenPair
+	)
+
+	// secp256k1 account
+	senderPk := secp256k1.GenPrivKey()
+	sender := sdk.AccAddress(senderPk.PubKey().Address())
+
+	receiverPk := secp256k1.GenPrivKey()
+	receiver := sdk.AccAddress(receiverPk.PubKey().Address())
+	fmt.Println(receiver)
+	testCases := []struct {
+		name     string
+		malleate func()
+		expERC20 *big.Int
+		expPass  bool
+	}{
+		{
+			name: "no-op - positive ack",
+			malleate: func() {
+				// Register Token Pair for testing
+				pair = suite.setupRegisterCoin(metadataCoin)
+				suite.Require().NotNil(pair)
+
+				ack = channeltypes.NewResultAcknowledgement([]byte{1})
+
+			},
+			expERC20: big.NewInt(0),
+			expPass:  true,
+		},
+		{
+			name: "no-op - ack error sender is module account",
+			malleate: func() {
+				// Register Token Pair for testing
+				pair = suite.setupRegisterCoin(metadataCoin)
+				suite.Require().NotNil(pair)
+
+				sender = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "incentives").GetAddress()
+
+				ack = channeltypes.NewErrorAcknowledgement(errors.New(""))
+				data = transfertypes.NewFungibleTokenPacketData("", "", sender.String(), "")
+			},
+			expPass:  true,
+			expERC20: big.NewInt(0),
+		},
+		// {
+		// 	name: "conversion - convert ibc tokens to erc20 on ack error",
+		// 	malleate: func() {
+		// 		// Register Token Pair for testing
+		// 		pair = suite.setupRegisterCoin(metadataCoin)
+		// 		suite.Require().NotNil(pair)
+
+		// 		sender = sdk.AccAddress(senderPk.PubKey().Address())
+
+		// 		ack = channeltypes.NewErrorAcknowledgement(errors.New(""))
+		// 		data = transfertypes.NewFungibleTokenPacketData(pair.Denom, "100", sender.String(), receiver.String())
+		// 	},
+		// 	expERC20: big.NewInt(100),
+		// 	expPass:  true,
+		// },
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
+			// We do this since we are interested in the conversion portion w/ OnRecvPacket
+			err := testutil.FundAccount(
+				suite.ctx,
+				suite.app.BankKeeper,
+				sender,
+				sdk.NewCoins(
+					sdk.NewCoin(pair.Denom, sdk.NewInt(100)),
+				),
+			)
+			suite.Require().NoError(err)
+
+			err = suite.app.Erc20Keeper.OnAcknowledgementPacket(
+				suite.ctx, channeltypes.Packet{}, data, ack,
+			)
+			suite.Require().NoError(err)
+
+			if tc.expPass {
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().Error(err)
+			}
+
+			// check balance is the same as expected
+			balance := suite.app.Erc20Keeper.BalanceOf(
+				suite.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI,
+				pair.GetERC20Contract(),
+				common.BytesToAddress(sender.Bytes()),
+			)
+			suite.Require().Equal(tc.expERC20.Int64(), balance.Int64())
+
+		})
+	}
+
 }

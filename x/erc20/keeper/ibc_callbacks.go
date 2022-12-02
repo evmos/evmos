@@ -134,9 +134,9 @@ func (k Keeper) OnAcknowledgementPacket(
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 		// FIXME: should I check error here?
-		accAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
+		senderAddr, _ := sdk.AccAddressFromBech32(data.GetSender())
 		// assume that all module accounts on Evmos need to have their tokens in the IBC representation as opposed to ERC20
-		if types.IsModuleAccount(ctx, k.accountKeeper, accAddr) {
+		if types.IsModuleAccount(ctx, k.accountKeeper, senderAddr) {
 			return nil
 		}
 		// convert the token from Cosmos Coin to its ERC20 representation
