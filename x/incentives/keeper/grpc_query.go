@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -113,7 +113,7 @@ func (k Keeper) GasMeters(
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
+			errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
 		)
 	}
 
@@ -172,7 +172,7 @@ func (k Keeper) GasMeter(
 	if err := ethermint.ValidateAddress(req.Contract); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
+			errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract address %s", req.Contract).Error(),
 		)
 	}
 
@@ -187,7 +187,7 @@ func (k Keeper) GasMeter(
 	if err := ethermint.ValidateAddress(req.Participant); err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			sdkerrors.Wrapf(errortypes.ErrInvalidAddress, "invalid participant address %s", req.Participant).Error(),
+			errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid participant address %s", req.Participant).Error(),
 		)
 	}
 

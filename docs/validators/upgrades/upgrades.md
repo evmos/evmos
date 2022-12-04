@@ -6,8 +6,7 @@ order: 2
 
 Check the details and requirements for each mainnet and testnet upgrade. {synopsis}
 
-:::: tabs
-::: tab Mainnet
+#### Mainnet
 
 | Version                                                                  | Planned | Breaking | Data Reset | Manual Upgrade Only | Upgrade Height                                            |
 | ------------------------------------------------------------------------ | :-----: | :------: | :--------: | :-----------------: | --------------------------------------------------------- |
@@ -24,11 +23,11 @@ Check the details and requirements for each mainnet and testnet upgrade. {synops
 | [`v2.0.0`](https://github.com/evmos/evmos/releases/tag/v2.0.0)           |    ✅    |    ✅     |     ❌      |          ❌          | [58,700](https://www.mintscan.io/evmos/blocks/58700)      |
 | [`v1.0.0`](https://github.com/evmos/evmos/releases/tag/v1.0.0) (genesis) |  `N/A`  |  `N/A`   |   `N/A`    |          ❌          | [1](https://www.mintscan.io/evmos/blocks/1)               |
 
-:::
-::: tab Testnet
+#### Testnet
 
 | Version                                                                              | Planned | Breaking | Data Reset | Manual Upgrade Only | Upgrade Height                                                        |
-| ------------------------------------------------------------------------------------ | :-----: | :------: | :--------: | :-----------------: | --------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------------| :-----: | :------: | :--------: | :-----------------: |-----------------------------------------------------------------------|
+| [`v10.0.0-rc1`](https://github.com/evmos/evmos/releases/tag/v10.0.0-rc1)             |    ✅    |    ✅     |     ❌      |          ❌          | [8,700,000](https://testnet.mintscan.io/evmos-testnet/blocks/8700000) |
 | [`v9.1.0`](https://github.com/evmos/evmos/releases/tag/v9.1.0)                       |    ✅    |    ✅     |     ❌      |          ❌          | [8,310,000](https://testnet.mintscan.io/evmos-testnet/blocks/8310000) |
 | [`v8.2.3`](https://github.com/evmos/evmos/releases/tag/v8.2.3)                       |    ✅    |    ✅     |     ❌      |          ❌          | [8,037,000](https://testnet.mintscan.io/evmos-testnet/blocks/8037000) |
 | [`v8.1.0`](https://github.com/evmos/evmos/releases/tag/v8.1.0)                       |    ✅    |    ✅     |     ❌      |          ❌          | [5,320,000](https://testnet.mintscan.io/evmos-testnet/blocks/5320000) |
@@ -41,5 +40,3 @@ Check the details and requirements for each mainnet and testnet upgrade. {synops
 | [`v3.0.0`](https://github.com/evmos/evmos/releases/tag/v3.0.0)                       |    ✅    |    ✅     |     ❌      |          ❌          |                                                                       |
 | [`v3.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v3.0.0-beta1)           |    ❌    |    ✅     |     ✅      |          ✅          |                                                                       |
 | [`v1.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v1.0.0-beta1) (genesis) |  `N/A`  |  `N/A`   |   `N/A`    |          ❌          | [1](https://testnet.mintscan.io/evmos-testnet/blocks/1)               |
-:::
-::::

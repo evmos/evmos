@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -17,6 +17,7 @@ var (
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	TypeMsgClawback                     = "clawback"
+	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
 )
 
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
@@ -46,17 +47,17 @@ func (msg MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateC
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid from address")
+		return errorsmod.Wrapf(err, "invalid from address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid to address")
+		return errorsmod.Wrapf(err, "invalid to address")
 	}
 
 	lockupCoins := sdk.NewCoins()
 	for i, period := range msg.LockupPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
@@ -64,7 +65,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	vestingCoins := sdk.NewCoins()
 	for i, period := range msg.VestingPeriods {
 		if period.Length < 1 {
-			return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
@@ -73,7 +74,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
 		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
-		return sdkerrors.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
 	}
 
 	return nil
@@ -90,7 +91,7 @@ func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-// NewMsgClawbackcreates new instance of MsgClawback. The dest_address may be
+// NewMsgClawback creates new instance of MsgClawback. The dest address may be
 // nil - defaulting to the funder.
 func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 	destString := ""
@@ -113,16 +114,16 @@ func (msg MsgClawback) Type() string { return TypeMsgClawback }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgClawback) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.GetFunderAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid funder address")
+		return errorsmod.Wrapf(err, "invalid funder address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
-		return sdkerrors.Wrapf(err, "invalid account address")
+		return errorsmod.Wrapf(err, "invalid account address")
 	}
 
 	if msg.GetDestAddress() != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.GetDestAddress()); err != nil {
-			return sdkerrors.Wrapf(err, "invalid dest address")
+			return errorsmod.Wrapf(err, "invalid dest address")
 		}
 	}
 
@@ -136,6 +137,54 @@ func (msg *MsgClawback) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgClawback) GetSigners() []sdk.AccAddress {
+	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
+	return []sdk.AccAddress{funder}
+}
+
+// NewMsgUpdateVestingFunder creates new instance of MsgUpdateVestingFunder
+func NewMsgUpdateVestingFunder(funder, newFunder, vesting sdk.AccAddress) *MsgUpdateVestingFunder {
+	return &MsgUpdateVestingFunder{
+		FunderAddress:    funder.String(),
+		NewFunderAddress: newFunder.String(),
+		VestingAddress:   vesting.String(),
+	}
+}
+
+// Route returns the message route for a MsgUpdateVestingFunder.
+func (msg MsgUpdateVestingFunder) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgUpdateVestingFunder.
+func (msg MsgUpdateVestingFunder) Type() string { return TypeMsgUpdateVestingFunder }
+
+// ValidateBasic runs stateless checks on the MsgUpdateVestingFunder message
+func (msg MsgUpdateVestingFunder) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.GetFunderAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid funder address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.GetNewFunderAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid new funder address")
+	}
+
+	// New funder address can not be equal to current funder address
+	if msg.FunderAddress == msg.NewFunderAddress {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "new funder address is equal to current funder address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.GetVestingAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid vesting account address")
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgUpdateVestingFunder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgUpdateVestingFunder) GetSigners() []sdk.AccAddress {
 	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	return []sdk.AccAddress{funder}
 }

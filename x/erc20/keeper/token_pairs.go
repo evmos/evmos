@@ -12,6 +12,16 @@ import (
 func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 	tokenPairs := []types.TokenPair{}
 
+	k.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) (stop bool) {
+		tokenPairs = append(tokenPairs, tokenPair)
+		return false
+	})
+
+	return tokenPairs
+}
+
+// IterateTokenPairs iterates over all the stored token pairs
+func (k Keeper) IterateTokenPairs(ctx sdk.Context, cb func(tokenPair types.TokenPair) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixTokenPair)
 	defer iterator.Close()
@@ -20,13 +30,14 @@ func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 		var tokenPair types.TokenPair
 		k.cdc.MustUnmarshal(iterator.Value(), &tokenPair)
 
-		tokenPairs = append(tokenPairs, tokenPair)
+		if cb(tokenPair) {
+			break
+		}
 	}
-
-	return tokenPairs
 }
 
 // GetTokenPairID returns the pair id from either of the registered tokens.
+// Hex address or Denom can be used as token argument.
 func (k Keeper) GetTokenPairID(ctx sdk.Context, token string) []byte {
 	if common.IsHexAddress(token) {
 		addr := common.HexToAddress(token)
@@ -35,7 +46,7 @@ func (k Keeper) GetTokenPairID(ctx sdk.Context, token string) []byte {
 	return k.GetDenomMap(ctx, token)
 }
 
-// GetTokenPair - get registered token pair from the identifier
+// GetTokenPair gets a registered token pair from the identifier.
 func (k Keeper) GetTokenPair(ctx sdk.Context, id []byte) (types.TokenPair, bool) {
 	if id == nil {
 		return types.TokenPair{}, false

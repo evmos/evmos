@@ -3,7 +3,7 @@ package incentives
 import (
 	"strconv"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,7 +24,7 @@ func NewIncentivesProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 		case *types.CancelIncentiveProposal:
 			return handleCancelIncentiveProposal(ctx, k, c)
 		default:
-			return sdkerrors.Wrapf(
+			return errorsmod.Wrapf(
 				errortypes.ErrUnknownRequest,
 				"unrecognized %s proposal content type: %T", types.ModuleName, c,
 			)
