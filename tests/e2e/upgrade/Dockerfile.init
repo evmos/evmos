@@ -1,0 +1,19 @@
+# argument to provide specific version of evmos node
+ARG INITIAL_VERSION
+FROM tharsishq/evmos:$INITIAL_VERSION
+
+RUN apt-get update -y
+# jq needs to perform changes of node parameters
+RUN apt-get install ca-certificates jq -y
+
+WORKDIR /go/src/github.com/evmos/evmos
+
+COPY ./upgrade/upgrade-init.sh .
+
+# perms to make upgrade-init.sh executable
+RUN chmod +x upgrade-init.sh
+
+# JSON-RPC server
+EXPOSE 8545
+
+CMD ["sh", "./upgrade-init.sh"]

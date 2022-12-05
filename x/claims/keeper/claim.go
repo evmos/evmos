@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -19,7 +19,7 @@ func (k Keeper) ClaimCoinsForAction(
 	params types.Params,
 ) (math.Int, error) {
 	if action == types.ActionUnspecified || action > types.ActionIBCTransfer {
-		return sdk.ZeroInt(), sdkerrors.Wrapf(types.ErrInvalidAction, "%d", action)
+		return sdk.ZeroInt(), errorsmod.Wrapf(types.ErrInvalidAction, "%d", action)
 	}
 
 	// If we are before the start time, after end time, or claims are disabled, do nothing.
@@ -106,7 +106,7 @@ func (k Keeper) MergeClaimsRecords(
 		//  - the sender is not an evmos address and can't claim vote, delegation or evm actions
 		//  - the first attempt to perform an ibc callback from the senders account will merge/migrate the entire claims record
 		if senderClaimsRecord.HasClaimedAction(action) {
-			return types.ClaimsRecord{}, sdkerrors.Wrapf(errortypes.ErrNotSupported, "non-evmos sender must not have claimed action: %v", action)
+			return types.ClaimsRecord{}, errorsmod.Wrapf(errortypes.ErrNotSupported, "non-evmos sender must not have claimed action: %v", action)
 		}
 
 		recipientCompleted := recipientClaimsRecord.HasClaimedAction(action)

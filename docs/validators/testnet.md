@@ -8,14 +8,14 @@ This document outlines the steps to join an existing testnet {synopsis}
 
 ## Pick a Testnet
 
-You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/tharsis/testnets).
+You specify the network you want to join by setting the **genesis file** and **seeds**. If you need more information about past networks, check our [testnets repo](https://github.com/evmos/testnets).
 
 | Testnet Chain ID | Description                       | Site                                                                       | Version                                                                                  | Status  |
 | ---------------- | --------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------- |
-| `evmos_9000-4`   | Evmos_9000-4 Testnet              | [Evmos 9000-4](https://github.com/tharsis/testnets/tree/main/evmos_9000-4) | [`{{ $themeConfig.project.latest_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
-| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/tharsis/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v1.0.0-beta1)             | `Stale` |
-| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/tharsis/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/evmos/evmos/releases)                                    | `Stale` |
-| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/tharsis/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/evmos/evmos/releases)                                    | `Stale` |
+| `evmos_9000-4`   | Evmos_9000-4 Testnet              | [Evmos 9000-4](https://github.com/evmos/testnets/tree/main/evmos_9000-4) | [`{{ $themeConfig.project.testnet_version }}`](https://github.com/evmos/evmos/releases) | `Live`  |
+| `evmos_9000-3`   | Evmos_9000-3 Testnet              | [Evmos 9000-3](https://github.com/evmos/testnets/tree/main/evmos_9000-3) | [`v1.0.0-beta1`](https://github.com/evmos/evmos/releases/tag/v1.0.0-beta1)             | `Stale` |
+| `evmos_9000-2`   | Olympus Mons Incentivized Testnet | [Olympus Mons](https://github.com/evmos/testnets/tree/main/olympus_mons) | [`v0.3.x`](https://github.com/evmos/evmos/releases)                                    | `Stale` |
+| `evmos_9000-1`   | Arsia Mons Testnet                | [Arsia Mons](https://github.com/evmos/testnets/tree/main/arsia_mons)     | [`v0.1.x`](https://github.com/evmos/evmos/releases)                                    | `Stale` |
 
 ## Install `evmosd`
 
@@ -71,7 +71,7 @@ evmosd validate-genesis
 
 ### Add Seed Nodes
 
-Your node needs to know how to find [peers](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#seed) to `$HOME/.evmosd/config/config.toml`. The [`testnets`](https://github.com/tharsis/testnets) repo contains links to some seed nodes.
+Your node needs to know how to find [peers](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#peers). You'll need to add healthy [seed nodes](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#seed) to `$HOME/.evmosd/config/config.toml`. The [`testnets`](https://github.com/evmos/testnets) repo contains links to some seed nodes.
 
 Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the following:
 
@@ -100,8 +100,8 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 
 ### Add Persistent Peers
 
-We can set the [`persistent_peers`](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
-available peers on the [`testnets`](https://github.com/tharsis/testnets) repo.
+We can set the [`persistent_peers`](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with. You can retrieve them from the list of
+available peers on the [`testnets`](https://github.com/evmos/testnets) repo.
 
 A list of available persistent peers is also available in the `#find-peers` channel in the [Evmos Discord](https://discord.gg/evmos). You can get a random 10 entries from the `peers.txt` file in the `PEERS` variable by running the following command:
 

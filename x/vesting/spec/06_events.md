@@ -21,5 +21,13 @@ The `x/vesting` module emits the following events:
 | Type       | Attibute Key    | Attibute Value         |
 | ---------- | --------------- | ---------------------- |
 | `clawback` | `"funder"`      | `{msg.FromAddress}`    |
-| `clawback` | `"acciyubt"`    | `{msg.AccountAddress}` |
+| `clawback` | `"account"`     | `{msg.AccountAddress}` |
 | `clawback` | `"destination"` | `{msg.DestAddress}`    |
+
+## Update Clawback Vesting Account Funder
+
+| Type                    | Attibute Key   | Attibute Value           |
+| ----------------------- | -------------- | ------------------------ |
+| `update_vesting_funder` | `"funder"`     | `{msg.FromAddress}`      |
+| `update_vesting_funder` | `"account"`    | `{msg.VestingAddress}`   |
+| `update_vesting_funder` | `"new_funder"` | `{msg.NewFunderAddress}` |

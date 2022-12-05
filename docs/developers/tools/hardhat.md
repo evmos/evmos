@@ -12,8 +12,8 @@ Learn how to deploy a simple Solidity-based smart contract to Evmos using the Ha
 
 Before proceeding, you need to install Node.js (we'll use v16.x) and the npm package manager. You can download directly from [Node.js](https://nodejs.org/en/download/) or in your terminal:
 
-:::: tabs
-::: tab Ubuntu
+<CodeGroup>
+<CodeGroupItem title="Ubuntu">
 
 ```bash
 curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
@@ -21,8 +21,8 @@ curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
-:::
-::: tab MacOS
+</CodeGroupItem>
+<CodeGroupItem title="MacOS">
 
 ```bash
 # You can use homebrew (https://docs.brew.sh/Installation)
@@ -32,8 +32,8 @@ $ brew install node
 $ nvm install node
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 You can verify that everything is installed correctly by querying the version for each package:
 
@@ -73,8 +73,8 @@ $ npx hardhat
 
 Following the prompts should create a new project structure in your directory. Consult the [Hardhat config page](https://hardhat.org/config/) for a list of configuration options to specify in `hardhat.config.js`. Most importantly, you should set the `defaultNetwork` entry to point to your desired JSON-RPC network:
 
-:::: tabs
-::: tab Local Node
+<CodeGroup>
+<CodeGroupItem title="Local Node">
 
 ```javascript
 module.exports = {
@@ -91,8 +91,8 @@ module.exports = {
 }
 ```
 
-:::
-::: tab Testnet
+</CodeGroupItem>
+<CodeGroupItem title="Testnet">
 
 ```javascript
 module.exports = {
@@ -109,8 +109,8 @@ module.exports = {
 }
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 To ensure you are targeting the correct network, you can query for a list of accounts available to you from your default network provider:
 
@@ -159,22 +159,22 @@ npx hardhat run scripts/deploy.js
 
 Hardhat also lets you manually specify a target network via the `--network <your-network>` flag:
 
-:::: tabs
-::: tab Local Node
+<CodeGroup>
+<CodeGroupItem title="Local Node">
 
 ```bash
 npx hardhat run --network {{ $themeConfig.project.rpc_url_local }} scripts/deploy.js
 ```
 
-:::
-::: tab Testnet
+</CodeGroupItem>
+<CodeGroupItem title="Testnet">
 
 ```bash
 npx hardhat run --network {{ $themeConfig.project.rpc_url_testnet }} scripts/deploy.js
 ```
 
-:::
-::::
+</CodeGroupItem>
+</CodeGroup>
 
 Finally, try running a Hardhat test:
 

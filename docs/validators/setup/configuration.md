@@ -14,7 +14,7 @@ Validators will need to ensure their local node configurations in order to speed
 :::
 
 ```toml
-# In evmosd/config/config.toml
+# In ~/.evmosd/config/config.toml
 
 #######################################################
 ###         Consensus Configuration Options         ###
@@ -31,7 +31,7 @@ timeout_commit = "1s"
 
 ## Peers
 
-In `evmosd/config/config.toml` you can set your peers.
+In `~/.evmosd/config/config.toml` you can set your peers.
 
 See the [Add persistent peers section](../testnet.md#add-persistent-peers) in our docs for an automated method, but field should look something like a comma separated string of peers (do not copy this, just an example):
 

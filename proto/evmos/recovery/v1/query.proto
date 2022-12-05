@@ -1,11 +1,11 @@
 syntax = "proto3";
 package evmos.recovery.v1;
 
-import "google/api/annotations.proto";
-import "gogoproto/gogo.proto";
 import "evmos/recovery/v1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v8/x/recovery/types";
+option go_package = "github.com/evmos/evmos/v10/x/recovery/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -21,5 +21,5 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }
