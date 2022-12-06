@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
@@ -53,7 +54,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				// senderAcc := sdk.MustAccAddressFromBech32(addr)
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin("erc20/"+contractAddr.String(), sdk.NewInt(10)), addr, "", timeoutHeight, 0)
 				return transferMsg
-
 			},
 			false,
 		},
@@ -204,6 +204,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
+				suite.Require().Equal(pair.Erc20Address, strings.TrimPrefix(pair.Denom, "erc20/"))
 
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)

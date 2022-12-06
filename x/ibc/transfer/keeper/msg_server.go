@@ -10,7 +10,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
@@ -58,13 +57,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		// NOTE: shouldn't happen as the receiving address has already
-		// been validated on ICS20 transfer logic
-		return nil, sdkerrors.Wrap(err, "invalid sender")
-	}
-
+	sender := sdk.MustAccAddressFromBech32(msg.Sender)
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 
 	if erc20types.IsModuleAccount(senderAcc) {
@@ -93,18 +86,17 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 			)
 		}()
 
+		msg.Token.Denom = tokenPair.Denom
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
 	// only convert the remaining difference
 	difference := msg.Token.Amount.Sub(balance.Amount)
 
-	contractAddr := common.HexToAddress(tokenPair.Erc20Address)
-
 	msgConvertERC20 := erc20types.NewMsgConvertERC20(
 		difference,
 		sender,
-		contractAddr,
+		tokenPair.GetERC20Contract(),
 		common.BytesToAddress(sender.Bytes()),
 	)
 
