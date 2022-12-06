@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"github.com/armon/go-metrics"
 	"github.com/ethereum/go-ethereum/common"
@@ -42,13 +43,16 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 			WithTransientKVGasConfig(transientKVGasCfg)
 	}()
 
-	pairID := k.erc20Keeper.GetTokenPairID(ctx, msg.Token.Denom)
+	// use native denom or contract address
+	denom := strings.TrimPrefix(msg.Token.Denom, erc20types.ModuleName+"/")
+
+	pairID := k.erc20Keeper.GetTokenPairID(ctx, denom)
 	if len(pairID) == 0 {
 		// no-op: token is not registered so we can proceed with regular transfer
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
-	pair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
 
+	pair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
 	if !pair.Enabled {
 		// no-op: pair is not enabled so we can proceed with regular transfer
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
