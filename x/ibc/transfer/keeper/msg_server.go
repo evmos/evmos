@@ -113,5 +113,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		)
 	}()
 
+	// update the msg denom to the token pair denom
+	msg.Token.Denom = pair.Denom
 	return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 }
