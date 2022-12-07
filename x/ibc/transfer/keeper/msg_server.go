@@ -69,11 +69,8 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
-	// NOTE: no need to check if the token pair is found
-	tokenPair, _ := k.erc20Keeper.GetTokenPair(ctx, pairID)
-
 	// if the user has enough balance of the Cosmos representation, then we don't need to Convert
-	balance := k.bankKeeper.GetBalance(ctx, sender, tokenPair.Denom)
+	balance := k.bankKeeper.GetBalance(ctx, sender, pair.Denom)
 	if balance.Amount.GTE(msg.Token.Amount) {
 
 		defer func() {
@@ -81,13 +78,13 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 				[]string{"erc20", "ibc", "transfer", "total"},
 				1,
 				[]metrics.Label{
-					telemetry.NewLabel("denom", tokenPair.Denom),
+					telemetry.NewLabel("denom", pair.Denom),
 				},
 			)
 		}()
 
 		// update the msg denom to the token pair denom
-		msg.Token.Denom = tokenPair.Denom
+		msg.Token.Denom = pair.Denom
 		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	}
 
@@ -97,7 +94,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	msgConvertERC20 := erc20types.NewMsgConvertERC20(
 		difference,
 		sender,
-		tokenPair.GetERC20Contract(),
+		pair.GetERC20Contract(),
 		common.BytesToAddress(sender.Bytes()),
 	)
 
@@ -111,7 +108,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 			[]string{"erc20", "ibc", "transfer", "total"},
 			1,
 			[]metrics.Label{
-				telemetry.NewLabel("denom", tokenPair.Denom),
+				telemetry.NewLabel("denom", pair.Denom),
 			},
 		)
 	}()
