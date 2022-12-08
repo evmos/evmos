@@ -9,9 +9,9 @@ import (
 	"github.com/evmos/evmos/v10/x/recovery/types"
 )
 
-// MigrateStore migrates the x/evm module state from the consensus version 1 to
+// MigrateStore migrates the x/recovery module state from the consensus version 1 to
 // version 2. Specifically, it takes the parameters that are currently stored
-// and managed by the Cosmos SDK params module and stores them directly into the x/evm module state.
+// and managed by the Cosmos SDK params module and stores them directly into the x/recovery module state.
 func MigrateStore(
 	ctx sdk.Context,
 	storeKey storetypes.StoreKey,
