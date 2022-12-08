@@ -25,7 +25,7 @@ type Keeper struct {
 	cdc codec.BinaryCodec
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
 	authority string
-	// Store key required for the Fee Market Prefix KVStore.
+	// Store key required for the Recovery Prefix KVStore.
 	storeKey       storetypes.StoreKey
 	accountKeeper  types.AccountKeeper
 	bankKeeper     types.BankKeeper

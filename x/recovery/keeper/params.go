@@ -6,7 +6,7 @@ import (
 	"github.com/evmos/evmos/v10/x/recovery/types"
 )
 
-// GetParams returns the total set of fee market parameters.
+// GetParams returns the total set of recovery parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamsKey)
