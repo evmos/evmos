@@ -17,7 +17,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - uses: technote-space/get-diff-action@v6.1.1
+      - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
             docs/**/*.md

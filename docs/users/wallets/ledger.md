@@ -14,7 +14,7 @@ Get started with your Ledger hardware wallet on Evmos {synopsis}
 
 ## Checklist
 
-- ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
+- ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S+](https://shop.ledger.com/products/ledger-nano-s-plus) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
 - ✅ [Ledger Live](https://www.ledger.com/ledger-live) installed
 - ✅ [Metamask](https://metamask.io) installed
 - ✅ Ethereum Ledger app installed
@@ -78,6 +78,37 @@ Now you can import your Ledger account to MetaMask by using the following steps:
 4. Import the hex addresses that you want to use
 
 ![mm3.png](./../../img/mm3.png)
+
+### Evmos CLI
+
+To use your Ledger with the Evmos CLI, first connect your device to your computer, unlock it using your PIN, and open the Ethereum app.
+
+Then, connect your Ledger to the CLI with `keys add` command, and select a name for your device:
+
+```
+evmosd keys add NAME --ledger
+```
+
+**Example:**
+
+```
+evmosd keys add myledger --ledger
+
+- address: evmos1hnmrdr0jc2ve3ycxft0gcjjtrdkncpmmkeamf9
+  name: myledger
+  pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A19Ty8NGmXQj/oQ+LubST9eDIhEACmWXW6gdU8h60eXI"}'
+  type: ledger
+```
+
+To sign any transaction, simply append `--from myledger` to the end of the command to indicate that the Ledger account should be used to authenticate the message:
+
+**Example:**
+
+```
+evmosd tx bank send myledger evmos1hnmrdr0jc2ve3ycxft0gcjjtrdkncpmmkeamf9 100000aevmos --fees 2000aevmos --from myledger
+```
+
+Now, you can use your Ledger as you would normally interact with the CLI.
 
 ## EIP712 signing
 
@@ -160,15 +191,11 @@ This step should be done automatically by the same service that generated the me
 
 Cosmos `secp256k1` keys are not supported on Evmos with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
 
-2. **I can’t generate keys using the CLI with `evmosd` with the `--ledger` flag**
+2. **My Ledger has trouble connecting or signing on the CLI**
 
-CLI bindings with `evmosd` binary are not currently supported. In the meantime, you can use the Ethereum Ledger App with EIP712 using [evmos.me](https://evmos.me). See the [`EIP712 Signing`](#eip712-signing) section for reference.
+The Ledger's connection to the CLI can fail for a number of reasons. Make sure to close any other apps using the Ledger (such as Ledger Live or Metamask), unlock the Ledger, and open the Ethereum app. If this does not work, simply disconnecting and reconnecting the device often solves the issue.
 
-3. **I can’t generate a key for the Evmos native multisig using the `evmosd` CLI and and Ledger**
-
-You can generate a multisig wallet using the `evmosd` CLI, although the `--ledger` option is not available at the moment.
-
-4. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
+3. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
 
 Since Evmos only support Ethereum keys and uses the same HD path as Ethereum, the Cosmos Ledger app doesn’t work to sign cosmos transactions.
 
