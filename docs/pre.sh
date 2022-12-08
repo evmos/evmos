@@ -29,41 +29,39 @@ mv ethermint_specs/x/feemarket/spec/ ./modules/feemarket
 rm -rf ethermint_specs
 
 # Include the specs from Cosmos SDK
-COSMOS_URL=https://github.com/cosmos/cosmos-sdk
+#
+# NOTE: Using curl to get Cosmos specs, because there is always only one file per folder.
+#       This is much quicker.
+COSMOS_URL=https://raw.githubusercontent.com/cosmos/cosmos-sdk/main
 
-mkdir cosmos_sdk_specs
-cd cosmos_sdk_specs || exit
-git init
-git remote add origin "$COSMOS_URL"
-git config core.sparseCheckout true
-printf "x/auth/spec\nx/bank/spec\nx/crisis/spec\nx/distribution/spec\nx/evidence/spec\nx/gov/spec\nx//spec\nx/slashing/spec\nx/staking/spec\nx/upgrade/spec\n" > .git/info/sparse-checkout
-git pull origin main
-ls
-cd ..
-
-mv cosmos_sdk_specs/x/auth/spec/ ./modules/auth
-mv cosmos_sdk_specs/x/bank/spec/ ./modules/bank
-mv cosmos_sdk_specs/x/crisis/spec/ ./modules/crisis
-mv cosmos_sdk_specs/x/distribution/spec/ ./modules/distribution
-mv cosmos_sdk_specs/x/evidence/spec/ ./modules/evidence
-mv cosmos_sdk_specs/x/gov/spec/ ./modules/gov
-mv cosmos_sdk_specs/x/slashing/spec/ ./modules/slashing
-mv cosmos_sdk_specs/x/staking/spec/ ./modules/staking
-mv cosmos_sdk_specs/x/upgrade/spec/ ./modules/upgrade
-rm -rf cosmos_sdk_specs
+mkdir ./modules/auth
+curl -sSL "$COSMOS_URL"/x/auth/README.md > ./modules/auth/README.md
+mkdir ./modules/auth/vesting
+#curl -sSL "$COSMOS_URL"/x/auth/vesting/README.md > ./modules/auth/vesting/README.md
+curl -sSL "$COSMOS_URL"/x/auth/vesting/README.md > ./modules/auth/vesting.md
+mkdir ./modules/auth/tx
+curl -sSL "$COSMOS_URL"/x/auth/tx/README.md > ./modules/auth/tx.md
+#curl -sSL "$COSMOS_URL"/x/auth/tx/README.md > ./modules/auth/tx/README.md
+mkdir ./modules/bank
+curl -sSL "$COSMOS_URL"/x/bank/README.md > ./modules/bank/README.md
+mkdir ./modules/crisis
+curl -sSL "$COSMOS_URL"/x/crisis/README.md > ./modules/crisis/README.md
+mkdir ./modules/distribution
+curl -sSL "$COSMOS_URL"/x/distribution/README.md > ./modules/distribution/README.md
+mkdir ./modules/evidence
+curl -sSL "$COSMOS_URL"/x/evidence/README.md > ./modules/evidence/README.md
+mkdir ./modules/gov
+curl -sSL "$COSMOS_URL"/x/gov/README.md > ./modules/gov/README.md
+mkdir ./modules/slashing
+curl -sSL "$COSMOS_URL"/x/slashing/README.md > ./modules/slashing/README.md
+mkdir ./modules/staking
+curl -sSL "$COSMOS_URL"/x/staking/README.md > ./modules/staking/README.md
+mkdir ./modules/upgrade
+curl -sSL "$COSMOS_URL"/x/upgrade/README.md > ./modules/upgrade/README.md
 
 # Include the specs from IBC go
-IBC_GO_URL=https://github.com/cosmos/ibc-go
+IBC_GO_URL=https://raw.githubusercontent.com/cosmos/ibc-go/main
 
-mkdir ibc-go
-cd ibc-go || exit
-git init
-git remote add origin "$IBC_GO_URL"
-git config core.sparseCheckout true
-printf "modules/core/spec\n" > .git/info/sparse-checkout
-git pull origin main
-ls
-cd ..
-
-mv ibc-go/modules/core/spec/ ./modules/ibc-core
-rm -rf ibc-go
+# NOTE: no need to create the modules/ibc directory because it is already created in
+#       the for loop at beginning of the script.
+curl -sSL "$IBC_GO_URL"/modules/core/spec/01_concepts.md > ./modules/ibc/01_concepts.md
