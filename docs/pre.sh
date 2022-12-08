@@ -4,12 +4,12 @@ rm -rf modules && mkdir -p modules
 
 for D in ../x/*; do
   if [ -d "${D}" ]; then
-    rm -rf "modules/$(echo $D | awk -F/ '{print $NF}')"
-    mkdir -p "modules/$(echo $D | awk -F/ '{print $NF}')" && cp -r $D/spec/* "$_"
+    rm -rf "modules/$(echo "$D" | awk -F/ '{print $NF}')"
+    mkdir -p "modules/$(echo "$D" | awk -F/ '{print $NF}')" && cp -r "$D"/spec/* "$_"
   fi
 done
 
-cat ../x/README.md | sed 's/\.\/x/\/modules/g' | sed 's/spec\/README.md//g' | sed 's/\.\.\/docs\/building-modules\/README\.md/\/building-modules\/intro\.html/g' > ./modules/README.md
+sed 's/\.\/x/\/modules/g' ../x/README.md | sed 's/spec\/README.md//g' | sed 's/\.\.\/docs\/building-modules\/README\.md/\/building-modules\/intro\.html/g' > ./modules/README.md
 
 # Include the specs from Ethermint
 ETHERMINT_URL=https://github.com/evmos/ethermint
