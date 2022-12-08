@@ -328,12 +328,10 @@ github.com/ethereum/go-ethereum v1.10.26 h1:i/7d9RBBwiXCEuyduBQzJw/mKmnvzsN14jqB
 github.com/ethereum/go-ethereum v1.10.26/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=
 github.com/evmos/cosmos-sdk v0.46.6-ledger h1:b6PvRN2BOO2sud++gvC+MCJXJp7c2bcdL2nT6rKfYLg=
 github.com/evmos/cosmos-sdk v0.46.6-ledger/go.mod h1:JNklMfXo7MhDF1j/jxZCmDyOYyqhVoKB22e8p1ATEqA=
-github.com/evmos/ethereum-ledger-go v0.1.2 h1:FkCUvkJS8eMkj9v9imsv7i2AcyqqesCYPeIDCPwdNeE=
-github.com/evmos/ethereum-ledger-go v0.1.2/go.mod h1:azPpikO/CFtDlIfJB2lBcodgtRr6miidSCBI/u+mxzk=
 github.com/evmos/ethermint v0.20.0-rc3 h1:nrxnBxZQTILWInJEcBcd1Q5R/gHKcxYkPDsFwazl45w=
 github.com/evmos/ethermint v0.20.0-rc3/go.mod h1:bOZ7epy2AJlZEBqUCvP4T+fni+XOp4CaYe34pPQ8GfE=
-github.com/evmos/evmos-ledger-go v0.1.4 h1:2+ykhSxKmktNmMCxM1rlyJtUGFtqrPIZFp0e9Q0xgoY=
-github.com/evmos/evmos-ledger-go v0.1.4/go.mod h1:IBErbKjbH0iE3UsKJ9mNzu1wdA6tRXbx4NM5U5BWiiM=
+github.com/evmos/evmos-ledger-go v0.2.0 h1:0Bv4KxaCwZKkCZn6S6AUZMD6lbyY2YG7Pd9s09GUKb8=
+github.com/evmos/evmos-ledger-go v0.2.0/go.mod h1:7Go/1+QmM0xw5VYK3nOUfluNFL4iy5BWxDwh1x3bUFs=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 h1:7HZCaLC5+BZpmbhCOZJ293Lz68O7PYrF2EzeiFMwCLk=
