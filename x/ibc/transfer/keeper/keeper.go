@@ -17,8 +17,9 @@ import (
 // to be sent via IBC.
 type Keeper struct {
 	*keeper.Keeper
-	bankKeeper  types.BankKeeper
-	erc20Keeper types.ERC20Keeper
+	bankKeeper    types.BankKeeper
+	erc20Keeper   types.ERC20Keeper
+	accountKeeper types.AccountKeeper
 }
 
 // NewKeeper creates a new IBC transfer Keeper instance
@@ -30,7 +31,7 @@ func NewKeeper(
 	ics4Wrapper transfertypes.ICS4Wrapper,
 	channelKeeper transfertypes.ChannelKeeper,
 	portKeeper transfertypes.PortKeeper,
-	authKeeper transfertypes.AccountKeeper,
+	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 	erc20Keeper types.ERC20Keeper,
@@ -39,12 +40,13 @@ func NewKeeper(
 	transferKeeper := keeper.NewKeeper(
 		cdc, storeKey, paramSpace,
 		ics4Wrapper, channelKeeper, portKeeper,
-		authKeeper, bankKeeper, scopedKeeper,
+		accountKeeper, bankKeeper, scopedKeeper,
 	)
 
 	return Keeper{
-		Keeper:      &transferKeeper,
-		bankKeeper:  bankKeeper,
-		erc20Keeper: erc20Keeper,
+		Keeper:        &transferKeeper,
+		bankKeeper:    bankKeeper,
+		erc20Keeper:   erc20Keeper,
+		accountKeeper: accountKeeper,
 	}
 }

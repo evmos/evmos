@@ -38,6 +38,7 @@ import (
 	ethermintclient "github.com/evmos/ethermint/client"
 	"github.com/evmos/ethermint/client/debug"
 	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/ethermint/ethereum/eip712"
 	ethermintserver "github.com/evmos/ethermint/server"
 	servercfg "github.com/evmos/ethermint/server/config"
 	srvflags "github.com/evmos/ethermint/server/flags"
@@ -66,6 +67,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithHomeDir(app.DefaultNodeHome).
 		WithKeyringOptions(evmoskr.Option()).
 		WithViper(EnvPrefix)
+
+	eip712.SetEncodingConfig(encodingConfig)
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name,
