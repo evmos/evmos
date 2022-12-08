@@ -41,8 +41,17 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	m := ibctransferkeeper.NewMigrator(*am.keeper.Keeper)
-	if err := cfg.RegisterMigration(types.ModuleName, 1, m.MigrateTraces); err != nil {
+	ibcMigrator := ibctransferkeeper.NewMigrator(*am.keeper.Keeper)
+	if err := cfg.RegisterMigration(types.ModuleName, 1, ibcMigrator.MigrateTraces); err != nil {
 		panic(fmt.Sprintf("failed to migrate transfer app from version 1 to 2: %v", err))
 	}
+
+	m := keeper.NewMigrator(am.keeper)
+	// register v2 -> v3 migration
+	if err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v3: %w", types.ModuleName, err))
+	}
 }
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 2 }

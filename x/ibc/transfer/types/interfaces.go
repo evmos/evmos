@@ -17,6 +17,7 @@ import (
 type AccountKeeper interface {
 	transfertypes.AccountKeeper
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
+	SetModuleAccount(ctx sdk.Context, macc authtypes.ModuleAccountI)
 }
 
 // BankKeeper defines the expected interface needed to check balances and send coins.
