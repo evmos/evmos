@@ -102,7 +102,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 }
 
 // newCosmosAnteHandlerEip712 creates the ante handler for transactions signed with EIP712
-func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
+func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
 		ante.NewSetUpContextDecorator(),
@@ -118,7 +118,8 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		// Note: signature verification uses EIP instead of the cosmos signature validator
-		ethante.NewEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		// nolint: staticcheck
+		ethante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
