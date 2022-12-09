@@ -1,11 +1,11 @@
 package types
 
 import (
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 )
 
 // errors
 var (
-	ErrClaimsRecordNotFound = sdkerrors.Register(ModuleName, 2, "claims record not found")
-	ErrInvalidAction        = sdkerrors.Register(ModuleName, 3, "invalid claim action type")
+	ErrClaimsRecordNotFound = errorsmod.Register(ModuleName, 2, "claims record not found")
+	ErrInvalidAction        = errorsmod.Register(ModuleName, 3, "invalid claim action type")
 )

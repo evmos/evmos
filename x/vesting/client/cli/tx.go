@@ -40,6 +40,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		NewMsgCreateClawbackVestingAccountCmd(),
 		NewMsgClawbackCmd(),
+		NewMsgUpdateVestingFunderCmd(),
 	)
 
 	return txCmd
@@ -61,18 +62,19 @@ Coins may not be transferred out of the account if they are locked or unvested. 
 A periods file is a JSON object describing a sequence of unlocking or vesting events,
 with a start time and an array of coins strings and durations relative to the start or previous event.`,
 		Example: `Sample period file contents:
-		{ "start_time": 1625204910,
-	      "period": [
-			  {
-				  "coins": "10test",
-				  "length_seconds": 2592000 //30 days
-			  },
-			  {
-				"coins": "10test",
-				"length_seconds": 2592000 //30 days
-			}
-		]}
-	    `,
+{
+  "start_time": 1625204910,
+  "periods": [
+    {
+      "coins": "10test",
+      "length_seconds": 2592000 //30 days
+    },
+    {
+      "coins": "10test",
+      "length_seconds": 2592000 //30 days
+    }
+  ]
+}`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var (
@@ -169,6 +171,43 @@ func NewMsgClawbackCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String(FlagDest, "", "address of destination (defaults to funder)")
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewMsgUpdateVestingFunderCmd returns a CLI command handler for updating
+// the funder of a ClawbackVestingAccount.
+func NewMsgUpdateVestingFunderCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRESS",
+		Short: "Update the funder account of an existing ClawbackVestingAccount.",
+		Long: `Must be requested by the original funder address (--from).
+		Need to provide the target VESTING_ACCOUNT_ADDRESS to update and the NEW_FUNDER_ADDRESS.`,
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			vestingAcc, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			newFunder, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgUpdateVestingFunder(clientCtx.GetFromAddress(), newFunder, vestingAcc)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

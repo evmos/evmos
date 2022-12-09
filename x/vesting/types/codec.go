@@ -23,6 +23,7 @@ const (
 	// Amino names
 	clawback                     = "evmos/MsgClawback"
 	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
+	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -58,6 +59,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgClawback{},
 		&MsgCreateClawbackVestingAccount{},
+		&MsgUpdateVestingFunder{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -69,4 +71,5 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgClawback{}, clawback, nil)
 	cdc.RegisterConcrete(&MsgCreateClawbackVestingAccount{}, createClawbackVestingAccount, nil)
+	cdc.RegisterConcrete(&MsgUpdateVestingFunder{}, updateVestingFunder, nil)
 }

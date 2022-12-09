@@ -3,7 +3,7 @@ package testutil
 import (
 	"strconv"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -45,7 +45,7 @@ func SubmitProposal(
 
 	submitEvent := res.GetEvents()[eventNum]
 	if submitEvent.Type != "submit_proposal" || string(submitEvent.Attributes[0].Key) != "proposal_id" {
-		return id, sdkerrors.Wrapf(sdkerrors.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
+		return id, errorsmod.Wrapf(errorsmod.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
 	}
 
 	return strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
@@ -155,7 +155,7 @@ func DeliverTx(
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := appEvmos.BaseApp.DeliverTx(req)
 	if res.Code != 0 {
-		return abci.ResponseDeliverTx{}, sdkerrors.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
 	}
 
 	return res, nil

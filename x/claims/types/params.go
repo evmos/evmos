@@ -4,7 +4,7 @@ import (
 	fmt "fmt"
 	"time"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
@@ -145,7 +145,7 @@ func ValidateChannels(i interface{}) error {
 
 	for _, channel := range channels {
 		if err := host.ChannelIdentifierValidator(channel); err != nil {
-			return sdkerrors.Wrap(
+			return errorsmod.Wrap(
 				channeltypes.ErrInvalidChannelIdentifier, err.Error(),
 			)
 		}

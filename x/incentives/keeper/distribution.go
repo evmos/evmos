@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"strconv"
 
-	sdkerrors "cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -31,7 +31,7 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 	}
 
 	k.IterateIncentives(ctx, func(incentive types.Incentive) (stop bool) {
-		rewards, participants := k.rewardParticipants(ctx, incentive, rewardAllocations)
+		_, _ = k.rewardParticipants(ctx, incentive, rewardAllocations)
 
 		incentive.Epochs--
 
@@ -47,18 +47,6 @@ func (k Keeper) DistributeRewards(ctx sdk.Context) error {
 				"contract", incentive.Contract,
 			)
 		}
-
-		defer func() {
-			if !rewards.IsZero() {
-				telemetry.IncrCounterWithLabels(
-					[]string{types.ModuleName, "distribute", "participant", "total"},
-					float32(participants),
-					[]metrics.Label{
-						telemetry.NewLabel("contract", incentive.Contract),
-					},
-				)
-			}
-		}()
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -152,7 +140,7 @@ func (k Keeper) rewardAllocations(
 
 	// checks if module account has sufficient balance for allocation
 	if rewards.IsAnyGT(escrow) {
-		return nil, nil, sdkerrors.Wrapf(
+		return nil, nil, errorsmod.Wrapf(
 			errortypes.ErrInsufficientFunds,
 			"escrowed balance < total coins allocated (%s < %s)",
 			escrow, rewards,

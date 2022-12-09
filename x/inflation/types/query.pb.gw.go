@@ -450,17 +450,17 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Period_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "period"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Period_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "period"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_EpochMintProvision_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "epoch_mint_provision"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_EpochMintProvision_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "epoch_mint_provision"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_SkippedEpochs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "skipped_epochs"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_SkippedEpochs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "skipped_epochs"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_CirculatingSupply_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "circulating_supply"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_CirculatingSupply_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "circulating_supply"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_InflationRate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "inflation_rate"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_InflationRate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "inflation_rate"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"evmos", "inflation", "v1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
