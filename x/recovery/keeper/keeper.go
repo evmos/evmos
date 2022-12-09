@@ -37,9 +37,9 @@ type Keeper struct {
 
 // NewKeeper returns keeper
 func NewKeeper(
-	authority string,
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	authority string,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ck types.ChannelKeeper,
