@@ -8,7 +8,7 @@ import (
 	"github.com/evmos/evmos/v10/x/revenue/types"
 )
 
-// MigrateStore migrates the x/evm module state from the consensus version 1 to
+// MigrateStore migrates the x/revenue module state from the consensus version 1 to
 // version 2. Specifically, it takes the parameters that are currently stored
 // and managed by the Cosmos SDK params module and stores them directly into the x/evm module state.
 func MigrateStore(
