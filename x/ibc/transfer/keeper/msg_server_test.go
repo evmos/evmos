@@ -53,7 +53,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				// senderAcc := sdk.MustAccAddressFromBech32(addr)
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin("erc20/"+contractAddr.String(), sdk.NewInt(10)), addr, "", timeoutHeight, 0)
 				return transferMsg
-
 			},
 			false,
 		},
@@ -204,6 +203,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
+				suite.Require().Equal("erc20/"+pair.Erc20Address, pair.Denom)
 
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)

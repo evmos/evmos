@@ -99,6 +99,7 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v5/testing"
 
 	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/ethermint/ethereum/eip712"
 	srvflags "github.com/evmos/ethermint/server/flags"
 	ethermint "github.com/evmos/ethermint/types"
 	"github.com/evmos/ethermint/x/evm"
@@ -320,6 +321,8 @@ func NewEvmos(
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
+
+	eip712.SetEncodingConfig(encodingConfig)
 
 	// NOTE we use custom transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
 	bApp := baseapp.NewBaseApp(

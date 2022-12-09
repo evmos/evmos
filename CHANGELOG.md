@@ -35,11 +35,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v10.0.0-rc2] - 2022-12-05
+## [v10.0.0-rc2] - 2022-12-09
 
 ### State Machine Breaking
 
-- (deps) [\#1140](https://github.com/evmos/evmos/pull/1140) Bump Ethermint version to [`v0.20.0-rc3`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc3)
+- (deps) [\#1157](https://github.com/evmos/evmos/pull/1157) Bump Ethermint version to [`v0.20.0-rc4`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc4)
 - (vesting) [\#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ICS-23 dragon-berry replace in `go.mod` as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
