@@ -17,8 +17,8 @@ const openChannels = 36
 // MigrateEscrowAccounts updates the IBC transfer escrow accounts type to ModuleAccount
 func MigrateEscrowAccounts(ctx sdk.Context, ak types.AccountKeeper) error {
 	for i := 0; i <= openChannels; i++ {
-		ch := "channel-" + strconv.Itoa(i)
-		address := ibctypes.GetEscrowAddress(ibctypes.PortID, ch)
+		channelID := fmt.Sprintf("channel-%d", i)
+		address := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 
 		accountName := fmt.Sprintf("%s/%s", ibctypes.PortID, ch)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)

@@ -54,4 +54,4 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 { return 3 }
