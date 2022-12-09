@@ -27,9 +27,9 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the erc20 Keeper
 func NewKeeper(
-	authority string,
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	authority string,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
