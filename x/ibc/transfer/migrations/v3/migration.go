@@ -2,7 +2,6 @@ package v3
 
 import (
 	"fmt"
-	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -20,7 +19,7 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak types.AccountKeeper) error {
 		channelID := fmt.Sprintf("channel-%d", i)
 		address := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 
-		accountName := fmt.Sprintf("%s/%s", ibctypes.PortID, ch)
+		accountName := fmt.Sprintf("%s/%s", ibctypes.PortID, channelID)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)
 
 		// no special permissions defined for the module account
