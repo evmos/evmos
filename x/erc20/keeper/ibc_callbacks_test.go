@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"errors"
 	"fmt"
+	"github.com/evmos/evmos/v10/x/erc20/keeper"
 	"math/big"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
