@@ -7,7 +7,7 @@ import (
 	"github.com/evmos/evmos/v10/x/incentives/types"
 )
 
-// NewHandler returns a handler for Ethermint type messages.
+// NewHandler returns a handler for incentives module messages
 func NewHandler(server types.MsgServer) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (result *sdk.Result, err error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
