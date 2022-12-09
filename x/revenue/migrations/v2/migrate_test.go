@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/evmos/ethermint/encoding"
-	v4 "github.com/evmos/evmos/v10/x/revenue/migrations/v2"
+	v2 "github.com/evmos/evmos/v10/x/revenue/migrations/v2"
 	v2types "github.com/evmos/evmos/v10/x/revenue/migrations/v2/types"
 	"github.com/evmos/evmos/v10/x/revenue/types"
 
@@ -36,7 +36,7 @@ func TestMigrate(t *testing.T) {
 	kvStore := ctx.KVStore(storeKey)
 
 	legacySubspace := newMockSubspace(v2types.DefaultParams())
-	require.NoError(t, v4.MigrateStore(ctx, storeKey, legacySubspace, cdc))
+	require.NoError(t, v2.MigrateStore(ctx, storeKey, legacySubspace, cdc))
 
 	paramsBz := kvStore.Get(v2types.ParamsKey)
 	var params v2types.Params
