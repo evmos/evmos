@@ -1,7 +1,7 @@
 package v3_test
 
 import (
-	"strconv"
+	"fmt"
 	"testing"
 	"time"
 
@@ -54,8 +54,23 @@ func setupTestApp(t *testing.T) (*app.Evmos, sdk.Context) {
 	return app, ctx
 }
 
+func setupEscrowAccounts(app *app.Evmos, ctx sdk.Context, accCount int) {
+	for i := 0; i <= accCount; i++ {
+		channelID := fmt.Sprintf("channel-%d", i)
+		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
+
+		// set accounts as BaseAccounts
+		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
+		app.AccountKeeper.SetAccount(ctx, baseAcc)
+	}
+}
+
 func TestMigrateEscrowAcc(t *testing.T) {
 	app, ctx := setupTestApp(t)
+
+	// fund some escrow accounts
+	existingAccounts := 30
+	setupEscrowAccounts(app, ctx, existingAccounts)
 
 	// Run migrations
 	err := v3.MigrateEscrowAccounts(ctx, app.AccountKeeper)
@@ -63,9 +78,14 @@ func TestMigrateEscrowAcc(t *testing.T) {
 
 	// check account types for channels 0 to 36
 	for i := 0; i <= 36; i++ {
-		ch := "channel-" + strconv.Itoa(i)
-		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, ch)
+		channelID := fmt.Sprintf("channel-%d", i)
+		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 		acc := app.AccountKeeper.GetAccount(ctx, addr)
+
+		if i > existingAccounts {
+			require.Nil(t, acc, "This account did not exist, it should not be migrated")
+			continue
+		}
 
 		_, isModuleAccount := acc.(authtypes.ModuleAccountI)
 		require.True(t, isModuleAccount)

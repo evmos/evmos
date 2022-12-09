@@ -19,6 +19,19 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak types.AccountKeeper) error {
 		channelID := fmt.Sprintf("channel-%d", i)
 		address := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 
+		// check if account exists
+		existingAcc := ak.GetAccount(ctx, address)
+		
+		// account does NOT exist, so don't create it
+		if existingAcc == nil {		
+			continue
+		}
+
+        // if existing account is ModuleAccount, no-op
+		if _, isModuleAccount := existingAcc.(authtypes.ModuleAccountI); isModuleAccount {
+            continue
+        }
+
 		accountName := fmt.Sprintf("%s/%s", ibctypes.PortID, channelID)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)
 
