@@ -4,14 +4,12 @@ import (
 	"context"
 	"math/big"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/pkg/errors"
-
 	errorsmod "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v10/contracts"

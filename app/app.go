@@ -482,8 +482,8 @@ func NewEvmos(
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		keys[erc20types.StoreKey], appCodec, app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, app.ClaimsKeeper,
+		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, app.ClaimsKeeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
