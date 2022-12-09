@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -20,7 +21,6 @@ import (
 
 	"github.com/evmos/evmos/v10/contracts"
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-	"github.com/evmos/evmos/v10/x/erc20/keeper"
 	"github.com/evmos/evmos/v10/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
 	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
@@ -61,25 +61,40 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	)
 
 	testCases := []struct {
-		name          string
-		malleate      func()
-		ackSuccess    bool
-		receiver      sdk.AccAddress
-		expErc20s     *big.Int
-		expCoins      sdk.Coins
-		checkBalances bool
-		disableERC20  bool
+		name             string
+		malleate         func()
+		ackSuccess       bool
+		receiver         sdk.AccAddress
+		expErc20s        *big.Int
+		expCoins         sdk.Coins
+		checkBalances    bool
+		disableERC20     bool
+		disableTokenPair bool
 	}{
 		{
 			name: "error - non ics-20 packet",
 			malleate: func() {
 				packet = mockPacket
 			},
-			ackSuccess:    false,
 			receiver:      secpAddr,
+			ackSuccess:    false,
+			checkBalances: false,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
+		},
+		{
+			name: "no-op - erc20 module param disabled",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			receiver:      secpAddr,
+			disableERC20:  true,
+			ackSuccess:    true,
 			checkBalances: false,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
 		},
 		{
 			name: "error - invalid sender (no '1')",
@@ -88,11 +103,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess:    false,
 			receiver:      secpAddr,
+			ackSuccess:    false,
+			checkBalances: false,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
-			checkBalances: false,
 		},
 		{
 			name: "error - invalid sender (bad address)",
@@ -101,11 +116,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess:    false,
 			receiver:      secpAddr,
+			ackSuccess:    false,
+			checkBalances: false,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
-			checkBalances: false,
 		},
 		{
 			name: "error - invalid recipient (bad address)",
@@ -114,28 +129,14 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
+			receiver:      secpAddr,
 			ackSuccess:    false,
-			receiver:      secpAddr,
+			checkBalances: false,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
-			checkBalances: false,
 		},
 		{
-			name: "error - params disabled", // we disable params while running test
-			malleate: func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			ackSuccess:    true,
-			receiver:      secpAddr,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
-			checkBalances: false,
-			disableERC20:  true,
-		},
-		{
-			name: "no-op - sender == receiver not from Evm channel",
+			name: "no-op - sender == receiver, not from Evm channel",
 			malleate: func() {
 				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", ethsecpAddrEvmos, ethsecpAddrCosmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -145,7 +146,21 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:      secpAddr,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
-			checkBalances: false,
+			checkBalances: true,
+		},
+		{
+			name: "no-op - reciever is module account",
+			malleate: func() {
+				secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
+				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String())
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			ackSuccess:    true,
+			receiver:      secpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: true,
 		},
 		{
 			name: "no-op - base denomination",
@@ -161,7 +176,55 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:      ethsecpAddr,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
+			checkBalances: true,
+		},
+		{
+			name: "no-op - pair is not registered",
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(erc20Denom, "100", secpAddrCosmos, ethsecpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			ackSuccess:    true,
+			receiver:      ethsecpAddr,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
+			checkBalances: true,
+		},
+		{
+			name: "no-op - pair disabled",
+			malleate: func() {
+				pk1 := secp256k1.GenPrivKey()
+				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
+				prefixedDenom := sourcePrefix + registeredDenom
+				otherSecpAddrEvmos := sdk.AccAddress(pk1.PubKey().Address()).String()
+				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "500", otherSecpAddrEvmos, ethsecpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			ackSuccess: true,
+			receiver:   ethsecpAddr,
+			expErc20s:  big.NewInt(0),
+			expCoins: sdk.NewCoins(
+				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
+				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
+			),
+			checkBalances:    false,
+			disableTokenPair: true,
+		},
+		{
+			name: "no-op - sender == receiver and is not from evm chain", // getting failed to escrow coins - need to escrow coins
+			malleate: func() {
+				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddrEvmos)
+				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+			},
+			receiver:      secpAddr,
+			ackSuccess:    true,
 			checkBalances: false,
+			expErc20s:     big.NewInt(0),
+			expCoins:      coins,
 		},
 		{
 			name: "error - invalid denomination", // should fall as unregistered and not transfer any coins, but ack is Success
@@ -170,24 +233,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess:    true,
 			receiver:      secpAddr,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
+			ackSuccess:    true,
 			checkBalances: true,
-		},
-		{
-			name: "no-op - sender == receiver and not from evm chain", // getting failed to escrow coins - need to escrow coins
-			malleate: func() {
-				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddrEvmos)
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			ackSuccess:    true,
-			receiver:      secpAddr,
 			expErc20s:     big.NewInt(0),
 			expCoins:      coins,
-			checkBalances: false,
 		},
 		{
 			name: "ibc conversion - sender == receiver and from evm chain",
@@ -195,21 +245,22 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				claimsParams := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				claimsParams.EVMChannels = []string{evmosChannel}
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams)
+
 				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
 				prefixedDenom := sourcePrefix + registeredDenom
 				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess: true,
-			receiver:   secpAddr,
-			expErc20s:  big.NewInt(1000),
+			receiver:      secpAddr,
+			ackSuccess:    true,
+			checkBalances: true,
+			expErc20s:     big.NewInt(1000),
 			expCoins: sdk.NewCoins(
 				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
 			),
-			checkBalances: true,
 		},
 		{
 			name: "ibc conversion - sender != receiver",
@@ -222,15 +273,15 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess: true,
-			receiver:   ethsecpAddr,
-			expErc20s:  big.NewInt(1000),
+			receiver:      ethsecpAddr,
+			ackSuccess:    true,
+			expErc20s:     big.NewInt(1000),
+			checkBalances: true,
 			expCoins: sdk.NewCoins(
 				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
 			),
-			checkBalances: true,
 		},
 		{
 			name: "ibc conversion - receiver is a vesting account (eth address)",
@@ -247,15 +298,15 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 			},
-			ackSuccess: true,
-			receiver:   ethsecpAddr,
-			expErc20s:  big.NewInt(1000),
+			receiver:      ethsecpAddr,
+			ackSuccess:    true,
+			checkBalances: true,
+			expErc20s:     big.NewInt(1000),
 			expCoins: sdk.NewCoins(
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
 				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 			),
-			checkBalances: true,
 		},
 	}
 	for _, tc := range testCases {
@@ -284,38 +335,24 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Set Next Sequence Send
 			suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, evmosChannel, 1)
 
-			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			suite.Require().True(found)
-			suite.app.Erc20Keeper = keeper.NewKeeper(
-				suite.app.GetKey(types.StoreKey),
-				suite.app.AppCodec(),
-				sp,
-				suite.app.AccountKeeper,
-				suite.app.BankKeeper,
-				suite.app.EvmKeeper,
-				suite.app.StakingKeeper,
-				suite.app.ClaimsKeeper,
-			)
-
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			// We do this since we are interested in the conversion portion w/ OnRecvPacket
 			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, tc.receiver, coins)
 			suite.Require().NoError(err)
 
-			// Enable ERC20
-			params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-			params.EnableErc20 = true
-			suite.app.Erc20Keeper.SetParams(suite.ctx, params)
-
 			// Register Token Pair for testing
 			pair := suite.setupRegisterCoin(metadataCoin)
 			suite.Require().NotNil(pair)
 
-			// For specific test, disable ERC20
 			if tc.disableERC20 {
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+			}
+
+			if tc.disableTokenPair {
+				_, err := suite.app.Erc20Keeper.ToggleConversion(suite.ctx, pair.Denom)
+				suite.Require().NoError(err)
 			}
 
 			// Perform IBC callback
@@ -329,7 +366,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().False(ack.Success(), string(ack.Acknowledgement()))
 			}
 
-			// Check conversions
 			if tc.checkBalances {
 				// Check ERC20 balances
 				balanceTokenAfter := suite.app.Erc20Keeper.BalanceOf(suite.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(tc.receiver.Bytes()))
@@ -343,6 +379,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 }
 
 func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
+	senderAddr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
 
 	testCases := []struct {
 		name     string
@@ -360,7 +397,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 		{
 			name: "pass - is base denom",
 			malleate: func() transfertypes.FungibleTokenPacketData {
-				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", senderAddr, "")
 			},
 			expPass: true,
 		},
@@ -373,14 +410,14 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
 				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
-				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "")
 			},
 			expPass: true,
 		},
 		{
 			name: "pass - denom is not registered",
 			malleate: func() transfertypes.FungibleTokenPacketData {
-				return transfertypes.NewFungibleTokenPacketData(metadataIbc.Base, "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+				return transfertypes.NewFungibleTokenPacketData(metadataIbc.Base, "10", senderAddr, "")
 			},
 			expPass: true,
 		},
@@ -390,8 +427,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				pair := suite.setupRegisterCoin(metadataIbc)
 				suite.Require().NotNil(pair)
 
-				addr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
-				sender := sdk.MustAccAddressFromBech32(addr)
+				sender := sdk.MustAccAddressFromBech32(senderAddr)
 
 				// Mint coins on account to simulate receiving ibc transfer
 				coinEvmos := sdk.NewCoin(pair.Denom, sdk.NewInt(10))
@@ -401,7 +437,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, sender, coins)
 				suite.Require().NoError(err)
 
-				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", addr, "")
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "")
 			},
 			expPass: true,
 		},
@@ -411,7 +447,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				pair := suite.setupRegisterCoin(metadataIbc)
 				suite.Require().NotNil(pair)
 
-				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v", "")
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "")
 			},
 			expPass: false,
 		},
@@ -429,7 +465,192 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 			} else {
 				suite.Require().Error(err)
 			}
+		})
+	}
+}
 
+func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
+	var (
+		data transfertypes.FungibleTokenPacketData
+		ack  channeltypes.Acknowledgement
+		pair *types.TokenPair
+	)
+
+	// secp256k1 account
+	senderPk := secp256k1.GenPrivKey()
+	sender := sdk.AccAddress(senderPk.PubKey().Address())
+
+	receiverPk := secp256k1.GenPrivKey()
+	receiver := sdk.AccAddress(receiverPk.PubKey().Address())
+	fmt.Println(receiver)
+	testCases := []struct {
+		name     string
+		malleate func()
+		expERC20 *big.Int
+		expPass  bool
+	}{
+		{
+			name: "no-op - ack error sender is module account",
+			malleate: func() {
+				// Register Token Pair for testing
+				pair = suite.setupRegisterCoin(metadataCoin)
+				suite.Require().NotNil(pair)
+
+				// for testing purposes we can only fund is not allowed to receive funds
+				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20")
+				sender = moduleAcc.GetAddress()
+				err := testutil.FundModuleAccount(
+					suite.ctx,
+					suite.app.BankKeeper,
+					moduleAcc.GetName(),
+					sdk.NewCoins(
+						sdk.NewCoin(pair.Denom, sdk.NewInt(100)),
+					),
+				)
+				suite.Require().NoError(err)
+
+				ack = channeltypes.NewErrorAcknowledgement(errors.New(""))
+				data = transfertypes.NewFungibleTokenPacketData("", "", sender.String(), "")
+			},
+			expPass:  true,
+			expERC20: big.NewInt(0),
+		},
+		{
+			name: "conversion - convert ibc tokens to erc20 on ack error",
+			malleate: func() {
+				// Register Token Pair for testing
+				pair = suite.setupRegisterCoin(metadataCoin)
+				suite.Require().NotNil(pair)
+
+				sender = sdk.AccAddress(senderPk.PubKey().Address())
+
+				// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
+				// We do this since we are interested in the conversion portion w/ OnRecvPacket
+				err := testutil.FundAccount(
+					suite.ctx,
+					suite.app.BankKeeper,
+					sender,
+					sdk.NewCoins(
+						sdk.NewCoin(pair.Denom, sdk.NewInt(100)),
+					),
+				)
+				suite.Require().NoError(err)
+
+				ack = channeltypes.NewErrorAcknowledgement(errors.New(""))
+				data = transfertypes.NewFungibleTokenPacketData(pair.Denom, "100", sender.String(), receiver.String())
+			},
+			expERC20: big.NewInt(100),
+			expPass:  true,
+		},
+		{
+			name: "no-op - positive ack",
+			malleate: func() {
+				// Register Token Pair for testing
+				pair = suite.setupRegisterCoin(metadataCoin)
+				suite.Require().NotNil(pair)
+
+				sender = sdk.AccAddress(senderPk.PubKey().Address())
+
+				// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
+				// We do this since we are interested in the conversion portion w/ OnRecvPacket
+				err := testutil.FundAccount(
+					suite.ctx,
+					suite.app.BankKeeper,
+					sender,
+					sdk.NewCoins(
+						sdk.NewCoin(pair.Denom, sdk.NewInt(100)),
+					),
+				)
+				suite.Require().NoError(err)
+
+				ack = channeltypes.NewResultAcknowledgement([]byte{1})
+
+			},
+			expERC20: big.NewInt(0),
+			expPass:  true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+
+			err := suite.app.Erc20Keeper.OnAcknowledgementPacket(
+				suite.ctx, channeltypes.Packet{}, data, ack,
+			)
+			suite.Require().NoError(err)
+
+			if tc.expPass {
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().Error(err)
+			}
+
+			// check balance is the same as expected
+			balance := suite.app.Erc20Keeper.BalanceOf(
+				suite.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI,
+				pair.GetERC20Contract(),
+				common.BytesToAddress(sender.Bytes()),
+			)
+			suite.Require().Equal(tc.expERC20.Int64(), balance.Int64())
+
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
+	senderAddr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
+
+	testCases := []struct {
+		name     string
+		malleate func() transfertypes.FungibleTokenPacketData
+		transfer transfertypes.FungibleTokenPacketData
+		expPass  bool
+	}{
+		{
+			name: "no-op - sender is module account",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				// any module account can be passed here
+				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "claims")
+
+				return transfertypes.NewFungibleTokenPacketData("", "10", moduleAcc.GetAddress().String(), "")
+			},
+			expPass: true,
+		},
+		{
+			name: "pass - convert coin to erc20",
+			malleate: func() transfertypes.FungibleTokenPacketData {
+				pair := suite.setupRegisterCoin(metadataIbc)
+				suite.Require().NotNil(pair)
+
+				sender := sdk.MustAccAddressFromBech32(senderAddr)
+
+				// Mint coins on account to simulate receiving ibc transfer
+				coinEvmos := sdk.NewCoin(pair.Denom, sdk.NewInt(10))
+				coins := sdk.NewCoins(coinEvmos)
+				err := suite.app.BankKeeper.MintCoins(suite.ctx, inflationtypes.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, inflationtypes.ModuleName, sender, coins)
+				suite.Require().NoError(err)
+
+				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "")
+			},
+			expPass: true,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest()
+
+			data := tc.malleate()
+
+			err := suite.app.Erc20Keeper.OnTimeoutPacket(suite.ctx, channeltypes.Packet{}, data)
+			if tc.expPass {
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().Error(err)
+			}
 		})
 	}
 }
