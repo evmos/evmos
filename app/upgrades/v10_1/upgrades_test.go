@@ -1,4 +1,4 @@
-package v3_test
+package v101_test
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v10/app"
-	v3 "github.com/evmos/evmos/v10/x/ibc/transfer/migrations/v3"
+	v10 "github.com/evmos/evmos/v10/app/upgrades/v10_1"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -73,8 +73,7 @@ func TestMigrateEscrowAcc(t *testing.T) {
 	setupEscrowAccounts(app, ctx, existingAccounts)
 
 	// Run migrations
-	err := v3.MigrateEscrowAccounts(ctx, app.AccountKeeper)
-	require.NoError(t, err)
+	v10.MigrateEscrowAccounts(ctx, app.AccountKeeper)
 
 	// check account types for channels 0 to 36
 	for i := 0; i <= 36; i++ {
@@ -90,5 +89,4 @@ func TestMigrateEscrowAcc(t *testing.T) {
 		_, isModuleAccount := acc.(authtypes.ModuleAccountI)
 		require.True(t, isModuleAccount)
 	}
-
 }
