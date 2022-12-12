@@ -3,7 +3,6 @@ package v2_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v10/x/inflation/exported"
 	v2 "github.com/evmos/evmos/v10/x/inflation/migrations/v2"
 	"github.com/evmos/evmos/v10/x/inflation/types"
 
@@ -23,7 +22,7 @@ func newMockSubspace(ps v2types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
-func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps exported.Params) {
+func (ms mockSubspace) GetParamSetIfExists(ctx sdk.Context, ps types.LegacyParams) {
 	*ps.(*v2types.Params) = ms.ps
 }
 

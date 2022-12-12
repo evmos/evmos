@@ -2,9 +2,9 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/inflation/exported"
 	inflationkeeper "github.com/evmos/evmos/v10/x/inflation/keeper"
 	v2types "github.com/evmos/evmos/v10/x/inflation/migrations/v2/types"
+	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
 type mockSubspace struct {
@@ -15,7 +15,7 @@ func newMockSubspace(ps v2types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
-func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps exported.Params) {
+func (ms mockSubspace) GetParamSetIfExists(ctx sdk.Context, ps types.LegacyParams) {
 	*ps.(*v2types.Params) = ms.ps
 }
 

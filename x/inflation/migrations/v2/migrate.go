@@ -3,8 +3,8 @@ package v2
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/inflation/exported"
 	v2types "github.com/evmos/evmos/v10/x/inflation/migrations/v2/types"
+	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
 // MigrateStore migrates the x/inflation module state from the consensus version 1 to
@@ -13,11 +13,11 @@ import (
 func MigrateStore(
 	ctx sdk.Context,
 	store sdk.KVStore,
-	legacySubspace exported.Subspace,
+	legacySubspace types.Subspace,
 	cdc codec.BinaryCodec,
 ) error {
 	var params v2types.Params
-	legacySubspace.GetParamSet(ctx, &params)
+	legacySubspace.GetParamSetIfExists(ctx, &params)
 
 	if err := params.Validate(); err != nil {
 		return err

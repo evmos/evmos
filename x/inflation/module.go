@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/evmos/evmos/v10/x/inflation/exported"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -101,7 +99,7 @@ type AppModule struct {
 	ak     authkeeper.AccountKeeper
 	sk     stakingkeeper.Keeper
 	// legacySubspace is used solely for migration of x/params managed parameters
-	legacySubspace exported.Subspace
+	legacySubspace types.Subspace
 }
 
 // NewAppModule creates a new AppModule Object
@@ -109,7 +107,7 @@ func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
 	sk stakingkeeper.Keeper,
-	ss exported.Subspace,
+	ss types.Subspace,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
