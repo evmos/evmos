@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -157,7 +157,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
 	err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2)
 	if err != nil {
-		panic(errors.Wrapf(err, "error running store migration"))
+		panic(errorsmod.Wrapf(err, "error running store migration"))
 	}
 }
 

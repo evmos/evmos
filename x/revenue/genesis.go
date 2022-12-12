@@ -1,7 +1,7 @@
 package revenue
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v10/x/revenue/keeper"
@@ -16,7 +16,7 @@ func InitGenesis(
 ) {
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
-		panic(errors.Wrapf(err, "failed setting params"))
+		panic(errorsmod.Wrapf(err, "failed setting params"))
 	}
 
 	for _, revenue := range data.Revenues {
