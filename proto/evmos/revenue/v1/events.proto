@@ -10,9 +10,9 @@ message EventRegisterRevenue {
   string deployer_address = 1;
   // contract_address in hex format
   string contract_address = 2;
-  // effective_withdrawer is the withdraw address that is stored after the
+  // effective_withdrawer is the withdrawer address that is stored after the
   // revenue registration is completed. It defaults to the deployer address if
-  // the withdraw address in the msg is omitted. When omitted, the withdraw map
+  // the withdrawer address in the msg is omitted. When omitted, the withdraw map
   // doesn't need to be set.
   string effective_withdrawer = 3;
 }
