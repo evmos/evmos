@@ -27,7 +27,7 @@ def main():
 
     if len(sys.argv) < 2:
         raise ValueError(
-            "Script has to be called with a filename and optional flags to be control the execution"
+            "Script has to be called with a filename and optional flags to control the execution"
         )
 
     file = sys.argv[1]
