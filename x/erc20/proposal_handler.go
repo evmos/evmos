@@ -54,7 +54,7 @@ func handleRegisterCoinProposal(
 		})
 
 		if err != nil {
-			return err
+			k.Logger(ctx).Error(err.Error())
 		}
 	}
 
@@ -80,7 +80,7 @@ func handleRegisterERC20Proposal(
 		})
 
 		if err != nil {
-			return err
+			k.Logger(ctx).Error(err.Error())
 		}
 	}
 
@@ -104,7 +104,7 @@ func handleToggleConversionProposal(
 	})
 
 	if err != nil {
-		return err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return nil

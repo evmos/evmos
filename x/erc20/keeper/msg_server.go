@@ -178,7 +178,7 @@ func (k Keeper) convertCoinNativeCoin(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgConvertCoinResponse{}, nil
@@ -275,7 +275,7 @@ func (k Keeper) convertERC20NativeCoin(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgConvertERC20Response{}, nil
@@ -400,7 +400,7 @@ func (k Keeper) convertERC20NativeToken(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgConvertERC20Response{}, nil
@@ -507,7 +507,7 @@ func (k Keeper) convertCoinNativeERC20(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgConvertCoinResponse{}, nil
