@@ -8,7 +8,6 @@ import os
 import format_cosmos_specs as fcs
 import pytest
 
-
 # ------------------
 # globals
 #
