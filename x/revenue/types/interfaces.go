@@ -1,8 +1,9 @@
 package types
 
 import (
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"math/big"
+
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
