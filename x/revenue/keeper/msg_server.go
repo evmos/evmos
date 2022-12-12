@@ -195,7 +195,7 @@ func (k Keeper) UpdateRevenue(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgUpdateRevenueResponse{}, nil

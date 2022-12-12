@@ -89,7 +89,7 @@ func (k Keeper) PostTxProcessing(
 	})
 
 	if err != nil {
-		return err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return nil
