@@ -301,8 +301,8 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
 
 func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 	var (
-		funder = sdk.AccAddress(tests.GenerateAddress().Bytes())
-		newFunder = sdk.AccAddress(tests.GenerateAddress().Bytes())
+		funder     = sdk.AccAddress(tests.GenerateAddress().Bytes())
+		newFunder  = sdk.AccAddress(tests.GenerateAddress().Bytes())
 		vestingAcc = sdk.AccAddress(tests.GenerateAddress().Bytes())
 	)
 

@@ -135,10 +135,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 		Merge:     strconv.FormatBool(msg.Merge),
 		Account:   msg.ToAddress,
 	})
-
 	if err != nil {
 		k.Logger(ctx).Error(err.Error())
-
 	}
 
 	return &types.MsgCreateClawbackVestingAccountResponse{}, nil
@@ -203,7 +201,6 @@ func (k Keeper) Clawback(
 		Funder:      msg.FunderAddress,
 		Destination: msg.DestAddress,
 	})
-
 	if err != nil {
 		k.Logger(ctx).Error(err.Error())
 	}
@@ -259,7 +256,6 @@ func (k Keeper) UpdateVestingFunder(
 		Account:   msg.VestingAddress,
 		NewFunder: msg.NewFunderAddress,
 	})
-
 	if err != nil {
 		k.Logger(ctx).Error(err.Error())
 	}
