@@ -26,9 +26,7 @@ service Msg {
   };
   // UpdateParams defined a governance operation for updating the x/revenue module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
-  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse) {
-    option (google.api.http).post ="/evmos/revenue/v1/tx/update_params";
-  };
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgRegisterRevenue defines a message that registers a Revenue
