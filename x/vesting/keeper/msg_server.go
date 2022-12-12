@@ -131,7 +131,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 	err := ctx.EventManager().EmitTypedEvent(&types.EventCreateClawbackVestingAccount{
 		Sender:    msg.FromAddress,
 		Coins:     vestingCoins.String(),
-		StartTime: msg.StartTime.String(),
+		StartTime: msg.StartTime.UTC().String(),
 		Merge:     strconv.FormatBool(msg.Merge),
 		Account:   msg.ToAddress,
 	})
