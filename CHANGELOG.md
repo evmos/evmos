@@ -40,7 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (erc20) [#1100](https://github.com/evmos/evmos/pull/1100) Deprecate usage of x/params in x/erc20
-- (deps) [\#1140](https://github.com/evmos/evmos/pull/1140) Bump Ethermint version to [`v0.20.0-rc3`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc3)
+- (deps) [\#1157](https://github.com/evmos/evmos/pull/1157) Bump Ethermint version to [`v0.20.0-rc4`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc4)
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ics23 dragonberry replace in go.mod as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (feat) [\#1070](https://github.com/evmos/evmos/pull/1070) Add amino support to the vesting module, it enables signing the module messages using EIP-712.
@@ -65,6 +65,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
 - (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to cosmos-sdk docs.
 - (cmd) [\#974](https://github.com/evmos/evmos/pull/974) Add `prune` command.
+- (cli) [\#816](https://github.com/evmos/evmos/pull/816) Add Ledger CLI support. 
 - (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
 - (ibc) [\#1081](https://github.com/evmos/evmos/pull/1081) Added utils functions for ibc denoms.
 - (ibc/erc20) [\#1085](https://github.com/evmos/evmos/pull/1085) Added wrapper for ibc transfer to automatically convert erc20 tokens to cosmos coins.
