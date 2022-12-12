@@ -3,7 +3,7 @@ package incentives
 import (
 	"sort"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -21,7 +21,7 @@ func InitGenesis(
 ) {
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
-		panic(errors.Wrapf(err, "error setting params"))
+		panic(errorsmod.Wrapf(err, "error setting params"))
 	}
 
 	// Ensure incentives module account is set on genesis
