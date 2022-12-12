@@ -3,8 +3,8 @@ package evmos.erc20.v1;
 
 option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
 
-// EventRegisterCoin is an event emitted when a coin is registered.
-message EventRegisterCoin {
+// EventRegisterPair is an event emitted when a coin is registered.
+message EventRegisterPair {
   // denom is the coin's denomination.
   string denom = 1;
   // erc20_address is the ERC20 contract address.

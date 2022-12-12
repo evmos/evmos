@@ -48,7 +48,7 @@ func handleRegisterCoinProposal(
 			return err
 		}
 
-		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterCoin{
+		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
 			Denom:        pair.Denom,
 			Erc20Address: pair.Erc20Address,
 		})
@@ -74,7 +74,7 @@ func handleRegisterERC20Proposal(
 			return err
 		}
 
-		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterCoin{
+		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
 			Denom:        pair.Denom,
 			Erc20Address: pair.Erc20Address,
 		})
