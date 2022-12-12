@@ -4,19 +4,15 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/module"
-
 	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-
 	"github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
 )
 
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
-	_ porttypes.IBCModule   = IBCModule{}
 )
 
 // AppModuleBasic embeds the IBC Transfer AppModuleBasic
