@@ -137,7 +137,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
+
 	}
 
 	return &types.MsgCreateClawbackVestingAccountResponse{}, nil
@@ -204,7 +205,7 @@ func (k Keeper) Clawback(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgClawbackResponse{}, nil
@@ -260,7 +261,7 @@ func (k Keeper) UpdateVestingFunder(
 	})
 
 	if err != nil {
-		return nil, err
+		k.Logger(ctx).Error(err.Error())
 	}
 
 	return &types.MsgUpdateVestingFunderResponse{}, nil
