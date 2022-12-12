@@ -119,7 +119,6 @@ func (k Keeper) RegisterRevenue(
 		ContractAddress:     msg.ContractAddress,
 		EffectiveWithdrawer: effectiveWithdrawer,
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +192,6 @@ func (k Keeper) UpdateRevenue(
 		DeployerAddress:   msg.DeployerAddress,
 		WithdrawerAddress: msg.WithdrawerAddress,
 	})
-
 	if err != nil {
 		k.Logger(ctx).Error(err.Error())
 	}
@@ -250,7 +248,6 @@ func (k Keeper) CancelRevenue(
 		DeployerAddress: msg.DeployerAddress,
 		ContractAddress: msg.ContractAddress,
 	})
-
 	if err != nil {
 		return nil, err
 	}
