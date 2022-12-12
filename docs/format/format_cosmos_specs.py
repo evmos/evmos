@@ -26,7 +26,9 @@ def main():
     """
 
     if len(sys.argv) < 2:
-        raise ValueError("Script has to be called with a filename and optional flags to be control the execution")
+        raise ValueError(
+            "Script has to be called with a filename and optional flags to be control the execution"
+        )
 
     file = sys.argv[1]
     optlist, _ = getopt.gnu_getopt(sys.argv[2:], "ho:", ["header", "order"])
@@ -87,9 +89,11 @@ def format_header(header: str) -> str:
     """
 
     if header[:2] != "# ":
-        raise ValueError(f"Expected markdown header 1 (e.g. '# Example')\nGot: '{header}'")
+        raise ValueError(
+            f"Expected markdown header 1 (e.g. '# Example')\nGot: '{header}'"
+        )
 
-    formatted_header = re.sub("`*(x/)*", '', header)
+    formatted_header = re.sub("`*(x/)*", "", header)
 
     return formatted_header
 

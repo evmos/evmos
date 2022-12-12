@@ -3,8 +3,9 @@ test_format_cosmos_specs contains the unit-testing suite for
 the format_cosmos_specs package.
 """
 
-import format_cosmos_specs as fcs
 import os
+
+import format_cosmos_specs as fcs
 import pytest
 
 
@@ -25,7 +26,7 @@ def test_format_header_should_return_string():
 def test_format_header_no_header_1_should_raise_ValueError():
     header = "## x/auth`"
 
-    with pytest.raises(ValueError, match='Expected markdown header 1'):
+    with pytest.raises(ValueError, match="Expected markdown header 1"):
         fcs.format_header(header)
 
 
