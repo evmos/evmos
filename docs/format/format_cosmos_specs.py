@@ -125,5 +125,5 @@ def add_order(file: str, position: int) -> None:
     os.rename(tmp_file, file)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
