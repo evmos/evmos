@@ -54,7 +54,7 @@ implemented through an exponential formula, a.k.a. the Half Life.
 Inflation is minted in daily epochs. During a period of 365 epochs (one year), a
 daily provision of Evmos tokens is minted and allocated to staking rewards,
 usage incentives and the community pool (`epochProvison`). The epoch provision
-doesn’t change within a period and its cummulated amount per period is equal
+doesn’t change within a period and its cumulated amount per period is equal
 total inflation per period (`epochProvision * epochsPerPeriod =
 periodProvision`).
 
