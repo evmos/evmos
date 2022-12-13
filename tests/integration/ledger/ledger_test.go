@@ -1,18 +1,17 @@
-package main_test
+package ledger_test
 
 import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	"github.com/cosmos/cosmos-sdk/client/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethaccounts "github.com/ethereum/go-ethereum/accounts"
+	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v10/app"
-	evmosd "github.com/evmos/evmos/v10/cmd/evmosd"
+	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 	"github.com/evmos/evmos/v10/testutil"
+	testcli "github.com/evmos/evmos/v10/testutil/cli"
 
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -34,13 +33,13 @@ var _ = Describe("Ledger", func() {
 		receiverEthAddr common.Address
 		txProto         []byte
 	)
-	fmt.Println(receiverEthAddr)
-	BeforeEach(
-		func() {
-			s.SetupEvmosApp()
-			s.SetupLedger()
-		},
-	)
+
+	s.SetupEvmosApp()
+	s.SetupLedger()
+	//s.RegisterMocks(txProto)
+	s.SetupNetwork()
+
+	fmt.Println(receiverEthAddr, txProto)
 
 	Describe("Test evmosd ledger cli commands", func() {
 		BeforeEach(func() {
@@ -59,33 +58,53 @@ var _ = Describe("Ledger", func() {
 				),
 			)
 			txProto = s.getMockTxProtobuf(receiverAccAddr, 1000)
-			// s.RegisterMocks(txProto)
+
 		})
 
 		It("should add ledger key to keys list", func() {
-			rootCmd, _ := evmosd.NewRootCmd()
-			rootCmd.SetArgs([]string{
-				"keys",
-				"add",
-				"ledger",
-				fmt.Sprintf("--%s", flags.FlagUseLedger),
-			})
+			mocks.RegisterClose(s.secp256k1)
+			mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+			clientCtx := s.network.Validators[0].ClientCtx
 
-			err := svrcmd.Execute(rootCmd, "EVMOSD", app.DefaultNodeHome)
+			cmd := keys.AddKeyCommand()
+			clientCtx.OutputFormat = "text"
+			out, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{"ledger_key", fmt.Sprintf("--%s", flags.FlagUseLedger)})
 			s.Require().NoError(err)
+			s.Require().NotEmpty(out.String(), "no output provided")
+			s.T().Log(out.String())
 
-			ctx := s.validator.
-				testcli.ExecTestCLICmd()
+			s.Require().NoError(s.network.WaitForNextBlock())
 
+			//s.app.AccountKeeper.NewAccountWithAddress()
 		})
 		It("should sign valid tx with verifiable signature", func() {
+			mocks.RegisterClose(s.secp256k1)
+			mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+			mocks.RegisterSignSECP256K1(s.secp256k1)
 
-			sign, err := s.SECP256K1.SignSECP256K1(ethaccounts.DefaultBaseDerivationPath, txProto)
-			s.Require().NoError(err, "can't sign tx")
+			clientCtx := s.network.Validators[0].ClientCtx
+			clientCtx.OutputFormat = "text"
 
-			valid := crypto.VerifySignature(crypto.FromECDSAPub(s.pubKey), crypto.Keccak256Hash(txProto).Bytes(), sign)
-			s.Require().True(valid, "invalid signrature")
+			out, err := testcli.ExecTestCLICmd(
+				clientCtx,
+				bankcli.NewSendTxCmd(),
+				[]string{
+					"ledger_key",
+					receiverAccAddr.String(),
+					sdk.NewCoin("aevmos", sdk.NewInt(100)).String(),
+					s.FormatFlag(flags.FlagKeyringBackend),
+					"test",
+					s.FormatFlag(flags.FlagKeyringDir),
+					"./build/node0/evmoscli/keyring-test",
+				},
+			)
+			s.Require().NoError(err)
+
+			s.Require().NotEmpty(out.String(), "no output provided")
+			s.T().Log(out.String())
 		})
+
 	})
+	s.TearDownSuite()
 
 })

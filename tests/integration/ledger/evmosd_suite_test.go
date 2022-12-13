@@ -1,4 +1,4 @@
-package main_test
+package ledger_test
 
 import (
 	"crypto/ecdsa"
@@ -21,10 +21,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
+	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/ethereum/eip712"
 	"github.com/evmos/ethermint/tests"
@@ -33,18 +33,18 @@ import (
 
 	ledgermocks "github.com/evmos/evmos-ledger-go/ledger/mocks"
 	"github.com/evmos/evmos-ledger-go/usbwallet"
-
 	"github.com/evmos/evmos/v10/app"
+	evmoskeyring "github.com/evmos/evmos/v10/crypto/keyring"
+	testnetwork "github.com/evmos/evmos/v10/testutil/network"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	evm "github.com/evmos/ethermint/x/evm/types"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	evm "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -72,13 +72,13 @@ type LedgerTestSuite struct {
 	ctx sdk.Context
 
 	app            *app.Evmos
-	validator      stakingtypes.Validator
+	network        *testnetwork.Network
 	queryClient    bankTypes.QueryClient
 	queryClientEvm evm.QueryClient
-
-	ethAddr common.Address
-	accAddr sdk.AccAddress
-	signer  keyring.Signer
+	secp256k1      *mocks.SECP256K1
+	ethAddr        common.Address
+	accAddr        sdk.AccAddress
+	signer         keyring.Signer
 
 	consAddress sdk.ConsAddress
 }
@@ -102,7 +102,7 @@ func (suite *LedgerTestSuite) SetupLedger() {
 	mockWallet := new(ledgermocks.Wallet)
 	suite.mockWallet = mockWallet
 	suite.SECP256K1 = ledger.EvmosSECP256K1{Hub: hub, PrimaryWallet: mockWallet}
-
+	suite.secp256k1 = mocks.NewSECP256K1(s.T())
 	suite.privKey, err = crypto.GenerateKey()
 	suite.pubKey = &suite.privKey.PublicKey
 
@@ -179,24 +179,24 @@ func (s *LedgerTestSuite) SetupEvmosApp() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+}
 
-	// bond denom
-	params := claimstypes.DefaultParams()
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
-	stakingParams.BondDenom = params.GetClaimsDenom()
-	s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+func (suite *LedgerTestSuite) SetupNetwork() {
+	var err error
 
-	// Set Validator
-	valAddr := sdk.ValAddress(s.ethAddr.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, privConsKey.PubKey(), stakingtypes.Description{})
-	s.Require().NoError(err)
+	cfg := testnetwork.DefaultConfig()
+	cfg.NumValidators = 1
+	cfg.KeyringOptions = []keyring.Option{s.MockKeyringOption(), hd.EthSecp256k1Option()}
 
-	validator = stakingkeeper.TestingUpdateValidator(s.app.StakingKeeper, s.ctx, validator, true)
-	s.app.StakingKeeper.AfterValidatorCreated(s.ctx, validator.GetOperator())
-	err = s.app.StakingKeeper.SetValidatorByConsAddr(s.ctx, validator)
-	s.Require().NoError(err)
+	s.network, err = testnetwork.New(s.T(), "build", cfg)
+	s.Require().NoError(err, "can't setup test network")
 
-	s.validator = validator
+	s.Require().NoError(s.network.WaitForNextBlock(), "test network can't produce blocks")
+}
+
+func (s *LedgerTestSuite) TearDownSuite() {
+	s.T().Log("tearing down test suite...")
+	s.network.Cleanup()
 }
 
 func (suite *LedgerTestSuite) getMockTxAmino() []byte {
@@ -267,4 +267,19 @@ func (suite *LedgerTestSuite) getMockTxProtobuf(toAddr sdk.AccAddress, amount in
 	suite.Require().NoError(err)
 
 	return signBytes
+}
+
+func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {
+	return func(options *keyring.Options) {
+		options.SupportedAlgos = evmoskeyring.SupportedAlgorithms
+		options.SupportedAlgosLedger = evmoskeyring.SupportedAlgorithmsLedger
+		options.LedgerDerivation = func() (cosmosledger.SECP256K1, error) { return suite.secp256k1, nil }
+		options.LedgerCreateKey = evmoskeyring.CreatePubkey
+		options.LedgerAppName = evmoskeyring.AppName
+		options.LedgerSigSkipDERConv = evmoskeyring.SkipDERConversion
+	}
+}
+
+func (suite *LedgerTestSuite) FormatFlag(flag string) string {
+	return fmt.Sprintf("--%s", flag)
 }
