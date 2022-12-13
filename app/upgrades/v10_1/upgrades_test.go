@@ -80,6 +80,8 @@ func TestMigrateEscrowAcc(t *testing.T) {
 		channelID := fmt.Sprintf("channel-%d", i)
 		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 		acc := app.AccountKeeper.GetAccount(ctx, addr)
+		require.NotNil(t, acc)
+		require.NoError(t, acc.ValidateBasic(), "account validation failed")
 
 		if i > existingAccounts {
 			require.Nil(t, acc, "This account did not exist, it should not be migrated")
