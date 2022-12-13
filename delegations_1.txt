@@ -1,0 +1,704 @@
+delegation_responses:
+- balance:
+    amount: "5500423590827889652443"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1qq95x6dhrdnrfunlth5uh24tkrfphzl94dzp87
+    shares: "5528063660276748911968.248298061363015797"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1021"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1qxqj5txltmthhpz5jqjgyafp8axvp099wplate
+    shares: "1026.769181694564383042"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1990000090032438039"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1qd3etwae4pdcu2z6zv37gejswwx4g02yx2v4gj
+    shares: "2000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1qdhlf7qj7wa69psf480yacv2dadjxshr2mugx7
+    shares: "0.000876256925538534"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1qh3k6vh2sn70g2vuepjfew4rkxa2k4m6h3h3un
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1qmlujg4cchswnq4adlvg7z04hmy8wduh0p8l23
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1pfpuh9gn9l8svuuxj9qlq7fxvmjjkt3vqcjgz5
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "12213250161049798127"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1pt7a9cyasy09v4rnzlelwtts3j78jlwjhpagua
+    shares: "12274622722103209333.121746592055926466"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "179100008102919423"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1p0war47hsur4amjrdgnw4p7ggzg968tfs6wwdq
+    shares: "180000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "107251020870231602807"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1pj268uhwn5pg38kyy6kg98zrmnmyfjkc0d6v8y
+    shares: "107789965847170745850.419346903431867285"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "272786663185714713789"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1pmxp8l94097vmgayprx85a3zcnj784nykhkuf7
+    shares: "274157438034355213463.939918634310367233"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1zpyz7s7hf7vd5kxwg74x3myvf9e0mfp5x2w2av
+    shares: "0.007675671177410000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219019"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1zzftcjrmad55ssghzy0fjgkce67l3u69svvwwl
+    shares: "1000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1zr3tf23e5d7mrj9f5c6hyhqj46pfdwky8qhrft
+    shares: "1005025080158362.684874531784757598"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "45000000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1zrekg8u89mzkknz72x4twyt0dsfschwxm88zva
+    shares: "45226128607126320819.357787140366963406"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "3650650416083658780"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1z9wpef8g39uuzfkjatvk5rwlv46ju8lcg9rjyv
+    shares: "3668995227054639254.371596092949671238"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "3461528537354243700"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1zgjlt4kpmf0nlesyr4q3szlr8s04qgstddx7rv
+    shares: "3478922995724908715.877274282760773158"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1rqjvlmmpfnj52zjvmaygwnmey922ngva5sk6el
+    shares: "0.003317638663442074"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "70368134025054483633432"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1rxz8w52tluyzpkmf5xxkjwxnnejqmz2fhvzkaa
+    shares: "70721739539124791051865.193939208529458833"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "19900000900324380"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1rf5m0f35062cqjhc4rqn3gxjd4j6x9gtmk7wld
+    shares: "20000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "95302497166824772894"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1rtu4mqzz85hy5gr330ejp7luvy8jnh4vgvytf2
+    shares: "95781399854380200050.362705141854794794"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "100000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1rse22f2jz0zets9afjyvf44kvt9qkrzdmvrrns
+    shares: "100502508015836268.487456026234269281"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1r3ey5262h4e9qwajczfh5j2vcqxd9pqrkelzwf
+    shares: "0.000675762040051668"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1990000090032438039"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1rl27ntqrfu5scurra87u2acm3m9dykpx4musxf
+    shares: "2000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "115306245797760486309"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1yyvj5l297yss2vxp6ezlq4ul0eu4j5fgaga882
+    shares: "115885668925654103241.547503736218537357"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1y8qvc2l2hgqwvw34mfq42uw9e0n3e4knwj4xss
+    shares: "1005025080158362.684874531784757598"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219019"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1ys6ypgyr3ndphhrffzupfxn2pu3svjctfn49fm
+    shares: "1000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219019"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos19rphzze0lask2a4jkkc62mzuax28x9gygl683q
+    shares: "1000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "30845001395502789606"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos19h59sqvguwg0gm965vn3887v8g6l7hrj4f6vux
+    shares: "31000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "25176018489024232228740"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1xvrdg707g8kug8k9zlrpqamfukzt5qnc2ja6ll
+    shares: "25302530000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1xvt6m8k6d9pttfa7tw5rx3kqa2pv8snvgc22ye
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1990000090032438039"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1xna8xq906ekr5vd93ye6054dl3f74n7w7zqw2f
+    shares: "2000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "18407500832800051861"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1x4jvvw0693guzk6zzcmep6zu2sxnhyulg73men
+    shares: "18500000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1xcww467m2cncccjfwcauxmjs4zllzpexhvw877
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1xm3vkefkm48xl38wuy3mu3wmg9xy3hzgl9z7pn
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "19900000900324380"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1x7fl9lcmpuzqzr0n7zpph9qhr4qejg57sf0e24
+    shares: "20000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219019"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos18dg669lyaz8l8yj899amr4ges0pfz4q2ytegh2
+    shares: "1000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "9"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1gqcyaa84vwshdjkf57fmz3gyk9fpauweyx5scg
+    shares: "9.824215785213139379"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1gp6m7slea7a7pfuv3d5mcq7w9upjehxvqd046f
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1gpumf0napfdccgulhxmypzszc4fls23tlh030s
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1g2t8xxrw69vtqxdsw8wlh7vv9z3ayyeece6dzx
+    shares: "1.005025080158362685"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "9999999999999999"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1f8h7ud4ftaurzedzgrnjqhlsrk2h0au783fm34
+    shares: "10050250801583626.848744971004781382"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "22885001035373037449"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1fws20qru7jd4dt8adtk8mzv78u2l8fsyaya0j9
+    shares: "23000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "115306229497682054402"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1f38zapex2qvafj64vdr9cnw5200dpgpg238ht3
+    shares: "115885652543666470626.616092032581061318"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "155745810516941189442"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1fnpwdlezu7msefda97m9rftf24cnkttpcarksp
+    shares: "156528445699117984986.455220012623977009"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1fnf49dyes6ga6t3klctqp7t9j6096c552yenwu
+    shares: "1.005025080158362684"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1199999999999999"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1fht303hpfe4phqxjxcg4eacpzkgzvagy0q44yg
+    shares: "1206030096190035.221849396520573765"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "9950000450162190"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1fay4cg0r4rquqvxp5skamnslch3gyx73p8x0wy
+    shares: "10000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1292wjfh9p0k4kxmypzt80zj93u8qphz4d4semk
+    shares: "100000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos12fs77vussdx0959np3rvqh0fdpfqmmrd93fgk7
+    shares: "0.000229545708284156"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1990000090032438039"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos12sq6v9twa6kcsq729480sn93u7h0nfautheahy
+    shares: "2000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos12ndejs4fff58k3eydegmy4watce3uw72erdupa
+    shares: "1005025080158362.684874531784757598"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos12hu9q6nytehesyqps23fpex47kv8rsszgxyr0t
+    shares: "0.706590610593373183"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1t928xp7j0ses5ge4f54rg3jshune6afr0q04lh
+    shares: "1.005025080158362685"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "107638854845671169095"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1ttkrmrtckkwfnka4j5qptqj65ceme0frdt2dcc
+    shares: "108179748719425032424.261618574012670406"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1tw2fpf5rgvaldq5q7xkhmaasl34cuukr9dqg6p
+    shares: "0.836174085004484196"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "32337501463027118135"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1t5jqzvtg26x8qq3dc8z6curx5vl4wpa5wczcyr
+    shares: "32500000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1t42ycgefmqftr6sa8afqezpddxq3c7sx69mzz0
+    shares: "1.005025080158362685"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "3000000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1tkpn5qln90tzqu9lc5l3uqjf0wmlh0njnxysyn
+    shares: "3015075240475088054.624069457164257864"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "109450004951784092"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1t6433a3p7l8rf9yfv6c475atd2rzexmdzkvc9z
+    shares: "110000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "127497019572114302428"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1tar9cx37tdk6p03cgclhj9ak4dxgp0gqpmazek
+    shares: "128137702315416512900.149811359370020021"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "12641699245735557700"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1vdpj80lxyqr5nptqrykez03zh7tujqcurttu9f
+    shares: "12705224797783291970.220140097405904457"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219019"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1v4tepzrm5yf9vfartv2qyysls4secn8fzuwk4g
+    shares: "1000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "144893542092271856"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1v4e8n52r2vz8xxp9ggxdha20a70yklpuz09y5g
+    shares: "145621643755714620.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "17700000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1drdf7qd8me55xm6q4a4yztkte3ltsl4dcjrasq
+    shares: "17788943918803019522.279321431897192368"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1990000090032438039"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1d3lnehggnl8lfujv0q2h4yky3rgprkgme5yh6e
+    shares: "2000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "100150125443174668210"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1wtfjn56e0dxd544xa2ykf3sa96jzumpv8unmln
+    shares: "100653387851396699128.054093824359343886"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "49999999999999999999"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1wdfzc7hhxu8u69qdyju86wwrchk0evtlpvu9u0
+    shares: "50251254007918134243.724855023906913139"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1492500067524328529"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1w0rjy50vuqjczx2jy3veakumcrf4d2r40nv05n
+    shares: "1500000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1wck42j82xzalpxkmz57s5r82uadtgxx0e43z9n
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1w7f72qm3q3h37xemeg57t8v4mg4s0au5y6kpx4
+    shares: "100000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "9950000450162190"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos102y2zdm04pdqqy8fenfv5estrjmcp6dxklxjh5
+    shares: "10000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "9950000450162190"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos10w9e7qnswwzuzfz2vkpjfuwdnu99c60q2ddzgl
+    shares: "10000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos10k6n56y0qdyqumnranpelf0p4c4dzgtwja36dy
+    shares: "0.924877412814798424"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "38985008702218243763"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos10668ps6205ut83k8f50lwq8cq47mjma0rmjqcm
+    shares: "39180911495921357263.650439301718778479"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "19949750902575191341"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1stdzes0pkpfhvhx4eemeeqxqmmvwsnqfh69d0d
+    shares: "20050000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "12744487904762655055385"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1s45myewfjaukvlaqu02mqa0ffzgqc9jcwc84e3
+    shares: "12808529978061371100000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "24875001125405475488"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1shfn8qz3f2ar4ek0r3v2m9ch52cu7qnjax6dg5
+    shares: "25000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos138e2u292azt2mex5rd6em7g7tvx7hvhhy6794l
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "24875001125405475488"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos13dp8mwufp9djdwm42fzp5289g0t8225tunqmkt
+    shares: "25000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "3000621793982563743"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos135egg0jg6vkqfpev8h6fjv6ez8vjl5z27eguzd
+    shares: "3015700159022256168.464379905510210982"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos13lrqq0dda4awaum5asmqxrthwrlyrj3m68x288
+    shares: "100000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "13428378828884175033"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1jxf6ymlvktvplee5t0avulzzh5r3uh3flg0h7s
+    shares: "13495857508896178448.633841586864334476"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1jaz8p9aswdc7s5l6y8sj8tmwazpzf090l6pwk9
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1nzkfux9fd9rw5xerqxelprav0as7pll88076wr
+    shares: "1.005025080158362685"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1n2xmws4q3u3rcrk7d44mvsuxljt3rpxckdxg00
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1n2a40jwjnnua72gw3ky0j3pryvrc4qcf5rj6ct
+    shares: "100000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1nveds8tlm0ptsnmwvr3mh7x7293glgqgeqcduk
+    shares: "0.000719015237332163"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "990025030928709400"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1nkx5fxv7fksykrckpzcrvvp45svgyxs4cadh5l
+    shares: "994999986067911661.022698642816193245"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "5660560084990621508910"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1n7jk5yx2lgjzd0wvv3zpdasqzfce2d2lz6dakk
+    shares: "5689004853158927674195.430832856376671789"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "1000000000000000000"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos158xep4e3ktvme65kdcchjej9cew8s8ntrjrfex
+    shares: "1005025080158362684.874689819054752621"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "13423941924044138745648"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos15smakcagxle0vra920hze3d4qac6l4ayj6qz32
+    shares: "13491398308253665951067.356604003345853957"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "99500004501621901"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos15n2h0pl9sh05p2pnz7r7lr60r9j989e2zmhtne
+    shares: "100000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "4975000225081095097"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos15k98pt3pehddqxxzu4hd0dq5cntm2vp73hx72x
+    shares: "5000000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos15a5zktzxlcrsryfg3smcnyd7jxdfcmjlztjug9
+    shares: "0.201141052821697341"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos14z4m2he46cv6wp32s00c8r6mrk7nx4h6qe0wy2
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "0"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos14ha4fgvcgw9wmuzxse7u9zg7nrpnz5fxmsx2jg
+    shares: "0.779000456273804948"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1kqk2m5s5sw0clzfxen2f6ydqgg8c4cu32khaqr
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "995000045016219"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1k0l780g8wvun6v7fml76lmrrw4cftek3gczara
+    shares: "1000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+- balance:
+    amount: "9950000450162190"
+    denom: aevmos
+  delegation:
+    delegator_address: evmos1kmme29p0f40selzfvxj7qdxe6arrycknrcru3m
+    shares: "10000000000000000.000000000000000000"
+    validator_address: evmosvaloper1qq95x6dhrdnrfunlth5uh24tkrfphzl9crd3xr
+pagination:
+  next_key: FLcelWNUx5F1GWgUxyEnHilOuwbxFAALQ2m3G2Y08n9d6cuqq7DSG4vl
+  total: "0"
