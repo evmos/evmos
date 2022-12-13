@@ -1,4 +1,4 @@
-package v101
+package v11
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v10
+// CreateUpgradeHandler creates an SDK upgrade handler for v11
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,

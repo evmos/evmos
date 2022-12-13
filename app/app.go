@@ -115,7 +115,7 @@ import (
 
 	"github.com/evmos/evmos/v10/app/ante"
 	v10 "github.com/evmos/evmos/v10/app/upgrades/v10"
-	v101 "github.com/evmos/evmos/v10/app/upgrades/v10_1"
+	v11 "github.com/evmos/evmos/v10/app/upgrades/v11"
 	v8 "github.com/evmos/evmos/v10/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v10/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
@@ -1110,10 +1110,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v10.1 upgrade handler
+	// v11 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v101.UpgradeName,
-		v101.CreateUpgradeHandler(
+		v11.UpgradeName,
+		v11.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.AccountKeeper,
 		),
