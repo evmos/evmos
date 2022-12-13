@@ -57,7 +57,6 @@ var _ = Describe("Ledger", func() {
 					sdk.NewCoin("aevmos", sdk.NewInt(100000)),
 				),
 			)
-			txProto = s.getMockTxProtobuf(receiverAccAddr, 1000)
 
 		})
 

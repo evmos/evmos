@@ -6,18 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/api/cosmos/crypto/ed25519"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	txTypes "github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	ledgeraccounts "github.com/evmos/evmos-ledger-go/accounts"
 
-	ethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
@@ -46,7 +38,6 @@ import (
 	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
 	. "github.com/onsi/gomega"
@@ -112,19 +103,6 @@ func (suite *LedgerTestSuite) SetupLedger() {
 		Address:   addr,
 		PublicKey: suite.pubKey,
 	}
-}
-
-func (suite *LedgerTestSuite) RegisterMocks(signDocBytes []byte) {
-	suite.mockWallet.On("Open", "").Return(nil)
-
-	suite.mockWallet.On("Derive", ethaccounts.DefaultBaseDerivationPath, true).
-		Return(suite.account, nil)
-
-	suite.mockWallet.On("SignTypedData", suite.account, mock.AnythingOfType("TypedData")).Return().Run(func(args mock.Arguments) {
-		fmt.Println("---------------------------")
-		fmt.Printf("%t\n", args...)
-		fmt.Println("---------------------------")
-	})
 }
 
 func (s *LedgerTestSuite) SetupEvmosApp() {
@@ -197,76 +175,6 @@ func (suite *LedgerTestSuite) SetupNetwork() {
 func (s *LedgerTestSuite) TearDownSuite() {
 	s.T().Log("tearing down test suite...")
 	s.network.Cleanup()
-}
-
-func (suite *LedgerTestSuite) getMockTxAmino() []byte {
-	tmp := `{"account_number":"0","chain_id":"evmos_9000-1","fee":{"amount":[{"amount":"150","denom":"aevmos"}],"gas":"20000"},"memo":"memo","msgs":[{"type":"cosmos-sdk/MsgSend","value":{"amount":[{"amount":"150","denom":"aevmos"}],"from_address":"evmos1r5sckdd808qvg7p8d0auaw896zcluqfd7djffp","to_address":"evmos10t8ca2w09ykd6ph0agdz5stvgau47whhaggl9a"}}],"sequence":"6"}`
-	return []byte(tmp)
-}
-
-func (suite *LedgerTestSuite) getMockTxProtobuf(toAddr sdk.AccAddress, amount int64) []byte {
-	marshaler := codec.NewProtoCodec(codecTypes.NewInterfaceRegistry())
-
-	memo := "memo"
-	msg := bankTypes.NewMsgSend(
-		s.accAddr,
-		toAddr,
-		[]types.Coin{
-			{
-				Denom:  "aevmos",
-				Amount: types.NewIntFromUint64(1000),
-			},
-		},
-	)
-
-	msgAsAny, err := codecTypes.NewAnyWithValue(msg)
-	suite.Require().NoError(err)
-
-	body := &txTypes.TxBody{
-		Messages: [](*codecTypes.Any){
-			msgAsAny,
-		},
-		Memo: memo,
-	}
-
-	pkBytes := crypto.FromECDSAPub(suite.pubKey)
-	edPubKey := &ed25519.PubKey{Key: pkBytes}
-	pubKeyAsAny, err := codecTypes.NewAnyWithValue(edPubKey)
-	suite.Require().NoError(err)
-
-	signingMode := txTypes.ModeInfo_Single_{
-		Single: &txTypes.ModeInfo_Single{
-			Mode: signing.SignMode_SIGN_MODE_DIRECT,
-		},
-	}
-
-	signerInfo := &txTypes.SignerInfo{
-		PublicKey: pubKeyAsAny,
-		ModeInfo: &txTypes.ModeInfo{
-			Sum: &signingMode,
-		},
-		Sequence: 6,
-	}
-
-	fee := txTypes.Fee{Amount: types.NewCoins(types.NewInt64Coin("aevmos", amount)), GasLimit: 20000}
-
-	authInfo := &txTypes.AuthInfo{
-		SignerInfos: [](*txTypes.SignerInfo){signerInfo},
-		Fee:         &fee,
-	}
-
-	bodyBytes := marshaler.MustMarshal(body)
-	authInfoBytes := marshaler.MustMarshal(authInfo)
-
-	signBytes, err := auxTx.DirectSignBytes(
-		bodyBytes,
-		authInfoBytes,
-		"evmos_9000-1",
-		0,
-	)
-	suite.Require().NoError(err)
-
-	return signBytes
 }
 
 func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {
