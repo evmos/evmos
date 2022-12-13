@@ -48,9 +48,9 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 		}
 
 		// account name based on the address derived by the ibctypes.GetEscrowAddress
-		// this function appends the version to the provided port and channel IDs
+		// this function appends the current IBC transfer module version to the provided port and channel IDs
 		// To pass account validation, need to have address derived from account name
-		accountName := fmt.Sprintf("%s\x00%s/%s",ibctypes.Version, ibctypes.PortID, channelID)
+		accountName := fmt.Sprintf("%s\x00%s/%s", ibctypes.Version, ibctypes.PortID, channelID)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)
 
 		// no special permissions defined for the module account
