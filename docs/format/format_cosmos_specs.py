@@ -11,7 +11,9 @@ The different downloaded files need different adjustments. The following functio
 can be executed by passing the corresponding flags:
 
   - `--header`: Formats the markdown header 1 to fit the rest of the Evmos and Ethermint docs
-  - `--add-order [POSITION]`: Adds a HTML command specifying the desired position in the sub-folder order
+  - `--order [POSITION]`: Adds a HTML command specifying the desired position in the sub-folder order
+  - `--title [TITLE]`: Specifies the shown page title in the generated docs
+  - `--parent [PARENT]`: Specifies the parent tile in the dropdown menu of the generated docs
 """
 
 import getopt
@@ -31,22 +33,35 @@ def main():
         )
 
     file = sys.argv[1]
-    optlist, _ = getopt.gnu_getopt(sys.argv[2:], "ho:", ["header", "order"])
+    optlist, _ = getopt.gnu_getopt(sys.argv[2:], "ho:t:p:", ["header", "order=", "title=", "parent="])
 
-    _ADD_ORDER = False
-    _ADJUST_HEADER = False
-    _POSITION: int = ...
+    # Initialize variables
+    add_parent = False
+    add_position = False
+    add_title = False
+    adjust_header = False
+    position = 1
+    title = ""
+    parent = ""
+
+    # Parse input arguments
     for key, value in optlist:
-        if "--order" == key:
-            _ADD_ORDER = True
-            _POSITION = value
+        if key in ("-o", "--order"):
+            add_position = True
+            position = value
         elif "--header" == key:
-            _ADJUST_HEADER = True
+            adjust_header = True
+        elif "--title" == key:
+            add_title = True
+            title = value
+        elif "--parent" == key:
+            add_parent = True
+            parent = value
 
-    if _ADJUST_HEADER:
+    if adjust_header:
         format_header_in_file(file)
-    if _ADD_ORDER:
-        add_order(file, _POSITION)
+    if add_position or add_title or add_parent:
+        add_metadata(file, position, title, parent)
 
     return
 
@@ -55,6 +70,8 @@ def format_header_in_file(file: str) -> None:
     """
     format_header_in_file will adjust the formatting in the file at the given path to
     match the Evmos and Ethermint docs.
+    Additionally, it will remove all lines before the markdown header 1, because the
+    docusaurus commands (like sidebar_position) are not interpreted in our setup.
 
     :param file: Path to a markdown file
     """
@@ -82,26 +99,32 @@ def format_header_in_file(file: str) -> None:
 def format_header(header: str) -> str:
     """
     format_header removes any formatting other than the header 1 setting from the given
-    header string. Also, the module prefix "x/" is removed from the string.
+    header string. Also, the module prefix "x/" is removed from the string and the string
+    converted to lower case.
 
     :param header: String which contains a markdown header 1
     :return: adjusted string
     """
 
-    if header[:2] != "# ":
+    split_header = header.split()
+    if split_header[0] != "#":
         raise ValueError(
             f"Expected markdown header 1 (e.g. '# Example')\nGot: '{header}'"
         )
 
-    formatted_header = re.sub("`*(x/)*", "", header)
+    formatted_header = re.sub(r"x/", "", split_header[1])
+    formatted_header = formatted_header.lower()
+    if "`" not in formatted_header:
+        formatted_header = f"`{formatted_header}`"
 
-    return formatted_header
+    return f"# {formatted_header}\n"
 
 
-def add_order(file: str, position: int) -> None:
+def add_metadata(file: str, position: int, title: str, parent: str) -> None:
     """
-    add_order adds lines to the beginning of the markdown file at the given path, which
-    specify the position in the sub-folder order.
+    add_metadata adds lines to the beginning of the markdown file at the given path, which
+    specify the position in the sub-folder order and define a title and parent title
+    (which are used for the 'Modules' dropdown on the Evmos docs).
 
     :param file: path to the markdown file to be adjusted.
     :param position: integer value of the desired position
@@ -112,11 +135,17 @@ def add_order(file: str, position: int) -> None:
 
     filename, extension = os.path.splitext(file)
     tmp_file = f"{filename}_tmp{extension}"
-    added_string = f"<!--\norder: {position}\n-->"
+
+    added_string = f"<!--\norder: {position}\n"
+    if title != "":
+        added_string += f'title: "{title}"\n'
+    if parent != "":
+        added_string += f'parent:\n  title: "{parent}"\n'
+    added_string += "-->\n\n"
 
     with open(file, "r") as f_read:
         with open(tmp_file, "w") as f_write:
-            f_write.write(added_string + "\n")
+            f_write.write(added_string)
 
             for line in f_read:
                 f_write.write(line)

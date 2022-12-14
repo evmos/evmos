@@ -38,6 +38,7 @@ cd ..
 mv ethermint_specs/x/evm/spec/ ./modules/evm
 mv ethermint_specs/x/feemarket/spec/ ./modules/feemarket
 rm -rf ethermint_specs
+$FORMAT ./modules/feemarket/README.md --header --order 0 --title "Feemarket Overview" --parent "feemarket"
 
 # ------------------
 # Include the specs from Cosmos SDK
@@ -48,41 +49,41 @@ mkdir ./modules/auth
 curl -sSL "$COSMOS_URL"/x/auth/README.md > ./modules/auth/README.md
 curl -sSL "$COSMOS_URL"/x/auth/vesting/README.md > ./modules/auth/vesting.md
 curl -sSL "$COSMOS_URL"/x/auth/tx/README.md > ./modules/auth/tx.md
-$FORMAT ./modules/auth/README.md --header --order 1
-$FORMAT ./modules/auth/vesting.md --header --order 2
-$FORMAT ./modules/auth/tx.md --header --order 3
+$FORMAT ./modules/auth/README.md --header --order 1 --title "Auth Overview" --parent "auth"
+$FORMAT ./modules/auth/vesting.md --header --order 2 --title "auth/vesting"
+$FORMAT ./modules/auth/tx.md --header --order 3 --title "auth/tx"
 
 mkdir ./modules/bank
 curl -sSL "$COSMOS_URL"/x/bank/README.md > ./modules/bank/README.md
-$FORMAT ./modules/bank/README.md --header
+$FORMAT ./modules/bank/README.md --header --title "Bank Overview" --parent "bank"
 
 mkdir ./modules/crisis
 curl -sSL "$COSMOS_URL"/x/crisis/README.md > ./modules/crisis/README.md
-$FORMAT ./modules/crisis/README.md --header
+$FORMAT ./modules/crisis/README.md --header --title "Crisis Overview" --parent "crisis"
 
 mkdir ./modules/distribution
 curl -sSL "$COSMOS_URL"/x/distribution/README.md > ./modules/distribution/README.md
-$FORMAT ./modules/distribution/README.md --header
+$FORMAT ./modules/distribution/README.md --header --title "Distribution Overview" --parent "distribution"
 
 mkdir ./modules/evidence
 curl -sSL "$COSMOS_URL"/x/evidence/README.md > ./modules/evidence/README.md
-$FORMAT ./modules/evidence/README.md --header
+$FORMAT ./modules/evidence/README.md --header --title "Evidence Overview" --parent "evidence"
 
 mkdir ./modules/gov
 curl -sSL "$COSMOS_URL"/x/gov/README.md > ./modules/gov/README.md
-$FORMAT ./modules/gov/README.md --header
+$FORMAT ./modules/gov/README.md --header --title "Gov Overview" --parent "gov"
 
 mkdir ./modules/slashing
 curl -sSL "$COSMOS_URL"/x/slashing/README.md > ./modules/slashing/README.md
-$FORMAT ./modules/slashing/README.md --header
+$FORMAT ./modules/slashing/README.md --header --title "Slashing Overview" --parent "slashing"
 
 mkdir ./modules/staking
 curl -sSL "$COSMOS_URL"/x/staking/README.md > ./modules/staking/README.md
-$FORMAT ./modules/staking/README.md --header
+$FORMAT ./modules/staking/README.md --header --title "Staking Overview" --parent "staking"
 
 mkdir ./modules/upgrade
 curl -sSL "$COSMOS_URL"/x/upgrade/README.md > ./modules/upgrade/README.md
-$FORMAT ./modules/upgrade/README.md --header
+$FORMAT ./modules/upgrade/README.md --header --title "Upgrade Overview" --parent "upgrade"
 
 # ------------------
 # Include the specs from IBC go
