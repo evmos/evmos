@@ -195,7 +195,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// 2. Transfer back the erc20 from Evmos to Osmosis
 			ibcCoinMeta := fmt.Sprintf("%s/%s", teststypes.UosmoDenomtrace.Path, teststypes.UosmoDenomtrace.BaseDenom)
-			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, pair.GetDenom(), amount, receiver, sender, 1, ibcCoinMeta)
+			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, types.ModuleName+"/"+pair.GetERC20Contract().String(), amount, receiver, sender, 1, ibcCoinMeta)
 
 			// after transfer, ERC-20 token balance should be zero
 			balanceTokenAfter := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
@@ -447,6 +447,46 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
 
 		})
+		It("send native ERC-20 to osmosis, when sending back IBC coins should convert full balance back to erc20 token", func() {
+			// Mint tokens and send to receiver
+			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			s.Require().NoError(err)
+			// Check Balance
+			balanceToken :=
+				s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			s.Require().Equal(amount, balanceToken.Int64())
+
+			s.EvmosChain.Coordinator.CommitBlock()
+
+			// Attempt to send 1/2 of erc20 balance via ibc, should convert erc20 tokens to ibc coins and send the converted balance via IBC
+			s.SendBackCoins(s.pathOsmosisEvmos, s.EvmosChain, types.ModuleName+"/"+pair.GetERC20Contract().String(), amount/2, sender, receiver, 1, "")
+			s.IBCOsmosisChain.Coordinator.CommitBlock()
+
+			// IBC coin balance should be zero
+			erc20CoinsBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, pair.Denom)
+			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
+
+			// Check updated token Balance
+			balanceToken =
+				s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			s.Require().Equal(amount/2, balanceToken.Int64())
+
+			// Check balance on the Osmosis chain
+			erc20IBCBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), receiverAcc, erc20Denomtrace.IBCDenom())
+			s.Require().Equal(amount/2, erc20IBCBalance.Amount.Int64())
+
+			// send back the IBC coins from Osmosis to Evmos
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, erc20Denomtrace.IBCDenom(), amount/2, receiver, sender, 1, erc20Denomtrace.GetFullDenomPath())
+			// Check Balance
+			balanceToken =
+				s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			s.Require().Equal(amount, balanceToken.Int64())
+
+			// IBC coin balance should be zero
+			erc20CoinsBalance = s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, pair.Denom)
+			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
+
+		})		
 	})
 })
 

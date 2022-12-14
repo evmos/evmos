@@ -3,6 +3,7 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -40,6 +41,11 @@ func (k Keeper) OnRecvPacket(
 		err = errorsmod.Wrapf(errortypes.ErrInvalidType, "cannot unmarshal ICS-20 transfer packet data")
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
+
+	// use a zero gas config to avoid extra costs for the relayers
+	ctx = ctx.
+		WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	if !k.IsERC20Enabled(ctx) {
 		return ack
@@ -155,6 +161,11 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	if err != nil {
 		return err
 	}
+
+	// use a zero gas config to avoid extra costs for the relayers
+	ctx = ctx.
+		WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// assume that all module accounts on Evmos need to have their tokens in the
 	// IBC representation as opposed to ERC20
