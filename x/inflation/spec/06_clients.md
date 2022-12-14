@@ -20,7 +20,7 @@ The `query` commands allow users to query `inflation` state.
 
 Allows users to query the current inflation period.
 
-```go
+```bash
 evmosd query inflation period [flags]
 ```
 
@@ -28,7 +28,7 @@ evmosd query inflation period [flags]
 
 Allows users to query the current inflation epoch provisions value.
 
-```go
+```bash
 evmosd query inflation epoch-mint-provision [flags]
 ```
 
@@ -36,7 +36,7 @@ evmosd query inflation epoch-mint-provision [flags]
 
 Allows users to query the current number of skipped epochs.
 
-```go
+```bash
 evmosd query inflation skipped-epochs [flags]
 ```
 
@@ -44,7 +44,7 @@ evmosd query inflation skipped-epochs [flags]
 
 Allows users to query the total supply of tokens in circulation.
 
-```go
+```bash
 evmosd query inflation total-supply [flags]
 ```
 
@@ -52,7 +52,7 @@ evmosd query inflation total-supply [flags]
 
 Allows users to query the inflation rate of the current period.
 
-```go
+```bash
 evmosd query inflation inflation-rate [flags]
 ```
 
@@ -60,7 +60,7 @@ evmosd query inflation inflation-rate [flags]
 
 Allows users to query the current inflation parameters.
 
-```go
+```bash
 evmosd query inflation params [flags]
 ```
 
