@@ -3,7 +3,6 @@ module github.com/evmos/evmos/v10
 go 1.19
 
 require (
-	cosmossdk.io/api v0.2.6
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0-beta.4
 	github.com/armon/go-metrics v0.4.1

@@ -1,17 +1,27 @@
 package ledger_test
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
+	"github.com/cosmos/cosmos-sdk/simapp/params"
+	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/crypto/hd"
+	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 	"github.com/evmos/evmos/v10/testutil"
-	testcli "github.com/evmos/evmos/v10/testutil/cli"
 
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -27,21 +37,25 @@ import (
 8. Check the balances of your Ledger account and the destination account using evmosd query bank balances [your Ledger address] and evmosd query bank balances evmos1e4etd2u9c2huyjacswsfukugztxvd9du52y49t
 */
 
-var _ = Describe("Ledger", func() {
+var _ = Describe("Sign transaction with ledger key", func() {
 	var (
 		receiverAccAddr sdk.AccAddress
 		receiverEthAddr common.Address
+		encCfg          params.EncodingConfig
+		kb              keyring.Keyring
+		mockedIn        sdktestutil.BufferReader
+		clientCtx       client.Context
+		cmd             *cobra.Command
+		kbHome          string
 		txProto         []byte
 	)
+	ledgerKey := "ledger_key"
 
-	s.SetupEvmosApp()
-	s.SetupLedger()
-	//s.RegisterMocks(txProto)
-	s.SetupNetwork()
+	s.SetupTest()
 
-	fmt.Println(receiverEthAddr, txProto)
+	fmt.Println(receiverEthAddr, receiverAccAddr, txProto)
 
-	Describe("Test evmosd ledger cli commands", func() {
+	Describe("Perform key addition", func() {
 		BeforeEach(func() {
 			// account key
 			priv, err := ethsecp256k1.GenerateKey()
@@ -57,53 +71,114 @@ var _ = Describe("Ledger", func() {
 					sdk.NewCoin("aevmos", sdk.NewInt(100000)),
 				),
 			)
-
+			kbHome = s.T().TempDir()
+			encCfg = encoding.MakeConfig(app.ModuleBasics)
 		})
+		Context("with eth_secp256k1 and secp256k1 keyring algorythms", func() {
+			BeforeEach(func() {
+				var err error
+				cmd = keys.AddKeyCommand()
+				cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
 
-		It("should add ledger key to keys list", func() {
-			mocks.RegisterClose(s.secp256k1)
-			mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-			clientCtx := s.network.Validators[0].ClientCtx
+				mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 
-			cmd := keys.AddKeyCommand()
-			clientCtx.OutputFormat = "text"
-			out, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{"ledger_key", fmt.Sprintf("--%s", flags.FlagUseLedger)})
-			s.Require().NoError(err)
-			s.Require().NotEmpty(out.String(), "no output provided")
-			s.T().Log(out.String())
+				kb, err = keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockedIn, encCfg.Codec, s.MockKeyringOption(), hd.EthSecp256k1Option())
+				s.Require().NoError(err)
 
-			s.Require().NoError(s.network.WaitForNextBlock())
+				clientCtx = client.Context{}.
+					WithKeyringDir(kbHome).
+					WithKeyring(kb).
+					WithCodec(encCfg.Codec)
+			})
+			It("should add the ledger key with default algo", func() {
+				mocks.RegisterClose(s.secp256k1)
+				mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
 
-			//s.app.AccountKeeper.NewAccountWithAddress()
+				ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
+				b := bytes.NewBufferString("")
+				cmd.SetOut(b)
+
+				cmd.SetArgs([]string{ledgerKey, s.FormatFlag(flags.FlagUseLedger)})
+				s.Require().NoError(cmd.ExecuteContext(ctx))
+
+				_, err := kb.Key(ledgerKey)
+				s.Require().NoError(err, "can't find ledger key")
+
+				out, err := io.ReadAll(b)
+				s.Require().NoError(err)
+				s.Require().Contains(string(out), "name: ledger_key")
+			})
+			It("should add the ledger key with secp256k1", func() {
+				mocks.RegisterClose(s.secp256k1)
+				mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+
+				ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
+				b := bytes.NewBufferString("")
+				cmd.SetOut(b)
+
+				cmd.SetArgs([]string{ledgerKey, fmt.Sprintf("--%s", flags.FlagUseLedger), s.FormatFlag(flags.FlagKeyAlgorithm), "secp256k1"})
+				s.Require().NoError(cmd.ExecuteContext(ctx))
+
+				_, err := kb.Key(ledgerKey)
+				s.Require().NoError(err, "can't find ledger key")
+
+				out, err := io.ReadAll(b)
+				s.Require().NoError(err)
+				s.Require().Contains(string(out), "name: ledger_key")
+			})
+			It("should add the ledger key with eth_secp256k1", func() {
+				mocks.RegisterClose(s.secp256k1)
+				mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+
+				ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
+				b := bytes.NewBufferString("")
+				cmd.SetOut(b)
+
+				cmd.SetArgs([]string{ledgerKey, fmt.Sprintf("--%s", flags.FlagUseLedger), s.FormatFlag(flags.FlagKeyAlgorithm), "eth_secp256k1"})
+				s.Require().NoError(cmd.ExecuteContext(ctx))
+
+				_, err := kb.Key(ledgerKey)
+				s.Require().NoError(err, "can't find ledger key")
+
+				out, err := io.ReadAll(b)
+				s.Require().NoError(err)
+				s.Require().Contains(string(out), "name: ledger_key")
+			})
 		})
-		It("should sign valid tx with verifiable signature", func() {
-			mocks.RegisterClose(s.secp256k1)
-			mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-			mocks.RegisterSignSECP256K1(s.secp256k1)
-
-			clientCtx := s.network.Validators[0].ClientCtx
-			clientCtx.OutputFormat = "text"
-
-			out, err := testcli.ExecTestCLICmd(
-				clientCtx,
-				bankcli.NewSendTxCmd(),
-				[]string{
-					"ledger_key",
-					receiverAccAddr.String(),
-					sdk.NewCoin("aevmos", sdk.NewInt(100)).String(),
-					s.FormatFlag(flags.FlagKeyringBackend),
-					"test",
-					s.FormatFlag(flags.FlagKeyringDir),
-					"./build/node0/evmoscli/keyring-test",
-				},
-			)
-			s.Require().NoError(err)
-
-			s.Require().NotEmpty(out.String(), "no output provided")
-			s.T().Log(out.String())
-		})
-
 	})
-	s.TearDownSuite()
 
+	Describe("Perform transaction signing", func() {
+		// BeforeEach(func() {
+		// 	// account key
+		// 	priv, err := ethsecp256k1.GenerateKey()
+		// 	s.Require().NoError(err, "can't generate private key")
+
+		// 	receiverEthAddr = common.BytesToAddress(priv.PubKey().Address().Bytes())
+		// 	receiverAccAddr = sdk.AccAddress(s.ethAddr.Bytes())
+		// 	testutil.FundAccount(
+		// 		s.ctx,
+		// 		s.app.BankKeeper,
+		// 		s.accAddr,
+		// 		sdk.NewCoins(
+		// 			sdk.NewCoin("aevmos", sdk.NewInt(100000)),
+		// 		),
+		// 	)
+		// 	kbHome = s.T().TempDir()
+		// 	encCfg = encoding.MakeConfig(app.ModuleBasics)
+
+		// })
+
+		// It("should call signing function on ledger side", func() {
+		// 	ledgerAddr, err := rec.GetAddress()
+		// 	s.Require().NoError(err, "can't retirieve ledger addr from a keyring")
+
+		// 	msg := []byte("hello")
+
+		// 	signed, pubKey, err := kb.SignByAddress(ledgerAddr, msg)
+		// 	s.Require().Equal(mocks.ErrMockedSigning, err)
+		// 	fmt.Println(string(signed), pubKey)
+
+		// 	s.Require().Equal(string(msg), string(signed))
+		// })
+	})
 })

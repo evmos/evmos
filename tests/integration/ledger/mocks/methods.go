@@ -9,6 +9,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
+var ErrMockedSigning = errors.New("catched signing")
+
 // original: Close() error
 func RegisterClose(s *SECP256K1) {
 	s.On("Close").Return(nil)
@@ -31,6 +33,8 @@ func RegisterGetAddressPubKeySECP256K1(s *SECP256K1, accAddr sdk.AccAddress, pub
 
 // original: SignSECP256K1([]uint32, []byte) ([]byte, error)
 func RegisterSignSECP256K1(s *SECP256K1) {
-	s.On("SignSECP256K1", mock.AnythingOfType("[]uint32"), mock.AnythingOfType("[]byte")).
-		Return(nil, errors.New("catched signing"))
+	s.On("SignSECP256K1", mock.AnythingOfType("[]uint32"), mock.AnythingOfType("[]uint8")).
+		Return(func(_ []uint32, msg []byte) ([]byte, error) {
+			return msg, ErrMockedSigning
+		})
 }
