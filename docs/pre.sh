@@ -32,7 +32,6 @@ git remote add origin "$ETHERMINT_URL"
 git config core.sparseCheckout true
 printf "x/evm/spec\nx/feemarket/spec\n" > .git/info/sparse-checkout
 git pull origin main
-ls
 cd ..
 
 mv ethermint_specs/x/evm/spec/ ./modules/evm
