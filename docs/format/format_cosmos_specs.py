@@ -33,7 +33,9 @@ def main():
         )
 
     file = sys.argv[1]
-    optlist, _ = getopt.gnu_getopt(sys.argv[2:], "ho:t:p:", ["header", "order=", "title=", "parent="])
+    optlist, _ = getopt.gnu_getopt(
+        sys.argv[2:], "ho:t:p:", ["header", "order=", "title=", "parent="]
+    )
 
     # Initialize variables
     add_parent = False

@@ -86,7 +86,10 @@ def test_add_parent_should_add_to_file_contents(order_file_setup):
 
     with open(FILE, "r") as f:
         file_contents = f.read()
-    assert file_contents == f'<!--\norder: 1\nparent:\n  title: "{parent}"\n-->\n\n' + contents
+    assert (
+        file_contents
+        == f'<!--\norder: 1\nparent:\n  title: "{parent}"\n-->\n\n' + contents
+    )
 
 
 def test_add_all_options_should_add_to_file_contents(order_file_setup):
@@ -96,4 +99,8 @@ def test_add_all_options_should_add_to_file_contents(order_file_setup):
 
     with open(FILE, "r") as f:
         file_contents = f.read()
-    assert file_contents == f'<!--\norder: 1\ntitle: "{title}"\nparent:\n  title: "{parent}"\n-->\n\n' + contents
+    assert (
+        file_contents
+        == f'<!--\norder: 1\ntitle: "{title}"\nparent:\n  title: "{parent}"\n-->\n\n'
+        + contents
+    )
