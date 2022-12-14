@@ -63,7 +63,7 @@ calculation below:
 
 ```latex
 periodProvision = exponentialDecay       *  bondingIncentive
-f(x)            = (a * (1 - r) ^ x + c)  *  (1 + maxVariance - bondedRatio * (maxVariance / bondingTarget))
+f(x)            = (a * (1 - r) ^ x + c)  *  (1 + maxVariance * (1 - bondedRatio / bondingTarget))
 
 epochProvision = periodProvision / epochsPerPeriod
 
