@@ -90,4 +90,17 @@ $FORMAT ./modules/upgrade/README.md --header --title "Upgrade Overview" --parent
 #
 # NOTE: no need to create the modules/ibc directory because it is already created in
 #       the for loop at beginning of the script.
-curl -sSL "$IBC_GO_URL"/modules/core/spec/01_concepts.md > ./modules/ibc/01_concepts.md
+curl -sSL "$IBC_GO_URL"/docs/ibc/overview.md > ./modules/ibc/README.md
+sed 's/\# Overview/\# ibc-go/' ./modules/ibc/README.md > ./modules/ibc/README_tmp.md
+mv ./modules/ibc/README_tmp.md ./modules/ibc/README.md
+$FORMAT ./modules/ibc/README.md --header --order 0 --title "IBC-Go Overview" --parent "ibc-go"
+
+curl -sSL "$IBC_GO_URL"/docs/apps/transfer/overview.md > ./modules/ibc/transfer.md
+sed 's/\# Overview/\# ibc-go\/transfer/' ./modules/ibc/transfer.md > ./modules/ibc/transfer_tmp.md
+mv ./modules/ibc/transfer_tmp.md ./modules/ibc/transfer.md
+$FORMAT ./modules/ibc/transfer.md --header --order 1 --title "ibc-go/transfer"
+
+curl -sSL "$IBC_GO_URL"/docs/apps/interchain-accounts/overview.md > ./modules/ibc/interchain-accounts.md
+sed 's/\# Overview/\# ibc-go\/interchain-accounts/' ./modules/ibc/interchain-accounts.md > ./modules/ibc/interchain-accounts_tmp.md
+mv ./modules/ibc/interchain-accounts_tmp.md ./modules/ibc/interchain-accounts.md
+$FORMAT ./modules/ibc/interchain-accounts.md --header --order 2 --title "ibc-go/interchain-accounts"
