@@ -32,7 +32,7 @@ the decrease of inflation over time. The `BondingTarget` and `MaxVariance`
 allow for an increase in inflation, which is automatically regulated by the
 `bonded ratio`, the portion of staked tokens in the network. The exact formula
 can be found under
-[Concepts](https://www.notion.so/Inflation-Module-2fa8b7ae430d47e697164fcdb59b5c55).
+[Concepts](./01_concepts.md).
 
 ## Inflation Distribution
 
