@@ -56,14 +56,14 @@ evmosd query incentives params [flags]
 
 ### Proposals
 
-The `tx gov submit-proposal` commands allow users to query create a proposal using the governance module CLI:
+The `tx gov submit-legacy-proposal` commands allow users to query create a proposal using the governance module CLI:
 
 **`register-incentive`**
 
 Allows users to submit a `RegisterIncentiveProposal`.
 
 ```bash
-evmosd tx gov submit-proposal register-incentive CONTRACT_ADDRESS ALLOCATION EPOCHS [flags]
+evmosd tx gov submit-legacy-proposal register-incentive CONTRACT_ADDRESS ALLOCATION EPOCHS [flags]
 ```
 
 **`cancel-incentive`**
@@ -71,7 +71,7 @@ evmosd tx gov submit-proposal register-incentive CONTRACT_ADDRESS ALLOCATION EPO
 Allows users to submit a `CanelIncentiveProposal`.
 
 ```bash
-evmosd tx gov submit-proposal cancel-incentive CONTRACT_ADDRESS [flags]
+evmosd tx gov submit-legacy-proposal cancel-incentive CONTRACT_ADDRESS [flags]
 ```
 
 **`param-change`**
@@ -79,7 +79,7 @@ evmosd tx gov submit-proposal cancel-incentive CONTRACT_ADDRESS [flags]
 Allows users to submit a `ParameterChangeProposal``.
 
 ```bash
-evmosd tx gov submit-proposal param-change PROPOSAL_FILE [flags]
+evmosd tx gov submit-legacy-proposal param-change PROPOSAL_FILE [flags]
 ```
 
 ## gRPC
