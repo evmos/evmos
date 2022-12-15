@@ -631,7 +631,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
@@ -1286,7 +1286,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
