@@ -341,7 +341,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.Erc20Keeper = keeper.NewKeeper(
 				suite.app.GetKey(types.StoreKey),
 				suite.app.AppCodec(),
-				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				authtypes.NewModuleAddress(govtypes.ModuleName),
 				suite.app.AccountKeeper,
 				suite.app.BankKeeper,
 				suite.app.EvmKeeper,
