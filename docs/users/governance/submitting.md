@@ -169,7 +169,7 @@ For information on how to use `evmosd` binary to submit an on-chain proposal thr
 This is the command format for using `evmosd` (the command-line interface) to submit your proposal on-chain:
 
 ```bash
-evmosd tx gov submit-proposal \
+evmosd tx gov submit-legacy-proposal \
   --title=<title> \
   --description=<description> \
   --type="Text" \
@@ -184,7 +184,7 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
 :::
 
 1. `evmosd` is the command-line interface client that is used to send transactions and query Evmos
-2. `tx gov submit-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
+2. `tx gov submit-legacy-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
 3. `--from dev0` is the account key that pays the transaction fee and deposit amount
 4. `--gas 500000` is the maximum amount of gas permitted to be used to process the transaction
    - the more content there is in the description of your proposal, the more gas your transaction will consume
