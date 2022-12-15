@@ -41,7 +41,7 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
 	cmd := []string{
 		"evmosd",
-		"tx", "gov", "submit-proposal",
+		"tx", "gov", "submit-legacy-proposal",
 		"software-upgrade", targetVersion,
 		"--title=\"TEST\"",
 		"--description=\"Test upgrade proposal\"",

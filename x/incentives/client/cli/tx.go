@@ -28,7 +28,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(3),
 		Short:   "Submit a proposal to register a contract incentive",
 		Long:    "Submit a proposal to register a contract incentive.",
-		Example: fmt.Sprintf("$ %s tx gov submit-proposal register-incentive <contract> --from=<key_or_address>", version.AppName),
+		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal register-incentive <contract> --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -113,7 +113,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		Short:   "Submit a proposal to cancel a contract incentive",
 		Long:    "Submit a proposal to cancel a contract incentive.",
-		Example: fmt.Sprintf("$ %s tx gov submit-proposal cancel-incentive <contract> --from=<key_or_address>", version.AppName),
+		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal cancel-incentive <contract> --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
