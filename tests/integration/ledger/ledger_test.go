@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -16,12 +17,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
-
+	testcli "github.com/evmos/evmos/v10/testutil/cli"
 	. "github.com/onsi/ginkgo/v2"
 )
 
@@ -188,20 +189,26 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 
 			keyRecord, err = kb.Key(ledgerKey)
 			s.Require().NoError(err, "can't find ledger key")
+
+			// err = testutil.FundAccount(
+			// 	s.ctx,
+			// 	s.app.BankKeeper,
+			// 	s.accAddr,
+			// 	sdk.NewCoins(
+			// 		sdk.NewCoin("aevmos", sdk.NewInt(100000000000000000)),
+			// 	),
+			// )
+			// s.Require().NoError(err)
 		})
 
 		Context("tx bank send", func() {
 			Context("keyring execution scope", func() {
 				BeforeEach(func() {
-					cmd = bankcli.NewSendTxCmd()
-					cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
-					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+					mocks.RegisterClose(s.secp256k1)
+					mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
+					mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
 				})
 				It("should return provided to sign message", func() {
-					mocks.RegisterClose(s.secp256k1)
-					mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-					mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
-
 					mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock)
 
 					ledgerAddr, err := keyRecord.GetAddress()
@@ -215,9 +222,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					s.Require().Equal(string(msg), string(signed), "original and returned messages are not equal")
 				})
 				It("should raise error from ledger sign function to the top", func() {
-					mocks.RegisterClose(s.secp256k1)
-					mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-					mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
 					mocks.RegisterSignSECP256K1(s.secp256k1, signErrMock)
 
 					ledgerAddr, err := keyRecord.GetAddress()
@@ -232,7 +236,27 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 				})
 			})
 			Context("CLI execution scope", func() {
+				BeforeEach(func() {
+					mocks.RegisterClose(s.secp256k1)
+					mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
+					mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+				})
+				It("should execute bank tx", func() {
+					mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock)
 
+					buf, err := testcli.MsgSendExec(clientCtx, s.accAddr, receiverAccAddr, sdk.NewCoin("aevmos", sdk.NewInt(1000)))
+
+					s.Require().NoError(err)
+					s.Require().NotNil(buf.String(), "empty tx output")
+
+					ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
+
+					resp, err := s.queryClient.Balance(ctx, &types.QueryBalanceRequest{Address: receiverAccAddr.String()})
+					s.Require().NoError(err, "can't query receiver balance")
+
+					s.Require().True(resp.Balance.Amount.Equal(math.NewInt(1000)), "receiver balance don't changed")
+				})
 			})
 
 		})
