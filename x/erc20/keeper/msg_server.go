@@ -522,7 +522,7 @@ func (k Keeper) convertCoinNativeERC20(
 // it updates the parameters in the keeper only if the requested authority
 // is the Cosmos SDK governance module account
 func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority != req.Authority {
+	if k.authority.String() != req.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
 	}
 

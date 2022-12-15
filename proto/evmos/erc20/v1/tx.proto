@@ -8,7 +8,6 @@ import "evmos/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-
 option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
@@ -57,7 +56,6 @@ message MsgConvertERC20 {
 
 // MsgConvertERC20Response returns no fields
 message MsgConvertERC20Response {}
-
 
 // MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47
