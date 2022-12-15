@@ -1,6 +1,8 @@
 name: Upgrade Test
 on:
   pull_request:
+    branches:
+      - release/**
   push:
     branches:
       - release/**
