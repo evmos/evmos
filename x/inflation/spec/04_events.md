@@ -8,8 +8,8 @@ The `x/inflation` module emits the following events:
 
 ## Inflation
 
-| Type        | Attibute Key         | Attibute Value                                |
-| ----------- | -------------------- | --------------------------------------------- |
+| Type        | Attribute Key        | Attribute Value                               |
+| ----------- |----------------------|-----------------------------------------------|
 | `inflation` | `"epoch_provisions"` | `{fmt.Sprintf("%d", epochNumber)}`            |
 | `inflation` | `"epoch_number"`     | `{strconv.FormatUint(uint64(in.Epochs), 10)}` |
 | `inflation` | `"amount"`           | `{mintedCoin.Amount.String()}`                |
