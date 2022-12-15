@@ -72,7 +72,6 @@ func (suite *LedgerTestSuite) SetupTest() {
 	suite.privKey, err = ethsecp256k1.GenerateKey()
 	s.Require().NoError(err)
 	suite.pubKey = suite.privKey.PubKey()
-	sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
 	suite.Require().NoError(err)
 	addr, err := sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
 	suite.Require().NoError(err)
@@ -131,6 +130,12 @@ func (s *LedgerTestSuite) SetupEvmosApp() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+
+	fmt.Println("+++++++++++++++++++++++++++++")
+	params := s.app.BankKeeper.GetParams(s.ctx)
+
+	fmt.Println("bank params: ", params)
+	fmt.Println("+++++++++++++++++++++++++++++")
 }
 
 func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {

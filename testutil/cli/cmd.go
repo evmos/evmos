@@ -9,6 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/testutil"
+
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 )
 
