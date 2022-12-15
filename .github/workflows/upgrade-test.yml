@@ -1,0 +1,27 @@
+name: Upgrade Test
+on:
+  pull_request:
+  push:
+    branches:
+      - release/**
+
+jobs:
+  test-e2e-upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+          check-latest: true
+      - uses: actions/checkout@v3
+      - uses: technote-space/get-diff-action@v6.1.2
+        with:
+          PATTERNS: |
+            **/**.sol
+            **/**.go
+            go.mod
+            go.sum
+      - name: Test E2E upgrade
+        run: |
+          make test-upgrade
+        if: env.GIT_DIFF
