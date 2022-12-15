@@ -531,7 +531,7 @@ func NewEvmos(
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
 		keys[recoverytypes.StoreKey],
 		appCodec,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,

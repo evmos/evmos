@@ -318,9 +318,9 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			suite.app.RecoveryKeeper = keeper.NewKeeper(
-				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				suite.app.GetKey(types.StoreKey),
 				suite.app.AppCodec(),
+				authtypes.NewModuleAddress(govtypes.ModuleName),
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
@@ -576,9 +576,9 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 			tc.malleate()
 
 			suite.app.RecoveryKeeper = keeper.NewKeeper(
-				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				suite.app.GetKey(types.StoreKey),
 				suite.app.AppCodec(),
+				authtypes.NewModuleAddress(govtypes.ModuleName),
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS

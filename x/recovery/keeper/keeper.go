@@ -24,7 +24,7 @@ type Keeper struct {
 	// Protobuf codec
 	cdc codec.BinaryCodec
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
-	authority string
+	authority sdk.AccAddress
 	// Store key required for the Recovery Prefix KVStore.
 	storeKey       storetypes.StoreKey
 	accountKeeper  types.AccountKeeper
@@ -39,7 +39,7 @@ type Keeper struct {
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	authority string,
+	authority sdk.AccAddress,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ck types.ChannelKeeper,
