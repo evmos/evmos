@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"fmt"
 
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -315,9 +317,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
 			mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
-			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			suite.Require().True(found)
-			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
+			suite.app.RecoveryKeeper = keeper.NewKeeper(
+				suite.app.GetKey(types.StoreKey),
+				suite.app.AppCodec(),
+				authtypes.NewModuleAddress(govtypes.ModuleName),
+				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
@@ -571,9 +575,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 
 			tc.malleate()
 
-			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			suite.Require().True(found)
-			suite.app.RecoveryKeeper = keeper.NewKeeper(sp, suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
+			suite.app.RecoveryKeeper = keeper.NewKeeper(
+				suite.app.GetKey(types.StoreKey),
+				suite.app.AppCodec(),
+				authtypes.NewModuleAddress(govtypes.ModuleName),
+				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS
 			coins := sdk.NewCoins(
