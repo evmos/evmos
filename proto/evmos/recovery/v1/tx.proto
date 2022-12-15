@@ -5,14 +5,13 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "evmos/recovery/v1/genesis.proto";
 import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v10/x/recovery/types";
 
 // Msg defines the recovery Msg service.
 service Msg {
   // UpdateParams defined a governance operation for updating the x/recovery module parameters.
-  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  // The authority is hard-coded to the Cosmos SDK x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
