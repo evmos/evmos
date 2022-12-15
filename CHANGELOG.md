@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of x/params in x/incentives
 - (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
 - (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of x/params in x/revenue
 - (deps) [\#1157](https://github.com/evmos/evmos/pull/1157) Bump Ethermint version to [`v0.20.0-rc4`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc4)
