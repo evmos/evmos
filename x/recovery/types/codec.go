@@ -5,12 +5,11 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 var (
 	amino = codec.NewLegacyAmino()
-	// ModuleCdc references the global evm module codec. Note, the codec should
+	// ModuleCdc references the global recovery module codec. Note, the codec should
 	// ONLY be used in certain instances of tests and for JSON encoding.
 	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 
@@ -20,7 +19,7 @@ var (
 
 const (
 	// Amino names
-	updateParamsName = "evmos/incentives/MsgUpdateParams"
+	updateParamsName = "evmos/recovery/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -29,19 +28,12 @@ func init() {
 	amino.Seal()
 }
 
-// RegisterInterfaces register implementations
+// RegisterInterfaces registers the client interfaces to protobuf Any.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 	)
-
-	registry.RegisterImplementations(
-		(*govv1beta1.Content)(nil),
-		&RegisterIncentiveProposal{},
-		&CancelIncentiveProposal{},
-	)
-
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 

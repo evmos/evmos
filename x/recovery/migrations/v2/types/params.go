@@ -3,10 +3,20 @@ package types
 import (
 	"fmt"
 	"time"
+
+	"github.com/evmos/evmos/v10/x/recovery/types"
+
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-// ParamsKey params store key
-var ParamsKey = []byte("Params")
+var _ types.LegacyParams = &Params{}
+
+// Parameter store key
+var (
+	ParamsKey                          = []byte("Params")
+	ParamStoreKeyEnableRecovery        = []byte("EnableRecovery")
+	ParamStoreKeyPacketTimeoutDuration = []byte("PacketTimeoutDuration")
+)
 
 // DefaultPacketTimeoutDuration defines the default packet timeout for outgoing
 // IBC transfers
@@ -14,6 +24,13 @@ var (
 	DefaultEnableRecovery        = true
 	DefaultPacketTimeoutDuration = 4 * time.Hour
 )
+
+var _ paramtypes.ParamSet = &Params{}
+
+// ParamKeyTable returns the parameter key table.
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+}
 
 // NewParams creates a new Params instance
 func NewParams(
@@ -30,6 +47,14 @@ func DefaultParams() Params {
 	return Params{
 		EnableRecovery:        DefaultEnableRecovery,
 		PacketTimeoutDuration: DefaultPacketTimeoutDuration,
+	}
+}
+
+// ParamSetPairs returns the parameter set pairs.
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableRecovery, &p.EnableRecovery, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyPacketTimeoutDuration, &p.PacketTimeoutDuration, validateDuration),
 	}
 }
 
