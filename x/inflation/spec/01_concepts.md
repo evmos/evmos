@@ -15,7 +15,7 @@ Especially in an early stage of a network, where staking rewards are high and
 there are fewer possibilities to interact with the network, inflation can be
 used as the major tool to incentivize staking and thereby securing the network.
 
-With more stakers, the network becomes increasibly stable and decentralized. It
+With more stakers, the network becomes increasingly stable and decentralized. It
 becomes *stable*, because assets are locked up instead of causing price changes
 through trading. And it becomes *decentralized,* because the power to vote for
 governance proposals is distributed amongst more people.
@@ -26,7 +26,7 @@ The Evmos Token Model outlines how the Evmos network is secured through a
 balanced incentivized interest from users, developers and validators. In this
 model, inflation plays a major role in sustaining this balance. With an initial
 supply of 200 million and over 300 million tokens being issued through inflation
-during the first year, the model suggests a exponential decline in inflation to
+during the first year, the model suggests an exponential decline in inflation to
 issue 1 billion Evmos tokens within the first 4 years.
 
 We implement two different inflation mechanisms to support the token model:
@@ -40,7 +40,7 @@ We implement two different inflation mechanisms to support the token model:
 The Team Vesting distribution in the Token Model is implemented in a way that
 minimized the amount of taxable events. An initial supply of 200M allocated to
 `vesting accounts` at genesis. This amount is equal to the total inflation
-allocatod for team vesting after 4 years (`25% * 1B = 250M`). Over time,
+allocated for team vesting after 4 years (`20% * 1B = 200M`). Over time,
 `unvested` tokens on these accounts are converted into `vested` tokens at a
 linear rate. Team members cannot delegate, transfer or execute Ethereum
 transaction with `unvested` tokens until they are unlocked represented as
@@ -54,7 +54,7 @@ implemented through an exponential formula, a.k.a. the Half Life.
 Inflation is minted in daily epochs. During a period of 365 epochs (one year), a
 daily provision of Evmos tokens is minted and allocated to staking rewards,
 usage incentives and the community pool (`epochProvison`). The epoch provision
-doesn’t change within a period and its cummulated amount per period is equal
+doesn’t change within a period and its cumulated amount per period is equal
 total inflation per period (`epochProvision * epochsPerPeriod =
 periodProvision`).
 
@@ -63,7 +63,7 @@ calculation below:
 
 ```latex
 periodProvision = exponentialDecay       *  bondingIncentive
-f(x)            = (a * (1 - r) ^ x + c)  *  (1 + maxVariance - bondedRatio * (maxVariance / bondingTarget))
+f(x)            = (a * (1 - r) ^ x + c)  *  (1 + maxVariance * (1 - bondedRatio / bondingTarget))
 
 epochProvision = periodProvision / epochsPerPeriod
 
