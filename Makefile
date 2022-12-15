@@ -453,6 +453,10 @@ proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
 	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
 
+proto-cosmos-swagger-gen:
+	@echo "Generating Cosmos Protobuf Swagger"
+	$(protoCosmosImage) sh ./scripts/protoc-cosmos-swagger-gen.sh
+
 proto-swagger-gen-cosmos:
 	@echo "Generating Cosmos Protobuf Swagger"
 	$(protoImage) buf generate --template ./proto/buf.gen.swagger.yaml "buf.build/cosmos/cosmos-sdk"
@@ -470,44 +474,28 @@ proto-check-breaking:
 	@echo "Checking Protobuf files for breaking changes"
 	$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
+# NOTE: These dependencies are only used for generating the SwaggerUI files
+proto-update-swagger-deps:
+	rm -rf ./third_party
+	mkdir ./third_party
 
-TM_URL              = https://raw.githubusercontent.com/tendermint/tendermint/v0.34.20/proto/tendermint
-GOGO_PROTO_URL      = https://raw.githubusercontent.com/regen-network/protobuf/cosmos
-COSMOS_SDK_URL      = https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.46.0
-ETHERMINT_URL       = https://raw.githubusercontent.com/evmos/ethermint/v0.6.1
-IBC_GO_URL          = https://raw.githubusercontent.com/cosmos/ibc-go/v5.0.0-beta1
-COSMOS_PROTO_URL    = https://raw.githubusercontent.com/regen-network/cosmos-proto/master
+	mkdir ./third_party/cosmos_tmp && \
+	cd ./third_party/cosmos_tmp && \
+	git init && \
+	git remote add origin "https://github.com/cosmos/cosmos-sdk.git" && \
+	git config core.sparseCheckout true && \
+	printf "proto\nthird_party\n" > .git/info/sparse-checkout && \
+	git pull origin main
 
-TM_CRYPTO_TYPES     = third_party/proto/tendermint/crypto
-TM_ABCI_TYPES       = third_party/proto/tendermint/abci
-TM_TYPES            = third_party/proto/tendermint/types
+	go run ./scripts/delete_unused_proto_folders/. ./third_party/cosmos_tmp/proto
 
-GOGO_PROTO_TYPES    = third_party/proto/gogoproto
-COSMOS_PROTO_TYPES  = third_party/proto/cosmos_proto
-
-proto-update-deps:
-	@mkdir -p $(GOGO_PROTO_TYPES)
-	@curl -sSL $(GOGO_PROTO_URL)/gogoproto/gogo.proto > $(GOGO_PROTO_TYPES)/gogo.proto
-
-	@mkdir -p $(COSMOS_PROTO_TYPES)
-	@curl -sSL $(COSMOS_PROTO_URL)/cosmos.proto > $(COSMOS_PROTO_TYPES)/cosmos.proto
-
-## Importing of tendermint protobuf definitions currently requires the
-## use of `sed` in order to build properly with cosmos-sdk's proto file layout
-## (which is the standard Buf.build FILE_LAYOUT)
-## Issue link: https://github.com/tendermint/tendermint/issues/5021
-	@mkdir -p $(TM_ABCI_TYPES)
-	@curl -sSL $(TM_URL)/abci/types.proto > $(TM_ABCI_TYPES)/types.proto
-
-	@mkdir -p $(TM_TYPES)
-	@curl -sSL $(TM_URL)/types/types.proto > $(TM_TYPES)/types.proto
-
-	@mkdir -p $(TM_CRYPTO_TYPES)
-	@curl -sSL $(TM_URL)/crypto/proof.proto > $(TM_CRYPTO_TYPES)/proof.proto
-	@curl -sSL $(TM_URL)/crypto/keys.proto > $(TM_CRYPTO_TYPES)/keys.proto
+	rm -rf ./third_party/proto
+	rm -rf ./third_party/cosmos_tmp/.git
+	mv ./third_party/cosmos_tmp/proto ./third_party
+	rm -rf ./third_party/cosmos_tmp
 
 
-.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-deps proto-swagger-gen proto-swagger-gen-cosmos
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-swagger-deps proto-swagger-gen proto-swagger-gen-cosmos
 
 ###############################################################################
 ###                                Localnet                                 ###
