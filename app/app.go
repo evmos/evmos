@@ -351,7 +351,7 @@ func NewEvmos(
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey,
+		revenuetypes.StoreKey, recoverytypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -530,7 +530,9 @@ func NewEvmos(
 	)
 
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
-		app.GetSubspace(recoverytypes.ModuleName),
+		keys[recoverytypes.StoreKey],
+		appCodec,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.IBCKeeper.ChannelKeeper,
@@ -624,7 +626,7 @@ func NewEvmos(
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper, app.GetSubspace(claimstypes.ModuleName)),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		recovery.NewAppModule(*app.RecoveryKeeper),
+		recovery.NewAppModule(*app.RecoveryKeeper, app.GetSubspace(recoverytypes.ModuleName)),
 		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper, app.GetSubspace(revenuetypes.ModuleName)),
 	)
 
