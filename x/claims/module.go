@@ -49,7 +49,8 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 
 // RegisterInterfaces registers the module's interface types
-func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+func (AppModuleBasic) RegisterInterfaces(interfaceRegistry cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(interfaceRegistry)
 }
 
 // DefaultGenesis returns the claim module's default genesis state.
