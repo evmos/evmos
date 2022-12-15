@@ -128,18 +128,16 @@ func (k Keeper) CreateClawbackVestingAccount(
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeCreateClawbackVestingAccount,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
-				sdk.NewAttribute(types.AttributeKeyCoins, vestingCoins.String()),
-				sdk.NewAttribute(types.AttributeKeyStartTime, msg.StartTime.String()),
-				sdk.NewAttribute(types.AttributeKeyMerge, strconv.FormatBool(msg.Merge)),
-				sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
-			),
-		},
-	)
+	err := ctx.EventManager().EmitTypedEvent(&types.EventCreateClawbackVestingAccount{
+		Sender:    msg.FromAddress,
+		Coins:     vestingCoins.String(),
+		StartTime: msg.StartTime.UTC().String(),
+		Merge:     strconv.FormatBool(msg.Merge),
+		Account:   msg.ToAddress,
+	})
+	if err != nil {
+		k.Logger(ctx).Error(err.Error())
+	}
 
 	return &types.MsgCreateClawbackVestingAccountResponse{}, nil
 }
@@ -198,16 +196,14 @@ func (k Keeper) Clawback(
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeClawback,
-				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
-				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
-				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
-			),
-		},
-	)
+	err := ctx.EventManager().EmitTypedEvent(&types.EventClawback{
+		Account:     msg.AccountAddress,
+		Funder:      msg.FunderAddress,
+		Destination: msg.DestAddress,
+	})
+	if err != nil {
+		k.Logger(ctx).Error(err.Error())
+	}
 
 	return &types.MsgClawbackResponse{}, nil
 }
@@ -255,16 +251,14 @@ func (k Keeper) UpdateVestingFunder(
 	// set the account with the updated funder
 	ak.SetAccount(ctx, va)
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeUpdateVestingFunder,
-				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
-				sdk.NewAttribute(types.AttributeKeyAccount, msg.VestingAddress),
-				sdk.NewAttribute(types.AttributeKeyNewFunder, msg.NewFunderAddress),
-			),
-		},
-	)
+	err := ctx.EventManager().EmitTypedEvent(&types.EventUpdateVestingFunder{
+		Funder:    msg.FunderAddress,
+		Account:   msg.VestingAddress,
+		NewFunder: msg.NewFunderAddress,
+	})
+	if err != nil {
+		k.Logger(ctx).Error(err.Error())
+	}
 
 	return &types.MsgUpdateVestingFunderResponse{}, nil
 }

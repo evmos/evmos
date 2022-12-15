@@ -1,0 +1,39 @@
+syntax = "proto3";
+package evmos.vesting.v1;
+
+option go_package = "github.com/evmos/evmos/v10/x/vesting/types";
+
+// EventCreateClawbackVestingAccount defines the event type
+// for creating a clawback vesting account
+message EventCreateClawbackVestingAccount {
+  // sender is the address of the sender
+  string sender = 1;
+  // coins to be vested
+  string coins = 2;
+  // start_time is the time when the coins start to vest
+  string start_time = 3;
+  // merge
+  string merge = 4;
+  // account address of recipient
+  string account = 5;
+}
+
+// EventClawback defines the event type for clawback
+message EventClawback {
+  // funder is the address of the funder
+  string funder = 1;
+  // account is the address of the account
+  string account = 2;
+  // destination is the address of the destination
+  string destination = 3;
+}
+
+// EventUpdateVestingFunder defines the event type for updating the vesting funder
+message EventUpdateVestingFunder {
+  // funder is the address of the funder
+  string funder = 1;
+  // account is the address of the account
+  string account = 2;
+  // new_funder is the address of the new funder
+  string new_funder = 3;
+}
