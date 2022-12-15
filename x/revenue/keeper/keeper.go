@@ -17,7 +17,7 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
-	authority        string
+	authority        sdk.AccAddress
 	bankKeeper       types.BankKeeper
 	evmKeeper        types.EVMKeeper
 	feeCollectorName string
@@ -27,7 +27,7 @@ type Keeper struct {
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	authority string,
+	authority sdk.AccAddress,
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
 	feeCollector string,
