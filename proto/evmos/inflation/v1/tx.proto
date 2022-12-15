@@ -7,7 +7,6 @@ import "evmos/inflation/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-
 option go_package = "github.com/evmos/evmos/v10/x/inflation/types";
 
 // Msg defines the evm Msg service.

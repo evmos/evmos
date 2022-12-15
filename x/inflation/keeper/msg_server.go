@@ -11,9 +11,10 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
+// UpdateParams defines a method for updating inflation params
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
+	if k.authority.String() != req.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority.String(), req.Authority)
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
