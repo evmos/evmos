@@ -4,7 +4,7 @@
 #
 COSMOS_URL=https://raw.githubusercontent.com/cosmos/cosmos-sdk/main
 ETHERMINT_URL=https://github.com/evmos/ethermint
-IBC_GO_URL=https://raw.githubusercontent.com/cosmos/ibc-go/main
+IBC_GO_URL=https://github.com/cosmos/ibc-go.git
 # Formatting script
 FORMAT=./format/format_cosmos_specs.py
 
@@ -25,6 +25,12 @@ sed 's/\.\/x/\/modules/g' ../x/README.md | sed 's/spec\/README.md//g' | sed 's/\
 # ------------------
 # Include the specs from Ethermint
 #
+# For this purpose we are using the sparse checkout and only pull the following folders:
+#   - x/evm/spec
+#   - x/feemarket/spec
+#
+# Additionally, we are applying formatting to the feemarket overview file to
+# match the rest of the Evmos docs.
 mkdir ethermint_specs
 cd ethermint_specs || exit
 git init
@@ -40,7 +46,7 @@ rm -rf ethermint_specs
 $FORMAT ./modules/feemarket/README.md --header --order 0 --title "Feemarket Overview" --parent "feemarket"
 
 # ------------------
-# Include the specs from Cosmos SDK
+# Include the specs from Cosmos SDK and apply formatting to all downloaded files
 #
 # NOTE: Using curl to get Cosmos specs, because there is always only one file per folder.
 #       This is much quicker.
@@ -87,19 +93,31 @@ $FORMAT ./modules/upgrade/README.md --header --title "Upgrade Overview" --parent
 # ------------------
 # Include the specs from IBC go
 #
+# For this purpose we are using the sparse checkout and only pull the following folders:
+#   - docs/apps/transfer
+#   - docs/apps/interchain-accounts
+#
+# Additionally, we are deleting the "legacy" subfolder from the transfer module and apply
+# formatting to the overview files (adjusting header text and adding file metadata).
+#
 # NOTE: no need to create the modules/ibc directory because it is already created in
 #       the for loop at beginning of the script.
-curl -sSL "$IBC_GO_URL"/docs/ibc/overview.md > ./modules/ibc/README.md
-sed 's/\# Overview/\# ibc-go/' ./modules/ibc/README.md > ./modules/ibc/README_tmp.md
-mv ./modules/ibc/README_tmp.md ./modules/ibc/README.md
-$FORMAT ./modules/ibc/README.md --header --order 0 --title "IBC-Go Overview" --parent "ibc-go"
+mkdir ibc_specs
+cd ibc_specs || exit
+git init
+git remote add origin "$IBC_GO_URL"
+git config core.sparseCheckout true
+printf "docs/apps/transfer\ndocs/apps/interchain-accounts\n" > .git/info/sparse-checkout
+git pull origin main
+cd ..
 
-curl -sSL "$IBC_GO_URL"/docs/apps/transfer/overview.md > ./modules/ibc/transfer.md
-sed 's/\# Overview/\# ibc-go\/transfer/' ./modules/ibc/transfer.md > ./modules/ibc/transfer_tmp.md
-mv ./modules/ibc/transfer_tmp.md ./modules/ibc/transfer.md
-$FORMAT ./modules/ibc/transfer.md --header --order 1 --title "ibc-go/transfer"
-
-curl -sSL "$IBC_GO_URL"/docs/apps/interchain-accounts/overview.md > ./modules/ibc/interchain-accounts.md
-sed 's/\# Overview/\# ibc-go\/interchain-accounts/' ./modules/ibc/interchain-accounts.md > ./modules/ibc/interchain-accounts_tmp.md
-mv ./modules/ibc/interchain-accounts_tmp.md ./modules/ibc/interchain-accounts.md
-$FORMAT ./modules/ibc/interchain-accounts.md --header --order 2 --title "ibc-go/interchain-accounts"
+mv ibc_specs/docs/apps/transfer/ ./modules/transfer
+mv ibc_specs/docs/apps/interchain-accounts/ ./modules/interchain-accounts
+rm -rf ibc_specs
+rm -rf ./modules/interchain-accounts/legacy
+sed 's/\# Overview/\# transfer/' ./modules/transfer/overview.md > ./modules/transfer/overview_tmp.md
+mv ./modules/transfer/overview_tmp.md ./modules/transfer/overview.md
+$FORMAT ./modules/transfer/overview.md --header --order 0 --title "Transfer Overview" --parent "transfer"
+sed 's/\# Overview/\# interchain-accounts/' ./modules/interchain-accounts/overview.md > ./modules/interchain-accounts/overview_tmp.md
+mv ./modules/interchain-accounts/overview_tmp.md ./modules/interchain-accounts/overview.md
+$FORMAT ./modules/interchain-accounts/overview.md --header --order 0 --title "ICA Overview" --parent "interchain-accounts"
