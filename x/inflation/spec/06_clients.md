@@ -66,7 +66,7 @@ evmosd query inflation params [flags]
 
 ### Proposals
 
-The `tx gov submit-proposal` commands allow users to query create a proposal
+The `tx gov submit-legacy-proposal` commands allow users to query create a proposal
 using the governance module CLI:
 
 **`param-change`**
@@ -74,7 +74,7 @@ using the governance module CLI:
 Allows users to submit a `ParameterChangeProposal`.
 
 ```bash
-evmosd tx gov submit-proposal param-change [proposal-file] [flags]
+evmosd tx gov submit-legacy-proposal param-change [proposal-file] [flags]
 ```
 
 ## gRPC
