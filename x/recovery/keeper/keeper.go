@@ -46,6 +46,10 @@ func NewKeeper(
 	tk types.TransferKeeper,
 	claimsKeeper types.ClaimsKeeper,
 ) *Keeper {
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
+	}
 	return &Keeper{
 		storeKey:       storeKey,
 		cdc:            cdc,
