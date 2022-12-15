@@ -3,8 +3,6 @@ package claims
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -60,9 +58,9 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 // ValidateGenesis performs genesis state validation for the claim module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var genState types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	}
+	//if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
+	//	return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	//}
 	return genState.Validate()
 }
 
