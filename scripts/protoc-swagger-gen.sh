@@ -30,9 +30,6 @@ buf generate --template "$SWAGGER_YAML" "buf.build/evmos/ethermint"
 echo "Build cosmos-proto files"
 buf generate --template "$SWAGGER_YAML" "buf.build/cosmos/cosmos-proto"
 
-echo "Build cosmos-sdk files"
-buf generate --template "$SWAGGER_YAML" "buf.build/cosmos/cosmos-sdk"
-
 echo "Build ibc files"
 buf generate --template "$SWAGGER_YAML" "buf.build/cosmos/ibc"
 
