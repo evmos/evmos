@@ -36,7 +36,10 @@ func NewKeeper(
 	sk types.StakingKeeper,
 	ck types.ClaimsKeeper,
 ) Keeper {
-	// set KeyTable if it has not already been set
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
+	}
 
 	return Keeper{
 		authority:     authority,
