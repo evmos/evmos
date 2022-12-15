@@ -48,7 +48,7 @@ The following topics must be addressed when drafting an ERC-20 Proposal:
 
    Take note of the above in your proposal description!
 
-Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-testnet).
 
 ## Submitting the ERC-20 Proposal
 
