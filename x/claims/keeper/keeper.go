@@ -37,6 +37,11 @@ func NewKeeper(
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
 ) *Keeper {
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
+	}
+
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
