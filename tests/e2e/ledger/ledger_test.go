@@ -1,59 +1,48 @@
 package ledger_test
 
-import (
-	"fmt"
+// func (s *LedgerE2ESuite) TestAddLedgerKey() {
+// 	mocks.RegisterClose(s.secp256k1)
+// 	mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+// 	clientCtx := s.network.Validators[0].ClientCtx
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
-	testcli "github.com/evmos/evmos/v10/testutil/cli"
-)
+// 	cmd := keys.AddKeyCommand()
+// 	clientCtx.OutputFormat = "text"
+// 	out, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{"ledger_key", fmt.Sprintf("--%s", flags.FlagUseLedger)})
+// 	s.Require().NoError(err)
+// 	s.Require().NotEmpty(out.String(), "no output provided")
+// 	s.T().Log(out.String())
 
-func (s *LedgerE2ESuite) TestAddLedgerKey() {
-	mocks.RegisterClose(s.secp256k1)
-	mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-	clientCtx := s.network.Validators[0].ClientCtx
+// 	s.Require().NoError(s.network.WaitForNextBlock())
 
-	cmd := keys.AddKeyCommand()
-	clientCtx.OutputFormat = "text"
-	out, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{"ledger_key", fmt.Sprintf("--%s", flags.FlagUseLedger)})
-	s.Require().NoError(err)
-	s.Require().NotEmpty(out.String(), "no output provided")
-	s.T().Log(out.String())
+// 	//s.app.AccountKeeper.NewAccountWithAddress()
+// }
 
-	s.Require().NoError(s.network.WaitForNextBlock())
+// func (s *LedgerE2ESuite) TestSignMsg() {
+// 	mocks.RegisterClose(s.secp256k1)
+// 	mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+// 	mocks.RegisterSignSECP256K1(s.secp256k1)
 
-	//s.app.AccountKeeper.NewAccountWithAddress()
-}
+// 	clientCtx := s.network.Validators[0].ClientCtx
+// 	clientCtx.OutputFormat = "text"
 
-func (s *LedgerE2ESuite) TestSignMsg() {
-	mocks.RegisterClose(s.secp256k1)
-	mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-	mocks.RegisterSignSECP256K1(s.secp256k1)
+// 	_, receiver, _, _ := s.CreateKeyPair()
 
-	clientCtx := s.network.Validators[0].ClientCtx
-	clientCtx.OutputFormat = "text"
+// 	out, err := testcli.ExecTestCLICmd(
+// 		clientCtx,
+// 		bankcli.NewSendTxCmd(),
+// 		[]string{
+// 			"ledger_key",
+// 			receiver.String(),
+// 			sdk.NewCoin("aevmos", sdk.NewInt(100)).String(),
+// 			s.FormatFlag(flags.FlagKeyringBackend),
+// 			"test",
+// 			s.FormatFlag(flags.FlagKeyringDir),
+// 			"./build/node0/evmoscli/keyring-test",
+// 		},
+// 	)
+// 	s.Require().NoError(err)
 
-	_, receiver, _, _ := s.CreateKeyPair()
+// 	s.Require().NotEmpty(out.String(), "no output provided")
+// 	s.T().Log(out.String())
 
-	out, err := testcli.ExecTestCLICmd(
-		clientCtx,
-		bankcli.NewSendTxCmd(),
-		[]string{
-			"ledger_key",
-			receiver.String(),
-			sdk.NewCoin("aevmos", sdk.NewInt(100)).String(),
-			s.FormatFlag(flags.FlagKeyringBackend),
-			"test",
-			s.FormatFlag(flags.FlagKeyringDir),
-			"./build/node0/evmoscli/keyring-test",
-		},
-	)
-	s.Require().NoError(err)
-
-	s.Require().NotEmpty(out.String(), "no output provided")
-	s.T().Log(out.String())
-
-}
+// }

@@ -1,15 +1,15 @@
 package ledger_test
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/crypto/hd"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/suite"
@@ -30,8 +30,8 @@ type LedgerE2ESuite struct {
 	ethAddr common.Address
 	accAddr sdk.AccAddress
 
-	privKey *ecdsa.PrivateKey
-	pubKey  *ecdsa.PublicKey
+	privKey *ethsecp256k1.PrivKey
+	pubKey  types.PubKey
 }
 
 func TestLedger(t *testing.T) {
@@ -40,7 +40,7 @@ func TestLedger(t *testing.T) {
 }
 
 func (s *LedgerE2ESuite) SetupTest() {
-	s.ethAddr, s.accAddr, s.pubKey, s.privKey = s.CreateKeyPair()
+	s.accAddr, s.pubKey, s.privKey = s.CreateKeyPair()
 
 	s.secp256k1 = mocks.NewSECP256K1(s.T())
 
@@ -65,16 +65,18 @@ func (suite *LedgerE2ESuite) TearDownSuite() {
 	suite.network.Cleanup()
 }
 
-func (s *LedgerE2ESuite) CreateKeyPair() (common.Address, sdk.AccAddress, *ecdsa.PublicKey, *ecdsa.PrivateKey) {
-
-	sk, err := crypto.GenerateKey()
+func (s *LedgerE2ESuite) CreateKeyPair() (sdk.AccAddress, types.PubKey, *ethsecp256k1.PrivKey) {
+	var err error
+	sk, err := ethsecp256k1.GenerateKey()
 	s.Require().NoError(err)
-	pk := &sk.PublicKey
+	pk := sk.PubKey()
 
-	ethAddr := crypto.PubkeyToAddress(*pk)
-	accAddr := sdk.AccAddress(ethAddr.Bytes())
+	s.Require().NoError(err)
+	addr, err := sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
+	s.Require().NoError(err)
+	accAddr := sdk.MustAccAddressFromBech32(addr)
 
-	return ethAddr, accAddr, pk, sk
+	return accAddr, pk, sk
 }
 
 func (s *LedgerE2ESuite) MockKeyringOption() keyring.Option {

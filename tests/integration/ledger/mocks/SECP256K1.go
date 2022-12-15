@@ -104,10 +104,9 @@ func (_m *SECP256K1) GetPublicKeySECP256K1(_a0 []uint32) ([]byte, error) {
 func (_m *SECP256K1) SignSECP256K1(_a0 []uint32, _a1 []byte) ([]byte, error) {
 	args := _m.Called(_a0, _a1)
 	arg := args.Get(0)
-	f := arg.(func([]uint32, []uint8) ([]uint8, error))
-	f(_a0, _a1)
-
-	return  _a1, ErrMockedSigning
+	f, _ := arg.(func([]uint32, []byte) ([]byte, error))
+	b, e := f(_a0, _a1)
+	return  b, e
 }
 
 type mockConstructorTestingTNewSECP256K1 interface {

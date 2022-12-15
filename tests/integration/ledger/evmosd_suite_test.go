@@ -1,7 +1,6 @@
 package ledger_test
 
 import (
-	"crypto/ecdsa"
 	"fmt"
 	"testing"
 	"time"
@@ -10,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
@@ -53,8 +52,8 @@ type LedgerTestSuite struct {
 	ethAddr        common.Address
 	accAddr        sdk.AccAddress
 	signer         keyring.Signer
-	privKey        *ecdsa.PrivateKey
-	pubKey         *ecdsa.PublicKey
+	privKey        *ethsecp256k1.PrivKey
+	pubKey         types.PubKey
 
 	consAddress sdk.ConsAddress
 }
@@ -70,13 +69,14 @@ func TestLedger(t *testing.T) {
 func (suite *LedgerTestSuite) SetupTest() {
 	var err error
 	suite.secp256k1 = mocks.NewSECP256K1(s.T())
-	suite.privKey, err = crypto.GenerateKey()
-	suite.pubKey = &suite.privKey.PublicKey
-
+	suite.privKey, err = ethsecp256k1.GenerateKey()
+	s.Require().NoError(err)
+	suite.pubKey = suite.privKey.PubKey()
+	sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
 	suite.Require().NoError(err)
-	suite.ethAddr = crypto.PubkeyToAddress(*suite.pubKey)
-
-	s.SetupEvmosApp()
+	addr, err := sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
+	suite.Require().NoError(err)
+	suite.accAddr = sdk.MustAccAddressFromBech32(addr)
 }
 
 func (s *LedgerTestSuite) SetupEvmosApp() {

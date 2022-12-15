@@ -1,15 +1,10 @@
 package mocks
 
 import (
-	"crypto/ecdsa"
-	"errors"
-
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	mock "github.com/stretchr/testify/mock"
 )
-
-var ErrMockedSigning = errors.New("catched signing")
 
 // original: Close() error
 func RegisterClose(s *SECP256K1) {
@@ -17,24 +12,21 @@ func RegisterClose(s *SECP256K1) {
 }
 
 // original: GetPublicKeySECP256K1([]uint32) ([]byte, error)
-func RegisterGetPublicKeySECP256K1(s *SECP256K1, pubKey *ecdsa.PublicKey) {
+func RegisterGetPublicKeySECP256K1(s *SECP256K1, pubKey types.PubKey) {
 	s.On("GetPublicKeySECP256K1", mock.AnythingOfType("[]uint32")).
-		Return(crypto.FromECDSAPub(pubKey), nil)
+		Return(pubKey.Bytes(), nil)
 }
 
 // original: GetAddressPubKeySECP256K1([]uint32, string) ([]byte, string, error)
-func RegisterGetAddressPubKeySECP256K1(s *SECP256K1, accAddr sdk.AccAddress, pubKey *ecdsa.PublicKey) {
+func RegisterGetAddressPubKeySECP256K1(s *SECP256K1, accAddr sdk.AccAddress, pubKey types.PubKey) {
 	s.On(
 		"GetAddressPubKeySECP256K1",
 		mock.AnythingOfType("[]uint32"),
 		mock.AnythingOfType("string"),
-	).Return(crypto.FromECDSAPub(pubKey), accAddr.String(), nil)
+	).Return(pubKey.Bytes(), accAddr.String(), nil)
 }
 
 // original: SignSECP256K1([]uint32, []byte) ([]byte, error)
-func RegisterSignSECP256K1(s *SECP256K1) {
-	s.On("SignSECP256K1", mock.AnythingOfType("[]uint32"), mock.AnythingOfType("[]uint8")).
-		Return(func(_ []uint32, msg []byte) ([]byte, error) {
-			return msg, ErrMockedSigning
-		})
+func RegisterSignSECP256K1(s *SECP256K1, f func([]uint32, []byte) ([]byte, error)) {
+	s.On("SignSECP256K1", mock.AnythingOfType("[]uint32"), mock.AnythingOfType("[]uint8")).Return(f)
 }
