@@ -5,7 +5,7 @@ on:
     branches:
       - release/**
 
-  test-e2e-upgrade:
+  test-e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v3
