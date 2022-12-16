@@ -455,7 +455,7 @@ func NewEvmos(
 
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
-		keys[inflationtypes.StoreKey], appCodec, app.GetSubspace(inflationtypes.ModuleName),
+		keys[inflationtypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
 		authtypes.FeeCollectorName,
 	)

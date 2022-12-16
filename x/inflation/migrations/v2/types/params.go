@@ -6,10 +6,20 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
-var ParamsKey = []byte("Params")
+var _ types.LegacyParams = &Params{}
+
+var (
+	ParamsKey                           = []byte("Params")
+	ParamStoreKeyMintDenom              = []byte("MintDenom")
+	ParamStoreKeyExponentialCalculation = []byte("ExponentialCalculation")
+	ParamStoreKeyInflationDistribution  = []byte("InflationDistribution")
+	ParamStoreKeyEnableInflation        = []byte("EnableInflation")
+)
 
 var (
 	DefaultInflationDenom         = evm.DefaultEVMDenom
@@ -42,13 +52,22 @@ func NewParams(
 	}
 }
 
-// default minting module parameters
 func DefaultParams() Params {
 	return Params{
 		MintDenom:              DefaultInflationDenom,
 		ExponentialCalculation: DefaultExponentialCalculation,
 		InflationDistribution:  DefaultInflationDistribution,
 		EnableInflation:        DefaultInflation,
+	}
+}
+
+// Implements params.ParamSet
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(ParamStoreKeyMintDenom, &p.MintDenom, validateMintDenom),
+		paramtypes.NewParamSetPair(ParamStoreKeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
+		paramtypes.NewParamSetPair(ParamStoreKeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableInflation, &p.EnableInflation, validateBool),
 	}
 }
 
