@@ -17,10 +17,6 @@ type mockSubspace struct {
 	ps v3types.Params
 }
 
-func newMockSubspaceEmpty() mockSubspace {
-	return mockSubspace{}
-}
-
 func newMockSubspace(ps v3types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
@@ -37,9 +33,6 @@ func TestMigrate(t *testing.T) {
 
 	legacySubspace := newMockSubspace(v3types.DefaultParams())
 	require.NoError(t, v3.MigrateStore(ctx, storeKey, legacySubspace))
-
-	legacySubspaceEmpty := newMockSubspaceEmpty()
-	require.Error(t, v3.MigrateStore(ctx, storeKey, legacySubspaceEmpty))
 
 	// Get all the new parameters from the store
 	enableEvmHook := store.Has(types.ParamStoreKeyEnableEVMHook)
