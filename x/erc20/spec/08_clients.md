@@ -29,14 +29,14 @@ evmosd query erc20 params
 
 ### Proposals
 
-The `tx gov submit-proposal` commands allow users to query create a proposal using the governance module CLI:
+The `tx gov submit-legacy-proposal` commands allow users to query create a proposal using the governance module CLI:
 
 **`register-coin`**
 
 Allows users to submit a `RegisterCoinProposal`. Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. Upon passing, the proposal details must be supplied via a JSON file.
 
 ```bash
-evmosd tx gov submit-proposal register-coin METADATA_FILE [flags]
+evmosd tx gov submit-legacy-proposal register-coin METADATA_FILE [flags]
 ```
 
 Where METADATA_FILE contains (example):
@@ -71,7 +71,7 @@ Where METADATA_FILE contains (example):
 Allows users to submit a `RegisterERC20Proposal`. Submit a proposal to register ERC20 tokens along with an initial deposit. To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>`.
 
 ```bash
-evmosd tx gov submit-proposal register-erc20 ERC20_ADDRESS... [flags]
+evmosd tx gov submit-legacy-proposal register-erc20 ERC20_ADDRESS... [flags]
 ```
 
 **`toggle-token-conversion`**
@@ -79,7 +79,7 @@ evmosd tx gov submit-proposal register-erc20 ERC20_ADDRESS... [flags]
 Allows users to submit a `ToggleTokenConversionProposal`.
 
 ```bash
-evmosd tx gov submit-proposal toggle-token-conversion TOKEN [flags]
+evmosd tx gov submit-legacy-proposal toggle-token-conversion TOKEN [flags]
 ```
 
 **`param-change`**
@@ -87,7 +87,7 @@ evmosd tx gov submit-proposal toggle-token-conversion TOKEN [flags]
 Allows users to submit a `ParameterChangeProposal``.
 
 ```bash
-evmosd tx gov submit-proposal param-change PROPOSAL_FILE [flags]
+evmosd tx gov submit-legacy-proposal param-change PROPOSAL_FILE [flags]
 ```
 
 ## gRPC
