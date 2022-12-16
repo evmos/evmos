@@ -18,6 +18,10 @@ type mockSubspace struct {
 	ps v2types.Params
 }
 
+func newMockSubspaceEmpty() mockSubspace {
+	return mockSubspace{}
+}
+
 func newMockSubspace(ps v2types.Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
@@ -37,6 +41,9 @@ func TestMigrate(t *testing.T) {
 
 	legacySubspace := newMockSubspace(v2types.DefaultParams())
 	require.NoError(t, v2.MigrateStore(ctx, store, legacySubspace, cdc))
+
+	legacySubspaceEmpty := newMockSubspaceEmpty()
+	require.Error(t, v2.MigrateStore(ctx, store, legacySubspaceEmpty, cdc))
 
 	var params v2types.Params
 	paramsBz := store.Get(v2types.ParamsKey)
