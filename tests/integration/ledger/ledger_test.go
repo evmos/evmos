@@ -22,6 +22,7 @@ import (
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 	"github.com/evmos/evmos/v10/testutil"
+
 	testcli "github.com/evmos/evmos/v10/testutil/cli"
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -97,24 +98,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 				mocks.RegisterClose(s.secp256k1)
 				mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
 			})
-			// It("should add the ledger key with default algo", func() {
-			// 	mocks.RegisterClose(s.secp256k1)
-			// 	mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-
-			// 	ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
-			// 	b := bytes.NewBufferString("")
-			// 	cmd.SetOut(b)
-
-			// 	cmd.SetArgs([]string{ledgerKey, s.FormatFlag(flags.FlagUseLedger)})
-			// 	s.Require().NoError(cmd.ExecuteContext(ctx))
-
-			// 	_, err := kb.Key(ledgerKey)
-			// 	s.Require().NoError(err, "can't find ledger key")
-
-			// 	out, err := io.ReadAll(b)
-			// 	s.Require().NoError(err)
-			// 	s.Require().Contains(string(out), "name: ledger_key")
-			// })
 			It("should add the ledger key with eth_secp256k1", func() {
 				out, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
@@ -157,14 +140,12 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 
 			kb, err = keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockedIn, encCfg.Codec, s.MockKeyringOption())
 			s.Require().NoError(err)
-
 			clientCtx = client.Context{}.
 				WithKeyringOptions(s.MockKeyringOption()).
 				WithKeyringDir(kbHome).
 				WithKeyring(kb).
 				WithCodec(encCfg.Codec).
 				WithLedgerHasProtobuf(true)
-
 			mocks.RegisterClose(s.secp256k1)
 			mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
 
@@ -178,27 +159,32 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 			keyRecord, err = kb.Key(ledgerKey)
 			s.Require().NoError(err, "can't find ledger key")
 
-			err = testutil.FundAccount(
-				s.ctx,
-				s.app.BankKeeper,
-				s.accAddr,
-				sdk.NewCoins(
-					sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
-				),
-			)
-			s.Require().NoError(err)
 		})
 
 		Context("tx bank send", func() {
+
 			Context("keyring execution scope", func() {
 				BeforeEach(func() {
 					mocks.RegisterClose(s.secp256k1)
 					mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
 					mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
 
+					err := testutil.FundAccount(
+						s.ctx,
+						s.app.BankKeeper,
+						s.accAddr,
+						sdk.NewCoins(
+							sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
+						),
+					)
+					s.Require().NoError(err)
+					sk, err := ethsecp256k1.GenerateKey()
+					s.Require().NoError(err)
+					receiverAccAddr, err = sdk.AccAddressFromBech32(sdk.MustBech32ifyAddressBytes("evmos", sk.PubKey().Bytes()))
+
 				})
 				It("should return provided to sign message", func() {
-					mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock)
+					mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock, nil)
 
 					ledgerAddr, err := keyRecord.GetAddress()
 					s.Require().NoError(err, "can't retirieve ledger addr from a keyring")
@@ -208,10 +194,13 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					signed, _, err := kb.SignByAddress(ledgerAddr, msg)
 					s.Require().NoError(err, "failed to sign messsage")
 					_ = signed
-					// TODO: verify signature
+
+					valid := s.pubKey.VerifySignature(msg, signed)
+					s.Require().True(valid, "invalid sigrature returned")
+
 				})
 				It("should raise error from ledger sign function to the top", func() {
-					mocks.RegisterSignSECP256K1(s.secp256k1, signErrMock)
+					mocks.RegisterSignSECP256K1(s.secp256k1, nil, mocks.ErrMockedSigning)
 
 					ledgerAddr, err := keyRecord.GetAddress()
 					s.Require().NoError(err, "can't retirieve ledger addr from a keyring")
@@ -229,13 +218,31 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					mocks.RegisterClose(s.secp256k1)
 					mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
 					mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
-					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+
+					err := testutil.FundAccount(
+						s.ctx,
+						s.app.BankKeeper,
+						s.accAddr,
+						sdk.NewCoins(
+							sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
+						),
+					)
+					s.Require().NoError(err)
 
 					sk, err := ethsecp256k1.GenerateKey()
 					s.Require().NoError(err)
-					pk := sk.PubKey()
+					receiverAccAddr, err = sdk.AccAddressFromBech32(sdk.MustBech32ifyAddressBytes("evmos", sk.PubKey().Bytes()))
+				})
+				It("should execute bank tx", func() {
+					mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock, nil)
 
-					addr, err := sdk.Bech32ifyAddressBytes("evmos", pk.Address().Bytes())
+					var err error
+					cmd = bankcli.NewSendTxCmd()
+					cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+
+					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+
+					kb, err = keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockedIn, encCfg.Codec, s.MockKeyringOption())
 					s.Require().NoError(err)
 					clientCtx = client.Context{}.
 						WithKeyringOptions(s.MockKeyringOption()).
@@ -243,20 +250,21 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 						WithKeyring(kb).
 						WithCodec(encCfg.Codec).
 						WithLedgerHasProtobuf(true)
-					receiverAccAddr = sdk.MustAccAddressFromBech32(addr)
-				})
-				It("should execute bank tx", func() {
-					mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock)
 
-					ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
+					// cmd := bankcli.NewSendTxCmd()
+					// cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
 
-					cmd := bankcli.NewSendTxCmd()
+					// mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+
 					b := bytes.NewBufferString("")
 					cmd.SetOut(b)
 
 					cmd.SetArgs([]string{ledgerKey, receiverAccAddr.String(), "1000aevmos"})
-					s.Require().NoError(cmd.ExecuteContext(ctx))
-					s.Require().NotNil(b.String(), "empty tx output")
+					ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
+					fmt.Printf("")
+					err = cmd.ExecuteContext(ctx)
+					s.Require().NoError(err)
+					s.Require().NotEmpty(b.String(), "empty tx output")
 
 					out, err := testcli.QueryBalancesExec(clientCtx, receiverAccAddr)
 

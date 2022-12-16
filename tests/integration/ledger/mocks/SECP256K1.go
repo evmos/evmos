@@ -4,6 +4,8 @@ package mocks
 
 import (
 	"errors"
+	"fmt"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -83,13 +85,16 @@ func (_m *SECP256K1) GetPublicKeySECP256K1(_a0 []uint32) ([]byte, error) {
 
 func (_m *SECP256K1) SignSECP256K1(_a0 []uint32, _a1 []byte) ([]byte, error) {
 	args := _m.Called(_a0, _a1)
-	arg := args.Get(0)
-	f, _ := arg.(func([]uint32, []byte) ([]byte, error))
-	b, e := f(_a0, _a1)
-	if e != nil {
-		return nil, e
+	e := args.Get(1)
+	err, _ := e.(error)
+	if err == nil {
+		f, _ := args.Get(0).(func([]uint32, []byte) ([]byte, error))
+		return f(_a0, _a1)
 	}
-	return  b, nil
+	fmt.Println("+++++++++++++++++++")
+	fmt.Println(err.Error())
+	fmt.Println("+++++++++++++++++++")
+	return  nil, err
 }
 
 type mockConstructorTestingTNewSECP256K1 interface {
