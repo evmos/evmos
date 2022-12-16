@@ -26,7 +26,7 @@ const (
 	// Amino names
 	convertERC20Name = "evmos/MsgConvertERC20"
 	convertCoinName  = "evmos/MsgConvertCoin"
-	updateParams     = "evmos/MsgUpdateParams"
+	updateParams     = "evmos/erc20/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
