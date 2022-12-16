@@ -48,7 +48,7 @@ The following topics must be addressed when drafting an ERC-20 Proposal:
 
    Take note of the above in your proposal description!
 
-Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-the-testnet).
+Remember to provide links to the relevant [Commonwealth Evmos community](https://commonwealth.im/evmos) discussions concerning your proposal, as well as the [proposal on testnet](#submit-the-proposal-to-testnet).
 
 ## Submitting the ERC-20 Proposal
 
@@ -69,7 +69,7 @@ writing markdown files.
 To [submit the proposal](../../users/governance/submitting.md) to testnet through the command line with [`evmosd`](../../validators/quickstart/binary.md), use the following command with `register-erc20`:
 
 ```bash
-evmosd tx gov submit-proposal register-erc20 ERC20_ADDRESS...\
+evmosd tx gov submit-legacy-proposal register-erc20 ERC20_ADDRESS...\
   --title=<title> \
   --description=<description> \
   --deposit="1000000aevmos" \
@@ -83,7 +83,7 @@ To register multiple tokens in one proposal pass them after each other e.g. `reg
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 
 ```bash
-evmosd tx gov submit-proposal register-erc20 --proposal=<path/to/proposal.json>
+evmosd tx gov submit-legacy-proposal register-erc20 --proposal=<path/to/proposal.json>
 ```
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.

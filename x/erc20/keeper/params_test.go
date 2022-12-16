@@ -1,12 +1,37 @@
 package keeper_test
 
-import "github.com/evmos/evmos/v10/x/erc20/types"
+import (
+	"reflect"
+
+	"github.com/evmos/evmos/v10/x/erc20/types"
+)
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-	suite.Require().Equal(types.DefaultParams(), params)
-	params.EnableErc20 = false
 	suite.app.Erc20Keeper.SetParams(suite.ctx, params)
-	newParams := suite.app.Erc20Keeper.GetParams(suite.ctx)
-	suite.Require().Equal(newParams, params)
+
+	testCases := []struct {
+		name      string
+		paramsFun func() interface{}
+		getFun    func() interface{}
+		expected  bool
+	}{
+		{
+			"success - Checks if the default params are set correctly",
+			func() interface{} {
+				return types.DefaultParams()
+			},
+			func() interface{} {
+				return suite.app.Erc20Keeper.GetParams(suite.ctx)
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			outcome := reflect.DeepEqual(tc.paramsFun(), tc.getFun())
+			suite.Require().Equal(tc.expected, outcome)
+		})
+	}
 }

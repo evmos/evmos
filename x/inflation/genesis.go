@@ -1,6 +1,7 @@
 package inflation
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v10/x/inflation/keeper"
 	"github.com/evmos/evmos/v10/x/inflation/types"
@@ -21,7 +22,10 @@ func InitGenesis(
 
 	// Set genesis state
 	params := data.Params
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	if err != nil {
+		panic(errorsmod.Wrapf(err, "error setting params"))
+	}
 
 	period := data.Period
 	k.SetPeriod(ctx, period)

@@ -9,7 +9,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 
 	"github.com/evmos/evmos/v10/x/claims/types"
@@ -17,9 +16,10 @@ import (
 
 // Keeper struct
 type Keeper struct {
-	cdc           codec.Codec
-	storeKey      storetypes.StoreKey
-	paramstore    paramtypes.Subspace
+	cdc      codec.Codec
+	storeKey storetypes.StoreKey
+	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
+	authority     sdk.AccAddress
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	stakingKeeper types.StakingKeeper
@@ -31,21 +31,21 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.Codec,
 	storeKey storetypes.StoreKey,
-	ps paramtypes.Subspace,
+	authority sdk.AccAddress,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
 ) *Keeper {
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
 	}
 
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
-		paramstore:    ps,
+		authority:     authority,
 		accountKeeper: ak,
 		bankKeeper:    bk,
 		stakingKeeper: sk,
