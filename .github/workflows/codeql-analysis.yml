@@ -43,7 +43,6 @@ jobs:
     - uses: technote-space/get-diff-action@v6.1.2
       with:
         PATTERNS: |
-          **/**.sol
           **/**.go
           **/**.py
           go.mod
