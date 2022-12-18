@@ -15,13 +15,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
+	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 
-	testcli "github.com/evmos/evmos/v10/testutil/cli"
 	. "github.com/onsi/ginkgo/v2"
 )
 
@@ -60,6 +60,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 		txProto         []byte
 		keyRecord       *keyring.Record
 	)
+
 	ledgerKey := "ledger_key"
 
 	s.SetupTest()
@@ -97,7 +98,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 				mocks.RegisterGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
 			})
 			It("should add the ledger key with eth_secp256k1", func() {
-				out, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{
+				out, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
 					fmt.Sprintf("--%s", flags.FlagUseLedger),
 					s.FormatFlag(flags.FlagKeyAlgorithm),
@@ -112,7 +113,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 			})
 			It("should return error on ledger key addition with secp256k1", func() {
 
-				_, err := testcli.ExecTestCLICmd(clientCtx, cmd, []string{
+				_, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
 					fmt.Sprintf("--%s", flags.FlagUseLedger),
 					s.FormatFlag(flags.FlagKeyAlgorithm),
