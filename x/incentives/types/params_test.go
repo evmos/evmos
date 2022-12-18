@@ -6,9 +6,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
 	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
 )
 
@@ -18,10 +15,6 @@ type ParamsTestSuite struct {
 
 func TestParamsTestSuite(t *testing.T) {
 	suite.Run(t, new(ParamsTestSuite))
-}
-
-func (suite *ParamsTestSuite) TestParamKeyTable() {
-	suite.Require().IsType(paramtypes.KeyTable{}, ParamKeyTable())
 }
 
 func (suite *ParamsTestSuite) TestParamsValidate() {
@@ -39,7 +32,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"valid - allocation limit 5%",
 			NewParams(
 				true,
-				govtypes.DefaultPeriod,
 				sdk.NewDecWithPrec(5, 2),
 				epochstypes.WeekEpochID,
 				sdk.NewDecWithPrec(15, 1),
@@ -50,7 +42,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"valid - allocation limit 100%",
 			NewParams(
 				true,
-				govtypes.DefaultPeriod,
 				sdk.NewDecWithPrec(100, 2),
 				epochstypes.WeekEpochID,
 				sdk.NewDecWithPrec(15, 1),
@@ -61,7 +52,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 			"valid - reward scaler 1000%",
 			NewParams(
 				true,
-				govtypes.DefaultPeriod,
 				sdk.NewDecWithPrec(100, 2),
 				epochstypes.WeekEpochID,
 				sdk.NewDecWithPrec(10, 0),

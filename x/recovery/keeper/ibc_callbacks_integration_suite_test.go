@@ -103,9 +103,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
 }
 
-var (
-	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-)
+var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
 	// Send coin from A to B

@@ -5,12 +5,36 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestParams() {
-	params := suite.app.InflationKeeper.GetParams(suite.ctx)
-	expParams := types.DefaultParams()
+	testCases := []struct {
+		name      string
+		mockFunc  func() types.Params
+		expParams types.Params
+	}{
+		{
+			"Pass default params",
+			func() types.Params {
+				params := suite.app.InflationKeeper.GetParams(suite.ctx)
+				return params
+			},
+			types.DefaultParams(),
+		},
+		{
+			"pass - setting new params",
+			func() types.Params {
+				params := types.DefaultParams()
+				err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+				return params
+			},
+			suite.app.InflationKeeper.GetParams(suite.ctx),
+		},
+	}
 
-	suite.Require().Equal(expParams, params)
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			params := tc.mockFunc()
+			suite.Require().Equal(tc.expParams, params)
+		})
+	}
 
-	suite.app.InflationKeeper.SetParams(suite.ctx, params)
-	newParams := suite.app.InflationKeeper.GetParams(suite.ctx)
-	suite.Require().Equal(newParams, params)
 }

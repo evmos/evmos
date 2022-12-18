@@ -1,8 +1,11 @@
 package types
 
 import (
+	"fmt"
 	"testing"
-	time "time"
+	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -209,4 +212,43 @@ func TestIsEVMChannel(t *testing.T) {
 	require.False(t, res)
 	res = params.IsEVMChannel(DefaultEVMChannels[0])
 	require.True(t, res)
+}
+
+func validateBool(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
+func validateStartDate(i interface{}) error {
+	_, ok := i.(time.Time)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	return nil
+}
+
+func validateDuration(i interface{}) error {
+	v, ok := i.(time.Duration)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v <= 0 {
+		return fmt.Errorf("duration must be positive: %s", v)
+	}
+
+	return nil
+}
+
+func validateDenom(i interface{}) error {
+	denom, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return sdk.ValidateDenom(denom)
 }
