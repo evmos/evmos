@@ -48,7 +48,7 @@ type LedgerTestSuite struct {
 	network        *testnetwork.Network
 	queryClient    bankTypes.QueryClient
 	queryClientEvm evm.QueryClient
-	secp256k1      *mocks.SECP256K1
+	ledger         *mocks.SECP256K1
 	ethAddr        common.Address
 	accAddr        sdk.AccAddress
 	signer         keyring.Signer
@@ -68,7 +68,7 @@ func TestLedger(t *testing.T) {
 
 func (suite *LedgerTestSuite) SetupTest() {
 	var err error
-	suite.secp256k1 = mocks.NewSECP256K1(s.T())
+	suite.ledger = mocks.NewSECP256K1(s.T())
 	suite.privKey, err = ethsecp256k1.GenerateKey()
 	s.Require().NoError(err)
 	suite.pubKey = suite.privKey.PubKey()
@@ -130,19 +130,13 @@ func (s *LedgerTestSuite) SetupEvmosApp() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
-
-	fmt.Println("+++++++++++++++++++++++++++++")
-	params := s.app.BankKeeper.GetParams(s.ctx)
-
-	fmt.Println("bank params: ", params)
-	fmt.Println("+++++++++++++++++++++++++++++")
 }
 
 func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {
 	return func(options *keyring.Options) {
 		options.SupportedAlgos = evmoskeyring.SupportedAlgorithms
 		options.SupportedAlgosLedger = evmoskeyring.SupportedAlgorithmsLedger
-		options.LedgerDerivation = func() (cosmosledger.SECP256K1, error) { return suite.secp256k1, nil }
+		options.LedgerDerivation = func() (cosmosledger.SECP256K1, error) { return suite.ledger, nil }
 		options.LedgerCreateKey = evmoskeyring.CreatePubkey
 		options.LedgerAppName = evmoskeyring.AppName
 		options.LedgerSigSkipDERConv = evmoskeyring.SkipDERConversion

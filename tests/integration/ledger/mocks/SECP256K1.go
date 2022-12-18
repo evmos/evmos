@@ -4,7 +4,7 @@ package mocks
 
 import (
 	"errors"
-	"fmt"
+
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -83,18 +83,38 @@ func (_m *SECP256K1) GetPublicKeySECP256K1(_a0 []uint32) ([]byte, error) {
 	return r0, r1
 }
 
+// // SignSECP256K1 provides a mock function with given fields: _a0, _a1
+// func (_m *SECP256K1) SignSECP256K1(_a0 []uint32, _a1 []byte) ([]byte, error) {
+// 	ret := _m.Called(_a0, _a1)
+
+// 	var r0 []byte
+// 	if rf, ok := ret.Get(0).(func([]uint32, []byte) []byte); ok {
+// 		r0 = rf(_a0, _a1)
+// 	} else {
+// 		if ret.Get(0) != nil {
+// 			r0 = ret.Get(0).([]byte)
+// 		}
+// 	}
+
+// 	var r1 error
+// 	if rf, ok := ret.Get(1).(func([]uint32, []byte) error); ok {
+// 		r1 = rf(_a0, _a1)
+// 	} else {
+// 		r1 = ret.Error(1)
+// 	}
+
+// 	return r0, r1
+// }
+
 func (_m *SECP256K1) SignSECP256K1(_a0 []uint32, _a1 []byte) ([]byte, error) {
 	args := _m.Called(_a0, _a1)
 	e := args.Get(1)
 	err, _ := e.(error)
-	if err == nil {
-		f, _ := args.Get(0).(func([]uint32, []byte) ([]byte, error))
-		return f(_a0, _a1)
+	if errors.Is(err, ErrMockedSigning) {
+		return  nil, err
 	}
-	fmt.Println("+++++++++++++++++++")
-	fmt.Println(err.Error())
-	fmt.Println("+++++++++++++++++++")
-	return  nil, err
+	f, _ := args.Get(0).(func([]uint32, []byte) ([]byte, error))
+	return f(_a0, _a1)
 }
 
 type mockConstructorTestingTNewSECP256K1 interface {
