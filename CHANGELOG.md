@@ -35,6 +35,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v10.0.0-rc3] - 2022-12-21
+
+### Improvements
+- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Set default mempool configuration to `"v1"` (prioritized mempool)
+
 ## [v10.0.0-rc2] - 2022-12-09
 
 ### State Machine Breaking
@@ -72,7 +77,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+<<<<<<< HEAD
 - (cmd) [\#1121](https://github.com/evmos/evmos/pull/1121) Fix `evmosd version` to show either tag or last commit.
+=======
+- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
+>>>>>>> 4bf28460 (chore(cmd): Set default mempool to 'v1' and update default snapshot interval to `5000` (#1172))
 - (cmd) [\#1120](https://github.com/evmos/evmos/pull/1120) Fix snapshot configuration
 - (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.
 - (analytics) [\#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
