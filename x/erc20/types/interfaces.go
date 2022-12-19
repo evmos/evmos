@@ -3,7 +3,10 @@ package types
 import (
 	context "context"
 
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -19,6 +22,7 @@ import (
 type AccountKeeper interface {
 	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
+	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.
@@ -52,3 +56,12 @@ type EVMKeeper interface {
 type ClaimsKeeper interface {
 	GetParams(ctx sdk.Context) claimstypes.Params
 }
+
+type (
+	LegacyParams = paramtypes.ParamSet
+	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
+	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
+	Subspace interface {
+		GetParamSet(ctx sdk.Context, ps LegacyParams)
+	}
+)

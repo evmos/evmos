@@ -143,7 +143,7 @@ func NewRegisterCoinProposalCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Short: "Submit a register coin proposal",
 		Long:  `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. The proposal details must be supplied via a JSON file.`,
-		Example: fmt.Sprintf(`$ %s tx gov submit-proposal register-coin metadata.json --from=<key_or_address>
+		Example: fmt.Sprintf(`$ %s tx gov submit-legacy-proposal register-coin metadata.json --from=<key_or_address>
 
 Where metadata.json contains (example):
 
@@ -241,7 +241,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		Short:   "Submit a proposal to register ERC20 token",
 		Long:    "Submit a proposal to register ERC20 tokens along with an initial deposit. To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>` ",
-		Example: fmt.Sprintf("$ %s tx gov submit-proposal register-erc20 <contract-address> --from=<key_or_address>", version.AppName),
+		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal register-erc20 <contract-address> --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -308,7 +308,7 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		Short:   "Submit a toggle token conversion proposal",
 		Long:    "Submit a proposal to toggle the conversion of a token pair along with an initial deposit.",
-		Example: fmt.Sprintf("$ %s tx gov submit-proposal toggle-token-conversion DENOM_OR_CONTRACT --from=<key_or_address>", version.AppName),
+		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal toggle-token-conversion DENOM_OR_CONTRACT --from=<key_or_address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

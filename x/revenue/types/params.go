@@ -4,26 +4,23 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // Parameter store key
 var (
 	DefaultEnableRevenue   = true
 	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
-	// Cost for executing `crypto.CreateAddress` must be at least 36 gas for the
+	// DefaultAddrDerivationCostCreate Cost for executing `crypto.CreateAddress` must be at least 36 gas for the
 	// contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate = uint64(50)
+)
 
+var (
+	ParamsKey                             = []byte("Params")
 	ParamStoreKeyEnableRevenue            = []byte("EnableRevenue")
 	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
 	ParamStoreKeyAddrDerivationCostCreate = []byte("AddrDerivationCostCreate")
 )
-
-// ParamKeyTable returns the parameter key table.
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
 
 // NewParams creates a new Params object
 func NewParams(
@@ -43,15 +40,6 @@ func DefaultParams() Params {
 		EnableRevenue:            DefaultEnableRevenue,
 		DeveloperShares:          DefaultDeveloperShares,
 		AddrDerivationCostCreate: DefaultAddrDerivationCostCreate,
-	}
-}
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableRevenue, &p.EnableRevenue, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperShares, &p.DeveloperShares, validateShares),
-		paramtypes.NewParamSetPair(ParamStoreKeyAddrDerivationCostCreate, &p.AddrDerivationCostCreate, validateUint64),
 	}
 }
 

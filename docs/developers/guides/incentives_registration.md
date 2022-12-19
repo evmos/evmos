@@ -57,7 +57,7 @@ writing markdown files.
 To [submit the proposal](../../users/governance/submitting.md) to testnet through the command line with [`evmosd`](../../validators/quickstart/binary.md), use the following command with `register-incentive`:
 
 ```bash
-evmosd tx gov submit-proposal \
+evmosd tx gov submit-legacy-proposal \
   register-incentive \
   $CONTRACTADDRESS \
   $ALLOCATION \
@@ -83,13 +83,13 @@ with the following arguments:
 See below for an example using [Diffusion Finance's](https://diffusion.fi/) router contract:
 
 ```bash
-evmosd tx gov submit-proposal register-incentive 0xFCd2Ce20ef8ed3D43Ab4f8C2dA13bbF1C6d9512F 0.050000000000000000aevmos 13 --description=$DESCRIPTION --title=$PROPOSALTITLE
+evmosd tx gov submit-legacy-proposal register-incentive 0xFCd2Ce20ef8ed3D43Ab4f8C2dA13bbF1C6d9512F 0.050000000000000000aevmos 13 --description=$DESCRIPTION --title=$PROPOSALTITLE
 ```
 
 However, note that if the CLI is used to create a proposal, and `description` is set using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects. If the proposal creator is using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags. The process of creating a json file containing the proposal can be found [here](../../users/governance/submitting.md#formatting-the-json-file-for-the-governance-proposal), and the CLI command for submitting the file is below:
 
 ```bash
-evmosd tx gov submit-proposal register-incentive --proposal=<path_to_json>
+evmosd tx gov submit-legacy-proposal register-incentive --proposal=<path_to_json>
 ```
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons, such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.

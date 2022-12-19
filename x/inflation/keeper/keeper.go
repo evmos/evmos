@@ -4,8 +4,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/evmos/evmos/v10/x/inflation/types"
@@ -13,10 +11,10 @@ import (
 
 // Keeper of the inflation store
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
-	paramstore paramtypes.Subspace
-
+	storeKey storetypes.StoreKey
+	cdc      codec.BinaryCodec
+	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
+	authority        sdk.AccAddress
 	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	distrKeeper      types.DistrKeeper
@@ -28,7 +26,7 @@ type Keeper struct {
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	ps paramtypes.Subspace,
+	authority sdk.AccAddress,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	dk types.DistrKeeper,
@@ -40,15 +38,15 @@ func NewKeeper(
 		panic("the mint module account has not been set")
 	}
 
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
 	}
 
 	return Keeper{
 		storeKey:         storeKey,
 		cdc:              cdc,
-		paramstore:       ps,
+		authority:        authority,
 		accountKeeper:    ak,
 		bankKeeper:       bk,
 		distrKeeper:      dk,
