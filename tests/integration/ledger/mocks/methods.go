@@ -30,7 +30,3 @@ func RegisterGetAddressPubKeySECP256K1(s *SECP256K1, accAddr sdk.AccAddress, pub
 func RegisterSignSECP256K1(s *SECP256K1, f func([]uint32, []byte) ([]byte, error), e error) {
 	s.On("SignSECP256K1", mock.AnythingOfType("[]uint32"), mock.AnythingOfType("[]uint8")).Return(f, e)
 }
-
-func RegisterSignSECP256K1Error(s *SECP256K1) {
-	s.On("SignSECP256K1", mock.AnythingOfType("[]uint32"), mock.AnythingOfType("[]uint8")).Return(nil, ErrMockedSigning)
-}

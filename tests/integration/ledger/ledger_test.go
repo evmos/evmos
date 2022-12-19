@@ -37,17 +37,6 @@ var (
 	}
 )
 
-/*
-1. Connect a Ledger device to your laptop using USB (Bluetooth is not supported)
-2. Start a local Evmos node using ./init.sh
-3. Unlock the Ledger and open the Ethereum Ledger app
-4. Add the Ledger as an Evmos key using evmosd keys add myledger --ledger; it should display the Ledger device's default Ethereum address (copy this value)
-5. Send funds to your Ledger account using evmosd tx bank send mykey [your Ledger address] 100000000000000000aevmos --fees 200aevmos
-6. Check the balance of your Ledger account using evmosd query bank balances [your Ledger address]
-7. Send funds from your Ledger account using evmosd tx bank send myledger evmos1e4etd2u9c2huyjacswsfukugztxvd9du52y49t 1000aevmos --fees 200aevmos
-8. Check the balances of your Ledger account and the destination account using evmosd query bank balances [your Ledger address] and evmosd query bank balances evmos1e4etd2u9c2huyjacswsfukugztxvd9du52y49t
-*/
-
 var _ = Describe("ledger cli and keyring functionality", func() {
 	var (
 		receiverAccAddr sdk.AccAddress
@@ -169,7 +158,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 				})
 
 				It("should raise error from ledger sign function to the top", func() {
-					mocks.RegisterSignSECP256K1Error(s.ledger)
+					mocks.RegisterSignSECP256K1(s.ledger, signErrMock, mocks.ErrMockedSigning)
 
 					ledgerAddr, err := keyRecord.GetAddress()
 					s.Require().NoError(err, "can't retirieve ledger addr from a keyring")
