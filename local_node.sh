@@ -50,6 +50,9 @@ cat $GENESIS | jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"
 cat $GENESIS | jq '.app_state["evm"]["params"]["evm_denom"]="aevmos"' > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS
 cat $GENESIS | jq '.app_state["inflation"]["params"]["mint_denom"]="aevmos"' > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS
 
+# Set allowed messages for interchain accounts
+cat $GENESIS | jq '.app_state["ica"]["params"]["allow_messages"]=["/cosmos.staking.v1beta1.MsgDelegate", "/cosmos.gov.v1beta1.MsgVote"]' > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS
+
 # Set gas limit in genesis
 cat $GENESIS | jq '.consensus_params["block"]["max_gas"]="10000000"' > $TMP_GENESIS && mv $TMP_GENESIS $GENESIS
 

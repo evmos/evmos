@@ -37,3 +37,7 @@ genesis:
     evm:
       params:
         evm_denom: "aevmos"
+    ica:
+      params:
+        allow_messages: ["/cosmos.staking.v1beta1.MsgDelegate", "/cosmos.gov.v1beta1.MsgVote"]
+
