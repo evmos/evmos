@@ -247,10 +247,12 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 						WithCodec(encCfg.Codec).
 						// TODO: cmd.Execute() panics without account retriever
 						WithAccountRetriever(mocks.MockAccountRetriever{}).
+						WithTxConfig(encCfg.TxConfig).
 						WithLedgerHasProtobuf(true).
 						WithUseLedger(true).
 						WithKeyring(kb).
-						WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}})
+						WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
+						WithChainID("evmos_9000-13")
 
 					srvCtx := server.NewDefaultContext()
 					ctx := context.Background()
@@ -260,7 +262,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					cmd.SetArgs([]string{
 						ledgerKey,
 						receiverAccAddr.String(),
-						"1000aevmos",
+						sdk.NewCoin("aevmos", sdk.NewInt(1000)).String(),
 						// s.FormatFlag(flags.FlagChainID),
 						// s.app.EvmKeeper.ChainID().String(),
 					})
