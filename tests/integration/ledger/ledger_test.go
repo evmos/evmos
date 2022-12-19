@@ -9,18 +9,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
-	"github.com/spf13/cobra"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/simapp/params"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	"github.com/spf13/cobra"
 
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
+	"github.com/evmos/evmos/v10/testutil"
 
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -206,68 +209,60 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 				})
 
 			})
-			// Context("CLI execution scope", func() {
-			// 	BeforeEach(func() {
-			// 		mocks.RegisterClose(s.secp256k1)
-			// 		mocks.RegisterGetPublicKeySECP256K1(s.secp256k1, s.pubKey)
-			// 		mocks.RegisterGetAddressPubKeySECP256K1(s.secp256k1, s.accAddr, s.pubKey)
+			Context("CLI execution scope", func() {
+				BeforeEach(func() {
+					mocks.RegisterClose(s.ledger)
+					mocks.RegisterGetPublicKeySECP256K1(s.ledger, s.pubKey)
+					mocks.RegisterGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
 
-			// 		err := testutil.FundAccount(
-			// 			s.ctx,
-			// 			s.app.BankKeeper,
-			// 			s.accAddr,
-			// 			sdk.NewCoins(
-			// 				sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
-			// 			),
-			// 		)
-			// 		s.Require().NoError(err)
+					err := testutil.FundAccount(
+						s.ctx,
+						s.app.BankKeeper,
+						s.accAddr,
+						sdk.NewCoins(
+							sdk.NewCoin("aevmos", sdk.NewInt(100000000000000)),
+						),
+					)
+					s.Require().NoError(err)
 
-			// 		sk, err := ethsecp256k1.GenerateKey()
-			// 		s.Require().NoError(err)
-			// 		receiverAccAddr, err = sdk.AccAddressFromBech32(sdk.MustBech32ifyAddressBytes("evmos", sk.PubKey().Bytes()))
-			// 	})
-			// 	It("should execute bank tx", func() {
-			// 		mocks.RegisterSignSECP256K1(s.secp256k1, signOkMock, nil)
+					sk, err := ethsecp256k1.GenerateKey()
+					s.Require().NoError(err)
+					receiverAccAddr, err = sdk.AccAddressFromBech32(sdk.MustBech32ifyAddressBytes("evmos", sk.PubKey().Bytes()))
+				})
+				It("should execute bank tx", func() {
+					mocks.RegisterSignSECP256K1(s.ledger, signOkMock, nil)
 
-			// 		var err error
-			// 		cmd = bankcli.NewSendTxCmd()
-			// 		cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+					var err error
 
-			// 		mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+					kb, err = keyring.New(
+						sdk.KeyringServiceName(),
+						keyring.BackendTest,
+						kbHome,
+						mockedIn,
+						encCfg.Codec,
+						s.MockKeyringOption(),
+					)
 
-			// 		kb, err = keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockedIn, encCfg.Codec, s.MockKeyringOption())
+					initClientCtx := client.Context{}.
+						WithCodec(encCfg.Codec).
+						// TODO: cmd.Execute() panics without account retriever
+						WithAccountRetriever(types.AccountRetriever{}).
+						WithLedgerHasProtobuf(true).
+						WithUseLedger(true).
+						WithKeyring(kb)
 
-			// 		initClientCtx := client.Context{}.
-			// 			WithCodec(encCfg.Codec).
-			// 			// TODO: cmd.Execute() panics without account retriever
-			//          WithAccountRetriever(types.AccountRetriever{}).
-			// 			WithLedgerHasProtobuf(true).
-			// 			WithUseLedger(true).
-			// 			WithKeyring(kb)
+					out, err := sdktestutilcli.ExecTestCLICmd(initClientCtx, bankcli.NewSendTxCmd(), []string{
+						ledgerKey, receiverAccAddr.String(), "1000aevmos",
+					})
+					s.Require().NoError(err)
+					s.Require().NotEmpty(out.String(), "empty tx output")
 
-			// 		// cmd := bankcli.NewSendTxCmd()
-			// 		// cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+					s.Require().NoError(err, "can't query receiver balance")
+					s.Require().NotEmpty(out.String())
+					s.Require().Contains(out.String(), "1000")
 
-			// 		// mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
-
-			// 		b := bytes.NewBufferString("")
-			// 		cmd.SetOut(b)
-
-			// 		cmd.SetArgs([]string{ledgerKey, receiverAccAddr.String(), "1000aevmos"})
-			// 		ctx := context.WithValue(context.Background(), client.ClientContextKey, &initClientCtx)
-			// 		fmt.Printf("")
-			// 		err = cmd.ExecuteContext(ctx)
-			// 		s.Require().NoError(err)
-			// 		s.Require().NotEmpty(b.String(), "empty tx output")
-
-			// 		out, err := testcli.QueryBalancesExec(clientCtx, receiverAccAddr)
-
-			// 		s.Require().NoError(err, "can't query receiver balance")
-			// 		s.Require().NotEmpty(out.String())
-			// 		s.Require().Contains(out.String(), "1000")
-
-			// 		s.Require().Empty(out.String())
-			// 	})
+				})
+			})
 
 		})
 
