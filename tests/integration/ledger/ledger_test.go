@@ -15,7 +15,6 @@ import (
 	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v10/app"
@@ -39,7 +38,6 @@ var (
 var _ = Describe("ledger cli and keyring functionality", func() {
 	var (
 		receiverAccAddr sdk.AccAddress
-		receiverEthAddr common.Address
 		encCfg          params.EncodingConfig
 		kr              keyring.Keyring
 		mockedIn        sdktestutil.BufferReader
@@ -47,7 +45,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 		ctx             context.Context
 		cmd             *cobra.Command
 		krHome          string
-		txProto         []byte
 		keyRecord       *keyring.Record
 	)
 
@@ -55,8 +52,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 
 	s.SetupTest()
 	s.SetupEvmosApp()
-
-	fmt.Println(receiverEthAddr, receiverAccAddr, txProto)
 
 	Describe("Perform key addition", func() {
 		BeforeEach(func() {
@@ -105,7 +100,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 			})
 		})
 	})
-
 	Describe("Perform transaction signing", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
@@ -153,7 +147,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					valid := s.pubKey.VerifySignature(msg, signed)
 					s.Require().True(valid, "invalid signature returned")
 				})
-
 				It("should raise error from ledger sign function to the top", func() {
 					mocks.RegisterSignSECP256K1(s.ledger, signErrMock, mocks.ErrMockedSigning)
 
@@ -235,7 +228,5 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 				})
 			})
 		})
-
 	})
-
 })
