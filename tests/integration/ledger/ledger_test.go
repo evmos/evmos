@@ -228,7 +228,25 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					err := cmd.Execute()
 
 					s.Require().NoError(err)
+				})
+				It("should execute bank tx", func() {
+					mocks.RegisterSignSECP256K1(s.ledger, signErrMock, mocks.ErrMockedSigning)
 
+					cmd.SetContext(ctx)
+					cmd.SetArgs([]string{
+						ledgerKey,
+						receiverAccAddr.String(),
+						sdk.NewCoin("aevmos", sdk.NewInt(1000)).String(),
+						s.FormatFlag(flags.FlagUseLedger),
+						s.FormatFlag(flags.FlagSkipConfirmation),
+					})
+					out := bytes.NewBufferString("")
+					cmd.SetOutput(out)
+
+					err := cmd.Execute()
+
+					s.Require().Error(err)
+					s.Require().Equal(mocks.ErrMockedSigning.Error(), err.Error())
 				})
 			})
 
