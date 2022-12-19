@@ -28,8 +28,7 @@ import (
 
 var (
 	signOkMock = func(_ []uint32, msg []byte) ([]byte, error) {
-		b, err := s.privKey.Sign(msg)
-		return b, err
+		return s.privKey.Sign(msg)
 	}
 
 	signErrMock = func(_ []uint32, msg []byte) ([]byte, error) {
@@ -153,8 +152,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					_ = signed
 
 					valid := s.pubKey.VerifySignature(msg, signed)
-					s.Require().True(valid, "invalid sigrature returned")
-
+					s.Require().True(valid, "invalid signature returned")
 				})
 
 				It("should raise error from ledger sign function to the top", func() {
@@ -171,7 +169,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 
 					s.Require().Equal(mocks.ErrMockedSigning.Error(), err.Error(), "original and returned errors are not equal")
 				})
-
 			})
 			Context("CLI execution scope", func() {
 				BeforeEach(func() {
@@ -238,7 +235,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					s.Require().Equal(mocks.ErrMockedSigning.Error(), err.Error())
 				})
 			})
-
 		})
 
 	})
