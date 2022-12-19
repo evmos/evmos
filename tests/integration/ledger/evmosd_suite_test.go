@@ -10,31 +10,34 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/ethereum/eip712"
 	"github.com/evmos/ethermint/tests"
-	evm "github.com/evmos/ethermint/x/evm/types"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v10/app"
-	evmoskeyring "github.com/evmos/evmos/v10/crypto/keyring"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
-	testnetwork "github.com/evmos/evmos/v10/testutil/network"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/tendermint/tendermint/version"
+
+	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evm "github.com/evmos/ethermint/x/evm/types"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	evmoskeyring "github.com/evmos/evmos/v10/crypto/keyring"
+	testnetwork "github.com/evmos/evmos/v10/testutil/network"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	rpcclientmock "github.com/tendermint/tendermint/rpc/client/mock"
-	"github.com/tendermint/tendermint/version"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var s *LedgerTestSuite
@@ -145,7 +148,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 
 	initClientCtx := client.Context{}.
 		WithCodec(encCfg.Codec).
-		// TODO: cmd.Execute() panics without account retriever
+		// NOTE: cmd.Execute() panics without account retriever
 		WithAccountRetriever(mocks.MockAccountRetriever{}).
 		WithTxConfig(encCfg.TxConfig).
 		WithLedgerHasProtobuf(true).

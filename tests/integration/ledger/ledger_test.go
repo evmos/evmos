@@ -3,7 +3,6 @@ package ledger_test
 import (
 	"bytes"
 	"context"
-
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -11,16 +10,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
-	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 	"github.com/evmos/evmos/v10/testutil"
+
 	"github.com/spf13/cobra"
+
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
+	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 
 	. "github.com/onsi/ginkgo/v2"
 )
