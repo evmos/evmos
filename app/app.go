@@ -98,7 +98,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v5/testing"
 
-
 	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper"
@@ -107,8 +106,6 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
-
-	ethermintapp "github.com/evmos/ethermint/app"
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/ethereum/eip712"
@@ -607,7 +604,6 @@ func NewEvmos(
 	// create controller IBC application stack and host IBC module
 	icaControllerStack := icacontroller.NewIBCMiddleware(nil, app.ICAControllerKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
-
 
 	/*
 		Create Transfer Stack
