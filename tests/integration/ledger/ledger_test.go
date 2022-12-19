@@ -58,6 +58,7 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 		kb              keyring.Keyring
 		mockedIn        sdktestutil.BufferReader
 		clientCtx       client.Context
+		ctx             context.Context
 		cmd             *cobra.Command
 		kbHome          string
 		txProto         []byte
@@ -211,9 +212,9 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 			})
 			Context("CLI execution scope", func() {
 				BeforeEach(func() {
+					s.ledger = mocks.NewSECP256K1(s.T())
 					mocks.RegisterClose(s.ledger)
 					mocks.RegisterGetPublicKeySECP256K1(s.ledger, s.pubKey)
-					mocks.RegisterGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
 
 					err := testutil.FundAccount(
 						s.ctx,
@@ -228,11 +229,8 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					sk, err := ethsecp256k1.GenerateKey()
 					s.Require().NoError(err)
 					receiverAccAddr, err = sdk.AccAddressFromBech32(sdk.MustBech32ifyAddressBytes("evmos", sk.PubKey().Bytes()))
-				})
-				It("should execute bank tx", func() {
-					mocks.RegisterSignSECP256K1(s.ledger, signOkMock, nil)
-					cmd := bankcli.NewSendTxCmd()
-					var err error
+
+					cmd = bankcli.NewSendTxCmd()
 
 					kb, err = keyring.New(
 						sdk.KeyringServiceName(),
@@ -255,24 +253,26 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 						WithChainID("evmos_9000-13")
 
 					srvCtx := server.NewDefaultContext()
-					ctx := context.Background()
+					ctx = context.Background()
 					ctx = context.WithValue(ctx, client.ClientContextKey, &initClientCtx)
 					ctx = context.WithValue(ctx, server.ServerContextKey, srvCtx)
+				})
+				It("should execute bank tx", func() {
+					mocks.RegisterSignSECP256K1(s.ledger, signOkMock, nil)
+
 					cmd.SetContext(ctx)
 					cmd.SetArgs([]string{
 						ledgerKey,
 						receiverAccAddr.String(),
 						sdk.NewCoin("aevmos", sdk.NewInt(1000)).String(),
-						// s.FormatFlag(flags.FlagChainID),
-						// s.app.EvmKeeper.ChainID().String(),
+						s.FormatFlag(flags.FlagUseLedger),
+						s.FormatFlag(flags.FlagSkipConfirmation),
 					})
-					err = cmd.Execute()
-					s.Require().NoError(err)
-					// s.Require().NotEmpty(out.String(), "empty tx output")
+					out := bytes.NewBufferString("")
+					cmd.SetOutput(out)
 
-					// s.Require().NoError(err, "can't query receiver balance")
-					// s.Require().NotEmpty(out.String())
-					// s.Require().Contains(out.String(), "1000")
+					err := cmd.Execute()
+					s.Require().NoError(err)
 
 				})
 			})
