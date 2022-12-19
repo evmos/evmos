@@ -1,11 +1,16 @@
 package ledger_test
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -26,6 +31,7 @@ import (
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
+	rpcclientmock "github.com/tendermint/tendermint/rpc/client/mock"
 	"github.com/tendermint/tendermint/version"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -130,6 +136,36 @@ func (s *LedgerTestSuite) SetupEvmosApp() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+}
+
+func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, encCfg params.EncodingConfig) (keyring.Keyring, client.Context, context.Context) {
+	kr, err := keyring.New(
+		sdk.KeyringServiceName(),
+		keyring.BackendTest,
+		krHome,
+		input,
+		encCfg.Codec,
+		s.MockKeyringOption(),
+	)
+	s.Require().NoError(err)
+
+	initClientCtx := client.Context{}.
+		WithCodec(encCfg.Codec).
+		// TODO: cmd.Execute() panics without account retriever
+		WithAccountRetriever(mocks.MockAccountRetriever{}).
+		WithTxConfig(encCfg.TxConfig).
+		WithLedgerHasProtobuf(true).
+		WithUseLedger(true).
+		WithKeyring(kr).
+		WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
+		WithChainID("evmos_9000-13")
+
+	srvCtx := server.NewDefaultContext()
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, client.ClientContextKey, &initClientCtx)
+	ctx = context.WithValue(ctx, server.ServerContextKey, srvCtx)
+
+	return kr, initClientCtx, ctx
 }
 
 func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {
