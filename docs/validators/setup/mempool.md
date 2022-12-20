@@ -43,6 +43,7 @@ Even though the transaction processing can be ordered by priority, the gossiping
 
 To use the a prioritized mempool, adjust `version = "v1"` in the node configuration at `~/.evmosd/config/config.toml`.
 The default value `"v0"` indicates the traditional FIFO mempool.
+Remember to **restart** a running node for the changes to take effect.
 
 See the relevant excerpt from `config.toml` here:
 
