@@ -1,0 +1,48 @@
+syntax = "proto3";
+package evmos.erc20.v1;
+
+option go_package = "github.com/evmos/evmos/v10/x/erc20/types";
+
+// EventRegisterPair is an event emitted when a coin is registered.
+message EventRegisterPair {
+  // denom is the coin's denomination.
+  string denom = 1;
+  // erc20_address is the ERC20 contract address.
+  string erc20_address = 2;
+}
+
+// EventToggleTokenConversion is an event emitted when a coin's token conversion is toggled.
+message EventToggleTokenConversion {
+  // denom is the coin's denomination.
+  string denom = 1;
+  // erc20_address is the ERC20 contract address.
+  string erc20_address = 2;
+}
+
+// EventConvertCoin is an event emitted when a coin is converted.
+message EventConvertCoin {
+  // sender is the sender's address.
+  string sender = 1;
+  // receiver is the receiver's address.
+  string receiver = 2;
+  // amount is the amount of coins to be converted.
+  string amount = 3;
+  // denom is the coin's denomination.
+  string denom = 4;
+  // erc20_address is the ERC20 contract address.
+  string erc20_address = 5;
+}
+
+// EventConvertERC20 is an event emitted when an ERC20 is converted.
+message EventConvertERC20 {
+  // sender is the sender's address.
+  string sender = 1;
+  // receiver is the receiver's address.
+  string receiver = 2;
+  // amount is the amount of coins to be converted.
+  string amount = 3;
+  // denom is the coin's denomination.
+  string denom = 4;
+  // contract_address of an ERC20 token contract, that is registered in a token pair
+  string contract_address = 5;
+}
