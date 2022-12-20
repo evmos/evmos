@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // AccountKeeper defines the contract required for account APIs.
@@ -39,3 +40,12 @@ type StakingKeeper interface {
 	StakingTokenSupply(ctx sdk.Context) math.Int
 	TotalBondedTokens(ctx sdk.Context) math.Int
 }
+
+type (
+	LegacyParams = paramtypes.ParamSet
+	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
+	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
+	Subspace interface {
+		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
+	}
+)

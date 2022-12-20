@@ -3,31 +3,24 @@ package types
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
 	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
 )
 
-// Parameter store key
-var (
-	ParamStoreKeyEnableIncentives = []byte("EnableIncentives")
-	ParamStoreKeyAllocationLimit  = []byte("AllocationLimit")
-	ParamStoreKeyEpochIdentifier  = []byte("EpochIdentifier")
-	ParamStoreKeyRewardScaler     = []byte("RewardScaler")
-)
+// ParamsKey params store key
+var ParamsKey = []byte("Params")
 
-// ParamKeyTable returns the parameter key table.
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
+var (
+	DefaultEnableIncentives          = true
+	DefaultAllocationLimit           = sdk.NewDecWithPrec(5, 2)
+	DefaultIncentivesEpochIdentifier = epochstypes.WeekEpochID
+	DefaultRewardScalar              = sdk.NewDecWithPrec(12, 1)
+)
 
 // NewParams creates a new Params object
 func NewParams(
 	enableIncentives bool,
-	epocheDuration time.Duration,
 	allocationLimit sdk.Dec,
 	epochIdentifier string,
 	rewardScaler sdk.Dec,
@@ -42,20 +35,10 @@ func NewParams(
 
 func DefaultParams() Params {
 	return Params{
-		EnableIncentives:          true,
-		AllocationLimit:           sdk.NewDecWithPrec(5, 2),
-		IncentivesEpochIdentifier: epochstypes.WeekEpochID,
-		RewardScaler:              sdk.NewDecWithPrec(12, 1),
-	}
-}
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
-		paramtypes.NewParamSetPair(ParamStoreKeyEpochIdentifier, &p.IncentivesEpochIdentifier, epochstypes.ValidateEpochIdentifierInterface),
-		paramtypes.NewParamSetPair(ParamStoreKeyRewardScaler, &p.RewardScaler, validateUncappedPercentage),
+		EnableIncentives:          DefaultEnableIncentives,
+		AllocationLimit:           DefaultAllocationLimit,
+		IncentivesEpochIdentifier: DefaultIncentivesEpochIdentifier,
+		RewardScaler:              DefaultRewardScalar,
 	}
 }
 

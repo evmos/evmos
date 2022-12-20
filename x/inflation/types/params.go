@@ -6,24 +6,27 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
 )
 
-var DefaultInflationDenom = evm.DefaultEVMDenom
+var ParamsKey = []byte("Params")
 
-// Parameter store keys
 var (
-	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
-	ParamStoreKeyExponentialCalculation = []byte("ParamStoreKeyExponentialCalculation")
-	ParamStoreKeyInflationDistribution  = []byte("ParamStoreKeyInflationDistribution")
-	ParamStoreKeyEnableInflation        = []byte("ParamStoreKeyEnableInflation")
+	DefaultInflationDenom         = evm.DefaultEVMDenom
+	DefaultInflation              = true
+	DefaultExponentialCalculation = ExponentialCalculation{
+		A:             sdk.NewDec(int64(300_000_000)),
+		R:             sdk.NewDecWithPrec(50, 2), // 50%
+		C:             sdk.NewDec(int64(9_375_000)),
+		BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
+		MaxVariance:   sdk.ZeroDec(),             // 0%
+	}
+	DefaultInflationDistribution = InflationDistribution{
+		StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
+		UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
+		CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
+	}
 )
-
-// ParamTable for inflation module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
 
 func NewParams(
 	mintDenom string,
@@ -42,30 +45,10 @@ func NewParams(
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom: DefaultInflationDenom,
-		ExponentialCalculation: ExponentialCalculation{
-			A:             sdk.NewDec(int64(300_000_000)),
-			R:             sdk.NewDecWithPrec(50, 2), // 50%
-			C:             sdk.NewDec(int64(9_375_000)),
-			BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
-			MaxVariance:   sdk.ZeroDec(),             // 0%
-		},
-		InflationDistribution: InflationDistribution{
-			StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
-			UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
-			CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
-		},
-		EnableInflation: true,
-	}
-}
-
-// Implements params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(ParamStoreKeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
-		paramtypes.NewParamSetPair(ParamStoreKeyInflationDistribution, &p.InflationDistribution, validateInflationDistribution),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableInflation, &p.EnableInflation, validateBool),
+		MintDenom:              DefaultInflationDenom,
+		ExponentialCalculation: DefaultExponentialCalculation,
+		InflationDistribution:  DefaultInflationDistribution,
+		EnableInflation:        DefaultInflation,
 	}
 }
 

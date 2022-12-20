@@ -3,7 +3,10 @@ package keeper_test
 import (
 	"errors"
 	"fmt"
+	"github.com/evmos/evmos/v10/x/erc20/keeper"
 	"math/big"
+
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -334,6 +337,17 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			// Set Next Sequence Send
 			suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, evmosChannel, 1)
+
+			suite.app.Erc20Keeper = keeper.NewKeeper(
+				suite.app.GetKey(types.StoreKey),
+				suite.app.AppCodec(),
+				authtypes.NewModuleAddress(govtypes.ModuleName),
+				suite.app.AccountKeeper,
+				suite.app.BankKeeper,
+				suite.app.EvmKeeper,
+				suite.app.StakingKeeper,
+				suite.app.ClaimsKeeper,
+			)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			// We do this since we are interested in the conversion portion w/ OnRecvPacket

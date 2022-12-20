@@ -104,6 +104,12 @@ ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
   BUILD_FLAGS += -trimpath
 endif
 
+# check if no optimization option is passed
+# used for remote debugging
+ifneq (,$(findstring nooptimization,$(COSMOS_BUILD_OPTIONS)))
+  BUILD_FLAGS += -gcflags "all=-N -l"
+endif
+
 # # The below include contains the tools and runsim targets.
 # include contrib/devtools/Makefile
 
@@ -324,7 +330,7 @@ build-docs-versioned:
 
 test: test-unit
 test-all: test-unit test-race
-PACKAGES_UNIT=$(shell go list ./...)
+PACKAGES_UNIT=$(shell go list ./... | grep -v '/tests/e2e')
 TEST_PACKAGES=./...
 TEST_TARGETS := test-unit test-unit-cover test-race
 

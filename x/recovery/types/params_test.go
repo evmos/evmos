@@ -7,13 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParamsMisc(t *testing.T) {
-	params := DefaultParams()
-	require.NotEmpty(t, params.ParamSetPairs())
-	kt := ParamKeyTable()
-	require.NotEmpty(t, kt)
-}
-
 func TestParamsValidate(t *testing.T) {
 	testCases := []struct {
 		name     string
