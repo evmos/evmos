@@ -251,7 +251,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 					registerEvent := res.GetEvents()[8]
 					Expect(string(registerEvent.Attributes[2].Value)).ToNot(Equal(deployerAddress.String()))
-					Expect(string(registerEvent.Attributes[2].Value)).To(Equal(withdrawerAddress.String()))
 
 					fee, isRegistered := s.app.RevenueKeeper.GetRevenue(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
@@ -757,10 +756,7 @@ func registerFee(
 
 	if res.IsOK() {
 		registerEvent := res.GetEvents()[8]
-		Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterRevenue))
-		Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
-		Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
-		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
+		Expect(registerEvent.Type).To(Equal("evmos.revenue.v1.EventRegisterRevenue"))
 	}
 	return res
 }

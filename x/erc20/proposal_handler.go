@@ -48,13 +48,14 @@ func handleRegisterCoinProposal(
 			return err
 		}
 
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRegisterCoin,
-				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-			),
-		)
+		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
+			Denom:        pair.Denom,
+			Erc20Address: pair.Erc20Address,
+		})
+
+		if err != nil {
+			k.Logger(ctx).Error(err.Error())
+		}
 	}
 
 	return nil
@@ -73,13 +74,14 @@ func handleRegisterERC20Proposal(
 			return err
 		}
 
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRegisterERC20,
-				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-			),
-		)
+		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
+			Denom:        pair.Denom,
+			Erc20Address: pair.Erc20Address,
+		})
+
+		if err != nil {
+			k.Logger(ctx).Error(err.Error())
+		}
 	}
 
 	return nil
@@ -96,13 +98,14 @@ func handleToggleConversionProposal(
 		return err
 	}
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeToggleTokenConversion,
-			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
-			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-		),
-	)
+	err = ctx.EventManager().EmitTypedEvent(&types.EventToggleTokenConversion{
+		Denom:        pair.Denom,
+		Erc20Address: pair.Erc20Address,
+	})
+
+	if err != nil {
+		k.Logger(ctx).Error(err.Error())
+	}
 
 	return nil
 }
