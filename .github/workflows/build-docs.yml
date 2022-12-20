@@ -23,6 +23,10 @@ jobs:
             docs/**/*.sh
             docs/**/*.py
             docs/**/*.md
+            docs/**/*.png
+            docs/**/*.jpg
+            docs/**/*.json
+            docs/**/*.js
             x/**/*.md
       - name: Install dependencies and build docs 🧱
         run: |
