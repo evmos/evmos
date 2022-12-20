@@ -578,7 +578,6 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 				suite.Require().NoError(err)
 
 				ack = channeltypes.NewResultAcknowledgement([]byte{1})
-
 			},
 			expERC20: big.NewInt(0),
 			expPass:  true,
@@ -608,7 +607,6 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 				common.BytesToAddress(sender.Bytes()),
 			)
 			suite.Require().Equal(tc.expERC20.Int64(), balance.Int64())
-
 		})
 	}
 }

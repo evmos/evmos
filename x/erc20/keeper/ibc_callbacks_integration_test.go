@@ -444,8 +444,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
-			balanceToken :=
-				s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount, balanceToken.Int64())
 
 			s.EvmosChain.Coordinator.CommitBlock()
@@ -459,8 +458,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
 
 			// Check updated token Balance
-			balanceToken =
-				s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			balanceToken = s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount/2, balanceToken.Int64())
 
 			// Check balance on the Osmosis chain
@@ -470,15 +468,13 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			// send back the IBC coins from Osmosis to Evmos
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, erc20Denomtrace.IBCDenom(), amount/2, receiver, sender, 1, erc20Denomtrace.GetFullDenomPath())
 			// Check Balance
-			balanceToken =
-				s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
+			balanceToken = s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
 			s.Require().Equal(amount, balanceToken.Int64())
 
 			// IBC coin balance should be zero
 			erc20CoinsBalance = s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), senderAcc, pair.Denom)
 			s.Require().Equal(int64(0), erc20CoinsBalance.Amount.Int64())
-
-		})		
+		})
 	})
 })
 
