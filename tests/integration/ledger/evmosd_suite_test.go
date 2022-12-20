@@ -31,7 +31,6 @@ import (
 	evm "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	evmoskeyring "github.com/evmos/evmos/v10/crypto/keyring"
-	testnetwork "github.com/evmos/evmos/v10/testutil/network"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	rpcclientmock "github.com/tendermint/tendermint/rpc/client/mock"
@@ -45,19 +44,20 @@ var s *LedgerTestSuite
 type LedgerTestSuite struct {
 	suite.Suite
 
+	app *app.Evmos
 	ctx sdk.Context
 
-	app            *app.Evmos
-	network        *testnetwork.Network
 	queryClient    bankTypes.QueryClient
 	queryClientEvm evm.QueryClient
-	ledger         *mocks.SECP256K1
-	ethAddr        common.Address
-	accAddr        sdk.AccAddress
-	signer         keyring.Signer
-	privKey        *ethsecp256k1.PrivKey
-	pubKey         types.PubKey
 
+	ledger       *mocks.SECP256K1
+	accRetriever *mocks.AccountRetriever
+
+	ethAddr     common.Address
+	accAddr     sdk.AccAddress
+	signer      keyring.Signer
+	privKey     *ethsecp256k1.PrivKey
+	pubKey      types.PubKey
 	consAddress sdk.ConsAddress
 }
 
@@ -145,11 +145,12 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		s.MockKeyringOption(),
 	)
 	s.Require().NoError(err)
+	s.accRetriever = mocks.NewAccountRetriever(s.T())
 
 	initClientCtx := client.Context{}.
 		WithCodec(encCfg.Codec).
 		// NOTE: cmd.Execute() panics without account retriever
-		WithAccountRetriever(mocks.MockAccountRetriever{}).
+		WithAccountRetriever(s.accRetriever).
 		WithTxConfig(encCfg.TxConfig).
 		WithLedgerHasProtobuf(true).
 		WithUseLedger(true).
