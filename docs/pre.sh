@@ -96,6 +96,7 @@ $FORMAT ./modules/upgrade/README.md --header --title "Upgrade Overview" --parent
 # For this purpose we are using the sparse checkout and only pull the following folders:
 #   - docs/apps/transfer
 #   - docs/apps/interchain-accounts
+#   - docs/assets/ica
 #
 # Additionally, we are deleting the "legacy" subfolder from the transfer module and apply
 # formatting to the overview files (adjusting header text and adding file metadata).
@@ -107,12 +108,14 @@ cd ibc_specs || exit
 git init
 git remote add origin "$IBC_GO_URL"
 git config core.sparseCheckout true
-printf "docs/apps/transfer\ndocs/apps/interchain-accounts\n" > .git/info/sparse-checkout
+printf "docs/apps/transfer\ndocs/apps/interchain-accounts\ndocs/assets/ica\n" > .git/info/sparse-checkout
 git pull origin main
 cd ..
 
 mv ibc_specs/docs/apps/transfer/ ./modules/transfer
 mv ibc_specs/docs/apps/interchain-accounts/ ./modules/interchain-accounts
+mkdir assets && mkdir assets/ica
+mv ibc_specs/docs/assets/ica/ica-v6.png ./assets/ica/ica-v6.png
 rm -rf ibc_specs
 rm -rf ./modules/interchain-accounts/legacy
 sed 's/\# Overview/\# transfer/' ./modules/transfer/overview.md > ./modules/transfer/overview_tmp.md
