@@ -25,6 +25,7 @@ tools/bin/*
 docs/_build
 docs/tutorial
 docs/node_modules
+docs/assets
 docs/modules
 docs/cosmos-sdk
 docs/ethermint
