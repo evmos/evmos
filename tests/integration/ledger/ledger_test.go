@@ -181,7 +181,6 @@ var _ = Describe("ledger cli and keyring functionality", func() {
 					sk, err := ethsecp256k1.GenerateKey()
 					s.Require().NoError(err)
 					receiverAccAddr, err = sdk.AccAddressFromBech32(sdk.MustBech32ifyAddressBytes("evmos", sk.PubKey().Bytes()))
-					s.Require().NoError(err)
 
 					cmd = bankcli.NewSendTxCmd()
 					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
