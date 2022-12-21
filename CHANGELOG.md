@@ -37,10 +37,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v10.0.0-rc3] - 2022-12-21
 
+### State Machine Breaking
+
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
+
 ### Improvements
+
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
 - (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Set default mempool configuration to `"v1"` (prioritized mempool)
 
 ### Bug Fixes
+
 - (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
 
 ## [v10.0.0-rc2] - 2022-12-09
