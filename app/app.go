@@ -233,7 +233,6 @@ var (
 
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName:      true,
 		incentivestypes.ModuleName: true,
 	}
 )
