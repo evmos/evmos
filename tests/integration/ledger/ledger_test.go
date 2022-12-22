@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
 	"github.com/evmos/evmos/v10/testutil"
@@ -178,8 +178,6 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					)
 					s.Require().NoError(err)
 
-					sk, err := ethsecp256k1.GenerateKey()
-					s.Require().NoError(err)
 					receiverAccAddr = sdk.AccAddress(tests.GenerateAddress().Bytes())
 
 					cmd = bankcli.NewSendTxCmd()

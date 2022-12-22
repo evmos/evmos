@@ -16,8 +16,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/ethereum/eip712"
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
@@ -75,35 +73,24 @@ func (suite *LedgerTestSuite) SetupTest() {
 	suite.privKey, err = ethsecp256k1.GenerateKey()
 	s.Require().NoError(err)
 	suite.pubKey = suite.privKey.PubKey()
-	suite.Require().NoError(err)
+
 	addr, err := sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
 	suite.Require().NoError(err)
 	suite.accAddr = sdk.MustAccAddressFromBech32(addr)
+	suite.ethAddr = common.BytesToAddress(suite.privKey.PubKey().Address().Bytes())
+	suite.signer = tests.NewSigner(suite.privKey)
 }
 
 func (suite *LedgerTestSuite) SetupEvmosApp() {
-	// account key
-	priv, err := ethsecp256k1.GenerateKey()
-	s.Require().NoError(err, "can't generate private key")
+	suite.consAddress = sdk.ConsAddress(tests.GenerateAddress().Bytes())
 
-	s.ethAddr = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	s.accAddr = sdk.AccAddress(s.ethAddr.Bytes())
-	s.signer = tests.NewSigner(priv)
-
-	// consensus key
-	privConsKey, err := ethsecp256k1.GenerateKey()
-	s.Require().NoError(err, "can't generate private key")
-	consAddress := sdk.ConsAddress(privConsKey.PubKey().Address())
-	s.consAddress = consAddress
-
-	eip712.SetEncodingConfig(encoding.MakeConfig(app.ModuleBasics))
 	// init app
-	s.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
-	s.ctx = s.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
+	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),
-		ProposerAddress: consAddress.Bytes(),
+		ProposerAddress: suite.consAddress.Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -125,13 +112,13 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	})
 
 	// query clients
-	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	bankTypes.RegisterQueryServer(queryHelper, s.app.BankKeeper)
-	s.queryClient = bankTypes.NewQueryClient(queryHelper)
+	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	bankTypes.RegisterQueryServer(queryHelper, suite.app.BankKeeper)
+	suite.queryClient = bankTypes.NewQueryClient(queryHelper)
 
-	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
-	s.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
+	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 }
 
 func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, encCfg params.EncodingConfig) (keyring.Keyring, client.Context, context.Context) {
