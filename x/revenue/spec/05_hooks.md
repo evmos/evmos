@@ -25,4 +25,4 @@ If the `x/revenue` module is enabled and a EVM transaction targets a registered 
     ```
 
 4. Transfer developer fee from the `FeeCollector` (Cosmos SDK `auth` module account) to the registered withdraw address for that contract. If there is no withdraw address, fees are sent to contract deployer's address.
-5. Distribute the remaining amount in the `FeeCollector` to validators according to the [SDK  Distribution Scheme](https://docs.cosmos.network/main/modules/distribution/#the-distribution-scheme).
+5. Distribute the remaining amount in the `FeeCollector` to validators according to the [SDK  Distribution Scheme](https://docs.cosmos.network/main/modules/distribution#the-distribution-scheme).

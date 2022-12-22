@@ -8,14 +8,14 @@ Learn how to automate chain upgrades using Cosmovisor. {synopsis}
 
 ## Pre-requisites
 
-- [Install Cosmovisor](https://docs.cosmos.network/main/run-node/cosmovisor.html#installation) {prereq}
+- [Install Cosmovisor](https://docs.cosmos.network/main/tooling/cosmovisor#installation) {prereq}
 
 ## Using Cosmovisor
 
 > `cosmovisor` is a small process manager for Cosmos SDK application binaries that monitors the governance module for incoming chain upgrade proposals. If it sees a proposal that gets approved, cosmovisor can automatically download the new binary, stop the current binary, switch from the old binary to the new one, and finally restart the node with the new binary.
 
 ::: tip
-👉 For more info about Cosmovisor, please refer to the project official documentation [here](https://docs.cosmos.network/main/run-node/cosmovisor.html).
+👉 For more info about Cosmovisor, please refer to the project official documentation [here](https://docs.cosmos.network/main/tooling/cosmovisor).
 :::
 
 We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
@@ -93,7 +93,7 @@ cosmovisor/
 **NOTE**: Auto-download doesn't verify in advance if a binary is available. If there will be any issue with downloading a binary, `cosmovisor` will stop and won't restart an the chain (which could lead it to a halt).
 :::
 
-It is possible to have Cosmovisor [automatically download](https://docs.cosmos.network/main/run-node/cosmovisor.html#auto-download) the new binary. Validators can use the automatic download option to prevent unnecessary downtime during the upgrade process. This option will automatically restart the chain with the upgrade binary once the chain has halted at the proposed `upgrade-height`. The major benefit of this option is that validators can prepare the upgrade binary in advance and then relax at the time of the upgrade.
+It is possible to have Cosmovisor [automatically download](https://docs.cosmos.network/main/tooling/cosmovisor#auto-download) the new binary. Validators can use the automatic download option to prevent unnecessary downtime during the upgrade process. This option will automatically restart the chain with the upgrade binary once the chain has halted at the proposed `upgrade-height`. The major benefit of this option is that validators can prepare the upgrade binary in advance and then relax at the time of the upgrade.
 
 To set the auto-download use set the following environment variable:
 
