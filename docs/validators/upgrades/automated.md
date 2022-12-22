@@ -18,7 +18,7 @@ Learn how to automate chain upgrades using Cosmovisor. {synopsis}
 👉 For more info about Cosmovisor, please refer to the project official documentation [here](https://docs.cosmos.network/main/tooling/cosmovisor).
 :::
 
-We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#2.a%29-manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
+We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
 ### 1. Setup Cosmovisor
 
@@ -51,7 +51,8 @@ evmosd version
 
 ### 2. Download the Evmos release
 
-#### 2.a) Manual Download
+<!-- NOTE: Using a h4 tag here so the relative markdown link used at the top of this document works -->
+<h4 id="manual-download">2.a) Manual Download</h4>
 
 Cosmovisor will continually poll the `$DAEMON_HOME/data/upgrade-info.json` for new upgrade instructions. When an upgrade is [released](https://github.com/evmos/evmos/releases), node operators need to:
 
