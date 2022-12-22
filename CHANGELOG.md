@@ -35,36 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v10.0.0-rc3] - 2022-12-21
+## [v10.0.0-rc3] - 2022-12-22
 
 ### State Machine Breaking
 
-- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
-
-### Improvements
-
-- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
-- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Set default mempool configuration to `"v1"` (prioritized mempool)
-
-### Bug Fixes
-
-- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
-
-## [v10.0.0-rc2] - 2022-12-09
-
-### State Machine Breaking
-
-<<<<<<< HEAD
-- (deps) [\#1157](https://github.com/evmos/evmos/pull/1157) Bump Ethermint version to [`v0.20.0-rc4`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc4)
-- (vesting) [\#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
-=======
-- (erc20) [#1100](https://github.com/evmos/evmos/pull/1100) Deprecate usage of x/params in x/erc20
-- (inflation) [#1107](https://github.com/evmos/evmos/pull/1107) Deprecate usage of x/params in x/inflation
-- (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of x/params in x/incentives
-- (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
-- (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of x/params in x/revenue
 - (deps) [#1184](https://github.com/evmos/evmos/pull/1184) Bump Ethermint version to [`v0.20.0-rc5`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc5)
->>>>>>> 58c01c2 (build (deps): bump Ethermint version to v0.20.0-rc5 (#1184))
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
+- (vesting) [\#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ICS-23 dragon-berry replace in `go.mod` as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 
@@ -79,8 +56,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
+- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Set default mempool configuration to `"v1"` (prioritized mempool)
 - (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
-- (deps) [\#1098](https://github.com/evmos/evmos/pull/1098) Bump Cosmos SDK to [`v0.46.6`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.6)
 - (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
 - (vesting) [\#1087](https://github.com/evmos/evmos/pull/1087) Add new `MsgUpdateVestingFunder` that updates the `Funder` field of a given clawback vesting account
 - (ibc) [\#1081](https://github.com/evmos/evmos/pull/1081) Added utils functions for ibc denoms.
@@ -96,6 +74,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
 - (cmd) [\#1121](https://github.com/evmos/evmos/pull/1121) Fix `evmosd version` to show either tag or last commit.
 - (cmd) [\#1120](https://github.com/evmos/evmos/pull/1120) Fix snapshot configuration
 - (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.
