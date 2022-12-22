@@ -8,7 +8,7 @@ The `x/incentives` module implements two transaction hooks from the `x/evm` and 
 
 ## EVM Hook - Gas Metering
 
-The EVM hook updates the logs that keep track of much gas was used for interacting with an incentived contract during one epoch. An [EVM hook](https://evmos.dev/modules/evm/06_hooks.html) executes custom logic after each successful evm transaction. In this case it updates the incentive’s total gas count and the participant's own gas count.
+The EVM hook updates the logs that keep track of much gas was used for interacting with an incentived contract during one epoch. An [EVM hook](https://docs.evmos.org/modules/evm/06_hooks.html) executes custom logic after each successful evm transaction. In this case it updates the incentive’s total gas count and the participant's own gas count.
 
 1. User submits an EVM transaction to an incentivized smart contract and the transaction is finished successfully.
 2. The EVM hook’s `PostTxProcessing` method is called on the incentives module. It is passed a transaction receipt that includes the cumulative gas used by the transaction sender to pay for the gas fees. The hook
