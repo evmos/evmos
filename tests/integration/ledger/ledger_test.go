@@ -37,7 +37,7 @@ var (
 	}
 )
 
-var _ = Describe("ledger cli and keyring functionality", func() {
+var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	var (
 		receiverAccAddr sdk.AccAddress
 		encCfg          params.EncodingConfig
