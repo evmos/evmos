@@ -55,25 +55,23 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	s.SetupTest()
 	s.SetupEvmosApp()
 
-	Describe("Perform key addition", func() {
+	Describe("Adding a key from ledger using the CLI", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
 			encCfg = encoding.MakeConfig(app.ModuleBasics)
+
+			cmd = keys.AddKeyCommand()
+			cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+
+			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
+
+			kr, clientCtx, ctx = s.NewKeyringAndCtxs(krHome, mockedIn, encCfg)
+
+			mocks.MClose(s.ledger)
+			mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
 		})
-		Context("add ledger key with different algorythms", func() {
-			BeforeEach(func() {
-
-				cmd = keys.AddKeyCommand()
-				cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
-
-				mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
-
-				kr, clientCtx, ctx = s.NewKeyringAndCtxs(krHome, mockedIn, encCfg)
-
-				mocks.MClose(s.ledger)
-				mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
-			})
-			It("should add the ledger key with eth_secp256k1", func() {
+		Context("with eth_secp256k1 algo", func() {
+			It("should add the ledger key ", func() {
 				out, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
 					fmt.Sprintf("--%s", flags.FlagUseLedger),
@@ -87,8 +85,9 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 				_, err = kr.Key(ledgerKey)
 				s.Require().NoError(err, "can't find ledger key")
 			})
-			It("should return error on ledger key addition with secp256k1", func() {
-
+		})
+		Context("with secp256k1 algo", func() {
+			It("should return error ", func() {
 				_, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
 					fmt.Sprintf("--%s", flags.FlagUseLedger),
@@ -101,7 +100,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			})
 		})
 	})
-	Describe("Perform transaction signing", func() {
+	Describe("Singing a transactions", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
 			encCfg = encoding.MakeConfig(app.ModuleBasics)
@@ -125,8 +124,8 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			keyRecord, err = kr.Key(ledgerKey)
 			s.Require().NoError(err, "can't find ledger key")
 		})
-		Context("tx bank send", func() {
-			Context("keyring execution scope", func() {
+		Context("perform bank send", func() {
+			Context("with keyring functions calling", func() {
 				BeforeEach(func() {
 
 					s.ledger = mocks.NewSECP256K1(s.T())
@@ -135,7 +134,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					mocks.MGetPublicKeySECP256K1(s.ledger, s.pubKey)
 
 				})
-				It("should return provided to sign message", func() {
+				It("should return valid signature", func() {
 					mocks.MSignSECP256K1(s.ledger, signOkMock, nil)
 
 					ledgerAddr, err := keyRecord.GetAddress()
@@ -164,7 +163,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					s.Require().Equal(mocks.ErrMockedSigning.Error(), err.Error(), "original and returned errors are not equal")
 				})
 			})
-			Context("CLI execution scope", func() {
+			Context("with cli command", func() {
 				BeforeEach(func() {
 					s.ledger = mocks.NewSECP256K1(s.T())
 
@@ -191,7 +190,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					mocks.MEnsureExist(s.accRetriever, nil)
 					mocks.MGetAccountNumberSequence(s.accRetriever, 0, 0, nil)
 				})
-				It("should execute bank tx", func() {
+				It("should execute bank tx cmd", func() {
 					mocks.MSignSECP256K1(s.ledger, signOkMock, nil)
 
 					cmd.SetContext(ctx)
@@ -209,7 +208,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					s.Require().NoError(err, "can't execute cli tx command")
 				})
-				It("should execute bank tx", func() {
+				It("should return error from ledger device", func() {
 					mocks.MSignSECP256K1(s.ledger, signErrMock, mocks.ErrMockedSigning)
 
 					cmd.SetContext(ctx)
