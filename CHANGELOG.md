@@ -84,6 +84,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (app) [#1165](https://github.com/evmos/evmos/pull/1165) Update Ledger supported algorithms to only consist of `EthSecp256k1`
 - (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
 - (cmd) [\#1120](https://github.com/evmos/evmos/pull/1120) Fix snapshot configuration
 - (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.
