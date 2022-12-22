@@ -330,7 +330,7 @@ build-docs-versioned:
 
 test: test-unit
 test-all: test-unit test-race
-PACKAGES_UNIT=$(shell go list ./...)
+PACKAGES_UNIT=$(shell go list ./... | grep -v '/tests/e2e')
 TEST_PACKAGES=./...
 TEST_TARGETS := test-unit test-unit-cover test-race
 

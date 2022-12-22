@@ -3,6 +3,8 @@ package types
 import (
 	"time"
 
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/tendermint/tendermint/libs/log"
@@ -60,3 +62,12 @@ type EVMKeeper interface {
 
 // Stakekeeper defines the expected staking keeper interface used on incentives
 type StakeKeeper interface{}
+
+type (
+	LegacyParams = paramtypes.ParamSet
+	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
+	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
+	Subspace interface {
+		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
+	}
+)

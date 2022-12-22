@@ -6,6 +6,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -114,16 +115,14 @@ func (k Keeper) RegisterRevenue(
 		"withdraw", effectiveWithdrawer,
 	)
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeRegisterRevenue,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
-				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, effectiveWithdrawer),
-			),
-		},
-	)
+	err := ctx.EventManager().EmitTypedEvent(&types.EventRegisterRevenue{
+		DeployerAddress:     msg.DeployerAddress,
+		ContractAddress:     msg.ContractAddress,
+		EffectiveWithdrawer: effectiveWithdrawer,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.MsgRegisterRevenueResponse{}, nil
 }
@@ -189,16 +188,14 @@ func (k Keeper) UpdateRevenue(
 	revenue.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetRevenue(ctx, revenue)
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeUpdateRevenue,
-				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
-				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
-			),
-		},
-	)
+	err := ctx.EventManager().EmitTypedEvent(&types.EventUpdateRevenue{
+		ContractAddress:   msg.ContractAddress,
+		DeployerAddress:   msg.DeployerAddress,
+		WithdrawerAddress: msg.WithdrawerAddress,
+	})
+	if err != nil {
+		k.Logger(ctx).Error(err.Error())
+	}
 
 	return &types.MsgUpdateRevenueResponse{}, nil
 }
@@ -248,15 +245,30 @@ func (k Keeper) CancelRevenue(
 		)
 	}
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeCancelRevenue,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
-				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-			),
-		},
-	)
+	err := ctx.EventManager().EmitTypedEvent(&types.EventCancelRevenue{
+		DeployerAddress: msg.DeployerAddress,
+		ContractAddress: msg.ContractAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.MsgCancelRevenueResponse{}, nil
+}
+
+// UpdateParams implements the gRPC MsgServer interface. When an UpdateParams
+// proposal passes, it updates the module parameters. The update can only be
+// performed if the requested authority is the Cosmos SDK governance module
+// account.
+func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+	if k.authority.String() != req.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority.String(), req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.SetParams(ctx, req.Params); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateParamsResponse{}, nil
 }

@@ -183,9 +183,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	}
 }
 
-var (
-	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-)
+var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 func (suite *KeeperTestSuite) sendAndReceiveMessage(
 	path *ibcgotesting.Path,

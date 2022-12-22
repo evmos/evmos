@@ -25,7 +25,7 @@ As described above, developers will earn a portion of the transaction fee after 
 
 ### EVM Transaction Fees
 
-Users pay transaction fees to pay interact with smart contracts using the EVM. When a transaction is executed, the entire fee amount (`gasLimit * gasPrice`) is sent to the `FeeCollector` module account during the [Cosmos SDK AnteHandler](https://docs.cosmos.network/main/modules/auth/#antehandlers) execution. After the EVM executes the transaction, the user receives a refund of `(gasLimit - gasUsed) * gasPrice`. In result a user pays a total transaction fee of `txFee = gasUsed * gasPrice` for the execution.
+Users pay transaction fees to pay interact with smart contracts using the EVM. When a transaction is executed, the entire fee amount (`gasLimit * gasPrice`) is sent to the `FeeCollector` module account during the [Cosmos SDK AnteHandler](https://docs.cosmos.network/main/modules/auth#antehandlers) execution. After the EVM executes the transaction, the user receives a refund of `(gasLimit - gasUsed) * gasPrice`. In result a user pays a total transaction fee of `txFee = gasUsed * gasPrice` for the execution.
 
 This transaction fee is distributed between developers and validators, in accordance with the `x/revenue` module parameters: `DeveloperShares`, `ValidatorShares`. This distribution is handled through the EVM's [`PostTxProcessing` Hook](./05_hooks.md).
 
