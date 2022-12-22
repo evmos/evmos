@@ -81,8 +81,7 @@ func (suite *LedgerTestSuite) SetupTest() {
 	suite.accAddr = sdk.MustAccAddressFromBech32(addr)
 }
 
-func (s *LedgerTestSuite) SetupEvmosApp() {
-
+func (suite *LedgerTestSuite) SetupEvmosApp() {
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
 	s.Require().NoError(err, "can't generate private key")
@@ -91,7 +90,7 @@ func (s *LedgerTestSuite) SetupEvmosApp() {
 	s.accAddr = sdk.AccAddress(s.ethAddr.Bytes())
 	s.signer = tests.NewSigner(priv)
 
-	// consensus kye
+	// consensus key
 	privConsKey, err := ethsecp256k1.GenerateKey()
 	s.Require().NoError(err, "can't generate private key")
 	consAddress := sdk.ConsAddress(privConsKey.PubKey().Address())
