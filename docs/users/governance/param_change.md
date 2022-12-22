@@ -24,7 +24,7 @@ For a comprehensive list of available module parameters see the table below:
 | `slashing`     | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/slashing#parameters)        |
 | `staking`      | `cosmos-sdk` | [reference](https://docs.cosmos.network/main/modules/staking#parameters)         |
 | `transfer`     | `ibc-go`     | [reference](https://ibc.cosmos.network/main/ibc/params.html)                    |
-| `evm`          | `ethermint`  | [reference](https://docs.evmos.org/modules/evm/08_params.htmll)                     |
+| `evm`          | `ethermint`  | [reference](https://docs.evmos.org/modules/evm/08_params.html)                     |
 | `feemarket`    | `ethermint`  | [reference](https://docs.evmos.org/modules/feemarket/07_params.html)                |
 | `claims`       | `evmos`      | [reference](https://docs.evmos.org/modules/claims/06_parameters.html)               |
 | `erc20`        | `evmos`      | [reference](https://docs.evmos.org/modules/erc20/07_parameters.html)                |

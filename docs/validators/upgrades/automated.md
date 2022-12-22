@@ -18,7 +18,7 @@ Learn how to automate chain upgrades using Cosmovisor. {synopsis}
 👉 For more info about Cosmovisor, please refer to the project official documentation [here](https://docs.cosmos.network/main/tooling/cosmovisor).
 :::
 
-We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
+We highly recommend validators use Cosmovisor to run their nodes. This will make low-downtime upgrades smoother, as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. Instead users can [pre-install](#2.a%29-manual-download) new binaries, and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
 ### 1. Setup Cosmovisor
 
