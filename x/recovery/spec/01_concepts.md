@@ -25,7 +25,7 @@ ethsecpAddrCosmos := sdk.MustBech32ifyAddressBytes(sdk.Bech32MainPrefix, ethsecp
 
 The above example code demonstrates a simple user account creation on Evmos.
 On the second line, a private key is generated using the `eth_secp256k1` curve, which is used to create a human readable `PubKey` string.
-For more detailed info on accounts, please check the [accounts section](https://evmos.dev/technical_concepts/accounts.html#evmos-accounts) in the official Evmos documentation.
+For more detailed info on accounts, please check the [accounts section](https://docs.evmos.org/users/technical_concepts/accounts.html#evmos-accounts) in the official Evmos documentation.
 
 ## Stuck funds
 
