@@ -39,6 +39,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+<<<<<<< HEAD
+=======
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
+- (erc20) [#1100](https://github.com/evmos/evmos/pull/1100) Deprecate usage of x/params in x/erc20
+- (inflation) [#1107](https://github.com/evmos/evmos/pull/1107) Deprecate usage of x/params in x/inflation
+- (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of x/params in x/incentives
+- (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
+- (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of x/params in x/revenue
+>>>>>>> 6e83c7e (chore (app, deps): address open points for rc4 release (#1190))
 - (deps) [#1184](https://github.com/evmos/evmos/pull/1184) Bump Ethermint version to [`v0.20.0-rc5`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc5)
 - (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
 - (vesting) [\#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
@@ -57,6 +66,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
+<<<<<<< HEAD
 - (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Set default mempool configuration to `"v1"` (prioritized mempool)
 - (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
 - (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
@@ -66,6 +76,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
 - (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
 - (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
+=======
+- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
+- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
+- (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
+- (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new TypedEvent
+- (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
+- (erc20) [\#1059](https://github.com/evmos/evmos/pull/1059) Add util functions (iterator and params) for ERC20 module.
+- (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
+>>>>>>> 6e83c7e (chore (app, deps): address open points for rc4 release (#1190))
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
