@@ -303,7 +303,7 @@ func (a appCreator) appExport(
 func initTendermintConfig() *tmcfg.Config {
 	cfg := tmcfg.DefaultConfig()
 	cfg.Consensus.TimeoutCommit = time.Second
-	cfg.Mempool.Version = tmcfg.MempoolV1
+	cfg.Mempool.Version = tmcfg.MempoolV0
 
 	// to put a higher strain on node memory, use these values:
 	// cfg.P2P.MaxNumInboundPeers = 100
