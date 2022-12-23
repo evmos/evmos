@@ -7,15 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
-
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
@@ -25,8 +23,6 @@ import (
 
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evm "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	evmoskeyring "github.com/evmos/evmos/v10/crypto/keyring"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -45,18 +41,13 @@ type LedgerTestSuite struct {
 	app *app.Evmos
 	ctx sdk.Context
 
-	queryClient    bankTypes.QueryClient
-	queryClientEvm evm.QueryClient
-
 	ledger       *mocks.SECP256K1
 	accRetriever *mocks.AccountRetriever
 
-	ethAddr     common.Address
-	accAddr     sdk.AccAddress
-	signer      keyring.Signer
-	privKey     *ethsecp256k1.PrivKey
-	pubKey      types.PubKey
-	consAddress sdk.ConsAddress
+	accAddr sdk.AccAddress
+
+	privKey types.PrivKey
+	pubKey  types.PubKey
 }
 
 func TestLedger(t *testing.T) {
@@ -68,21 +59,23 @@ func TestLedger(t *testing.T) {
 }
 
 func (suite *LedgerTestSuite) SetupTest() {
-	var err error
-	suite.ledger = mocks.NewSECP256K1(s.T())
-	suite.privKey, err = ethsecp256k1.GenerateKey()
-	s.Require().NoError(err)
-	suite.pubKey = suite.privKey.PubKey()
+	var (
+		err     error
+		ethAddr common.Address
+	)
 
-	addr, err := sdk.Bech32ifyAddressBytes("evmos", s.pubKey.Address().Bytes())
-	suite.Require().NoError(err)
-	suite.accAddr = sdk.MustAccAddressFromBech32(addr)
-	suite.ethAddr = common.BytesToAddress(suite.privKey.PubKey().Address().Bytes())
-	suite.signer = tests.NewSigner(suite.privKey)
+	suite.ledger = mocks.NewSECP256K1(s.T())
+
+	ethAddr, s.privKey = tests.NewAddrKey()
+
+	s.Require().NoError(err)
+	suite.pubKey = s.privKey.PubKey()
+
+	suite.accAddr = sdk.AccAddress(ethAddr.Bytes())
 }
 
 func (suite *LedgerTestSuite) SetupEvmosApp() {
-	suite.consAddress = sdk.ConsAddress(tests.GenerateAddress().Bytes())
+	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
 
 	// init app
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
@@ -90,7 +83,7 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 		Height:          1,
 		ChainID:         "evmos_9001-1",
 		Time:            time.Now().UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
+		ProposerAddress: consAddress.Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -111,14 +104,6 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
 
-	// query clients
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	bankTypes.RegisterQueryServer(queryHelper, suite.app.BankKeeper)
-	suite.queryClient = bankTypes.NewQueryClient(queryHelper)
-
-	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 }
 
 func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, encCfg params.EncodingConfig) (keyring.Keyring, client.Context, context.Context) {
