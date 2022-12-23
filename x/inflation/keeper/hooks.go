@@ -44,10 +44,16 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	}
 
 	// mint coins, update supply
-	epochMintProvision, found := k.GetEpochMintProvision(ctx)
-	if !found {
-		panic("the epochMintProvision was not found")
-	}
+	period := k.GetPeriod(ctx)
+	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
+	bondedRatio := k.BondedRatio(ctx)
+
+	epochMintProvision := types.CalculateEpochMintProvision(
+		params,
+		period,
+		epochsPerPeriod,
+		bondedRatio,
+	)
 
 	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
 	staking, incentives, communityPool, err := k.MintAndAllocateInflation(ctx, mintedCoin)
@@ -55,8 +61,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		panic(err)
 	}
 
-	period := k.GetPeriod(ctx)
-	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
 	newProvision := epochMintProvision
 
 	// If period is passed, update the period and epochMintProvision. A period is
@@ -72,15 +76,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	if epochNumber-epochsPerPeriod*int64(period)-int64(skippedEpochs) > epochsPerPeriod {
 		period++
 		k.SetPeriod(ctx, period)
-		period = k.GetPeriod(ctx)
-		bondedRatio := k.BondedRatio(ctx)
-		newProvision = types.CalculateEpochMintProvision(
-			params,
-			period,
-			epochsPerPeriod,
-			bondedRatio,
-		)
-		k.SetEpochMintProvision(ctx, newProvision)
 	}
 
 	defer func() {
