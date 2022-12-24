@@ -10,7 +10,7 @@ The `x/vesting` module does not keep objects in its own store. Instead, it uses 
 
 ## ClawbackVestingAccount
 
-An instance that implements the [Vesting Account](https://docs.cosmos.network/main/modules/vesting#vesting-account-types) interface. It provides an account that can hold contributions subject to lockup, or vesting which is subject to clawback of unvested tokens, or a combination (tokens vest, but are still locked).
+An instance that implements the [Vesting Account](https://docs.cosmos.network/main/modules/auth/vesting#vesting-account-types) interface. It provides an account that can hold contributions subject to lockup, or vesting which is subject to clawback of unvested tokens, or a combination (tokens vest, but are still locked).
 
 ```go
 type ClawbackVestingAccount struct {

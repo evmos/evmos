@@ -11,7 +11,7 @@ parent:
 
 This document specifies the internal `x/vesting` module of the Evmos Hub.
 
-The `x/vesting` module introduces the `ClawbackVestingAccount`,  a new vesting account type that implements the Cosmos SDK [`VestingAccount`](https://docs.cosmos.network/main/modules/vesting#vesting-account-types) interface. This account is used to allocate tokens that are subject to vesting, lockup, and clawback.
+The `x/vesting` module introduces the `ClawbackVestingAccount`,  a new vesting account type that implements the Cosmos SDK [`VestingAccount`](https://docs.cosmos.network/main/modules/auth/vesting#vesting-account-types) interface. This account is used to allocate tokens that are subject to vesting, lockup, and clawback.
 
 The `ClawbackVestingAccount` allows any two parties to agree on a future rewarding schedule, where tokens are granted permissions over time. The parties can use this account to enforce legal contracts or commit to mutual long-term interests.
 
@@ -31,7 +31,7 @@ For Evmos, the `ClawbackVestingAccount` is used to allocate tokens to core team 
 
 ## References
 
-- SDK vesting specification: [https://docs.cosmos.network/main/modules/auth/05_vesting.html](https://docs.cosmos.network/main/modules/auth/05_vesting.html)
+- SDK vesting specification: [https://docs.cosmos.network/main/modules/auth/vesting](https://docs.cosmos.network/main/modules/auth/vesting)
 - SDK vesting implementation: [https://github.com/cosmos/cosmos-sdk/tree/master/x/auth/vesting](https://github.com/cosmos/cosmos-sdk/tree/master/x/auth/vesting)
 - Agoric’s Vesting Clawback Account: [https://github.com/Agoric/agoric-sdk/issues/4085](https://github.com/Agoric/agoric-sdk/issues/4085)
 - Agoric’s `vestcalc` tool: [https://github.com/agoric-labs/cosmos-sdk/tree/Agoric/x/auth/vesting/cmd/vestcalc](https://github.com/agoric-labs/cosmos-sdk/tree/Agoric/x/auth/vesting/cmd/vestcalc)
