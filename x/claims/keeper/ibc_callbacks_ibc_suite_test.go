@@ -59,8 +59,10 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.chainA.GetContext().BlockTime()
 	params.EnableClaims = true
-	suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
-	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+	err = suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
+	suite.Require().NoError(err)
+	err = suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+	suite.Require().NoError(err)
 
 	suite.pathEVM = ibctesting.NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
 	suite.coordinator.Setup(suite.pathEVM)                                 // clientID, connectionID, channelID filled
@@ -80,8 +82,8 @@ func TestIBCTestingSuite(t *testing.T) {
 }
 
 func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
-	sender := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"
-	receiver := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625"
+	sender := "evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms"   //nolint:goconst
+	receiver := "evmos1hf0468jjpe6m6vx38s97z2qqe8ldu0njdyf625" //nolint:goconst
 
 	senderAddr, err := sdk.AccAddressFromBech32(sender)
 	suite.Require().NoError(err)
@@ -98,8 +100,8 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 			func(_ int64) {
 				params := types.DefaultParams()
 				params.EnableClaims = false
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params) //nolint:errcheck
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params) //nolint:errcheck
 			},
 			4,
 			0,
@@ -194,8 +196,8 @@ func (suite *IBCTestingSuite) TestOnRecvPacketIBC() {
 			func(_ int64) {
 				params := types.DefaultParams()
 				params.EnableClaims = false
-				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params)
-				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params)
+				suite.chainA.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainA.GetContext(), params) //nolint:errcheck
+				suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetParams(suite.chainB.GetContext(), params) //nolint:errcheck
 			},
 			func() {},
 			4,

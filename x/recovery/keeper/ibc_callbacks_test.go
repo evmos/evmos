@@ -71,7 +71,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			func() {
 				params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
 				params.EnableRecovery = false
-				suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+				suite.app.RecoveryKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			true,
 			false,

@@ -84,7 +84,8 @@ func (suite *KeeperTestSuite) TestTransfer() {
 
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				err = suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.Commit()
 
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)
@@ -110,7 +111,8 @@ func (suite *KeeperTestSuite) TestTransfer() {
 
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				err = suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.Commit()
 
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.String(), "", timeoutHeight, 0)

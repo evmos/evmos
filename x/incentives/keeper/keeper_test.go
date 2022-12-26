@@ -301,10 +301,10 @@ func (suite *KeeperTestSuite) BurnERC20Token(
 func (suite *KeeperTestSuite) GrantERC20Token(
 	contractAddr,
 	from, to common.Address,
-	role_string string,
+	roleString string,
 ) *evm.MsgEthereumTx {
 	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
-	role := crypto.Keccak256([]byte(role_string))
+	role := crypto.Keccak256([]byte(roleString))
 	// needs to be an array not a slice
 	var v [32]byte
 	copy(v[:], role)

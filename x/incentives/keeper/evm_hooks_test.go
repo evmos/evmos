@@ -43,7 +43,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 			func(_ common.Address) {
 				params := types.DefaultParams()
 				params.EnableIncentives = false
-				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 		},

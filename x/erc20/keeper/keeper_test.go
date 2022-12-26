@@ -716,7 +716,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		return common.Address{}, err
 	}
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 
 	nonce := s.app.EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
 	erc20DeployTx := evm.NewTxContract(

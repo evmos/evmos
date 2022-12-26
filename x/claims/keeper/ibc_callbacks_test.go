@@ -62,7 +62,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 			func() {
 				err := errorsmod.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
 				suite.Require().Error(err)
-				suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
+				_ = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
 			},
 		},
 		{

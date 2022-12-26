@@ -39,7 +39,8 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableEVMHook = true
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			err := s.app.Erc20Keeper.SetParams(s.ctx, params)
+			Expect(err).To(BeNil())
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
