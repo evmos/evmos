@@ -198,7 +198,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 					s.Commit()
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(developerCoins.IsPositive()).To(BeTrue())
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -265,7 +265,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 					s.Commit()
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddress, denom)
 					Expect(developerCoins.IsPositive()).To(BeTrue())
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -297,7 +297,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					gasPrice := big.NewInt(2000000000)
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-					developerCoins, validatorCoins := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, validatorCoins := calculateFees(denom, params, res, gasPrice)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 
@@ -322,7 +322,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					developerCoins, validatorCoins := calculateFees(denom, params, res, gasFeeCap, 14)
+					developerCoins, validatorCoins := calculateFees(denom, params, res, gasFeeCap)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -352,7 +352,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					_, validatorCoins := calculateFees(denom, params, res, gasFeeCap, 10)
+					_, validatorCoins := calculateFees(denom, params, res, gasFeeCap)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance))
@@ -382,7 +382,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -441,7 +441,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 					s.Commit()
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balanceD := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					balanceW := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddress, denom)
 					Expect(balanceW).To(Equal(preBalanceW.Add(developerCoins)))
@@ -607,7 +607,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					gasPrice := big.NewInt(2000000000)
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 					s.Commit()
@@ -628,7 +628,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 					s.Commit()
@@ -724,7 +724,6 @@ func calculateFees(
 	params types.Params,
 	res abci.ResponseDeliverTx,
 	gasPrice *big.Int,
-	logIndex int64,
 ) (sdk.Coin, sdk.Coin) {
 	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
@@ -909,13 +908,6 @@ func deliverEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	return res
 }
 
-func checkEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseCheckTx {
-	bz := prepareEthTx(priv, msgEthereumTx)
-	req := abci.RequestCheckTx{Tx: bz}
-	res := s.app.BaseApp.CheckTx(req)
-	return res
-}
-
 func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) []byte {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
@@ -976,16 +968,9 @@ func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...
 	return bz
 }
 
-func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx {
+func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx { //nolint:unparam
 	bz := prepareCosmosTx(priv, gasPrice, msgs...)
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
-	return res
-}
-
-func checkTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseCheckTx {
-	bz := prepareCosmosTx(priv, gasPrice, msgs...)
-	req := abci.RequestCheckTx{Tx: bz}
-	res := s.app.BaseApp.CheckTx(req)
 	return res
 }

@@ -157,8 +157,10 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 			contractAddr := common.HexToAddress(pair.Erc20Address)
 
 			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
-			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			suite.Require().NoError(err, tc.name)
+			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+			suite.Require().NoError(err, tc.name)
 
 			convertCoin := types.NewMsgConvertCoin(
 				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
@@ -167,7 +169,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 			)
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			_, err := suite.app.Erc20Keeper.ConvertCoin(ctx, convertCoin)
+			_, err = suite.app.Erc20Keeper.ConvertCoin(ctx, convertCoin)
 			suite.Require().NoError(err, tc.name)
 			suite.Commit()
 
@@ -179,7 +181,7 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 			// Burn the 10 tokens of suite.address (owner)
 			_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(tc.reconvert))
 
-			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
+			_ = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
 
 			if tc.result {

@@ -528,7 +528,8 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
 	s.Require().NoError(err)
 	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(amount)))
-	txBuilder.SetMsgs(delegateMsg)
+	err = txBuilder.SetMsgs(delegateMsg)
+	s.Require().NoError(err)
 	tx := txBuilder.GetTx()
 
 	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
@@ -548,7 +549,9 @@ func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	txBuilder.SetMsgs(msgEthereumTx)
+	err = txBuilder.SetMsgs(msgEthereumTx)
+	s.Require().NoError(err)
+
 	tx := txBuilder.GetTx()
 
 	// Call Ante decorator

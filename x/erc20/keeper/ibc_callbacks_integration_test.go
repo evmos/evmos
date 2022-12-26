@@ -321,7 +321,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		})
 	})
 	Describe("registered erc20", func() {
-		BeforeEach(func() {
+		BeforeEach(func() { //nolint:dupl
 			erc20params := types.DefaultParams()
 			erc20params.EnableErc20 = true
 			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
@@ -579,7 +579,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 		})
 	})
 	Describe("registered erc20", func() {
-		BeforeEach(func() {
+		BeforeEach(func() { //nolint:dupl
 			erc20params := types.DefaultParams()
 			erc20params.EnableErc20 = true
 			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)

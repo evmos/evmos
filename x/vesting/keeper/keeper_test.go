@@ -57,17 +57,16 @@ var (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx              sdk.Context
-	app              *app.Evmos
-	queryClientEvm   evm.QueryClient
-	queryClient      types.QueryClient
-	address          common.Address
-	consAddress      sdk.ConsAddress
-	validator        stakingtypes.Validator
-	clientCtx        client.Context
-	ethSigner        ethtypes.Signer
-	signer           keyring.Signer
-	mintFeeCollector bool
+	ctx            sdk.Context
+	app            *app.Evmos
+	queryClientEvm evm.QueryClient
+	queryClient    types.QueryClient
+	address        common.Address
+	consAddress    sdk.ConsAddress
+	validator      stakingtypes.Validator
+	clientCtx      client.Context
+	ethSigner      ethtypes.Signer
+	signer         keyring.Signer
 }
 
 var s *KeeperTestSuite
@@ -161,7 +160,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)

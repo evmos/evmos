@@ -132,7 +132,8 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 				cr := types.NewClaimsRecord(sdk.NewInt(100))
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.AirdropStartTime = suite.ctx.BlockTime().Add(-time.Minute)
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 			},
 			sdk.NewInt(100),

@@ -374,7 +374,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "Test", "TTT", uint8(18))
 	s.Require().NoError(err)
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &s.address,
 		Data: (*hexutil.Bytes)(&data),

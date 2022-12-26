@@ -89,9 +89,9 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			}, false, false,
 		},
-		{
+		{ //nolint:dupl
 			"fail - force evm fail", 100, 10, func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -108,7 +108,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 		},
 		{
 			"fail - force evm balance error", 100, 10, func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -223,9 +223,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			},
 			false,
 		},
-		{
+		{ //nolint:dupl
 			"fail - force evm fail", 100, 10, 5,
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -243,7 +243,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 		},
 		{
 			"fail - force fail second balance", 100, 10, 5,
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -321,7 +321,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			false,
 		},
 	}
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
@@ -427,10 +427,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			10,
 			10,
 			func(erc20 common.Address) {
-				stateDb := suite.StateDB()
-				ok := stateDb.Suicide(erc20)
+				stateDB := suite.StateDB()
+				ok := stateDB.Suicide(erc20)
 				suite.Require().True(ok)
-				suite.Require().NoError(stateDb.Commit())
+				suite.Require().NoError(stateDB.Commit())
 			},
 			func() {},
 			contractMinterBurner,
@@ -510,7 +510,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -533,7 +533,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -557,7 +557,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -792,12 +792,12 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			contractMinterBurner,
 			false,
 		},
-		{
+		{ //nolint:dupl
 			"fail - force evm fail",
 			100,
 			10,
 			func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -819,7 +819,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -841,7 +841,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			100,
 			10,
 			func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -1023,10 +1023,10 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 			10,
 			10,
 			func(erc20 common.Address) {
-				stateDb := suite.StateDB()
-				ok := stateDb.Suicide(erc20)
+				stateDB := suite.StateDB()
+				ok := stateDB.Suicide(erc20)
 				suite.Require().True(ok)
-				suite.Require().NoError(stateDb.Commit())
+				suite.Require().NoError(stateDB.Commit())
 			},
 			func() {},
 			true,
@@ -1061,9 +1061,9 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 				suite.app.AccountKeeper.RemoveAccount(suite.ctx, acc)
 			}, false, false,
 		},
-		{
+		{ //nolint:dupl
 			"fail - force evm fail", 100, 10, func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -1080,7 +1080,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 		},
 		{
 			"fail - force evm balance error", 100, 10, func(common.Address) {},
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -1195,9 +1195,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			},
 			false,
 		},
-		{
+		{ //nolint:dupl
 			"fail - force evm fail", 100, 10, 5,
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -1215,7 +1215,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 		},
 		{
 			"fail - force fail second balance", 100, 10, 5,
-			func() {
+			func() { //nolint:dupl
 				mockEVMKeeper := &MockEVMKeeper{}
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
@@ -1294,7 +1294,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			false,
 		},
 	}
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()

@@ -60,7 +60,7 @@ func (suite *KeeperTestSuite) TestGetTokenPairID() {
 	testCases := []struct {
 		name  string
 		token string
-		expId []byte
+		expID []byte
 	}{
 		{"nil token", "", nil},
 		{"valid hex token", tests.GenerateAddress().Hex(), []byte{}},
@@ -69,7 +69,7 @@ func (suite *KeeperTestSuite) TestGetTokenPairID() {
 	for _, tc := range testCases {
 		id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, tc.token)
 		if id != nil {
-			suite.Require().Equal(tc.expId, id, tc.name)
+			suite.Require().Equal(tc.expID, id, tc.name)
 		} else {
 			suite.Require().Nil(id)
 		}

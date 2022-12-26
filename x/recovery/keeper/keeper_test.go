@@ -73,7 +73,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	claimsParams := claimstypes.DefaultParams()
 	claimsParams.AirdropStartTime = suite.ctx.BlockTime()
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams)
+	suite.Require().NoError(err)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
