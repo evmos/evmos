@@ -40,7 +40,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableEVMHook = false
 			params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
@@ -52,7 +52,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
@@ -64,7 +64,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableEVMHook = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)

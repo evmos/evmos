@@ -603,7 +603,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				BaseDenom: pair.Denom,
 			}
 
-			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
+			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1) //nolint:errcheck
 		})
 		It("should transfer available balance", func() {
 			// Mint tokens and send to receiver

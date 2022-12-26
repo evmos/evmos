@@ -312,7 +312,8 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 
 	params := types.DefaultParams()
 	params.EnableErc20 = true
-	s.app.Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
+	err = s.app.Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
+	suite.Require().NoError(err)
 
 	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
 	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)

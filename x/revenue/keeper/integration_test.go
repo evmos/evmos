@@ -66,11 +66,13 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		// setup deployer account
 		deployerKey, deployerAddress = generateKey()
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress, initBalance)
+		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress, initBalance)
+		Expect(err).To(BeNil())
 
 		// setup account interacting with registered contracts
 		userKey, userAddress = generateKey()
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, userAddress, initBalance)
+		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, userAddress, initBalance)
+		Expect(err).To(BeNil())
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, userAddress)
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 		s.Commit()
