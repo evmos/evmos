@@ -57,7 +57,7 @@ type KeeperTestSuite struct {
 	queryClient      types.QueryClient
 	address          common.Address
 	consAddress      sdk.ConsAddress
-	clientCtx        client.Context
+	clientCtx        client.Context //nolint:unused
 	ethSigner        ethtypes.Signer
 	validator        stakingtypes.Validator
 	signer           keyring.Signer
@@ -294,7 +294,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	suite.Require().NoError(err)
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	suite.Require().NoError(err)
 

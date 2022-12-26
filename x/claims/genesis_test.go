@@ -62,7 +62,8 @@ func (suite *GenesisTestSuite) SetupTest() {
 
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime()
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()

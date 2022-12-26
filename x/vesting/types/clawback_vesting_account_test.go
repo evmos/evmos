@@ -443,7 +443,7 @@ func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 
 			va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
 
-			if tc.expDelegationPanic {
+			if tc.expDelegationPanic { //nolint:gocritic
 				suite.Require().Panics(func() {
 					tc.delegate(va)
 				})

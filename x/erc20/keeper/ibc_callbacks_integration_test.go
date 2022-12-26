@@ -816,6 +816,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 				[]uint64{originChain.SenderAccount.GetSequence()},
 				true, true, originChain.SenderPrivKey,
 			)
+			s.Require().NoError(err)
 
 			// check ERC20 balance was converted to ibc and sent
 			balanceERC20TokenAfter := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -826,6 +827,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			// increment sequence for successful transaction execution
 			err = originChain.SenderAccount.SetSequence(originChain.SenderAccount.GetSequence() + 1)
+			s.Require().NoError(err)
 
 			// Increment time so packet will timeout
 			originChain.Coordinator.IncrementTime()

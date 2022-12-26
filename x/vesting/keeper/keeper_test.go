@@ -47,19 +47,6 @@ var (
 )
 
 var (
-	participant     = tests.GenerateAddress()
-	participant2    = tests.GenerateAddress()
-	denomMint       = evm.DefaultEVMDenom
-	denomCoin       = "acoin"
-	allocationRate  = int64(5)
-	mintAllocations = sdk.DecCoins{
-		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
-	}
-	allocations = sdk.DecCoins{
-		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
-		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(allocationRate, 2)),
-	}
-	epochs        = uint32(10)
 	erc20Name     = "Coin Token"
 	erc20Symbol   = "CTKN"
 	erc20Name2    = "Coin Token 2"
@@ -200,7 +187,7 @@ func (suite *KeeperTestSuite) Commit() {
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()
-	header.Height += 1
+	header.Height++
 	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
@@ -236,7 +223,7 @@ func (suite *KeeperTestSuite) DeployContract(
 		return common.Address{}, err
 	}
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -247,7 +234,7 @@ func (suite *KeeperTestSuite) DeployContract(
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	if err != nil {
 		return common.Address{}, err

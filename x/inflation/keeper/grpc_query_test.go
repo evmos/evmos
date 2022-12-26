@@ -9,7 +9,7 @@ import (
 	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
-func (suite *KeeperTestSuite) TestPeriod() {
+func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl
 	var (
 		req    *types.QueryPeriodRequest
 		expRes *types.QueryPeriodResponse
@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestSkippedEpochs() {
+func (suite *KeeperTestSuite) TestSkippedEpochs() { //nolint:dupl
 	var (
 		req    *types.QuerySkippedEpochsRequest
 		expRes *types.QuerySkippedEpochsResponse

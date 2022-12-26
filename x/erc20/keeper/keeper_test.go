@@ -414,7 +414,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	suite.Require().NoError(err)
 

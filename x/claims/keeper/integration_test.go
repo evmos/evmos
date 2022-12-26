@@ -24,7 +24,6 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/testutil"
 	incentivestypes "github.com/evmos/evmos/v10/x/incentives/types"
@@ -56,7 +55,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
 		sdk.NewCoin(claimsDenom, initClaimsAmount),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
 	)
 
 	// account for creating the governance proposals
@@ -64,7 +63,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
 		sdk.NewCoin(claimsDenom, initClaimsAmount0),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
 	)
 
 	var (
@@ -331,7 +330,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 		"test",
 		"description",
 		contractAddress.String(),
-		sdk.DecCoins{sdk.NewDecCoinFromDec(evmtypes.DefaultEVMDenom, sdk.NewDecWithPrec(5, 2))},
+		sdk.DecCoins{sdk.NewDecCoinFromDec(evm.DefaultEVMDenom, sdk.NewDecWithPrec(5, 2))},
 		1000,
 	)
 
@@ -344,10 +343,10 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 	Expect(submitEvent.Type).To(Equal("submit_proposal"))
 	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
 
-	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
+	proposalID, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
 	s.Require().NoError(err)
 
-	return proposalId
+	return proposalID
 }
 
 func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
@@ -362,7 +361,7 @@ func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+	msgEthereumTx := evm.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 	performEthTx(priv, msgEthereumTx)
 }
@@ -385,11 +384,11 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	ctx := sdk.WrapSDKContext(s.ctx)
 	res, err := s.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	s.Require().NoError(err)
 
-	msgEthereumTx := evmtypes.NewTxContract(chainID, nonce, nil, res.Gas, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
+	msgEthereumTx := evm.NewTxContract(chainID, nonce, nil, res.Gas, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 
 	performEthTx(priv, msgEthereumTx)
@@ -402,7 +401,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	return contractAddress
 }
 
-func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) {
+func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evm.MsgEthereumTx) {
 	// Sign transaction
 	err := msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
 	s.Require().NoError(err)
@@ -410,7 +409,7 @@ func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	// Assemble transaction from fields
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	tx, err := msgEthereumTx.BuildTx(txBuilder, evmtypes.DefaultEVMDenom)
+	tx, err := msgEthereumTx.BuildTx(txBuilder, evm.DefaultEVMDenom)
 	s.Require().NoError(err)
 
 	// Encode transaction by default Tx encoder and broadcasted over the network

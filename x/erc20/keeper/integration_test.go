@@ -30,7 +30,8 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		params := s.app.Erc20Keeper.GetParams(s.ctx)
 		params.EnableEVMHook = true
 		params.EnableErc20 = true
-		s.app.Erc20Keeper.SetParams(s.ctx, params)
+		err := s.app.Erc20Keeper.SetParams(s.ctx, params)
+		Expect(err).To(BeNil())
 	})
 
 	// Epoch mechanism for triggering allocation and distribution

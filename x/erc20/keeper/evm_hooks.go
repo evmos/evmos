@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"bytes"
-	// nolint: typecheck
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

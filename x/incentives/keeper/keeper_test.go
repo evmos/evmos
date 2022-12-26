@@ -228,7 +228,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 		return common.Address{}, err
 	}
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -239,7 +239,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	if err != nil {
 		return common.Address{}, err
