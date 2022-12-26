@@ -62,7 +62,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		params = s.app.RevenueKeeper.GetParams(s.ctx)
 		params.EnableRevenue = true
-		s.app.RevenueKeeper.SetParams(s.ctx, params)
+		s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 		// setup deployer account
 		deployerKey, deployerAddress = generateKey()
@@ -167,7 +167,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		BeforeEach(func() {
 			params = types.DefaultParams()
 			params.EnableRevenue = true
-			s.app.RevenueKeeper.SetParams(s.ctx, params)
+			s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 
 		Describe("Registering a contract for receiving tx fees", func() {

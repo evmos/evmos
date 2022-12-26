@@ -565,7 +565,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 			// Enable Recovery
 			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
 			params.EnableRecovery = true
-			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			err := suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos)
 			packet := channeltypes.NewPacket(transfer.GetBytes(), 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
@@ -587,7 +588,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
 				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
 			)
-			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
 			suite.Require().NoError(err)
 
 			// Perform IBC callback

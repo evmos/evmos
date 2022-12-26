@@ -69,7 +69,8 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		BeforeEach(func() {
 			erc20params := types.DefaultParams()
 			erc20params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
 
 			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
@@ -99,7 +100,8 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		BeforeEach(func() {
 			erc20params := types.DefaultParams()
 			erc20params.EnableErc20 = true
-			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
 
 			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
@@ -107,7 +109,6 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
 
 			// Register uosmo pair
-			var err error
 			pair, err = s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
 			s.Require().NoError(err)
 		})
@@ -257,7 +258,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 	Describe("Performing claims with registered coin", func() {
 		BeforeEach(func() {
-			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), types.DefaultParams())
+			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), types.DefaultParams()) //nolint:errcheck
 
 			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			// receiver address is on Osmosis Chain also,
@@ -276,7 +277,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			params.AuthorizedChannels = []string{
 				"channel-0",
 			}
-			s.app.ClaimsKeeper.SetParams(s.EvmosChain.GetContext(), params)
+			s.app.ClaimsKeeper.SetParams(s.EvmosChain.GetContext(), params) //nolint:errcheck
 		})
 		It("it should perform the claim and convert the received tokens", func() {
 			// Register claims record
@@ -343,7 +344,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 				BaseDenom: pair.Denom,
 			}
 
-			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1)
+			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1) //nolint:errcheck
 		})
 		It("should convert erc20 ibc voucher to original erc20", func() {
 			// Mint tokens and send to receiver

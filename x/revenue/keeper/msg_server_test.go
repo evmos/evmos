@@ -323,7 +323,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 
 				params := types.DefaultParams()
 				params.EnableRevenue = false
-				suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+				suite.app.RevenueKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 			"",
@@ -549,7 +549,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 
 				params := types.DefaultParams()
 				params.EnableRevenue = false
-				suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+				suite.app.RevenueKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 			"",

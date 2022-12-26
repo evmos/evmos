@@ -83,12 +83,13 @@ var _ = Describe("Claiming", Ordered, func() {
 		params = s.app.ClaimsKeeper.GetParams(s.ctx)
 		params.EnableClaims = true
 		params.AirdropStartTime = s.ctx.BlockTime()
-		s.app.ClaimsKeeper.SetParams(s.ctx, params)
+		err := s.app.ClaimsKeeper.SetParams(s.ctx, params)
+		s.Require().NoError(err)
 
 		// mint coins for claiming and send them to the claims module
 		coins := sdk.NewCoins(totalClaimsAmount)
 
-		err := testutil.FundModuleAccount(s.ctx, s.app.BankKeeper, inflationtypes.ModuleName, coins)
+		err = testutil.FundModuleAccount(s.ctx, s.app.BankKeeper, inflationtypes.ModuleName, coins)
 		s.Require().NoError(err)
 		err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 		s.Require().NoError(err)
@@ -96,13 +97,15 @@ var _ = Describe("Claiming", Ordered, func() {
 		// fund testing accounts and create claim records
 		priv0, _ = ethsecp256k1.GenerateKey()
 		addr0 = getAddr(priv0)
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, addr0, initBalance0)
+		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, addr0, initBalance0)
+		s.Require().NoError(err)
 
 		for i := 0; i < accountCount; i++ {
 			priv, _ := ethsecp256k1.GenerateKey()
 			privs = append(privs, priv)
 			addr := getAddr(priv)
-			testutil.FundAccount(s.ctx, s.app.BankKeeper, addr, initBalance)
+			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, addr, initBalance)
+			s.Require().NoError(err)
 			claimsRecord := types.NewClaimsRecord(claimValue)
 			s.app.ClaimsKeeper.SetClaimsRecord(s.ctx, addr, claimsRecord)
 			acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, addr)

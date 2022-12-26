@@ -483,7 +483,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 					"channel-0", // Osmosis
 					"channel-3", // Cosmos Hub
 				}
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos)
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)

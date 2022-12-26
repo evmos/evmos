@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 		{
 			"no claim record",
 			func() {
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 			},
 		},
 		{
@@ -163,7 +163,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 			},
 		},
 		{
@@ -183,7 +183,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 			},
 		},
 		{
@@ -208,7 +208,8 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				err = suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
 				suite.Require().True(found)
@@ -237,7 +238,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
 				suite.Require().True(found)

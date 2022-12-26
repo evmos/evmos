@@ -275,7 +275,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() { //nolint:govet // we can copy
 		{
 			"meta data already stored",
 			func() {
-				suite.app.Erc20Keeper.CreateCoinMetadata(suite.ctx, contractAddr)
+				suite.app.Erc20Keeper.CreateCoinMetadata(suite.ctx, contractAddr) //nolint:errcheck
 			},
 			false,
 		},

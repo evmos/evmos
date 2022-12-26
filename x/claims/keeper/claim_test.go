@@ -144,7 +144,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 				cr := types.NewClaimsRecord(sdk.NewInt(100))
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 			},
 			sdk.ZeroInt(),
@@ -157,7 +157,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 				params.AirdropStartTime = params.AirdropStartTime.Add(-time.Hour)
 				params.DurationUntilDecay = 30 * time.Minute
 				params.DurationOfDecay = time.Hour
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 			},
 			sdk.NewInt(100),
@@ -579,10 +579,11 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(50))}
-				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
+				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				_, err = suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
@@ -1014,7 +1015,8 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 	suite.Require().Equal(coins.AmountOf(params.GetClaimsDenom()), escrow.Sub(claimedCoins))
 
 	// End the airdrop
-	suite.app.ClaimsKeeper.EndAirdrop(ctx, params)
+	err = suite.app.ClaimsKeeper.EndAirdrop(ctx, params)
+	suite.Require().NoError(err)
 
 	// Make sure no one can claim after airdrop ends
 	claimedCoinsAfter, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(ctx, addr1, claimsRecord, types.ActionDelegate, params)

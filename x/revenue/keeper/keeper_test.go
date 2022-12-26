@@ -117,7 +117,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 	params := types.DefaultParams()
 	params.EnableRevenue = true
-	suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+	err = suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+	require.NoError(t, err)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
@@ -129,14 +130,16 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 	inflationParams := suite.app.InflationKeeper.GetParams(suite.ctx)
 	inflationParams.EnableInflation = false
-	suite.app.InflationKeeper.SetParams(suite.ctx, inflationParams)
+	err = suite.app.InflationKeeper.SetParams(suite.ctx, inflationParams)
+	require.NoError(t, err)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)

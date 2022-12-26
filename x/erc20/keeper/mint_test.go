@@ -26,7 +26,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 			func() {
 				params := types.DefaultParams()
 				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				suite.app.Erc20Keeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 		},
