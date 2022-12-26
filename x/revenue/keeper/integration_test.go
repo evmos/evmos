@@ -649,8 +649,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				deployerKey2, deployerAddress2 := generateKey()
 
 				BeforeEach(func() {
-					testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress1, initBalance)
-					testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress2, initBalance)
+					err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress1, initBalance)
+					s.Require().NoError(err)
+					err = testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress2, initBalance)
+					s.Require().NoError(err)
 
 					// Create contract: deployerKey1 -> factory1 -> factory2 -> contract
 					// Create factory1
