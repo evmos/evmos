@@ -1,5 +1,5 @@
 run:
-  tests: false
+  tests: true
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   # timeout: 5m
 
@@ -20,29 +20,20 @@ linters:
     - ineffassign
     # - lll TODO: enable
     - misspell
-    # - maligned
     - nakedret
     - prealloc
     - exportloopref
     - staticcheck
-    # - structcheck
     - stylecheck
     - typecheck
     - unconvert
-    # - unparam
+    - unparam
     - unused
-    # - nolintlint
+    - nolintlint
     - asciicheck
-    # - exhaustive
     - exportloopref
     - gofumpt
     - gomodguard
-    # - nestif
-    # - nlreturn
-    # - noctx
-    # - rowserrcheck
-    # - whitespace
-    # - wsl
 
 issues:
   exclude-rules:

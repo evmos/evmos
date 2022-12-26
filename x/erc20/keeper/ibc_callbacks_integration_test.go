@@ -188,7 +188,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			// 1. Send 'uosmo' from Osmosis to Evmos
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, sender, receiver, 1, "")
 
-			// validate 'uosmo' was transfered successfully and converted to ERC20
+			// validate 'uosmo' was transferred successfully and converted to ERC20
 			balanceERC20Token := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
 			s.Require().Equal(amount, balanceERC20Token.Int64())
 
@@ -217,7 +217,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			// receiver address is on Osmosis Chain also,
-			// but funds are transfered to this address in Evmos chain
+			// but funds are transferred to this address in Evmos chain
 			receiver = sender
 			senderAcc = sdk.MustAccAddressFromBech32(sender)
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
@@ -261,7 +261,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			sender = s.IBCOsmosisChain.SenderAccount.GetAddress().String()
 			// receiver address is on Osmosis Chain also,
-			// but funds are transfered to this address in Evmos chain
+			// but funds are transferred to this address in Evmos chain
 			receiver = s.EvmosChain.SenderAccount.GetAddress().String()
 			senderAcc = sdk.MustAccAddressFromBech32(sender)
 			receiverAcc = sdk.MustAccAddressFromBech32(receiver)
@@ -303,7 +303,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// should trigger claims logic and send aevmos coins from claims to receiver
 
-			// ERC-20 balance should be the transfered amount
+			// ERC-20 balance should be the transferred amount
 			balanceTokenAfter := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(receiverAcc.Bytes()))
 			s.Require().Equal(amount, balanceTokenAfter.Int64())
 

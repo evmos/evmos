@@ -264,7 +264,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 		// Create and fund periodic vesting account
 		vestingStart := s.ctx.BlockTime()
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, vestingAmtTotal)
+		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, vestingAmtTotal)
+		s.Require().NoError(err)
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
@@ -275,7 +276,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 		msg := types.NewMsgCreateClawbackVestingAccount(funder, grantee, vestingStart, lockupPeriods, vestingPeriods, true)
 
-		_, err := s.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
+		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 		s.Require().NoError(err)
 
 		acc := s.app.AccountKeeper.GetAccount(s.ctx, grantee)

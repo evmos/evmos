@@ -308,7 +308,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, evmosChannel, 1)
 
 			// Mock the Transferkeeper to always return nil on SendTransfer(), as this
-			// method requires a successfull handshake with the counterparty chain.
+			// method requires a successful handshake with the counterparty chain.
 			// This, however, exceeds the requirements of the unit tests.
 			mockTransferKeeper := &MockTransferKeeper{
 				Keeper: suite.app.BankKeeper,

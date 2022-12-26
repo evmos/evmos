@@ -560,7 +560,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(false),
-						"cancelling failed: "+res.GetLog(),
+						"canceling failed: "+res.GetLog(),
 					)
 					Expect(
 						strings.Contains(res.GetLog(),

@@ -73,7 +73,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		addr0              sdk.AccAddress
 		claimsRecords      []types.ClaimsRecord
 		params             types.Params
-		proposalId         uint64
+		proposalID         uint64
 		totalClaimed       sdk.Coin
 		remainderUnclaimed sdk.Coin
 	)
@@ -124,7 +124,7 @@ var _ = Describe("Claiming", Ordered, func() {
 
 		s.Commit()
 
-		proposalId = govProposal(priv0)
+		proposalID = govProposal(priv0)
 	})
 
 	Context("before decay duration", func() {
@@ -152,7 +152,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionVote", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			vote(privs[1], proposalId)
+			vote(privs[1], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
 		})
@@ -183,7 +183,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			// create another proposal to vote for
 			testTime := s.ctx.BlockHeader().Time.Add(duration)
 			s.CommitAfter(duration - time.Hour)
-			proposalId = govProposal(priv0)
+			proposalID = govProposal(priv0)
 			s.CommitAfter(testTime.Sub(s.ctx.BlockHeader().Time))
 		})
 
@@ -208,7 +208,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionVote", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			vote(privs[0], proposalId)
+			vote(privs[0], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
 		})
@@ -232,7 +232,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("cannot claim ActionVote a second time", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			vote(privs[0], proposalId)
+			vote(privs[0], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance))
 		})

@@ -9,7 +9,7 @@ import (
 	"github.com/evmos/evmos/v10/x/incentives/types"
 )
 
-func (suite KeeperTestSuite) TestRegisterIncentive() {
+func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can copy locks here because it is a test
 	testCases := []struct {
 		name                string
 		malleate            func()
@@ -150,7 +150,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 	}
 }
 
-func (suite KeeperTestSuite) TestCancelIncentive() {
+func (suite KeeperTestSuite) TestCancelIncentive() { //nolint:govet // we can copy locks here because it is a test
 	testCases := []struct {
 		name                string
 		malleate            func()

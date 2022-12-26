@@ -87,7 +87,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 		expectedSuccess bool
 	}{
 		{
-			"Mainnet - sucess",
+			"Mainnet - success",
 			evmostypes.MainnetChainID + "-4",
 			func() {
 				// send funds to the community pool
@@ -97,8 +97,10 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				sender := sdk.AccAddress(address.Bytes())
 				res, _ := sdk.NewIntFromString(v9.MaxRecover)
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
-				suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-				suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+				err = suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+				suite.Require().NoError(err)
+				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+				suite.Require().NoError(err)
 				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 				suite.Require().NoError(err)
 
@@ -107,7 +109,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 			},
 			true,
 		},
-		{
+		{ //nolint:dupl
 			"Mainnet - first account > MaxRecover",
 			evmostypes.MainnetChainID + "-4",
 			func() {
@@ -130,7 +132,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 			},
 			false,
 		},
-		{
+		{ //nolint:dupl
 			"Mainnet - middle account > MaxRecover",
 			evmostypes.MainnetChainID + "-4",
 			func() {

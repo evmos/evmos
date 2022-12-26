@@ -105,7 +105,7 @@ var _ = Describe("Distribution", Ordered, func() {
 	})
 
 	// Epoch mechanism for triggering allocation and distribution
-	Describe("Commiting a block", func() {
+	Describe("Committing a block", func() {
 		Context("before a weekly epoch ends", func() {
 			BeforeEach(func() {
 				s.CommitAfter(time.Minute)                // Start Epoch

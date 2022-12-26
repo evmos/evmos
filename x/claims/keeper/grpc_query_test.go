@@ -112,7 +112,7 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 		if tc.expErr {
 			suite.Require().Error(err)
 		} else {
-			if tc.recordsAmount == 0 {
+			if tc.recordsAmount == 0 { //nolint:gocritic
 				suite.Require().NoError(err)
 			} else if tc.recordsAmount == 1 {
 				suite.Require().NoError(err)

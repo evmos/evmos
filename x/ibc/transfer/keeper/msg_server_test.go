@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				senderAcc := sdk.AccAddress(suite.address.Bytes())
 				transferMsg := types.NewMsgTransfer("transfer", "channel-0", coin, senderAcc.String(), "", timeoutHeight, 0)
 
-				// mint coins to perform the regular transfer without converison
+				// mint coins to perform the regular transfer without conversions
 				err = suite.app.BankKeeper.MintCoins(suite.ctx, erc20types.ModuleName, sdk.NewCoins(coin))
 				suite.Require().NoError(err)
 

@@ -3,8 +3,9 @@ package keeper_test
 import (
 	"errors"
 	"fmt"
-	"github.com/evmos/evmos/v10/x/erc20/keeper"
 	"math/big"
+
+	"github.com/evmos/evmos/v10/x/erc20/keeper"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -152,7 +153,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			checkBalances: true,
 		},
 		{
-			name: "no-op - reciever is module account",
+			name: "no-op - receiver is module account",
 			malleate: func() {
 				secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
 				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String())

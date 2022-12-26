@@ -127,7 +127,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			true,
 		},
 		{
-			"token pair not found - with erc20 existant",
+			"token pair not found - with erc20 existent",
 			func() {
 				addr := tests.GenerateAddress()
 				pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)

@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/big"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -390,7 +391,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 			"",
 		},
 		{
-			"fail - previously cancelled contract",
+			"fail - previously canceled contract",
 			deployerAddr,
 			withdrawer,
 			withdrawer,
@@ -485,7 +486,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 		errorMessage string
 	}{
 		{
-			"ok - cancelled",
+			"ok - canceled",
 			deployerAddr,
 			contract1,
 			[]uint64{1},
@@ -507,7 +508,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 			"",
 		},
 		{
-			"ok - cancelled - no withdrawer",
+			"ok - canceled - no withdrawer",
 			deployerAddr,
 			contract1,
 			[]uint64{1},

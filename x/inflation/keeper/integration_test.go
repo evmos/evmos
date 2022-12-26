@@ -24,7 +24,7 @@ var _ = Describe("Inflation", Ordered, func() {
 		s.SetupTest()
 	})
 
-	Describe("Commiting a block", func() {
+	Describe("Committing a block", func() {
 		addr := s.app.AccountKeeper.GetModuleAddress(incentivestypes.ModuleName)
 
 		Context("with inflation param enabled", func() {
