@@ -21,7 +21,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 			func() {
 				params := types.DefaultParams()
 				params.EnableIncentives = false
-				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			[]sdk.DecCoin{},
 			false,

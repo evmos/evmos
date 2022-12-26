@@ -195,7 +195,6 @@ func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
 				params.EnableInflation = false
 				err = suite.app.InflationKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
-
 			}
 
 			suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, tc.skippedEpochs)

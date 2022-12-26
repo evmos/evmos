@@ -298,7 +298,8 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			// Set funder
 			funder := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, tc.funder)
 			suite.app.AccountKeeper.SetAccount(suite.ctx, funder)
-			testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, balances)
+			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, balances)
+			suite.Require().NoError(err)
 
 			// Create Clawback Vesting Account
 			createMsg := types.NewMsgCreateClawbackVestingAccount(addr, addr2, tc.startTime, lockupPeriods, vestingPeriods, false)
