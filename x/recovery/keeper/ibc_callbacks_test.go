@@ -284,7 +284,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Enable Recovery
 			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
 			params.EnableRecovery = true
-			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			err := suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			tc.malleate()
 
@@ -324,7 +325,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
-			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
 			suite.Require().NoError(err)
 
 			// Perform IBC callback

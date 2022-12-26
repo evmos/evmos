@@ -296,7 +296,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.Require().Equal(osmoIBCAtom.Amount, coinAtom.Amount)
 
 						params.EnableRecovery = true
-						s.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(s.EvmosChain.GetContext(), params)
+						s.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(s.EvmosChain.GetContext(), params) //nolint:errcheck
 					})
 					It("should not recover tokens that originated from other chains", func() {
 						s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", 10, sender, receiver, 2)

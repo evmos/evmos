@@ -204,7 +204,8 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.AirdropStartTime = time.Now().Add(time.Hour * 24)
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 				req = &types.QueryClaimsRecordRequest{

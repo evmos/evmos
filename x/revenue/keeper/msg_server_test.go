@@ -155,7 +155,7 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 					[]uint64{1},
 				)
 				ctx := sdk.WrapSDKContext(suite.ctx)
-				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
+				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg) //nolint:errcheck
 			},
 			false,
 			types.ErrRevenueAlreadyRegistered.Error(),

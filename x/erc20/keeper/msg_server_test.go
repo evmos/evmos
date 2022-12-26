@@ -959,7 +959,8 @@ func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {
 			// Precondition: Convert Coin to ERC20
 			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
-			suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+			suite.Require().NoError(err)
 			suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 			msg := types.NewMsgConvertCoin(
 				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
@@ -971,7 +972,7 @@ func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {
 			suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			_, err := suite.app.Erc20Keeper.ConvertCoin(ctx, msg)
+			_, err = suite.app.Erc20Keeper.ConvertCoin(ctx, msg)
 			suite.Require().Error(err, tc.name)
 
 			// Convert ERC20s back to Coins

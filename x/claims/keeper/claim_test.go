@@ -595,7 +595,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+			suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck // this will run through many test cases and we don't know if we want error or not
 
 			tc.test()
 		})
