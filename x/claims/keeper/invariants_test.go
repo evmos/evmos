@@ -18,7 +18,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 		{
 			"claims inactive",
 			func() {
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, types.DefaultParams())
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, types.DefaultParams()) //nolint:errcheck
 			},
 			false,
 		},

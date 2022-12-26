@@ -31,7 +31,7 @@ var _ = Describe("Inflation", Ordered, func() {
 			BeforeEach(func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = true
-				s.app.InflationKeeper.SetParams(s.ctx, params)
+				s.app.InflationKeeper.SetParams(s.ctx, params) //nolint:errcheck
 			})
 
 			Context("before an epoch ends", func() {
@@ -85,7 +85,7 @@ var _ = Describe("Inflation", Ordered, func() {
 			BeforeEach(func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = false
-				s.app.InflationKeeper.SetParams(s.ctx, params)
+				s.app.InflationKeeper.SetParams(s.ctx, params) //nolint:errcheck
 			})
 
 			Context("after the network was offline for several days/epochs", func() {
@@ -149,7 +149,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						BeforeEach(func() {
 							params := s.app.InflationKeeper.GetParams(s.ctx)
 							params.EnableInflation = true
-							s.app.InflationKeeper.SetParams(s.ctx, params)
+							s.app.InflationKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 							epochInfo, _ := s.app.EpochsKeeper.GetEpochInfo(s.ctx, epochstypes.DayEpochID)
 							epochNumber := epochInfo.CurrentEpoch // 6

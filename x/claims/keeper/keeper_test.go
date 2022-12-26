@@ -108,7 +108,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime().UTC()
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err = suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	require.NoError(t, err)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()

@@ -627,7 +627,8 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	airdropStartTime := suite.ctx.BlockTime().Add(time.Hour)
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 	params.AirdropStartTime = airdropStartTime
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
@@ -756,7 +757,8 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(addrs[0]), pub1.PubKey(), stakingtypes.Description{})
 	suite.Require().NoError(err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	suite.Require().NoError(err)
 
 	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, ethermint.PowerReduction))
 	delAmount := sdk.TokensFromConsensusPower(1, ethermint.PowerReduction)
@@ -889,7 +891,8 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	params.AirdropStartTime = airdropStartTime
 	params.DurationUntilDecay = durationUntilDecay
 	params.DurationOfDecay = durationOfDecay
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 
 	var claimsRecord types.ClaimsRecord
 
@@ -965,7 +968,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 			ActionsCompleted:       []bool{false, false, false, false},
 		}
 
-		suite.app.ClaimsKeeper.SetParams(suite.ctx, types.Params{
+		suite.app.ClaimsKeeper.SetParams(suite.ctx, types.Params{ //nolint:errcheck
 			AirdropStartTime:   airdropStartTime,
 			DurationUntilDecay: durationUntilDecay,
 			DurationOfDecay:    durationOfDecay,

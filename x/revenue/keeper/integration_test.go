@@ -103,7 +103,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			// Disable revenue module
 			params = s.app.RevenueKeeper.GetParams(s.ctx)
 			params.EnableRevenue = false
-			s.app.RevenueKeeper.SetParams(s.ctx, params)
+			s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 
 		It("should not allow new contract registrations", func() {
@@ -290,7 +290,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDecWithPrec(50, 2)
-					s.app.RevenueKeeper.SetParams(s.ctx, params)
+					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
 				It("should transfer legacy tx fees to validators and contract developer evenly", func() {
@@ -337,7 +337,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(0)
-					s.app.RevenueKeeper.SetParams(s.ctx, params)
+					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
 				It("should transfer all tx fees to validators", func() {
@@ -367,7 +367,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
-					s.app.RevenueKeeper.SetParams(s.ctx, params)
+					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
 				It("should transfer all tx fees to developers", func() {
@@ -674,7 +674,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					func(gasCost int) {
 						params = s.app.RevenueKeeper.GetParams(s.ctx)
 						params.AddrDerivationCostCreate = uint64(gasCost)
-						s.app.RevenueKeeper.SetParams(s.ctx, params)
+						s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 						// Cost for registration with one address derivation
 						// We use another deployer, to have the same storage cost for
