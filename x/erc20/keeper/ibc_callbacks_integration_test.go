@@ -721,16 +721,17 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			erc20params := types.DefaultParams()
 			erc20params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
 
 			// Send from osmosis to Evmos
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, "uosmo", amount, receiver, sender, 1, "")
 			s.EvmosChain.Coordinator.CommitBlock(s.EvmosChain)
 			erc20params.EnableErc20 = true
-			s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			err = s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
+			s.Require().NoError(err)
 
 			// Register uosmo pair
-			var err error
 			pair, err = s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), osmoMeta)
 			s.Require().NoError(err)
 		})
