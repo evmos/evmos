@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	"github.com/cosmos/ibc-go/v5/testing/simapp"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v6/testing/simapp"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v10/contracts"
 	"github.com/evmos/evmos/v10/testutil"

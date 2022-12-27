@@ -8,7 +8,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v11
