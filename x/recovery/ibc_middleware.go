@@ -7,6 +7,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
+	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	"github.com/evmos/evmos/v10/ibc"
 	"github.com/evmos/evmos/v10/x/recovery/keeper"
 )
@@ -50,9 +51,21 @@ func (im IBCMiddleware) OnRecvPacket(
 func (im IBCMiddleware) SendPacket(
 	ctx sdk.Context,
 	chanCap *capabilitytypes.Capability,
-	packet exported.PacketI,
-) error {
-	return im.keeper.SendPacket(ctx, chanCap, packet)
+	sourcePort string,
+	sourceChannel string,
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
+	data []byte,
+) (sequence uint64, err error) {
+	return im.keeper.SendPacket(
+		ctx,
+		chanCap,
+		sourcePort,
+		sourceChannel,
+		timeoutHeight,
+		timeoutTimestamp,
+		data,
+	)
 }
 
 // WriteAcknowledgement implements the ICS4 Wrapper interface

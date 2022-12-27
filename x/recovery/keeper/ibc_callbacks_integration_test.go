@@ -281,10 +281,10 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.SendAndReceiveMessage(s.pathOsmosisCosmos, s.IBCCosmosChain, coinAtom.Denom, coinAtom.Amount.Int64(), s.IBCCosmosChain.SenderAccount.GetAddress().String(), receiver, 1)
 
 						// Send IBC transaction of 10 ibc/uatom
-						transferMsg := transfertypes.NewMsgTransfer(s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(teststypes.UatomIbcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0)
+						transferMsg := transfertypes.NewMsgTransfer(s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(teststypes.UatomIbcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0, "")
 						_, err := s.IBCOsmosisChain.SendMsgs(transferMsg)
 						s.Require().NoError(err) // message committed
-						transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-1/uatom", "10", sender, receiver)
+						transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-1/uatom", "10", sender, receiver, "")
 						packet := channeltypes.NewPacket(transfer.GetBytes(), 1, s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, s.pathOsmosisEvmos.EndpointB.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointB.ChannelID, timeoutHeight, 0)
 						// Receive message on the evmos side, and send ack
 						err = s.pathOsmosisEvmos.RelayPacket(packet)
