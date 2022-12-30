@@ -61,6 +61,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (tests) [\1194](https://github.com/evmos/evmos/pull/1194) Lint tests so they are consistent with non-test code.
 - (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
 - (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
