@@ -12,7 +12,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/ibc-go/v5 v5.2.0
 	github.com/ethereum/go-ethereum v1.10.26
-	github.com/evmos/ethermint v0.20.0-rc5
+	github.com/evmos/ethermint v0.20.0
 	github.com/evmos/evmos-ledger-go v0.2.1
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
