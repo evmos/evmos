@@ -11,7 +11,7 @@ import (
 	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V2Params{}
 
 // Parameter store key
 var (
@@ -24,7 +24,7 @@ var (
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+	return paramtypes.NewKeyTable().RegisterParamSet(&V2Params{})
 }
 
 var (
@@ -40,8 +40,8 @@ func NewParams(
 	allocationLimit sdk.Dec,
 	epochIdentifier string,
 	rewardScaler sdk.Dec,
-) Params {
-	return Params{
+) V2Params {
+	return V2Params{
 		EnableIncentives:          enableIncentives,
 		AllocationLimit:           allocationLimit,
 		IncentivesEpochIdentifier: epochIdentifier,
@@ -49,8 +49,8 @@ func NewParams(
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V2Params {
+	return V2Params{
 		EnableIncentives:          DefaultEnableIncentives,
 		AllocationLimit:           DefaultAllocationLimit,
 		IncentivesEpochIdentifier: DefaultIncentivesEpochIdentifier,
@@ -59,7 +59,7 @@ func DefaultParams() Params {
 }
 
 // ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V2Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
@@ -110,7 +110,7 @@ func validateUncappedPercentage(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V2Params) Validate() error {
 	if err := validateBool(p.EnableIncentives); err != nil {
 		return err
 	}
