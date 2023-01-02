@@ -7,7 +7,7 @@ import (
 	"github.com/evmos/evmos/v10/x/erc20/types"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V3Params{}
 
 var (
 	DefaultErc20   = true
@@ -22,11 +22,11 @@ var (
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+	return paramtypes.NewKeyTable().RegisterParamSet(&V3Params{})
 }
 
 // ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V3Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableErc20, &p.EnableErc20, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableEVMHook, &p.EnableEVMHook, validateBool),
@@ -37,15 +37,15 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 func NewParams(
 	enableErc20 bool,
 	enableEVMHook bool,
-) Params {
-	return Params{
+) V3Params {
+	return V3Params{
 		EnableErc20:   enableErc20,
 		EnableEVMHook: enableEVMHook,
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V3Params {
+	return V3Params{
 		EnableErc20:   DefaultErc20,
 		EnableEVMHook: DefaultEVMHook,
 	}
@@ -60,7 +60,7 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V3Params) Validate() error {
 	if err := validateBool(p.EnableEVMHook); err != nil {
 		return err
 	}
