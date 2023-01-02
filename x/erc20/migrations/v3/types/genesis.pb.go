@@ -24,26 +24,26 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the module's genesis state.
-type GenesisState struct {
-	// params are the erc20 module parameters at genesis
-	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+// V3GenesisState defines the module's genesis state.
+type V3GenesisState struct {
+	// V3Params are the erc20 module parameters at genesis
+	V3Params V3Params `protobuf:"bytes,1,opt,name=V3Params,proto3" json:"V3Params"`
 	// token_pairs is a slice of the registered token pairs at genesis
 	TokenPairs []types.TokenPair `protobuf:"bytes,2,rep,name=token_pairs,json=tokenPairs,proto3" json:"token_pairs"`
 }
 
-func (m *GenesisState) Reset()         { *m = GenesisState{} }
-func (m *GenesisState) String() string { return proto.CompactTextString(m) }
-func (*GenesisState) ProtoMessage()    {}
-func (*GenesisState) Descriptor() ([]byte, []int) {
+func (m *V3GenesisState) Reset()         { *m = V3GenesisState{} }
+func (m *V3GenesisState) String() string { return proto.CompactTextString(m) }
+func (*V3GenesisState) ProtoMessage()    {}
+func (*V3GenesisState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2f4674601b0d6987, []int{0}
 }
-func (m *GenesisState) XXX_Unmarshal(b []byte) error {
+func (m *V3GenesisState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V3GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GenesisState.Marshal(b, m, deterministic)
+		return xxx_messageInfo_V3GenesisState.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -53,34 +53,34 @@ func (m *GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-func (m *GenesisState) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GenesisState.Merge(m, src)
+func (m *V3GenesisState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_V3GenesisState.Merge(m, src)
 }
-func (m *GenesisState) XXX_Size() int {
+func (m *V3GenesisState) XXX_Size() int {
 	return m.Size()
 }
-func (m *GenesisState) XXX_DiscardUnknown() {
-	xxx_messageInfo_GenesisState.DiscardUnknown(m)
+func (m *V3GenesisState) XXX_DiscardUnknown() {
+	xxx_messageInfo_V3GenesisState.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GenesisState proto.InternalMessageInfo
+var xxx_messageInfo_V3GenesisState proto.InternalMessageInfo
 
-func (m *GenesisState) GetParams() Params {
+func (m *V3GenesisState) GetV3Params() V3Params {
 	if m != nil {
-		return m.Params
+		return m.V3Params
 	}
-	return Params{}
+	return V3Params{}
 }
 
-func (m *GenesisState) GetTokenPairs() []types.TokenPair {
+func (m *V3GenesisState) GetTokenPairs() []types.TokenPair {
 	if m != nil {
 		return m.TokenPairs
 	}
 	return nil
 }
 
-// Params defines the erc20 module params
-type Params struct {
+// V3Params defines the erc20 module V3Params
+type V3Params struct {
 	// enable_erc20 is the parameter to enable the conversion of Cosmos coins <--> ERC20 tokens.
 	EnableErc20 bool `protobuf:"varint,1,opt,name=enable_erc20,json=enableErc20,proto3" json:"enable_erc20,omitempty"`
 	// enable_evm_hook is the parameter to enable the EVM hook that converts an ERC20 token to a Cosmos
@@ -88,18 +88,18 @@ type Params struct {
 	EnableEVMHook bool `protobuf:"varint,2,opt,name=enable_evm_hook,json=enableEvmHook,proto3" json:"enable_evm_hook,omitempty"`
 }
 
-func (m *Params) Reset()         { *m = Params{} }
-func (m *Params) String() string { return proto.CompactTextString(m) }
-func (*Params) ProtoMessage()    {}
-func (*Params) Descriptor() ([]byte, []int) {
+func (m *V3Params) Reset()         { *m = V3Params{} }
+func (m *V3Params) String() string { return proto.CompactTextString(m) }
+func (*V3Params) ProtoMessage()    {}
+func (*V3Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2f4674601b0d6987, []int{1}
 }
-func (m *Params) XXX_Unmarshal(b []byte) error {
+func (m *V3Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V3Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Params.Marshal(b, m, deterministic)
+		return xxx_messageInfo_V3Params.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -109,26 +109,26 @@ func (m *Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Params) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Params.Merge(m, src)
+func (m *V3Params) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_V3Params.Merge(m, src)
 }
-func (m *Params) XXX_Size() int {
+func (m *V3Params) XXX_Size() int {
 	return m.Size()
 }
-func (m *Params) XXX_DiscardUnknown() {
-	xxx_messageInfo_Params.DiscardUnknown(m)
+func (m *V3Params) XXX_DiscardUnknown() {
+	xxx_messageInfo_V3Params.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Params proto.InternalMessageInfo
+var xxx_messageInfo_V3Params proto.InternalMessageInfo
 
-func (m *Params) GetEnableErc20() bool {
+func (m *V3Params) GetEnableErc20() bool {
 	if m != nil {
 		return m.EnableErc20
 	}
 	return false
 }
 
-func (m *Params) GetEnableEVMHook() bool {
+func (m *V3Params) GetEnableEVMHook() bool {
 	if m != nil {
 		return m.EnableEVMHook
 	}
@@ -136,8 +136,8 @@ func (m *Params) GetEnableEVMHook() bool {
 }
 
 func init() {
-	proto.RegisterType((*GenesisState)(nil), "evmos.erc20.v1.GenesisState")
-	proto.RegisterType((*Params)(nil), "evmos.erc20.v1.Params")
+	proto.RegisterType((*V3GenesisState)(nil), "evmos.erc20.v1.V3GenesisState")
+	proto.RegisterType((*V3Params)(nil), "evmos.erc20.v1.V3Params")
 }
 
 func init() { proto.RegisterFile("evmos/erc20/v1/genesis.proto", fileDescriptor_2f4674601b0d6987) }
@@ -165,7 +165,7 @@ var fileDescriptor_2f4674601b0d6987 = []byte{
 	0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0xc8, 0xc5, 0x52, 0x8e, 0x9d, 0x01, 0x00, 0x00,
 }
 
-func (m *GenesisState) Marshal() (dAtA []byte, err error) {
+func (m *V3GenesisState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -175,12 +175,12 @@ func (m *GenesisState) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GenesisState) MarshalTo(dAtA []byte) (int, error) {
+func (m *V3GenesisState) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V3GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -200,7 +200,7 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		}
 	}
 	{
-		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.V3Params.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -212,7 +212,7 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Params) Marshal() (dAtA []byte, err error) {
+func (m *V3Params) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -222,12 +222,12 @@ func (m *Params) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Params) MarshalTo(dAtA []byte) (int, error) {
+func (m *V3Params) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V3Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -266,13 +266,13 @@ func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *GenesisState) Size() (n int) {
+func (m *V3GenesisState) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Params.Size()
+	l = m.V3Params.Size()
 	n += 1 + l + sovGenesis(uint64(l))
 	if len(m.TokenPairs) > 0 {
 		for _, e := range m.TokenPairs {
@@ -283,7 +283,7 @@ func (m *GenesisState) Size() (n int) {
 	return n
 }
 
-func (m *Params) Size() (n int) {
+func (m *V3Params) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -304,7 +304,7 @@ func sovGenesis(x uint64) (n int) {
 func sozGenesis(x uint64) (n int) {
 	return sovGenesis(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *GenesisState) Unmarshal(dAtA []byte) error {
+func (m *V3GenesisState) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -327,15 +327,15 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GenesisState: wiretype end group for non-group")
+			return fmt.Errorf("proto: V3GenesisState: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GenesisState: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: V3GenesisState: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field V3Params", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -362,7 +362,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.V3Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -421,7 +421,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Params) Unmarshal(dAtA []byte) error {
+func (m *V3Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -444,10 +444,10 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Params: wiretype end group for non-group")
+			return fmt.Errorf("proto: V3Params: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Params: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: V3Params: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
