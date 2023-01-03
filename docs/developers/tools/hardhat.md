@@ -83,7 +83,7 @@ module.exports = {
     hardhat: {
     },
     local: {
-      url: "http://localhost:8546/",
+      url: "http://localhost:8545/",
       accounts: [privateKey1, privateKey2, ...]
     }
   },
