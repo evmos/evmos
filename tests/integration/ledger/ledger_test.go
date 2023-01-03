@@ -3,14 +3,13 @@ package ledger_test
 import (
 	"bytes"
 	"context"
-	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 
+	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v10/app"
@@ -60,8 +59,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			krHome = s.T().TempDir()
 			encCfg = encoding.MakeConfig(app.ModuleBasics)
 
-			cmd = keys.AddKeyCommand()
-			cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+			cmd = s.ethermintAddKeyCmd()
 
 			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 
@@ -70,13 +68,11 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			mocks.MClose(s.ledger)
 			mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
 		})
-		Context("with eth_secp256k1 algo", func() {
-			It("should add the ledger key ", func() {
+		Context("with default algo", func() {
+			It("should use eth_secp256k1 by default and pass", func() {
 				out, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
-					fmt.Sprintf("--%s", flags.FlagUseLedger),
-					s.FormatFlag(flags.FlagKeyAlgorithm),
-					"eth_secp256k1",
+					s.FormatFlag(flags.FlagUseLedger),
 				})
 
 				s.Require().NoError(err)
@@ -86,17 +82,20 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 				s.Require().NoError(err, "can't find ledger key")
 			})
 		})
-		Context("with secp256k1 algo", func() {
-			It("should return error ", func() {
-				_, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
+		Context("with eth_secp256k1 algo", func() {
+			It("should add the ledger key ", func() {
+				out, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
-					fmt.Sprintf("--%s", flags.FlagUseLedger),
+					s.FormatFlag(flags.FlagUseLedger),
 					s.FormatFlag(flags.FlagKeyAlgorithm),
-					"secp256k1",
+					string(hd.EthSecp256k1Type),
 				})
 
-				s.Require().Error(err, "false positive, error expected")
-				s.Require().Contains(err.Error(), "")
+				s.Require().NoError(err)
+				s.Require().Contains(out.String(), "name: ledger_key")
+
+				_, err = kr.Key(ledgerKey)
+				s.Require().NoError(err, "can't find ledger key")
 			})
 		})
 	})
@@ -106,9 +105,9 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			encCfg = encoding.MakeConfig(app.ModuleBasics)
 
 			var err error
+
 			// create add key command
-			cmd = keys.AddKeyCommand()
-			cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+			cmd = s.ethermintAddKeyCmd()
 
 			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 			mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
@@ -118,7 +117,12 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			b := bytes.NewBufferString("")
 			cmd.SetOut(b)
 
-			cmd.SetArgs([]string{ledgerKey, s.FormatFlag(flags.FlagUseLedger), s.FormatFlag(flags.FlagKeyAlgorithm), "eth_secp256k1"})
+			cmd.SetArgs([]string{
+				ledgerKey,
+				s.FormatFlag(flags.FlagUseLedger),
+				s.FormatFlag(flags.FlagKeyAlgorithm),
+				"eth_secp256k1",
+			})
 			// add ledger key for following tests
 			s.Require().NoError(cmd.ExecuteContext(ctx))
 			keyRecord, err = kr.Key(ledgerKey)

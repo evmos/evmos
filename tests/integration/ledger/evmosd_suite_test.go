@@ -1,6 +1,7 @@
 package ledger_test
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
@@ -8,12 +9,16 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/spf13/cobra"
 
+	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v10/app"
 	"github.com/evmos/evmos/v10/tests/integration/ledger/mocks"
@@ -23,6 +28,7 @@ import (
 
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	clientkeys "github.com/evmos/ethermint/client/keys"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	evmoskeyring "github.com/evmos/evmos/v10/crypto/keyring"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -135,6 +141,29 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 	ctx = context.WithValue(ctx, server.ServerContextKey, srvCtx)
 
 	return kr, initClientCtx, ctx
+}
+
+func (suite *LedgerTestSuite) ethermintAddKeyCmd() *cobra.Command {
+	cmd := keys.AddKeyCommand()
+
+	algoFlag := cmd.Flag(flags.FlagKeyAlgorithm)
+	algoFlag.DefValue = string(hd.EthSecp256k1Type)
+
+	err := algoFlag.Value.Set(string(hd.EthSecp256k1Type))
+	suite.Require().NoError(err)
+
+	cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.EthSecp256k1Option())
+		clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+		if err != nil {
+			return err
+		}
+		buf := bufio.NewReader(clientCtx.Input)
+		return clientkeys.RunAddCmd(clientCtx, cmd, args, buf)
+	}
+	return cmd
 }
 
 func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {
