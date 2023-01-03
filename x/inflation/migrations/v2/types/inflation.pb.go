@@ -24,14 +24,14 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// InflationDistribution defines the distribution in which inflation is
+// V2InflationDistribution defines the distribution in which inflation is
 // allocated through minting on each epoch (staking, incentives, community). It
 // excludes the team vesting distribution, as this is minted once at genesis.
-// The initial InflationDistribution can be calculated from the Evmos Token
+// The initial V2InflationDistribution can be calculated from the Evmos Token
 // Model like this:
 // mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 // 0.5333333         = 40%           / (1 - 25%)
-type InflationDistribution struct {
+type V2InflationDistribution struct {
 	// staking_rewards defines the proportion of the minted minted_denom that is
 	// to be allocated as staking rewards
 	StakingRewards github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=staking_rewards,json=stakingRewards,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"staking_rewards"`
@@ -43,18 +43,18 @@ type InflationDistribution struct {
 	CommunityPool github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=community_pool,json=communityPool,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"community_pool"`
 }
 
-func (m *InflationDistribution) Reset()         { *m = InflationDistribution{} }
-func (m *InflationDistribution) String() string { return proto.CompactTextString(m) }
-func (*InflationDistribution) ProtoMessage()    {}
-func (*InflationDistribution) Descriptor() ([]byte, []int) {
+func (m *V2InflationDistribution) Reset()         { *m = V2InflationDistribution{} }
+func (m *V2InflationDistribution) String() string { return proto.CompactTextString(m) }
+func (*V2InflationDistribution) ProtoMessage()    {}
+func (*V2InflationDistribution) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d064cb35c3ff7df8, []int{0}
 }
-func (m *InflationDistribution) XXX_Unmarshal(b []byte) error {
+func (m *V2InflationDistribution) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *InflationDistribution) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V2InflationDistribution) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_InflationDistribution.Marshal(b, m, deterministic)
+		return xxx_messageInfo_V2InflationDistribution.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -64,24 +64,24 @@ func (m *InflationDistribution) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *InflationDistribution) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_InflationDistribution.Merge(m, src)
+func (m *V2InflationDistribution) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_V2InflationDistribution.Merge(m, src)
 }
-func (m *InflationDistribution) XXX_Size() int {
+func (m *V2InflationDistribution) XXX_Size() int {
 	return m.Size()
 }
-func (m *InflationDistribution) XXX_DiscardUnknown() {
-	xxx_messageInfo_InflationDistribution.DiscardUnknown(m)
+func (m *V2InflationDistribution) XXX_DiscardUnknown() {
+	xxx_messageInfo_V2InflationDistribution.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_InflationDistribution proto.InternalMessageInfo
+var xxx_messageInfo_V2InflationDistribution proto.InternalMessageInfo
 
-// ExponentialCalculation holds factors to calculate exponential inflation on
+// V2ExponentialCalculation holds factors to calculate exponential inflation on
 // each period. Calculation reference:
 // periodProvision = exponentialDecay       *  bondingIncentive
 // f(x)            = (a * (1 - r) ^ x + c)  *  (1 + max_variance - bondedRatio *
 // (max_variance / bonding_target))
-type ExponentialCalculation struct {
+type V2ExponentialCalculation struct {
 	// a defines the initial value
 	A github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=a,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"a"`
 	// r defines the reduction factor
@@ -94,18 +94,18 @@ type ExponentialCalculation struct {
 	MaxVariance github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=max_variance,json=maxVariance,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"max_variance"`
 }
 
-func (m *ExponentialCalculation) Reset()         { *m = ExponentialCalculation{} }
-func (m *ExponentialCalculation) String() string { return proto.CompactTextString(m) }
-func (*ExponentialCalculation) ProtoMessage()    {}
-func (*ExponentialCalculation) Descriptor() ([]byte, []int) {
+func (m *V2ExponentialCalculation) Reset()         { *m = V2ExponentialCalculation{} }
+func (m *V2ExponentialCalculation) String() string { return proto.CompactTextString(m) }
+func (*V2ExponentialCalculation) ProtoMessage()    {}
+func (*V2ExponentialCalculation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d064cb35c3ff7df8, []int{1}
 }
-func (m *ExponentialCalculation) XXX_Unmarshal(b []byte) error {
+func (m *V2ExponentialCalculation) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ExponentialCalculation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V2ExponentialCalculation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ExponentialCalculation.Marshal(b, m, deterministic)
+		return xxx_messageInfo_V2ExponentialCalculation.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -115,21 +115,21 @@ func (m *ExponentialCalculation) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *ExponentialCalculation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ExponentialCalculation.Merge(m, src)
+func (m *V2ExponentialCalculation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_V2ExponentialCalculation.Merge(m, src)
 }
-func (m *ExponentialCalculation) XXX_Size() int {
+func (m *V2ExponentialCalculation) XXX_Size() int {
 	return m.Size()
 }
-func (m *ExponentialCalculation) XXX_DiscardUnknown() {
-	xxx_messageInfo_ExponentialCalculation.DiscardUnknown(m)
+func (m *V2ExponentialCalculation) XXX_DiscardUnknown() {
+	xxx_messageInfo_V2ExponentialCalculation.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ExponentialCalculation proto.InternalMessageInfo
+var xxx_messageInfo_V2ExponentialCalculation proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*InflationDistribution)(nil), "evmos.inflation.v1.InflationDistribution")
-	proto.RegisterType((*ExponentialCalculation)(nil), "evmos.inflation.v1.ExponentialCalculation")
+	proto.RegisterType((*V2InflationDistribution)(nil), "evmos.inflation.v1.V2InflationDistribution")
+	proto.RegisterType((*V2ExponentialCalculation)(nil), "evmos.inflation.v1.V2ExponentialCalculation")
 }
 
 func init() {
@@ -164,7 +164,7 @@ var fileDescriptor_d064cb35c3ff7df8 = []byte{
 	0x03, 0x00, 0x00,
 }
 
-func (m *InflationDistribution) Marshal() (dAtA []byte, err error) {
+func (m *V2InflationDistribution) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -174,12 +174,12 @@ func (m *InflationDistribution) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *InflationDistribution) MarshalTo(dAtA []byte) (int, error) {
+func (m *V2InflationDistribution) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *InflationDistribution) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V2InflationDistribution) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -217,7 +217,7 @@ func (m *InflationDistribution) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ExponentialCalculation) Marshal() (dAtA []byte, err error) {
+func (m *V2ExponentialCalculation) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -227,12 +227,12 @@ func (m *ExponentialCalculation) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ExponentialCalculation) MarshalTo(dAtA []byte) (int, error) {
+func (m *V2ExponentialCalculation) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ExponentialCalculation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V2ExponentialCalculation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -301,7 +301,7 @@ func encodeVarintInflation(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *InflationDistribution) Size() (n int) {
+func (m *V2InflationDistribution) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -316,7 +316,7 @@ func (m *InflationDistribution) Size() (n int) {
 	return n
 }
 
-func (m *ExponentialCalculation) Size() (n int) {
+func (m *V2ExponentialCalculation) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -341,7 +341,7 @@ func sovInflation(x uint64) (n int) {
 func sozInflation(x uint64) (n int) {
 	return sovInflation(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *InflationDistribution) Unmarshal(dAtA []byte) error {
+func (m *V2InflationDistribution) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -364,10 +364,10 @@ func (m *InflationDistribution) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: InflationDistribution: wiretype end group for non-group")
+			return fmt.Errorf("proto: V2InflationDistribution: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: InflationDistribution: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: V2InflationDistribution: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -493,7 +493,7 @@ func (m *InflationDistribution) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ExponentialCalculation) Unmarshal(dAtA []byte) error {
+func (m *V2ExponentialCalculation) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -516,10 +516,10 @@ func (m *ExponentialCalculation) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ExponentialCalculation: wiretype end group for non-group")
+			return fmt.Errorf("proto: V2ExponentialCalculation: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ExponentialCalculation: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: V2ExponentialCalculation: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

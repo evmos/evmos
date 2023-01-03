@@ -14,7 +14,7 @@ This documentation page is currently under work in progress.
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 :::
 
-- Documentation (this site): [https://evmos.dev/](https://evmos.dev/)
+- Documentation (this site): [https://docs.evmos.org/](https://docs.evmos.org/)
 - Open Source Codebase: [https://github.com/evmos/evmos](https://github.com/evmos/evmos)
 - Website: [https://evmos.org/](https://evmos.org/)
 - Blog: [https://evmos.blog/](https://evmos.blog/)

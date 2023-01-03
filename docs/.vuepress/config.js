@@ -88,8 +88,8 @@ module.exports = {
       version_number: "2",
       testnet_version_number: "4",
       testnet_evm_explorer_url: "https://evm.evmos.dev",
-      evm_explorer_url: "https://evm.evmos.org",
-      testnet_cosmos_explorer_url: "https://explorer.evmos.dev/",
+      evm_explorer_url: "https://escan.live",
+      testnet_cosmos_explorer_url: "https://testnet.mintscan.io/evmos-testnet",
       cosmos_explorer_url: "https://www.mintscan.io/evmos",
     },
     logo: {
@@ -304,12 +304,12 @@ module.exports = {
               path: "/developers/explorers",
             },
             {
-              title: "Blockscout (EVM)",
-              path: "https://evm.evmos.org",
+              title: "Mintscan",
+              path: "https://www.mintscan.io/evmos/",
             },
             {
-              title: "Mintscan (Cosmos)",
-              path: "https://www.mintscan.io/evmos/",
+              title: "Escan",
+              path: "https://escan.live",
             },
           ],
         },

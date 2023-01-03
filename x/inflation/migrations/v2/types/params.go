@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V2Params{}
 
 var (
 	ParamsKey                           = []byte("Params")
@@ -24,14 +24,14 @@ var (
 var (
 	DefaultInflationDenom         = evm.DefaultEVMDenom
 	DefaultInflation              = true
-	DefaultExponentialCalculation = ExponentialCalculation{
+	DefaultExponentialCalculation = V2ExponentialCalculation{
 		A:             sdk.NewDec(int64(300_000_000)),
 		R:             sdk.NewDecWithPrec(50, 2), // 50%
 		C:             sdk.NewDec(int64(9_375_000)),
 		BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
 		MaxVariance:   sdk.ZeroDec(),             // 0%
 	}
-	DefaultInflationDistribution = InflationDistribution{
+	DefaultInflationDistribution = V2InflationDistribution{
 		StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
 		UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
 		CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
@@ -40,11 +40,11 @@ var (
 
 func NewParams(
 	mintDenom string,
-	exponentialCalculation ExponentialCalculation,
-	inflationDistribution InflationDistribution,
+	exponentialCalculation V2ExponentialCalculation,
+	inflationDistribution V2InflationDistribution,
 	enableInflation bool,
-) Params {
-	return Params{
+) V2Params {
+	return V2Params{
 		MintDenom:              mintDenom,
 		ExponentialCalculation: exponentialCalculation,
 		InflationDistribution:  inflationDistribution,
@@ -52,8 +52,8 @@ func NewParams(
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V2Params {
+	return V2Params{
 		MintDenom:              DefaultInflationDenom,
 		ExponentialCalculation: DefaultExponentialCalculation,
 		InflationDistribution:  DefaultInflationDistribution,
@@ -62,7 +62,7 @@ func DefaultParams() Params {
 }
 
 // Implements params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V2Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyMintDenom, &p.MintDenom, validateMintDenom),
 		paramtypes.NewParamSetPair(ParamStoreKeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
@@ -88,7 +88,7 @@ func validateMintDenom(i interface{}) error {
 }
 
 func validateExponentialCalculation(i interface{}) error {
-	v, ok := i.(ExponentialCalculation)
+	v, ok := i.(V2ExponentialCalculation)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -130,7 +130,7 @@ func validateExponentialCalculation(i interface{}) error {
 }
 
 func validateInflationDistribution(i interface{}) error {
-	v, ok := i.(InflationDistribution)
+	v, ok := i.(V2InflationDistribution)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -164,7 +164,7 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V2Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
 	}

@@ -39,12 +39,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
 - (erc20) [#1100](https://github.com/evmos/evmos/pull/1100) Deprecate usage of x/params in x/erc20
 - (inflation) [#1107](https://github.com/evmos/evmos/pull/1107) Deprecate usage of x/params in x/inflation
 - (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of x/params in x/incentives
 - (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
 - (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of x/params in x/revenue
-- (deps) [\#1157](https://github.com/evmos/evmos/pull/1157) Bump Ethermint version to [`v0.20.0-rc4`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc4)
+- (deps) [#1184](https://github.com/evmos/evmos/pull/1184) Bump Ethermint version to [`v0.20.0-rc5`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc5)
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ics23 dragonberry replace in go.mod as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (feat) [\#1070](https://github.com/evmos/evmos/pull/1070) Add amino support to the vesting module, it enables signing the module messages using EIP-712.
@@ -60,13 +61,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Set default mempool configuration to `"v1"` (prioritized mempool)
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
+- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
+- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
 - (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
 - (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new TypedEvent
 - (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
 - (erc20) [\#1059](https://github.com/evmos/evmos/pull/1059) Add util functions (iterator and params) for ERC20 module.
 - (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
-- (deps) [\#1033](https://github.com/evmos/evmos/pull/1033) Bump Cosmos SDK to [`v0.46.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
 - (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
@@ -82,6 +84,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (app) [#1165](https://github.com/evmos/evmos/pull/1165) Update Ledger supported algorithms to only consist of `EthSecp256k1`
 - (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
 - (cmd) [\#1120](https://github.com/evmos/evmos/pull/1120) Fix snapshot configuration
 - (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.

@@ -9,7 +9,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V2Params{}
 
 // Parameter store key
 var (
@@ -25,33 +25,33 @@ var (
 	DefaultPacketTimeoutDuration = 4 * time.Hour
 )
 
-var _ paramtypes.ParamSet = &Params{}
+var _ paramtypes.ParamSet = &V2Params{}
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+	return paramtypes.NewKeyTable().RegisterParamSet(&V2Params{})
 }
 
 // NewParams creates a new Params instance
 func NewParams(
 	enableRecovery bool, timeoutDuration time.Duration,
-) Params {
-	return Params{
+) V2Params {
+	return V2Params{
 		EnableRecovery:        enableRecovery,
 		PacketTimeoutDuration: timeoutDuration,
 	}
 }
 
 // DefaultParams defines the default params for the recovery module
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V2Params {
+	return V2Params{
 		EnableRecovery:        DefaultEnableRecovery,
 		PacketTimeoutDuration: DefaultPacketTimeoutDuration,
 	}
 }
 
 // ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V2Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableRecovery, &p.EnableRecovery, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyPacketTimeoutDuration, &p.PacketTimeoutDuration, validateDuration),
@@ -81,7 +81,7 @@ func validateDuration(i interface{}) error {
 }
 
 // Validate checks that the fields have valid values
-func (p Params) Validate() error {
+func (p V2Params) Validate() error {
 	if err := validateDuration(p.PacketTimeoutDuration); err != nil {
 		return err
 	}
