@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v10.0.1] - 2023-01-03 
+
+### Improvements
+
+- (deps) [#1201](https://github.com/evmos/evmos/pull/1201) Bump `ics23/go` to v0.9.0
+
 ## [v10.0.0] - 2022-12-28
 
 ### State Machine Breaking
