@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
@@ -15,6 +16,7 @@ import (
 	"github.com/evmos/evmos/v10/testutil"
 	"github.com/stretchr/testify/suite"
 
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmostypes "github.com/evmos/evmos/v10/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -113,7 +115,17 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 	}
 }
 
-func (suite *UpgradeTestSuite) TestDistributeTestnetRewards() {
+func (suite *UpgradeTestSuite) TestDistributeRewards() {
+	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
+	suite.Require().True(ok, "error converting rewards account balance")
+
+	rewards, ok := sdk.NewIntFromString("5625000000000000000000000")
+	suite.Require().True(ok, "error converting rewards")
+
+	valCount := int64(len(v11.Validators))
+	expDelegation := rewards.Quo(math.NewInt(valCount))
+	expCommPoolBalance := balance.Sub(rewards)
+
 	testCases := []struct {
 		name            string
 		chainID         string
@@ -137,28 +149,86 @@ func (suite *UpgradeTestSuite) TestDistributeTestnetRewards() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest(evmostypes.MainnetChainID)
-			suite.fundTestnetRewardsAcc()
+			suite.fundTestnetRewardsAcc(balance)
 
-			// call the DistributieTestnetRewards func
+			err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper)
+			suite.Require().NoError(err)
 
 			if tc.expectedSuccess {
+				for i := range v11.Accounts {
+					addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
+					res, _ := sdk.NewIntFromString(v11.Accounts[i][1])
+
+					// balance should be 0 - all reward tokens are delegated
+					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
+					suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+
+					// get staked (delegated) tokens
+					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
+
+					// sum of all delegations should be equal to rewards
+					delegatedAmt := suite.sumDelegations(d)
+					suite.Require().Equal(res, delegatedAmt)
+				}
+				// check delegation for each validator
+				for _, v := range v11.Validators {
+					addr, err := sdk.ValAddressFromBech32(v)
+					suite.Require().NoError(err)
+					// get staked (delegated) tokens
+					d := suite.app.StakingKeeper.GetValidatorDelegations(suite.ctx, addr)
+
+					// sum of all delegations should be equal to rewards
+					delegatedAmt := suite.sumDelegations(d)
+					suite.Require().Equal(expDelegation, delegatedAmt)
+				}
+				// check community pool balance
+				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(v11.CommunityPoolAccount), evmostypes.BaseDenom)
+
+				suite.Require().Equal(expCommPoolBalance, commPoolFinalBalance.Amount)
 			} else {
-				// addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
-				// 	balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
-				// 	suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+				for i := range v11.Accounts {
+					addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
+					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
+					suite.Require().Equal(sdk.NewInt(0), balance.Amount)
+
+					// get staked (delegated) tokens
+					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
+					suite.Require().Equal(0, len(d))
+				}
+				// check delegation for each validator
+				for _, v := range v11.Validators {
+					addr, err := sdk.ValAddressFromBech32(v)
+					suite.Require().NoError(err)
+					// get staked (delegated) tokens
+					d := suite.app.StakingKeeper.GetValidatorDelegations(suite.ctx, addr)
+					suite.Require().Equal(0, len(d))
+				}
+
+				// check community pool balance
+				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(v11.CommunityPoolAccount), evmostypes.BaseDenom)
+
+				suite.Require().Equal(sdk.NewInt(0), commPoolFinalBalance.Amount)
 			}
 		})
 	}
 }
 
-func (suite *UpgradeTestSuite) fundTestnetRewardsAcc() {
-	rewardsAcc, err := sdk.AccAddressFromBech32("evmos1f7vxxvmd544dkkmyxan76t76d39k7j3gr8d45y")
+func (suite *UpgradeTestSuite) fundTestnetRewardsAcc(amount math.Int) {
+	rewardsAcc, err := sdk.AccAddressFromBech32(v11.FundingAccount)
 	suite.Require().NoError(err)
-
-	amount, ok := sdk.NewIntFromString("7399998994000000000000000")
-	suite.Require().True(ok, "error converting rewards account amount")
 
 	rewards := sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, amount))
 	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, rewardsAcc, rewards)
 	suite.Require().NoError(err)
+}
+
+func (suite *UpgradeTestSuite) sumDelegations(ds []stakingtypes.Delegation) math.Int {
+	var sum math.Int
+	for _, d := range ds {
+		val, ok := suite.app.StakingKeeper.GetValidator(suite.ctx, d.GetValidatorAddr())
+		suite.Require().True(ok)
+		amt := val.TokensFromShares(d.GetShares())
+		sum.Add(amt.RoundInt())
+	}
+	return sum
 }
