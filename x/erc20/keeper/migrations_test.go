@@ -8,15 +8,15 @@ import (
 )
 
 type mockSubspace struct {
-	ps v3types.Params
+	ps v3types.V3Params
 }
 
-func newMockSubspace(ps v3types.Params) mockSubspace {
+func newMockSubspace(ps v3types.V3Params) mockSubspace {
 	return mockSubspace{ps: ps}
 }
 
 func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
-	*ps.(*v3types.Params) = ms.ps
+	*ps.(*v3types.V3Params) = ms.ps
 }
 
 func (suite *KeeperTestSuite) TestMigrations() {
