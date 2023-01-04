@@ -11,6 +11,7 @@
 
 package v11
 
+// Accounts to be rewarded.
 var Accounts = [1183][2]string{
 	{"evmos1az0eeqw5222en0enxz9ect3s8xy4kayz7khcn2", "72296498740000000000000"},
 	{"evmos1ksanxvyylh26sdl8ps07y9czmrsg5gmagemgf6", "49028660070000000000000"},
@@ -1197,7 +1198,7 @@ var Accounts = [1183][2]string{
 	{"evmos1zt2nr8fn5k8cg300saseun77dk3lwucwzhuf64", "830994238400000000000"},
 }
 
-// TODO replace with the real validators
+// Validators to be staked to. TODO: replace with real validators.
 var Validators = []string{
 	"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
 	"evmosvaloper1mx9nqk5agvlsvt2yc8259nwztmxq7zjqep5khu",

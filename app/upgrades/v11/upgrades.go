@@ -95,7 +95,6 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 
 // DistributeRewards distributes the token allocations from the Olympus Mons incentivized testnet
 func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper) error {
-	// TODO check the remaining rewards on each iteration to avoid sending more/less than supposed to (similar to v9.1 upgrade)
 	fundingAccountAddress := sdk.MustAccAddressFromBech32(FundingAccount)
 	numValidators := sdk.NewInt(int64(len(Validators)))
 
