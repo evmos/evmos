@@ -113,7 +113,7 @@ module.exports = {
 </CodeGroup>
 
 * To get value for privateKey. 
-  * MetaMask -> Account Details -> Export Private Key -> add '0x' as prefix -> privateKey1
+  * MetaMask -> Account Details -> Export Private Key -> add '0x' as prefix -> `privateKey1`
 
 To ensure you are targeting the correct network, you can query for a list of accounts available to you from your default network provider:
 
@@ -126,8 +126,9 @@ $ npx hardhat accounts
 ...
 ```
 * To make `accounts` command work in recent hardhat (`npx hardhat --version // 2.12.5`)
-add this to hardhat.config.js
-```
+add this to `hardhat.config.js`
+
+```javascript
 task("accounts", "Prints the list of accounts", async () => {
   const accounts = await ethers.getSigners();
 
