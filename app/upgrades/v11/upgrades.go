@@ -146,7 +146,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 				_, err = sk.Delegate(ctx, receivingAccount, remainderAmount, 1, validator, true)
 				if err != nil {
 					return fmt.Errorf(
-						"unable to delegate to validator with address %s",
+						"unable to delegate remainder to validator with address %s",
 						validatorBech32,
 					)
 				}
