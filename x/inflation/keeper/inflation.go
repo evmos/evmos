@@ -149,13 +149,13 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
 
 // GetInflationRate returns the inflation rate for the current period.
 func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
-	epochMintProvision := k.GetEpochMintProvision(ctx)
-	if epochMintProvision.IsZero() {
+	epp := k.GetEpochsPerPeriod(ctx)
+	if epp == 0 {
 		return sdk.ZeroDec()
 	}
 
-	epp := k.GetEpochsPerPeriod(ctx)
-	if epp == 0 {
+	epochMintProvision := k.GetEpochMintProvision(ctx)
+	if epochMintProvision.IsZero() {
 		return sdk.ZeroDec()
 	}
 
@@ -170,12 +170,9 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
 }
 
-// TODO: doc
+// GetEpochMintProvision retireves necessary params from sdk context
+// and calculate EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
-	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
-	if epochsPerPeriod == 0 {
-		return sdk.ZeroDec()
-	}
 	return types.CalculateEpochMintProvision(
 		k.GetParams(ctx),
 		k.GetPeriod(ctx),
