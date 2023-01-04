@@ -175,14 +175,14 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			suite.fundTestnetRewardsAcc(balance)
 
 			if evmostypes.IsMainnet(tc.chainID) {
-				err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper)
+				err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
 				suite.Require().NoError(err)
 			}
 
 			if tc.expectedSuccess {
 				// total remainder that was not delegated
 				totalRem := math.NewInt(0)
-				
+
 				for i := range v11.Accounts {
 					addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
 					res, _ := sdk.NewIntFromString(v11.Accounts[i][1])
@@ -221,7 +221,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 					delegatedAmt := suite.sumDelegations(d)
 					totalDelegations = totalDelegations.Add(delegatedAmt)
-					
+
 					// sum of all delegations should be equal to rewards - remainder (Which is the remainder for each validator)
 					suite.Require().Equal(expDelegation, delegatedAmt)
 				}
