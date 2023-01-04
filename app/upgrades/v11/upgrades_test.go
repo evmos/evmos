@@ -12,26 +12,39 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v10/app"
 	v11 "github.com/evmos/evmos/v10/app/upgrades/v11"
-	"github.com/stretchr/testify/require"
+	"github.com/evmos/evmos/v10/testutil"
+	"github.com/stretchr/testify/suite"
+
+	evmostypes "github.com/evmos/evmos/v10/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 )
 
-func setupTestApp(t *testing.T) (*app.Evmos, sdk.Context) {
-	// consensus key
-	privCons, err := ethsecp256k1.GenerateKey()
-	require.NoError(t, err)
-	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
+type UpgradeTestSuite struct {
+	suite.Suite
 
-	// init app
-	app := app.Setup(false, feemarkettypes.DefaultGenesisState())
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{
+	ctx         sdk.Context
+	app         *app.Evmos
+	consAddress sdk.ConsAddress
+}
+
+func (suite *UpgradeTestSuite) SetupTest(chainID string) {
+	checkTx := false
+
+	// consensus key
+	priv, err := ethsecp256k1.GenerateKey()
+	suite.Require().NoError(err)
+	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
+
+	// NOTE: this is the new binary, not the old one.
+	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: consAddress.Bytes(),
+		ChainID:         chainID,
+		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
+		ProposerAddress: suite.consAddress.Bytes(),
 
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
@@ -51,44 +64,101 @@ func setupTestApp(t *testing.T) (*app.Evmos, sdk.Context) {
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
-	return app, ctx
+
+	cp := suite.app.BaseApp.GetConsensusParams(suite.ctx)
+	suite.ctx = suite.ctx.WithConsensusParams(cp)
 }
 
-func setupEscrowAccounts(app *app.Evmos, ctx sdk.Context, accCount int) {
+func TestUpgradeTestSuite(t *testing.T) {
+	s := new(UpgradeTestSuite)
+	suite.Run(t, s)
+}
+
+func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 	for i := 0; i <= accCount; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 
 		// set accounts as BaseAccounts
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
-		app.AccountKeeper.SetAccount(ctx, baseAcc)
+		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 	}
 }
 
-func TestMigrateEscrowAcc(t *testing.T) {
-	app, ctx := setupTestApp(t)
+func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
+	suite.SetupTest(evmostypes.MainnetChainID)
 
 	// fund some escrow accounts
 	existingAccounts := 30
-	setupEscrowAccounts(app, ctx, existingAccounts)
+	suite.setupEscrowAccounts(existingAccounts)
 
 	// Run migrations
-	v11.MigrateEscrowAccounts(ctx, app.AccountKeeper)
+	v11.MigrateEscrowAccounts(suite.ctx, suite.app.AccountKeeper)
 
 	// check account types for channels 0 to 36
 	for i := 0; i <= 36; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
-		acc := app.AccountKeeper.GetAccount(ctx, addr)
+		acc := suite.app.AccountKeeper.GetAccount(suite.ctx, addr)
 
 		if i > existingAccounts {
-			require.Nil(t, acc, "This account did not exist, it should not be migrated")
+			suite.Require().Nil(acc, "This account did not exist, it should not be migrated")
 			continue
 		}
-		require.NotNil(t, acc)
+		suite.Require().NotNil(acc)
 
 		moduleAcc, isModuleAccount := acc.(*authtypes.ModuleAccount)
-		require.True(t, isModuleAccount)
-		require.NoError(t, moduleAcc.Validate(), "account validation failed")
+		suite.Require().True(isModuleAccount)
+		suite.Require().NoError(moduleAcc.Validate(), "account validation failed")
 	}
+}
+
+func (suite *UpgradeTestSuite) TestDistributeTestnetRewards() {
+	testCases := []struct {
+		name            string
+		chainID         string
+		malleate        func()
+		expectedSuccess bool
+	}{
+		{
+			"Mainnet - success",
+			evmostypes.MainnetChainID + "-4",
+			func() {},
+			true,
+		},
+		{
+			"Testnet - no-op",
+			evmostypes.TestnetChainID + "-4",
+			func() {},
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest(evmostypes.MainnetChainID)
+			suite.fundTestnetRewardsAcc()
+
+			// call the DistributieTestnetRewards func
+
+			if tc.expectedSuccess {
+			} else {
+				// addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
+				// 	balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
+				// 	suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+			}
+		})
+	}
+}
+
+func (suite *UpgradeTestSuite) fundTestnetRewardsAcc() {
+	rewardsAcc, err := sdk.AccAddressFromBech32("evmos1f7vxxvmd544dkkmyxan76t76d39k7j3gr8d45y")
+	suite.Require().NoError(err)
+
+	amount, ok := sdk.NewIntFromString("7399998994000000000000000")
+	suite.Require().True(ok, "error converting rewards account amount")
+
+	rewards := sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, amount))
+	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, rewardsAcc, rewards)
+	suite.Require().NoError(err)
 }
