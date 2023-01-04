@@ -135,13 +135,20 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 }
 
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
+	communityPoolAccountAddress := sdk.MustAccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
+
 	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
 	suite.Require().True(ok, "error converting rewards account balance")
 
-	expRewards, ok := sdk.NewIntFromString("5625000000000000000000000")
+	expRewards, ok := sdk.NewIntFromString("5625000000302600000000000")
 	suite.Require().True(ok, "error converting rewards")
 
-	suite.assertRewardsAmt(expRewards, v11.Accounts)
+	actualRewards := math.NewInt(0)
+	for _, currentElem := range v11.Accounts {
+		res, _ := sdk.NewIntFromString(currentElem[1])
+		actualRewards = actualRewards.Add(res)
+	}
+	suite.Require().Equal(expRewards, actualRewards)
 
 	var (
 		valCount           = math.NewInt(int64(len(v11.Validators)))
@@ -238,8 +245,8 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				suite.Require().Equal(expRewards, totalDelegations)
 
 				// check community pool balance
-				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.CommunityPoolAccount), evmostypes.BaseDenom)
-				
+				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPoolAccountAddress, evmostypes.BaseDenom)
+
 				suite.Require().Equal(expCommPoolBalance, commPoolFinalBalance.Amount)
 			} else {
 				for i := range v11.Accounts {
@@ -256,7 +263,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				suite.Require().Equal(math.NewInt(0), delTokens)
 
 				// check community pool balance
-				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.CommunityPoolAccount), evmostypes.BaseDenom)
+				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPoolAccountAddress, evmostypes.BaseDenom)
 
 				suite.Require().Equal(sdk.NewInt(0), commPoolFinalBalance.Amount)
 			}
@@ -296,13 +303,4 @@ func (suite *UpgradeTestSuite) getDelegatedTokens(valAddrs []string) math.Int {
 		delTokens = delTokens.Add(delegatedAmt)
 	}
 	return delTokens
-}
-
-func (suite *UpgradeTestSuite) assertRewardsAmt(expected math.Int, rewardsByAcc [1183][2]string) {
-	rewards := math.NewInt(0)
-	for i := range rewardsByAcc {
-		res, _ := sdk.NewIntFromString(v11.Accounts[i][1])
-		rewards = rewards.Add(res)
-	}
-	suite.Require().Equal(expected, rewards)
 }

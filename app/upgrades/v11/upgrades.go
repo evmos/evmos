@@ -12,9 +12,13 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+
+	errorsmod "cosmossdk.io/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/evmos/evmos/v10/types"
 )
@@ -92,63 +96,52 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 // DistributeRewards distributes the token allocations from the Olympus Mons incentivized testnet
 func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper) error {
 	// TODO check the remaining rewards on each iteration to avoid sending more/less than supposed to (similar to v9.1 upgrade)
+	fundingAccountAddress := sdk.MustAccAddressFromBech32(FundingAccount)
+	numValidators := sdk.NewInt(int64(len(Validators)))
+
 	for _, currentDistribute := range Accounts {
 
 		// move rewards to the receiving account
 		receivingAccount := sdk.MustAccAddressFromBech32(currentDistribute[0])
 		receivingAmount, ok := sdk.NewIntFromString(currentDistribute[1])
 		if !ok {
-			return fmt.Errorf(
-				"reward distribution to address %s failed due to invalid parsing",
-				currentDistribute[0],
-			)
+			return errorsmod.Wrapf(errortypes.ErrInvalidType,
+				"cannot retrieve allocation from string for address %s",
+				currentDistribute[0])
 		}
 		currentRewards := sdk.Coins{
 			sdk.NewCoin(types.BaseDenom, receivingAmount),
 		}
-		err := bk.SendCoins(ctx, sdk.MustAccAddressFromBech32(FundingAccount), receivingAccount, currentRewards)
+		err := bk.SendCoins(ctx, fundingAccountAddress, receivingAccount, currentRewards)
 		if err != nil {
-			return fmt.Errorf(
-				"unable to send coins from fund account to participant account",
-			)
+			return err
 		}
 
 		// stake from the receiving account to all validators equally
-		numValidators := len(Validators)
-		currentStakeAmount := (currentRewards.QuoInt(sdk.NewInt(int64(numValidators)))).AmountOf(types.BaseDenom)
-		remainderAmount := currentRewards.AmountOf(types.BaseDenom).Mod(sdk.NewInt(int64(numValidators)))
+		currentStakeAmount := (currentRewards.QuoInt(numValidators)[0]).Amount // only one coin in slice
+		remainderAmount := (currentRewards[0].Amount).Mod(numValidators)       // same as above
 		for i, validatorBech32 := range Validators {
 			validatorAddress, err := sdk.ValAddressFromBech32(validatorBech32)
 			if err != nil {
-				return fmt.Errorf(
-					"unable to convert validator address %s",
-					validatorBech32,
-				)
+				return err
 			}
 			validator, found := sk.GetValidator(ctx, validatorAddress)
 			if !found {
-				return fmt.Errorf(
-					"unable to find validator corresponding to address %s",
-					validatorBech32,
-				)
+				return errorsmod.Wrapf(slashingtypes.ErrBadValidatorAddr,
+					"validator address %s cannot be found",
+					validatorAddress)
 			}
 			// 1 signifies unbonded tokens, subtractAccount being true means delegation, not redelegation
 			_, err = sk.Delegate(ctx, receivingAccount, currentStakeAmount, 1, validator, true)
 			if err != nil {
-				return fmt.Errorf(
-					"unable to delegate to validator with address %s",
-					validatorBech32,
-				)
+				return err
 			}
 			// we delegate the remainder to the first validator, for the sake of testing consistency
 			// this remainder is on the order of 10^-18 evmos,  is at most 10^-15 evmos after all rewards allocated
-			if i == 0 {
+			if remainderAmount.IsPositive() && i == 0 {
 				_, err = sk.Delegate(ctx, receivingAccount, remainderAmount, 1, validator, true)
 				if err != nil {
-					return fmt.Errorf(
-						"unable to delegate remainder to validator with address %s",
-						validatorBech32,
-					)
+					return err
 				}
 			}
 		}
@@ -156,11 +149,9 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 
 	// transfer all remaining tokens after distribution to the community pool
 	remainingFunds := bk.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(FundingAccount))
-	err := dk.FundCommunityPool(ctx, remainingFunds, sdk.MustAccAddressFromBech32(FundingAccount))
+	err := dk.FundCommunityPool(ctx, remainingFunds, fundingAccountAddress)
 	if err != nil {
-		return fmt.Errorf(
-			"unable to send coins from fund account to community pool",
-		)
+		return err
 	}
 
 	return nil
