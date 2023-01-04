@@ -564,20 +564,16 @@ func NewEvmos(
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
 	// Create the app.ICAHostKeeper
-	app.ScopedICAHostKeeper = scopedICAHostKeeper
-
-	icaHostKeeper := icahostkeeper.NewKeeper(
+	app.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec, app.keys[icahosttypes.StoreKey],
 		app.GetSubspace(icahosttypes.SubModuleName),
 		app.ClaimsKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
-		app.ScopedICAHostKeeper,
+		scopedICAHostKeeper,
 		bApp.MsgServiceRouter(),
 	)
-
-	app.ICAHostKeeper = icaHostKeeper
 
 	// create host IBC module
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
@@ -831,6 +827,7 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
+	app.ScopedICAHostKeeper = scopedICAHostKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
