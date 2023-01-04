@@ -1197,9 +1197,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v10.UpgradeName:
 		// no store upgrades in v10
 	case v11.UpgradeName:
-		// add ica module in v11
+		// add ica host submodule in v11
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{icatypes.ModuleName},
+			Added: []string{icahosttypes.SubModuleName},
 		}
 	}
 
