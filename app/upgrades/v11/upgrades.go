@@ -19,6 +19,29 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
+var (
+	// create ICS27 Controller submodule params, with the controller module NOT enabled
+	controllerParams = icacontrollertypes.Params{}
+
+	// create ICS27 Host submodule params with a list of allowed messages
+	hostParams = icahosttypes.Params{
+		HostEnabled: true,
+		AllowMessages: []string{
+			sdk.MsgTypeURL(&banktypes.MsgSend{}),
+			sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+			sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+			sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+			sdk.MsgTypeURL(&govtypes.MsgVote{}),
+			sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgCancelUnbondingDelegation{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+			sdk.MsgTypeURL(&transfertypes.MsgTransfer{}),
+		},
+	}
+)
+
 // CreateUpgradeHandler creates an SDK upgrade handler for v11
 func CreateUpgradeHandler(
 	mm *module.Manager,
@@ -29,9 +52,19 @@ func CreateUpgradeHandler(
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		MigrateEscrowAccounts(ctx, ak)
-		InitICAModule(ctx, mm)
 
-		// Leave modules are as-is to avoid running InitGenesis.
+		// cast ica module (stored as AppModule type) to ica.AppModule type in order to use
+		// the InitModule method. This is an alternative to the InitGenesis, which has the advantage,
+		// that the used parameters can directly be passed in.
+		icaModule, correctTypecast := mm.Modules[icatypes.ModuleName].(ica.AppModule)
+		if !correctTypecast {
+			panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
+		}
+
+		// Run InitModule because we are adjusting the ICA host submodule parameters to only allow
+		// selected message types
+		icaModule.InitModule(ctx, controllerParams, hostParams)
+
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -66,36 +99,4 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 		acc := authtypes.NewModuleAccount(baseAcc, accountName)
 		ak.SetModuleAccount(ctx, acc)
 	}
-}
-
-// InitICAModule will initialize the ICA module with the parameters defined in this function.
-func InitICAModule(ctx sdk.Context, mm *module.Manager) {
-	// create ICS27 Controller submodule params, controller module not enabled
-	controllerParams := icacontrollertypes.Params{}
-
-	// create ICS27 Host submodule params
-	hostParams := icahosttypes.Params{
-		HostEnabled: true,
-		AllowMessages: []string{
-			sdk.MsgTypeURL(&banktypes.MsgSend{}),
-			sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
-			sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
-			sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
-			sdk.MsgTypeURL(&govtypes.MsgVote{}),
-			sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgCancelUnbondingDelegation{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
-			sdk.MsgTypeURL(&transfertypes.MsgTransfer{}),
-		},
-	}
-
-	// initialize ICS27 module
-	icaModule, correctTypecast := mm.Modules[icatypes.ModuleName].(ica.AppModule)
-	if !correctTypecast {
-		panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
-	}
-
-	icaModule.InitModule(ctx, controllerParams, hostParams)
 }
