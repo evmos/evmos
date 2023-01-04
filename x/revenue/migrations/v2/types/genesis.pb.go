@@ -25,26 +25,26 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the module's genesis state.
-type GenesisState struct {
-	// params are the revenue module parameters
-	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+// V2GenesisState defines the module's genesis state.
+type V2GenesisState struct {
+	// V2Params are the revenue module parameters
+	V2Params V2Params `protobuf:"bytes,1,opt,name=V2Params,proto3" json:"V2Params"`
 	// revenues is a slice of active registered contracts for fee distribution
 	Revenues []types.Revenue `protobuf:"bytes,2,rep,name=revenues,proto3" json:"revenues"`
 }
 
-func (m *GenesisState) Reset()         { *m = GenesisState{} }
-func (m *GenesisState) String() string { return proto.CompactTextString(m) }
-func (*GenesisState) ProtoMessage()    {}
-func (*GenesisState) Descriptor() ([]byte, []int) {
+func (m *V2GenesisState) Reset()         { *m = V2GenesisState{} }
+func (m *V2GenesisState) String() string { return proto.CompactTextString(m) }
+func (*V2GenesisState) ProtoMessage()    {}
+func (*V2GenesisState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_649d64d9c3438055, []int{0}
 }
-func (m *GenesisState) XXX_Unmarshal(b []byte) error {
+func (m *V2GenesisState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V2GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GenesisState.Marshal(b, m, deterministic)
+		return xxx_messageInfo_V2GenesisState.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -54,34 +54,34 @@ func (m *GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-func (m *GenesisState) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GenesisState.Merge(m, src)
+func (m *V2GenesisState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_V2GenesisState.Merge(m, src)
 }
-func (m *GenesisState) XXX_Size() int {
+func (m *V2GenesisState) XXX_Size() int {
 	return m.Size()
 }
-func (m *GenesisState) XXX_DiscardUnknown() {
-	xxx_messageInfo_GenesisState.DiscardUnknown(m)
+func (m *V2GenesisState) XXX_DiscardUnknown() {
+	xxx_messageInfo_V2GenesisState.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GenesisState proto.InternalMessageInfo
+var xxx_messageInfo_V2GenesisState proto.InternalMessageInfo
 
-func (m *GenesisState) GetParams() Params {
+func (m *V2GenesisState) GetV2Params() V2Params {
 	if m != nil {
-		return m.Params
+		return m.V2Params
 	}
-	return Params{}
+	return V2Params{}
 }
 
-func (m *GenesisState) GetRevenues() []types.Revenue {
+func (m *V2GenesisState) GetRevenues() []types.Revenue {
 	if m != nil {
 		return m.Revenues
 	}
 	return nil
 }
 
-// Params defines the revenue module params
-type Params struct {
+// V2Params defines the revenue module V2Params
+type V2Params struct {
 	// enable_revenue defines a parameter to enable the revenue module
 	EnableRevenue bool `protobuf:"varint,1,opt,name=enable_revenue,json=enableRevenue,proto3" json:"enable_revenue,omitempty"`
 	// developer_shares defines the proportion of the transaction fees to be
@@ -92,18 +92,18 @@ type Params struct {
 	AddrDerivationCostCreate uint64 `protobuf:"varint,3,opt,name=addr_derivation_cost_create,json=addrDerivationCostCreate,proto3" json:"addr_derivation_cost_create,omitempty"`
 }
 
-func (m *Params) Reset()         { *m = Params{} }
-func (m *Params) String() string { return proto.CompactTextString(m) }
-func (*Params) ProtoMessage()    {}
-func (*Params) Descriptor() ([]byte, []int) {
+func (m *V2Params) Reset()         { *m = V2Params{} }
+func (m *V2Params) String() string { return proto.CompactTextString(m) }
+func (*V2Params) ProtoMessage()    {}
+func (*V2Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_649d64d9c3438055, []int{1}
 }
-func (m *Params) XXX_Unmarshal(b []byte) error {
+func (m *V2Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *V2Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Params.Marshal(b, m, deterministic)
+		return xxx_messageInfo_V2Params.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -113,26 +113,26 @@ func (m *Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Params) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Params.Merge(m, src)
+func (m *V2Params) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_V2Params.Merge(m, src)
 }
-func (m *Params) XXX_Size() int {
+func (m *V2Params) XXX_Size() int {
 	return m.Size()
 }
-func (m *Params) XXX_DiscardUnknown() {
-	xxx_messageInfo_Params.DiscardUnknown(m)
+func (m *V2Params) XXX_DiscardUnknown() {
+	xxx_messageInfo_V2Params.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Params proto.InternalMessageInfo
+var xxx_messageInfo_V2Params proto.InternalMessageInfo
 
-func (m *Params) GetEnableRevenue() bool {
+func (m *V2Params) GetEnableRevenue() bool {
 	if m != nil {
 		return m.EnableRevenue
 	}
 	return false
 }
 
-func (m *Params) GetAddrDerivationCostCreate() uint64 {
+func (m *V2Params) GetAddrDerivationCostCreate() uint64 {
 	if m != nil {
 		return m.AddrDerivationCostCreate
 	}
@@ -140,8 +140,8 @@ func (m *Params) GetAddrDerivationCostCreate() uint64 {
 }
 
 func init() {
-	proto.RegisterType((*GenesisState)(nil), "evmos.revenue.v1.GenesisState")
-	proto.RegisterType((*Params)(nil), "evmos.revenue.v1.Params")
+	proto.RegisterType((*V2GenesisState)(nil), "evmos.revenue.v1.V2GenesisState")
+	proto.RegisterType((*V2Params)(nil), "evmos.revenue.v1.V2Params")
 }
 
 func init() { proto.RegisterFile("evmos/revenue/v1/genesis.proto", fileDescriptor_649d64d9c3438055) }
@@ -172,7 +172,7 @@ var fileDescriptor_649d64d9c3438055 = []byte{
 	0xae, 0xbe, 0x03, 0x00, 0x00, 0xff, 0xff, 0x16, 0xe7, 0x21, 0x0b, 0x08, 0x02, 0x00, 0x00,
 }
 
-func (m *GenesisState) Marshal() (dAtA []byte, err error) {
+func (m *V2GenesisState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -182,12 +182,12 @@ func (m *GenesisState) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GenesisState) MarshalTo(dAtA []byte) (int, error) {
+func (m *V2GenesisState) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V2GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -207,7 +207,7 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		}
 	}
 	{
-		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.V2Params.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -219,7 +219,7 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Params) Marshal() (dAtA []byte, err error) {
+func (m *V2Params) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -229,12 +229,12 @@ func (m *Params) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Params) MarshalTo(dAtA []byte) (int, error) {
+func (m *V2Params) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *V2Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -278,13 +278,13 @@ func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *GenesisState) Size() (n int) {
+func (m *V2GenesisState) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Params.Size()
+	l = m.V2Params.Size()
 	n += 1 + l + sovGenesis(uint64(l))
 	if len(m.Revenues) > 0 {
 		for _, e := range m.Revenues {
@@ -295,7 +295,7 @@ func (m *GenesisState) Size() (n int) {
 	return n
 }
 
-func (m *Params) Size() (n int) {
+func (m *V2Params) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -318,7 +318,7 @@ func sovGenesis(x uint64) (n int) {
 func sozGenesis(x uint64) (n int) {
 	return sovGenesis(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *GenesisState) Unmarshal(dAtA []byte) error {
+func (m *V2GenesisState) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -341,15 +341,15 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GenesisState: wiretype end group for non-group")
+			return fmt.Errorf("proto: V2GenesisState: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GenesisState: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: V2GenesisState: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field V2Params", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -376,7 +376,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.V2Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -435,7 +435,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Params) Unmarshal(dAtA []byte) error {
+func (m *V2Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -458,10 +458,10 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Params: wiretype end group for non-group")
+			return fmt.Errorf("proto: V2Params: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Params: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: V2Params: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

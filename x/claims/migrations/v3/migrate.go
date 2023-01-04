@@ -19,7 +19,7 @@ func MigrateStore(
 	cdc codec.BinaryCodec,
 ) error {
 	store := ctx.KVStore(storeKey)
-	var params v3types.Params
+	var params v3types.V3Params
 
 	legacySubspace.GetParamSetIfExists(ctx, &params)
 

@@ -29,9 +29,9 @@ type EventRegisterRevenue struct {
 	DeployerAddress string `protobuf:"bytes,1,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// contract_address in hex format
 	ContractAddress string `protobuf:"bytes,2,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
-	// effective_withdrawer is the withdraw address that is stored after the
+	// effective_withdrawer is the withdrawer address that is stored after the
 	// revenue registration is completed. It defaults to the deployer address if
-	// the withdraw address in the msg is omitted. When omitted, the withdraw map
+	// the withdrawer address in the msg is omitted. When omitted, the withdraw map
 	// doesn't need to be set.
 	EffectiveWithdrawer string `protobuf:"bytes,3,opt,name=effective_withdrawer,json=effectiveWithdrawer,proto3" json:"effective_withdrawer,omitempty"`
 }
