@@ -170,7 +170,7 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
 }
 
-// GetEpochMintProvision retireves necessary params from sdk context
+// GetEpochMintProvision retireves necessary params KV storage
 // and calculate EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
 	return types.CalculateEpochMintProvision(
