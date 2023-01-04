@@ -61,8 +61,6 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		panic(err)
 	}
 
-	newProvision := epochMintProvision
-
 	// If period is passed, update the period and epochMintProvision. A period is
 	// passed if the current epoch number surpasses the epochsPerPeriod for the
 	// current period. Skipped epochs are subtracted to only account for epochs
@@ -113,7 +111,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		sdk.NewEvent(
 			types.EventTypeMint,
 			sdk.NewAttribute(types.AttributeEpochNumber, fmt.Sprintf("%d", epochNumber)),
-			sdk.NewAttribute(types.AttributeKeyEpochProvisions, newProvision.String()),
+			sdk.NewAttribute(types.AttributeKeyEpochProvisions, epochMintProvision.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
 		),
 	)

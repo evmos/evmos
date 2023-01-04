@@ -91,14 +91,6 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 		expInflationRate sdk.Dec
 	}{
 		{
-			"no mint provision",
-			400_000_000,
-			func() {
-				suite.app.InflationKeeper.SetEpochMintProvision(suite.ctx, sdk.ZeroDec())
-			},
-			sdk.ZeroDec(),
-		},
-		{
 			"no epochs per period",
 			400_000_000,
 			func() {
