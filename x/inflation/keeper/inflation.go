@@ -170,8 +170,9 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
 }
 
-// TODO:
+// TODO: doc
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
+	// TODO: params validation?
 	return types.CalculateEpochMintProvision(
 		k.GetParams(ctx),
 		k.GetPeriod(ctx),
