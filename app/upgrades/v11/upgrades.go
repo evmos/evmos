@@ -92,7 +92,7 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper) error {
 	for _, currentDistribute := range Accounts {
 
-		// move rewards to the recieving account
+		// move rewards to the receiving account
 		receivingAccount := sdk.MustAccAddressFromBech32(currentDistribute[0])
 		receivingAmount, err := strconv.ParseInt(currentDistribute[1], 10, 64)
 		if err != nil {
@@ -111,7 +111,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			)
 		}
 
-		// stake from the recieving account to all validators equally
+		// stake from the receiving account to all validators equally
 		numValidators := len(Validators)
 		currentStakeAmount := (currentRewards.QuoInt(sdk.NewInt(int64(numValidators)))).AmountOf("aevmos")
 		for _, validatorBech32 := range Validators {
