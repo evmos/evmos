@@ -1120,6 +1120,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.AccountKeeper,
 			app.BankKeeper,
 			app.StakingKeeper,
+			app.DistrKeeper,
 		),
 	)
 

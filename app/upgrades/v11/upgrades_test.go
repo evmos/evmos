@@ -144,7 +144,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	suite.assertRewardsAmt(expRewards, v11.Accounts)
 
 	var (
-		valCount = math.NewInt(int64(len(v11.Validators)))
+		valCount           = math.NewInt(int64(len(v11.Validators)))
 		expCommPoolBalance = balance.Sub(expRewards)
 		noRewardAddr       = sdk.MustAccAddressFromBech32("evmos1009egsf8sk3puq3aynt8eymmcqnneezkkvceav")
 	)
