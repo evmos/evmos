@@ -122,9 +122,12 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	rewards, ok := sdk.NewIntFromString("5625000000000000000000000")
 	suite.Require().True(ok, "error converting rewards")
 
-	valCount := int64(len(v11.Validators))
-	expDelegation := rewards.Quo(math.NewInt(valCount))
-	expCommPoolBalance := balance.Sub(rewards)
+	var (
+		valCount           = int64(len(v11.Validators))
+		expDelegation      = rewards.Quo(math.NewInt(valCount))
+		expCommPoolBalance = balance.Sub(rewards)
+		noRewardAddr       = sdk.MustAccAddressFromBech32("evmos1009egsf8sk3puq3aynt8eymmcqnneezkkvceav")
+	)
 
 	testCases := []struct {
 		name            string
@@ -170,6 +173,16 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 					delegatedAmt := suite.sumDelegations(d)
 					suite.Require().Equal(res, delegatedAmt)
 				}
+
+				// account not in list should NOT get rewards
+				// balance should be 0 - all reward tokens are delegated
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, noRewardAddr, evmostypes.BaseDenom)
+				suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+
+				// get staked (delegated) tokens
+				d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
+				suite.Require().Empty(d)
+
 				// check delegation for each validator
 				for _, v := range v11.Validators {
 					addr, err := sdk.ValAddressFromBech32(v)
@@ -193,7 +206,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 					// get staked (delegated) tokens
 					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
-					suite.Require().Equal(0, len(d))
+					suite.Require().Empty(d)
 				}
 				// check delegation for each validator
 				for _, v := range v11.Validators {
@@ -201,7 +214,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 					suite.Require().NoError(err)
 					// get staked (delegated) tokens
 					d := suite.app.StakingKeeper.GetValidatorDelegations(suite.ctx, addr)
-					suite.Require().Equal(0, len(d))
+					suite.Require().Empty(d)
 				}
 
 				// check community pool balance
