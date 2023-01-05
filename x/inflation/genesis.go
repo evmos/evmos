@@ -38,18 +38,6 @@ func InitGenesis(
 
 	skippedEpochs := data.SkippedEpochs
 	k.SetSkippedEpochs(ctx, skippedEpochs)
-
-	// Get bondedRatio
-	bondedRatio := k.BondedRatio(ctx)
-
-	// Calculate epoch mint provision
-	epochMintProvision := types.CalculateEpochMintProvision(
-		params,
-		period,
-		epochsPerPeriod,
-		bondedRatio,
-	)
-	k.SetEpochMintProvision(ctx, epochMintProvision)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
