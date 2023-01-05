@@ -142,7 +142,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			}
 			// we delegate the remainder to the first validator, for the sake of testing consistency
 			// this remainder is on the order of 10^-18 evmos,  is at most 10^-15 evmos after all rewards allocated
-			if i == 0 {
+			if remainderAmount.IsPositive() && i == 0 {
 				_, err = sk.Delegate(ctx, receivingAccount, remainderAmount, 1, validator, true)
 				if err != nil {
 					return fmt.Errorf(
