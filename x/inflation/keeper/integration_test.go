@@ -28,7 +28,69 @@ var _ = Describe("Inflation", Ordered, func() {
 	Describe("Committing a block", func() {
 		addr := s.app.AccountKeeper.GetModuleAddress(incentivestypes.ModuleName)
 
-		Context("with inflation enabled and parameters changed", func() {
+		Context("with inflation param enabled and exponential calculation params changed", func() {
+			BeforeEach(func() {
+				params := s.app.InflationKeeper.GetParams(s.ctx)
+				params.EnableInflation = true
+				params.ExponentialCalculation = types.ExponentialCalculation{
+					A:             sdk.NewDec(int64(300_000_000)),
+					R:             sdk.NewDecWithPrec(50, 2), // 50%
+					C:             sdk.NewDec(int64(9_375_000)),
+					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
+					MaxVariance:   sdk.ZeroDec(),             // 0%
+				}
+				s.app.InflationKeeper.SetParams(s.ctx, params)
+			})
+
+			Context("before an epoch ends", func() {
+				BeforeEach(func() {
+					s.CommitAfter(time.Minute)    // Start Epoch
+					s.CommitAfter(time.Hour * 23) // End Epoch
+				})
+
+				It("should not allocate funds to usage incentives", func() {
+					balance := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+					Expect(balance.IsZero()).To(BeTrue())
+				})
+				It("should not allocate funds to the community pool", func() {
+					balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					Expect(balance.IsZero()).To(BeTrue())
+				})
+			})
+
+			Context("after an epoch ends", func() {
+				BeforeEach(func() {
+					s.CommitAfter(time.Minute)    // Start Epoch
+					s.CommitAfter(time.Hour * 25) // End Epoch
+				})
+
+				It("should allocate funds to usage incentives", func() {
+					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+
+					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					params := s.app.InflationKeeper.GetParams(s.ctx)
+					distribution := params.InflationDistribution.UsageIncentives
+					expected := (provision.Mul(distribution)).TruncateInt()
+
+					Expect(actual.IsZero()).ToNot(BeTrue())
+					Expect(actual.Amount).To(Equal(expected))
+				})
+
+				It("should allocate funds to the community pool", func() {
+					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+
+					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					params := s.app.InflationKeeper.GetParams(s.ctx)
+					distribution := params.InflationDistribution.CommunityPool
+					expected := provision.Mul(distribution)
+
+					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+				})
+			})
+		})
+
+		Context("with inflation param enabled and distribution params changed", func() {
 			BeforeEach(func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = true
