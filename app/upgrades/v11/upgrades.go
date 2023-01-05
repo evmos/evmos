@@ -54,9 +54,9 @@ func CreateUpgradeHandler(
 
 		MigrateEscrowAccounts(ctx, ak)
 
-		// cast ica module (stored as AppModule type) to ica.AppModule type in order to use
-		// the InitModule method. This is an alternative to the InitGenesis, which has the advantage,
-		// that the used parameters can directly be passed in.
+		// cast ica module (stored as AppModule type in module manager) to ica.AppModule type in order
+		// to use the InitModule method. This is an alternative to InitGenesis, and has the advantage,
+		// that the used parameters for the ica controller and host can directly be passed in.
 		icaModule, correctTypecast := mm.Modules[icatypes.ModuleName].(ica.AppModule)
 		if !correctTypecast {
 			panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
