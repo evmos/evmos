@@ -35,7 +35,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				params.ExponentialCalculation = types.ExponentialCalculation{
 					A:             sdk.NewDec(int64(300_000_000)),
 					R:             sdk.NewDecWithPrec(60, 2), // 60%
-					C:             sdk.NewDec(int64(9_375_000)),
+					C:             sdk.NewDec(int64(6_375_000)),
 					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
 					MaxVariance:   sdk.ZeroDec(),             // 0%
 				}
@@ -63,11 +63,11 @@ var _ = Describe("Inflation", Ordered, func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
 				})
-				
+
 				It("should allocate funds to usage incentives", func() {
 					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
 
-					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
 					distribution := params.InflationDistribution.UsageIncentives
 					expected := (provision.Mul(distribution)).TruncateInt()
@@ -79,7 +79,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to the community pool", func() {
 					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 
-					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
 					distribution := params.InflationDistribution.CommunityPool
 					expected := provision.Mul(distribution)
@@ -128,7 +128,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to usage incentives", func() {
 					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
 
-					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
 					distribution := params.InflationDistribution.UsageIncentives
 					expected := (provision.Mul(distribution)).TruncateInt()
@@ -140,7 +140,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to the community pool", func() {
 					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 
-					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
 					distribution := params.InflationDistribution.CommunityPool
 					expected := provision.Mul(distribution)
