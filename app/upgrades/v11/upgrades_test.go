@@ -314,8 +314,11 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 				// check community pool balance
 				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPoolAccountAddress, evmostypes.BaseDenom)
-
 				suite.Require().Equal(expCommPoolBalance, commPoolFinalBalance.Amount)
+
+				// Funding acc balance should be 0 after the rewards distribution
+				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.FundingAccount), evmostypes.BaseDenom)
+				suite.Require().Equal(math.NewInt(0), finalFundingAccBalance.Amount)
 			} else { // no-op
 				for i := range v11.Accounts {
 					addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
