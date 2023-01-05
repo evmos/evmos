@@ -11,7 +11,6 @@ The `x/inflation` module keeps the following objects in state:
 | State Object       | Description                    | Key         | Value                        | Store |
 | ------------------ | ------------------------------ | ----------- | ---------------------------- | ----- |
 | Period             | Period Counter                 | `[]byte{1}` | `[]byte{period}`             | KV    |
-| EpochMintProvision | Epoch mint provision bytes     | `[]byte{2}` | `[]byte{epochMintProvision}` | KV    |
 | EpochIdentifier    | Epoch identifier bytes         | `[]byte{3}` | `[]byte{epochIdentifier}`    | KV    |
 | EpochsPerPeriod    | Epochs per period bytes        | `[]byte{4}` | `[]byte{epochsPerPeriod}`    | KV    |
 | SkippedEpochs      | Number of skipped epochs bytes | `[]byte{5}` | `[]byte{skippedEpochs}`      | KV    |
@@ -19,10 +18,6 @@ The `x/inflation` module keeps the following objects in state:
 ### Period
 
 Counter to keep track of amount of past periods, based on the epochs per period.
-
-### EpochMintProvision
-
-Amount of tokens that are allocated for exponential inflation each epoch.
 
 ### EpochIdentifier
 
