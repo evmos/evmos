@@ -34,7 +34,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				params.EnableInflation = true
 				params.ExponentialCalculation = types.ExponentialCalculation{
 					A:             sdk.NewDec(int64(300_000_000)),
-					R:             sdk.NewDecWithPrec(50, 2), // 50%
+					R:             sdk.NewDecWithPrec(60, 2), // 60%
 					C:             sdk.NewDec(int64(9_375_000)),
 					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
 					MaxVariance:   sdk.ZeroDec(),             // 0%
@@ -63,7 +63,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
 				})
-
+				
 				It("should allocate funds to usage incentives", func() {
 					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
 
@@ -112,6 +112,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					balance := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
 					Expect(balance.IsZero()).To(BeTrue())
 				})
+
 				It("should not allocate funds to the community pool", func() {
 					balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 					Expect(balance.IsZero()).To(BeTrue())
@@ -135,6 +136,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(actual.IsZero()).ToNot(BeTrue())
 					Expect(actual.Amount).To(Equal(expected))
 				})
+
 				It("should allocate funds to the community pool", func() {
 					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 
