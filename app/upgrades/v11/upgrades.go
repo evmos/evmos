@@ -112,6 +112,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		}
 
 		// stake from the receiving account to all validators equally
+		// ?? Q: Should we delegate the remainder too? rem := currentRewards.Mod(numValidators). To which validator?
 		numValidators := len(Validators)
 		currentStakeAmount := (currentRewards.QuoInt(sdk.NewInt(int64(numValidators)))).AmountOf(types.BaseDenom)
 		for _, validatorBech32 := range Validators {
