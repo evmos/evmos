@@ -180,7 +180,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			suite.Require().Equal(math.NewInt(0), initialDel)
 
 			if evmostypes.IsMainnet(tc.chainID) {
-				err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper)
+				err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
 				suite.Require().NoError(err)
 			}
 

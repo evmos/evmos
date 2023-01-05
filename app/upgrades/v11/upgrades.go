@@ -11,6 +11,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
@@ -25,13 +26,14 @@ func CreateUpgradeHandler(
 	ak authkeeper.AccountKeeper,
 	bk bankkeeper.Keeper,
 	sk stakingkeeper.Keeper,
+	dk distributionkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("distributing incentivized testnet rewards...")
-			HandleRewardDistribution(ctx, bk, sk, logger)
+			HandleRewardDistribution(ctx, bk, sk, dk, logger)
 		}
 
 		MigrateEscrowAccounts(ctx, ak)
@@ -74,11 +76,11 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 }
 
 // HandleMainnetUpgrade handles the logic for the reward distribution, it only commits to the db if successful
-func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, logger log.Logger) {
+func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper, logger log.Logger) {
 	// use a cache context as a rollback mechanism in case
 	// the distrbution fails
 	cacheCtx, writeFn := ctx.CacheContext()
-	err := DistributeRewards(cacheCtx, bk, sk)
+	err := DistributeRewards(cacheCtx, bk, sk, dk)
 	if err != nil {
 		// log error instead of aborting the upgrade
 		logger.Error("failed to distribute rewards", "error", err.Error())
@@ -88,7 +90,7 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 }
 
 // DistributeRewards distributes the token allocations from the Olympus Mons incentivized testnet
-func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper) error {
+func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper) error {
 	// TODO check the remaining rewards on each iteration to avoid sending more/less than supposed to (similar to v9.1 upgrade)
 	for _, currentDistribute := range Accounts {
 
@@ -112,10 +114,10 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		}
 
 		// stake from the receiving account to all validators equally
-		// ?? Q: Should we delegate the remainder too? rem := currentRewards.Mod(numValidators). To which validator?
 		numValidators := len(Validators)
 		currentStakeAmount := (currentRewards.QuoInt(sdk.NewInt(int64(numValidators)))).AmountOf(types.BaseDenom)
-		for _, validatorBech32 := range Validators {
+		remainderAmount := currentRewards.AmountOf(types.BaseDenom).Mod(sdk.NewInt(int64(numValidators)))
+		for i, validatorBech32 := range Validators {
 			validatorAddress, err := sdk.ValAddressFromBech32(validatorBech32)
 			if err != nil {
 				return fmt.Errorf(
@@ -138,12 +140,23 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 					validatorBech32,
 				)
 			}
+			// we delegate the remainder to the first validator, for the sake of testing consistency
+			// this remainder is on the order of 10^-18 evmos,  is at most 10^-15 evmos after all rewards allocated
+			if i == 0 {
+				_, err = sk.Delegate(ctx, receivingAccount, remainderAmount, 1, validator, true)
+				if err != nil {
+					return fmt.Errorf(
+						"unable to delegate to validator with address %s",
+						validatorBech32,
+					)
+				}
+			}
 		}
 	}
 
 	// transfer all remaining tokens after distribution to the community pool
 	remainingFunds := bk.GetAllBalances(ctx, sdk.AccAddress(FundingAccount))
-	err := bk.SendCoins(ctx, sdk.AccAddress(FundingAccount), sdk.AccAddress(CommunityPoolAccount), remainingFunds)
+	err := dk.FundCommunityPool(ctx, remainingFunds, sdk.AccAddress(FundingAccount))
 	if err != nil {
 		return fmt.Errorf(
 			"unable to send coins from fund account to community pool",
