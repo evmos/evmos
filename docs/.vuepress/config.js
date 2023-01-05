@@ -26,6 +26,13 @@ module.exports = {
         href: "https://cdn.jsdelivr.net/github-markdown-css/2.2.1/github-markdown.css",
       },
     ],
+    [
+      "link",
+      {
+        rel: "stylesheet",
+        href:   "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML",
+      },
+    ]
   ],
   base: process.env.VUEPRESS_BASE || "/",
   plugins: [
